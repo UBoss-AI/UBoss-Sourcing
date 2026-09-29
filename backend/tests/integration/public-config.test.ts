@@ -24,6 +24,7 @@ afterAll(async () => {
 
 interface ConfigResponse {
   business: Record<string, unknown>;
+  captcha: Record<string, unknown>;
   features: Record<string, unknown>;
   localisation: Record<string, unknown>;
   marketplace: Record<string, unknown>;
@@ -49,8 +50,10 @@ describe('GET /api/v1/config', () => {
       // boolean the storefront has to interpret.
       'assistant',
       'business',
-      // The storefront's bot check: which provider, and its PUBLIC site key.
-      // The secret never leaves the server.
+      // Which bot check the sign-up and sign-in forms must draw, and its
+      // site key. A site key is public by the provider's design - it is
+      // embedded in every page that shows the widget. The secret key never
+      // leaves the server; the assertion below pins that.
       'captcha',
       'features',
       // The two rules the storefront has to draw a calendar and a warehouse
@@ -70,6 +73,8 @@ describe('GET /api/v1/config', () => {
     ]);
 
     expect(Object.keys(body.ordering).sort()).toEqual(['piecesPerCarton']);
+
+    expect(Object.keys(body.captcha).sort()).toEqual(['provider', 'siteKey']);
 
     // The operator team's name is shown to every customer and seller, so it
     // is public by nature (OPERATOR_TEAM_NAME, else the trading name).
@@ -125,7 +130,8 @@ describe('GET /api/v1/config', () => {
       // so its cards never lead to a feature this deployment switched off.
       'customerAutopay',
       'customerErp',
-      // Whether buyers and sellers are offered two-step sign-in. A boolean.
+      // Whether a buyer may turn on two-step sign-in from their profile
+      // (FEATURE_CUSTOMER_MFA). A boolean; who has it on is never public.
       'customerMfa',
       // Whether the camera button on the search bar can do anything. Tracks
       // `assistant` today — image search is a vision call on the same provider

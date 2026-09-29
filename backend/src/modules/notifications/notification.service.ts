@@ -51,6 +51,9 @@ export const NotificationEvent = {
   /// Somebody was asked to join a buyer company in a role. Worded in the
   /// inviter's language, because the invitee may have no account yet.
   BUYER_COMPANY_INVITATION: 'buyer_company.invitation',
+  /// Somebody was asked to join a seller's team in a role (Master row 14).
+  /// Worded in the inviter's language, like the buyer-company invitation.
+  SELLER_TEAM_INVITATION: 'seller.team_invitation',
   /// A new staff account and the temporary password that opens it once.
   STAFF_TEMPORARY_PASSWORD: 'staff.temporary_password',
   USER_PASSWORD_RESET: 'user.password_reset',
@@ -414,6 +417,7 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
     },
     [NotificationEvent.BUYER_COMPANY_EMAIL_CODE]: LOCALISED_FRAME,
     [NotificationEvent.BUYER_COMPANY_INVITATION]: LOCALISED_FRAME,
+    [NotificationEvent.SELLER_TEAM_INVITATION]: LOCALISED_FRAME,
     [NotificationEvent.SHIPMENT_DELIVERY_CODE]: LOCALISED_FRAME,
     [NotificationEvent.BUYER_COMPANY_SUBMITTED]: LOCALISED_FRAME,
     [NotificationEvent.BUYER_COMPANY_REVIEW_STARTED]: LOCALISED_FRAME,

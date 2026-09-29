@@ -152,7 +152,7 @@ async function scanDocument(
  *
  * CLEAN always. `SCANNER_UNCONFIGURED` and `PENDING_SCAN` only where the
  * operator has said so - `SELLER_ALLOW_UNSCANNED_DOCUMENTS`, which defaults to
- * TRUE and explains itself in `config/env.ts`. INFECTED and SCAN_FAILED never,
+ * FALSE and explains itself in `config/env.ts`. INFECTED and SCAN_FAILED never,
  * and PENDING is on the permissive side of that line only because nothing in
  * this repository ever moves a file off it: "the scan has not finished" would
  * belong with the refusals the moment a scanner exists to finish one.
@@ -529,6 +529,23 @@ export async function withdrawSellerDocument(
     throw conflict(
       ErrorCode.CONFLICT,
       'This document has been accepted and is part of your approval. Upload a newer one instead.',
+    );
+  }
+
+  // Evidence for a factory or a certificate (Master row 13). Withdrawing it
+  // deletes the bytes, and a reviewer would then be deciding - or a
+  // verification would stand - on a file nobody can open.
+  const inUse =
+    (await prisma.sellerFactoryEvidence.count({
+      where: { documentId: row.id, factory: { sellerAccountId: row.sellerAccountId, archivedAt: null } },
+    })) +
+    (await prisma.sellerCertification.count({
+      where: { documentId: row.id, sellerAccountId: row.sellerAccountId, archivedAt: null },
+    }));
+  if (inUse > 0) {
+    throw conflict(
+      ErrorCode.TRUST_EVIDENCE_IN_USE,
+      'This document is evidence for a factory or a certificate. Remove it there first.',
     );
   }
 

@@ -339,7 +339,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
    */
   app.patch(
     '/listings/:id/price',
-    { preHandler: requireSeller(SellerPermission.OFFER_PRICE_WRITE) },
+    { preHandler: requireTradingSeller(SellerPermission.OFFER_PRICE_WRITE) },
     async (request, reply) => {
       const params = idParam.parse(request.params);
       const body = z
@@ -512,7 +512,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
    */
   app.post(
     '/listings/:id/pause-for-edit',
-    { preHandler: requireSeller(SellerPermission.OFFER_PUBLISH) },
+    { preHandler: requireTradingSeller(SellerPermission.OFFER_PUBLISH) },
     async (request, reply) => {
       const params = idParam.parse(request.params);
 
@@ -619,7 +619,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
   /** Make one of a listing's photos the one buyers see first. Writes an audit entry. */
   app.patch(
     '/listings/:id/photos/:mediaId',
-    { preHandler: requireSeller(SellerPermission.MEDIA_UPLOAD) },
+    { preHandler: requireTradingSeller(SellerPermission.MEDIA_UPLOAD) },
     async (request, reply) => {
       const params = z
         .object({ id: z.string().length(26), mediaId: z.string().length(26) })
@@ -647,7 +647,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
    */
   app.delete(
     '/listings/:id/photos/:mediaId',
-    { preHandler: requireSeller(SellerPermission.MEDIA_UPLOAD) },
+    { preHandler: requireTradingSeller(SellerPermission.MEDIA_UPLOAD) },
     async (request, reply) => {
       const params = z
         .object({ id: z.string().length(26), mediaId: z.string().length(26) })
@@ -768,7 +768,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
   app.put(
     '/listing-drafts/:id/content',
     {
-      preHandler: requireSeller(SellerPermission.LISTING_WRITE),
+      preHandler: requireTradingSeller(SellerPermission.LISTING_WRITE),
       config: { rateLimit: { max: 120, timeWindow: '5 minutes' } },
     },
     async (request, reply) => {
@@ -799,7 +799,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
   app.patch(
     '/listing-drafts/:id',
     {
-      preHandler: requireSeller(SellerPermission.LISTING_WRITE),
+      preHandler: requireTradingSeller(SellerPermission.LISTING_WRITE),
       config: { rateLimit: { max: 240, timeWindow: '5 minutes' } },
     },
     async (request, reply) => {
@@ -833,7 +833,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
   app.post(
     '/listing-drafts/:id/variants/generate',
     {
-      preHandler: requireSeller(SellerPermission.LISTING_WRITE),
+      preHandler: requireTradingSeller(SellerPermission.LISTING_WRITE),
       config: { rateLimit: { max: 60, timeWindow: '5 minutes' } },
     },
     async (request, reply) => {
@@ -986,7 +986,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
    */
   app.patch(
     '/listing-drafts/:id/media/:mediaId',
-    { preHandler: requireSeller(SellerPermission.MEDIA_UPLOAD) },
+    { preHandler: requireTradingSeller(SellerPermission.MEDIA_UPLOAD) },
     async (request, reply) => {
       const params = z
         .object({ id: z.string().length(26), mediaId: z.string().length(26) })
@@ -1018,7 +1018,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
    */
   app.delete(
     '/listing-drafts/:id/media/:mediaId',
-    { preHandler: requireSeller(SellerPermission.MEDIA_UPLOAD) },
+    { preHandler: requireTradingSeller(SellerPermission.MEDIA_UPLOAD) },
     async (request, reply) => {
       const params = z
         .object({ id: z.string().length(26), mediaId: z.string().length(26) })
@@ -1172,7 +1172,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
   /** Save the name of a listing's base unit and the seller's packaging notes. */
   app.put(
     '/offers/:id/packaging/profile',
-    { preHandler: requireSeller(SellerPermission.LISTING_WRITE) },
+    { preHandler: requireTradingSeller(SellerPermission.LISTING_WRITE) },
     async (request, reply) => {
       const params = idParam.parse(request.params);
       const body = z
@@ -1196,7 +1196,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
    */
   app.put(
     '/offers/:id/packaging/options',
-    { preHandler: requireSeller(SellerPermission.LISTING_WRITE) },
+    { preHandler: requireTradingSeller(SellerPermission.LISTING_WRITE) },
     async (request, reply) => {
       const params = idParam.parse(request.params);
 
@@ -1338,7 +1338,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
    */
   app.put(
     '/offers/:id/container-loading',
-    { preHandler: requireSeller(SellerPermission.LISTING_WRITE) },
+    { preHandler: requireTradingSeller(SellerPermission.LISTING_WRITE) },
     async (request, reply) => {
       const params = idParam.parse(request.params);
       const body = containerLoadingInputSchema.parse(request.body);
@@ -1361,7 +1361,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
    */
   app.post(
     '/offers/:id/packaging/options/:packageType/enabled',
-    { preHandler: requireSeller(SellerPermission.LISTING_WRITE) },
+    { preHandler: requireTradingSeller(SellerPermission.LISTING_WRITE) },
     async (request, reply) => {
       const params = z
         .object({

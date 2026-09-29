@@ -208,6 +208,15 @@ async function maintenance(): Promise<void> {
       { dedupeKey: `dispute_sla_sweep:${slot}` },
     );
 
+    // A document expires on a day, so hourly is plenty: an approved seller
+    // whose required certificate ran out goes back to ACTION_REQUIRED within
+    // the hour. A pass with nothing expired is one indexed query.
+    await queue.enqueue(
+      JobType.SELLER_DOCUMENT_EXPIRY_SWEEP,
+      {},
+      { dedupeKey: `seller_document_expiry:${String(Math.floor(Date.now() / 3_600_000))}` },
+    );
+
     // Delivery risk is measured in days, so hourly is plenty.
     await queue.enqueue(
       JobType.PREORDER_RISK_SWEEP,

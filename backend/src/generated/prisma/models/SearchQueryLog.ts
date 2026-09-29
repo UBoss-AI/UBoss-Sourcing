@@ -44,6 +44,7 @@ export type SearchQueryLogMinAggregateOutputType = {
   countryCode: string | null
   language: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SearchQueryLogMaxAggregateOutputType = {
@@ -55,6 +56,7 @@ export type SearchQueryLogMaxAggregateOutputType = {
   countryCode: string | null
   language: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SearchQueryLogCountAggregateOutputType = {
@@ -66,6 +68,7 @@ export type SearchQueryLogCountAggregateOutputType = {
   countryCode: number
   language: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -87,6 +90,7 @@ export type SearchQueryLogMinAggregateInputType = {
   countryCode?: true
   language?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SearchQueryLogMaxAggregateInputType = {
@@ -98,6 +102,7 @@ export type SearchQueryLogMaxAggregateInputType = {
   countryCode?: true
   language?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SearchQueryLogCountAggregateInputType = {
@@ -109,6 +114,7 @@ export type SearchQueryLogCountAggregateInputType = {
   countryCode?: true
   language?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -207,6 +213,7 @@ export type SearchQueryLogGroupByOutputType = {
   countryCode: string | null
   language: string | null
   createdAt: Date
+  updatedAt: Date
   _count: SearchQueryLogCountAggregateOutputType | null
   _avg: SearchQueryLogAvgAggregateOutputType | null
   _sum: SearchQueryLogSumAggregateOutputType | null
@@ -241,6 +248,7 @@ export type SearchQueryLogWhereInput = {
   countryCode?: Prisma.StringNullableFilter<"SearchQueryLog"> | string | null
   language?: Prisma.StringNullableFilter<"SearchQueryLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SearchQueryLog"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SearchQueryLog"> | Date | string
 }
 
 export type SearchQueryLogOrderByWithRelationInput = {
@@ -252,6 +260,7 @@ export type SearchQueryLogOrderByWithRelationInput = {
   countryCode?: Prisma.SortOrderInput | Prisma.SortOrder
   language?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _relevance?: Prisma.SearchQueryLogOrderByRelevanceInput
 }
 
@@ -267,6 +276,7 @@ export type SearchQueryLogWhereUniqueInput = Prisma.AtLeast<{
   countryCode?: Prisma.StringNullableFilter<"SearchQueryLog"> | string | null
   language?: Prisma.StringNullableFilter<"SearchQueryLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SearchQueryLog"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SearchQueryLog"> | Date | string
 }, "id">
 
 export type SearchQueryLogOrderByWithAggregationInput = {
@@ -278,6 +288,7 @@ export type SearchQueryLogOrderByWithAggregationInput = {
   countryCode?: Prisma.SortOrderInput | Prisma.SortOrder
   language?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SearchQueryLogCountOrderByAggregateInput
   _avg?: Prisma.SearchQueryLogAvgOrderByAggregateInput
   _max?: Prisma.SearchQueryLogMaxOrderByAggregateInput
@@ -297,6 +308,7 @@ export type SearchQueryLogScalarWhereWithAggregatesInput = {
   countryCode?: Prisma.StringNullableWithAggregatesFilter<"SearchQueryLog"> | string | null
   language?: Prisma.StringNullableWithAggregatesFilter<"SearchQueryLog"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SearchQueryLog"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SearchQueryLog"> | Date | string
 }
 
 export type SearchQueryLogCreateInput = {
@@ -308,6 +320,7 @@ export type SearchQueryLogCreateInput = {
   countryCode?: string | null
   language?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SearchQueryLogUncheckedCreateInput = {
@@ -319,6 +332,7 @@ export type SearchQueryLogUncheckedCreateInput = {
   countryCode?: string | null
   language?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SearchQueryLogUpdateInput = {
@@ -330,6 +344,7 @@ export type SearchQueryLogUpdateInput = {
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SearchQueryLogUncheckedUpdateInput = {
@@ -341,6 +356,7 @@ export type SearchQueryLogUncheckedUpdateInput = {
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SearchQueryLogCreateManyInput = {
@@ -352,6 +368,7 @@ export type SearchQueryLogCreateManyInput = {
   countryCode?: string | null
   language?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SearchQueryLogUpdateManyMutationInput = {
@@ -363,6 +380,7 @@ export type SearchQueryLogUpdateManyMutationInput = {
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SearchQueryLogUncheckedUpdateManyInput = {
@@ -374,6 +392,7 @@ export type SearchQueryLogUncheckedUpdateManyInput = {
   countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SearchQueryLogOrderByRelevanceInput = {
@@ -391,6 +410,7 @@ export type SearchQueryLogCountOrderByAggregateInput = {
   countryCode?: Prisma.SortOrder
   language?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SearchQueryLogAvgOrderByAggregateInput = {
@@ -406,6 +426,7 @@ export type SearchQueryLogMaxOrderByAggregateInput = {
   countryCode?: Prisma.SortOrder
   language?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SearchQueryLogMinOrderByAggregateInput = {
@@ -417,6 +438,7 @@ export type SearchQueryLogMinOrderByAggregateInput = {
   countryCode?: Prisma.SortOrder
   language?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SearchQueryLogSumOrderByAggregateInput = {
@@ -434,6 +456,7 @@ export type SearchQueryLogSelect<ExtArgs extends runtime.Types.Extensions.Intern
   countryCode?: boolean
   language?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["searchQueryLog"]>
 
 
@@ -447,9 +470,10 @@ export type SearchQueryLogSelectScalar = {
   countryCode?: boolean
   language?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SearchQueryLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "queryNormalized" | "surface" | "resultCount" | "correctedTo" | "countryCode" | "language" | "createdAt", ExtArgs["result"]["searchQueryLog"]>
+export type SearchQueryLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "queryNormalized" | "surface" | "resultCount" | "correctedTo" | "countryCode" | "language" | "createdAt" | "updatedAt", ExtArgs["result"]["searchQueryLog"]>
 
 export type $SearchQueryLogPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SearchQueryLog"
@@ -463,6 +487,7 @@ export type $SearchQueryLogPayload<ExtArgs extends runtime.Types.Extensions.Inte
     countryCode: string | null
     language: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["searchQueryLog"]>
   composites: {}
 }
@@ -840,6 +865,7 @@ export interface SearchQueryLogFieldRefs {
   readonly countryCode: Prisma.FieldRef<"SearchQueryLog", 'String'>
   readonly language: Prisma.FieldRef<"SearchQueryLog", 'String'>
   readonly createdAt: Prisma.FieldRef<"SearchQueryLog", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SearchQueryLog", 'DateTime'>
 }
     
 

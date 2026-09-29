@@ -53,6 +53,7 @@ export type BuyerCompanyOrderApprovalMinAggregateOutputType = {
   decidedAt: Date | null
   reason: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerCompanyOrderApprovalMaxAggregateOutputType = {
@@ -68,6 +69,7 @@ export type BuyerCompanyOrderApprovalMaxAggregateOutputType = {
   decidedAt: Date | null
   reason: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerCompanyOrderApprovalCountAggregateOutputType = {
@@ -83,6 +85,7 @@ export type BuyerCompanyOrderApprovalCountAggregateOutputType = {
   decidedAt: number
   reason: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -108,6 +111,7 @@ export type BuyerCompanyOrderApprovalMinAggregateInputType = {
   decidedAt?: true
   reason?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type BuyerCompanyOrderApprovalMaxAggregateInputType = {
@@ -123,6 +127,7 @@ export type BuyerCompanyOrderApprovalMaxAggregateInputType = {
   decidedAt?: true
   reason?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type BuyerCompanyOrderApprovalCountAggregateInputType = {
@@ -138,6 +143,7 @@ export type BuyerCompanyOrderApprovalCountAggregateInputType = {
   decidedAt?: true
   reason?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -240,6 +246,7 @@ export type BuyerCompanyOrderApprovalGroupByOutputType = {
   decidedAt: Date | null
   reason: string | null
   createdAt: Date
+  updatedAt: Date
   _count: BuyerCompanyOrderApprovalCountAggregateOutputType | null
   _avg: BuyerCompanyOrderApprovalAvgAggregateOutputType | null
   _sum: BuyerCompanyOrderApprovalSumAggregateOutputType | null
@@ -278,6 +285,7 @@ export type BuyerCompanyOrderApprovalWhereInput = {
   decidedAt?: Prisma.DateTimeNullableFilter<"BuyerCompanyOrderApproval"> | Date | string | null
   reason?: Prisma.StringNullableFilter<"BuyerCompanyOrderApproval"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BuyerCompanyOrderApproval"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyOrderApproval"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   company?: Prisma.XOR<Prisma.BuyerCompanyScalarRelationFilter, Prisma.BuyerCompanyWhereInput>
 }
@@ -295,6 +303,7 @@ export type BuyerCompanyOrderApprovalOrderByWithRelationInput = {
   decidedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   order?: Prisma.OrderOrderByWithRelationInput
   company?: Prisma.BuyerCompanyOrderByWithRelationInput
   _relevance?: Prisma.BuyerCompanyOrderApprovalOrderByRelevanceInput
@@ -317,6 +326,7 @@ export type BuyerCompanyOrderApprovalWhereUniqueInput = Prisma.AtLeast<{
   decidedAt?: Prisma.DateTimeNullableFilter<"BuyerCompanyOrderApproval"> | Date | string | null
   reason?: Prisma.StringNullableFilter<"BuyerCompanyOrderApproval"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BuyerCompanyOrderApproval"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyOrderApproval"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   company?: Prisma.XOR<Prisma.BuyerCompanyScalarRelationFilter, Prisma.BuyerCompanyWhereInput>
 }, "id" | "orderId_stage">
@@ -334,6 +344,7 @@ export type BuyerCompanyOrderApprovalOrderByWithAggregationInput = {
   decidedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.BuyerCompanyOrderApprovalCountOrderByAggregateInput
   _avg?: Prisma.BuyerCompanyOrderApprovalAvgOrderByAggregateInput
   _max?: Prisma.BuyerCompanyOrderApprovalMaxOrderByAggregateInput
@@ -357,6 +368,7 @@ export type BuyerCompanyOrderApprovalScalarWhereWithAggregatesInput = {
   decidedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"BuyerCompanyOrderApproval"> | Date | string | null
   reason?: Prisma.StringNullableWithAggregatesFilter<"BuyerCompanyOrderApproval"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyOrderApproval"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyOrderApproval"> | Date | string
 }
 
 export type BuyerCompanyOrderApprovalCreateInput = {
@@ -370,6 +382,7 @@ export type BuyerCompanyOrderApprovalCreateInput = {
   decidedAt?: Date | string | null
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutBuyerCompanyApprovalsInput
   company: Prisma.BuyerCompanyCreateNestedOneWithoutOrderApprovalsInput
 }
@@ -387,6 +400,7 @@ export type BuyerCompanyOrderApprovalUncheckedCreateInput = {
   decidedAt?: Date | string | null
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyOrderApprovalUpdateInput = {
@@ -400,6 +414,7 @@ export type BuyerCompanyOrderApprovalUpdateInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutBuyerCompanyApprovalsNestedInput
   company?: Prisma.BuyerCompanyUpdateOneRequiredWithoutOrderApprovalsNestedInput
 }
@@ -417,6 +432,7 @@ export type BuyerCompanyOrderApprovalUncheckedUpdateInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyOrderApprovalCreateManyInput = {
@@ -432,6 +448,7 @@ export type BuyerCompanyOrderApprovalCreateManyInput = {
   decidedAt?: Date | string | null
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyOrderApprovalUpdateManyMutationInput = {
@@ -445,6 +462,7 @@ export type BuyerCompanyOrderApprovalUpdateManyMutationInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyOrderApprovalUncheckedUpdateManyInput = {
@@ -460,6 +478,7 @@ export type BuyerCompanyOrderApprovalUncheckedUpdateManyInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyOrderApprovalListRelationFilter = {
@@ -496,6 +515,7 @@ export type BuyerCompanyOrderApprovalCountOrderByAggregateInput = {
   decidedAt?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyOrderApprovalAvgOrderByAggregateInput = {
@@ -515,6 +535,7 @@ export type BuyerCompanyOrderApprovalMaxOrderByAggregateInput = {
   decidedAt?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyOrderApprovalMinOrderByAggregateInput = {
@@ -530,6 +551,7 @@ export type BuyerCompanyOrderApprovalMinOrderByAggregateInput = {
   decidedAt?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyOrderApprovalSumOrderByAggregateInput = {
@@ -639,6 +661,7 @@ export type BuyerCompanyOrderApprovalCreateWithoutOrderInput = {
   decidedAt?: Date | string | null
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   company: Prisma.BuyerCompanyCreateNestedOneWithoutOrderApprovalsInput
 }
 
@@ -654,6 +677,7 @@ export type BuyerCompanyOrderApprovalUncheckedCreateWithoutOrderInput = {
   decidedAt?: Date | string | null
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyOrderApprovalCreateOrConnectWithoutOrderInput = {
@@ -698,6 +722,7 @@ export type BuyerCompanyOrderApprovalScalarWhereInput = {
   decidedAt?: Prisma.DateTimeNullableFilter<"BuyerCompanyOrderApproval"> | Date | string | null
   reason?: Prisma.StringNullableFilter<"BuyerCompanyOrderApproval"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BuyerCompanyOrderApproval"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyOrderApproval"> | Date | string
 }
 
 export type BuyerCompanyOrderApprovalCreateWithoutCompanyInput = {
@@ -711,6 +736,7 @@ export type BuyerCompanyOrderApprovalCreateWithoutCompanyInput = {
   decidedAt?: Date | string | null
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutBuyerCompanyApprovalsInput
 }
 
@@ -726,6 +752,7 @@ export type BuyerCompanyOrderApprovalUncheckedCreateWithoutCompanyInput = {
   decidedAt?: Date | string | null
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyOrderApprovalCreateOrConnectWithoutCompanyInput = {
@@ -766,6 +793,7 @@ export type BuyerCompanyOrderApprovalCreateManyOrderInput = {
   decidedAt?: Date | string | null
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyOrderApprovalUpdateWithoutOrderInput = {
@@ -779,6 +807,7 @@ export type BuyerCompanyOrderApprovalUpdateWithoutOrderInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneRequiredWithoutOrderApprovalsNestedInput
 }
 
@@ -794,6 +823,7 @@ export type BuyerCompanyOrderApprovalUncheckedUpdateWithoutOrderInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyOrderApprovalUncheckedUpdateManyWithoutOrderInput = {
@@ -808,6 +838,7 @@ export type BuyerCompanyOrderApprovalUncheckedUpdateManyWithoutOrderInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyOrderApprovalCreateManyCompanyInput = {
@@ -822,6 +853,7 @@ export type BuyerCompanyOrderApprovalCreateManyCompanyInput = {
   decidedAt?: Date | string | null
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyOrderApprovalUpdateWithoutCompanyInput = {
@@ -835,6 +867,7 @@ export type BuyerCompanyOrderApprovalUpdateWithoutCompanyInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutBuyerCompanyApprovalsNestedInput
 }
 
@@ -850,6 +883,7 @@ export type BuyerCompanyOrderApprovalUncheckedUpdateWithoutCompanyInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyOrderApprovalUncheckedUpdateManyWithoutCompanyInput = {
@@ -864,6 +898,7 @@ export type BuyerCompanyOrderApprovalUncheckedUpdateManyWithoutCompanyInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -881,6 +916,7 @@ export type BuyerCompanyOrderApprovalSelect<ExtArgs extends runtime.Types.Extens
   decidedAt?: boolean
   reason?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   company?: boolean | Prisma.BuyerCompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["buyerCompanyOrderApproval"]>
@@ -900,9 +936,10 @@ export type BuyerCompanyOrderApprovalSelectScalar = {
   decidedAt?: boolean
   reason?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type BuyerCompanyOrderApprovalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "companyId" | "stage" | "decision" | "amountMinor" | "currency" | "requestedByUserId" | "decidedByUserId" | "decidedAt" | "reason" | "createdAt", ExtArgs["result"]["buyerCompanyOrderApproval"]>
+export type BuyerCompanyOrderApprovalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "companyId" | "stage" | "decision" | "amountMinor" | "currency" | "requestedByUserId" | "decidedByUserId" | "decidedAt" | "reason" | "createdAt" | "updatedAt", ExtArgs["result"]["buyerCompanyOrderApproval"]>
 export type BuyerCompanyOrderApprovalInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   company?: boolean | Prisma.BuyerCompanyDefaultArgs<ExtArgs>
@@ -927,6 +964,7 @@ export type $BuyerCompanyOrderApprovalPayload<ExtArgs extends runtime.Types.Exte
     decidedAt: Date | null
     reason: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["buyerCompanyOrderApproval"]>
   composites: {}
 }
@@ -1310,6 +1348,7 @@ export interface BuyerCompanyOrderApprovalFieldRefs {
   readonly decidedAt: Prisma.FieldRef<"BuyerCompanyOrderApproval", 'DateTime'>
   readonly reason: Prisma.FieldRef<"BuyerCompanyOrderApproval", 'String'>
   readonly createdAt: Prisma.FieldRef<"BuyerCompanyOrderApproval", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"BuyerCompanyOrderApproval", 'DateTime'>
 }
     
 

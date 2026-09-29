@@ -53,6 +53,7 @@ export type RfqAttachmentMinAggregateOutputType = {
   contentHash: string | null
   scanState: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type RfqAttachmentMaxAggregateOutputType = {
@@ -71,6 +72,7 @@ export type RfqAttachmentMaxAggregateOutputType = {
   contentHash: string | null
   scanState: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type RfqAttachmentCountAggregateOutputType = {
@@ -89,6 +91,7 @@ export type RfqAttachmentCountAggregateOutputType = {
   contentHash: number
   scanState: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -119,6 +122,7 @@ export type RfqAttachmentMinAggregateInputType = {
   contentHash?: true
   scanState?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type RfqAttachmentMaxAggregateInputType = {
@@ -137,6 +141,7 @@ export type RfqAttachmentMaxAggregateInputType = {
   contentHash?: true
   scanState?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type RfqAttachmentCountAggregateInputType = {
@@ -155,6 +160,7 @@ export type RfqAttachmentCountAggregateInputType = {
   contentHash?: true
   scanState?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -260,6 +266,7 @@ export type RfqAttachmentGroupByOutputType = {
   contentHash: string
   scanState: string
   createdAt: Date
+  updatedAt: Date
   _count: RfqAttachmentCountAggregateOutputType | null
   _avg: RfqAttachmentAvgAggregateOutputType | null
   _sum: RfqAttachmentSumAggregateOutputType | null
@@ -301,6 +308,7 @@ export type RfqAttachmentWhereInput = {
   contentHash?: Prisma.StringFilter<"RfqAttachment"> | string
   scanState?: Prisma.StringFilter<"RfqAttachment"> | string
   createdAt?: Prisma.DateTimeFilter<"RfqAttachment"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"RfqAttachment"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
 }
 
@@ -320,6 +328,7 @@ export type RfqAttachmentOrderByWithRelationInput = {
   contentHash?: Prisma.SortOrder
   scanState?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   rfq?: Prisma.RfqRequestOrderByWithRelationInput
   _relevance?: Prisma.RfqAttachmentOrderByRelevanceInput
 }
@@ -343,6 +352,7 @@ export type RfqAttachmentWhereUniqueInput = Prisma.AtLeast<{
   contentHash?: Prisma.StringFilter<"RfqAttachment"> | string
   scanState?: Prisma.StringFilter<"RfqAttachment"> | string
   createdAt?: Prisma.DateTimeFilter<"RfqAttachment"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"RfqAttachment"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
 }, "id">
 
@@ -362,6 +372,7 @@ export type RfqAttachmentOrderByWithAggregationInput = {
   contentHash?: Prisma.SortOrder
   scanState?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.RfqAttachmentCountOrderByAggregateInput
   _avg?: Prisma.RfqAttachmentAvgOrderByAggregateInput
   _max?: Prisma.RfqAttachmentMaxOrderByAggregateInput
@@ -388,6 +399,7 @@ export type RfqAttachmentScalarWhereWithAggregatesInput = {
   contentHash?: Prisma.StringWithAggregatesFilter<"RfqAttachment"> | string
   scanState?: Prisma.StringWithAggregatesFilter<"RfqAttachment"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RfqAttachment"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"RfqAttachment"> | Date | string
 }
 
 export type RfqAttachmentCreateInput = {
@@ -405,6 +417,7 @@ export type RfqAttachmentCreateInput = {
   contentHash: string
   scanState: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   rfq: Prisma.RfqRequestCreateNestedOneWithoutAttachmentsInput
 }
 
@@ -424,6 +437,7 @@ export type RfqAttachmentUncheckedCreateInput = {
   contentHash: string
   scanState: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqAttachmentUpdateInput = {
@@ -441,6 +455,7 @@ export type RfqAttachmentUpdateInput = {
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutAttachmentsNestedInput
 }
 
@@ -460,6 +475,7 @@ export type RfqAttachmentUncheckedUpdateInput = {
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqAttachmentCreateManyInput = {
@@ -478,6 +494,7 @@ export type RfqAttachmentCreateManyInput = {
   contentHash: string
   scanState: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqAttachmentUpdateManyMutationInput = {
@@ -495,6 +512,7 @@ export type RfqAttachmentUpdateManyMutationInput = {
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqAttachmentUncheckedUpdateManyInput = {
@@ -513,6 +531,7 @@ export type RfqAttachmentUncheckedUpdateManyInput = {
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqAttachmentListRelationFilter = {
@@ -547,6 +566,7 @@ export type RfqAttachmentCountOrderByAggregateInput = {
   contentHash?: Prisma.SortOrder
   scanState?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type RfqAttachmentAvgOrderByAggregateInput = {
@@ -570,6 +590,7 @@ export type RfqAttachmentMaxOrderByAggregateInput = {
   contentHash?: Prisma.SortOrder
   scanState?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type RfqAttachmentMinOrderByAggregateInput = {
@@ -588,6 +609,7 @@ export type RfqAttachmentMinOrderByAggregateInput = {
   contentHash?: Prisma.SortOrder
   scanState?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type RfqAttachmentSumOrderByAggregateInput = {
@@ -660,6 +682,7 @@ export type RfqAttachmentCreateWithoutRfqInput = {
   contentHash: string
   scanState: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqAttachmentUncheckedCreateWithoutRfqInput = {
@@ -677,6 +700,7 @@ export type RfqAttachmentUncheckedCreateWithoutRfqInput = {
   contentHash: string
   scanState: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqAttachmentCreateOrConnectWithoutRfqInput = {
@@ -724,6 +748,7 @@ export type RfqAttachmentScalarWhereInput = {
   contentHash?: Prisma.StringFilter<"RfqAttachment"> | string
   scanState?: Prisma.StringFilter<"RfqAttachment"> | string
   createdAt?: Prisma.DateTimeFilter<"RfqAttachment"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"RfqAttachment"> | Date | string
 }
 
 export type RfqAttachmentCreateManyRfqInput = {
@@ -741,6 +766,7 @@ export type RfqAttachmentCreateManyRfqInput = {
   contentHash: string
   scanState: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqAttachmentUpdateWithoutRfqInput = {
@@ -758,6 +784,7 @@ export type RfqAttachmentUpdateWithoutRfqInput = {
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqAttachmentUncheckedUpdateWithoutRfqInput = {
@@ -775,6 +802,7 @@ export type RfqAttachmentUncheckedUpdateWithoutRfqInput = {
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqAttachmentUncheckedUpdateManyWithoutRfqInput = {
@@ -792,6 +820,7 @@ export type RfqAttachmentUncheckedUpdateManyWithoutRfqInput = {
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -812,6 +841,7 @@ export type RfqAttachmentSelect<ExtArgs extends runtime.Types.Extensions.Interna
   contentHash?: boolean
   scanState?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["rfqAttachment"]>
 
@@ -833,9 +863,10 @@ export type RfqAttachmentSelectScalar = {
   contentHash?: boolean
   scanState?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type RfqAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rfqId" | "purpose" | "sellerAccountId" | "requirementVersion" | "quoteVersionId" | "uploadedByParty" | "uploadedByUserId" | "storageKey" | "fileName" | "contentType" | "byteSize" | "contentHash" | "scanState" | "createdAt", ExtArgs["result"]["rfqAttachment"]>
+export type RfqAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rfqId" | "purpose" | "sellerAccountId" | "requirementVersion" | "quoteVersionId" | "uploadedByParty" | "uploadedByUserId" | "storageKey" | "fileName" | "contentType" | "byteSize" | "contentHash" | "scanState" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqAttachment"]>
 export type RfqAttachmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
 }
@@ -881,6 +912,7 @@ export type $RfqAttachmentPayload<ExtArgs extends runtime.Types.Extensions.Inter
      */
     scanState: string
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["rfqAttachment"]>
   composites: {}
 }
@@ -1266,6 +1298,7 @@ export interface RfqAttachmentFieldRefs {
   readonly contentHash: Prisma.FieldRef<"RfqAttachment", 'String'>
   readonly scanState: Prisma.FieldRef<"RfqAttachment", 'String'>
   readonly createdAt: Prisma.FieldRef<"RfqAttachment", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"RfqAttachment", 'DateTime'>
 }
     
 

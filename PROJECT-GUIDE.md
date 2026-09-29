@@ -1764,6 +1764,18 @@ the expiry; one invitation is sent at most five times. New error codes:
 `pages/company/CompanyTeamPanel.tsx` on the company page and
 `pages/company/JoinCompanyPage.tsx` (`/account/join-company`).
 
+**Every table has `createdAt` and `updatedAt`.** `tests/unit/row-timestamps.test.ts`
+reads the schema and fails for any model without both, in the house form
+(`@default(now())`, and `@default(now()) @updatedAt`); it has no allowlist.
+Migration `20261019200000_row_timestamps` added the 31 that were missing on 23
+models (ledger, fund holds, trust, trade documents, logistics lanes and
+others), filling existing rows from their own event times. The same change
+brought five tests up to deliberate product rules: fee policies need a second
+finance approver, a scheduled delivery whose price moves waits for the
+customer to confirm, resolving a support request needs a resolution code, and
+the public config carries `captcha` (provider and site key) and
+`features.customerMfa`.
+
 The bar carries four controls:
 
 | Control | What it does |

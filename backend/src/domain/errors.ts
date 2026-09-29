@@ -737,6 +737,15 @@ export const ErrorCode = {
   SELLER_ONBOARDING_INCOMPLETE: 'SELLER_ONBOARDING_INCOMPLETE',
   /// A rejected application whose operator closed resubmission.
   SELLER_RESUBMISSION_NOT_ALLOWED: 'SELLER_RESUBMISSION_NOT_ALLOWED',
+  /// Approval refused: the evidence a reviewer needs is not all there yet. A
+  /// required onboarding step is unfinished, a required document is not
+  /// accepted or has expired, or (with SELLER_REQUIRE_SCREENING) the business
+  /// or one of its owners has no current CLEAR screening. `details` carries
+  /// one entry per missing item: `STEP_INCOMPLETE` (field = step key),
+  /// `DOCUMENT_NOT_APPROVED` / `DOCUMENT_EXPIRED` (field = requirement key),
+  /// `SCREENING_REQUIRED` / `SCREENING_NOT_CLEAR` (field = `entity` or the
+  /// owner id).
+  SELLER_APPROVAL_EVIDENCE_MISSING: 'SELLER_APPROVAL_EVIDENCE_MISSING',
   /// Somebody else saved this application, listing or offer since it was
   /// loaded. The client reloads and shows what changed rather than
   /// overwriting it.
@@ -751,6 +760,20 @@ export const ErrorCode = {
   /// This account already belongs to a seller organisation. One profile, one
   /// seller - see `SellerMember`.
   SELLER_MEMBERSHIP_EXISTS: 'SELLER_MEMBERSHIP_EXISTS',
+  /// That address already has an invitation to this seller's team that can
+  /// still be accepted. Resend it rather than sending a second one.
+  SELLER_INVITATION_EXISTS: 'SELLER_INVITATION_EXISTS',
+  /// That person is already an active member of this seller's team. Change
+  /// their role instead.
+  SELLER_ALREADY_MEMBER: 'SELLER_ALREADY_MEMBER',
+  /// That member cannot be changed or removed by the caller.
+  /// `details[0].code` is SELF (nobody changes or removes themselves) or
+  /// ROLE_ABOVE_YOURS (their role carries a permission the caller does not
+  /// hold - an admin cannot touch an owner).
+  SELLER_MEMBER_PROTECTED: 'SELLER_MEMBER_PROTECTED',
+  /// One invitation has been emailed as many times as it may be. Withdraw it
+  /// and invite again. `details[0].meta.max` is the cap.
+  SELLER_INVITATION_SEND_LIMIT: 'SELLER_INVITATION_SEND_LIMIT',
 
   /// A listing draft cannot move the way it was asked to.
   LISTING_TRANSITION_NOT_ALLOWED: 'LISTING_TRANSITION_NOT_ALLOWED',
@@ -1901,6 +1924,27 @@ export const ErrorCode = {
   /// withdrew, the deadline passed, or the request closed. `details[0].code`
   /// says which. 409.
   RFQ_RESPONSE_CLOSED: 'RFQ_RESPONSE_CLOSED',
+  /// A factory cannot be changed now: it is with a reviewer. 409. (Master row 13)
+  FACTORY_NOT_EDITABLE: 'FACTORY_NOT_EDITABLE',
+  /// A factory cannot be sent for review, or verified, yet: it has no
+  /// evidence attached. `details` names what is missing. 400 for the seller,
+  /// 409 for a reviewer.
+  FACTORY_INCOMPLETE: 'FACTORY_INCOMPLETE',
+  /// The factory's verification cannot move that way from where it is -
+  /// including a reviewer deciding a check a colleague already decided
+  /// (`details[0].code` is `STALE`). 409.
+  FACTORY_TRANSITION_INVALID: 'FACTORY_TRANSITION_INVALID',
+  /// A certificate cannot be changed now: it is with a reviewer. 409.
+  CERTIFICATION_NOT_EDITABLE: 'CERTIFICATION_NOT_EDITABLE',
+  /// The certificate's verification cannot move that way from where it is,
+  /// including a stale reviewer screen (`STALE`). 409.
+  CERTIFICATION_TRANSITION_INVALID: 'CERTIFICATION_TRANSITION_INVALID',
+  /// That document cannot be used as evidence: it was replaced, withdrawn or
+  /// failed its security scan. 409.
+  TRUST_EVIDENCE_UNUSABLE: 'TRUST_EVIDENCE_UNUSABLE',
+  /// That document is evidence for a factory or a certificate and cannot be
+  /// withdrawn until it is detached. 409.
+  TRUST_EVIDENCE_IN_USE: 'TRUST_EVIDENCE_IN_USE',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

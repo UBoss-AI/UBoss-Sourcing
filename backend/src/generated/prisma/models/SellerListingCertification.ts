@@ -28,18 +28,24 @@ export type SellerListingCertificationMinAggregateOutputType = {
   id: string | null
   listingTrustId: string | null
   certificationId: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerListingCertificationMaxAggregateOutputType = {
   id: string | null
   listingTrustId: string | null
   certificationId: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerListingCertificationCountAggregateOutputType = {
   id: number
   listingTrustId: number
   certificationId: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -48,18 +54,24 @@ export type SellerListingCertificationMinAggregateInputType = {
   id?: true
   listingTrustId?: true
   certificationId?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerListingCertificationMaxAggregateInputType = {
   id?: true
   listingTrustId?: true
   certificationId?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerListingCertificationCountAggregateInputType = {
   id?: true
   listingTrustId?: true
   certificationId?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -139,6 +151,8 @@ export type SellerListingCertificationGroupByOutputType = {
   id: string
   listingTrustId: string
   certificationId: string
+  createdAt: Date
+  updatedAt: Date
   _count: SellerListingCertificationCountAggregateOutputType | null
   _min: SellerListingCertificationMinAggregateOutputType | null
   _max: SellerListingCertificationMaxAggregateOutputType | null
@@ -166,6 +180,8 @@ export type SellerListingCertificationWhereInput = {
   id?: Prisma.StringFilter<"SellerListingCertification"> | string
   listingTrustId?: Prisma.StringFilter<"SellerListingCertification"> | string
   certificationId?: Prisma.StringFilter<"SellerListingCertification"> | string
+  createdAt?: Prisma.DateTimeFilter<"SellerListingCertification"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerListingCertification"> | Date | string
   listingTrust?: Prisma.XOR<Prisma.SellerListingTrustScalarRelationFilter, Prisma.SellerListingTrustWhereInput>
   certification?: Prisma.XOR<Prisma.SellerCertificationScalarRelationFilter, Prisma.SellerCertificationWhereInput>
 }
@@ -174,6 +190,8 @@ export type SellerListingCertificationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   listingTrustId?: Prisma.SortOrder
   certificationId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   listingTrust?: Prisma.SellerListingTrustOrderByWithRelationInput
   certification?: Prisma.SellerCertificationOrderByWithRelationInput
   _relevance?: Prisma.SellerListingCertificationOrderByRelevanceInput
@@ -187,6 +205,8 @@ export type SellerListingCertificationWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.SellerListingCertificationWhereInput | Prisma.SellerListingCertificationWhereInput[]
   listingTrustId?: Prisma.StringFilter<"SellerListingCertification"> | string
   certificationId?: Prisma.StringFilter<"SellerListingCertification"> | string
+  createdAt?: Prisma.DateTimeFilter<"SellerListingCertification"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerListingCertification"> | Date | string
   listingTrust?: Prisma.XOR<Prisma.SellerListingTrustScalarRelationFilter, Prisma.SellerListingTrustWhereInput>
   certification?: Prisma.XOR<Prisma.SellerCertificationScalarRelationFilter, Prisma.SellerCertificationWhereInput>
 }, "id" | "listingTrustId_certificationId">
@@ -195,6 +215,8 @@ export type SellerListingCertificationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   listingTrustId?: Prisma.SortOrder
   certificationId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerListingCertificationCountOrderByAggregateInput
   _max?: Prisma.SellerListingCertificationMaxOrderByAggregateInput
   _min?: Prisma.SellerListingCertificationMinOrderByAggregateInput
@@ -207,10 +229,14 @@ export type SellerListingCertificationScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"SellerListingCertification"> | string
   listingTrustId?: Prisma.StringWithAggregatesFilter<"SellerListingCertification"> | string
   certificationId?: Prisma.StringWithAggregatesFilter<"SellerListingCertification"> | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerListingCertification"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerListingCertification"> | Date | string
 }
 
 export type SellerListingCertificationCreateInput = {
   id: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   listingTrust: Prisma.SellerListingTrustCreateNestedOneWithoutCertificationsInput
   certification: Prisma.SellerCertificationCreateNestedOneWithoutListingsInput
 }
@@ -219,10 +245,14 @@ export type SellerListingCertificationUncheckedCreateInput = {
   id: string
   listingTrustId: string
   certificationId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerListingCertificationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   listingTrust?: Prisma.SellerListingTrustUpdateOneRequiredWithoutCertificationsNestedInput
   certification?: Prisma.SellerCertificationUpdateOneRequiredWithoutListingsNestedInput
 }
@@ -231,22 +261,30 @@ export type SellerListingCertificationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   listingTrustId?: Prisma.StringFieldUpdateOperationsInput | string
   certificationId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerListingCertificationCreateManyInput = {
   id: string
   listingTrustId: string
   certificationId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerListingCertificationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerListingCertificationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   listingTrustId?: Prisma.StringFieldUpdateOperationsInput | string
   certificationId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerListingCertificationListRelationFilter = {
@@ -274,18 +312,24 @@ export type SellerListingCertificationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   listingTrustId?: Prisma.SortOrder
   certificationId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerListingCertificationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   listingTrustId?: Prisma.SortOrder
   certificationId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerListingCertificationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   listingTrustId?: Prisma.SortOrder
   certificationId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerListingCertificationCreateNestedManyWithoutCertificationInput = {
@@ -374,12 +418,16 @@ export type SellerListingCertificationUncheckedUpdateManyWithoutListingTrustNest
 
 export type SellerListingCertificationCreateWithoutCertificationInput = {
   id: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   listingTrust: Prisma.SellerListingTrustCreateNestedOneWithoutCertificationsInput
 }
 
 export type SellerListingCertificationUncheckedCreateWithoutCertificationInput = {
   id: string
   listingTrustId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerListingCertificationCreateOrConnectWithoutCertificationInput = {
@@ -415,16 +463,22 @@ export type SellerListingCertificationScalarWhereInput = {
   id?: Prisma.StringFilter<"SellerListingCertification"> | string
   listingTrustId?: Prisma.StringFilter<"SellerListingCertification"> | string
   certificationId?: Prisma.StringFilter<"SellerListingCertification"> | string
+  createdAt?: Prisma.DateTimeFilter<"SellerListingCertification"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerListingCertification"> | Date | string
 }
 
 export type SellerListingCertificationCreateWithoutListingTrustInput = {
   id: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   certification: Prisma.SellerCertificationCreateNestedOneWithoutListingsInput
 }
 
 export type SellerListingCertificationUncheckedCreateWithoutListingTrustInput = {
   id: string
   certificationId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerListingCertificationCreateOrConnectWithoutListingTrustInput = {
@@ -456,41 +510,57 @@ export type SellerListingCertificationUpdateManyWithWhereWithoutListingTrustInpu
 export type SellerListingCertificationCreateManyCertificationInput = {
   id: string
   listingTrustId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerListingCertificationUpdateWithoutCertificationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   listingTrust?: Prisma.SellerListingTrustUpdateOneRequiredWithoutCertificationsNestedInput
 }
 
 export type SellerListingCertificationUncheckedUpdateWithoutCertificationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   listingTrustId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerListingCertificationUncheckedUpdateManyWithoutCertificationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   listingTrustId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerListingCertificationCreateManyListingTrustInput = {
   id: string
   certificationId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerListingCertificationUpdateWithoutListingTrustInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   certification?: Prisma.SellerCertificationUpdateOneRequiredWithoutListingsNestedInput
 }
 
 export type SellerListingCertificationUncheckedUpdateWithoutListingTrustInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   certificationId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerListingCertificationUncheckedUpdateManyWithoutListingTrustInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   certificationId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -499,6 +569,8 @@ export type SellerListingCertificationSelect<ExtArgs extends runtime.Types.Exten
   id?: boolean
   listingTrustId?: boolean
   certificationId?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   listingTrust?: boolean | Prisma.SellerListingTrustDefaultArgs<ExtArgs>
   certification?: boolean | Prisma.SellerCertificationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerListingCertification"]>
@@ -509,9 +581,11 @@ export type SellerListingCertificationSelectScalar = {
   id?: boolean
   listingTrustId?: boolean
   certificationId?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerListingCertificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "listingTrustId" | "certificationId", ExtArgs["result"]["sellerListingCertification"]>
+export type SellerListingCertificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "listingTrustId" | "certificationId" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerListingCertification"]>
 export type SellerListingCertificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   listingTrust?: boolean | Prisma.SellerListingTrustDefaultArgs<ExtArgs>
   certification?: boolean | Prisma.SellerCertificationDefaultArgs<ExtArgs>
@@ -527,6 +601,8 @@ export type $SellerListingCertificationPayload<ExtArgs extends runtime.Types.Ext
     id: string
     listingTrustId: string
     certificationId: string
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerListingCertification"]>
   composites: {}
 }
@@ -901,6 +977,8 @@ export interface SellerListingCertificationFieldRefs {
   readonly id: Prisma.FieldRef<"SellerListingCertification", 'String'>
   readonly listingTrustId: Prisma.FieldRef<"SellerListingCertification", 'String'>
   readonly certificationId: Prisma.FieldRef<"SellerListingCertification", 'String'>
+  readonly createdAt: Prisma.FieldRef<"SellerListingCertification", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerListingCertification", 'DateTime'>
 }
     
 

@@ -37,6 +37,7 @@ export type RfqEventMinAggregateOutputType = {
   actorParty: $Enums.RfqParty | null
   actorUserId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type RfqEventMaxAggregateOutputType = {
@@ -48,6 +49,7 @@ export type RfqEventMaxAggregateOutputType = {
   actorParty: $Enums.RfqParty | null
   actorUserId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type RfqEventCountAggregateOutputType = {
@@ -60,6 +62,7 @@ export type RfqEventCountAggregateOutputType = {
   actorUserId: number
   metaJson: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -73,6 +76,7 @@ export type RfqEventMinAggregateInputType = {
   actorParty?: true
   actorUserId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type RfqEventMaxAggregateInputType = {
@@ -84,6 +88,7 @@ export type RfqEventMaxAggregateInputType = {
   actorParty?: true
   actorUserId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type RfqEventCountAggregateInputType = {
@@ -96,6 +101,7 @@ export type RfqEventCountAggregateInputType = {
   actorUserId?: true
   metaJson?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -181,6 +187,7 @@ export type RfqEventGroupByOutputType = {
   actorUserId: string | null
   metaJson: runtime.JsonValue | null
   createdAt: Date
+  updatedAt: Date
   _count: RfqEventCountAggregateOutputType | null
   _min: RfqEventMinAggregateOutputType | null
   _max: RfqEventMaxAggregateOutputType | null
@@ -214,6 +221,7 @@ export type RfqEventWhereInput = {
   actorUserId?: Prisma.StringNullableFilter<"RfqEvent"> | string | null
   metaJson?: Prisma.JsonNullableFilter<"RfqEvent">
   createdAt?: Prisma.DateTimeFilter<"RfqEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"RfqEvent"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
 }
 
@@ -227,6 +235,7 @@ export type RfqEventOrderByWithRelationInput = {
   actorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   metaJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   rfq?: Prisma.RfqRequestOrderByWithRelationInput
   _relevance?: Prisma.RfqEventOrderByRelevanceInput
 }
@@ -244,6 +253,7 @@ export type RfqEventWhereUniqueInput = Prisma.AtLeast<{
   actorUserId?: Prisma.StringNullableFilter<"RfqEvent"> | string | null
   metaJson?: Prisma.JsonNullableFilter<"RfqEvent">
   createdAt?: Prisma.DateTimeFilter<"RfqEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"RfqEvent"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
 }, "id">
 
@@ -257,6 +267,7 @@ export type RfqEventOrderByWithAggregationInput = {
   actorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   metaJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.RfqEventCountOrderByAggregateInput
   _max?: Prisma.RfqEventMaxOrderByAggregateInput
   _min?: Prisma.RfqEventMinOrderByAggregateInput
@@ -275,6 +286,7 @@ export type RfqEventScalarWhereWithAggregatesInput = {
   actorUserId?: Prisma.StringNullableWithAggregatesFilter<"RfqEvent"> | string | null
   metaJson?: Prisma.JsonNullableWithAggregatesFilter<"RfqEvent">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RfqEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"RfqEvent"> | Date | string
 }
 
 export type RfqEventCreateInput = {
@@ -286,6 +298,7 @@ export type RfqEventCreateInput = {
   actorUserId?: string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
   rfq: Prisma.RfqRequestCreateNestedOneWithoutEventsInput
 }
 
@@ -299,6 +312,7 @@ export type RfqEventUncheckedCreateInput = {
   actorUserId?: string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqEventUpdateInput = {
@@ -310,6 +324,7 @@ export type RfqEventUpdateInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutEventsNestedInput
 }
 
@@ -323,6 +338,7 @@ export type RfqEventUncheckedUpdateInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqEventCreateManyInput = {
@@ -335,6 +351,7 @@ export type RfqEventCreateManyInput = {
   actorUserId?: string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqEventUpdateManyMutationInput = {
@@ -346,6 +363,7 @@ export type RfqEventUpdateManyMutationInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqEventUncheckedUpdateManyInput = {
@@ -358,6 +376,7 @@ export type RfqEventUncheckedUpdateManyInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqEventListRelationFilter = {
@@ -386,6 +405,7 @@ export type RfqEventCountOrderByAggregateInput = {
   actorUserId?: Prisma.SortOrder
   metaJson?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type RfqEventMaxOrderByAggregateInput = {
@@ -397,6 +417,7 @@ export type RfqEventMaxOrderByAggregateInput = {
   actorParty?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type RfqEventMinOrderByAggregateInput = {
@@ -408,6 +429,7 @@ export type RfqEventMinOrderByAggregateInput = {
   actorParty?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type RfqEventCreateNestedManyWithoutRfqInput = {
@@ -461,6 +483,7 @@ export type RfqEventCreateWithoutRfqInput = {
   actorUserId?: string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqEventUncheckedCreateWithoutRfqInput = {
@@ -472,6 +495,7 @@ export type RfqEventUncheckedCreateWithoutRfqInput = {
   actorUserId?: string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqEventCreateOrConnectWithoutRfqInput = {
@@ -513,6 +537,7 @@ export type RfqEventScalarWhereInput = {
   actorUserId?: Prisma.StringNullableFilter<"RfqEvent"> | string | null
   metaJson?: Prisma.JsonNullableFilter<"RfqEvent">
   createdAt?: Prisma.DateTimeFilter<"RfqEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"RfqEvent"> | Date | string
 }
 
 export type RfqEventCreateManyRfqInput = {
@@ -524,6 +549,7 @@ export type RfqEventCreateManyRfqInput = {
   actorUserId?: string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqEventUpdateWithoutRfqInput = {
@@ -535,6 +561,7 @@ export type RfqEventUpdateWithoutRfqInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqEventUncheckedUpdateWithoutRfqInput = {
@@ -546,6 +573,7 @@ export type RfqEventUncheckedUpdateWithoutRfqInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqEventUncheckedUpdateManyWithoutRfqInput = {
@@ -557,6 +585,7 @@ export type RfqEventUncheckedUpdateManyWithoutRfqInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -571,6 +600,7 @@ export type RfqEventSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   actorUserId?: boolean
   metaJson?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["rfqEvent"]>
 
@@ -586,9 +616,10 @@ export type RfqEventSelectScalar = {
   actorUserId?: boolean
   metaJson?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type RfqEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rfqId" | "kind" | "sellerAccountId" | "sharedWithSuppliers" | "actorParty" | "actorUserId" | "metaJson" | "createdAt", ExtArgs["result"]["rfqEvent"]>
+export type RfqEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rfqId" | "kind" | "sellerAccountId" | "sharedWithSuppliers" | "actorParty" | "actorUserId" | "metaJson" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqEvent"]>
 export type RfqEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
 }
@@ -612,6 +643,7 @@ export type $RfqEventPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     actorUserId: string | null
     metaJson: runtime.JsonValue | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["rfqEvent"]>
   composites: {}
 }
@@ -991,6 +1023,7 @@ export interface RfqEventFieldRefs {
   readonly actorUserId: Prisma.FieldRef<"RfqEvent", 'String'>
   readonly metaJson: Prisma.FieldRef<"RfqEvent", 'Json'>
   readonly createdAt: Prisma.FieldRef<"RfqEvent", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"RfqEvent", 'DateTime'>
 }
     
 

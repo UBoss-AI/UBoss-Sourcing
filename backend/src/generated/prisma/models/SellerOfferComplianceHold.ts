@@ -32,6 +32,8 @@ export type SellerOfferComplianceHoldMinAggregateOutputType = {
   previousStatus: $Enums.SellerOfferStatus | null
   heldAt: Date | null
   releasedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerOfferComplianceHoldMaxAggregateOutputType = {
@@ -41,6 +43,8 @@ export type SellerOfferComplianceHoldMaxAggregateOutputType = {
   previousStatus: $Enums.SellerOfferStatus | null
   heldAt: Date | null
   releasedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerOfferComplianceHoldCountAggregateOutputType = {
@@ -50,6 +54,8 @@ export type SellerOfferComplianceHoldCountAggregateOutputType = {
   previousStatus: number
   heldAt: number
   releasedAt: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -61,6 +67,8 @@ export type SellerOfferComplianceHoldMinAggregateInputType = {
   previousStatus?: true
   heldAt?: true
   releasedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerOfferComplianceHoldMaxAggregateInputType = {
@@ -70,6 +78,8 @@ export type SellerOfferComplianceHoldMaxAggregateInputType = {
   previousStatus?: true
   heldAt?: true
   releasedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerOfferComplianceHoldCountAggregateInputType = {
@@ -79,6 +89,8 @@ export type SellerOfferComplianceHoldCountAggregateInputType = {
   previousStatus?: true
   heldAt?: true
   releasedAt?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -161,6 +173,8 @@ export type SellerOfferComplianceHoldGroupByOutputType = {
   previousStatus: $Enums.SellerOfferStatus
   heldAt: Date
   releasedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
   _count: SellerOfferComplianceHoldCountAggregateOutputType | null
   _min: SellerOfferComplianceHoldMinAggregateOutputType | null
   _max: SellerOfferComplianceHoldMaxAggregateOutputType | null
@@ -191,6 +205,8 @@ export type SellerOfferComplianceHoldWhereInput = {
   previousStatus?: Prisma.EnumSellerOfferStatusFilter<"SellerOfferComplianceHold"> | $Enums.SellerOfferStatus
   heldAt?: Prisma.DateTimeFilter<"SellerOfferComplianceHold"> | Date | string
   releasedAt?: Prisma.DateTimeNullableFilter<"SellerOfferComplianceHold"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"SellerOfferComplianceHold"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerOfferComplianceHold"> | Date | string
   offer?: Prisma.XOR<Prisma.SellerOfferScalarRelationFilter, Prisma.SellerOfferWhereInput>
   certification?: Prisma.XOR<Prisma.SellerCertificationScalarRelationFilter, Prisma.SellerCertificationWhereInput>
 }
@@ -202,6 +218,8 @@ export type SellerOfferComplianceHoldOrderByWithRelationInput = {
   previousStatus?: Prisma.SortOrder
   heldAt?: Prisma.SortOrder
   releasedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   offer?: Prisma.SellerOfferOrderByWithRelationInput
   certification?: Prisma.SellerCertificationOrderByWithRelationInput
   _relevance?: Prisma.SellerOfferComplianceHoldOrderByRelevanceInput
@@ -217,6 +235,8 @@ export type SellerOfferComplianceHoldWhereUniqueInput = Prisma.AtLeast<{
   previousStatus?: Prisma.EnumSellerOfferStatusFilter<"SellerOfferComplianceHold"> | $Enums.SellerOfferStatus
   heldAt?: Prisma.DateTimeFilter<"SellerOfferComplianceHold"> | Date | string
   releasedAt?: Prisma.DateTimeNullableFilter<"SellerOfferComplianceHold"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"SellerOfferComplianceHold"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerOfferComplianceHold"> | Date | string
   offer?: Prisma.XOR<Prisma.SellerOfferScalarRelationFilter, Prisma.SellerOfferWhereInput>
   certification?: Prisma.XOR<Prisma.SellerCertificationScalarRelationFilter, Prisma.SellerCertificationWhereInput>
 }, "id">
@@ -228,6 +248,8 @@ export type SellerOfferComplianceHoldOrderByWithAggregationInput = {
   previousStatus?: Prisma.SortOrder
   heldAt?: Prisma.SortOrder
   releasedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerOfferComplianceHoldCountOrderByAggregateInput
   _max?: Prisma.SellerOfferComplianceHoldMaxOrderByAggregateInput
   _min?: Prisma.SellerOfferComplianceHoldMinOrderByAggregateInput
@@ -243,6 +265,8 @@ export type SellerOfferComplianceHoldScalarWhereWithAggregatesInput = {
   previousStatus?: Prisma.EnumSellerOfferStatusWithAggregatesFilter<"SellerOfferComplianceHold"> | $Enums.SellerOfferStatus
   heldAt?: Prisma.DateTimeWithAggregatesFilter<"SellerOfferComplianceHold"> | Date | string
   releasedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerOfferComplianceHold"> | Date | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerOfferComplianceHold"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerOfferComplianceHold"> | Date | string
 }
 
 export type SellerOfferComplianceHoldCreateInput = {
@@ -250,6 +274,8 @@ export type SellerOfferComplianceHoldCreateInput = {
   previousStatus: $Enums.SellerOfferStatus
   heldAt?: Date | string
   releasedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   offer: Prisma.SellerOfferCreateNestedOneWithoutComplianceHoldsInput
   certification: Prisma.SellerCertificationCreateNestedOneWithoutHoldsInput
 }
@@ -261,6 +287,8 @@ export type SellerOfferComplianceHoldUncheckedCreateInput = {
   previousStatus: $Enums.SellerOfferStatus
   heldAt?: Date | string
   releasedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerOfferComplianceHoldUpdateInput = {
@@ -268,6 +296,8 @@ export type SellerOfferComplianceHoldUpdateInput = {
   previousStatus?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
   heldAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offer?: Prisma.SellerOfferUpdateOneRequiredWithoutComplianceHoldsNestedInput
   certification?: Prisma.SellerCertificationUpdateOneRequiredWithoutHoldsNestedInput
 }
@@ -279,6 +309,8 @@ export type SellerOfferComplianceHoldUncheckedUpdateInput = {
   previousStatus?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
   heldAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerOfferComplianceHoldCreateManyInput = {
@@ -288,6 +320,8 @@ export type SellerOfferComplianceHoldCreateManyInput = {
   previousStatus: $Enums.SellerOfferStatus
   heldAt?: Date | string
   releasedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerOfferComplianceHoldUpdateManyMutationInput = {
@@ -295,6 +329,8 @@ export type SellerOfferComplianceHoldUpdateManyMutationInput = {
   previousStatus?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
   heldAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerOfferComplianceHoldUncheckedUpdateManyInput = {
@@ -304,6 +340,8 @@ export type SellerOfferComplianceHoldUncheckedUpdateManyInput = {
   previousStatus?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
   heldAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerOfferComplianceHoldListRelationFilter = {
@@ -329,6 +367,8 @@ export type SellerOfferComplianceHoldCountOrderByAggregateInput = {
   previousStatus?: Prisma.SortOrder
   heldAt?: Prisma.SortOrder
   releasedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerOfferComplianceHoldMaxOrderByAggregateInput = {
@@ -338,6 +378,8 @@ export type SellerOfferComplianceHoldMaxOrderByAggregateInput = {
   previousStatus?: Prisma.SortOrder
   heldAt?: Prisma.SortOrder
   releasedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerOfferComplianceHoldMinOrderByAggregateInput = {
@@ -347,6 +389,8 @@ export type SellerOfferComplianceHoldMinOrderByAggregateInput = {
   previousStatus?: Prisma.SortOrder
   heldAt?: Prisma.SortOrder
   releasedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput = {
@@ -438,6 +482,8 @@ export type SellerOfferComplianceHoldCreateWithoutOfferInput = {
   previousStatus: $Enums.SellerOfferStatus
   heldAt?: Date | string
   releasedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   certification: Prisma.SellerCertificationCreateNestedOneWithoutHoldsInput
 }
 
@@ -447,6 +493,8 @@ export type SellerOfferComplianceHoldUncheckedCreateWithoutOfferInput = {
   previousStatus: $Enums.SellerOfferStatus
   heldAt?: Date | string
   releasedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerOfferComplianceHoldCreateOrConnectWithoutOfferInput = {
@@ -485,6 +533,8 @@ export type SellerOfferComplianceHoldScalarWhereInput = {
   previousStatus?: Prisma.EnumSellerOfferStatusFilter<"SellerOfferComplianceHold"> | $Enums.SellerOfferStatus
   heldAt?: Prisma.DateTimeFilter<"SellerOfferComplianceHold"> | Date | string
   releasedAt?: Prisma.DateTimeNullableFilter<"SellerOfferComplianceHold"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"SellerOfferComplianceHold"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerOfferComplianceHold"> | Date | string
 }
 
 export type SellerOfferComplianceHoldCreateWithoutCertificationInput = {
@@ -492,6 +542,8 @@ export type SellerOfferComplianceHoldCreateWithoutCertificationInput = {
   previousStatus: $Enums.SellerOfferStatus
   heldAt?: Date | string
   releasedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   offer: Prisma.SellerOfferCreateNestedOneWithoutComplianceHoldsInput
 }
 
@@ -501,6 +553,8 @@ export type SellerOfferComplianceHoldUncheckedCreateWithoutCertificationInput = 
   previousStatus: $Enums.SellerOfferStatus
   heldAt?: Date | string
   releasedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerOfferComplianceHoldCreateOrConnectWithoutCertificationInput = {
@@ -535,6 +589,8 @@ export type SellerOfferComplianceHoldCreateManyOfferInput = {
   previousStatus: $Enums.SellerOfferStatus
   heldAt?: Date | string
   releasedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerOfferComplianceHoldUpdateWithoutOfferInput = {
@@ -542,6 +598,8 @@ export type SellerOfferComplianceHoldUpdateWithoutOfferInput = {
   previousStatus?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
   heldAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   certification?: Prisma.SellerCertificationUpdateOneRequiredWithoutHoldsNestedInput
 }
 
@@ -551,6 +609,8 @@ export type SellerOfferComplianceHoldUncheckedUpdateWithoutOfferInput = {
   previousStatus?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
   heldAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferInput = {
@@ -559,6 +619,8 @@ export type SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferInput = {
   previousStatus?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
   heldAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerOfferComplianceHoldCreateManyCertificationInput = {
@@ -567,6 +629,8 @@ export type SellerOfferComplianceHoldCreateManyCertificationInput = {
   previousStatus: $Enums.SellerOfferStatus
   heldAt?: Date | string
   releasedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerOfferComplianceHoldUpdateWithoutCertificationInput = {
@@ -574,6 +638,8 @@ export type SellerOfferComplianceHoldUpdateWithoutCertificationInput = {
   previousStatus?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
   heldAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offer?: Prisma.SellerOfferUpdateOneRequiredWithoutComplianceHoldsNestedInput
 }
 
@@ -583,6 +649,8 @@ export type SellerOfferComplianceHoldUncheckedUpdateWithoutCertificationInput = 
   previousStatus?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
   heldAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerOfferComplianceHoldUncheckedUpdateManyWithoutCertificationInput = {
@@ -591,6 +659,8 @@ export type SellerOfferComplianceHoldUncheckedUpdateManyWithoutCertificationInpu
   previousStatus?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
   heldAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -602,6 +672,8 @@ export type SellerOfferComplianceHoldSelect<ExtArgs extends runtime.Types.Extens
   previousStatus?: boolean
   heldAt?: boolean
   releasedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   offer?: boolean | Prisma.SellerOfferDefaultArgs<ExtArgs>
   certification?: boolean | Prisma.SellerCertificationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerOfferComplianceHold"]>
@@ -615,9 +687,11 @@ export type SellerOfferComplianceHoldSelectScalar = {
   previousStatus?: boolean
   heldAt?: boolean
   releasedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerOfferComplianceHoldOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "offerId" | "certificationId" | "previousStatus" | "heldAt" | "releasedAt", ExtArgs["result"]["sellerOfferComplianceHold"]>
+export type SellerOfferComplianceHoldOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "offerId" | "certificationId" | "previousStatus" | "heldAt" | "releasedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerOfferComplianceHold"]>
 export type SellerOfferComplianceHoldInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   offer?: boolean | Prisma.SellerOfferDefaultArgs<ExtArgs>
   certification?: boolean | Prisma.SellerCertificationDefaultArgs<ExtArgs>
@@ -636,6 +710,8 @@ export type $SellerOfferComplianceHoldPayload<ExtArgs extends runtime.Types.Exte
     previousStatus: $Enums.SellerOfferStatus
     heldAt: Date
     releasedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerOfferComplianceHold"]>
   composites: {}
 }
@@ -1013,6 +1089,8 @@ export interface SellerOfferComplianceHoldFieldRefs {
   readonly previousStatus: Prisma.FieldRef<"SellerOfferComplianceHold", 'SellerOfferStatus'>
   readonly heldAt: Prisma.FieldRef<"SellerOfferComplianceHold", 'DateTime'>
   readonly releasedAt: Prisma.FieldRef<"SellerOfferComplianceHold", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"SellerOfferComplianceHold", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerOfferComplianceHold", 'DateTime'>
 }
     
 

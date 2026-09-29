@@ -53,6 +53,7 @@ import {
   inviteMember,
   previewInvitation,
   readTeam,
+  recordAccessReview,
   removeMember,
   resendInvitation,
   revokeInvitation,
@@ -437,6 +438,18 @@ export function registerBuyerCompanyRoutes(app: FastifyInstance): Promise<void> 
     const actor = actorOf(request);
     return reply.send(await removeMember({ ...actor, userId: currentUser(request).id }, params.id, params.memberId));
   });
+
+  /** Record that you have reviewed who has access to the company. Owner or administrator; audited. */
+  app.post(
+    '/:id/access-reviews',
+    { config: { rateLimit: { max: 20, timeWindow: '1 hour' } } },
+    async (request, reply) => {
+      assertCompaniesEnabled();
+      const { id } = idParam.parse(request.params);
+      const actor = actorOf(request);
+      return reply.status(201).send(await recordAccessReview({ ...actor, userId: currentUser(request).id }, id));
+    },
+  );
 
   /** What an invitation link asks you to join. Only for the signed-in account it was sent to. */
   app.post(

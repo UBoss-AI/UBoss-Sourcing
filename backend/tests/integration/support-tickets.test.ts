@@ -823,10 +823,18 @@ describe('the console inbox', () => {
     expect(reopenOpen.status).toBe(409);
     expect(reopenOpen.body.error?.code).toBe('SUPPORT_TICKET_TRANSITION_NOT_ALLOWED');
 
+    // Resolving needs to say how it was resolved.
+    const uncoded = await call(orders, 'PATCH', `/api/v1/admin/support-tickets/${ticketId}`, {
+      status: 'RESOLVED',
+    });
+    expect(uncoded.status).toBe(400);
+    expect(uncoded.body.error?.code).toBe('SUPPORT_RESOLUTION_CODE_REQUIRED');
+
     expect(
       (
         await call(orders, 'PATCH', `/api/v1/admin/support-tickets/${ticketId}`, {
           status: 'RESOLVED',
+          resolutionCode: 'ANSWERED',
         })
       ).status,
     ).toBe(200);

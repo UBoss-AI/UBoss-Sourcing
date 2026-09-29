@@ -20,6 +20,7 @@ import {
   changeTeamRole,
   fetchTeam,
   inviteToTeam,
+  recordCompanyAccessReview,
   removeFromTeam,
   resendTeamInvitation,
   revokeTeamInvitation,
@@ -113,8 +114,18 @@ function TeamBody({ companyId, team }: { companyId: string; team: CompanyTeam })
     onError: fail,
   });
 
+  const review = useMutation({
+    mutationFn: () => recordCompanyAccessReview(companyId),
+    onSuccess: (next) => {
+      apply(next, 'companyTeam.access.recorded');
+    },
+    onError: fail,
+  });
+
   const date = (iso: string): string => new Intl.DateTimeFormat(intlLocale, { dateStyle: 'medium' }).format(new Date(iso));
+  const when = (iso: string | null): string => (iso === null ? t('companyTeam.access.never') : date(iso));
   const canManage = team.manageBlocked === null;
+  const lastReview = team.accessReview?.reviews[0];
 
   return (
     <div className="space-y-5">
@@ -129,6 +140,39 @@ function TeamBody({ companyId, team }: { companyId: string; team: CompanyTeam })
         </p>
       )}
 
+      {team.accessReview !== null && (
+        <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface-sunken p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0 space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-semibold text-ink">{t('companyTeam.access.title')}</h3>
+              {team.accessReview.due ? (
+                <Badge tone="warning">{t('companyTeam.access.due')}</Badge>
+              ) : (
+                <Badge tone="success">{t('companyTeam.access.upToDate')}</Badge>
+              )}
+            </div>
+            <p className="text-xs text-ink-muted">
+              {lastReview === undefined
+                ? t('companyTeam.access.neverReviewed')
+                : t('companyTeam.access.last', { date: date(lastReview.reviewedAt), name: lastReview.reviewedByName })}
+            </p>
+            <p className="max-w-prose text-xs text-ink-muted">{t('companyTeam.access.description')}</p>
+          </div>
+          {canManage && (
+            <Button
+              variant="secondary"
+              size="sm"
+              isLoading={review.isPending}
+              onClick={() => {
+                review.mutate();
+              }}
+            >
+              {t('companyTeam.access.confirm')}
+            </Button>
+          )}
+        </div>
+      )}
+
       <div>
         <h3 className="text-sm font-semibold text-ink">{t('companyTeam.members')}</h3>
         <ul className="mt-2 divide-y divide-border-subtle rounded-lg border border-border">
@@ -140,7 +184,23 @@ function TeamBody({ companyId, team }: { companyId: string; team: CompanyTeam })
                   {member.isYou && <span className="ml-2 text-xs font-normal text-ink-muted">{t('companyTeam.you')}</span>}
                 </p>
                 <p className="truncate text-xs text-ink-muted">{member.email}</p>
-                <p className="text-xs text-ink-muted">{t('companyTeam.joined', { date: date(member.joinedAt) })}</p>
+                <p className="text-xs text-ink-muted">
+                  {t('companyTeam.joined', { date: date(member.joinedAt) })}
+                  {member.access !== null && (
+                    <>
+                      {' · '}
+                      {member.access.invitedByName === null
+                        ? t('companyTeam.access.notInvited')
+                        : t('companyTeam.access.invitedBy', { name: member.access.invitedByName })}
+                    </>
+                  )}
+                </p>
+                {member.access !== null && (
+                  <p className="text-xs text-ink-muted">
+                    {t('companyTeam.access.lastSignIn', { date: when(member.access.lastSignInAt) })} ·{' '}
+                    {t('companyTeam.access.lastActive', { date: when(member.access.lastActiveAt) })}
+                  </p>
+                )}
               </div>
               {member.canChange ? (
                 <div className="flex flex-wrap items-center gap-2">

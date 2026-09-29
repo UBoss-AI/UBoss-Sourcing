@@ -34,6 +34,7 @@ export type MarketProfileMinAggregateOutputType = {
   isPublished: boolean | null
   updatedById: string | null
   updatedAt: Date | null
+  createdAt: Date | null
 }
 
 export type MarketProfileMaxAggregateOutputType = {
@@ -46,6 +47,7 @@ export type MarketProfileMaxAggregateOutputType = {
   isPublished: boolean | null
   updatedById: string | null
   updatedAt: Date | null
+  createdAt: Date | null
 }
 
 export type MarketProfileCountAggregateOutputType = {
@@ -59,6 +61,7 @@ export type MarketProfileCountAggregateOutputType = {
   isPublished: number
   updatedById: number
   updatedAt: number
+  createdAt: number
   _all: number
 }
 
@@ -73,6 +76,7 @@ export type MarketProfileMinAggregateInputType = {
   isPublished?: true
   updatedById?: true
   updatedAt?: true
+  createdAt?: true
 }
 
 export type MarketProfileMaxAggregateInputType = {
@@ -85,6 +89,7 @@ export type MarketProfileMaxAggregateInputType = {
   isPublished?: true
   updatedById?: true
   updatedAt?: true
+  createdAt?: true
 }
 
 export type MarketProfileCountAggregateInputType = {
@@ -98,6 +103,7 @@ export type MarketProfileCountAggregateInputType = {
   isPublished?: true
   updatedById?: true
   updatedAt?: true
+  createdAt?: true
   _all?: true
 }
 
@@ -184,6 +190,7 @@ export type MarketProfileGroupByOutputType = {
   isPublished: boolean
   updatedById: string | null
   updatedAt: Date
+  createdAt: Date
   _count: MarketProfileCountAggregateOutputType | null
   _min: MarketProfileMinAggregateOutputType | null
   _max: MarketProfileMaxAggregateOutputType | null
@@ -218,6 +225,7 @@ export type MarketProfileWhereInput = {
   isPublished?: Prisma.BoolFilter<"MarketProfile"> | boolean
   updatedById?: Prisma.StringNullableFilter<"MarketProfile"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"MarketProfile"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"MarketProfile"> | Date | string
 }
 
 export type MarketProfileOrderByWithRelationInput = {
@@ -231,6 +239,7 @@ export type MarketProfileOrderByWithRelationInput = {
   isPublished?: Prisma.SortOrder
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _relevance?: Prisma.MarketProfileOrderByRelevanceInput
 }
 
@@ -248,6 +257,7 @@ export type MarketProfileWhereUniqueInput = Prisma.AtLeast<{
   isPublished?: Prisma.BoolFilter<"MarketProfile"> | boolean
   updatedById?: Prisma.StringNullableFilter<"MarketProfile"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"MarketProfile"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"MarketProfile"> | Date | string
 }, "countryCode">
 
 export type MarketProfileOrderByWithAggregationInput = {
@@ -261,6 +271,7 @@ export type MarketProfileOrderByWithAggregationInput = {
   isPublished?: Prisma.SortOrder
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _count?: Prisma.MarketProfileCountOrderByAggregateInput
   _max?: Prisma.MarketProfileMaxOrderByAggregateInput
   _min?: Prisma.MarketProfileMinOrderByAggregateInput
@@ -280,6 +291,7 @@ export type MarketProfileScalarWhereWithAggregatesInput = {
   isPublished?: Prisma.BoolWithAggregatesFilter<"MarketProfile"> | boolean
   updatedById?: Prisma.StringNullableWithAggregatesFilter<"MarketProfile"> | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"MarketProfile"> | Date | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"MarketProfile"> | Date | string
 }
 
 export type MarketProfileCreateInput = {
@@ -293,6 +305,7 @@ export type MarketProfileCreateInput = {
   isPublished?: boolean
   updatedById?: string | null
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type MarketProfileUncheckedCreateInput = {
@@ -306,6 +319,7 @@ export type MarketProfileUncheckedCreateInput = {
   isPublished?: boolean
   updatedById?: string | null
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type MarketProfileUpdateInput = {
@@ -319,6 +333,7 @@ export type MarketProfileUpdateInput = {
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type MarketProfileUncheckedUpdateInput = {
@@ -332,6 +347,7 @@ export type MarketProfileUncheckedUpdateInput = {
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type MarketProfileCreateManyInput = {
@@ -345,6 +361,7 @@ export type MarketProfileCreateManyInput = {
   isPublished?: boolean
   updatedById?: string | null
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type MarketProfileUpdateManyMutationInput = {
@@ -358,6 +375,7 @@ export type MarketProfileUpdateManyMutationInput = {
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type MarketProfileUncheckedUpdateManyInput = {
@@ -371,6 +389,7 @@ export type MarketProfileUncheckedUpdateManyInput = {
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type MarketProfileOrderByRelevanceInput = {
@@ -390,6 +409,7 @@ export type MarketProfileCountOrderByAggregateInput = {
   isPublished?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type MarketProfileMaxOrderByAggregateInput = {
@@ -402,6 +422,7 @@ export type MarketProfileMaxOrderByAggregateInput = {
   isPublished?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type MarketProfileMinOrderByAggregateInput = {
@@ -414,6 +435,7 @@ export type MarketProfileMinOrderByAggregateInput = {
   isPublished?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 
@@ -429,6 +451,7 @@ export type MarketProfileSelect<ExtArgs extends runtime.Types.Extensions.Interna
   isPublished?: boolean
   updatedById?: boolean
   updatedAt?: boolean
+  createdAt?: boolean
 }, ExtArgs["result"]["marketProfile"]>
 
 
@@ -444,9 +467,10 @@ export type MarketProfileSelectScalar = {
   isPublished?: boolean
   updatedById?: boolean
   updatedAt?: boolean
+  createdAt?: boolean
 }
 
-export type MarketProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"countryCode" | "headline" | "intro" | "dutiesGuidance" | "deliveryPromise" | "complianceNotes" | "featuredCategoriesJson" | "isPublished" | "updatedById" | "updatedAt", ExtArgs["result"]["marketProfile"]>
+export type MarketProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"countryCode" | "headline" | "intro" | "dutiesGuidance" | "deliveryPromise" | "complianceNotes" | "featuredCategoriesJson" | "isPublished" | "updatedById" | "updatedAt" | "createdAt", ExtArgs["result"]["marketProfile"]>
 
 export type $MarketProfilePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "MarketProfile"
@@ -465,6 +489,7 @@ export type $MarketProfilePayload<ExtArgs extends runtime.Types.Extensions.Inter
     isPublished: boolean
     updatedById: string | null
     updatedAt: Date
+    createdAt: Date
   }, ExtArgs["result"]["marketProfile"]>
   composites: {}
 }
@@ -844,6 +869,7 @@ export interface MarketProfileFieldRefs {
   readonly isPublished: Prisma.FieldRef<"MarketProfile", 'Boolean'>
   readonly updatedById: Prisma.FieldRef<"MarketProfile", 'String'>
   readonly updatedAt: Prisma.FieldRef<"MarketProfile", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"MarketProfile", 'DateTime'>
 }
     
 

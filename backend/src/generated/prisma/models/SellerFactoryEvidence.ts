@@ -45,6 +45,7 @@ export type SellerFactoryEvidenceMinAggregateOutputType = {
   capturedLatitude: runtime.Decimal | null
   capturedLongitude: runtime.Decimal | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerFactoryEvidenceMaxAggregateOutputType = {
@@ -55,6 +56,7 @@ export type SellerFactoryEvidenceMaxAggregateOutputType = {
   capturedLatitude: runtime.Decimal | null
   capturedLongitude: runtime.Decimal | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerFactoryEvidenceCountAggregateOutputType = {
@@ -65,6 +67,7 @@ export type SellerFactoryEvidenceCountAggregateOutputType = {
   capturedLatitude: number
   capturedLongitude: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -87,6 +90,7 @@ export type SellerFactoryEvidenceMinAggregateInputType = {
   capturedLatitude?: true
   capturedLongitude?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerFactoryEvidenceMaxAggregateInputType = {
@@ -97,6 +101,7 @@ export type SellerFactoryEvidenceMaxAggregateInputType = {
   capturedLatitude?: true
   capturedLongitude?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerFactoryEvidenceCountAggregateInputType = {
@@ -107,6 +112,7 @@ export type SellerFactoryEvidenceCountAggregateInputType = {
   capturedLatitude?: true
   capturedLongitude?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -204,6 +210,7 @@ export type SellerFactoryEvidenceGroupByOutputType = {
   capturedLatitude: runtime.Decimal | null
   capturedLongitude: runtime.Decimal | null
   createdAt: Date
+  updatedAt: Date
   _count: SellerFactoryEvidenceCountAggregateOutputType | null
   _avg: SellerFactoryEvidenceAvgAggregateOutputType | null
   _sum: SellerFactoryEvidenceSumAggregateOutputType | null
@@ -237,6 +244,7 @@ export type SellerFactoryEvidenceWhereInput = {
   capturedLatitude?: Prisma.DecimalNullableFilter<"SellerFactoryEvidence"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: Prisma.DecimalNullableFilter<"SellerFactoryEvidence"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerFactoryEvidence"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerFactoryEvidence"> | Date | string
   factory?: Prisma.XOR<Prisma.SellerFactoryScalarRelationFilter, Prisma.SellerFactoryWhereInput>
 }
 
@@ -248,6 +256,7 @@ export type SellerFactoryEvidenceOrderByWithRelationInput = {
   capturedLatitude?: Prisma.SortOrderInput | Prisma.SortOrder
   capturedLongitude?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   factory?: Prisma.SellerFactoryOrderByWithRelationInput
   _relevance?: Prisma.SellerFactoryEvidenceOrderByRelevanceInput
 }
@@ -264,6 +273,7 @@ export type SellerFactoryEvidenceWhereUniqueInput = Prisma.AtLeast<{
   capturedLatitude?: Prisma.DecimalNullableFilter<"SellerFactoryEvidence"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: Prisma.DecimalNullableFilter<"SellerFactoryEvidence"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerFactoryEvidence"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerFactoryEvidence"> | Date | string
   factory?: Prisma.XOR<Prisma.SellerFactoryScalarRelationFilter, Prisma.SellerFactoryWhereInput>
 }, "id" | "factoryId_documentId">
 
@@ -275,6 +285,7 @@ export type SellerFactoryEvidenceOrderByWithAggregationInput = {
   capturedLatitude?: Prisma.SortOrderInput | Prisma.SortOrder
   capturedLongitude?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerFactoryEvidenceCountOrderByAggregateInput
   _avg?: Prisma.SellerFactoryEvidenceAvgOrderByAggregateInput
   _max?: Prisma.SellerFactoryEvidenceMaxOrderByAggregateInput
@@ -293,6 +304,7 @@ export type SellerFactoryEvidenceScalarWhereWithAggregatesInput = {
   capturedLatitude?: Prisma.DecimalNullableWithAggregatesFilter<"SellerFactoryEvidence"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: Prisma.DecimalNullableWithAggregatesFilter<"SellerFactoryEvidence"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerFactoryEvidence"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerFactoryEvidence"> | Date | string
 }
 
 export type SellerFactoryEvidenceCreateInput = {
@@ -302,6 +314,7 @@ export type SellerFactoryEvidenceCreateInput = {
   capturedLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   factory: Prisma.SellerFactoryCreateNestedOneWithoutEvidenceInput
 }
 
@@ -313,6 +326,7 @@ export type SellerFactoryEvidenceUncheckedCreateInput = {
   capturedLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerFactoryEvidenceUpdateInput = {
@@ -322,6 +336,7 @@ export type SellerFactoryEvidenceUpdateInput = {
   capturedLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   factory?: Prisma.SellerFactoryUpdateOneRequiredWithoutEvidenceNestedInput
 }
 
@@ -333,6 +348,7 @@ export type SellerFactoryEvidenceUncheckedUpdateInput = {
   capturedLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerFactoryEvidenceCreateManyInput = {
@@ -343,6 +359,7 @@ export type SellerFactoryEvidenceCreateManyInput = {
   capturedLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerFactoryEvidenceUpdateManyMutationInput = {
@@ -352,6 +369,7 @@ export type SellerFactoryEvidenceUpdateManyMutationInput = {
   capturedLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerFactoryEvidenceUncheckedUpdateManyInput = {
@@ -362,6 +380,7 @@ export type SellerFactoryEvidenceUncheckedUpdateManyInput = {
   capturedLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerFactoryEvidenceListRelationFilter = {
@@ -393,6 +412,7 @@ export type SellerFactoryEvidenceCountOrderByAggregateInput = {
   capturedLatitude?: Prisma.SortOrder
   capturedLongitude?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerFactoryEvidenceAvgOrderByAggregateInput = {
@@ -408,6 +428,7 @@ export type SellerFactoryEvidenceMaxOrderByAggregateInput = {
   capturedLatitude?: Prisma.SortOrder
   capturedLongitude?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerFactoryEvidenceMinOrderByAggregateInput = {
@@ -418,6 +439,7 @@ export type SellerFactoryEvidenceMinOrderByAggregateInput = {
   capturedLatitude?: Prisma.SortOrder
   capturedLongitude?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerFactoryEvidenceSumOrderByAggregateInput = {
@@ -474,6 +496,7 @@ export type SellerFactoryEvidenceCreateWithoutFactoryInput = {
   capturedLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerFactoryEvidenceUncheckedCreateWithoutFactoryInput = {
@@ -483,6 +506,7 @@ export type SellerFactoryEvidenceUncheckedCreateWithoutFactoryInput = {
   capturedLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerFactoryEvidenceCreateOrConnectWithoutFactoryInput = {
@@ -522,6 +546,7 @@ export type SellerFactoryEvidenceScalarWhereInput = {
   capturedLatitude?: Prisma.DecimalNullableFilter<"SellerFactoryEvidence"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: Prisma.DecimalNullableFilter<"SellerFactoryEvidence"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerFactoryEvidence"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerFactoryEvidence"> | Date | string
 }
 
 export type SellerFactoryEvidenceCreateManyFactoryInput = {
@@ -531,6 +556,7 @@ export type SellerFactoryEvidenceCreateManyFactoryInput = {
   capturedLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerFactoryEvidenceUpdateWithoutFactoryInput = {
@@ -540,6 +566,7 @@ export type SellerFactoryEvidenceUpdateWithoutFactoryInput = {
   capturedLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerFactoryEvidenceUncheckedUpdateWithoutFactoryInput = {
@@ -549,6 +576,7 @@ export type SellerFactoryEvidenceUncheckedUpdateWithoutFactoryInput = {
   capturedLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerFactoryEvidenceUncheckedUpdateManyWithoutFactoryInput = {
@@ -558,6 +586,7 @@ export type SellerFactoryEvidenceUncheckedUpdateManyWithoutFactoryInput = {
   capturedLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   capturedLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -570,6 +599,7 @@ export type SellerFactoryEvidenceSelect<ExtArgs extends runtime.Types.Extensions
   capturedLatitude?: boolean
   capturedLongitude?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   factory?: boolean | Prisma.SellerFactoryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerFactoryEvidence"]>
 
@@ -583,9 +613,10 @@ export type SellerFactoryEvidenceSelectScalar = {
   capturedLatitude?: boolean
   capturedLongitude?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerFactoryEvidenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "factoryId" | "documentId" | "caption" | "capturedLatitude" | "capturedLongitude" | "createdAt", ExtArgs["result"]["sellerFactoryEvidence"]>
+export type SellerFactoryEvidenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "factoryId" | "documentId" | "caption" | "capturedLatitude" | "capturedLongitude" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerFactoryEvidence"]>
 export type SellerFactoryEvidenceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   factory?: boolean | Prisma.SellerFactoryDefaultArgs<ExtArgs>
 }
@@ -606,6 +637,7 @@ export type $SellerFactoryEvidencePayload<ExtArgs extends runtime.Types.Extensio
     capturedLatitude: runtime.Decimal | null
     capturedLongitude: runtime.Decimal | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerFactoryEvidence"]>
   composites: {}
 }
@@ -983,6 +1015,7 @@ export interface SellerFactoryEvidenceFieldRefs {
   readonly capturedLatitude: Prisma.FieldRef<"SellerFactoryEvidence", 'Decimal'>
   readonly capturedLongitude: Prisma.FieldRef<"SellerFactoryEvidence", 'Decimal'>
   readonly createdAt: Prisma.FieldRef<"SellerFactoryEvidence", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerFactoryEvidence", 'DateTime'>
 }
     
 

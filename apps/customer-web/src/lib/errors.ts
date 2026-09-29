@@ -77,6 +77,17 @@ const PREORDER_CODES = new Set([
   'PREORDER_STOCK_CHANGED',
 ]);
 
+/** A seller's factories and certificates, and their verification (Master row 13). */
+const FACTORY_CODES = new Set([
+  'FACTORY_NOT_EDITABLE',
+  'FACTORY_INCOMPLETE',
+  'FACTORY_TRANSITION_INVALID',
+  'CERTIFICATION_NOT_EDITABLE',
+  'CERTIFICATION_TRANSITION_INVALID',
+  'TRUST_EVIDENCE_UNUSABLE',
+  'TRUST_EVIDENCE_IN_USE',
+]);
+
 /** Seller invoices and packing lists. */
 const SELLER_DOCUMENT_CODES = new Set([
   'SELLER_DOCUMENT_NOT_ELIGIBLE',
@@ -135,6 +146,21 @@ const BUYER_COMPANY_CODES = new Set([
   'BUYER_COMPANY_INVITATION_INVALID',
   'BUYER_COMPANY_ALREADY_MEMBER',
   'BUYER_COMPANY_MEMBER_PROTECTED',
+]);
+
+/**
+ * A seller's team (Master row 14): inviting, accepting, changing a role. Each
+ * is met mid-task on the Team page or the join page, so each is said in the
+ * reader's language.
+ */
+const SELLER_TEAM_CODES = new Set([
+  'SELLER_INVITATION_EXISTS',
+  'SELLER_INVITATION_INVALID',
+  'SELLER_INVITATION_SEND_LIMIT',
+  'SELLER_ALREADY_MEMBER',
+  'SELLER_MEMBERSHIP_EXISTS',
+  'SELLER_MEMBER_PROTECTED',
+  'SELLER_LAST_OWNER',
 ]);
 
 /** An individual's identity check, on Identity and import. */
@@ -212,6 +238,9 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
      * order by the piece instead.
      */
     if (error.code === 'SELLER_SESSION_EXPIRED') return t('sellerSession.expired');
+    // Only staff approve sellers, so a seller meets this only if a screen
+    // they share with staff ever relays it. Worded all the same.
+    if (error.code === 'SELLER_APPROVAL_EVIDENCE_MISSING') return t('errors.sellerApprovalEvidenceMissing');
     if (error.code === 'PRODUCT_PRICE_ON_REQUEST') return t('errors.pricedOnRequest');
     if (error.code === 'PRODUCT_NOT_ORDERABLE') return t('errors.notOrderable');
     if (error.code === 'PACK_SIZE_UNKNOWN') return t('errors.packSizeUnknown');
@@ -294,6 +323,23 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
 
     if (SELLER_DOCUMENT_CODES.has(error.code)) {
       return t(`errors.sellerDocument.${error.code}` as TranslationKey);
+    }
+
+    if (SELLER_TEAM_CODES.has(error.code)) {
+      // Which rule protects a member: themselves, or somebody holding more.
+      const detail = error.details[0]?.code;
+      if (error.code === 'SELLER_MEMBER_PROTECTED' && detail !== undefined) {
+        return t(`errors.sellerTeam.protected.${detail}` as TranslationKey, {
+          defaultValue: t('errors.sellerTeam.SELLER_MEMBER_PROTECTED'),
+        });
+      }
+      return t(`errors.sellerTeam.${error.code}` as TranslationKey);
+    }
+
+    if (FACTORY_CODES.has(error.code)) {
+      // A page left open while a reviewer decided, or the check lapsed.
+      if (error.details.some((detail) => detail.code === 'STALE')) return t('errors.factory.STALE');
+      return t(`errors.factory.${error.code}` as TranslationKey);
     }
 
     if (CUSTOMER_KYC_CODES.has(error.code)) {

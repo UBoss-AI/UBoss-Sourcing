@@ -43,6 +43,8 @@ export type SellerFactoryMachineMinAggregateOutputType = {
   quantity: number | null
   capacityNote: string | null
   sortOrder: number | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerFactoryMachineMaxAggregateOutputType = {
@@ -52,6 +54,8 @@ export type SellerFactoryMachineMaxAggregateOutputType = {
   quantity: number | null
   capacityNote: string | null
   sortOrder: number | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerFactoryMachineCountAggregateOutputType = {
@@ -61,6 +65,8 @@ export type SellerFactoryMachineCountAggregateOutputType = {
   quantity: number
   capacityNote: number
   sortOrder: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -82,6 +88,8 @@ export type SellerFactoryMachineMinAggregateInputType = {
   quantity?: true
   capacityNote?: true
   sortOrder?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerFactoryMachineMaxAggregateInputType = {
@@ -91,6 +99,8 @@ export type SellerFactoryMachineMaxAggregateInputType = {
   quantity?: true
   capacityNote?: true
   sortOrder?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerFactoryMachineCountAggregateInputType = {
@@ -100,6 +110,8 @@ export type SellerFactoryMachineCountAggregateInputType = {
   quantity?: true
   capacityNote?: true
   sortOrder?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -196,6 +208,8 @@ export type SellerFactoryMachineGroupByOutputType = {
   quantity: number
   capacityNote: string | null
   sortOrder: number
+  createdAt: Date
+  updatedAt: Date
   _count: SellerFactoryMachineCountAggregateOutputType | null
   _avg: SellerFactoryMachineAvgAggregateOutputType | null
   _sum: SellerFactoryMachineSumAggregateOutputType | null
@@ -228,6 +242,8 @@ export type SellerFactoryMachineWhereInput = {
   quantity?: Prisma.IntFilter<"SellerFactoryMachine"> | number
   capacityNote?: Prisma.StringNullableFilter<"SellerFactoryMachine"> | string | null
   sortOrder?: Prisma.IntFilter<"SellerFactoryMachine"> | number
+  createdAt?: Prisma.DateTimeFilter<"SellerFactoryMachine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerFactoryMachine"> | Date | string
   factory?: Prisma.XOR<Prisma.SellerFactoryScalarRelationFilter, Prisma.SellerFactoryWhereInput>
 }
 
@@ -238,6 +254,8 @@ export type SellerFactoryMachineOrderByWithRelationInput = {
   quantity?: Prisma.SortOrder
   capacityNote?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   factory?: Prisma.SellerFactoryOrderByWithRelationInput
   _relevance?: Prisma.SellerFactoryMachineOrderByRelevanceInput
 }
@@ -252,6 +270,8 @@ export type SellerFactoryMachineWhereUniqueInput = Prisma.AtLeast<{
   quantity?: Prisma.IntFilter<"SellerFactoryMachine"> | number
   capacityNote?: Prisma.StringNullableFilter<"SellerFactoryMachine"> | string | null
   sortOrder?: Prisma.IntFilter<"SellerFactoryMachine"> | number
+  createdAt?: Prisma.DateTimeFilter<"SellerFactoryMachine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerFactoryMachine"> | Date | string
   factory?: Prisma.XOR<Prisma.SellerFactoryScalarRelationFilter, Prisma.SellerFactoryWhereInput>
 }, "id">
 
@@ -262,6 +282,8 @@ export type SellerFactoryMachineOrderByWithAggregationInput = {
   quantity?: Prisma.SortOrder
   capacityNote?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerFactoryMachineCountOrderByAggregateInput
   _avg?: Prisma.SellerFactoryMachineAvgOrderByAggregateInput
   _max?: Prisma.SellerFactoryMachineMaxOrderByAggregateInput
@@ -279,6 +301,8 @@ export type SellerFactoryMachineScalarWhereWithAggregatesInput = {
   quantity?: Prisma.IntWithAggregatesFilter<"SellerFactoryMachine"> | number
   capacityNote?: Prisma.StringNullableWithAggregatesFilter<"SellerFactoryMachine"> | string | null
   sortOrder?: Prisma.IntWithAggregatesFilter<"SellerFactoryMachine"> | number
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerFactoryMachine"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerFactoryMachine"> | Date | string
 }
 
 export type SellerFactoryMachineCreateInput = {
@@ -287,6 +311,8 @@ export type SellerFactoryMachineCreateInput = {
   quantity?: number
   capacityNote?: string | null
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
   factory: Prisma.SellerFactoryCreateNestedOneWithoutMachinesInput
 }
 
@@ -297,6 +323,8 @@ export type SellerFactoryMachineUncheckedCreateInput = {
   quantity?: number
   capacityNote?: string | null
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerFactoryMachineUpdateInput = {
@@ -305,6 +333,8 @@ export type SellerFactoryMachineUpdateInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   capacityNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   factory?: Prisma.SellerFactoryUpdateOneRequiredWithoutMachinesNestedInput
 }
 
@@ -315,6 +345,8 @@ export type SellerFactoryMachineUncheckedUpdateInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   capacityNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerFactoryMachineCreateManyInput = {
@@ -324,6 +356,8 @@ export type SellerFactoryMachineCreateManyInput = {
   quantity?: number
   capacityNote?: string | null
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerFactoryMachineUpdateManyMutationInput = {
@@ -332,6 +366,8 @@ export type SellerFactoryMachineUpdateManyMutationInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   capacityNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerFactoryMachineUncheckedUpdateManyInput = {
@@ -341,6 +377,8 @@ export type SellerFactoryMachineUncheckedUpdateManyInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   capacityNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerFactoryMachineListRelationFilter = {
@@ -366,6 +404,8 @@ export type SellerFactoryMachineCountOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
   capacityNote?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerFactoryMachineAvgOrderByAggregateInput = {
@@ -380,6 +420,8 @@ export type SellerFactoryMachineMaxOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
   capacityNote?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerFactoryMachineMinOrderByAggregateInput = {
@@ -389,6 +431,8 @@ export type SellerFactoryMachineMinOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
   capacityNote?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerFactoryMachineSumOrderByAggregateInput = {
@@ -444,6 +488,8 @@ export type SellerFactoryMachineCreateWithoutFactoryInput = {
   quantity?: number
   capacityNote?: string | null
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerFactoryMachineUncheckedCreateWithoutFactoryInput = {
@@ -452,6 +498,8 @@ export type SellerFactoryMachineUncheckedCreateWithoutFactoryInput = {
   quantity?: number
   capacityNote?: string | null
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerFactoryMachineCreateOrConnectWithoutFactoryInput = {
@@ -490,6 +538,8 @@ export type SellerFactoryMachineScalarWhereInput = {
   quantity?: Prisma.IntFilter<"SellerFactoryMachine"> | number
   capacityNote?: Prisma.StringNullableFilter<"SellerFactoryMachine"> | string | null
   sortOrder?: Prisma.IntFilter<"SellerFactoryMachine"> | number
+  createdAt?: Prisma.DateTimeFilter<"SellerFactoryMachine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerFactoryMachine"> | Date | string
 }
 
 export type SellerFactoryMachineCreateManyFactoryInput = {
@@ -498,6 +548,8 @@ export type SellerFactoryMachineCreateManyFactoryInput = {
   quantity?: number
   capacityNote?: string | null
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerFactoryMachineUpdateWithoutFactoryInput = {
@@ -506,6 +558,8 @@ export type SellerFactoryMachineUpdateWithoutFactoryInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   capacityNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerFactoryMachineUncheckedUpdateWithoutFactoryInput = {
@@ -514,6 +568,8 @@ export type SellerFactoryMachineUncheckedUpdateWithoutFactoryInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   capacityNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerFactoryMachineUncheckedUpdateManyWithoutFactoryInput = {
@@ -522,6 +578,8 @@ export type SellerFactoryMachineUncheckedUpdateManyWithoutFactoryInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   capacityNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -533,6 +591,8 @@ export type SellerFactoryMachineSelect<ExtArgs extends runtime.Types.Extensions.
   quantity?: boolean
   capacityNote?: boolean
   sortOrder?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   factory?: boolean | Prisma.SellerFactoryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerFactoryMachine"]>
 
@@ -545,9 +605,11 @@ export type SellerFactoryMachineSelectScalar = {
   quantity?: boolean
   capacityNote?: boolean
   sortOrder?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerFactoryMachineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "factoryId" | "name" | "quantity" | "capacityNote" | "sortOrder", ExtArgs["result"]["sellerFactoryMachine"]>
+export type SellerFactoryMachineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "factoryId" | "name" | "quantity" | "capacityNote" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerFactoryMachine"]>
 export type SellerFactoryMachineInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   factory?: boolean | Prisma.SellerFactoryDefaultArgs<ExtArgs>
 }
@@ -564,6 +626,8 @@ export type $SellerFactoryMachinePayload<ExtArgs extends runtime.Types.Extension
     quantity: number
     capacityNote: string | null
     sortOrder: number
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerFactoryMachine"]>
   composites: {}
 }
@@ -940,6 +1004,8 @@ export interface SellerFactoryMachineFieldRefs {
   readonly quantity: Prisma.FieldRef<"SellerFactoryMachine", 'Int'>
   readonly capacityNote: Prisma.FieldRef<"SellerFactoryMachine", 'String'>
   readonly sortOrder: Prisma.FieldRef<"SellerFactoryMachine", 'Int'>
+  readonly createdAt: Prisma.FieldRef<"SellerFactoryMachine", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerFactoryMachine", 'DateTime'>
 }
     
 

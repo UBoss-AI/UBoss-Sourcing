@@ -26,6 +26,7 @@ import { archiveOrphanedShipmentAlerts } from '../modules/notifications/admin-no
 import { sweepExpiredReservations } from '../modules/inventory/inventory.service.js';
 import { sweepExpiredFulfilmentQuotes } from '../modules/fulfilment/warehouse-options.service.js';
 import { expirePaymentLinks } from '../modules/payments/payment-link.service.js';
+import { sweepExpiredSellerDocuments } from '../modules/seller/document-expiry.service.js';
 import { reconcileOpenCheckouts } from '../modules/payments/stripe-checkout.service.js';
 import { expireStalePreorders, flagPreorderDeliveryRisks } from '../modules/preorders/request.service.js';
 import { runPreorderChatMaintenance } from '../modules/preorder-chat/maintenance.service.js';
@@ -554,6 +555,15 @@ const buyerCompanyChecks: JobHandler = async (payload) => {
   logger.info({ companyId }, 'buyer company checks finished');
 };
 
+/**
+ * Approved sellers whose required document has expired go back to
+ * ACTION_REQUIRED, told why. See `document-expiry.service.ts`.
+ */
+const sellerDocumentExpirySweep: JobHandler = async () => {
+  const moved = await sweepExpiredSellerDocuments();
+  if (moved > 0) logger.info({ moved }, 'sellers sent back for an expired document');
+};
+
 const fulfilDataRequest: JobHandler = async (payload) => {
   const dataRequestId = requireString(payload, 'dataRequestId');
   await fulfilRequest(dataRequestId);
@@ -595,6 +605,23 @@ const housekeepingSweep: JobHandler = async () => {
 
   if (result.moreToDo) {
     logger.info({ removed: result.removed }, 'housekeeping backlog remains; continuing next beat');
+  }
+
+  /*
+   * Supplier verifications that have lapsed (Master row 13): a factory past
+   * its valid-until date, a certificate past its expiry date. Every screen and
+   * the public supplier page already treat them as lapsed when they read
+   * them; this records it for the ones nobody opens. Guarded apart, so a
+   * failure here never stops housekeeping.
+   */
+  try {
+    const { sweepExpiredFactories } = await import('../modules/trust/factory.service.js');
+    const { sweepExpiredCertifications } = await import('../modules/trust/certification.service.js');
+    const factories = await sweepExpiredFactories();
+    const certificates = await sweepExpiredCertifications();
+    if (factories + certificates > 0) logger.info({ factories, certificates }, 'recorded lapsed supplier verifications');
+  } catch (error) {
+    logger.error({ err: error }, 'supplier verification expiry pass failed');
   }
 };
 
@@ -961,6 +988,7 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.SELLER_ERP_RECONCILE]: sellerErpReconcile,
   [JobType.SELLER_SETTLEMENT_CLOSE]: sellerSettlementClose,
   [JobType.BUYER_COMPANY_CHECKS]: buyerCompanyChecks,
+  [JobType.SELLER_DOCUMENT_EXPIRY_SWEEP]: sellerDocumentExpirySweep,
 });
 
 export function handlerFor(jobType: string): JobHandler | undefined {

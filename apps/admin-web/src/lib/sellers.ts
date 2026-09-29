@@ -74,6 +74,7 @@ export interface SellerApplicationDetail {
     representativeRole: string | null;
     supportEmail: string | null;
     supportPhone: string | null;
+    legalForm: string | null;
     companyRegistrationNumber: string | null;
     taxRegistrationNumber: string | null;
     eoriNumber: string | null;
@@ -96,15 +97,25 @@ export interface SellerApplicationDetail {
     lastStepKey: string | null;
   } | null;
 
+  /**
+   * Never more than the bank's name and the last four digits. The provider's
+   * own account id and raw requirement list are not sent.
+   */
   payoutAccount: {
     provider: string | null;
-    providerAccountId: string | null;
     state: string;
     payoutsEnabled: boolean;
     bankName: string | null;
     accountLast4: string | null;
     payoutCurrency: string | null;
+    /** The payment provider's own word for the bank account. Null: it has said nothing. */
+    bankAccountStatus: string | null;
+    detailsSubmitted: boolean;
+    lastSyncedAt: string | null;
   } | null;
+
+  /** Ownership, registrations, exports, screening and the approval gate. */
+  kyb: SellerKybReview;
 
   locations: {
     id: string;
@@ -152,6 +163,86 @@ export interface SellerApplicationDetail {
 
 export function fetchSellerApplication(id: string): Promise<SellerApplicationDetail> {
   return api.get<SellerApplicationDetail>(`/admin/sellers/${id}`);
+}
+
+// --- Ownership, screening and the approval gate ---------------------------
+
+export type ScreeningResult = 'CLEAR' | 'POTENTIAL_MATCH' | 'CONFIRMED_MATCH';
+
+export interface SellerScreening {
+  id: string;
+  subjectType: 'ENTITY' | 'BENEFICIAL_OWNER';
+  beneficialOwnerId: string | null;
+  /** The name as it was when screened. */
+  subjectName: string;
+  /** Always `manual` here - no automated screening provider exists. */
+  provider: string;
+  automated: boolean;
+  state: ScreeningResult | 'PENDING_REVIEW';
+  listsChecked: string | null;
+  note: string | null;
+  reviewedAt: string | null;
+  reviewedBy: string | null;
+  isCurrent: boolean;
+}
+
+export interface SellerReadinessItem {
+  code:
+    | 'STEP_INCOMPLETE'
+    | 'DOCUMENT_NOT_APPROVED'
+    | 'DOCUMENT_EXPIRED'
+    | 'SCREENING_REQUIRED'
+    | 'SCREENING_NOT_CLEAR';
+  field?: string;
+  message?: string;
+  meta?: { name?: string };
+}
+
+export interface SellerKybReview {
+  isIndia: boolean;
+  policy: { beneficialOwnersRequired: boolean };
+  registrationNumberName: 'CIN' | 'LLPIN' | null;
+  legalForm: string | null;
+  udyamNumber: string | null;
+  iecNumber: string | null;
+  exportCapable: boolean;
+  exportMarkets: string[];
+  yearsExporting: number | null;
+  intendedCategories: { id: string; name: string; blockedIn: { countryCode: string; reason: string }[] }[];
+  beneficialOwners: {
+    id: string;
+    fullName: string;
+    nationality: string | null;
+    ownershipBasisPoints: number;
+    role: string | null;
+    isControllingPerson: boolean;
+    isPoliticallyExposed: boolean;
+    screening: SellerScreening | null;
+  }[];
+  ownershipTotalBasisPoints: number;
+  outstanding: { code: string; label: string }[];
+  signals: string[];
+  screening: {
+    required: boolean;
+    provider: 'manual';
+    automatedProviderConfigured: false;
+    entity: SellerScreening | null;
+    history: SellerScreening[];
+  };
+  readiness: { ready: boolean; missing: SellerReadinessItem[] };
+}
+
+export interface ScreeningInput {
+  subjectType: 'ENTITY' | 'BENEFICIAL_OWNER';
+  beneficialOwnerId?: string | null;
+  result: ScreeningResult;
+  listsChecked: string;
+  note?: string | null;
+}
+
+/** Record a manual restricted-party / sanctions screening. */
+export function recordSellerScreening(id: string, input: ScreeningInput): Promise<SellerScreening> {
+  return api.post<SellerScreening>(`/admin/sellers/${id}/screening`, input);
 }
 
 export interface SellerDecision {
@@ -432,7 +523,8 @@ const DOCUMENT_KIND_LABELS: Readonly<Record<string, string>> = Object.freeze({
   TAX_CERTIFICATE: 'Tax registration certificate',
   IDENTITY_PROOF: 'Photo identification',
   ADDRESS_PROOF: 'Proof of address',
-  BANK_STATEMENT: 'Bank statement',
+  // Evidence a reviewer reads - not a bank verification.
+  BANK_STATEMENT: 'Bank letter, statement or cancelled cheque',
   BRAND_AUTHORISATION: 'Brand authorisation',
   TRADEMARK_EVIDENCE: 'Trademark evidence',
   INSTRUCTIONS_FOR_USE: 'Instructions for use',

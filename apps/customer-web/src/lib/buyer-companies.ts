@@ -367,6 +367,25 @@ export interface TeamMember {
   joinedAt: string;
   isYou: boolean;
   canChange: boolean;
+  /** Access-review facts, for the owner and administrators only; null for everybody else. */
+  access: { invitedByName: string | null; lastSignInAt: string | null; lastActiveAt: string | null } | null;
+}
+
+/** One "I have checked who has access", newest first. Shared with the Seller Hub. */
+export interface AccessReview {
+  id: string;
+  reviewedAt: string;
+  reviewedByName: string;
+  memberCount: number;
+  invitationCount: number;
+}
+
+export interface AccessReviewSummary {
+  reviews: AccessReview[];
+  /** Days between reviews this marketplace asks for; 0 means no reminder. */
+  intervalDays: number;
+  dueAt: string | null;
+  due: boolean;
 }
 
 export interface TeamInvitation {
@@ -387,6 +406,8 @@ export interface CompanyTeam {
   assignableRoles: AssignableRole[];
   members: TeamMember[];
   invitations: TeamInvitation[];
+  /** Null for anybody who cannot manage the team. */
+  accessReview: AccessReviewSummary | null;
 }
 
 export const teamQueryKey = (id: string): readonly unknown[] => ['buyer-company', id, 'team'];
@@ -413,6 +434,11 @@ export function changeTeamRole(id: string, memberId: string, role: AssignableRol
 
 export function removeFromTeam(id: string, memberId: string): Promise<CompanyTeam> {
   return api.delete(`/buyer-companies/${id}/members/${memberId}`);
+}
+
+/** Record that the caller has reviewed who has access. */
+export function recordCompanyAccessReview(id: string): Promise<CompanyTeam> {
+  return api.post(`/buyer-companies/${id}/access-reviews`);
 }
 
 export interface InvitationPreview {

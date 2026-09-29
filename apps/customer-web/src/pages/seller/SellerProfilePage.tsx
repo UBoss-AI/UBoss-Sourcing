@@ -16,6 +16,7 @@ import { useToast } from '@/components/toast-context';
 import {
   Badge,
   Button,
+  ButtonLink,
   Card,
   EmptyState,
   ErrorState,
@@ -36,14 +37,11 @@ import { errorMessage } from '@/lib/errors';
 import { useStorefront } from '@/app/storefront-context';
 import {
   archiveLocation,
-  changeMemberRole,
   createLocation,
   fetchBusinessProfile,
   fetchLocations,
-  fetchMembers,
   geocodeLocation,
   LOCATION_SUGGEST_ENDPOINT,
-  removeMember,
   removeSellerLogo,
   updateLocation,
   uploadSellerLogo,
@@ -51,28 +49,10 @@ import {
 } from '@/lib/seller';
 import type { SellerOutletContext } from './SellerLayout';
 
-interface TeamMember {
-  id: string;
-  role: string;
-  joinedAt: string;
-  name: string;
-  email: string;
-}
-
-const ROLE_LABELS: Record<string, string> = {
-  OWNER: 'Owner',
-  ADMIN: 'Admin',
-  CATALOGUE_MANAGER: 'Catalogue manager',
-  INVENTORY_MANAGER: 'Inventory manager',
-  ORDER_MANAGER: 'Order manager',
-  FINANCE_VIEWER: 'Finance viewer',
-  SUPPORT_MEMBER: 'Support',
-};
-
 export function SellerProfilePage(): React.JSX.Element {
   const seller = useOutletContext<SellerOutletContext>();
+  const { t } = useI18n();
   const [isAdding, setIsAdding] = useState(false);
-  const [removing, setRemoving] = useState<TeamMember | null>(null);
   const [editing, setEditing] = useState<SellerLocation | null>(null);
   const [closing, setClosing] = useState<SellerLocation | null>(null);
 
@@ -83,17 +63,6 @@ export function SellerProfilePage(): React.JSX.Element {
 
   const locations = useQuery({ queryKey: ['seller', 'locations'], queryFn: fetchLocations });
 
-  const team = useQuery({
-    queryKey: ['seller', 'members'],
-    queryFn: fetchMembers,
-    // A Support Member cannot read the team, and that is a 403 rather than an
-    // empty list. Retrying it would be three more 403s on a page they can
-    // otherwise use perfectly well.
-    retry: false,
-    enabled: seller.permissions.includes('seller.member.read'),
-  });
-
-  const canManageTeam = seller.permissions.includes('seller.member.write');
   const canManageLocations = seller.permissions.includes('seller.location.write');
 
   /*
@@ -276,55 +245,12 @@ export function SellerProfilePage(): React.JSX.Element {
         )}
       </Card>
 
-      {/* ---- People --------------------------------------------------------- */}
+      {/* ---- People: its own page since Master row 14 ------------------------ */}
       {seller.permissions.includes('seller.member.read') && (
-        <Card
-          title="Your team"
-          description="Everybody who can use this seller account, and what each of them may do."
-        >
-          {team.isPending && <LoadingState label="Loading your team" />}
-
-          {team.data !== undefined && (
-            <ul className="divide-y divide-border-subtle">
-              {team.data.members.map((member) => (
-                <li
-                  key={member.id}
-                  className="flex flex-wrap items-center justify-between gap-3 px-6 py-4"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-ink">{member.name}</p>
-                    <p className="truncate text-xxs text-ink-subtle">{member.email}</p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <Badge tone={member.role === 'OWNER' ? 'brand' : 'neutral'}>
-                      {ROLE_LABELS[member.role] ?? member.role}
-                    </Badge>
-                    {canManageTeam && member.role !== 'OWNER' && (
-                      <>
-                        <RoleSelect memberId={member.id} current={member.role} />
-                        <Button
-                          onClick={() => {
-                            setRemoving(member);
-                          }}
-                        >
-                          Remove
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {canManageTeam && (
-            <p className="border-t border-border-subtle px-6 py-4 text-xxs leading-relaxed text-ink-muted">
-              A person here holds exactly the role you choose and nothing more, and you cannot grant
-              a role carrying more than your own. Only the owner can accept agreements, and the
-              owner cannot be removed or have their role changed from this screen — that is what
-              stops an administrator making themselves one.
-            </p>
-          )}
+        <Card title={t('sellerTeam.profileCard.title')} description={t('sellerTeam.profileCard.description')}>
+          <div className="px-6 py-5">
+            <ButtonLink to="/seller/team">{t('sellerTeam.profileCard.open')}</ButtonLink>
+          </div>
         </Card>
       )}
 
@@ -334,15 +260,6 @@ export function SellerProfilePage(): React.JSX.Element {
           map={locations.data?.map ?? { provider: 'NONE', satellite: null }}
           onClose={() => {
             setIsAdding(false);
-          }}
-        />
-      )}
-
-      {removing !== null && (
-        <RemoveMemberDialog
-          member={removing}
-          onClose={() => {
-            setRemoving(null);
           }}
         />
       )}
@@ -678,62 +595,6 @@ function CloseLocationDialog({
 }
 
 /**
- * Take somebody off the account.
- *
- * Asked for by name, because the list is alphabetical-ish and two rows apart is
- * all it takes to remove the wrong person. What it does is stated rather than
- * implied: their access stops, and what they already did stays on the record —
- * removing a person must never quietly rewrite the audit trail.
- */
-function RemoveMemberDialog({
-  member,
-  onClose,
-}: {
-  member: TeamMember;
-  onClose: () => void;
-}): React.JSX.Element {
-  const { t } = useI18n();
-  const toast = useToast();
-  const client = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: () => removeMember(member.id),
-    onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: ['seller', 'members'] });
-      toast.success(`${member.name} no longer has access.`);
-      onClose();
-    },
-    onError: (error: unknown) => {
-      toast.error(errorMessage(t, error, 'That person could not be removed.'));
-    },
-  });
-
-  return (
-    <Modal isOpen title={`Remove ${member.name}?`} onClose={onClose}>
-      <div className="space-y-4">
-        <p className="text-sm text-ink-muted">
-          They lose access to this seller account straight away. Everything they have already done —
-          listings, orders, decisions — stays exactly as it is, with their name on it.
-        </p>
-
-        <div className="flex justify-end gap-2">
-          <Button onClick={onClose}>Keep them</Button>
-          <Button
-            variant="danger"
-            isLoading={mutation.isPending}
-            onClick={() => {
-              mutation.mutate();
-            }}
-          >
-            Remove
-          </Button>
-        </div>
-      </div>
-    </Modal>
-  );
-}
-
-/**
  * The mark on your own shop front.
  *
  * Only meaningful where this deployment gives sellers their own web address, so
@@ -958,41 +819,6 @@ function LocationRow({
         )}
       </div>
     </div>
-  );
-}
-
-function RoleSelect({ memberId, current }: { memberId: string; current: string }): React.JSX.Element {
-  const { t } = useI18n();
-  const toast = useToast();
-  const client = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: (role: string) => changeMemberRole(memberId, role),
-    onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: ['seller', 'members'] });
-      toast.success('Role updated.');
-    },
-    onError: (error: unknown) => {
-      toast.error(errorMessage(t, error, 'That role could not be changed.'));
-    },
-  });
-
-  return (
-    <Select
-      aria-label="Role"
-      className="h-8 w-44 text-xs"
-      value={current}
-      disabled={mutation.isPending}
-      onChange={(event) => {
-        mutation.mutate(event.currentTarget.value);
-      }}
-    >
-      {Object.entries(ROLE_LABELS).map(([value, label]) => (
-        <option key={value} value={value}>
-          {label}
-        </option>
-      ))}
-    </Select>
   );
 }
 

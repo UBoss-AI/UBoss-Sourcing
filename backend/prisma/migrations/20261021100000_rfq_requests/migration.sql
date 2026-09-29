@@ -70,6 +70,7 @@ CREATE TABLE `rfq_requirement_versions` (
     `changeSummary` VARCHAR(1000) NULL,
     `createdByUserId` CHAR(26) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `uq_rfq_requirement_version`(`rfqId`, `versionNumber`),
     PRIMARY KEY (`id`)
@@ -112,6 +113,7 @@ CREATE TABLE `rfq_attachments` (
     `contentHash` CHAR(64) NOT NULL,
     `scanState` VARCHAR(24) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
 
     INDEX `ix_rfq_attachment_rfq`(`rfqId`, `purpose`, `createdAt`),
     INDEX `ix_rfq_attachment_seller`(`rfqId`, `sellerAccountId`),
@@ -129,6 +131,7 @@ CREATE TABLE `rfq_events` (
     `actorUserId` CHAR(26) NULL,
     `metaJson` JSON NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
 
     INDEX `ix_rfq_event_rfq`(`rfqId`, `createdAt`),
     PRIMARY KEY (`id`)

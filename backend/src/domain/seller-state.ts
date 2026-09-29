@@ -123,8 +123,9 @@ const APPLICATION_TRANSITIONS: Readonly<
   ],
 
   REJECTED: [
-    // Reopened, only where resubmission was left open. The service checks
-    // `resubmissionAllowed` as well - see `assertResubmissionAllowed`.
+    // Reopened, only where resubmission was left open. `transitionApplication`
+    // (modules/seller/account.service.ts) checks `resubmissionAllowed` before
+    // this table and refuses with SELLER_RESUBMISSION_NOT_ALLOWED.
     { to: 'ACTION_REQUIRED', actors: ['OPERATOR'] },
   ],
 

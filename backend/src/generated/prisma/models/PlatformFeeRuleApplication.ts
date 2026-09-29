@@ -43,6 +43,7 @@ export type PlatformFeeRuleApplicationMinAggregateOutputType = {
   effectMinor: bigint | null
   currency: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PlatformFeeRuleApplicationMaxAggregateOutputType = {
@@ -53,6 +54,7 @@ export type PlatformFeeRuleApplicationMaxAggregateOutputType = {
   effectMinor: bigint | null
   currency: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PlatformFeeRuleApplicationCountAggregateOutputType = {
@@ -63,6 +65,7 @@ export type PlatformFeeRuleApplicationCountAggregateOutputType = {
   effectMinor: number
   currency: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -83,6 +86,7 @@ export type PlatformFeeRuleApplicationMinAggregateInputType = {
   effectMinor?: true
   currency?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PlatformFeeRuleApplicationMaxAggregateInputType = {
@@ -93,6 +97,7 @@ export type PlatformFeeRuleApplicationMaxAggregateInputType = {
   effectMinor?: true
   currency?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PlatformFeeRuleApplicationCountAggregateInputType = {
@@ -103,6 +108,7 @@ export type PlatformFeeRuleApplicationCountAggregateInputType = {
   effectMinor?: true
   currency?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -200,6 +206,7 @@ export type PlatformFeeRuleApplicationGroupByOutputType = {
   effectMinor: bigint
   currency: string
   createdAt: Date
+  updatedAt: Date
   _count: PlatformFeeRuleApplicationCountAggregateOutputType | null
   _avg: PlatformFeeRuleApplicationAvgAggregateOutputType | null
   _sum: PlatformFeeRuleApplicationSumAggregateOutputType | null
@@ -233,6 +240,7 @@ export type PlatformFeeRuleApplicationWhereInput = {
   effectMinor?: Prisma.BigIntFilter<"PlatformFeeRuleApplication"> | bigint | number
   currency?: Prisma.StringFilter<"PlatformFeeRuleApplication"> | string
   createdAt?: Prisma.DateTimeFilter<"PlatformFeeRuleApplication"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PlatformFeeRuleApplication"> | Date | string
   settlement?: Prisma.XOR<Prisma.SellerOrderSettlementScalarRelationFilter, Prisma.SellerOrderSettlementWhereInput>
   rule?: Prisma.XOR<Prisma.PlatformFeeRuleScalarRelationFilter, Prisma.PlatformFeeRuleWhereInput>
 }
@@ -245,6 +253,7 @@ export type PlatformFeeRuleApplicationOrderByWithRelationInput = {
   effectMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   settlement?: Prisma.SellerOrderSettlementOrderByWithRelationInput
   rule?: Prisma.PlatformFeeRuleOrderByWithRelationInput
   _relevance?: Prisma.PlatformFeeRuleApplicationOrderByRelevanceInput
@@ -262,6 +271,7 @@ export type PlatformFeeRuleApplicationWhereUniqueInput = Prisma.AtLeast<{
   effectMinor?: Prisma.BigIntFilter<"PlatformFeeRuleApplication"> | bigint | number
   currency?: Prisma.StringFilter<"PlatformFeeRuleApplication"> | string
   createdAt?: Prisma.DateTimeFilter<"PlatformFeeRuleApplication"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PlatformFeeRuleApplication"> | Date | string
   settlement?: Prisma.XOR<Prisma.SellerOrderSettlementScalarRelationFilter, Prisma.SellerOrderSettlementWhereInput>
   rule?: Prisma.XOR<Prisma.PlatformFeeRuleScalarRelationFilter, Prisma.PlatformFeeRuleWhereInput>
 }, "id" | "settlementId_ruleId">
@@ -274,6 +284,7 @@ export type PlatformFeeRuleApplicationOrderByWithAggregationInput = {
   effectMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PlatformFeeRuleApplicationCountOrderByAggregateInput
   _avg?: Prisma.PlatformFeeRuleApplicationAvgOrderByAggregateInput
   _max?: Prisma.PlatformFeeRuleApplicationMaxOrderByAggregateInput
@@ -292,6 +303,7 @@ export type PlatformFeeRuleApplicationScalarWhereWithAggregatesInput = {
   effectMinor?: Prisma.BigIntWithAggregatesFilter<"PlatformFeeRuleApplication"> | bigint | number
   currency?: Prisma.StringWithAggregatesFilter<"PlatformFeeRuleApplication"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PlatformFeeRuleApplication"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PlatformFeeRuleApplication"> | Date | string
 }
 
 export type PlatformFeeRuleApplicationCreateInput = {
@@ -300,6 +312,7 @@ export type PlatformFeeRuleApplicationCreateInput = {
   effectMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   settlement: Prisma.SellerOrderSettlementCreateNestedOneWithoutFeeRuleApplicationsInput
   rule: Prisma.PlatformFeeRuleCreateNestedOneWithoutApplicationsInput
 }
@@ -312,6 +325,7 @@ export type PlatformFeeRuleApplicationUncheckedCreateInput = {
   effectMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PlatformFeeRuleApplicationUpdateInput = {
@@ -320,6 +334,7 @@ export type PlatformFeeRuleApplicationUpdateInput = {
   effectMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   settlement?: Prisma.SellerOrderSettlementUpdateOneRequiredWithoutFeeRuleApplicationsNestedInput
   rule?: Prisma.PlatformFeeRuleUpdateOneRequiredWithoutApplicationsNestedInput
 }
@@ -332,6 +347,7 @@ export type PlatformFeeRuleApplicationUncheckedUpdateInput = {
   effectMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PlatformFeeRuleApplicationCreateManyInput = {
@@ -342,6 +358,7 @@ export type PlatformFeeRuleApplicationCreateManyInput = {
   effectMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PlatformFeeRuleApplicationUpdateManyMutationInput = {
@@ -350,6 +367,7 @@ export type PlatformFeeRuleApplicationUpdateManyMutationInput = {
   effectMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PlatformFeeRuleApplicationUncheckedUpdateManyInput = {
@@ -360,6 +378,7 @@ export type PlatformFeeRuleApplicationUncheckedUpdateManyInput = {
   effectMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PlatformFeeRuleApplicationListRelationFilter = {
@@ -391,6 +410,7 @@ export type PlatformFeeRuleApplicationCountOrderByAggregateInput = {
   effectMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PlatformFeeRuleApplicationAvgOrderByAggregateInput = {
@@ -405,6 +425,7 @@ export type PlatformFeeRuleApplicationMaxOrderByAggregateInput = {
   effectMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PlatformFeeRuleApplicationMinOrderByAggregateInput = {
@@ -415,6 +436,7 @@ export type PlatformFeeRuleApplicationMinOrderByAggregateInput = {
   effectMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PlatformFeeRuleApplicationSumOrderByAggregateInput = {
@@ -511,6 +533,7 @@ export type PlatformFeeRuleApplicationCreateWithoutRuleInput = {
   effectMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   settlement: Prisma.SellerOrderSettlementCreateNestedOneWithoutFeeRuleApplicationsInput
 }
 
@@ -521,6 +544,7 @@ export type PlatformFeeRuleApplicationUncheckedCreateWithoutRuleInput = {
   effectMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PlatformFeeRuleApplicationCreateOrConnectWithoutRuleInput = {
@@ -560,6 +584,7 @@ export type PlatformFeeRuleApplicationScalarWhereInput = {
   effectMinor?: Prisma.BigIntFilter<"PlatformFeeRuleApplication"> | bigint | number
   currency?: Prisma.StringFilter<"PlatformFeeRuleApplication"> | string
   createdAt?: Prisma.DateTimeFilter<"PlatformFeeRuleApplication"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PlatformFeeRuleApplication"> | Date | string
 }
 
 export type PlatformFeeRuleApplicationCreateWithoutSettlementInput = {
@@ -568,6 +593,7 @@ export type PlatformFeeRuleApplicationCreateWithoutSettlementInput = {
   effectMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   rule: Prisma.PlatformFeeRuleCreateNestedOneWithoutApplicationsInput
 }
 
@@ -578,6 +604,7 @@ export type PlatformFeeRuleApplicationUncheckedCreateWithoutSettlementInput = {
   effectMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PlatformFeeRuleApplicationCreateOrConnectWithoutSettlementInput = {
@@ -613,6 +640,7 @@ export type PlatformFeeRuleApplicationCreateManyRuleInput = {
   effectMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PlatformFeeRuleApplicationUpdateWithoutRuleInput = {
@@ -621,6 +649,7 @@ export type PlatformFeeRuleApplicationUpdateWithoutRuleInput = {
   effectMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   settlement?: Prisma.SellerOrderSettlementUpdateOneRequiredWithoutFeeRuleApplicationsNestedInput
 }
 
@@ -631,6 +660,7 @@ export type PlatformFeeRuleApplicationUncheckedUpdateWithoutRuleInput = {
   effectMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PlatformFeeRuleApplicationUncheckedUpdateManyWithoutRuleInput = {
@@ -640,6 +670,7 @@ export type PlatformFeeRuleApplicationUncheckedUpdateManyWithoutRuleInput = {
   effectMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PlatformFeeRuleApplicationCreateManySettlementInput = {
@@ -649,6 +680,7 @@ export type PlatformFeeRuleApplicationCreateManySettlementInput = {
   effectMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PlatformFeeRuleApplicationUpdateWithoutSettlementInput = {
@@ -657,6 +689,7 @@ export type PlatformFeeRuleApplicationUpdateWithoutSettlementInput = {
   effectMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rule?: Prisma.PlatformFeeRuleUpdateOneRequiredWithoutApplicationsNestedInput
 }
 
@@ -667,6 +700,7 @@ export type PlatformFeeRuleApplicationUncheckedUpdateWithoutSettlementInput = {
   effectMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PlatformFeeRuleApplicationUncheckedUpdateManyWithoutSettlementInput = {
@@ -676,6 +710,7 @@ export type PlatformFeeRuleApplicationUncheckedUpdateManyWithoutSettlementInput 
   effectMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -688,6 +723,7 @@ export type PlatformFeeRuleApplicationSelect<ExtArgs extends runtime.Types.Exten
   effectMinor?: boolean
   currency?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   settlement?: boolean | Prisma.SellerOrderSettlementDefaultArgs<ExtArgs>
   rule?: boolean | Prisma.PlatformFeeRuleDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["platformFeeRuleApplication"]>
@@ -702,9 +738,10 @@ export type PlatformFeeRuleApplicationSelectScalar = {
   effectMinor?: boolean
   currency?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PlatformFeeRuleApplicationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "settlementId" | "ruleId" | "kind" | "effectMinor" | "currency" | "createdAt", ExtArgs["result"]["platformFeeRuleApplication"]>
+export type PlatformFeeRuleApplicationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "settlementId" | "ruleId" | "kind" | "effectMinor" | "currency" | "createdAt" | "updatedAt", ExtArgs["result"]["platformFeeRuleApplication"]>
 export type PlatformFeeRuleApplicationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   settlement?: boolean | Prisma.SellerOrderSettlementDefaultArgs<ExtArgs>
   rule?: boolean | Prisma.PlatformFeeRuleDefaultArgs<ExtArgs>
@@ -728,6 +765,7 @@ export type $PlatformFeeRuleApplicationPayload<ExtArgs extends runtime.Types.Ext
     effectMinor: bigint
     currency: string
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["platformFeeRuleApplication"]>
   composites: {}
 }
@@ -1106,6 +1144,7 @@ export interface PlatformFeeRuleApplicationFieldRefs {
   readonly effectMinor: Prisma.FieldRef<"PlatformFeeRuleApplication", 'BigInt'>
   readonly currency: Prisma.FieldRef<"PlatformFeeRuleApplication", 'String'>
   readonly createdAt: Prisma.FieldRef<"PlatformFeeRuleApplication", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"PlatformFeeRuleApplication", 'DateTime'>
 }
     
 

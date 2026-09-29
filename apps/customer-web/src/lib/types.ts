@@ -302,6 +302,8 @@ export interface SupplierProfile extends Omit<VerifiedSupplier, 'productCount'> 
     monthlyCapacity: number | null;
     capacityUnit: string | null;
     productsMade: string | null;
+    /** When the operator verified it. Only verified, in-date factories are sent. */
+    verifiedAt?: string | null;
   }[];
   /** Verified by the operator and in date. `YYYY-MM-DD` dates. */
   certifications: {

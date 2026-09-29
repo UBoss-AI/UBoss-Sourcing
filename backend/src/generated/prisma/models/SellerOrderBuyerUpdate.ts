@@ -39,6 +39,7 @@ export type SellerOrderBuyerUpdateMinAggregateOutputType = {
   expectedDate: Date | null
   message: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerOrderBuyerUpdateMaxAggregateOutputType = {
@@ -51,6 +52,7 @@ export type SellerOrderBuyerUpdateMaxAggregateOutputType = {
   expectedDate: Date | null
   message: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerOrderBuyerUpdateCountAggregateOutputType = {
@@ -63,6 +65,7 @@ export type SellerOrderBuyerUpdateCountAggregateOutputType = {
   expectedDate: number
   message: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -77,6 +80,7 @@ export type SellerOrderBuyerUpdateMinAggregateInputType = {
   expectedDate?: true
   message?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerOrderBuyerUpdateMaxAggregateInputType = {
@@ -89,6 +93,7 @@ export type SellerOrderBuyerUpdateMaxAggregateInputType = {
   expectedDate?: true
   message?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerOrderBuyerUpdateCountAggregateInputType = {
@@ -101,6 +106,7 @@ export type SellerOrderBuyerUpdateCountAggregateInputType = {
   expectedDate?: true
   message?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -186,6 +192,7 @@ export type SellerOrderBuyerUpdateGroupByOutputType = {
   expectedDate: Date | null
   message: string | null
   createdAt: Date
+  updatedAt: Date
   _count: SellerOrderBuyerUpdateCountAggregateOutputType | null
   _min: SellerOrderBuyerUpdateMinAggregateOutputType | null
   _max: SellerOrderBuyerUpdateMaxAggregateOutputType | null
@@ -219,6 +226,7 @@ export type SellerOrderBuyerUpdateWhereInput = {
   expectedDate?: Prisma.DateTimeNullableFilter<"SellerOrderBuyerUpdate"> | Date | string | null
   message?: Prisma.StringNullableFilter<"SellerOrderBuyerUpdate"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerOrderBuyerUpdate"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerOrderBuyerUpdate"> | Date | string
   orderGroup?: Prisma.XOR<Prisma.SellerOrderGroupScalarRelationFilter, Prisma.SellerOrderGroupWhereInput>
 }
 
@@ -232,6 +240,7 @@ export type SellerOrderBuyerUpdateOrderByWithRelationInput = {
   expectedDate?: Prisma.SortOrderInput | Prisma.SortOrder
   message?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   orderGroup?: Prisma.SellerOrderGroupOrderByWithRelationInput
   _relevance?: Prisma.SellerOrderBuyerUpdateOrderByRelevanceInput
 }
@@ -249,6 +258,7 @@ export type SellerOrderBuyerUpdateWhereUniqueInput = Prisma.AtLeast<{
   expectedDate?: Prisma.DateTimeNullableFilter<"SellerOrderBuyerUpdate"> | Date | string | null
   message?: Prisma.StringNullableFilter<"SellerOrderBuyerUpdate"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerOrderBuyerUpdate"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerOrderBuyerUpdate"> | Date | string
   orderGroup?: Prisma.XOR<Prisma.SellerOrderGroupScalarRelationFilter, Prisma.SellerOrderGroupWhereInput>
 }, "id">
 
@@ -262,6 +272,7 @@ export type SellerOrderBuyerUpdateOrderByWithAggregationInput = {
   expectedDate?: Prisma.SortOrderInput | Prisma.SortOrder
   message?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerOrderBuyerUpdateCountOrderByAggregateInput
   _max?: Prisma.SellerOrderBuyerUpdateMaxOrderByAggregateInput
   _min?: Prisma.SellerOrderBuyerUpdateMinOrderByAggregateInput
@@ -280,6 +291,7 @@ export type SellerOrderBuyerUpdateScalarWhereWithAggregatesInput = {
   expectedDate?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerOrderBuyerUpdate"> | Date | string | null
   message?: Prisma.StringNullableWithAggregatesFilter<"SellerOrderBuyerUpdate"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerOrderBuyerUpdate"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerOrderBuyerUpdate"> | Date | string
 }
 
 export type SellerOrderBuyerUpdateCreateInput = {
@@ -291,6 +303,7 @@ export type SellerOrderBuyerUpdateCreateInput = {
   expectedDate?: Date | string | null
   message?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   orderGroup: Prisma.SellerOrderGroupCreateNestedOneWithoutBuyerUpdatesInput
 }
 
@@ -304,6 +317,7 @@ export type SellerOrderBuyerUpdateUncheckedCreateInput = {
   expectedDate?: Date | string | null
   message?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerOrderBuyerUpdateUpdateInput = {
@@ -315,6 +329,7 @@ export type SellerOrderBuyerUpdateUpdateInput = {
   expectedDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orderGroup?: Prisma.SellerOrderGroupUpdateOneRequiredWithoutBuyerUpdatesNestedInput
 }
 
@@ -328,6 +343,7 @@ export type SellerOrderBuyerUpdateUncheckedUpdateInput = {
   expectedDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerOrderBuyerUpdateCreateManyInput = {
@@ -340,6 +356,7 @@ export type SellerOrderBuyerUpdateCreateManyInput = {
   expectedDate?: Date | string | null
   message?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerOrderBuyerUpdateUpdateManyMutationInput = {
@@ -351,6 +368,7 @@ export type SellerOrderBuyerUpdateUpdateManyMutationInput = {
   expectedDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerOrderBuyerUpdateUncheckedUpdateManyInput = {
@@ -363,6 +381,7 @@ export type SellerOrderBuyerUpdateUncheckedUpdateManyInput = {
   expectedDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerOrderBuyerUpdateListRelationFilter = {
@@ -391,6 +410,7 @@ export type SellerOrderBuyerUpdateCountOrderByAggregateInput = {
   expectedDate?: Prisma.SortOrder
   message?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerOrderBuyerUpdateMaxOrderByAggregateInput = {
@@ -403,6 +423,7 @@ export type SellerOrderBuyerUpdateMaxOrderByAggregateInput = {
   expectedDate?: Prisma.SortOrder
   message?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerOrderBuyerUpdateMinOrderByAggregateInput = {
@@ -415,6 +436,7 @@ export type SellerOrderBuyerUpdateMinOrderByAggregateInput = {
   expectedDate?: Prisma.SortOrder
   message?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerOrderBuyerUpdateCreateNestedManyWithoutOrderGroupInput = {
@@ -472,6 +494,7 @@ export type SellerOrderBuyerUpdateCreateWithoutOrderGroupInput = {
   expectedDate?: Date | string | null
   message?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerOrderBuyerUpdateUncheckedCreateWithoutOrderGroupInput = {
@@ -483,6 +506,7 @@ export type SellerOrderBuyerUpdateUncheckedCreateWithoutOrderGroupInput = {
   expectedDate?: Date | string | null
   message?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerOrderBuyerUpdateCreateOrConnectWithoutOrderGroupInput = {
@@ -524,6 +548,7 @@ export type SellerOrderBuyerUpdateScalarWhereInput = {
   expectedDate?: Prisma.DateTimeNullableFilter<"SellerOrderBuyerUpdate"> | Date | string | null
   message?: Prisma.StringNullableFilter<"SellerOrderBuyerUpdate"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerOrderBuyerUpdate"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerOrderBuyerUpdate"> | Date | string
 }
 
 export type SellerOrderBuyerUpdateCreateManyOrderGroupInput = {
@@ -535,6 +560,7 @@ export type SellerOrderBuyerUpdateCreateManyOrderGroupInput = {
   expectedDate?: Date | string | null
   message?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerOrderBuyerUpdateUpdateWithoutOrderGroupInput = {
@@ -546,6 +572,7 @@ export type SellerOrderBuyerUpdateUpdateWithoutOrderGroupInput = {
   expectedDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerOrderBuyerUpdateUncheckedUpdateWithoutOrderGroupInput = {
@@ -557,6 +584,7 @@ export type SellerOrderBuyerUpdateUncheckedUpdateWithoutOrderGroupInput = {
   expectedDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerOrderBuyerUpdateUncheckedUpdateManyWithoutOrderGroupInput = {
@@ -568,6 +596,7 @@ export type SellerOrderBuyerUpdateUncheckedUpdateManyWithoutOrderGroupInput = {
   expectedDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -582,6 +611,7 @@ export type SellerOrderBuyerUpdateSelect<ExtArgs extends runtime.Types.Extension
   expectedDate?: boolean
   message?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   orderGroup?: boolean | Prisma.SellerOrderGroupDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerOrderBuyerUpdate"]>
 
@@ -597,9 +627,10 @@ export type SellerOrderBuyerUpdateSelectScalar = {
   expectedDate?: boolean
   message?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerOrderBuyerUpdateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderGroupId" | "orderId" | "kind" | "stage" | "reason" | "expectedDate" | "message" | "createdAt", ExtArgs["result"]["sellerOrderBuyerUpdate"]>
+export type SellerOrderBuyerUpdateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderGroupId" | "orderId" | "kind" | "stage" | "reason" | "expectedDate" | "message" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerOrderBuyerUpdate"]>
 export type SellerOrderBuyerUpdateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orderGroup?: boolean | Prisma.SellerOrderGroupDefaultArgs<ExtArgs>
 }
@@ -625,6 +656,7 @@ export type $SellerOrderBuyerUpdatePayload<ExtArgs extends runtime.Types.Extensi
     expectedDate: Date | null
     message: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerOrderBuyerUpdate"]>
   composites: {}
 }
@@ -1004,6 +1036,7 @@ export interface SellerOrderBuyerUpdateFieldRefs {
   readonly expectedDate: Prisma.FieldRef<"SellerOrderBuyerUpdate", 'DateTime'>
   readonly message: Prisma.FieldRef<"SellerOrderBuyerUpdate", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerOrderBuyerUpdate", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerOrderBuyerUpdate", 'DateTime'>
 }
     
 

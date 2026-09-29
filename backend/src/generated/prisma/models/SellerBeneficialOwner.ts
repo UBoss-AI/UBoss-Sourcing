@@ -43,6 +43,7 @@ export type SellerBeneficialOwnerMinAggregateOutputType = {
   nationality: string | null
   ownershipBasisPoints: number | null
   isControllingPerson: boolean | null
+  isPoliticallyExposed: boolean | null
   role: string | null
   archivedAt: Date | null
   createdAt: Date | null
@@ -56,6 +57,7 @@ export type SellerBeneficialOwnerMaxAggregateOutputType = {
   nationality: string | null
   ownershipBasisPoints: number | null
   isControllingPerson: boolean | null
+  isPoliticallyExposed: boolean | null
   role: string | null
   archivedAt: Date | null
   createdAt: Date | null
@@ -69,6 +71,7 @@ export type SellerBeneficialOwnerCountAggregateOutputType = {
   nationality: number
   ownershipBasisPoints: number
   isControllingPerson: number
+  isPoliticallyExposed: number
   role: number
   archivedAt: number
   createdAt: number
@@ -92,6 +95,7 @@ export type SellerBeneficialOwnerMinAggregateInputType = {
   nationality?: true
   ownershipBasisPoints?: true
   isControllingPerson?: true
+  isPoliticallyExposed?: true
   role?: true
   archivedAt?: true
   createdAt?: true
@@ -105,6 +109,7 @@ export type SellerBeneficialOwnerMaxAggregateInputType = {
   nationality?: true
   ownershipBasisPoints?: true
   isControllingPerson?: true
+  isPoliticallyExposed?: true
   role?: true
   archivedAt?: true
   createdAt?: true
@@ -118,6 +123,7 @@ export type SellerBeneficialOwnerCountAggregateInputType = {
   nationality?: true
   ownershipBasisPoints?: true
   isControllingPerson?: true
+  isPoliticallyExposed?: true
   role?: true
   archivedAt?: true
   createdAt?: true
@@ -218,6 +224,7 @@ export type SellerBeneficialOwnerGroupByOutputType = {
   nationality: string | null
   ownershipBasisPoints: number
   isControllingPerson: boolean
+  isPoliticallyExposed: boolean
   role: string | null
   archivedAt: Date | null
   createdAt: Date
@@ -254,6 +261,7 @@ export type SellerBeneficialOwnerWhereInput = {
   nationality?: Prisma.StringNullableFilter<"SellerBeneficialOwner"> | string | null
   ownershipBasisPoints?: Prisma.IntFilter<"SellerBeneficialOwner"> | number
   isControllingPerson?: Prisma.BoolFilter<"SellerBeneficialOwner"> | boolean
+  isPoliticallyExposed?: Prisma.BoolFilter<"SellerBeneficialOwner"> | boolean
   role?: Prisma.StringNullableFilter<"SellerBeneficialOwner"> | string | null
   archivedAt?: Prisma.DateTimeNullableFilter<"SellerBeneficialOwner"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerBeneficialOwner"> | Date | string
@@ -268,6 +276,7 @@ export type SellerBeneficialOwnerOrderByWithRelationInput = {
   nationality?: Prisma.SortOrderInput | Prisma.SortOrder
   ownershipBasisPoints?: Prisma.SortOrder
   isControllingPerson?: Prisma.SortOrder
+  isPoliticallyExposed?: Prisma.SortOrder
   role?: Prisma.SortOrderInput | Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -286,6 +295,7 @@ export type SellerBeneficialOwnerWhereUniqueInput = Prisma.AtLeast<{
   nationality?: Prisma.StringNullableFilter<"SellerBeneficialOwner"> | string | null
   ownershipBasisPoints?: Prisma.IntFilter<"SellerBeneficialOwner"> | number
   isControllingPerson?: Prisma.BoolFilter<"SellerBeneficialOwner"> | boolean
+  isPoliticallyExposed?: Prisma.BoolFilter<"SellerBeneficialOwner"> | boolean
   role?: Prisma.StringNullableFilter<"SellerBeneficialOwner"> | string | null
   archivedAt?: Prisma.DateTimeNullableFilter<"SellerBeneficialOwner"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerBeneficialOwner"> | Date | string
@@ -300,6 +310,7 @@ export type SellerBeneficialOwnerOrderByWithAggregationInput = {
   nationality?: Prisma.SortOrderInput | Prisma.SortOrder
   ownershipBasisPoints?: Prisma.SortOrder
   isControllingPerson?: Prisma.SortOrder
+  isPoliticallyExposed?: Prisma.SortOrder
   role?: Prisma.SortOrderInput | Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -321,6 +332,7 @@ export type SellerBeneficialOwnerScalarWhereWithAggregatesInput = {
   nationality?: Prisma.StringNullableWithAggregatesFilter<"SellerBeneficialOwner"> | string | null
   ownershipBasisPoints?: Prisma.IntWithAggregatesFilter<"SellerBeneficialOwner"> | number
   isControllingPerson?: Prisma.BoolWithAggregatesFilter<"SellerBeneficialOwner"> | boolean
+  isPoliticallyExposed?: Prisma.BoolWithAggregatesFilter<"SellerBeneficialOwner"> | boolean
   role?: Prisma.StringNullableWithAggregatesFilter<"SellerBeneficialOwner"> | string | null
   archivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerBeneficialOwner"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerBeneficialOwner"> | Date | string
@@ -333,6 +345,7 @@ export type SellerBeneficialOwnerCreateInput = {
   nationality?: string | null
   ownershipBasisPoints: number
   isControllingPerson?: boolean
+  isPoliticallyExposed?: boolean
   role?: string | null
   archivedAt?: Date | string | null
   createdAt?: Date | string
@@ -347,6 +360,7 @@ export type SellerBeneficialOwnerUncheckedCreateInput = {
   nationality?: string | null
   ownershipBasisPoints: number
   isControllingPerson?: boolean
+  isPoliticallyExposed?: boolean
   role?: string | null
   archivedAt?: Date | string | null
   createdAt?: Date | string
@@ -359,6 +373,7 @@ export type SellerBeneficialOwnerUpdateInput = {
   nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownershipBasisPoints?: Prisma.IntFieldUpdateOperationsInput | number
   isControllingPerson?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPoliticallyExposed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -373,6 +388,7 @@ export type SellerBeneficialOwnerUncheckedUpdateInput = {
   nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownershipBasisPoints?: Prisma.IntFieldUpdateOperationsInput | number
   isControllingPerson?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPoliticallyExposed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -386,6 +402,7 @@ export type SellerBeneficialOwnerCreateManyInput = {
   nationality?: string | null
   ownershipBasisPoints: number
   isControllingPerson?: boolean
+  isPoliticallyExposed?: boolean
   role?: string | null
   archivedAt?: Date | string | null
   createdAt?: Date | string
@@ -398,6 +415,7 @@ export type SellerBeneficialOwnerUpdateManyMutationInput = {
   nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownershipBasisPoints?: Prisma.IntFieldUpdateOperationsInput | number
   isControllingPerson?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPoliticallyExposed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -411,6 +429,7 @@ export type SellerBeneficialOwnerUncheckedUpdateManyInput = {
   nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownershipBasisPoints?: Prisma.IntFieldUpdateOperationsInput | number
   isControllingPerson?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPoliticallyExposed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -440,6 +459,7 @@ export type SellerBeneficialOwnerCountOrderByAggregateInput = {
   nationality?: Prisma.SortOrder
   ownershipBasisPoints?: Prisma.SortOrder
   isControllingPerson?: Prisma.SortOrder
+  isPoliticallyExposed?: Prisma.SortOrder
   role?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -457,6 +477,7 @@ export type SellerBeneficialOwnerMaxOrderByAggregateInput = {
   nationality?: Prisma.SortOrder
   ownershipBasisPoints?: Prisma.SortOrder
   isControllingPerson?: Prisma.SortOrder
+  isPoliticallyExposed?: Prisma.SortOrder
   role?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -470,6 +491,7 @@ export type SellerBeneficialOwnerMinOrderByAggregateInput = {
   nationality?: Prisma.SortOrder
   ownershipBasisPoints?: Prisma.SortOrder
   isControllingPerson?: Prisma.SortOrder
+  isPoliticallyExposed?: Prisma.SortOrder
   role?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -528,6 +550,7 @@ export type SellerBeneficialOwnerCreateWithoutSellerAccountInput = {
   nationality?: string | null
   ownershipBasisPoints: number
   isControllingPerson?: boolean
+  isPoliticallyExposed?: boolean
   role?: string | null
   archivedAt?: Date | string | null
   createdAt?: Date | string
@@ -540,6 +563,7 @@ export type SellerBeneficialOwnerUncheckedCreateWithoutSellerAccountInput = {
   nationality?: string | null
   ownershipBasisPoints: number
   isControllingPerson?: boolean
+  isPoliticallyExposed?: boolean
   role?: string | null
   archivedAt?: Date | string | null
   createdAt?: Date | string
@@ -582,6 +606,7 @@ export type SellerBeneficialOwnerScalarWhereInput = {
   nationality?: Prisma.StringNullableFilter<"SellerBeneficialOwner"> | string | null
   ownershipBasisPoints?: Prisma.IntFilter<"SellerBeneficialOwner"> | number
   isControllingPerson?: Prisma.BoolFilter<"SellerBeneficialOwner"> | boolean
+  isPoliticallyExposed?: Prisma.BoolFilter<"SellerBeneficialOwner"> | boolean
   role?: Prisma.StringNullableFilter<"SellerBeneficialOwner"> | string | null
   archivedAt?: Prisma.DateTimeNullableFilter<"SellerBeneficialOwner"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerBeneficialOwner"> | Date | string
@@ -594,6 +619,7 @@ export type SellerBeneficialOwnerCreateManySellerAccountInput = {
   nationality?: string | null
   ownershipBasisPoints: number
   isControllingPerson?: boolean
+  isPoliticallyExposed?: boolean
   role?: string | null
   archivedAt?: Date | string | null
   createdAt?: Date | string
@@ -606,6 +632,7 @@ export type SellerBeneficialOwnerUpdateWithoutSellerAccountInput = {
   nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownershipBasisPoints?: Prisma.IntFieldUpdateOperationsInput | number
   isControllingPerson?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPoliticallyExposed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -618,6 +645,7 @@ export type SellerBeneficialOwnerUncheckedUpdateWithoutSellerAccountInput = {
   nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownershipBasisPoints?: Prisma.IntFieldUpdateOperationsInput | number
   isControllingPerson?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPoliticallyExposed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -630,6 +658,7 @@ export type SellerBeneficialOwnerUncheckedUpdateManyWithoutSellerAccountInput = 
   nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ownershipBasisPoints?: Prisma.IntFieldUpdateOperationsInput | number
   isControllingPerson?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPoliticallyExposed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -645,6 +674,7 @@ export type SellerBeneficialOwnerSelect<ExtArgs extends runtime.Types.Extensions
   nationality?: boolean
   ownershipBasisPoints?: boolean
   isControllingPerson?: boolean
+  isPoliticallyExposed?: boolean
   role?: boolean
   archivedAt?: boolean
   createdAt?: boolean
@@ -661,13 +691,14 @@ export type SellerBeneficialOwnerSelectScalar = {
   nationality?: boolean
   ownershipBasisPoints?: boolean
   isControllingPerson?: boolean
+  isPoliticallyExposed?: boolean
   role?: boolean
   archivedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SellerBeneficialOwnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "fullName" | "nationality" | "ownershipBasisPoints" | "isControllingPerson" | "role" | "archivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerBeneficialOwner"]>
+export type SellerBeneficialOwnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "fullName" | "nationality" | "ownershipBasisPoints" | "isControllingPerson" | "isPoliticallyExposed" | "role" | "archivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerBeneficialOwner"]>
 export type SellerBeneficialOwnerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }
@@ -687,6 +718,12 @@ export type $SellerBeneficialOwnerPayload<ExtArgs extends runtime.Types.Extensio
      */
     ownershipBasisPoints: number
     isControllingPerson: boolean
+    /**
+     * The seller's own declaration that this person is a politically exposed
+     * person. A declaration, not a screening result - screening is
+     * `SellerScreeningCheck`, recorded by the operator.
+     */
+    isPoliticallyExposed: boolean
     role: string | null
     archivedAt: Date | null
     createdAt: Date
@@ -1067,6 +1104,7 @@ export interface SellerBeneficialOwnerFieldRefs {
   readonly nationality: Prisma.FieldRef<"SellerBeneficialOwner", 'String'>
   readonly ownershipBasisPoints: Prisma.FieldRef<"SellerBeneficialOwner", 'Int'>
   readonly isControllingPerson: Prisma.FieldRef<"SellerBeneficialOwner", 'Boolean'>
+  readonly isPoliticallyExposed: Prisma.FieldRef<"SellerBeneficialOwner", 'Boolean'>
   readonly role: Prisma.FieldRef<"SellerBeneficialOwner", 'String'>
   readonly archivedAt: Prisma.FieldRef<"SellerBeneficialOwner", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"SellerBeneficialOwner", 'DateTime'>

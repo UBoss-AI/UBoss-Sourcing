@@ -16,13 +16,12 @@ import { ErrorCode } from '../../domain/errors.js';
 import { newId } from '../../infra/ids.js';
 import { logoUrlFor, removeSellerLogo, uploadSellerLogo } from '../../modules/seller/logo.service.js';
 import {
-  changeMemberRole,
   findSellerMembership,
   resolveSellerMembership,
   isDisplayNameAvailable,
-  removeMember,
   startSellerApplication,
 } from '../../modules/seller/account.service.js';
+import { changeSellerMemberRole, removeSellerMember } from '../../modules/seller/team.service.js';
 import {
   lockSeller,
   sellerLockState,
@@ -47,6 +46,13 @@ import {
   saveStoreProfile,
   submitApplication,
 } from '../../modules/seller/onboarding.service.js';
+import { readKyb, saveKyb } from '../../modules/seller/kyb.service.js';
+import {
+  MAX_BENEFICIAL_OWNERS,
+  MAX_EXPORT_MARKETS,
+  MAX_INTENDED_CATEGORIES,
+  SELLER_LEGAL_FORMS,
+} from '../../domain/seller-kyb.js';
 import { prisma } from '../../infra/prisma.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import { currentUser, requireCustomer } from '../plugins/auth.js';
@@ -173,6 +179,36 @@ const businessProfileSchema = z.object({
   billingPostcode: z.string().trim().max(24).nullable().optional(),
   billingCountry: z.string().trim().length(2).toUpperCase().nullable().optional(),
   extraIdentifiers: z.record(z.string(), z.string().max(255)).nullable().optional(),
+});
+
+/**
+ * The ownership, registrations and exports section, sent whole.
+ *
+ * Ownership is basis points (2500 = 25.00%), an integer: a percentage typed as
+ * "33.33" three times has to add up the same way on every machine. The form
+ * converts; the server never sees a fraction.
+ */
+const kybSchema = z.object({
+  legalForm: z.enum(SELLER_LEGAL_FORMS).nullable(),
+  udyamNumber: z.string().trim().max(32).nullable(),
+  iecNumber: z.string().trim().max(16).nullable(),
+  exportCapable: z.boolean(),
+  exportMarkets: z.array(z.string().trim().length(2).toUpperCase()).max(MAX_EXPORT_MARKETS),
+  yearsExporting: z.number().int().min(0).max(200).nullable(),
+  intendedCategoryIds: z.array(z.string().length(26)).max(MAX_INTENDED_CATEGORIES),
+  beneficialOwners: z
+    .array(
+      z.object({
+        id: z.string().length(26).nullable().optional(),
+        fullName: z.string().trim().min(2).max(160),
+        nationality: z.string().trim().length(2).toUpperCase().nullable(),
+        ownershipBasisPoints: z.number().int().min(0).max(10_000),
+        role: z.string().trim().max(120).nullable(),
+        isControllingPerson: z.boolean(),
+        isPoliticallyExposed: z.boolean(),
+      }),
+    )
+    .max(MAX_BENEFICIAL_OWNERS),
 });
 
 /**
@@ -574,6 +610,37 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
 
     return reply.status(200).send(result);
   });
+
+  // --- Ownership, registrations and exports ------------------------------
+  //
+  // Legal form, Udyam and IEC (India), export markets, intended categories and
+  // the people who own or control the business. Owners and administrators
+  // only (ACCOUNT_WRITE), to read as well as to write: the owners listed are
+  // third parties, and every role holds ACCOUNT_READ.
+
+  /** The ownership, registrations and exports section of the application, and what it still needs. */
+  app.get(
+    '/kyb',
+    { preHandler: requireSeller(SellerPermission.ACCOUNT_WRITE) },
+    async (request, reply) => {
+      const view = await readKyb(currentSeller(request));
+      return reply.header('cache-control', 'no-store').status(200).send(view);
+    },
+  );
+
+  /** Save the whole ownership, registrations and exports section. Refused once the application is under review. Writes an audit entry that names what changed, never a value. */
+  app.put(
+    '/kyb',
+    {
+      preHandler: requireSeller(SellerPermission.ACCOUNT_WRITE),
+      config: { rateLimit: { max: 60, timeWindow: '15 minutes' } },
+    },
+    async (request, reply) => {
+      const body = kybSchema.parse(request.body);
+      const view = await saveKyb(currentSeller(request), body, request.correlationId);
+      return reply.header('cache-control', 'no-store').status(200).send(view);
+    },
+  );
 
   /**
    * The mark on the seller's own shop front.
@@ -1793,8 +1860,8 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
 
   /**
    * Change a team member's role. Refused if it would leave the business with no
-   * owner, or would grant a role the person making the change does not hold.
-   * Writes an audit entry.
+   * owner, would grant a role the person making the change does not hold, or
+   * touches yourself or somebody holding more than you. Writes an audit entry.
    */
   app.patch(
     '/members/:memberId',
@@ -1819,11 +1886,17 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
       // still the member at the keyboard.
       assertRecentStepUp(currentUser(request));
 
-      await changeMemberRole(
-        currentSeller(request),
+      const auth = currentUser(request);
+      await changeSellerMemberRole(
+        {
+          membership: currentSeller(request),
+          userId: auth.id,
+          email: auth.email,
+          ipAddress: request.ip,
+          correlationId: request.correlationId,
+        },
         params.memberId,
         body.role,
-        request.correlationId,
       );
 
       return reply.status(204).send();
@@ -1832,15 +1905,26 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
 
   /**
    * Remove someone from the seller's team. Their past actions still show their
-   * name, and removing the last owner is refused. Writes an audit entry.
+   * name. Removing the last owner, yourself, or somebody holding more than you
+   * is refused. Writes an audit entry.
    */
   app.delete(
     '/members/:memberId',
     { preHandler: requireSeller(SellerPermission.MEMBER_WRITE) },
     async (request, reply) => {
       const params = z.object({ memberId: z.string().length(26) }).parse(request.params);
-      assertRecentStepUp(currentUser(request));
-      await removeMember(currentSeller(request), params.memberId, request.correlationId);
+      const auth = currentUser(request);
+      assertRecentStepUp(auth);
+      await removeSellerMember(
+        {
+          membership: currentSeller(request),
+          userId: auth.id,
+          email: auth.email,
+          ipAddress: request.ip,
+          correlationId: request.correlationId,
+        },
+        params.memberId,
+      );
       return reply.status(204).send();
     },
   );

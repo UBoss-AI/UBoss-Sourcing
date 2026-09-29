@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**341 tables · 318 enums · 786 extra indexes and unique keys**, in 54 groups. The groups follow the section banners in the schema file.
+**342 tables · 319 enums · 788 extra indexes and unique keys**, in 54 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -59,7 +59,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ where a ticket is in its life. see `domain/support-ticket-state.ts`. / / append only - MariaDB stores an enum by position.](#group-where-a-ticket-is-in-its-life-see-domain-support-ticket-state-ts-append-only-mariadb-stores-an-enum-by-position) | 4 | 9 |
 | [/ append only - MariaDB stores an enum by position.](#group-append-only-mariadb-stores-an-enum-by-position) | 4 | 5 |
 | [/ what somebody may do inside a buyer organisation. / / three levels rather than a permission matrix, because there are exactly / three questions a buyer's it department actually has: who owns this, who / may change the credentials, and who may look. a fourth role would have to / be explained to somebody, and nobody has asked for one.](#group-what-somebody-may-do-inside-a-buyer-organisation-three-levels-rather-than-a-permission-matrix-because-there-are-exactly-three-questions-a-buyer-s-it-department-actually-has-who-owns-this-who-may-change-the-credentials-and-who-may-look-a-fourth-role-would-have-to-be-explained-to-somebody-and-nobody-has-asked-for-one) | 19 | 20 |
-| [/ where a seller's application has got to. / / the order matters: this is a state machine, enforced in / `domain/seller-state.ts`, and nothing writes this column directly - the / same rule `orderstatus` and `schedulestatus` follow, for the same reason. / an application decides whether a business may put medical devices in front / of hospitals, so "how did it get to approved" must always have an answer.](#group-where-a-seller-s-application-has-got-to-the-order-matters-this-is-a-state-machine-enforced-in-domain-seller-state-ts-and-nothing-writes-this-column-directly-the-same-rule-orderstatus-and-schedulestatus-follow-for-the-same-reason-an-application-decides-whether-a-business-may-put-medical-devices-in-front-of-hospitals-so-how-did-it-get-to-approved-must-always-have-an-answer) | 33 | 25 |
+| [/ where a seller's application has got to. / / the order matters: this is a state machine, enforced in / `domain/seller-state.ts`, and nothing writes this column directly - the / same rule `orderstatus` and `schedulestatus` follow, for the same reason. / an application decides whether a business may put medical devices in front / of hospitals, so "how did it get to approved" must always have an answer.](#group-where-a-seller-s-application-has-got-to-the-order-matters-this-is-a-state-machine-enforced-in-domain-seller-state-ts-and-nothing-writes-this-column-directly-the-same-rule-orderstatus-and-schedulestatus-follow-for-the-same-reason-an-application-decides-whether-a-business-may-put-medical-devices-in-front-of-hospitals-so-how-did-it-get-to-approved-must-always-have-an-answer) | 33 | 26 |
 | [/ how a seller came to be able to use a carrier. / / stored because it decides who may end the relationship and on what notice, / which is a question that gets asked exactly once - during a dispute.](#group-how-a-seller-came-to-be-able-to-use-a-carrier-stored-because-it-decides-who-may-end-the-relationship-and-on-what-notice-which-is-a-question-that-gets-asked-exactly-once-during-a-dispute) | 1 | 2 |
 | [/ who is responsible for moving a seller's goods. / / read together with `sellerfulfilmentmethod.status`: a mode says what kind / of delivery this is, the status says whether it may be used yet. a seller / can have a dedicated_partner method sitting in pending_approval for a / fortnight while their integrated_carrier method carries everything.](#group-who-is-responsible-for-moving-a-seller-s-goods-read-together-with-sellerfulfilmentmethod-status-a-mode-says-what-kind-of-delivery-this-is-the-status-says-whether-it-may-be-used-yet-a-seller-can-have-a-dedicated-partner-method-sitting-in-pending-approval-for-a-fortnight-while-their-integrated-carrier-method-carries-everything) | 11 | 12 |
 | [Logistics partner portal](#group-logistics-partner-portal) | 30 | 32 |
@@ -71,7 +71,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ which level of the fallback chain a policy sits at. / / offer -&gt; product -&gt; seller_default -&gt; the platform's own defaults (config) / / the first one that exists wins, whole. a variant whose own policy says / "disabled" is disabled, and does not fall through to an enabled product / policy - a seller who switched one variant off meant it.](#group-which-level-of-the-fallback-chain-a-policy-sits-at-offer-product-seller-default-the-platform-s-own-defaults-config-the-first-one-that-exists-wins-whole-a-variant-whose-own-policy-says-disabled-is-disabled-and-does-not-fall-through-to-an-enabled-product-policy-a-seller-who-switched-one-variant-off-meant-it) | 9 | 14 |
 | [/ where a conversation stands. moved only by `domain/preorder-chat-state.ts`.](#group-where-a-conversation-stands-moved-only-by-domain-preorder-chat-state-ts) | 8 | 7 |
 | [Seller documents: invoices and packing lists](#group-seller-documents-invoices-and-packing-lists) | 5 | 3 |
-| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 15 | 19 |
+| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 16 | 19 |
 | [/ which agreement a document is. each account type is asked for its own.](#group-which-agreement-a-document-is-each-account-type-is-asked-for-its-own) | 2 | 2 |
 | [Seller commission invoices](#group-seller-commission-invoices) | 6 | 7 |
 | [/ how strongly an order needs inspecting, decided by the rules engine.](#group-how-strongly-an-order-needs-inspecting-decided-by-the-rules-engine) | 17 | 23 |
@@ -2574,6 +2574,7 @@ The receipt number issued for one captured payment or one succeeded refund.
 | `snapshotJson` | Json |  |  |  |  |
 | `issuedAt` | DateTime · DateTime(3) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -7880,6 +7881,7 @@ A seller business, as a tenant.
 
 - `members` ← [SellerMember](#model-sellermember) - has many
 - `invitations` ← [SellerInvitation](#model-sellerinvitation) - has many
+- `accessReviews` ← [TeamAccessReview](#model-teamaccessreview) - has many
 - `onboarding` ← [SellerOnboardingProgress](#model-selleronboardingprogress) - has zero or one
 - `businessProfile` ← [SellerBusinessProfile](#model-sellerbusinessprofile) - has zero or one
 - `verificationCases` ← [SellerVerificationCase](#model-sellerverificationcase) - has many
@@ -7986,20 +7988,25 @@ One person's place in one seller organisation.
 
 Table `seller_invitations`
 
-An outstanding invitation to join a seller organisation.
+An invitation to join a seller organisation in one role (checklist Master row 14).
 
 | Column | Type | Null? | Key | Default | Notes |
 |---|---|---|---|---|---|
 | `id` | String · Char(26) |  | PK |  |  |
 | `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `email` | String · VarChar(320) |  |  |  | As typed, for display. `emailNormalized` is what is compared. |
 | `emailNormalized` | String · VarChar(320) |  |  |  |  |
 | `role` | [enum SellerMemberRole](#enum-sellermemberrole) |  |  | SUPPORT_MEMBER |  |
 | `tokenHash` | String · Char(64) |  | UNIQUE |  |  |
 | `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
+| `liveKey` | String · VarChar(360) | yes | UNIQUE |  | `sellerAccountId:emailNormalized` while the invitation can still be accepted; null once it is accepted, revoked or replaced. UNIQUE, so an address has at most one live invitation per seller. MariaDB lets any number of NULLs through a UNIQUE index, which is what lets the retired rows stay. |
+| `sendCount` | Int |  |  | 1 | How many times the email has gone out: 1 when invited, +1 per resend. |
+| `lastSentAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `invitedByProfileId` | String · Char(26) | yes |  |  |  |
 | `acceptedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `acceptedByProfileId` | String · Char(26) | yes |  |  |  |
 | `revokedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `revokedByProfileId` | String · Char(26) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
@@ -8077,6 +8084,7 @@ The business behind a seller account: who it is, where it is registered, what it
 |---|---|---|---|---|---|
 | `id` | String · Char(26) |  | PK |  |  |
 | `sellerAccountId` | String · Char(26) |  | UNIQUE, FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `legalForm` | [enum SellerLegalForm](#enum-sellerlegalform) | yes |  |  | Null until the seller answers the "Ownership, registrations and exports" section. Required to submit. |
 | `representativeName` | String · VarChar(160) | yes |  |  | Whoever signs for the business. A person, so this row is personal data and is disclosed in the Art. 15 export. |
 | `representativeEmail` | String · VarChar(320) | yes |  |  |  |
 | `representativePhone` | String · VarChar(32) | yes |  |  |  |
@@ -9245,6 +9253,21 @@ Who somebody is inside one seller organisation.
 | `ORDER_MANAGER` | Orders, shipments, returns. |
 | `FINANCE_VIEWER` | Settlements, payouts, statements. Read-only - a marketplace seller does not move their own money from here. |
 | `SUPPORT_MEMBER` | Reads orders and returns to answer a buyer. No money, no catalogue. |
+
+<a id="enum-sellerlegalform"></a>
+
+#### enum SellerLegalForm
+
+What a seller business is, in law. Decides which registration number is asked for: in India a company has a CIN and an LLP an LLPIN, while a proprietorship or an ordinary partnership has neither. The same values as `BuyerCompanyEntityType`, less the forms a seller is not (a public body).
+
+| Value | Meaning |
+|---|---|
+| `SOLE_PROPRIETORSHIP` |  |
+| `PARTNERSHIP` |  |
+| `LIMITED_LIABILITY_PARTNERSHIP` |  |
+| `PRIVATE_LIMITED_COMPANY` |  |
+| `PUBLIC_LIMITED_COMPANY` |  |
+| `OTHER` |  |
 
 <a id="enum-sellerverificationkind"></a>
 
@@ -14274,6 +14297,7 @@ Which fee rule changed which seller order's fee, and by how much. Written once, 
 | `effectMinor` | BigInt |  |  |  | What the fee would have been minus what it was: positive is a saving to the seller, negative a higher fee. |
 | `currency` | String · Char(3) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -15849,13 +15873,15 @@ A packing list for one consignment - one vehicle, one load.
 
 ##  / which buyer the session is acting as. null on a session row means individual.
 
-[BuyerCompany](#model-buyercompany) · [BuyerCompanyAddress](#model-buyercompanyaddress) · [BuyerCompanyIdentifier](#model-buyercompanyidentifier) · [BuyerCompanyLocation](#model-buyercompanylocation) · [BuyerCompanyMember](#model-buyercompanymember) · [BuyerCompanyInvitation](#model-buyercompanyinvitation) · [BuyerCompanyApprovalPolicy](#model-buyercompanyapprovalpolicy) · [BuyerCompanyOrderApproval](#model-buyercompanyorderapproval) · [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) · [BuyerCompanyCheck](#model-buyercompanycheck) · [BuyerCompanyDocument](#model-buyercompanydocument) · [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) · [BuyerCompanyReviewEvent](#model-buyercompanyreviewevent) · [BuyerCompanyStatusHistory](#model-buyercompanystatushistory) · [ConsentRecord](#model-consentrecord)
+[BuyerCompany](#model-buyercompany) · [BuyerCompanyAddress](#model-buyercompanyaddress) · [BuyerCompanyIdentifier](#model-buyercompanyidentifier) · [TeamAccessReview](#model-teamaccessreview) · [BuyerCompanyLocation](#model-buyercompanylocation) · [BuyerCompanyMember](#model-buyercompanymember) · [BuyerCompanyInvitation](#model-buyercompanyinvitation) · [BuyerCompanyApprovalPolicy](#model-buyercompanyapprovalpolicy) · [BuyerCompanyOrderApproval](#model-buyercompanyorderapproval) · [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) · [BuyerCompanyCheck](#model-buyercompanycheck) · [BuyerCompanyDocument](#model-buyercompanydocument) · [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) · [BuyerCompanyReviewEvent](#model-buyercompanyreviewevent) · [BuyerCompanyStatusHistory](#model-buyercompanystatushistory) · [ConsentRecord](#model-consentrecord)
 
 ```mermaid
 erDiagram
     SellerAccount |o--o{ BuyerCompany : "linkedSellerAccount"
     BuyerCompany ||--o{ BuyerCompanyAddress : "company"
     BuyerCompany ||--o{ BuyerCompanyIdentifier : "company"
+    SellerAccount |o--o{ TeamAccessReview : "sellerAccount"
+    BuyerCompany |o--o{ TeamAccessReview : "buyerCompany"
     BuyerCompany ||--o{ BuyerCompanyLocation : "company"
     BuyerCompany ||--o{ BuyerCompanyMember : "company"
     User ||--o{ BuyerCompanyMember : "user"
@@ -15888,6 +15914,11 @@ erDiagram
     BuyerCompanyIdentifier {
         String id PK
         String companyId FK
+    }
+    TeamAccessReview {
+        String id PK
+        String sellerAccountId FK
+        String buyerCompanyId FK
     }
     BuyerCompanyLocation {
         String id PK
@@ -16012,6 +16043,7 @@ Table `buyer_companies`
 - `locations` ← [BuyerCompanyLocation](#model-buyercompanylocation) - has many
 - `members` ← [BuyerCompanyMember](#model-buyercompanymember) - has many
 - `invitations` ← [BuyerCompanyInvitation](#model-buyercompanyinvitation) - has many
+- `accessReviews` ← [TeamAccessReview](#model-teamaccessreview) - has many
 - `cases` ← [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) - has many
 - `checks` ← [BuyerCompanyCheck](#model-buyercompanycheck) - has many
 - `documents` ← [BuyerCompanyDocument](#model-buyercompanydocument) - has many
@@ -16100,6 +16132,35 @@ A tax or trade identifier - GSTIN, NIP, an EU VAT number, a LEI.
 
 - `@@unique([companyId, scheme], map: "uq_buyer_company_identifier_scheme")`
 - `@@index([scheme, valueNormalized], map: "ix_buyer_company_identifier_value")`
+
+<a id="model-teamaccessreview"></a>
+
+### TeamAccessReview
+
+Table `team_access_reviews`
+
+"I have checked who has access" - one row each time an owner or administrator confirms a periodic access review of their team (checklist Master row 14). Belongs to exactly one seller or one buyer company (CHECK `chk_team_access_review_one_owner`). The counts are what the reviewer was looking at, so a later reader can tell a review of three people from a review of thirty. The application never changes or deletes a row; each one is also written to the audit log.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) | yes | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `buyerCompanyId` | String · Char(26) | yes | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `reviewedByUserId` | String · Char(26) |  |  |  |  |
+| `memberCount` | Int |  |  |  |  |
+| `invitationCount` | Int |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, optional, on delete **Cascade**, on update **Restrict**
+- `buyerCompany` → [BuyerCompany](#model-buyercompany) via `buyerCompanyId` - many-to-one, optional, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, createdAt], map: "ix_team_access_review_seller")`
+- `@@index([buyerCompanyId, createdAt], map: "ix_team_access_review_company")`
 
 <a id="model-buyercompanylocation"></a>
 
@@ -16248,6 +16309,7 @@ One sign-off an order needs from inside the buyer company.
 | `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `reason` | String · VarChar(1000) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -18492,6 +18554,7 @@ Single row, id 'default'. Every threshold here is the operator's setting.
 | `buyerServiceFeeBasisPoints` | Int · SmallInt | yes |  |  |  |
 | `updatedById` | String · Char(26) | yes |  |  |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 
 <a id="model-sellertrustprofile"></a>
 
@@ -18510,6 +18573,7 @@ What a supplier says about itself beyond the application, one row per seller. Ve
 | `exportCapable` | Boolean |  |  | false |  |
 | `exportMarketsJson` | Json | yes |  |  | ISO-3166 alpha-2 codes the supplier says it already exports to. |
 | `yearsExporting` | Int · SmallInt | yes |  |  |  |
+| `intendedCategoryIdsJson` | Json | yes |  |  | Category ids the seller says it intends to sell in, from the application. Checked against `categories` when saved; a reviewer sees each one against the market rules that block it. |
 | `capabilitiesJson` | Json | yes |  |  | Capability tags - OEM, PRIVATE_LABEL, CUSTOM_PACKAGING, R_AND_D, CONTRACT_MANUFACTURING, STERILE_MANUFACTURING, TESTING_LAB. |
 | `responseSlaHours` | Int · SmallInt | yes |  |  | Hours the supplier commits to answering an enquiry in. |
 | `about` | String · Text | yes |  |  |  |
@@ -18543,6 +18607,7 @@ A natural person who ultimately owns or controls the supplier. Personal data of 
 | `nationality` | String · Char(2) | yes |  |  |  |
 | `ownershipBasisPoints` | Int · SmallInt |  |  |  | 2500 = 25.00%. |
 | `isControllingPerson` | Boolean |  |  | false |  |
+| `isPoliticallyExposed` | Boolean |  |  | false | The seller's own declaration that this person is a politically exposed person. A declaration, not a screening result - screening is `SellerScreeningCheck`, recorded by the operator. |
 | `role` | String · VarChar(120) | yes |  |  |  |
 | `archivedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
@@ -18614,6 +18679,8 @@ Table `seller_factory_machines`
 | `quantity` | Int |  |  | 1 |  |
 | `capacityNote` | String · VarChar(255) | yes |  |  |  |
 | `sortOrder` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -18640,6 +18707,7 @@ A document (a `SellerDocument`, through the existing upload pipeline) offered as
 | `capturedLatitude` | Decimal · Decimal(10, 7) | yes |  |  | Where the photograph says it was taken, when the seller supplied it. |
 | `capturedLongitude` | Decimal · Decimal(10, 7) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -18842,6 +18910,8 @@ Table `seller_listing_certifications`
 | `id` | String · Char(26) |  | PK |  |  |
 | `listingTrustId` | String · Char(26) |  | FK → [SellerListingTrust](#model-sellerlistingtrust) |  | (on delete: Cascade) |
 | `certificationId` | String · Char(26) |  | FK → [SellerCertification](#model-sellercertification) |  | (on delete: Cascade) |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -18869,6 +18939,8 @@ An offer paused because a certificate it relies on expired. Released - and the o
 | `previousStatus` | [enum SellerOfferStatus](#enum-sellerofferstatus) |  |  |  |  |
 | `heldAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `releasedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -18970,6 +19042,7 @@ Operator-written content for one destination's landing page.
 | `isPublished` | Boolean |  |  | false |  |
 | `updatedById` | String · Char(26) | yes |  |  |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 
 <a id="model-searchsynonym"></a>
 
@@ -19007,6 +19080,7 @@ One search, anonymously. No user, no session, no address - the analytics only ne
 | `countryCode` | String · Char(2) | yes |  |  |  |
 | `language` | String · VarChar(10) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Indexes and keys**
 
@@ -19342,6 +19416,8 @@ A production delay or exception, raised and later resolved. Kept for ever: "how 
 | `resolvedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `resolvedByLabel` | String · VarChar(160) | yes |  |  |  |
 | `resolutionNote` | String · VarChar(1000) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19371,6 +19447,7 @@ What a buyer is told about a seller's part of their order, as it happens.
 | `expectedDate` | DateTime · Date | yes |  |  |  |
 | `message` | String · VarChar(1000) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19446,6 +19523,7 @@ One version of a trade document. Never edited: a correction is a new version, an
 | `supersededAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdByLabel` | String · VarChar(160) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19474,6 +19552,7 @@ Everything that happened to a trade document, for its audit history.
 | `actorLabel` | String · VarChar(160) |  |  |  |  |
 | `note` | String · VarChar(1000) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19567,6 +19646,7 @@ The operator's booking settings. One row, id 'default'.
 | `requireTermsCrossBorder` | Boolean |  |  | true | Whether a cross-border consignment must state its Incoterm, mode and ports before it can be booked. |
 | `updatedByUserId` | String · Char(26) | yes |  |  |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 
 <a id="model-logisticslane"></a>
 
@@ -19629,6 +19709,8 @@ One weight break of a lane: from `minWeightGrams` (inclusive) to `maxWeightGrams
 | `amountMinor` | BigInt |  |  |  |  |
 | `perKgMinor` | BigInt |  |  | 0 |  |
 | `sortOrder` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19849,6 +19931,7 @@ One account in the ledger, per owner and currency.
 | `sellerAccountId` | String · Char(26) | yes |  |  |  |
 | `currency` | String · Char(3) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19886,6 +19969,7 @@ One journal entry: a balanced set of lines, written once.
 | `actorLabel` | String · VarChar(160) |  |  |  | 'System', or the staff member's email. |
 | `occurredAt` | DateTime · DateTime(3) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19916,6 +20000,8 @@ One side of an entry. Signed minor units: a debit is positive, a credit negative
 | `accountId` | String · Char(26) |  | FK → [LedgerAccount](#model-ledgeraccount) |  | (on delete: Restrict) |
 | `amountMinor` | BigInt |  |  |  |  |
 | `currency` | String · Char(3) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19994,6 +20080,7 @@ A manual, early release of held funds: asked for by one member of staff with a r
 | `decisionNote` | String · VarChar(1000) | yes |  |  |  |
 | `pendingKey` | String · Char(26) | yes |  |  | The hold's id while PENDING, null once decided: one open request per hold, because a UNIQUE index ignores NULLs. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Indexes and keys**
 
@@ -20020,6 +20107,8 @@ A signed event from the payout provider, recorded once.
 | `note` | String · VarChar(512) | yes |  |  |  |
 | `receivedAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `processedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Indexes and keys**
 
@@ -20048,6 +20137,8 @@ One comparison of the ledger with the provider's balance transactions.
 | `errorMessage` | String · VarChar(1000) | yes |  |  |  |
 | `startedAt` | DateTime · DateTime(3) |  |  |  |  |
 | `completedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -20078,6 +20169,7 @@ One finding of a run: a match, or a difference finance must look at.
 | `ledgerEntryId` | String · Char(26) | yes |  |  |  |
 | `note` | String · VarChar(512) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 

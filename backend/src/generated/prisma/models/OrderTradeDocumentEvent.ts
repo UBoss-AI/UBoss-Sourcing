@@ -33,6 +33,7 @@ export type OrderTradeDocumentEventMinAggregateOutputType = {
   actorLabel: string | null
   note: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type OrderTradeDocumentEventMaxAggregateOutputType = {
@@ -44,6 +45,7 @@ export type OrderTradeDocumentEventMaxAggregateOutputType = {
   actorLabel: string | null
   note: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type OrderTradeDocumentEventCountAggregateOutputType = {
@@ -55,6 +57,7 @@ export type OrderTradeDocumentEventCountAggregateOutputType = {
   actorLabel: number
   note: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -68,6 +71,7 @@ export type OrderTradeDocumentEventMinAggregateInputType = {
   actorLabel?: true
   note?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type OrderTradeDocumentEventMaxAggregateInputType = {
@@ -79,6 +83,7 @@ export type OrderTradeDocumentEventMaxAggregateInputType = {
   actorLabel?: true
   note?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type OrderTradeDocumentEventCountAggregateInputType = {
@@ -90,6 +95,7 @@ export type OrderTradeDocumentEventCountAggregateInputType = {
   actorLabel?: true
   note?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -174,6 +180,7 @@ export type OrderTradeDocumentEventGroupByOutputType = {
   actorLabel: string
   note: string | null
   createdAt: Date
+  updatedAt: Date
   _count: OrderTradeDocumentEventCountAggregateOutputType | null
   _min: OrderTradeDocumentEventMinAggregateOutputType | null
   _max: OrderTradeDocumentEventMaxAggregateOutputType | null
@@ -206,6 +213,7 @@ export type OrderTradeDocumentEventWhereInput = {
   actorLabel?: Prisma.StringFilter<"OrderTradeDocumentEvent"> | string
   note?: Prisma.StringNullableFilter<"OrderTradeDocumentEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrderTradeDocumentEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderTradeDocumentEvent"> | Date | string
   document?: Prisma.XOR<Prisma.OrderTradeDocumentScalarRelationFilter, Prisma.OrderTradeDocumentWhereInput>
 }
 
@@ -218,6 +226,7 @@ export type OrderTradeDocumentEventOrderByWithRelationInput = {
   actorLabel?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   document?: Prisma.OrderTradeDocumentOrderByWithRelationInput
   _relevance?: Prisma.OrderTradeDocumentEventOrderByRelevanceInput
 }
@@ -234,6 +243,7 @@ export type OrderTradeDocumentEventWhereUniqueInput = Prisma.AtLeast<{
   actorLabel?: Prisma.StringFilter<"OrderTradeDocumentEvent"> | string
   note?: Prisma.StringNullableFilter<"OrderTradeDocumentEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrderTradeDocumentEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderTradeDocumentEvent"> | Date | string
   document?: Prisma.XOR<Prisma.OrderTradeDocumentScalarRelationFilter, Prisma.OrderTradeDocumentWhereInput>
 }, "id">
 
@@ -246,6 +256,7 @@ export type OrderTradeDocumentEventOrderByWithAggregationInput = {
   actorLabel?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrderTradeDocumentEventCountOrderByAggregateInput
   _max?: Prisma.OrderTradeDocumentEventMaxOrderByAggregateInput
   _min?: Prisma.OrderTradeDocumentEventMinOrderByAggregateInput
@@ -263,6 +274,7 @@ export type OrderTradeDocumentEventScalarWhereWithAggregatesInput = {
   actorLabel?: Prisma.StringWithAggregatesFilter<"OrderTradeDocumentEvent"> | string
   note?: Prisma.StringNullableWithAggregatesFilter<"OrderTradeDocumentEvent"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OrderTradeDocumentEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"OrderTradeDocumentEvent"> | Date | string
 }
 
 export type OrderTradeDocumentEventCreateInput = {
@@ -273,6 +285,7 @@ export type OrderTradeDocumentEventCreateInput = {
   actorLabel: string
   note?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   document: Prisma.OrderTradeDocumentCreateNestedOneWithoutEventsInput
 }
 
@@ -285,6 +298,7 @@ export type OrderTradeDocumentEventUncheckedCreateInput = {
   actorLabel: string
   note?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderTradeDocumentEventUpdateInput = {
@@ -295,6 +309,7 @@ export type OrderTradeDocumentEventUpdateInput = {
   actorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   document?: Prisma.OrderTradeDocumentUpdateOneRequiredWithoutEventsNestedInput
 }
 
@@ -307,6 +322,7 @@ export type OrderTradeDocumentEventUncheckedUpdateInput = {
   actorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderTradeDocumentEventCreateManyInput = {
@@ -318,6 +334,7 @@ export type OrderTradeDocumentEventCreateManyInput = {
   actorLabel: string
   note?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderTradeDocumentEventUpdateManyMutationInput = {
@@ -328,6 +345,7 @@ export type OrderTradeDocumentEventUpdateManyMutationInput = {
   actorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderTradeDocumentEventUncheckedUpdateManyInput = {
@@ -339,6 +357,7 @@ export type OrderTradeDocumentEventUncheckedUpdateManyInput = {
   actorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderTradeDocumentEventListRelationFilter = {
@@ -366,6 +385,7 @@ export type OrderTradeDocumentEventCountOrderByAggregateInput = {
   actorLabel?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderTradeDocumentEventMaxOrderByAggregateInput = {
@@ -377,6 +397,7 @@ export type OrderTradeDocumentEventMaxOrderByAggregateInput = {
   actorLabel?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderTradeDocumentEventMinOrderByAggregateInput = {
@@ -388,6 +409,7 @@ export type OrderTradeDocumentEventMinOrderByAggregateInput = {
   actorLabel?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderTradeDocumentEventCreateNestedManyWithoutDocumentInput = {
@@ -440,6 +462,7 @@ export type OrderTradeDocumentEventCreateWithoutDocumentInput = {
   actorLabel: string
   note?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderTradeDocumentEventUncheckedCreateWithoutDocumentInput = {
@@ -450,6 +473,7 @@ export type OrderTradeDocumentEventUncheckedCreateWithoutDocumentInput = {
   actorLabel: string
   note?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderTradeDocumentEventCreateOrConnectWithoutDocumentInput = {
@@ -490,6 +514,7 @@ export type OrderTradeDocumentEventScalarWhereInput = {
   actorLabel?: Prisma.StringFilter<"OrderTradeDocumentEvent"> | string
   note?: Prisma.StringNullableFilter<"OrderTradeDocumentEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrderTradeDocumentEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderTradeDocumentEvent"> | Date | string
 }
 
 export type OrderTradeDocumentEventCreateManyDocumentInput = {
@@ -500,6 +525,7 @@ export type OrderTradeDocumentEventCreateManyDocumentInput = {
   actorLabel: string
   note?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderTradeDocumentEventUpdateWithoutDocumentInput = {
@@ -510,6 +536,7 @@ export type OrderTradeDocumentEventUpdateWithoutDocumentInput = {
   actorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderTradeDocumentEventUncheckedUpdateWithoutDocumentInput = {
@@ -520,6 +547,7 @@ export type OrderTradeDocumentEventUncheckedUpdateWithoutDocumentInput = {
   actorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderTradeDocumentEventUncheckedUpdateManyWithoutDocumentInput = {
@@ -530,6 +558,7 @@ export type OrderTradeDocumentEventUncheckedUpdateManyWithoutDocumentInput = {
   actorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -543,6 +572,7 @@ export type OrderTradeDocumentEventSelect<ExtArgs extends runtime.Types.Extensio
   actorLabel?: boolean
   note?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   document?: boolean | Prisma.OrderTradeDocumentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["orderTradeDocumentEvent"]>
 
@@ -557,9 +587,10 @@ export type OrderTradeDocumentEventSelectScalar = {
   actorLabel?: boolean
   note?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type OrderTradeDocumentEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "documentId" | "versionId" | "action" | "actorType" | "actorLabel" | "note" | "createdAt", ExtArgs["result"]["orderTradeDocumentEvent"]>
+export type OrderTradeDocumentEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "documentId" | "versionId" | "action" | "actorType" | "actorLabel" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["orderTradeDocumentEvent"]>
 export type OrderTradeDocumentEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   document?: boolean | Prisma.OrderTradeDocumentDefaultArgs<ExtArgs>
 }
@@ -585,6 +616,7 @@ export type $OrderTradeDocumentEventPayload<ExtArgs extends runtime.Types.Extens
     actorLabel: string
     note: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["orderTradeDocumentEvent"]>
   composites: {}
 }
@@ -963,6 +995,7 @@ export interface OrderTradeDocumentEventFieldRefs {
   readonly actorLabel: Prisma.FieldRef<"OrderTradeDocumentEvent", 'String'>
   readonly note: Prisma.FieldRef<"OrderTradeDocumentEvent", 'String'>
   readonly createdAt: Prisma.FieldRef<"OrderTradeDocumentEvent", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"OrderTradeDocumentEvent", 'DateTime'>
 }
     
 

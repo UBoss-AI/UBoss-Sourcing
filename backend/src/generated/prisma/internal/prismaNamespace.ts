@@ -660,6 +660,7 @@ export const ModelName = {
   BuyerCompany: 'BuyerCompany',
   BuyerCompanyAddress: 'BuyerCompanyAddress',
   BuyerCompanyIdentifier: 'BuyerCompanyIdentifier',
+  TeamAccessReview: 'TeamAccessReview',
   BuyerCompanyLocation: 'BuyerCompanyLocation',
   BuyerCompanyMember: 'BuyerCompanyMember',
   BuyerCompanyInvitation: 'BuyerCompanyInvitation',
@@ -758,7 +759,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productVariantAttribute" | "productDescriptionSection" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "paymentReceipt" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "paymentProviderCustomer" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "returnRequestLine" | "returnRequestEvent" | "returnRequestFile" | "returnSettings" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "productReview" | "supportTicket" | "supportTicketEvent" | "supportTicketAttachment" | "supportSlaPolicy" | "dispute" | "disputeEvent" | "disputeAttachment" | "disputeSettings" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerProfileChange" | "logisticsPartnerDocument" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsDeliveryCode" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "platformFeeRule" | "platformFeeRuleApplication" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList" | "buyerCompany" | "buyerCompanyAddress" | "buyerCompanyIdentifier" | "buyerCompanyLocation" | "buyerCompanyMember" | "buyerCompanyInvitation" | "buyerCompanyApprovalPolicy" | "buyerCompanyOrderApproval" | "buyerCompanyVerificationCase" | "buyerCompanyCheck" | "buyerCompanyDocument" | "buyerCompanyInfoRequest" | "buyerCompanyReviewEvent" | "buyerCompanyStatusHistory" | "consentRecord" | "legalDocument" | "buyerCompanyEmailChallenge" | "commissionInvoiceSettings" | "commissionInvoice" | "commissionInvoiceLine" | "commissionCreditNote" | "commissionDocument" | "commissionInvoiceEvent" | "inspectionPolicy" | "inspectionPlan" | "inspectionRule" | "inspectionSupplierRisk" | "inspectionAgency" | "inspectionAgencyMember" | "inspectionRequirement" | "inspectionJob" | "inspectionConflictDeclaration" | "inspectionCheckResult" | "inspectionDefect" | "inspectionEvidence" | "inspectionReport" | "inspectionRelease" | "inspectionShipmentBinding" | "inspectionAgencyInvoice" | "inspectionEvent" | "trustSettings" | "sellerTrustProfile" | "sellerBeneficialOwner" | "sellerFactory" | "sellerFactoryMachine" | "sellerFactoryEvidence" | "sellerCertification" | "sellerTrustCheck" | "sellerScreeningCheck" | "sellerProfileChangeRequest" | "sellerListingTrust" | "sellerListingCertification" | "sellerOfferComplianceHold" | "marketRule" | "marketLandedCostRate" | "marketProfile" | "searchSynonym" | "searchQueryLog" | "customerKyc" | "customerKycDocument" | "customerPreference" | "sellerProductionMilestone" | "sellerProductionDelay" | "sellerOrderBuyerUpdate" | "orderTradeDocument" | "orderTradeDocumentVersion" | "orderTradeDocumentEvent" | "tradeComplianceRule" | "consignmentBookingTerms" | "logisticsTradeSettings" | "logisticsLane" | "logisticsLaneBand" | "ledgerAccount" | "ledgerEntry" | "ledgerLine" | "sellerFundHold" | "sellerFundReleaseRequest" | "payoutProviderEvent" | "ledgerReconciliationRun" | "ledgerReconciliationItem" | "secretFingerprint" | "rfqRequest" | "rfqRequirementVersion" | "rfqInvitation" | "rfqAttachment" | "rfqEvent"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productVariantAttribute" | "productDescriptionSection" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "paymentReceipt" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "paymentProviderCustomer" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "returnRequestLine" | "returnRequestEvent" | "returnRequestFile" | "returnSettings" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "productReview" | "supportTicket" | "supportTicketEvent" | "supportTicketAttachment" | "supportSlaPolicy" | "dispute" | "disputeEvent" | "disputeAttachment" | "disputeSettings" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerProfileChange" | "logisticsPartnerDocument" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsDeliveryCode" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "platformFeeRule" | "platformFeeRuleApplication" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList" | "buyerCompany" | "buyerCompanyAddress" | "buyerCompanyIdentifier" | "teamAccessReview" | "buyerCompanyLocation" | "buyerCompanyMember" | "buyerCompanyInvitation" | "buyerCompanyApprovalPolicy" | "buyerCompanyOrderApproval" | "buyerCompanyVerificationCase" | "buyerCompanyCheck" | "buyerCompanyDocument" | "buyerCompanyInfoRequest" | "buyerCompanyReviewEvent" | "buyerCompanyStatusHistory" | "consentRecord" | "legalDocument" | "buyerCompanyEmailChallenge" | "commissionInvoiceSettings" | "commissionInvoice" | "commissionInvoiceLine" | "commissionCreditNote" | "commissionDocument" | "commissionInvoiceEvent" | "inspectionPolicy" | "inspectionPlan" | "inspectionRule" | "inspectionSupplierRisk" | "inspectionAgency" | "inspectionAgencyMember" | "inspectionRequirement" | "inspectionJob" | "inspectionConflictDeclaration" | "inspectionCheckResult" | "inspectionDefect" | "inspectionEvidence" | "inspectionReport" | "inspectionRelease" | "inspectionShipmentBinding" | "inspectionAgencyInvoice" | "inspectionEvent" | "trustSettings" | "sellerTrustProfile" | "sellerBeneficialOwner" | "sellerFactory" | "sellerFactoryMachine" | "sellerFactoryEvidence" | "sellerCertification" | "sellerTrustCheck" | "sellerScreeningCheck" | "sellerProfileChangeRequest" | "sellerListingTrust" | "sellerListingCertification" | "sellerOfferComplianceHold" | "marketRule" | "marketLandedCostRate" | "marketProfile" | "searchSynonym" | "searchQueryLog" | "customerKyc" | "customerKycDocument" | "customerPreference" | "sellerProductionMilestone" | "sellerProductionDelay" | "sellerOrderBuyerUpdate" | "orderTradeDocument" | "orderTradeDocumentVersion" | "orderTradeDocumentEvent" | "tradeComplianceRule" | "consignmentBookingTerms" | "logisticsTradeSettings" | "logisticsLane" | "logisticsLaneBand" | "ledgerAccount" | "ledgerEntry" | "ledgerLine" | "sellerFundHold" | "sellerFundReleaseRequest" | "payoutProviderEvent" | "ledgerReconciliationRun" | "ledgerReconciliationItem" | "secretFingerprint" | "rfqRequest" | "rfqRequirementVersion" | "rfqInvitation" | "rfqAttachment" | "rfqEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -18120,6 +18121,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    TeamAccessReview: {
+      payload: Prisma.$TeamAccessReviewPayload<ExtArgs>
+      fields: Prisma.TeamAccessReviewFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TeamAccessReviewFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamAccessReviewPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TeamAccessReviewFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamAccessReviewPayload>
+        }
+        findFirst: {
+          args: Prisma.TeamAccessReviewFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamAccessReviewPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TeamAccessReviewFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamAccessReviewPayload>
+        }
+        findMany: {
+          args: Prisma.TeamAccessReviewFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamAccessReviewPayload>[]
+        }
+        create: {
+          args: Prisma.TeamAccessReviewCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamAccessReviewPayload>
+        }
+        createMany: {
+          args: Prisma.TeamAccessReviewCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.TeamAccessReviewDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamAccessReviewPayload>
+        }
+        update: {
+          args: Prisma.TeamAccessReviewUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamAccessReviewPayload>
+        }
+        deleteMany: {
+          args: Prisma.TeamAccessReviewDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TeamAccessReviewUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.TeamAccessReviewUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamAccessReviewPayload>
+        }
+        aggregate: {
+          args: Prisma.TeamAccessReviewAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTeamAccessReview>
+        }
+        groupBy: {
+          args: Prisma.TeamAccessReviewGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TeamAccessReviewGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TeamAccessReviewCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TeamAccessReviewCountAggregateOutputType> | number
+        }
+      }
+    }
     BuyerCompanyLocation: {
       payload: Prisma.$BuyerCompanyLocationPayload<ExtArgs>
       fields: Prisma.BuyerCompanyLocationFieldRefs
@@ -24696,7 +24763,8 @@ export const PaymentReceiptScalarFieldEnum = {
   currency: 'currency',
   snapshotJson: 'snapshotJson',
   issuedAt: 'issuedAt',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type PaymentReceiptScalarFieldEnum = (typeof PaymentReceiptScalarFieldEnum)[keyof typeof PaymentReceiptScalarFieldEnum]
@@ -26589,14 +26657,19 @@ export type SellerMemberScalarFieldEnum = (typeof SellerMemberScalarFieldEnum)[k
 export const SellerInvitationScalarFieldEnum = {
   id: 'id',
   sellerAccountId: 'sellerAccountId',
+  email: 'email',
   emailNormalized: 'emailNormalized',
   role: 'role',
   tokenHash: 'tokenHash',
   expiresAt: 'expiresAt',
+  liveKey: 'liveKey',
+  sendCount: 'sendCount',
+  lastSentAt: 'lastSentAt',
   invitedByProfileId: 'invitedByProfileId',
   acceptedAt: 'acceptedAt',
   acceptedByProfileId: 'acceptedByProfileId',
   revokedAt: 'revokedAt',
+  revokedByProfileId: 'revokedByProfileId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -26641,6 +26714,7 @@ export type SellerOnboardingRequirementScalarFieldEnum = (typeof SellerOnboardin
 export const SellerBusinessProfileScalarFieldEnum = {
   id: 'id',
   sellerAccountId: 'sellerAccountId',
+  legalForm: 'legalForm',
   representativeName: 'representativeName',
   representativeEmail: 'representativeEmail',
   representativePhone: 'representativePhone',
@@ -29196,7 +29270,8 @@ export const PlatformFeeRuleApplicationScalarFieldEnum = {
   kind: 'kind',
   effectMinor: 'effectMinor',
   currency: 'currency',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type PlatformFeeRuleApplicationScalarFieldEnum = (typeof PlatformFeeRuleApplicationScalarFieldEnum)[keyof typeof PlatformFeeRuleApplicationScalarFieldEnum]
@@ -29860,6 +29935,20 @@ export const BuyerCompanyIdentifierScalarFieldEnum = {
 export type BuyerCompanyIdentifierScalarFieldEnum = (typeof BuyerCompanyIdentifierScalarFieldEnum)[keyof typeof BuyerCompanyIdentifierScalarFieldEnum]
 
 
+export const TeamAccessReviewScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  buyerCompanyId: 'buyerCompanyId',
+  reviewedByUserId: 'reviewedByUserId',
+  memberCount: 'memberCount',
+  invitationCount: 'invitationCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TeamAccessReviewScalarFieldEnum = (typeof TeamAccessReviewScalarFieldEnum)[keyof typeof TeamAccessReviewScalarFieldEnum]
+
+
 export const BuyerCompanyLocationScalarFieldEnum = {
   id: 'id',
   companyId: 'companyId',
@@ -29946,7 +30035,8 @@ export const BuyerCompanyOrderApprovalScalarFieldEnum = {
   decidedByUserId: 'decidedByUserId',
   decidedAt: 'decidedAt',
   reason: 'reason',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type BuyerCompanyOrderApprovalScalarFieldEnum = (typeof BuyerCompanyOrderApprovalScalarFieldEnum)[keyof typeof BuyerCompanyOrderApprovalScalarFieldEnum]
@@ -30767,7 +30857,8 @@ export const TrustSettingsScalarFieldEnum = {
   inspectionFeeBasisPoints: 'inspectionFeeBasisPoints',
   buyerServiceFeeBasisPoints: 'buyerServiceFeeBasisPoints',
   updatedById: 'updatedById',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
 } as const
 
 export type TrustSettingsScalarFieldEnum = (typeof TrustSettingsScalarFieldEnum)[keyof typeof TrustSettingsScalarFieldEnum]
@@ -30781,6 +30872,7 @@ export const SellerTrustProfileScalarFieldEnum = {
   exportCapable: 'exportCapable',
   exportMarketsJson: 'exportMarketsJson',
   yearsExporting: 'yearsExporting',
+  intendedCategoryIdsJson: 'intendedCategoryIdsJson',
   capabilitiesJson: 'capabilitiesJson',
   responseSlaHours: 'responseSlaHours',
   about: 'about',
@@ -30801,6 +30893,7 @@ export const SellerBeneficialOwnerScalarFieldEnum = {
   nationality: 'nationality',
   ownershipBasisPoints: 'ownershipBasisPoints',
   isControllingPerson: 'isControllingPerson',
+  isPoliticallyExposed: 'isPoliticallyExposed',
   role: 'role',
   archivedAt: 'archivedAt',
   createdAt: 'createdAt',
@@ -30844,7 +30937,9 @@ export const SellerFactoryMachineScalarFieldEnum = {
   name: 'name',
   quantity: 'quantity',
   capacityNote: 'capacityNote',
-  sortOrder: 'sortOrder'
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SellerFactoryMachineScalarFieldEnum = (typeof SellerFactoryMachineScalarFieldEnum)[keyof typeof SellerFactoryMachineScalarFieldEnum]
@@ -30857,7 +30952,8 @@ export const SellerFactoryEvidenceScalarFieldEnum = {
   caption: 'caption',
   capturedLatitude: 'capturedLatitude',
   capturedLongitude: 'capturedLongitude',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SellerFactoryEvidenceScalarFieldEnum = (typeof SellerFactoryEvidenceScalarFieldEnum)[keyof typeof SellerFactoryEvidenceScalarFieldEnum]
@@ -30973,7 +31069,9 @@ export type SellerListingTrustScalarFieldEnum = (typeof SellerListingTrustScalar
 export const SellerListingCertificationScalarFieldEnum = {
   id: 'id',
   listingTrustId: 'listingTrustId',
-  certificationId: 'certificationId'
+  certificationId: 'certificationId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SellerListingCertificationScalarFieldEnum = (typeof SellerListingCertificationScalarFieldEnum)[keyof typeof SellerListingCertificationScalarFieldEnum]
@@ -30985,7 +31083,9 @@ export const SellerOfferComplianceHoldScalarFieldEnum = {
   certificationId: 'certificationId',
   previousStatus: 'previousStatus',
   heldAt: 'heldAt',
-  releasedAt: 'releasedAt'
+  releasedAt: 'releasedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SellerOfferComplianceHoldScalarFieldEnum = (typeof SellerOfferComplianceHoldScalarFieldEnum)[keyof typeof SellerOfferComplianceHoldScalarFieldEnum]
@@ -31046,7 +31146,8 @@ export const MarketProfileScalarFieldEnum = {
   featuredCategoriesJson: 'featuredCategoriesJson',
   isPublished: 'isPublished',
   updatedById: 'updatedById',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
 } as const
 
 export type MarketProfileScalarFieldEnum = (typeof MarketProfileScalarFieldEnum)[keyof typeof MarketProfileScalarFieldEnum]
@@ -31073,7 +31174,8 @@ export const SearchQueryLogScalarFieldEnum = {
   correctedTo: 'correctedTo',
   countryCode: 'countryCode',
   language: 'language',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SearchQueryLogScalarFieldEnum = (typeof SearchQueryLogScalarFieldEnum)[keyof typeof SearchQueryLogScalarFieldEnum]
@@ -31175,7 +31277,9 @@ export const SellerProductionDelayScalarFieldEnum = {
   raisedByLabel: 'raisedByLabel',
   resolvedAt: 'resolvedAt',
   resolvedByLabel: 'resolvedByLabel',
-  resolutionNote: 'resolutionNote'
+  resolutionNote: 'resolutionNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SellerProductionDelayScalarFieldEnum = (typeof SellerProductionDelayScalarFieldEnum)[keyof typeof SellerProductionDelayScalarFieldEnum]
@@ -31190,7 +31294,8 @@ export const SellerOrderBuyerUpdateScalarFieldEnum = {
   reason: 'reason',
   expectedDate: 'expectedDate',
   message: 'message',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SellerOrderBuyerUpdateScalarFieldEnum = (typeof SellerOrderBuyerUpdateScalarFieldEnum)[keyof typeof SellerOrderBuyerUpdateScalarFieldEnum]
@@ -31234,7 +31339,8 @@ export const OrderTradeDocumentVersionScalarFieldEnum = {
   validationNote: 'validationNote',
   supersededAt: 'supersededAt',
   createdByLabel: 'createdByLabel',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type OrderTradeDocumentVersionScalarFieldEnum = (typeof OrderTradeDocumentVersionScalarFieldEnum)[keyof typeof OrderTradeDocumentVersionScalarFieldEnum]
@@ -31248,7 +31354,8 @@ export const OrderTradeDocumentEventScalarFieldEnum = {
   actorType: 'actorType',
   actorLabel: 'actorLabel',
   note: 'note',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type OrderTradeDocumentEventScalarFieldEnum = (typeof OrderTradeDocumentEventScalarFieldEnum)[keyof typeof OrderTradeDocumentEventScalarFieldEnum]
@@ -31306,7 +31413,8 @@ export const LogisticsTradeSettingsScalarFieldEnum = {
   maxInsuredBasisPoints: 'maxInsuredBasisPoints',
   requireTermsCrossBorder: 'requireTermsCrossBorder',
   updatedByUserId: 'updatedByUserId',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
 } as const
 
 export type LogisticsTradeSettingsScalarFieldEnum = (typeof LogisticsTradeSettingsScalarFieldEnum)[keyof typeof LogisticsTradeSettingsScalarFieldEnum]
@@ -31350,7 +31458,9 @@ export const LogisticsLaneBandScalarFieldEnum = {
   maxWeightGrams: 'maxWeightGrams',
   amountMinor: 'amountMinor',
   perKgMinor: 'perKgMinor',
-  sortOrder: 'sortOrder'
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type LogisticsLaneBandScalarFieldEnum = (typeof LogisticsLaneBandScalarFieldEnum)[keyof typeof LogisticsLaneBandScalarFieldEnum]
@@ -31362,7 +31472,8 @@ export const LedgerAccountScalarFieldEnum = {
   ownerKey: 'ownerKey',
   sellerAccountId: 'sellerAccountId',
   currency: 'currency',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type LedgerAccountScalarFieldEnum = (typeof LedgerAccountScalarFieldEnum)[keyof typeof LedgerAccountScalarFieldEnum]
@@ -31385,7 +31496,8 @@ export const LedgerEntryScalarFieldEnum = {
   memo: 'memo',
   actorLabel: 'actorLabel',
   occurredAt: 'occurredAt',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type LedgerEntryScalarFieldEnum = (typeof LedgerEntryScalarFieldEnum)[keyof typeof LedgerEntryScalarFieldEnum]
@@ -31396,7 +31508,9 @@ export const LedgerLineScalarFieldEnum = {
   entryId: 'entryId',
   accountId: 'accountId',
   amountMinor: 'amountMinor',
-  currency: 'currency'
+  currency: 'currency',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type LedgerLineScalarFieldEnum = (typeof LedgerLineScalarFieldEnum)[keyof typeof LedgerLineScalarFieldEnum]
@@ -31446,7 +31560,8 @@ export const SellerFundReleaseRequestScalarFieldEnum = {
   decidedAt: 'decidedAt',
   decisionNote: 'decisionNote',
   pendingKey: 'pendingKey',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SellerFundReleaseRequestScalarFieldEnum = (typeof SellerFundReleaseRequestScalarFieldEnum)[keyof typeof SellerFundReleaseRequestScalarFieldEnum]
@@ -31461,7 +31576,9 @@ export const PayoutProviderEventScalarFieldEnum = {
   status: 'status',
   note: 'note',
   receivedAt: 'receivedAt',
-  processedAt: 'processedAt'
+  processedAt: 'processedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type PayoutProviderEventScalarFieldEnum = (typeof PayoutProviderEventScalarFieldEnum)[keyof typeof PayoutProviderEventScalarFieldEnum]
@@ -31479,7 +31596,9 @@ export const LedgerReconciliationRunScalarFieldEnum = {
   startedByLabel: 'startedByLabel',
   errorMessage: 'errorMessage',
   startedAt: 'startedAt',
-  completedAt: 'completedAt'
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type LedgerReconciliationRunScalarFieldEnum = (typeof LedgerReconciliationRunScalarFieldEnum)[keyof typeof LedgerReconciliationRunScalarFieldEnum]
@@ -31496,7 +31615,8 @@ export const LedgerReconciliationItemScalarFieldEnum = {
   currency: 'currency',
   ledgerEntryId: 'ledgerEntryId',
   note: 'note',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type LedgerReconciliationItemScalarFieldEnum = (typeof LedgerReconciliationItemScalarFieldEnum)[keyof typeof LedgerReconciliationItemScalarFieldEnum]
@@ -31566,7 +31686,8 @@ export const RfqRequirementVersionScalarFieldEnum = {
   changedFieldsJson: 'changedFieldsJson',
   changeSummary: 'changeSummary',
   createdByUserId: 'createdByUserId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type RfqRequirementVersionScalarFieldEnum = (typeof RfqRequirementVersionScalarFieldEnum)[keyof typeof RfqRequirementVersionScalarFieldEnum]
@@ -31605,7 +31726,8 @@ export const RfqAttachmentScalarFieldEnum = {
   byteSize: 'byteSize',
   contentHash: 'contentHash',
   scanState: 'scanState',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type RfqAttachmentScalarFieldEnum = (typeof RfqAttachmentScalarFieldEnum)[keyof typeof RfqAttachmentScalarFieldEnum]
@@ -31620,7 +31742,8 @@ export const RfqEventScalarFieldEnum = {
   actorParty: 'actorParty',
   actorUserId: 'actorUserId',
   metaJson: 'metaJson',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type RfqEventScalarFieldEnum = (typeof RfqEventScalarFieldEnum)[keyof typeof RfqEventScalarFieldEnum]
@@ -33535,10 +33658,13 @@ export type SellerMemberOrderByRelevanceFieldEnum = (typeof SellerMemberOrderByR
 export const SellerInvitationOrderByRelevanceFieldEnum = {
   id: 'id',
   sellerAccountId: 'sellerAccountId',
+  email: 'email',
   emailNormalized: 'emailNormalized',
   tokenHash: 'tokenHash',
+  liveKey: 'liveKey',
   invitedByProfileId: 'invitedByProfileId',
-  acceptedByProfileId: 'acceptedByProfileId'
+  acceptedByProfileId: 'acceptedByProfileId',
+  revokedByProfileId: 'revokedByProfileId'
 } as const
 
 export type SellerInvitationOrderByRelevanceFieldEnum = (typeof SellerInvitationOrderByRelevanceFieldEnum)[keyof typeof SellerInvitationOrderByRelevanceFieldEnum]
@@ -35459,6 +35585,16 @@ export const BuyerCompanyIdentifierOrderByRelevanceFieldEnum = {
 } as const
 
 export type BuyerCompanyIdentifierOrderByRelevanceFieldEnum = (typeof BuyerCompanyIdentifierOrderByRelevanceFieldEnum)[keyof typeof BuyerCompanyIdentifierOrderByRelevanceFieldEnum]
+
+
+export const TeamAccessReviewOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  buyerCompanyId: 'buyerCompanyId',
+  reviewedByUserId: 'reviewedByUserId'
+} as const
+
+export type TeamAccessReviewOrderByRelevanceFieldEnum = (typeof TeamAccessReviewOrderByRelevanceFieldEnum)[keyof typeof TeamAccessReviewOrderByRelevanceFieldEnum]
 
 
 export const BuyerCompanyLocationOrderByRelevanceFieldEnum = {
@@ -37512,6 +37648,13 @@ export type EnumSellerMemberRoleFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'SellerLegalForm'
+ */
+export type EnumSellerLegalFormFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SellerLegalForm'>
+    
+
+
+/**
  * Reference to a field of type 'SellerVerificationKind'
  */
 export type EnumSellerVerificationKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SellerVerificationKind'>
@@ -39380,6 +39523,7 @@ export type GlobalOmitConfig = {
   buyerCompany?: Prisma.BuyerCompanyOmit
   buyerCompanyAddress?: Prisma.BuyerCompanyAddressOmit
   buyerCompanyIdentifier?: Prisma.BuyerCompanyIdentifierOmit
+  teamAccessReview?: Prisma.TeamAccessReviewOmit
   buyerCompanyLocation?: Prisma.BuyerCompanyLocationOmit
   buyerCompanyMember?: Prisma.BuyerCompanyMemberOmit
   buyerCompanyInvitation?: Prisma.BuyerCompanyInvitationOmit

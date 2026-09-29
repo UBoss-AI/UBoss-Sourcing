@@ -173,6 +173,19 @@ const envSchema = z
     SELLER_HUB_IDLE_TIMEOUT_SECONDS: intFromString(300, 86_400).default(3600),
     /** How long before that the Hub warns, in seconds. Five minutes by default. */
     SELLER_HUB_IDLE_WARNING_SECONDS: intFromString(30, 3600).default(300),
+    /**
+     * How long an invitation to join a seller's team can be accepted, in
+     * hours. A week by default; resending sends a new link and starts the
+     * period again.
+     */
+    SELLER_INVITE_TTL_HOURS: intFromString(1, 720).default(168),
+    /**
+     * How often a seller's or buyer company's owner is reminded to review who
+     * has access to their team, in days. The team screens say a review is due
+     * once this long has passed since the last one (or when there has never
+     * been one). 0 turns the reminder off; reviewing stays possible.
+     */
+    TEAM_ACCESS_REVIEW_INTERVAL_DAYS: intFromString(0, 3650).default(90),
 
     // --- Seller settlement statements ---
     //
@@ -1692,6 +1705,18 @@ const envSchema = z
     /// development escape hatch only and must never make an unscanned file
     /// downloadable on a live installation.
     SELLER_ALLOW_UNSCANNED_DOCUMENTS: booleanFromString.default(false),
+
+    /// Whether approving a seller needs a current restricted-party / sanctions
+    /// screening with the result CLEAR, for the business and for every owner
+    /// it lists. True by default. The screening is recorded by a member of
+    /// staff (provider "manual", never automated) - no screening provider
+    /// ships with this product, so false means "we do not screen", not "a
+    /// machine screens for us".
+    SELLER_REQUIRE_SCREENING: booleanFromString.default(true),
+
+    /// Whether a seller application must name at least one person who owns
+    /// or controls the business before it can be submitted. True by default.
+    SELLER_REQUIRE_BENEFICIAL_OWNERS: booleanFromString.default(true),
 
     // --- Product reviews ---
     //

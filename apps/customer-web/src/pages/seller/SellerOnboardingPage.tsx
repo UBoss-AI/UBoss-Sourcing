@@ -71,6 +71,7 @@ import {
   type SellerDocumentKind,
 } from '@/lib/seller';
 import type { SellerOutletContext } from './SellerLayout';
+import { SellerOwnershipPanel } from './SellerOwnershipPanel';
 
 const STATE_TONE: Record<OnboardingStepState, 'neutral' | 'brand' | 'success' | 'warning' | 'danger'> =
   {
@@ -437,6 +438,9 @@ function StepPanel({
             isEditable={isEditable}
             sellerAccountId={seller.sellerAccountId}
           />
+          {/* Owners and administrators fill it in; the server refuses anybody
+              else, and the panel is not offered to them. */}
+          {(seller.role === 'OWNER' || seller.role === 'ADMIN') && <SellerOwnershipPanel />}
           <DocumentsStep step={step} isEditable={canUpload} />
         </div>
       );
@@ -1514,6 +1518,7 @@ function LocationsSummary({ step }: { step: OnboardingStep }): React.JSX.Element
  * a database with nowhere to send them would be a liability, not a feature.
  */
 function PayoutStep({ step }: { step: OnboardingStep }): React.JSX.Element {
+  const { t } = useI18n();
   const query = useQuery({ queryKey: ['seller', 'payout-account'], queryFn: fetchPayoutAccount });
 
   return (
@@ -1548,6 +1553,14 @@ function PayoutStep({ step }: { step: OnboardingStep }): React.JSX.Element {
             <p className="text-sm leading-relaxed text-ink-muted">
               Payouts are handled by our payment provider. You will be taken to them to enter your
               bank details — we never see or store them.
+            </p>
+            {/* The provider's own words about the bank account, never a verdict of ours. */}
+            <p className="text-sm text-ink">
+              {query.data.bankAccountStatus === null
+                ? t('sellerPayout.bankStatusNone')
+                : t('sellerPayout.bankStatus', { status: query.data.bankAccountStatus })}
+              {query.data.accountLast4 !== null &&
+                ` ${query.data.bankName ?? ''} ···· ${query.data.accountLast4}`}
             </p>
             {query.data.pendingRequirements.length > 0 && (
               <ul className="space-y-1 rounded-lg border border-border bg-surface-sunken px-4 py-3">

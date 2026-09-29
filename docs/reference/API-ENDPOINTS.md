@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1081 endpoints** in 93 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1111 endpoints** in 97 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,11 +27,11 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 445 |
+| [Admin panel (staff)](#admin-panel-staff) | 452 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 252 |
+| [Seller Hub](#seller-hub) | 274 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 232 |
+| [Customer account](#customer-account) | 233 |
 | [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
@@ -101,6 +101,7 @@ Defined in `backend/src/http/routes/buyer-companies.admin.ts`.
 | GET | `/api/v1/admin/buyer-companies` | Staff | Admin(BUYER_COMPANY_READ) | The review queue: filter by status, country, reviewer and risk; search by name, reference, number or email. |
 | GET | `/api/v1/admin/buyer-companies/reviewers` | Staff | Admin(BUYER_COMPANY_READ) | Staff who may be assigned a company review. |
 | GET | `/api/v1/admin/buyer-companies/:id` | Staff | Admin(BUYER_COMPANY_READ) | One application with everything a reviewer needs: details, checks, duplicates, documents, notes and history. |
+| GET | `/api/v1/admin/buyer-companies/:id/access-review` | Staff | Admin(BUYER_COMPANY_READ) | Who can act for this company, read-only: roles, joining dates, who invited whom, last sign-in and activity, open invitations and recent access reviews. |
 | POST | `/api/v1/admin/buyer-companies/:id/start-review` | Staff | Admin(BUYER_COMPANY_REVIEW) | Open a submitted application for review and take it if nobody has. |
 | POST | `/api/v1/admin/buyer-companies/:id/assign` | Staff | Admin(BUYER_COMPANY_REVIEW) | Give the review to a colleague who may review, or unassign it. |
 | POST | `/api/v1/admin/buyer-companies/:id/notes` | Staff | Admin(BUYER_COMPANY_REVIEW) | Add an internal note. Never shown to the applicant. |
@@ -735,6 +736,14 @@ Defined in `backend/src/http/routes/sellers.admin.ts`.
 | GET | `/api/v1/admin/seller-carriers` | Staff | Admin(CUSTOMER_READ) | List the arrangements between sellers and carriers, filtered by status, seller or carrier. Requests awaiting a decision are what this queue is for. |
 | PATCH | `/api/v1/admin/seller-carriers/:id` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Approve, refuse, suspend or end a seller's request to use a carrier, and optionally narrow the countries, capabilities and dates it covers. An adverse decision needs a reason. Writes an audit entry. |
 
+### `admin/seller-certifications`
+
+Defined in `backend/src/http/routes/factories.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/admin/seller-certifications/:id/decision` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Verify or refuse a certificate, or withdraw a verification. A refusal needs a reason the seller is shown. Refused as STALE if it moved since the reviewer opened it. Audited. |
+
 ### `admin/seller-documents`
 
 Defined in `backend/src/http/routes/sellers.admin.ts`.
@@ -744,6 +753,14 @@ Defined in `backend/src/http/routes/sellers.admin.ts`.
 | POST | `/api/v1/admin/seller-documents/:id/link` | Staff | Admin(CUSTOMER_READ) | A link to read one back. |
 | GET | `/api/v1/admin/seller-documents/:id/download` | Staff | Admin(CUSTOMER_READ) | Redeem it. |
 | POST | `/api/v1/admin/seller-documents/:id/decision` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Accept or refuse one. |
+
+### `admin/seller-factories`
+
+Defined in `backend/src/http/routes/factories.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/admin/seller-factories/:id/decision` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Verify or refuse a factory, or withdraw a verification. A refusal needs a reason the seller is shown. Refused as STALE if the factory moved since the reviewer opened it. Audited. |
 
 ### `admin/seller-fee-tiers`
 
@@ -774,16 +791,20 @@ Defined in `backend/src/http/routes/commission-invoices.admin.ts`.
 
 ### `admin/sellers`
 
-Defined in `backend/src/http/routes/sellers.admin.ts`.
+Defined in `backend/src/http/routes/sellers.admin.ts`, `backend/src/http/routes/factories.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/admin/sellers` | Staff | Admin(CUSTOMER_READ) | List seller applications a page at a time, filtered by status or searched by business name. |
 | GET | `/api/v1/admin/sellers/:id` | Staff | Admin(CUSTOMER_READ) | One seller application in full, including internal notes the seller never sees. |
 | GET | `/api/v1/admin/sellers/:id/insight` | Staff | Admin(CUSTOMER_READ) | How this seller is doing, and where its goods are. |
+| GET | `/api/v1/admin/sellers/:id/access-review` | Staff | Admin(CUSTOMER_READ) | Who can act for this seller, read-only: each member's role, when they joined, who invited them, when they last signed in and used the Hub, the open invitations and the recent access reviews. |
 | POST | `/api/v1/admin/sellers/:id/decision` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Decide an application. |
+| POST | `/api/v1/admin/sellers/:id/screening` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Record a manual restricted-party / sanctions screening of the seller business or one of its owners: which lists were checked, the result (CLEAR, POTENTIAL_MATCH or CONFIRMED_MATCH) and a note. Always recorded as a manual check by a member of staff, never as an automated one. The previous screening of the same subject is kept as history. Writes an audit entry; the seller is not told. |
+| GET | `/api/v1/admin/sellers/:id/approval-readiness` | Staff | Admin(CUSTOMER_READ) | What approving this seller is still waiting for: unfinished required steps, required documents not accepted or expired, and missing or unclear screenings. Empty means the seller can be approved. |
 | PATCH | `/api/v1/admin/sellers/:id/commission` | Staff | Admin(SETTINGS_WRITE) | One seller's own commission rate. |
 | GET | `/api/v1/admin/sellers/:id/documents` | Staff | Admin(CUSTOMER_READ) | The current certificates and licences a seller has uploaded, with the review status of each. |
+| GET | `/api/v1/admin/sellers/:id/factories` | Staff | Admin(CUSTOMER_READ) | One seller's factories (machines, evidence metadata, current status and every check with its reviewer and reason) and certificates. |
 
 ### `admin/settings`
 
@@ -1099,6 +1120,14 @@ Defined in `backend/src/http/routes/logistics.operations.ts`.
 
 ## Seller Hub
 
+### `seller/access-reviews`
+
+Defined in `backend/src/http/routes/seller.team.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/seller/access-reviews` | Seller | Seller(MEMBER_WRITE) | Record that you have reviewed who has access to the team. Audited. |
+
 ### `seller/agreements`
 
 Defined in `backend/src/http/routes/seller.account.ts`.
@@ -1151,6 +1180,18 @@ Defined in `backend/src/http/routes/seller.operations.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/seller/carriers` | Seller | Seller + Seller(ORDER_READ) | Every delivery company arrangement the seller has, in any state, including requests that were refused or ended. |
 | POST | `/api/v1/seller/carriers` | Seller | Seller + TradingSeller(ORDER_FULFIL) | Ask to use a delivery company on the marketplace, optionally with the seller's own account number there. The request waits for the marketplace to approve it; a refused or ended one can be asked for again. |
+
+### `seller/certifications`
+
+Defined in `backend/src/http/routes/seller.factories.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/certifications` | Public |  | The seller's certificates, with where each one's check stands and whether it expires soon. |
+| POST | `/api/v1/seller/certifications` | Public |  | Add a certificate with the document that proves it. It goes straight to review. |
+| PATCH | `/api/v1/seller/certifications/:id` | Public |  | Change a certificate. Refused while it is with a reviewer; a verified one goes back for review. |
+| DELETE | `/api/v1/seller/certifications/:id` | Public |  | Archive a certificate so it is no longer shown. |
+| POST | `/api/v1/seller/certifications/:id/submit` | Public |  | Send a refused or expired certificate for review again. |
 
 ### `seller/consignments`
 
@@ -1258,6 +1299,21 @@ Defined in `backend/src/http/routes/seller.erp.ts`.
 | POST | `/api/v1/seller/erp/jobs/:id/cancel` | Seller | Seller + Feature + Seller(INTEGRATION_WRITE) | Cancel a sync job that should not be sent. Refused while it is running and for anything already posted to Tally, which is undone with a credit note instead. |
 | GET | `/api/v1/seller/erp/connections/:id/audit` | Seller | Seller + Seller(AUDIT_READ) | The security trail: pairings, revocations, mapping and policy changes. |
 
+### `seller/factories`
+
+Defined in `backend/src/http/routes/seller.factories.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/factories` | Public |  | The seller's factories, with machines, evidence and where each one's verification stands. |
+| POST | `/api/v1/seller/factories` | Public |  | Record a factory: address, capacity, workforce, quality control. Writes an entry in the seller's activity log. |
+| PATCH | `/api/v1/seller/factories/:id` | Public |  | Change a factory's details. Refused while it is with a reviewer; a change to a verified factory's facts sends it back for review. Writes an entry in the seller's activity log. |
+| DELETE | `/api/v1/seller/factories/:id` | Public |  | Archive a factory so it is no longer shown. Its history of checks is kept. |
+| PUT | `/api/v1/seller/factories/:id/machines` | Public |  | Replace the list of machines in a factory. On a verified factory this sends it back for review. |
+| POST | `/api/v1/seller/factories/:id/evidence` | Public |  | Attach one of the seller's own documents to a factory as evidence, optionally with where it was taken. |
+| DELETE | `/api/v1/seller/factories/:id/evidence/:evidenceId` | Public |  | Detach a piece of evidence from a factory. On a verified factory this sends it back for review. |
+| POST | `/api/v1/seller/factories/:id/submit` | Public |  | Send a factory for verification: the first time, after a refusal, or after it expired. Needs evidence. |
+
 ### `seller/freight-quotes`
 
 Defined in `backend/src/http/routes/seller.operations.ts`.
@@ -1324,6 +1380,16 @@ Defined in `backend/src/http/routes/seller.operations.ts`.
 | PATCH | `/api/v1/seller/inventory/:offerId/:locationId` | Seller | Seller + Seller(INVENTORY_WRITE) | Change the reorder level and batch details (batch number, made and expiry dates) for one listing's stock at one place. Does not change the quantity. |
 | GET | `/api/v1/seller/inventory/:offerId/movements` | Seller | Seller + Seller(INVENTORY_READ) | The history of stock changes for one listing, most recent first. |
 
+### `seller/invitations`
+
+Defined in `backend/src/http/routes/seller.team.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/seller/invitations` | Seller | Seller(MEMBER_WRITE) | Invite somebody by email in one role. Never Owner, and never a role carrying more than your own. |
+| POST | `/api/v1/seller/invitations/:invitationId/resend` | Seller | Seller(MEMBER_WRITE) | Send an invitation again with a new link and a new expiry; the old link stops working. |
+| DELETE | `/api/v1/seller/invitations/:invitationId` | Seller | Seller(MEMBER_WRITE) | Withdraw an invitation nobody has accepted yet. |
+
 ### `seller/invoice-settings`
 
 Defined in `backend/src/http/routes/seller.documents.ts`.
@@ -1341,6 +1407,15 @@ Defined in `backend/src/http/routes/seller.documents.ts`.
 |---|---|---|---|---|
 | POST | `/api/v1/seller/invoices/:id/credit` | Public |  | Cancel an issued invoice by issuing a credit note for the same amount, with a reason. The original is kept and marked void, and the consignment can then be invoiced again under a new number. Writes an audit entry. |
 
+### `seller/kyb`
+
+Defined in `backend/src/http/routes/seller.account.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/kyb` | Seller | Seller + Seller(ACCOUNT_WRITE) | The ownership, registrations and exports section of the application, and what it still needs. |
+| PUT | `/api/v1/seller/kyb` | Seller | Seller + Seller(ACCOUNT_WRITE) | Save the whole ownership, registrations and exports section. Refused once the application is under review. Writes an audit entry that names what changed, never a value. |
+
 ### `seller/listing-drafts`
 
 Defined in `backend/src/http/routes/seller.listings.ts`.
@@ -1350,18 +1425,18 @@ Defined in `backend/src/http/routes/seller.listings.ts`.
 | GET | `/api/v1/seller/listing-drafts` | Seller | Seller(LISTING_READ) | One page of the seller's listings still in the wizard or in review, filterable by status, text, category and brand. |
 | POST | `/api/v1/seller/listing-drafts` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_WRITE) | Start a new listing in the wizard, optionally with its category, brand or matching catalogue product already chosen. Writes an audit entry. |
 | GET | `/api/v1/seller/listing-drafts/:id/content` | Seller | Seller(LISTING_READ) | One listing in the wizard, with everything entered so far. A listing's description sections, grouped specifications and per-variant values. |
-| PUT | `/api/v1/seller/listing-drafts/:id/content` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Replace a listing's description sections, specifications and per-variant values. |
+| PUT | `/api/v1/seller/listing-drafts/:id/content` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_WRITE) | Replace a listing's description sections, specifications and per-variant values. |
 | GET | `/api/v1/seller/listing-drafts/:id` | Seller | Seller(LISTING_READ) | *Read one listing draft.* |
-| PATCH | `/api/v1/seller/listing-drafts/:id` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Autosave. |
-| POST | `/api/v1/seller/listing-drafts/:id/variants/generate` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Build the combination rows for the axes the seller switched on. |
+| PATCH | `/api/v1/seller/listing-drafts/:id` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_WRITE) | Autosave. |
+| POST | `/api/v1/seller/listing-drafts/:id/variants/generate` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_WRITE) | Build the combination rows for the axes the seller switched on. |
 | POST | `/api/v1/seller/listing-drafts/:id/validate` | Seller | Seller(LISTING_READ) | Re-run every check on a wizard listing and return what is still missing or wrong. Its status moves to match: ready to submit once everything passes. |
 | POST | `/api/v1/seller/listing-drafts/:id/preview-title` | Seller | Seller(LISTING_READ) | What the title will be, and which fields made it. |
 | POST | `/api/v1/seller/listing-drafts/:id/submit` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_SUBMIT) | Send a finished listing to the marketplace's quality review. Refused, with each blocking problem listed, if anything is still missing. It goes on sale only once a moderator approves it. Writes an audit entry. |
 | POST | `/api/v1/seller/listing-drafts/:id/withdraw` | Seller | Seller(LISTING_READ) + Seller(LISTING_SUBMIT) | Take a listing back out of the review queue and return it to the wizard, before a moderator has decided on it. Writes an audit entry. |
 | GET | `/api/v1/seller/listing-drafts/:id/media` | Seller | Seller(LISTING_READ) | The photos and videos uploaded to a listing in the wizard. |
 | POST | `/api/v1/seller/listing-drafts/:id/media` | Seller | Seller(LISTING_READ) + TradingSeller(MEDIA_UPLOAD) | Upload one photograph or video. |
-| PATCH | `/api/v1/seller/listing-drafts/:id/media/:mediaId` | Seller | Seller(LISTING_READ) + Seller(MEDIA_UPLOAD) | Change a wizard photo or video's slot, description, order, or whether it is the main picture. Making one the main picture clears it from the others; a video cannot be the main picture. |
-| DELETE | `/api/v1/seller/listing-drafts/:id/media/:mediaId` | Seller | Seller(LISTING_READ) + Seller(MEDIA_UPLOAD) | Delete a photo or video from a wizard listing, including the stored file. If it was the main picture, another photo takes its place. |
+| PATCH | `/api/v1/seller/listing-drafts/:id/media/:mediaId` | Seller | Seller(LISTING_READ) + TradingSeller(MEDIA_UPLOAD) | Change a wizard photo or video's slot, description, order, or whether it is the main picture. Making one the main picture clears it from the others; a video cannot be the main picture. |
+| DELETE | `/api/v1/seller/listing-drafts/:id/media/:mediaId` | Seller | Seller(LISTING_READ) + TradingSeller(MEDIA_UPLOAD) | Delete a photo or video from a wizard listing, including the stored file. If it was the main picture, another photo takes its place. |
 
 ### `seller/listing-schema`
 
@@ -1380,17 +1455,17 @@ Defined in `backend/src/http/routes/seller.listings.ts`.
 | GET | `/api/v1/seller/listings` | Seller | Seller(LISTING_READ) | One page of the seller's listings, with a count for each status tab. Can be filtered by status, text, category, brand, warehouse or stock level, and sorted by date, price, stock or quality score. |
 | GET | `/api/v1/seller/listings/:id` | Seller | Seller(LISTING_READ) | One of the seller's listings in full, for its detail screen. |
 | PATCH | `/api/v1/seller/listings/:id/status` | Seller | Seller(LISTING_READ) + Seller(OFFER_PUBLISH) | Put a listing on sale, pause it (with an optional private note) or archive it. Putting it back on sale is refused while the marketplace has flagged it as needing changes. Writes an audit entry. |
-| PATCH | `/api/v1/seller/listings/:id/price` | Seller | Seller(LISTING_READ) + Seller(OFFER_PRICE_WRITE) | Change a listing's price, "was" price, order quantity limits and simple quantity discounts. Needs the pricing permission and writes an audit entry, so a disputed price change can be traced to who made it and when. |
+| PATCH | `/api/v1/seller/listings/:id/price` | Seller | Seller(LISTING_READ) + TradingSeller(OFFER_PRICE_WRITE) | Change a listing's price, "was" price, order quantity limits and simple quantity discounts. Needs the pricing permission and writes an audit entry, so a disputed price change can be traced to who made it and when. |
 | GET | `/api/v1/seller/listings/:id/variants` | Seller | Seller(LISTING_READ) | Versions on a listing that already exists. |
 | GET | `/api/v1/seller/listings/:id/instructions` | Seller | Seller(LISTING_READ) | Instructions shoppers have left on the product behind this listing. |
 | POST | `/api/v1/seller/listings/:id/variants/preview` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Show which versions (for example sizes or colours) a set of options would produce on an existing listing, marking the ones already on sale. Creates nothing. |
 | POST | `/api/v1/seller/listings/:id/variants` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_WRITE) | Add new versions to an existing listing as real, sellable items, each with its own price and opening stock. Versions already on sale are skipped, so sending the same request twice adds nothing. Writes an audit entry. |
 | GET | `/api/v1/seller/listings/:id/edit` | Seller | Seller(LISTING_READ) | Editing a listing that already exists. |
-| POST | `/api/v1/seller/listings/:id/pause-for-edit` | Seller | Seller(LISTING_READ) + Seller(OFFER_PUBLISH) | Take a live listing off sale so its structure can be edited, recording that it was paused for editing. Does nothing if it is already paused. Writes an audit entry. |
+| POST | `/api/v1/seller/listings/:id/pause-for-edit` | Seller | Seller(LISTING_READ) + TradingSeller(OFFER_PUBLISH) | Take a live listing off sale so its structure can be edited, recording that it was paused for editing. Does nothing if it is already paused. Writes an audit entry. |
 | PATCH | `/api/v1/seller/listings/:id/edit` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_WRITE) | Save an edit to an existing listing - terms, versions and their stock - all at once, then leave it paused or put it back on sale. Structural changes are refused while the listing is on sale, and so is an edit made from an out-of- date copy. Writes an audit entry. |
 | POST | `/api/v1/seller/listings/:id/photos` | Seller | Seller(LISTING_READ) + TradingSeller(MEDIA_UPLOAD) | The photographs on a listing the seller is editing. |
-| PATCH | `/api/v1/seller/listings/:id/photos/:mediaId` | Seller | Seller(LISTING_READ) + Seller(MEDIA_UPLOAD) | Make one of a listing's photos the one buyers see first. Writes an audit entry. |
-| DELETE | `/api/v1/seller/listings/:id/photos/:mediaId` | Seller | Seller(LISTING_READ) + Seller(MEDIA_UPLOAD) | Take a photo off a listing. The picture file itself is kept, since other listings may use it. Writes an audit entry. |
+| PATCH | `/api/v1/seller/listings/:id/photos/:mediaId` | Seller | Seller(LISTING_READ) + TradingSeller(MEDIA_UPLOAD) | Make one of a listing's photos the one buyers see first. Writes an audit entry. |
+| DELETE | `/api/v1/seller/listings/:id/photos/:mediaId` | Seller | Seller(LISTING_READ) + TradingSeller(MEDIA_UPLOAD) | Take a photo off a listing. The picture file itself is kept, since other listings may use it. Writes an audit entry. |
 | POST | `/api/v1/seller/listings/:id/duplicate` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_WRITE) | Copy a listing's terms into a new, not-yet-live listing under a new SKU. Stock is not copied. Writes an audit entry. |
 
 ### `seller/locations`
@@ -1443,8 +1518,8 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/seller/members` | Seller | Seller + Seller(MEMBER_READ) | The seller's current team members, with each one's name, email, role and joining date. |
-| PATCH | `/api/v1/seller/members/:memberId` | Seller | Seller + Seller(MEMBER_WRITE) | Change a team member's role. Refused if it would leave the business with no owner, or would grant a role the person making the change does not hold. Writes an audit entry. |
-| DELETE | `/api/v1/seller/members/:memberId` | Seller | Seller + Seller(MEMBER_WRITE) | Remove someone from the seller's team. Their past actions still show their name, and removing the last owner is refused. Writes an audit entry. |
+| PATCH | `/api/v1/seller/members/:memberId` | Seller | Seller + Seller(MEMBER_WRITE) | Change a team member's role. Refused if it would leave the business with no owner, would grant a role the person making the change does not hold, or touches yourself or somebody holding more than you. Writes an audit entry. |
+| DELETE | `/api/v1/seller/members/:memberId` | Seller | Seller + Seller(MEMBER_WRITE) | Remove someone from the seller's team. Their past actions still show their name. Removing the last owner, yourself, or somebody holding more than you is refused. Writes an audit entry. |
 
 ### `seller/new-id`
 
@@ -1470,17 +1545,17 @@ Defined in `backend/src/http/routes/seller.listings.ts`, `backend/src/http/route
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/seller/offers/:id/packaging` | Seller | Seller(LISTING_READ) + Seller(LISTING_READ) | How a listing can be bought in bulk - by carton, pallet or container - with the details and prices of each. Returns an empty set-up if none has been saved yet. |
-| PUT | `/api/v1/seller/offers/:id/packaging/profile` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Save the name of a listing's base unit and the seller's packaging notes. |
-| PUT | `/api/v1/seller/offers/:id/packaging/options` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Save one bulk packaging option for a listing - a carton, a UK or US pallet, or a container - with its contents, size, weight, price and order limits. Writes an audit entry. |
+| PUT | `/api/v1/seller/offers/:id/packaging/profile` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_WRITE) | Save the name of a listing's base unit and the seller's packaging notes. |
+| PUT | `/api/v1/seller/offers/:id/packaging/options` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_WRITE) | Save one bulk packaging option for a listing - a carton, a UK or US pallet, or a container - with its contents, size, weight, price and order limits. Writes an audit entry. |
 | GET | `/api/v1/seller/offers/:id/container-loading` | Seller | Seller(LISTING_READ) + Seller(LISTING_READ) | How many pieces of a listing fit in a 20-ft and a 40-ft container: the carton, the cartons per container, the resulting pieces, whether each size is seller-verified or only an estimate, and the configured payload limits. |
 | POST | `/api/v1/seller/offers/:id/container-loading/preview` | Seller | Seller(LISTING_READ) + Seller(LISTING_READ) | Work out a container loading without saving it - pieces per container, payload, the share of the container used, the system's estimate, and any problem - for the form while the seller types. |
-| PUT | `/api/v1/seller/offers/:id/container-loading` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Save how many pieces of a listing fit in a 20-ft and a 40-ft container. Refused when heavier than the configured payload or larger than the container. A changed figure must be verified again before buyers can order in that container. Existing preorders keep their own snapshot. Writes an audit entry. |
-| POST | `/api/v1/seller/offers/:id/packaging/options/:packageType/enabled` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Switch buying by one package type on or off for a listing, keeping what was entered for it. Writes an audit entry. |
+| PUT | `/api/v1/seller/offers/:id/container-loading` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_WRITE) | Save how many pieces of a listing fit in a 20-ft and a 40-ft container. Refused when heavier than the configured payload or larger than the container. A changed figure must be verified again before buyers can order in that container. Existing preorders keep their own snapshot. Writes an audit entry. |
+| POST | `/api/v1/seller/offers/:id/packaging/options/:packageType/enabled` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_WRITE) | Switch buying by one package type on or off for a listing, keeping what was entered for it. Writes an audit entry. |
 | GET | `/api/v1/seller/offers/:id/packaging/preview` | Seller | Seller(LISTING_READ) + Seller(LISTING_READ) | "What would N of these come to?" |
 | GET | `/api/v1/seller/offers/:id/trade-codes` | Seller | Seller(LISTING_READ) | The HSN (customs) code and country of origin saved on one of the seller's listings. |
 | PUT | `/api/v1/seller/offers/:id/trade-codes` | Seller | Seller(LISTING_WRITE) | Save the HSN (customs) code and country of origin on one of the seller's listings, which its invoices print. Writes an entry in the seller's activity log. |
 | GET | `/api/v1/seller/offers/:id/quantity-tiers` | Seller | Seller(LISTING_READ) | Show a listing's quantity price bands ("buy 100 or more, pay less"), beside its normal price and the saving each band gives. |
-| PUT | `/api/v1/seller/offers/:id/quantity-tiers` | Seller | Seller(LISTING_WRITE) | Replace all of a listing's quantity price bands in one go. Refused if the bands overlap or contradict each other or the normal price. Writes an audit entry. |
+| PUT | `/api/v1/seller/offers/:id/quantity-tiers` | Seller | TradingSeller(LISTING_WRITE) | Replace all of a listing's quantity price bands in one go. Refused if the bands overlap or contradict each other or the normal price. Writes an audit entry. |
 
 ### `seller/onboarding`
 
@@ -1630,9 +1705,17 @@ Defined in `backend/src/http/routes/support.ts`.
 | POST | `/api/v1/seller/support/tickets/:reference/attachments/:attachmentId/link` | Seller | Seller | A download link for one file on your ticket: five minutes, single use, this session only. |
 | GET | `/api/v1/seller/support/tickets/:reference/attachments/:attachmentId/download` | Seller | Seller | Redeem a download link. Served as a download, never inline. |
 
+### `seller/team`
+
+Defined in `backend/src/http/routes/seller.team.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/team` | Seller | Seller(MEMBER_READ) | The team with each member's role, who invited them and when they last signed in; live invitations; recent access reviews. |
+
 ### `sellers`
 
-Defined in `backend/src/http/routes/seller.account.ts`.
+Defined in `backend/src/http/routes/seller.account.ts`, `backend/src/http/routes/seller.team.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -1644,6 +1727,8 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 | POST | `/api/v1/sellers/lock/close` | Customer | Customer | Shut it again, without signing out of the shop. |
 | GET | `/api/v1/sellers/display-name-available` | Customer | Customer | Is this public shop name free? Called as the seller types it. |
 | POST | `/api/v1/sellers/apply` | Customer | Customer | Start a seller application. |
+| POST | `/api/v1/sellers/invitations/preview` | Customer | Customer | What a seller team invitation asks you to join. Only for the signed-in account it was sent to. |
+| POST | `/api/v1/sellers/invitations/accept` | Customer | Customer | Accept a seller team invitation. Your verified email must be the one it was sent to. |
 
 ## Webhooks, integrations and health
 
@@ -1987,6 +2072,7 @@ Defined in `backend/src/http/routes/buyer-companies.customer.ts`.
 | DELETE | `/api/v1/buyer-companies/:id/invitations/:invitationId` | Customer | Customer | Withdraw an invitation nobody has accepted yet. |
 | PATCH | `/api/v1/buyer-companies/:id/members/:memberId` | Customer | Customer | Change a member's role. Never the owner, never yourself; only the owner changes an administrator. |
 | DELETE | `/api/v1/buyer-companies/:id/members/:memberId` | Customer | Customer | Remove a member. Their access ends on their next request. |
+| POST | `/api/v1/buyer-companies/:id/access-reviews` | Customer | Customer | Record that you have reviewed who has access to the company. Owner or administrator; audited. |
 | POST | `/api/v1/buyer-companies/invitations/preview` | Customer | Customer | What an invitation link asks you to join. Only for the signed-in account it was sent to. |
 | POST | `/api/v1/buyer-companies/invitations/accept` | Customer | Customer | Accept an invitation. Your verified email must be the one it was sent to. |
 

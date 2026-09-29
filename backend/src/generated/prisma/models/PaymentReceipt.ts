@@ -61,6 +61,7 @@ export type PaymentReceiptMinAggregateOutputType = {
   currency: string | null
   issuedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PaymentReceiptMaxAggregateOutputType = {
@@ -75,6 +76,7 @@ export type PaymentReceiptMaxAggregateOutputType = {
   currency: string | null
   issuedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PaymentReceiptCountAggregateOutputType = {
@@ -90,6 +92,7 @@ export type PaymentReceiptCountAggregateOutputType = {
   snapshotJson: number
   issuedAt: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -114,6 +117,7 @@ export type PaymentReceiptMinAggregateInputType = {
   currency?: true
   issuedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PaymentReceiptMaxAggregateInputType = {
@@ -128,6 +132,7 @@ export type PaymentReceiptMaxAggregateInputType = {
   currency?: true
   issuedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PaymentReceiptCountAggregateInputType = {
@@ -143,6 +148,7 @@ export type PaymentReceiptCountAggregateInputType = {
   snapshotJson?: true
   issuedAt?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -245,6 +251,7 @@ export type PaymentReceiptGroupByOutputType = {
   snapshotJson: runtime.JsonValue
   issuedAt: Date
   createdAt: Date
+  updatedAt: Date
   _count: PaymentReceiptCountAggregateOutputType | null
   _avg: PaymentReceiptAvgAggregateOutputType | null
   _sum: PaymentReceiptSumAggregateOutputType | null
@@ -283,6 +290,7 @@ export type PaymentReceiptWhereInput = {
   snapshotJson?: Prisma.JsonFilter<"PaymentReceipt">
   issuedAt?: Prisma.DateTimeFilter<"PaymentReceipt"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"PaymentReceipt"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PaymentReceipt"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
 }
 
@@ -299,6 +307,7 @@ export type PaymentReceiptOrderByWithRelationInput = {
   snapshotJson?: Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   order?: Prisma.OrderOrderByWithRelationInput
   _relevance?: Prisma.PaymentReceiptOrderByRelevanceInput
 }
@@ -319,6 +328,7 @@ export type PaymentReceiptWhereUniqueInput = Prisma.AtLeast<{
   snapshotJson?: Prisma.JsonFilter<"PaymentReceipt">
   issuedAt?: Prisma.DateTimeFilter<"PaymentReceipt"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"PaymentReceipt"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PaymentReceipt"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
 }, "id" | "receiptNumber" | "sourceKey">
 
@@ -335,6 +345,7 @@ export type PaymentReceiptOrderByWithAggregationInput = {
   snapshotJson?: Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PaymentReceiptCountOrderByAggregateInput
   _avg?: Prisma.PaymentReceiptAvgOrderByAggregateInput
   _max?: Prisma.PaymentReceiptMaxOrderByAggregateInput
@@ -358,6 +369,7 @@ export type PaymentReceiptScalarWhereWithAggregatesInput = {
   snapshotJson?: Prisma.JsonWithAggregatesFilter<"PaymentReceipt">
   issuedAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentReceipt"> | Date | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentReceipt"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentReceipt"> | Date | string
 }
 
 export type PaymentReceiptCreateInput = {
@@ -372,6 +384,7 @@ export type PaymentReceiptCreateInput = {
   snapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutPaymentReceiptsInput
 }
 
@@ -388,6 +401,7 @@ export type PaymentReceiptUncheckedCreateInput = {
   snapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PaymentReceiptUpdateInput = {
@@ -402,6 +416,7 @@ export type PaymentReceiptUpdateInput = {
   snapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutPaymentReceiptsNestedInput
 }
 
@@ -418,6 +433,7 @@ export type PaymentReceiptUncheckedUpdateInput = {
   snapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentReceiptCreateManyInput = {
@@ -433,6 +449,7 @@ export type PaymentReceiptCreateManyInput = {
   snapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PaymentReceiptUpdateManyMutationInput = {
@@ -447,6 +464,7 @@ export type PaymentReceiptUpdateManyMutationInput = {
   snapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentReceiptUncheckedUpdateManyInput = {
@@ -462,6 +480,7 @@ export type PaymentReceiptUncheckedUpdateManyInput = {
   snapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentReceiptListRelationFilter = {
@@ -493,6 +512,7 @@ export type PaymentReceiptCountOrderByAggregateInput = {
   snapshotJson?: Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PaymentReceiptAvgOrderByAggregateInput = {
@@ -511,6 +531,7 @@ export type PaymentReceiptMaxOrderByAggregateInput = {
   currency?: Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PaymentReceiptMinOrderByAggregateInput = {
@@ -525,6 +546,7 @@ export type PaymentReceiptMinOrderByAggregateInput = {
   currency?: Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PaymentReceiptSumOrderByAggregateInput = {
@@ -589,6 +611,7 @@ export type PaymentReceiptCreateWithoutOrderInput = {
   snapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PaymentReceiptUncheckedCreateWithoutOrderInput = {
@@ -603,6 +626,7 @@ export type PaymentReceiptUncheckedCreateWithoutOrderInput = {
   snapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PaymentReceiptCreateOrConnectWithoutOrderInput = {
@@ -647,6 +671,7 @@ export type PaymentReceiptScalarWhereInput = {
   snapshotJson?: Prisma.JsonFilter<"PaymentReceipt">
   issuedAt?: Prisma.DateTimeFilter<"PaymentReceipt"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"PaymentReceipt"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PaymentReceipt"> | Date | string
 }
 
 export type PaymentReceiptCreateManyOrderInput = {
@@ -661,6 +686,7 @@ export type PaymentReceiptCreateManyOrderInput = {
   snapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PaymentReceiptUpdateWithoutOrderInput = {
@@ -675,6 +701,7 @@ export type PaymentReceiptUpdateWithoutOrderInput = {
   snapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentReceiptUncheckedUpdateWithoutOrderInput = {
@@ -689,6 +716,7 @@ export type PaymentReceiptUncheckedUpdateWithoutOrderInput = {
   snapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentReceiptUncheckedUpdateManyWithoutOrderInput = {
@@ -703,6 +731,7 @@ export type PaymentReceiptUncheckedUpdateManyWithoutOrderInput = {
   snapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -720,6 +749,7 @@ export type PaymentReceiptSelect<ExtArgs extends runtime.Types.Extensions.Intern
   snapshotJson?: boolean
   issuedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["paymentReceipt"]>
 
@@ -738,9 +768,10 @@ export type PaymentReceiptSelectScalar = {
   snapshotJson?: boolean
   issuedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PaymentReceiptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "receiptNumber" | "kind" | "sourceKey" | "orderId" | "paymentTransactionId" | "refundId" | "amountMinor" | "currency" | "snapshotJson" | "issuedAt" | "createdAt", ExtArgs["result"]["paymentReceipt"]>
+export type PaymentReceiptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "receiptNumber" | "kind" | "sourceKey" | "orderId" | "paymentTransactionId" | "refundId" | "amountMinor" | "currency" | "snapshotJson" | "issuedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentReceipt"]>
 export type PaymentReceiptInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
 }
@@ -766,6 +797,7 @@ export type $PaymentReceiptPayload<ExtArgs extends runtime.Types.Extensions.Inte
     snapshotJson: runtime.JsonValue
     issuedAt: Date
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["paymentReceipt"]>
   composites: {}
 }
@@ -1148,6 +1180,7 @@ export interface PaymentReceiptFieldRefs {
   readonly snapshotJson: Prisma.FieldRef<"PaymentReceipt", 'Json'>
   readonly issuedAt: Prisma.FieldRef<"PaymentReceipt", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"PaymentReceipt", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"PaymentReceipt", 'DateTime'>
 }
     
 

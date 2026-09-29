@@ -39,6 +39,8 @@ export type SellerProductionDelayMinAggregateOutputType = {
   resolvedAt: Date | null
   resolvedByLabel: string | null
   resolutionNote: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerProductionDelayMaxAggregateOutputType = {
@@ -55,6 +57,8 @@ export type SellerProductionDelayMaxAggregateOutputType = {
   resolvedAt: Date | null
   resolvedByLabel: string | null
   resolutionNote: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerProductionDelayCountAggregateOutputType = {
@@ -71,6 +75,8 @@ export type SellerProductionDelayCountAggregateOutputType = {
   resolvedAt: number
   resolvedByLabel: number
   resolutionNote: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -89,6 +95,8 @@ export type SellerProductionDelayMinAggregateInputType = {
   resolvedAt?: true
   resolvedByLabel?: true
   resolutionNote?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerProductionDelayMaxAggregateInputType = {
@@ -105,6 +113,8 @@ export type SellerProductionDelayMaxAggregateInputType = {
   resolvedAt?: true
   resolvedByLabel?: true
   resolutionNote?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerProductionDelayCountAggregateInputType = {
@@ -121,6 +131,8 @@ export type SellerProductionDelayCountAggregateInputType = {
   resolvedAt?: true
   resolvedByLabel?: true
   resolutionNote?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -210,6 +222,8 @@ export type SellerProductionDelayGroupByOutputType = {
   resolvedAt: Date | null
   resolvedByLabel: string | null
   resolutionNote: string | null
+  createdAt: Date
+  updatedAt: Date
   _count: SellerProductionDelayCountAggregateOutputType | null
   _min: SellerProductionDelayMinAggregateOutputType | null
   _max: SellerProductionDelayMaxAggregateOutputType | null
@@ -247,6 +261,8 @@ export type SellerProductionDelayWhereInput = {
   resolvedAt?: Prisma.DateTimeNullableFilter<"SellerProductionDelay"> | Date | string | null
   resolvedByLabel?: Prisma.StringNullableFilter<"SellerProductionDelay"> | string | null
   resolutionNote?: Prisma.StringNullableFilter<"SellerProductionDelay"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"SellerProductionDelay"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerProductionDelay"> | Date | string
   orderGroup?: Prisma.XOR<Prisma.SellerOrderGroupScalarRelationFilter, Prisma.SellerOrderGroupWhereInput>
 }
 
@@ -264,6 +280,8 @@ export type SellerProductionDelayOrderByWithRelationInput = {
   resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   resolvedByLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   resolutionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   orderGroup?: Prisma.SellerOrderGroupOrderByWithRelationInput
   _relevance?: Prisma.SellerProductionDelayOrderByRelevanceInput
 }
@@ -285,6 +303,8 @@ export type SellerProductionDelayWhereUniqueInput = Prisma.AtLeast<{
   resolvedAt?: Prisma.DateTimeNullableFilter<"SellerProductionDelay"> | Date | string | null
   resolvedByLabel?: Prisma.StringNullableFilter<"SellerProductionDelay"> | string | null
   resolutionNote?: Prisma.StringNullableFilter<"SellerProductionDelay"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"SellerProductionDelay"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerProductionDelay"> | Date | string
   orderGroup?: Prisma.XOR<Prisma.SellerOrderGroupScalarRelationFilter, Prisma.SellerOrderGroupWhereInput>
 }, "id">
 
@@ -302,6 +322,8 @@ export type SellerProductionDelayOrderByWithAggregationInput = {
   resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   resolvedByLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   resolutionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerProductionDelayCountOrderByAggregateInput
   _max?: Prisma.SellerProductionDelayMaxOrderByAggregateInput
   _min?: Prisma.SellerProductionDelayMinOrderByAggregateInput
@@ -324,6 +346,8 @@ export type SellerProductionDelayScalarWhereWithAggregatesInput = {
   resolvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerProductionDelay"> | Date | string | null
   resolvedByLabel?: Prisma.StringNullableWithAggregatesFilter<"SellerProductionDelay"> | string | null
   resolutionNote?: Prisma.StringNullableWithAggregatesFilter<"SellerProductionDelay"> | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerProductionDelay"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerProductionDelay"> | Date | string
 }
 
 export type SellerProductionDelayCreateInput = {
@@ -339,6 +363,8 @@ export type SellerProductionDelayCreateInput = {
   resolvedAt?: Date | string | null
   resolvedByLabel?: string | null
   resolutionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   orderGroup: Prisma.SellerOrderGroupCreateNestedOneWithoutProductionDelaysInput
 }
 
@@ -356,6 +382,8 @@ export type SellerProductionDelayUncheckedCreateInput = {
   resolvedAt?: Date | string | null
   resolvedByLabel?: string | null
   resolutionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerProductionDelayUpdateInput = {
@@ -371,6 +399,8 @@ export type SellerProductionDelayUpdateInput = {
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orderGroup?: Prisma.SellerOrderGroupUpdateOneRequiredWithoutProductionDelaysNestedInput
 }
 
@@ -388,6 +418,8 @@ export type SellerProductionDelayUncheckedUpdateInput = {
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerProductionDelayCreateManyInput = {
@@ -404,6 +436,8 @@ export type SellerProductionDelayCreateManyInput = {
   resolvedAt?: Date | string | null
   resolvedByLabel?: string | null
   resolutionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerProductionDelayUpdateManyMutationInput = {
@@ -419,6 +453,8 @@ export type SellerProductionDelayUpdateManyMutationInput = {
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerProductionDelayUncheckedUpdateManyInput = {
@@ -435,6 +471,8 @@ export type SellerProductionDelayUncheckedUpdateManyInput = {
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerProductionDelayListRelationFilter = {
@@ -467,6 +505,8 @@ export type SellerProductionDelayCountOrderByAggregateInput = {
   resolvedAt?: Prisma.SortOrder
   resolvedByLabel?: Prisma.SortOrder
   resolutionNote?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerProductionDelayMaxOrderByAggregateInput = {
@@ -483,6 +523,8 @@ export type SellerProductionDelayMaxOrderByAggregateInput = {
   resolvedAt?: Prisma.SortOrder
   resolvedByLabel?: Prisma.SortOrder
   resolutionNote?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerProductionDelayMinOrderByAggregateInput = {
@@ -499,6 +541,8 @@ export type SellerProductionDelayMinOrderByAggregateInput = {
   resolvedAt?: Prisma.SortOrder
   resolvedByLabel?: Prisma.SortOrder
   resolutionNote?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerProductionDelayCreateNestedManyWithoutOrderGroupInput = {
@@ -560,6 +604,8 @@ export type SellerProductionDelayCreateWithoutOrderGroupInput = {
   resolvedAt?: Date | string | null
   resolvedByLabel?: string | null
   resolutionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerProductionDelayUncheckedCreateWithoutOrderGroupInput = {
@@ -575,6 +621,8 @@ export type SellerProductionDelayUncheckedCreateWithoutOrderGroupInput = {
   resolvedAt?: Date | string | null
   resolvedByLabel?: string | null
   resolutionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerProductionDelayCreateOrConnectWithoutOrderGroupInput = {
@@ -620,6 +668,8 @@ export type SellerProductionDelayScalarWhereInput = {
   resolvedAt?: Prisma.DateTimeNullableFilter<"SellerProductionDelay"> | Date | string | null
   resolvedByLabel?: Prisma.StringNullableFilter<"SellerProductionDelay"> | string | null
   resolutionNote?: Prisma.StringNullableFilter<"SellerProductionDelay"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"SellerProductionDelay"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerProductionDelay"> | Date | string
 }
 
 export type SellerProductionDelayCreateManyOrderGroupInput = {
@@ -635,6 +685,8 @@ export type SellerProductionDelayCreateManyOrderGroupInput = {
   resolvedAt?: Date | string | null
   resolvedByLabel?: string | null
   resolutionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerProductionDelayUpdateWithoutOrderGroupInput = {
@@ -650,6 +702,8 @@ export type SellerProductionDelayUpdateWithoutOrderGroupInput = {
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerProductionDelayUncheckedUpdateWithoutOrderGroupInput = {
@@ -665,6 +719,8 @@ export type SellerProductionDelayUncheckedUpdateWithoutOrderGroupInput = {
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerProductionDelayUncheckedUpdateManyWithoutOrderGroupInput = {
@@ -680,6 +736,8 @@ export type SellerProductionDelayUncheckedUpdateManyWithoutOrderGroupInput = {
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -698,6 +756,8 @@ export type SellerProductionDelaySelect<ExtArgs extends runtime.Types.Extensions
   resolvedAt?: boolean
   resolvedByLabel?: boolean
   resolutionNote?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   orderGroup?: boolean | Prisma.SellerOrderGroupDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerProductionDelay"]>
 
@@ -717,9 +777,11 @@ export type SellerProductionDelaySelectScalar = {
   resolvedAt?: boolean
   resolvedByLabel?: boolean
   resolutionNote?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerProductionDelayOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderGroupId" | "sellerAccountId" | "stage" | "reason" | "detail" | "buyerMessage" | "revisedDate" | "raisedAt" | "raisedByLabel" | "resolvedAt" | "resolvedByLabel" | "resolutionNote", ExtArgs["result"]["sellerProductionDelay"]>
+export type SellerProductionDelayOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderGroupId" | "sellerAccountId" | "stage" | "reason" | "detail" | "buyerMessage" | "revisedDate" | "raisedAt" | "raisedByLabel" | "resolvedAt" | "resolvedByLabel" | "resolutionNote" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerProductionDelay"]>
 export type SellerProductionDelayInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orderGroup?: boolean | Prisma.SellerOrderGroupDefaultArgs<ExtArgs>
 }
@@ -752,6 +814,8 @@ export type $SellerProductionDelayPayload<ExtArgs extends runtime.Types.Extensio
     resolvedAt: Date | null
     resolvedByLabel: string | null
     resolutionNote: string | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerProductionDelay"]>
   composites: {}
 }
@@ -1135,6 +1199,8 @@ export interface SellerProductionDelayFieldRefs {
   readonly resolvedAt: Prisma.FieldRef<"SellerProductionDelay", 'DateTime'>
   readonly resolvedByLabel: Prisma.FieldRef<"SellerProductionDelay", 'String'>
   readonly resolutionNote: Prisma.FieldRef<"SellerProductionDelay", 'String'>
+  readonly createdAt: Prisma.FieldRef<"SellerProductionDelay", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerProductionDelay", 'DateTime'>
 }
     
 

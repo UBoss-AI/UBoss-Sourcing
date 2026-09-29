@@ -3456,6 +3456,7 @@ model PaymentReceipt {
   snapshotJson Json
   issuedAt     DateTime @db.DateTime(3)
   createdAt    DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_payment_receipt_order")
 
@@ -9690,6 +9691,8 @@ model SellerAccount {
 
   members            SellerMember[]
   invitations        SellerInvitation[]
+  /// Owners and admins recording that they checked who has access.
+  accessReviews      TeamAccessReview[]
   onboarding         SellerOnboardingProgress?
   businessProfile    SellerBusinessProfile?
   verificationCases  SellerVerificationCase[]
@@ -9828,25 +9831,44 @@ model SellerMember {
   @@map("seller_members")
 }
 
-/// An outstanding invitation to join a seller organisation.
+/// An invitation to join a seller organisation in one role (checklist Master
+/// row 14).
 ///
 /// Token stored as a SHA-256 hash, single-use, expiring - the same treatment a
 /// password reset gets, and for the same reason: an invitation grants standing
-/// inside a business that ships medical devices.
+/// inside a business. Sent by a member holding `seller.member.write`, never
+/// for OWNER, and only for a role the sender could grant
+/// (`canGrantSellerRole`). Accepting needs a signed-in account whose VERIFIED
+/// email is the one invited. See `modules/seller/team.service.ts`.
+///
+/// Rows are never deleted: accepted, revoked and replaced invitations stay as
+/// the record of who asked whom in, as what, and when.
 model SellerInvitation {
   id              String @id @db.Char(26)
   sellerAccountId String @db.Char(26)
 
+  /// As typed, for display. `emailNormalized` is what is compared.
+  email           String           @db.VarChar(320)
   emailNormalized String           @db.VarChar(320)
   role            SellerMemberRole @default(SUPPORT_MEMBER)
 
   tokenHash String   @unique(map: "uq_seller_invitation_token") @db.Char(64)
   expiresAt DateTime @db.DateTime(3)
+  /// `sellerAccountId:emailNormalized` while the invitation can still be
+  /// accepted; null once it is accepted, revoked or replaced. UNIQUE, so an
+  /// address has at most one live invitation per seller. MariaDB lets any
+  /// number of NULLs through a UNIQUE index, which is what lets the retired
+  /// rows stay.
+  liveKey    String?  @unique(map: "uq_seller_invitation_live") @db.VarChar(360)
+  /// How many times the email has gone out: 1 when invited, +1 per resend.
+  sendCount  Int      @default(1)
+  lastSentAt DateTime @default(now()) @db.DateTime(3)
 
   invitedByProfileId  String?   @db.Char(26)
   acceptedAt          DateTime? @db.DateTime(3)
   acceptedByProfileId String?   @db.Char(26)
   revokedAt           DateTime? @db.DateTime(3)
+  revokedByProfileId  String?   @db.Char(26)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
 
@@ -9945,6 +9967,19 @@ model SellerOnboardingRequirement {
   @@map("seller_onboarding_requirements")
 }
 
+/// What a seller business is, in law. Decides which registration number is
+/// asked for: in India a company has a CIN and an LLP an LLPIN, while a
+/// proprietorship or an ordinary partnership has neither. The same values as
+/// `BuyerCompanyEntityType`, less the forms a seller is not (a public body).
+enum SellerLegalForm {
+  SOLE_PROPRIETORSHIP
+  PARTNERSHIP
+  LIMITED_LIABILITY_PARTNERSHIP
+  PRIVATE_LIMITED_COMPANY
+  PUBLIC_LIMITED_COMPANY
+  OTHER
+}
+
 /// The business behind a seller account: who it is, where it is registered,
 /// what it is registered as.
 ///
@@ -9956,6 +9991,10 @@ model SellerOnboardingRequirement {
 model SellerBusinessProfile {
   id              String @id @db.Char(26)
   sellerAccountId String @unique(map: "uq_seller_business_profile_account") @db.Char(26)
+
+  /// Null until the seller answers the "Ownership, registrations and exports"
+  /// section. Required to submit.
+  legalForm SellerLegalForm?
 
   /// Whoever signs for the business. A person, so this row is personal data
   /// and is disclosed in the Art. 15 export.
@@ -18434,6 +18473,7 @@ model PlatformFeeRuleApplication {
   effectMinor  BigInt
   currency     String @db.Char(3)
   createdAt    DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   settlement SellerOrderSettlement @relation(fields: [settlementId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_fee_rule_app_settlement")
   rule       PlatformFeeRule       @relation(fields: [ruleId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_fee_rule_app_rule")
@@ -20331,6 +20371,7 @@ model BuyerCompany {
   locations        BuyerCompanyLocation[]
   members          BuyerCompanyMember[]
   invitations      BuyerCompanyInvitation[]
+  accessReviews    TeamAccessReview[]
   cases            BuyerCompanyVerificationCase[]
   checks           BuyerCompanyCheck[]
   documents        BuyerCompanyDocument[]
@@ -20424,6 +20465,31 @@ model BuyerCompanyIdentifier {
   @@unique([companyId, scheme], map: "uq_buyer_company_identifier_scheme")
   @@index([scheme, valueNormalized], map: "ix_buyer_company_identifier_value")
   @@map("buyer_company_identifiers")
+}
+
+/// "I have checked who has access" - one row each time an owner or
+/// administrator confirms a periodic access review of their team (checklist
+/// Master row 14). Belongs to exactly one seller or one buyer company (CHECK
+/// `chk_team_access_review_one_owner`). The counts are what the reviewer was
+/// looking at, so a later reader can tell a review of three people from a
+/// review of thirty. The application never changes or deletes a row; each one
+/// is also written to the audit log.
+model TeamAccessReview {
+  id               String   @id @db.Char(26)
+  sellerAccountId  String?  @db.Char(26)
+  buyerCompanyId   String?  @db.Char(26)
+  reviewedByUserId String   @db.Char(26)
+  memberCount      Int
+  invitationCount  Int
+  createdAt        DateTime @default(now()) @db.DateTime(3)
+  updatedAt        DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount? @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_team_access_review_seller")
+  buyerCompany  BuyerCompany?  @relation(fields: [buyerCompanyId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_team_access_review_company")
+
+  @@index([sellerAccountId, createdAt], map: "ix_team_access_review_seller")
+  @@index([buyerCompanyId, createdAt], map: "ix_team_access_review_company")
+  @@map("team_access_reviews")
 }
 
 /// A branch, plant or warehouse of the company, for later. Carries its own
@@ -20587,6 +20653,7 @@ model BuyerCompanyOrderApproval {
   decidedAt         DateTime?                    @db.DateTime(3)
   reason            String?                      @db.VarChar(1000)
   createdAt         DateTime                     @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   order   Order        @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_buyer_company_order_approval_order")
   company BuyerCompany @relation(fields: [companyId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_buyer_company_order_approval_company")
@@ -22348,6 +22415,7 @@ model TrustSettings {
 
   updatedById String?  @db.Char(26)
   updatedAt   DateTime @updatedAt @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
 
   @@map("trust_settings")
 }
@@ -22366,6 +22434,11 @@ model SellerTrustProfile {
   /// ISO-3166 alpha-2 codes the supplier says it already exports to.
   exportMarketsJson Json?
   yearsExporting    Int?    @db.SmallInt
+
+  /// Category ids the seller says it intends to sell in, from the application.
+  /// Checked against `categories` when saved; a reviewer sees each one against
+  /// the market rules that block it.
+  intendedCategoryIdsJson Json?
 
   /// Capability tags - OEM, PRIVATE_LABEL, CUSTOM_PACKAGING, R_AND_D,
   /// CONTRACT_MANUFACTURING, STERILE_MANUFACTURING, TESTING_LAB.
@@ -22400,6 +22473,10 @@ model SellerBeneficialOwner {
   /// 2500 = 25.00%.
   ownershipBasisPoints Int     @db.SmallInt
   isControllingPerson  Boolean @default(false)
+  /// The seller's own declaration that this person is a politically exposed
+  /// person. A declaration, not a screening result - screening is
+  /// `SellerScreeningCheck`, recorded by the operator.
+  isPoliticallyExposed Boolean @default(false)
   role                 String? @db.VarChar(120)
 
   archivedAt DateTime? @db.DateTime(3)
@@ -22459,6 +22536,8 @@ model SellerFactoryMachine {
   quantity     Int     @default(1)
   capacityNote String? @db.VarChar(255)
   sortOrder    Int     @default(0)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   factory SellerFactory @relation(fields: [factoryId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_seller_factory_machine_factory")
 
@@ -22479,6 +22558,7 @@ model SellerFactoryEvidence {
   capturedLongitude Decimal? @db.Decimal(10, 7)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   factory SellerFactory @relation(fields: [factoryId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_seller_factory_evidence_factory")
 
@@ -22653,6 +22733,8 @@ model SellerListingCertification {
   id              String @id @db.Char(26)
   listingTrustId  String @db.Char(26)
   certificationId String @db.Char(26)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   listingTrust  SellerListingTrust  @relation(fields: [listingTrustId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_seller_listing_cert_listing")
   certification SellerCertification @relation(fields: [certificationId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_seller_listing_cert_certification")
@@ -22671,6 +22753,8 @@ model SellerOfferComplianceHold {
   previousStatus  SellerOfferStatus
   heldAt          DateTime          @default(now()) @db.DateTime(3)
   releasedAt      DateTime?         @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   offer         SellerOffer         @relation(fields: [offerId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_offer_compliance_hold_offer")
   certification SellerCertification @relation(fields: [certificationId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_offer_compliance_hold_certification")
@@ -22761,6 +22845,7 @@ model MarketProfile {
 
   updatedById String?  @db.Char(26)
   updatedAt   DateTime @updatedAt @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
 
   @@map("market_profiles")
 }
@@ -22791,6 +22876,7 @@ model SearchQueryLog {
   countryCode     String? @db.Char(2)
   language        String? @db.VarChar(10)
   createdAt       DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   @@index([createdAt], map: "ix_search_query_log_created")
   @@index([queryNormalized, createdAt], map: "ix_search_query_log_query")
@@ -23023,6 +23109,8 @@ model SellerProductionDelay {
   resolvedAt      DateTime? @db.DateTime(3)
   resolvedByLabel String?   @db.VarChar(160)
   resolutionNote  String?   @db.VarChar(1000)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   orderGroup SellerOrderGroup @relation(fields: [orderGroupId], references: [id], onDelete: Cascade)
 
@@ -23051,6 +23139,7 @@ model SellerOrderBuyerUpdate {
   message      String?                @db.VarChar(1000)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   orderGroup SellerOrderGroup @relation(fields: [orderGroupId], references: [id], onDelete: Cascade)
 
@@ -23142,6 +23231,7 @@ model OrderTradeDocumentVersion {
   supersededAt   DateTime? @db.DateTime(3)
   createdByLabel String    @db.VarChar(160)
   createdAt      DateTime  @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   document OrderTradeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
@@ -23163,6 +23253,7 @@ model OrderTradeDocumentEvent {
   actorLabel String  @db.VarChar(160)
   note       String? @db.VarChar(1000)
   createdAt  DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   document OrderTradeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
@@ -23288,6 +23379,7 @@ model LogisticsTradeSettings {
 
   updatedByUserId String?  @db.Char(26)
   updatedAt       DateTime @updatedAt @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
 
   @@map("logistics_trade_settings")
 }
@@ -23350,6 +23442,8 @@ model LogisticsLaneBand {
   amountMinor    BigInt
   perKgMinor     BigInt @default(0)
   sortOrder      Int    @default(0)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   lane LogisticsLane @relation(fields: [laneId], references: [id], onDelete: Cascade)
 
@@ -23432,6 +23526,7 @@ model LedgerAccount {
   sellerAccountId String?           @db.Char(26)
   currency        String            @db.Char(3)
   createdAt       DateTime          @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   lines LedgerLine[]
 
@@ -23471,6 +23566,7 @@ model LedgerEntry {
   actorLabel String   @db.VarChar(160)
   occurredAt DateTime @db.DateTime(3)
   createdAt  DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   lines LedgerLine[]
 
@@ -23492,6 +23588,8 @@ model LedgerLine {
   accountId   String @db.Char(26)
   amountMinor BigInt
   currency    String @db.Char(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   entry   LedgerEntry   @relation(fields: [entryId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_ledger_line_entry")
   account LedgerAccount @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_ledger_line_account")
@@ -23595,6 +23693,7 @@ model SellerFundReleaseRequest {
   pendingKey String? @db.Char(26)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   @@unique([pendingKey], map: "uq_seller_fund_release_pending")
   @@index([fundHoldId, requestedAt], map: "ix_seller_fund_release_hold")
@@ -23615,6 +23714,8 @@ model PayoutProviderEvent {
   note            String?   @db.VarChar(512)
   receivedAt      DateTime  @default(now()) @db.DateTime(3)
   processedAt     DateTime? @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   @@unique([provider, providerEventId], map: "uq_payout_provider_event")
   @@index([eventType, receivedAt], map: "ix_payout_provider_event_type")
@@ -23653,6 +23754,8 @@ model LedgerReconciliationRun {
   errorMessage   String?   @db.VarChar(1000)
   startedAt      DateTime  @db.DateTime(3)
   completedAt    DateTime? @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   items LedgerReconciliationItem[]
 
@@ -23673,6 +23776,7 @@ model LedgerReconciliationItem {
   ledgerEntryId       String?                      @db.Char(26)
   note                String                       @db.VarChar(512)
   createdAt           DateTime                     @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   run LedgerReconciliationRun @relation(fields: [runId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_ledger_recon_item_run")
 
@@ -23901,6 +24005,7 @@ model RfqRequirementVersion {
   changeSummary String? @db.VarChar(1000)
   createdByUserId String @db.Char(26)
   createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
 
   rfq RfqRequest @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_requirement_version_rfq")
 
@@ -23967,6 +24072,7 @@ model RfqAttachment {
   scanState   String @db.VarChar(24)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
 
   rfq RfqRequest @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_attachment_rfq")
 
@@ -23995,6 +24101,7 @@ model RfqEvent {
   metaJson    Json?
 
   createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
 
   rfq RfqRequest @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_event_rfq")
 

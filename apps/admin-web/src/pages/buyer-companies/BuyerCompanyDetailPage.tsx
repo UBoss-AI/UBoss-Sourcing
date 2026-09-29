@@ -15,6 +15,7 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AccessReviewCard } from '@/components/AccessReviewCard';
 import { useToast } from '@/components/toast-context';
 import {
   Badge,
@@ -266,6 +267,8 @@ function CaseView({ record }: { record: ReviewCase }): React.JSX.Element {
             ))}
           </ul>
         </Card>
+
+        <AccessReviewCard kind="company" id={record.id} />
 
         {record.linkedSeller !== null && (
           <Card title={t('buyerCompany.linkedSellerTitle')} bodyClassName="px-5 py-4">

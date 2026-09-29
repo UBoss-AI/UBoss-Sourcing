@@ -12,6 +12,7 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { BuyerCompanyStatusValues } from '../../domain/buyer-company-state.js';
 import { Permission } from '../../domain/permissions.js';
+import { companyAccessForStaff } from '../../modules/access-review/admin-access-review.service.js';
 import {
   addInternalNote,
   approveCompany,
@@ -129,6 +130,16 @@ export function registerAdminBuyerCompanyRoutes(app: FastifyInstance): Promise<v
     async (request, reply) => {
       const { id } = idParam.parse(request.params);
       return reply.status(200).send(await readForReview(reviewerOf(request), id));
+    },
+  );
+
+  /** Who can act for this company, read-only: roles, joining dates, who invited whom, last sign-in and activity, open invitations and recent access reviews. */
+  app.get(
+    '/buyer-companies/:id/access-review',
+    { preHandler: requireAdmin(Permission.BUYER_COMPANY_READ) },
+    async (request, reply) => {
+      const { id } = idParam.parse(request.params);
+      return reply.header('cache-control', 'no-store').status(200).send(await companyAccessForStaff(id));
     },
   );
 

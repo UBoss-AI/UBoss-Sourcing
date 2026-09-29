@@ -19,7 +19,9 @@ import { ErrorCode, badRequest, conflict } from '../../domain/errors.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
+import { taxNumberProblem } from '../../domain/seller-kyb.js';
 import { recordSellerAudit } from './audit.service.js';
+import { kybGapsFor } from './kyb-facts.service.js';
 import {
   assertApplicationEditable,
   assertSellerPermission,
@@ -737,6 +739,22 @@ export async function markRequirementSteps(
     }
   }
 
+  /*
+   * The ownership-and-registrations section answers to `kyb_kyc` too, and it
+   * is judged HERE rather than marked by its own save, for the reason this
+   * function exists: two functions marking one step from two directions flap.
+   * Legal form, the CIN a company must give, a GSTIN whose check character
+   * matches, the owners the policy asks for - each is one more "still needed"
+   * on the same step, in the same message.
+   */
+  const kyb = await kybGapsFor(
+    subject.sellerAccountId,
+    account?.registrationCountry ?? subject.registrationCountry,
+  );
+  const identity = byStep.get('kyb_kyc') ?? { missing: [], waitingOnReview: [] };
+  identity.missing.push(...kyb.map((gap) => gap.label));
+  byStep.set('kyb_kyc', identity);
+
   for (const [stepKey, outcome] of byStep) {
     await markStep({
       membership: subject,
@@ -938,6 +956,22 @@ export async function saveBusinessProfile(
 
   // Before the write, so a refused address leaves the stored one untouched.
   await assertRegisteredAddress(membership, patch);
+
+  /*
+   * An Indian GSTIN carries a check character (`domain/gst.ts`, the same check
+   * the invoices use). A number that fails it is a typo, and it is refused
+   * here, beside the field, rather than found by a reviewer - or by a buyer's
+   * accountant on the first tax invoice. Empty is left to the requirement
+   * rows: a business below the GST threshold has none.
+   */
+  if (typeof patch.taxRegistrationNumber === 'string' && patch.taxRegistrationNumber.trim().length > 0) {
+    const problem = taxNumberProblem(membership.registrationCountry, patch.taxRegistrationNumber);
+    if (problem !== null) {
+      throw badRequest(ErrorCode.VALIDATION_FAILED, 'That is not a valid GSTIN.', [
+        { field: 'taxRegistrationNumber', code: problem },
+      ]);
+    }
+  }
 
   const { extraIdentifiers, ...columns } = patch;
 

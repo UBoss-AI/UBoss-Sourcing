@@ -52,6 +52,8 @@ export type LogisticsLaneBandMinAggregateOutputType = {
   amountMinor: bigint | null
   perKgMinor: bigint | null
   sortOrder: number | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsLaneBandMaxAggregateOutputType = {
@@ -62,6 +64,8 @@ export type LogisticsLaneBandMaxAggregateOutputType = {
   amountMinor: bigint | null
   perKgMinor: bigint | null
   sortOrder: number | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsLaneBandCountAggregateOutputType = {
@@ -72,6 +76,8 @@ export type LogisticsLaneBandCountAggregateOutputType = {
   amountMinor: number
   perKgMinor: number
   sortOrder: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -100,6 +106,8 @@ export type LogisticsLaneBandMinAggregateInputType = {
   amountMinor?: true
   perKgMinor?: true
   sortOrder?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsLaneBandMaxAggregateInputType = {
@@ -110,6 +118,8 @@ export type LogisticsLaneBandMaxAggregateInputType = {
   amountMinor?: true
   perKgMinor?: true
   sortOrder?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsLaneBandCountAggregateInputType = {
@@ -120,6 +130,8 @@ export type LogisticsLaneBandCountAggregateInputType = {
   amountMinor?: true
   perKgMinor?: true
   sortOrder?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -217,6 +229,8 @@ export type LogisticsLaneBandGroupByOutputType = {
   amountMinor: bigint
   perKgMinor: bigint
   sortOrder: number
+  createdAt: Date
+  updatedAt: Date
   _count: LogisticsLaneBandCountAggregateOutputType | null
   _avg: LogisticsLaneBandAvgAggregateOutputType | null
   _sum: LogisticsLaneBandSumAggregateOutputType | null
@@ -250,6 +264,8 @@ export type LogisticsLaneBandWhereInput = {
   amountMinor?: Prisma.BigIntFilter<"LogisticsLaneBand"> | bigint | number
   perKgMinor?: Prisma.BigIntFilter<"LogisticsLaneBand"> | bigint | number
   sortOrder?: Prisma.IntFilter<"LogisticsLaneBand"> | number
+  createdAt?: Prisma.DateTimeFilter<"LogisticsLaneBand"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsLaneBand"> | Date | string
   lane?: Prisma.XOR<Prisma.LogisticsLaneScalarRelationFilter, Prisma.LogisticsLaneWhereInput>
 }
 
@@ -261,6 +277,8 @@ export type LogisticsLaneBandOrderByWithRelationInput = {
   amountMinor?: Prisma.SortOrder
   perKgMinor?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   lane?: Prisma.LogisticsLaneOrderByWithRelationInput
   _relevance?: Prisma.LogisticsLaneBandOrderByRelevanceInput
 }
@@ -277,6 +295,8 @@ export type LogisticsLaneBandWhereUniqueInput = Prisma.AtLeast<{
   amountMinor?: Prisma.BigIntFilter<"LogisticsLaneBand"> | bigint | number
   perKgMinor?: Prisma.BigIntFilter<"LogisticsLaneBand"> | bigint | number
   sortOrder?: Prisma.IntFilter<"LogisticsLaneBand"> | number
+  createdAt?: Prisma.DateTimeFilter<"LogisticsLaneBand"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsLaneBand"> | Date | string
   lane?: Prisma.XOR<Prisma.LogisticsLaneScalarRelationFilter, Prisma.LogisticsLaneWhereInput>
 }, "id" | "laneId_minWeightGrams">
 
@@ -288,6 +308,8 @@ export type LogisticsLaneBandOrderByWithAggregationInput = {
   amountMinor?: Prisma.SortOrder
   perKgMinor?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LogisticsLaneBandCountOrderByAggregateInput
   _avg?: Prisma.LogisticsLaneBandAvgOrderByAggregateInput
   _max?: Prisma.LogisticsLaneBandMaxOrderByAggregateInput
@@ -306,6 +328,8 @@ export type LogisticsLaneBandScalarWhereWithAggregatesInput = {
   amountMinor?: Prisma.BigIntWithAggregatesFilter<"LogisticsLaneBand"> | bigint | number
   perKgMinor?: Prisma.BigIntWithAggregatesFilter<"LogisticsLaneBand"> | bigint | number
   sortOrder?: Prisma.IntWithAggregatesFilter<"LogisticsLaneBand"> | number
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsLaneBand"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsLaneBand"> | Date | string
 }
 
 export type LogisticsLaneBandCreateInput = {
@@ -315,6 +339,8 @@ export type LogisticsLaneBandCreateInput = {
   amountMinor: bigint | number
   perKgMinor?: bigint | number
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
   lane: Prisma.LogisticsLaneCreateNestedOneWithoutBandsInput
 }
 
@@ -326,6 +352,8 @@ export type LogisticsLaneBandUncheckedCreateInput = {
   amountMinor: bigint | number
   perKgMinor?: bigint | number
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsLaneBandUpdateInput = {
@@ -335,6 +363,8 @@ export type LogisticsLaneBandUpdateInput = {
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   perKgMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lane?: Prisma.LogisticsLaneUpdateOneRequiredWithoutBandsNestedInput
 }
 
@@ -346,6 +376,8 @@ export type LogisticsLaneBandUncheckedUpdateInput = {
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   perKgMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsLaneBandCreateManyInput = {
@@ -356,6 +388,8 @@ export type LogisticsLaneBandCreateManyInput = {
   amountMinor: bigint | number
   perKgMinor?: bigint | number
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsLaneBandUpdateManyMutationInput = {
@@ -365,6 +399,8 @@ export type LogisticsLaneBandUpdateManyMutationInput = {
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   perKgMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsLaneBandUncheckedUpdateManyInput = {
@@ -375,6 +411,8 @@ export type LogisticsLaneBandUncheckedUpdateManyInput = {
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   perKgMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsLaneBandListRelationFilter = {
@@ -406,6 +444,8 @@ export type LogisticsLaneBandCountOrderByAggregateInput = {
   amountMinor?: Prisma.SortOrder
   perKgMinor?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsLaneBandAvgOrderByAggregateInput = {
@@ -424,6 +464,8 @@ export type LogisticsLaneBandMaxOrderByAggregateInput = {
   amountMinor?: Prisma.SortOrder
   perKgMinor?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsLaneBandMinOrderByAggregateInput = {
@@ -434,6 +476,8 @@ export type LogisticsLaneBandMinOrderByAggregateInput = {
   amountMinor?: Prisma.SortOrder
   perKgMinor?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsLaneBandSumOrderByAggregateInput = {
@@ -493,6 +537,8 @@ export type LogisticsLaneBandCreateWithoutLaneInput = {
   amountMinor: bigint | number
   perKgMinor?: bigint | number
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsLaneBandUncheckedCreateWithoutLaneInput = {
@@ -502,6 +548,8 @@ export type LogisticsLaneBandUncheckedCreateWithoutLaneInput = {
   amountMinor: bigint | number
   perKgMinor?: bigint | number
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsLaneBandCreateOrConnectWithoutLaneInput = {
@@ -541,6 +589,8 @@ export type LogisticsLaneBandScalarWhereInput = {
   amountMinor?: Prisma.BigIntFilter<"LogisticsLaneBand"> | bigint | number
   perKgMinor?: Prisma.BigIntFilter<"LogisticsLaneBand"> | bigint | number
   sortOrder?: Prisma.IntFilter<"LogisticsLaneBand"> | number
+  createdAt?: Prisma.DateTimeFilter<"LogisticsLaneBand"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsLaneBand"> | Date | string
 }
 
 export type LogisticsLaneBandCreateManyLaneInput = {
@@ -550,6 +600,8 @@ export type LogisticsLaneBandCreateManyLaneInput = {
   amountMinor: bigint | number
   perKgMinor?: bigint | number
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsLaneBandUpdateWithoutLaneInput = {
@@ -559,6 +611,8 @@ export type LogisticsLaneBandUpdateWithoutLaneInput = {
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   perKgMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsLaneBandUncheckedUpdateWithoutLaneInput = {
@@ -568,6 +622,8 @@ export type LogisticsLaneBandUncheckedUpdateWithoutLaneInput = {
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   perKgMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsLaneBandUncheckedUpdateManyWithoutLaneInput = {
@@ -577,6 +633,8 @@ export type LogisticsLaneBandUncheckedUpdateManyWithoutLaneInput = {
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   perKgMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -589,6 +647,8 @@ export type LogisticsLaneBandSelect<ExtArgs extends runtime.Types.Extensions.Int
   amountMinor?: boolean
   perKgMinor?: boolean
   sortOrder?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   lane?: boolean | Prisma.LogisticsLaneDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["logisticsLaneBand"]>
 
@@ -602,9 +662,11 @@ export type LogisticsLaneBandSelectScalar = {
   amountMinor?: boolean
   perKgMinor?: boolean
   sortOrder?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LogisticsLaneBandOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "laneId" | "minWeightGrams" | "maxWeightGrams" | "amountMinor" | "perKgMinor" | "sortOrder", ExtArgs["result"]["logisticsLaneBand"]>
+export type LogisticsLaneBandOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "laneId" | "minWeightGrams" | "maxWeightGrams" | "amountMinor" | "perKgMinor" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsLaneBand"]>
 export type LogisticsLaneBandInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lane?: boolean | Prisma.LogisticsLaneDefaultArgs<ExtArgs>
 }
@@ -622,6 +684,8 @@ export type $LogisticsLaneBandPayload<ExtArgs extends runtime.Types.Extensions.I
     amountMinor: bigint
     perKgMinor: bigint
     sortOrder: number
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["logisticsLaneBand"]>
   composites: {}
 }
@@ -999,6 +1063,8 @@ export interface LogisticsLaneBandFieldRefs {
   readonly amountMinor: Prisma.FieldRef<"LogisticsLaneBand", 'BigInt'>
   readonly perKgMinor: Prisma.FieldRef<"LogisticsLaneBand", 'BigInt'>
   readonly sortOrder: Prisma.FieldRef<"LogisticsLaneBand", 'Int'>
+  readonly createdAt: Prisma.FieldRef<"LogisticsLaneBand", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LogisticsLaneBand", 'DateTime'>
 }
     
 

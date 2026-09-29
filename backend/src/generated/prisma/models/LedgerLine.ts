@@ -41,6 +41,8 @@ export type LedgerLineMinAggregateOutputType = {
   accountId: string | null
   amountMinor: bigint | null
   currency: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LedgerLineMaxAggregateOutputType = {
@@ -49,6 +51,8 @@ export type LedgerLineMaxAggregateOutputType = {
   accountId: string | null
   amountMinor: bigint | null
   currency: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LedgerLineCountAggregateOutputType = {
@@ -57,6 +61,8 @@ export type LedgerLineCountAggregateOutputType = {
   accountId: number
   amountMinor: number
   currency: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -75,6 +81,8 @@ export type LedgerLineMinAggregateInputType = {
   accountId?: true
   amountMinor?: true
   currency?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type LedgerLineMaxAggregateInputType = {
@@ -83,6 +91,8 @@ export type LedgerLineMaxAggregateInputType = {
   accountId?: true
   amountMinor?: true
   currency?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type LedgerLineCountAggregateInputType = {
@@ -91,6 +101,8 @@ export type LedgerLineCountAggregateInputType = {
   accountId?: true
   amountMinor?: true
   currency?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -186,6 +198,8 @@ export type LedgerLineGroupByOutputType = {
   accountId: string
   amountMinor: bigint
   currency: string
+  createdAt: Date
+  updatedAt: Date
   _count: LedgerLineCountAggregateOutputType | null
   _avg: LedgerLineAvgAggregateOutputType | null
   _sum: LedgerLineSumAggregateOutputType | null
@@ -217,6 +231,8 @@ export type LedgerLineWhereInput = {
   accountId?: Prisma.StringFilter<"LedgerLine"> | string
   amountMinor?: Prisma.BigIntFilter<"LedgerLine"> | bigint | number
   currency?: Prisma.StringFilter<"LedgerLine"> | string
+  createdAt?: Prisma.DateTimeFilter<"LedgerLine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LedgerLine"> | Date | string
   entry?: Prisma.XOR<Prisma.LedgerEntryScalarRelationFilter, Prisma.LedgerEntryWhereInput>
   account?: Prisma.XOR<Prisma.LedgerAccountScalarRelationFilter, Prisma.LedgerAccountWhereInput>
 }
@@ -227,6 +243,8 @@ export type LedgerLineOrderByWithRelationInput = {
   accountId?: Prisma.SortOrder
   amountMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   entry?: Prisma.LedgerEntryOrderByWithRelationInput
   account?: Prisma.LedgerAccountOrderByWithRelationInput
   _relevance?: Prisma.LedgerLineOrderByRelevanceInput
@@ -241,6 +259,8 @@ export type LedgerLineWhereUniqueInput = Prisma.AtLeast<{
   accountId?: Prisma.StringFilter<"LedgerLine"> | string
   amountMinor?: Prisma.BigIntFilter<"LedgerLine"> | bigint | number
   currency?: Prisma.StringFilter<"LedgerLine"> | string
+  createdAt?: Prisma.DateTimeFilter<"LedgerLine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LedgerLine"> | Date | string
   entry?: Prisma.XOR<Prisma.LedgerEntryScalarRelationFilter, Prisma.LedgerEntryWhereInput>
   account?: Prisma.XOR<Prisma.LedgerAccountScalarRelationFilter, Prisma.LedgerAccountWhereInput>
 }, "id">
@@ -251,6 +271,8 @@ export type LedgerLineOrderByWithAggregationInput = {
   accountId?: Prisma.SortOrder
   amountMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LedgerLineCountOrderByAggregateInput
   _avg?: Prisma.LedgerLineAvgOrderByAggregateInput
   _max?: Prisma.LedgerLineMaxOrderByAggregateInput
@@ -267,12 +289,16 @@ export type LedgerLineScalarWhereWithAggregatesInput = {
   accountId?: Prisma.StringWithAggregatesFilter<"LedgerLine"> | string
   amountMinor?: Prisma.BigIntWithAggregatesFilter<"LedgerLine"> | bigint | number
   currency?: Prisma.StringWithAggregatesFilter<"LedgerLine"> | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"LedgerLine"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LedgerLine"> | Date | string
 }
 
 export type LedgerLineCreateInput = {
   id: string
   amountMinor: bigint | number
   currency: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   entry: Prisma.LedgerEntryCreateNestedOneWithoutLinesInput
   account: Prisma.LedgerAccountCreateNestedOneWithoutLinesInput
 }
@@ -283,12 +309,16 @@ export type LedgerLineUncheckedCreateInput = {
   accountId: string
   amountMinor: bigint | number
   currency: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerLineUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entry?: Prisma.LedgerEntryUpdateOneRequiredWithoutLinesNestedInput
   account?: Prisma.LedgerAccountUpdateOneRequiredWithoutLinesNestedInput
 }
@@ -299,6 +329,8 @@ export type LedgerLineUncheckedUpdateInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerLineCreateManyInput = {
@@ -307,12 +339,16 @@ export type LedgerLineCreateManyInput = {
   accountId: string
   amountMinor: bigint | number
   currency: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerLineUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerLineUncheckedUpdateManyInput = {
@@ -321,6 +357,8 @@ export type LedgerLineUncheckedUpdateManyInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerLineListRelationFilter = {
@@ -345,6 +383,8 @@ export type LedgerLineCountOrderByAggregateInput = {
   accountId?: Prisma.SortOrder
   amountMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LedgerLineAvgOrderByAggregateInput = {
@@ -357,6 +397,8 @@ export type LedgerLineMaxOrderByAggregateInput = {
   accountId?: Prisma.SortOrder
   amountMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LedgerLineMinOrderByAggregateInput = {
@@ -365,6 +407,8 @@ export type LedgerLineMinOrderByAggregateInput = {
   accountId?: Prisma.SortOrder
   amountMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LedgerLineSumOrderByAggregateInput = {
@@ -459,6 +503,8 @@ export type LedgerLineCreateWithoutAccountInput = {
   id: string
   amountMinor: bigint | number
   currency: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   entry: Prisma.LedgerEntryCreateNestedOneWithoutLinesInput
 }
 
@@ -467,6 +513,8 @@ export type LedgerLineUncheckedCreateWithoutAccountInput = {
   entryId: string
   amountMinor: bigint | number
   currency: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerLineCreateOrConnectWithoutAccountInput = {
@@ -504,12 +552,16 @@ export type LedgerLineScalarWhereInput = {
   accountId?: Prisma.StringFilter<"LedgerLine"> | string
   amountMinor?: Prisma.BigIntFilter<"LedgerLine"> | bigint | number
   currency?: Prisma.StringFilter<"LedgerLine"> | string
+  createdAt?: Prisma.DateTimeFilter<"LedgerLine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LedgerLine"> | Date | string
 }
 
 export type LedgerLineCreateWithoutEntryInput = {
   id: string
   amountMinor: bigint | number
   currency: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   account: Prisma.LedgerAccountCreateNestedOneWithoutLinesInput
 }
 
@@ -518,6 +570,8 @@ export type LedgerLineUncheckedCreateWithoutEntryInput = {
   accountId: string
   amountMinor: bigint | number
   currency: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerLineCreateOrConnectWithoutEntryInput = {
@@ -551,12 +605,16 @@ export type LedgerLineCreateManyAccountInput = {
   entryId: string
   amountMinor: bigint | number
   currency: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerLineUpdateWithoutAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entry?: Prisma.LedgerEntryUpdateOneRequiredWithoutLinesNestedInput
 }
 
@@ -565,6 +623,8 @@ export type LedgerLineUncheckedUpdateWithoutAccountInput = {
   entryId?: Prisma.StringFieldUpdateOperationsInput | string
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerLineUncheckedUpdateManyWithoutAccountInput = {
@@ -572,6 +632,8 @@ export type LedgerLineUncheckedUpdateManyWithoutAccountInput = {
   entryId?: Prisma.StringFieldUpdateOperationsInput | string
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerLineCreateManyEntryInput = {
@@ -579,12 +641,16 @@ export type LedgerLineCreateManyEntryInput = {
   accountId: string
   amountMinor: bigint | number
   currency: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerLineUpdateWithoutEntryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   account?: Prisma.LedgerAccountUpdateOneRequiredWithoutLinesNestedInput
 }
 
@@ -593,6 +659,8 @@ export type LedgerLineUncheckedUpdateWithoutEntryInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerLineUncheckedUpdateManyWithoutEntryInput = {
@@ -600,6 +668,8 @@ export type LedgerLineUncheckedUpdateManyWithoutEntryInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -610,6 +680,8 @@ export type LedgerLineSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   accountId?: boolean
   amountMinor?: boolean
   currency?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   entry?: boolean | Prisma.LedgerEntryDefaultArgs<ExtArgs>
   account?: boolean | Prisma.LedgerAccountDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ledgerLine"]>
@@ -622,9 +694,11 @@ export type LedgerLineSelectScalar = {
   accountId?: boolean
   amountMinor?: boolean
   currency?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LedgerLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "entryId" | "accountId" | "amountMinor" | "currency", ExtArgs["result"]["ledgerLine"]>
+export type LedgerLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "entryId" | "accountId" | "amountMinor" | "currency" | "createdAt" | "updatedAt", ExtArgs["result"]["ledgerLine"]>
 export type LedgerLineInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   entry?: boolean | Prisma.LedgerEntryDefaultArgs<ExtArgs>
   account?: boolean | Prisma.LedgerAccountDefaultArgs<ExtArgs>
@@ -642,6 +716,8 @@ export type $LedgerLinePayload<ExtArgs extends runtime.Types.Extensions.Internal
     accountId: string
     amountMinor: bigint
     currency: string
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["ledgerLine"]>
   composites: {}
 }
@@ -1018,6 +1094,8 @@ export interface LedgerLineFieldRefs {
   readonly accountId: Prisma.FieldRef<"LedgerLine", 'String'>
   readonly amountMinor: Prisma.FieldRef<"LedgerLine", 'BigInt'>
   readonly currency: Prisma.FieldRef<"LedgerLine", 'String'>
+  readonly createdAt: Prisma.FieldRef<"LedgerLine", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LedgerLine", 'DateTime'>
 }
     
 

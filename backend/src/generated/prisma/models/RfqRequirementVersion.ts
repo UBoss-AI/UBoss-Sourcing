@@ -43,6 +43,7 @@ export type RfqRequirementVersionMinAggregateOutputType = {
   changeSummary: string | null
   createdByUserId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type RfqRequirementVersionMaxAggregateOutputType = {
@@ -52,6 +53,7 @@ export type RfqRequirementVersionMaxAggregateOutputType = {
   changeSummary: string | null
   createdByUserId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type RfqRequirementVersionCountAggregateOutputType = {
@@ -63,6 +65,7 @@ export type RfqRequirementVersionCountAggregateOutputType = {
   changeSummary: number
   createdByUserId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -82,6 +85,7 @@ export type RfqRequirementVersionMinAggregateInputType = {
   changeSummary?: true
   createdByUserId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type RfqRequirementVersionMaxAggregateInputType = {
@@ -91,6 +95,7 @@ export type RfqRequirementVersionMaxAggregateInputType = {
   changeSummary?: true
   createdByUserId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type RfqRequirementVersionCountAggregateInputType = {
@@ -102,6 +107,7 @@ export type RfqRequirementVersionCountAggregateInputType = {
   changeSummary?: true
   createdByUserId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -200,6 +206,7 @@ export type RfqRequirementVersionGroupByOutputType = {
   changeSummary: string | null
   createdByUserId: string
   createdAt: Date
+  updatedAt: Date
   _count: RfqRequirementVersionCountAggregateOutputType | null
   _avg: RfqRequirementVersionAvgAggregateOutputType | null
   _sum: RfqRequirementVersionSumAggregateOutputType | null
@@ -234,6 +241,7 @@ export type RfqRequirementVersionWhereInput = {
   changeSummary?: Prisma.StringNullableFilter<"RfqRequirementVersion"> | string | null
   createdByUserId?: Prisma.StringFilter<"RfqRequirementVersion"> | string
   createdAt?: Prisma.DateTimeFilter<"RfqRequirementVersion"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"RfqRequirementVersion"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
 }
 
@@ -246,6 +254,7 @@ export type RfqRequirementVersionOrderByWithRelationInput = {
   changeSummary?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   rfq?: Prisma.RfqRequestOrderByWithRelationInput
   _relevance?: Prisma.RfqRequirementVersionOrderByRelevanceInput
 }
@@ -263,6 +272,7 @@ export type RfqRequirementVersionWhereUniqueInput = Prisma.AtLeast<{
   changeSummary?: Prisma.StringNullableFilter<"RfqRequirementVersion"> | string | null
   createdByUserId?: Prisma.StringFilter<"RfqRequirementVersion"> | string
   createdAt?: Prisma.DateTimeFilter<"RfqRequirementVersion"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"RfqRequirementVersion"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
 }, "id" | "rfqId_versionNumber">
 
@@ -275,6 +285,7 @@ export type RfqRequirementVersionOrderByWithAggregationInput = {
   changeSummary?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.RfqRequirementVersionCountOrderByAggregateInput
   _avg?: Prisma.RfqRequirementVersionAvgOrderByAggregateInput
   _max?: Prisma.RfqRequirementVersionMaxOrderByAggregateInput
@@ -294,6 +305,7 @@ export type RfqRequirementVersionScalarWhereWithAggregatesInput = {
   changeSummary?: Prisma.StringNullableWithAggregatesFilter<"RfqRequirementVersion"> | string | null
   createdByUserId?: Prisma.StringWithAggregatesFilter<"RfqRequirementVersion"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RfqRequirementVersion"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"RfqRequirementVersion"> | Date | string
 }
 
 export type RfqRequirementVersionCreateInput = {
@@ -304,6 +316,7 @@ export type RfqRequirementVersionCreateInput = {
   changeSummary?: string | null
   createdByUserId: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   rfq: Prisma.RfqRequestCreateNestedOneWithoutRequirementVersionsInput
 }
 
@@ -316,6 +329,7 @@ export type RfqRequirementVersionUncheckedCreateInput = {
   changeSummary?: string | null
   createdByUserId: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqRequirementVersionUpdateInput = {
@@ -326,6 +340,7 @@ export type RfqRequirementVersionUpdateInput = {
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutRequirementVersionsNestedInput
 }
 
@@ -338,6 +353,7 @@ export type RfqRequirementVersionUncheckedUpdateInput = {
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqRequirementVersionCreateManyInput = {
@@ -349,6 +365,7 @@ export type RfqRequirementVersionCreateManyInput = {
   changeSummary?: string | null
   createdByUserId: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqRequirementVersionUpdateManyMutationInput = {
@@ -359,6 +376,7 @@ export type RfqRequirementVersionUpdateManyMutationInput = {
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqRequirementVersionUncheckedUpdateManyInput = {
@@ -370,6 +388,7 @@ export type RfqRequirementVersionUncheckedUpdateManyInput = {
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqRequirementVersionListRelationFilter = {
@@ -402,6 +421,7 @@ export type RfqRequirementVersionCountOrderByAggregateInput = {
   changeSummary?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type RfqRequirementVersionAvgOrderByAggregateInput = {
@@ -415,6 +435,7 @@ export type RfqRequirementVersionMaxOrderByAggregateInput = {
   changeSummary?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type RfqRequirementVersionMinOrderByAggregateInput = {
@@ -424,6 +445,7 @@ export type RfqRequirementVersionMinOrderByAggregateInput = {
   changeSummary?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type RfqRequirementVersionSumOrderByAggregateInput = {
@@ -480,6 +502,7 @@ export type RfqRequirementVersionCreateWithoutRfqInput = {
   changeSummary?: string | null
   createdByUserId: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqRequirementVersionUncheckedCreateWithoutRfqInput = {
@@ -490,6 +513,7 @@ export type RfqRequirementVersionUncheckedCreateWithoutRfqInput = {
   changeSummary?: string | null
   createdByUserId: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqRequirementVersionCreateOrConnectWithoutRfqInput = {
@@ -530,6 +554,7 @@ export type RfqRequirementVersionScalarWhereInput = {
   changeSummary?: Prisma.StringNullableFilter<"RfqRequirementVersion"> | string | null
   createdByUserId?: Prisma.StringFilter<"RfqRequirementVersion"> | string
   createdAt?: Prisma.DateTimeFilter<"RfqRequirementVersion"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"RfqRequirementVersion"> | Date | string
 }
 
 export type RfqRequirementVersionCreateManyRfqInput = {
@@ -540,6 +565,7 @@ export type RfqRequirementVersionCreateManyRfqInput = {
   changeSummary?: string | null
   createdByUserId: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RfqRequirementVersionUpdateWithoutRfqInput = {
@@ -550,6 +576,7 @@ export type RfqRequirementVersionUpdateWithoutRfqInput = {
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqRequirementVersionUncheckedUpdateWithoutRfqInput = {
@@ -560,6 +587,7 @@ export type RfqRequirementVersionUncheckedUpdateWithoutRfqInput = {
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqRequirementVersionUncheckedUpdateManyWithoutRfqInput = {
@@ -570,6 +598,7 @@ export type RfqRequirementVersionUncheckedUpdateManyWithoutRfqInput = {
   changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -583,6 +612,7 @@ export type RfqRequirementVersionSelect<ExtArgs extends runtime.Types.Extensions
   changeSummary?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["rfqRequirementVersion"]>
 
@@ -597,9 +627,10 @@ export type RfqRequirementVersionSelectScalar = {
   changeSummary?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type RfqRequirementVersionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rfqId" | "versionNumber" | "snapshotJson" | "changedFieldsJson" | "changeSummary" | "createdByUserId" | "createdAt", ExtArgs["result"]["rfqRequirementVersion"]>
+export type RfqRequirementVersionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rfqId" | "versionNumber" | "snapshotJson" | "changedFieldsJson" | "changeSummary" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqRequirementVersion"]>
 export type RfqRequirementVersionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
 }
@@ -627,6 +658,7 @@ export type $RfqRequirementVersionPayload<ExtArgs extends runtime.Types.Extensio
     changeSummary: string | null
     createdByUserId: string
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["rfqRequirementVersion"]>
   composites: {}
 }
@@ -1005,6 +1037,7 @@ export interface RfqRequirementVersionFieldRefs {
   readonly changeSummary: Prisma.FieldRef<"RfqRequirementVersion", 'String'>
   readonly createdByUserId: Prisma.FieldRef<"RfqRequirementVersion", 'String'>
   readonly createdAt: Prisma.FieldRef<"RfqRequirementVersion", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"RfqRequirementVersion", 'DateTime'>
 }
     
 
