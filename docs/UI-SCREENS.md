@@ -698,6 +698,10 @@ browse.
 2. **Shop by category**: a rail of the departments that have stock. Opening
    one lists what is inside it, with **Browse …**. Hidden when nothing is
    stocked.
+   - **Newly verified suppliers**: the same cards for suppliers approved in
+     the last 90 days (up to four, newest first). Suppliers approved before the
+     date was recorded are never listed. Not shown when there are none or the
+     read fails.
    - **Verified suppliers** (or **Verified suppliers from {country}** when
      every verified supplier is registered in one country): up to eight cards
      of sellers the operator approved who have something live to sell. Each
@@ -706,6 +710,15 @@ browse.
      recorded) and the product count, and opens `/products?seller={slug}`.
      Not shown at all until the answer arrives, and not shown when there are
      none or the read fails.
+   - After the shelves, two short blocks that read live settings and are
+     absent when there is nothing to report: **Shopping from {country}** (the
+     shopper's selected country: the currency, "Some products cannot be sold
+     to …", "Some products need documents for …", the operator's delivery note
+     when published, and **Read the market guide for …** linking to
+     `/markets/:cc`) and **How buying here is protected** (only the
+     protections this deployment has switched on: supplier review, payment
+     confirmation, inspection before dispatch, the return window, the claim
+     window; **How assurance works** links to `/assurance`).
 3. **Shelves**: up to five rows of six products (New arrivals, Business
    essentials, Industrial and professional supplies, Technology and
    electronics, Home, lifestyle and personal care), each with **See all**. A
@@ -854,6 +867,12 @@ shopper has chosen a country.
 **States.** Loading; an unknown or inactive country is the not-found page; a
 malformed code is not sent; other failures offer **Try again**.
 
+After the prices, **Language for buyers in …** (the country's stored
+language; left out when none is recorded) and, when shipping routes are in
+force, **Shipping routes to …**: one line per origin country and mode ("India
+· Sea: 15–30 days") with a note that these are typical transit times, not a
+delivery promise. Carrier and price are not shown.
+
 **API calls:** `GET /api/v1/catalog/markets/:country`
 
 #### `/assurance` — How assurance works
@@ -866,13 +885,17 @@ malformed code is not sent; other failures offer **Try again**.
 **Purpose.** What the marketplace checks, what happens when something goes
 wrong, and what is not covered — for this deployment's settings.
 
-**On the screen.** Six cards: **Verified suppliers** (the count, what the
-review means and what it is not), **Inspection before dispatch** (the
-dispatch gate when rules are in force; otherwise "not required on any order at
-the moment"), **Paying**, **Returns** (the window and refund / replacement, or
-"not offered"), **If something goes wrong** (claim window, seller response,
-decision and appeal times, and **Contact support**), **What this does not
-cover**. Reached from the footer ("How assurance works") and from the product
+**On the screen.** A milestone timeline, **From order to delivery**, of five
+numbered steps in the order they come into play: **Verified suppliers** (the
+count, what the review means and what it is not), **Paying**, **Inspection
+before dispatch** (the dispatch gate when rules are in force; otherwise "not
+required on any order at the moment"), **Returns** (the window and refund /
+replacement, or "not offered") and **If something goes wrong** (claim window,
+seller response, decision and appeal times, and **Contact support**). Then
+**Who is responsible for what** (what the buyer does, what the seller does,
+what the marketplace does; the windows are the live settings, and the seller
+is told to wait for inspection only where inspection rules are in force), the
+published policies when there are any, and **What this does not cover**. Reached from the footer ("How assurance works") and from the product
 page's "Who sells it…" block.
 
 **States.** Loading; an error shows **Try again** and no figures.
@@ -1852,13 +1875,16 @@ always what the server holds.
   cart**.
 - A row per line:
   - Picture and name (link to the product), version and SKU.
+  - **Sold by {seller}**: the seller's trading name, so two sellers of one
+    product are not two identical rows. Left out when the line has no seller.
   - How it is packed, the line total and the price basis ("per carton", "per
     piece" or "each"), and whether tax is included.
   - Quantity-price news from the server, for example "Add 20 more pieces to
     pay … each".
   - A quantity stepper. It counts pieces, or cartons when the product is sold
     by the carton, and it respects the seller's minimum and step.
-  - **Remove**.
+  - **Remove**, and **Save for later** (adds the product, with the chosen
+    option, to the wishlist; a guest is asked to sign in).
   - **Add instructions**: a note for this one line (Save, Cancel, Remove).
   - Problems in the server's words, with a one-press fix where there is one:
     "Reduce to 40" when there is not enough stock, "Change to 50" when the
@@ -1876,7 +1902,9 @@ always what the server holds.
     checkout stays blocked until it is fixed.
 - **Order summary**: Subtotal, Discount, Tax, Delivery ("Calculated at
   checkout"), the delivery charge split by level (L1 to L4) when sellers
-  charge per level, and the **Estimated total**.
+  charge per level, and the **Estimated total**. Under it, a note that import
+  duties and customs charges are **not** in the total: they depend on the
+  delivery country and are settled with customs or the carrier.
 - **Coupons**: type a code and **Apply**, or open the list of codes the store
   has and apply one. **Remove** takes it off.
 - **Where this can ship from**: the warehouses that can send this basket to
@@ -2289,7 +2317,10 @@ it.
 - **Invoices**: each seller's invoice or credit note with **Download PDF**.
 - **Need something?**
   - **Order these again** adds the same products to the cart at today's prices
-    and opens the cart.
+    and opens the cart. Every line is tried even if an earlier one is refused.
+    When some lines could not be added, the page stays put and shows a result
+    for each line ("Added to your cart", or "Not added: {the server's
+    reason}"), with **Go to your cart** when at least one went in.
   - **Cancel this order** asks for a reason. It is always shown; the server
     decides whether it is still possible and says so either way.
 - **Contact support about this order** opens `/support` with the order number
@@ -2533,6 +2564,11 @@ be opened without it.
 | Orders | Preorders | `/account/preorders` | Always |
 | Orders | Messages | `/account/messages` | Unless `FEATURE_PREORDER_CHAT` is off. Badged with unread replies |
 | Account settings | Profile information | `/account/profile` | Always |
+
+The header's account dropdown also has **Security** (`/account/profile#security`),
+which opens the profile page scrolled to the password and two-step sign-in
+panels. It is in the dropdown only, not in the sidebar.
+
 | Account settings | Company information | `/account/company` | Always |
 | Account settings | Company accounts | `/account/companies` | Only when the store offers company accounts (`features.buyerCompanies`) |
 | Account settings | Manage addresses | `/account/addresses` | Always |

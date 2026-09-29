@@ -1618,7 +1618,7 @@ all absent (`BUYER_COMPANIES_DISABLED`).
 - **Statement.** Product pages publish canonical and `hreflang` tags for all
   eight languages, Open Graph/Twitter cards, `Product`/`Offer` structured data,
   a `robots.txt` and `GET /api/v1/sitemap.xml` from the live catalogue.
-- **Rules.** A converted (approximate) price publishes **no** Offer. The sitemap needs `CUSTOMER_WEB_PUBLIC_URL`.
+- **Rules.** A converted (approximate) price publishes **no** Offer. The sitemap needs `CUSTOMER_WEB_PUBLIC_URL`. The sitemap also lists each listed supplier's page (`/suppliers/:slug`, the same suppliers that have a page), and that page publishes `Organization` structured data (name, address of the page, website, country; never a rating).
 - **Status.** Built. **Limitation:** single-page app — chat clients that fetch raw HTML (Slack, WhatsApp, LinkedIn) see only fallback tags; server rendering is not built.
 
 ### FR-SRCH-008 — Home page, sourcing globe and feature cards
@@ -1757,6 +1757,11 @@ all absent (`BUYER_COMPANIES_DISABLED`).
      built); "What this does not cover" is always shown.
   4. Raising a claim is described as it works today: a support request with
      the order number (the buyer claim screen is Master rows 24/30).
+  5. The page is laid out as a milestone timeline (verification, payment,
+     inspection, returns, claims) followed by a "who is responsible for what"
+     section for buyer, seller and marketplace. The home page carries a short
+     "How buying here is protected" block from the same facts, showing only
+     protections that are switched on.
 - **Status.** Built (29 Sep 2026, checklist Master row 7). Links to published
   buyer-protection, inspection and returns policies come with Master row 9.
 
@@ -1767,7 +1772,11 @@ all absent (`BUYER_COMPANIES_DISABLED`).
   sold there or needs documents (with the operator's reason), and — once
   published — the operator's own intro, duties, delivery and compliance notes
   and featured categories. Linked from the footer for the shopper's country.
-  Admin → Settings → **Market pages** edits the text.
+  Admin → Settings → **Market pages** edits the text. The page also shows the
+  country's stored language and a summary of the shipping routes in force to it
+  (origin, mode and typical transit window; never carrier or price). The home
+  page carries a "Shopping from {country}" block for the shopper's selected
+  country that links here.
 - **Rules.**
   1. Only active countries have a page; any other code is a 404.
   2. The currency and restrictions are always shown; the operator's text only
@@ -2105,6 +2114,22 @@ all absent (`BUYER_COMPANIES_DISABLED`).
   stock and purchasing limits, with per-line issues rather than all-or-nothing
   failure.
 - **Acceptance criteria.** Adding checks the product is published, the option belongs to the product, and the quantity meets the minimum; adding a seller's product binds that seller's offer server-side.
+- **Status.** Built.
+
+### FR-CART-008 — Seller, save for later and duties note in the basket
+
+- **Statement.** Each basket line says which seller sells it ("Sold by …"),
+  offers **Save for later** (adds the product and chosen option to the
+  wishlist), and the totals carry a note that import duties and customs charges
+  are not included in the estimated total.
+- **Status.** Built.
+
+### FR-CART-009 — Order these again reports each line
+
+- **Statement.** **Order these again** on an order tries every line at today's
+  prices. A refused line does not stop the ones after it. If any line is
+  refused the page shows a result for each line, with the server's reason for
+  the refused ones; if all go in, the buyer goes straight to the cart.
 - **Status.** Built.
 
 ### FR-CART-002 — Instant Buy and Schedule Cart tabs

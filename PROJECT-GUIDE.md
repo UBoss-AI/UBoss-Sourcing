@@ -1689,6 +1689,28 @@ operator's words are labelled as theirs. Admin → Settings → Market pages
 (`MarketPagesPanel.tsx`) writes the text through
 `PUT /admin/settings/market-profiles/:country` (`settings.write`, audited as
 `settings.updated` on `market_profile`). Only active countries have a page.
+The same response also carries the country's stored `languageCode` and a
+`lanes` summary: the active, serviceable, in-date `logistics_lanes` that end
+in that country, folded to one entry per origin and mode with the widest transit
+window. Carrier, price and service level are deliberately not in it.
+
+**Home-page trust blocks, cart notes and reorder results.** Three blocks on the
+home page read live data and render nothing when they have none:
+`NewlyVerifiedSuppliers` (`GET /catalog/suppliers?sort=newest`, which orders by
+approval date, newest first, and drops suppliers with no recorded approval date;
+the page keeps only those approved in the last 90 days), `AssuranceExplainer`
+(the same `/catalog/assurance` facts and query key as the assurance page, one
+line per protection that is switched on) and `YourMarketBlock` (the selected
+country's `/catalog/markets/:cc`). The assurance page is now a five-step
+timeline (verification, payment, inspection, returns, claims) followed by a
+responsibilities section; the windows in it are the live settings. Each cart
+line shows "Sold by {seller}" (`sellerName` was already in the cart response),
+has Save for later, and the totals carry a note that import duties are not
+included. **Order these again** on an order tries every line and keeps a
+per-line result instead of stopping at the first refusal. `/sitemap.xml` lists
+`/suppliers/:slug` for every supplier that has a page, and that page publishes
+`Organization` JSON-LD. The account dropdown has a Security entry that opens
+`/account/profile#security`.
 
 **Help, policies and legal.** The legal-document service now manages eight
 kinds (`domain/legal-document.ts`): the two `TERMS_KINDS` that are accepted at
