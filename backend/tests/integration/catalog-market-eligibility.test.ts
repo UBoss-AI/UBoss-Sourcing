@@ -271,3 +271,78 @@ describe('GET /api/v1/catalog/suppliers?q=', () => {
     expect(response.statusCode).toBe(400);
   });
 });
+
+describe('category page: market notes and suppliers (Master row 3)', () => {
+  interface Note {
+    effect: string;
+    reason: string;
+    requiredDocuments: string[];
+    categoryName: string;
+  }
+
+  async function notes(slug: string, country?: string): Promise<Note[]> {
+    const response = await app.inject({
+      method: 'GET',
+      url: `/api/v1/catalog/categories/${slug}${country === undefined ? '' : `?country=${country}`}`,
+    });
+    expect(response.statusCode, response.body).toBe(200);
+    return response.json<{ marketNotes: Note[] }>().marketNotes;
+  }
+
+  beforeAll(async () => {
+    await prisma.marketRule.create({
+      data: {
+        id: newId(),
+        scope: 'CATEGORY',
+        categoryId: otherId,
+        countryCode: BLOCKED_IN,
+        effect: 'DOCUMENTS_REQUIRED',
+        reason: `${PREFIX}An import licence is needed.`,
+        requiredDocumentsJson: ['Import licence', 42],
+        source: 'test',
+        version: '1',
+        ownerName: 'Compliance',
+        effectiveFrom: new Date(Date.now() - 86_400_000),
+      },
+    });
+  });
+
+  it('tells a shopper there why a blocked shelf is empty - on the child of a blocked category too', async () => {
+    const child = await notes(`${PREFIX}child`, BLOCKED_IN);
+    expect(child).toEqual([
+      { effect: 'BLOCK', reason: `${PREFIX}test rule`, requiredDocuments: [], categoryName: 'Market root' },
+    ]);
+  });
+
+  it('lists the documents a buyer must hold, dropping anything that is not a name', async () => {
+    expect(await notes(`${PREFIX}other`, BLOCKED_IN)).toEqual([
+      {
+        effect: 'DOCUMENTS_REQUIRED',
+        reason: `${PREFIX}An import licence is needed.`,
+        requiredDocuments: ['Import licence'],
+        categoryName: 'Market other',
+      },
+    ]);
+  });
+
+  it('says nothing without a destination, or for a destination with no rule', async () => {
+    expect(await notes(`${PREFIX}child`)).toEqual([]);
+    expect(await notes(`${PREFIX}child`, ELSEWHERE)).toEqual([]);
+  });
+
+  it('counts only suppliers selling something filed under the category', async () => {
+    const inOther = await app.inject({ method: 'GET', url: `/api/v1/catalog/suppliers?category=${PREFIX}other&limit=24` });
+    const names = inOther.json<{ suppliers: { displayName: string }[] }>().suppliers.map((row) => row.displayName);
+    // Both test suppliers offer MKT-OPEN, which is filed under "other".
+    expect(names).toEqual(expect.arrayContaining(['Acme Precision Castings', 'Bharat Textiles']));
+
+    const inRoot = await app.inject({ method: 'GET', url: `/api/v1/catalog/suppliers?category=${PREFIX}root&limit=24` });
+    const rootNames = inRoot.json<{ suppliers: { displayName: string }[] }>().suppliers.map((row) => row.displayName);
+    expect(rootNames).not.toContain('Acme Precision Castings');
+  });
+
+  it('answers no suppliers for an unknown category, not every supplier', async () => {
+    const response = await app.inject({ method: 'GET', url: `/api/v1/catalog/suppliers?category=${PREFIX}nope` });
+    expect(response.json()).toEqual({ suppliers: [], countries: [], total: 0 });
+  });
+});

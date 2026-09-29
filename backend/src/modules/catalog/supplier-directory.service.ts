@@ -56,6 +56,11 @@ export interface SupplierListQuery {
   slug?: string | undefined;
   /** Words in the public name — what a search shows beside its products. */
   q?: string | undefined;
+  /**
+   * Only suppliers with a live offer on a product filed in one of these
+   * categories (a category page passes its whole subtree).
+   */
+  categoryIds?: string[] | undefined;
 }
 
 export interface SupplierListResult {
@@ -96,6 +101,16 @@ export async function listVerifiedSuppliers(
     ...(query.country === undefined ? {} : { registrationCountry: query.country }),
     ...(query.slug === undefined ? {} : { slug: query.slug }),
     ...(query.q === undefined || query.q === '' ? {} : { displayName: { contains: query.q } }),
+    ...(query.categoryIds === undefined
+      ? {}
+      : {
+          offers: {
+            some: {
+              ...liveOfferWhere(),
+              product: { ...publicProductWhere(), categoryId: { in: query.categoryIds } },
+            },
+          },
+        }),
   };
 
   const [rows, total, byCountry] = await Promise.all([

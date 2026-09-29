@@ -221,7 +221,7 @@ table(['Customer action', 'What the system provides'], [
   ['Press a department card', 'A panel naming everything inside that department with a count beside each one, and a button into the department itself.'],
   ['Browse all products', 'A list of published products available for the selected market, with a row of every department across the top.'],
   ['Press a department in the row', 'That department opens as its own page, the row stays where it is with that department marked, and what is filed inside it is shown as large picture cards.'],
-  ['Open a category', 'Only the products within that category, with normal catalogue tools. What is filed inside it is shown as large picture cards above the results.'],
+  ['Open a category', 'Only the products within that category, with normal catalogue tools. What is filed inside it is shown as large picture cards above the results. Under them, a sourcing panel says how many verified suppliers sell in the category and lists some of them, warns if the category cannot be sold to the buyer\'s country or needs documents there, and offers to ask the assistant about sourcing it.'],
   ['Search for a product', 'Search results for product names, identifiers and relevant catalogue content, and, above them, any verified supplier whose name matches the search. Only products that may be sold to the buyer\'s chosen country are shown.'],
   ['Use filters and sort', 'Narrow the catalogue by the available catalogue facets and change ordering.'],
   ['Use voice search', 'Use supported browser voice input for a search query.'],

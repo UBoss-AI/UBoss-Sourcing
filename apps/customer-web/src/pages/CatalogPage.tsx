@@ -53,6 +53,7 @@ import { SubCategoryRail } from '@/components/catalog/SubCategoryRail';
 import { findCategoryInTree, rootCategorySlug } from '@/lib/category-tree';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { SupplierMatches } from '@/components/catalog/SupplierMatches';
+import { CategorySourcing, type CategoryMarketNote } from '@/components/catalog/CategorySourcing';
 import type {
   CatalogFilterFacets,
   CategoryNode,
@@ -896,10 +897,16 @@ export function CatalogPage(): React.JSX.Element {
     staleTime: 5 * 60_000,
   });
 
+  // The destination is asked for here too: what it says about this shelf (a
+  // block, or documents a buyer there needs) comes back with the category.
+  const { country: destinationCountry } = useLocale();
   const categoryDetail = useQuery({
-    queryKey: ['category', singleCategory],
+    queryKey: ['category', singleCategory, destinationCountry],
     queryFn: () =>
-      api.get<{ category: CategoryNode }>(`/catalog/categories/${String(singleCategory)}`),
+      api.get<{ category: CategoryNode; marketNotes?: CategoryMarketNote[] }>(
+        `/catalog/categories/${String(singleCategory)}`,
+        { query: { country: destinationCountry ?? undefined } },
+      ),
     enabled: singleCategory !== null,
     // A missing category is an empty list, not an error page.
     retry: false,
@@ -1387,6 +1394,17 @@ export function CatalogPage(): React.JSX.Element {
           </h2>
           <SubCategoryRail department={heading} subCategories={subCategories} />
         </section>
+      )}
+
+      {/* Who sells this here, whether it can come to the shopper, and a way
+          to ask - on a single category only. */}
+      {singleCategory !== null && categoryDetail.data !== undefined && (
+        <CategorySourcing
+          slug={singleCategory}
+          categoryName={categoryDetail.data.category.name}
+          country={destinationCountry}
+          notes={categoryDetail.data.marketNotes ?? []}
+        />
       )}
 
       {/*

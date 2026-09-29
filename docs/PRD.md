@@ -1553,6 +1553,24 @@ all absent (`BUYER_COMPANIES_DISABLED`).
   its own (profile, factory, certifications) is Master row 5 and not built
   yet; until then the card opens the filtered catalogue.
 
+### FR-SRCH-011 — Sourcing entry on a category page
+
+- **Statement.** A category page tells a buyer who sells that line here and
+  whether it can come to them, and offers a way to ask.
+- **Rules.**
+  1. `GET /api/v1/catalog/categories/:slug?country=` returns `marketNotes`:
+     the in-force category rules for that destination on this category or
+     any above it (BLOCK first), with the operator's reason and, for
+     DOCUMENTS_REQUIRED, the document names. None without a destination.
+  2. `GET /api/v1/catalog/suppliers?category=` counts and lists verified
+     suppliers with a live offer on a public product anywhere in the
+     category's subtree; an unknown category has none.
+  3. The assistant hand-off appears only when `features.assistant` is on, and
+     parks the question for editing — it is never sent on the buyer's behalf.
+  4. There is no "Request quotes" button yet: that is the RFQ flow (Master
+     row 16), and a button with nothing behind it would mislead.
+- **Status.** Built (29 Sep 2026, checklist Master row 3).
+
 ### FR-SRCH-009 — The About page
 
 - **Statement.** `/about` is a public page explaining what the marketplace

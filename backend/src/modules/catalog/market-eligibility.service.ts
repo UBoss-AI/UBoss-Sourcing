@@ -85,3 +85,58 @@ export async function marketEligibleWhere(
   if (scope.categoryIds.length > 0) excluded.push({ categoryId: { in: scope.categoryIds } });
   return excluded.length === 0 ? null : { NOT: { OR: excluded } };
 }
+
+/** A rule a buyer is told about on a category page. */
+export interface CategoryMarketNote {
+  effect: MarketRuleEffect;
+  /** The operator's sentence, shown as written. */
+  reason: string;
+  /** Documents the buyer must hold, for DOCUMENTS_REQUIRED. */
+  requiredDocuments: string[];
+  /** The category the rule was written on - this one, or one above it. */
+  categoryName: string;
+}
+
+/**
+ * The rules in force for a category page, for one destination.
+ *
+ * A rule on a category above this one applies here too, exactly as it does in
+ * the listing, so the page says why a shelf is empty rather than leaving the
+ * buyer to guess. `path` is the stored `/rootId/parentId/` of the category.
+ */
+export async function categoryMarketNotes(
+  country: string | null,
+  category: { id: string; path: string },
+  now: Date = new Date(),
+): Promise<CategoryMarketNote[]> {
+  if (country === null) return [];
+  const lineage = [...category.path.split('/').filter((part) => part.length > 0), category.id];
+
+  const rules = await prisma.marketRule.findMany({
+    where: {
+      countryCode: country,
+      isActive: true,
+      scope: 'CATEGORY',
+      categoryId: { in: lineage },
+      effectiveFrom: { lte: now },
+      OR: [{ effectiveUntil: null }, { effectiveUntil: { gt: now } }],
+    },
+    select: {
+      effect: true,
+      reason: true,
+      requiredDocumentsJson: true,
+      category: { select: { name: true } },
+    },
+    // Blocks first: they are the answer to "why is this empty".
+    orderBy: [{ effect: 'asc' }, { createdAt: 'asc' }],
+  });
+
+  return rules.map((rule) => ({
+    effect: rule.effect,
+    reason: rule.reason,
+    requiredDocuments: Array.isArray(rule.requiredDocumentsJson)
+      ? rule.requiredDocumentsJson.filter((entry): entry is string => typeof entry === 'string')
+      : [],
+    categoryName: rule.category?.name ?? '',
+  }));
+}

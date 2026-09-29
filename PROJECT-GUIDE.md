@@ -1616,6 +1616,21 @@ A search also shows **Verified suppliers matching "…"** above the products
 `q` — matched on the public name, never the legal name, and only for two
 letters or more.
 
+**A category page is a sourcing entry.** Under "What is inside",
+`components/catalog/CategorySourcing.tsx` shows three things, each only when
+it is true. First, what the destination says: `GET
+/catalog/categories/:slug?country=` now returns `marketNotes`
+(`categoryMarketNotes` in `market-eligibility.service.ts`), the category
+rules in force for that country on this category or any category above it, so
+an empty shelf explains itself in the operator's own sentence. Second, who
+sells it: `/catalog/suppliers?category=` counts verified suppliers with a live
+offer anywhere in the category's subtree, and each pill opens
+`/category/:slug?seller=…`, keeping the category. Third, a way to ask: with the
+assistant on, a sourcing question is parked with `setPendingQuestion(…,
+'compose')`, so it lands in the composer to edit rather than being sent. A
+"Request quotes" button is deliberately absent until the RFQ flow exists
+(Master row 16).
+
 The bar carries four controls:
 
 | Control | What it does |

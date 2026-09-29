@@ -779,6 +779,15 @@ chosen, nothing is left out.
   - One block per product attribute the catalogue offers, with counts.
 - **Filtered by**: a chip per filter, each with × ("From ₹100.00",
   "Supplier: Acme", …), worded in the shopper's language.
+- On a single category (`/category/:slug`), under "What is inside": a
+  **Sourcing {category}** panel. It shows, when each is true: a note for the
+  shopper's country ("Products in this category cannot be sold to …" with
+  the operator's reason, or "Buyers in … need documents for this category"
+  with the list); "N verified suppliers sell in {category}" with up to six
+  supplier pills, each opening `/category/:slug?seller=…`; and, when the
+  assistant is on, **Ask the assistant about sourcing {category}**, which
+  opens AI Mode with an editable question already in the composer. With
+  nothing true to say, the panel is not shown.
 - On a search of two letters or more: **Verified suppliers matching "…"**,
   up to six supplier pills (name, country, a verified mark) above the
   results, each opening `/products?seller=…`. Absent when nobody matches.
@@ -801,7 +810,8 @@ category shows an empty list, not an error.
 - `GET /api/v1/catalog/categories/:slug`
 - `GET /api/v1/catalog/products?page=…&limit=24&…`
 - `GET /api/v1/catalog/filters?…` (the filter blocks and price range)
-- `GET /api/v1/catalog/suppliers?q=…&limit=6` (on a search) and `?slug=…&limit=1` (the supplier chip's name)
+- `GET /api/v1/catalog/suppliers?q=…&limit=6` (on a search), `?category=…&limit=6` (a category's sourcing panel) and `?slug=…&limit=1` (the supplier chip's name)
+- `GET /api/v1/catalog/categories/:slug?country=…` also returns `marketNotes` for that destination
 - `GET` and `POST /api/v1/account/wishlist`, `DELETE /api/v1/account/wishlist/:id`
   (customers)
 

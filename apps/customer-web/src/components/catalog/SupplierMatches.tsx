@@ -16,14 +16,14 @@ import { Link } from 'react-router-dom';
 import { BuildingIcon, ShieldIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { countryName } from '@/lib/iso-countries';
-import type { SupplierListResponse } from '@/lib/types';
+import type { SupplierListResponse, VerifiedSupplier } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 
 /** How many matches are shown. A strip, not a second results list. */
 const MAX_MATCHES = 6;
 
 export function SupplierMatches({ q }: { q: string }): React.JSX.Element | null {
-  const { t, language } = useI18n();
+  const { t } = useI18n();
   const term = q.trim();
 
   const query = useQuery({
@@ -47,23 +47,40 @@ export function SupplierMatches({ q }: { q: string }): React.JSX.Element | null 
       <ul className="flex flex-wrap gap-2">
         {suppliers.map((supplier) => (
           <li key={supplier.slug}>
-            <Link
-              to={`/products?seller=${encodeURIComponent(supplier.slug)}`}
-              className="inline-flex max-w-full items-center gap-2 rounded-full border border-border bg-surface py-1.5 pl-2 pr-3
-                         text-sm text-ink shadow-card hover:border-brand/40 hover:text-brand
-                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
-            >
-              <BuildingIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-brand" />
-              <span className="truncate font-medium">{supplier.displayName}</span>
-              <span className="shrink-0 text-xs text-ink-muted">
-                {countryName(supplier.registrationCountry, language)}
-              </span>
-              <ShieldIcon className="h-4 w-4 shrink-0 text-success" />
-              <span className="sr-only">{t('home.supplierVerified')}</span>
-            </Link>
+            <SupplierPill supplier={supplier} />
           </li>
         ))}
       </ul>
     </section>
+  );
+}
+
+/**
+ * One supplier as a pill: name, country, the verified mark. Opens the
+ * catalogue filtered to what they sell. Shared with the category page.
+ */
+export function SupplierPill({
+  supplier,
+  href = `/products?seller=${encodeURIComponent(supplier.slug)}`,
+}: {
+  supplier: VerifiedSupplier;
+  href?: string;
+}): React.JSX.Element {
+  const { t, language } = useI18n();
+  return (
+    <Link
+      to={href}
+      className="inline-flex max-w-full items-center gap-2 rounded-full border border-border bg-surface py-1.5 pl-2 pr-3
+                 text-sm text-ink shadow-card hover:border-brand/40 hover:text-brand
+                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+    >
+      <BuildingIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-brand" />
+      <span className="truncate font-medium">{supplier.displayName}</span>
+      <span className="shrink-0 text-xs text-ink-muted">
+        {countryName(supplier.registrationCountry, language)}
+      </span>
+      <ShieldIcon className="h-4 w-4 shrink-0 text-success" />
+      <span className="sr-only">{t('home.supplierVerified')}</span>
+    </Link>
   );
 }

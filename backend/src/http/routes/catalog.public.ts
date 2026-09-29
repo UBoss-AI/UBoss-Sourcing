@@ -99,7 +99,10 @@ import {
   variantPackagingFor,
   type SerialisedPackaging,
 } from '../../modules/catalog/packaging.service.js';
-import { marketEligibleWhere } from '../../modules/catalog/market-eligibility.service.js';
+import {
+  categoryMarketNotes,
+  marketEligibleWhere,
+} from '../../modules/catalog/market-eligibility.service.js';
 import {
   MAX_SUPPLIERS,
   listVerifiedSuppliers,
@@ -1320,6 +1323,8 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
           .optional(),
         /** Words in the supplier's public name: what a search shows beside products. */
         q: z.string().trim().max(120).optional(),
+        /** A category slug: suppliers selling anything filed under it. */
+        category: z.string().trim().max(255).optional(),
       })
       .parse(request.query);
 
@@ -1328,7 +1333,15 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
       return reply.status(200).send({ suppliers: [], countries: [], total: 0 });
     }
 
-    return reply.status(200).send(await listVerifiedSuppliers(query));
+    let categoryIds: string[] | undefined;
+    if (query.category !== undefined) {
+      const category = await findCategoryBySlug(query.category);
+      // An unknown category has no suppliers, rather than every supplier.
+      if (category === null) return reply.status(200).send({ suppliers: [], countries: [], total: 0 });
+      categoryIds = await subtreeCategoryIds(category.id);
+    }
+
+    return reply.status(200).send(await listVerifiedSuppliers({ ...query, categoryIds }));
   });
 
   /** Storefront navigation. Inactive categories are excluded by default. */
@@ -1352,11 +1365,24 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
    */
   app.get('/categories/:slug', async (request, reply) => {
     const { slug } = z.object({ slug: z.string().trim().max(255) }).parse(request.params);
+    const { country } = z.object({ country: z.string().trim().max(8).optional() }).parse(request.query);
 
     const category = await findCategoryBySlug(slug);
     if (category === null) throw notFound('Category');
 
-    return reply.status(200).send({ category });
+    /*
+     * What the shopper's destination says about this shelf: a block (why it
+     * is empty) or the documents a buyer there must hold. Rules on a category
+     * above this one apply too, as they do in the listing. None without a
+     * destination.
+     */
+    const placed = await prisma.category.findUnique({ where: { id: category.id }, select: { path: true } });
+    const marketNotes = await categoryMarketNotes(destinationFor(country), {
+      id: category.id,
+      path: placed?.path ?? '/',
+    });
+
+    return reply.status(200).send({ category, marketNotes });
   });
 
   app.get('/products', async (request, reply) => {
