@@ -385,6 +385,8 @@ function NodeTile({
     isSessionLoading: isLoading,
     hasAssistant: features.assistant,
     hasRecurringOrders: features.recurringOrders,
+    hasCustomerAutopay: features.customerAutopay === true,
+    hasCustomerErp: features.customerErp === true,
   });
 
   const labelId = `orch-label-${node.id}`;
@@ -538,6 +540,8 @@ export function SourcingHub({ stageRef }: SourcingHubProps = {}): React.JSX.Elem
         isSessionLoading: isLoading,
         hasAssistant: features.assistant,
         hasRecurringOrders: features.recurringOrders,
+        hasCustomerAutopay: features.customerAutopay === true,
+        hasCustomerErp: features.customerErp === true,
       });
 
       if (outcome.kind === 'note') {
@@ -550,7 +554,14 @@ export function SourcingHub({ stageRef }: SourcingHubProps = {}): React.JSX.Elem
         });
       }
     },
-    [features.assistant, features.recurringOrders, isCustomer, isLoading],
+    [
+      features.assistant,
+      features.recurringOrders,
+      features.customerAutopay,
+      features.customerErp,
+      isCustomer,
+      isLoading,
+    ],
   );
 
   return (

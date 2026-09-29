@@ -191,6 +191,7 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
     if (error.code === 'PRODUCT_PRICE_ON_REQUEST') return t('errors.pricedOnRequest');
     if (error.code === 'PRODUCT_NOT_ORDERABLE') return t('errors.notOrderable');
     if (error.code === 'PACK_SIZE_UNKNOWN') return t('errors.packSizeUnknown');
+    if (error.code === 'RECEIPT_NOT_AVAILABLE') return t('errors.receiptNotAvailable');
 
     /*
      * The B2C maximum order quantity. Reached from Add to basket, a reorder,

@@ -171,6 +171,12 @@ mechanisms from §2.4.
      doing.
    - Approving is irreversible. It anonymises the account and keeps invoiced
      orders; the customer has already been shown this.
+   - Their audit rows stay, as the record of what was done, and lose the email,
+     IP address and user agent. That step runs just after the erasure commits,
+     as the separate `uboss_maintenance` database account
+     (`DATABASE_MAINTENANCE_URL`), because the application's own account cannot
+     change audit rows. **If the erasure reports an error, run it again**: the
+     account is already erased, and the second run finishes the audit step.
    - Refusing requires a reason, which is emailed verbatim along with the
      Art. 12(4) reminder that they may complain to a supervisory authority.
 6. An extension of two further months is available under Art. 12(3) for complex

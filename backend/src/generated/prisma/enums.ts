@@ -288,6 +288,14 @@ export const RefundStatus = {
 export type RefundStatus = (typeof RefundStatus)[keyof typeof RefundStatus]
 
 
+export const PaymentReceiptKind = {
+  PAYMENT: 'PAYMENT',
+  REFUND: 'REFUND'
+} as const
+
+export type PaymentReceiptKind = (typeof PaymentReceiptKind)[keyof typeof PaymentReceiptKind]
+
+
 export const ScheduleStatus = {
   DRAFT: 'DRAFT',
   ACTIVE: 'ACTIVE',
@@ -355,6 +363,7 @@ export const OccurrenceStatus = {
   SKIPPED: 'SKIPPED',
   CANCELLED: 'CANCELLED',
   FAILED: 'FAILED',
+  AWAITING_CONFIRMATION: 'AWAITING_CONFIRMATION',
   PENDING: 'PENDING',
   ORDER_CREATED: 'ORDER_CREATED',
   PAID: 'PAID'
@@ -412,6 +421,38 @@ export const ReturnStatus = {
 } as const
 
 export type ReturnStatus = (typeof ReturnStatus)[keyof typeof ReturnStatus]
+
+
+export const ReturnResolution = {
+  REFUND: 'REFUND',
+  REPLACEMENT: 'REPLACEMENT'
+} as const
+
+export type ReturnResolution = (typeof ReturnResolution)[keyof typeof ReturnResolution]
+
+
+export const ReturnOrigin = {
+  BUYER: 'BUYER',
+  STAFF: 'STAFF'
+} as const
+
+export type ReturnOrigin = (typeof ReturnOrigin)[keyof typeof ReturnOrigin]
+
+
+export const ReturnSellerResponse = {
+  ACCEPT: 'ACCEPT',
+  CONTEST: 'CONTEST'
+} as const
+
+export type ReturnSellerResponse = (typeof ReturnSellerResponse)[keyof typeof ReturnSellerResponse]
+
+
+export const ReturnFileKind = {
+  EVIDENCE: 'EVIDENCE',
+  LABEL: 'LABEL'
+} as const
+
+export type ReturnFileKind = (typeof ReturnFileKind)[keyof typeof ReturnFileKind]
 
 
 export const IntegrationAuthType = {
@@ -714,6 +755,16 @@ export const AutoPayStatus = {
 export type AutoPayStatus = (typeof AutoPayStatus)[keyof typeof AutoPayStatus]
 
 
+export const AutoPayCapPeriod = {
+  WEEK: 'WEEK',
+  MONTH: 'MONTH',
+  QUARTER: 'QUARTER',
+  YEAR: 'YEAR'
+} as const
+
+export type AutoPayCapPeriod = (typeof AutoPayCapPeriod)[keyof typeof AutoPayCapPeriod]
+
+
 export const AutoPayRetryPreference = {
   NONE: 'NONE',
   ONCE: 'ONCE',
@@ -815,6 +866,89 @@ export const SupportAttachmentScanState = {
 } as const
 
 export type SupportAttachmentScanState = (typeof SupportAttachmentScanState)[keyof typeof SupportAttachmentScanState]
+
+
+export const SupportResolutionCode = {
+  ANSWERED: 'ANSWERED',
+  FIXED: 'FIXED',
+  REFUNDED: 'REFUNDED',
+  REPLACED: 'REPLACED',
+  REFERRED: 'REFERRED',
+  DUPLICATE: 'DUPLICATE',
+  NO_RESPONSE: 'NO_RESPONSE',
+  NO_ACTION: 'NO_ACTION'
+} as const
+
+export type SupportResolutionCode = (typeof SupportResolutionCode)[keyof typeof SupportResolutionCode]
+
+
+export const DisputeKind = {
+  CLAIM: 'CLAIM',
+  CHARGEBACK: 'CHARGEBACK'
+} as const
+
+export type DisputeKind = (typeof DisputeKind)[keyof typeof DisputeKind]
+
+
+export const DisputeStatus = {
+  AWAITING_SELLER: 'AWAITING_SELLER',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  PENDING_APPROVAL: 'PENDING_APPROVAL',
+  RESOLVED: 'RESOLVED',
+  REJECTED: 'REJECTED',
+  APPEALED: 'APPEALED',
+  WITHDRAWN: 'WITHDRAWN',
+  CHARGEBACK_OPEN: 'CHARGEBACK_OPEN',
+  NEEDS_RESPONSE: 'NEEDS_RESPONSE',
+  CHARGEBACK_UNDER_REVIEW: 'CHARGEBACK_UNDER_REVIEW',
+  WON: 'WON',
+  LOST: 'LOST'
+} as const
+
+export type DisputeStatus = (typeof DisputeStatus)[keyof typeof DisputeStatus]
+
+
+export const DisputeResolution = {
+  REFUND_FULL: 'REFUND_FULL',
+  REFUND_PARTIAL: 'REFUND_PARTIAL',
+  REPLACEMENT: 'REPLACEMENT',
+  REJECT: 'REJECT'
+} as const
+
+export type DisputeResolution = (typeof DisputeResolution)[keyof typeof DisputeResolution]
+
+
+export const DisputeParty = {
+  BUYER: 'BUYER',
+  SELLER: 'SELLER',
+  STAFF: 'STAFF',
+  PROVIDER: 'PROVIDER',
+  SYSTEM: 'SYSTEM'
+} as const
+
+export type DisputeParty = (typeof DisputeParty)[keyof typeof DisputeParty]
+
+
+export const DisputeEventKind = {
+  CREATED: 'CREATED',
+  MESSAGE: 'MESSAGE',
+  INTERNAL_NOTE: 'INTERNAL_NOTE',
+  EVIDENCE_ADDED: 'EVIDENCE_ADDED',
+  STATUS_CHANGED: 'STATUS_CHANGED',
+  SELLER_RESPONSE: 'SELLER_RESPONSE',
+  ESCALATED: 'ESCALATED',
+  WITHDRAWN: 'WITHDRAWN',
+  ASSIGNED: 'ASSIGNED',
+  DECISION_PROPOSED: 'DECISION_PROPOSED',
+  DECISION_APPROVED: 'DECISION_APPROVED',
+  DECISION_REFUSED: 'DECISION_REFUSED',
+  DECISION_APPLIED: 'DECISION_APPLIED',
+  APPEALED: 'APPEALED',
+  PROVIDER_UPDATE: 'PROVIDER_UPDATE',
+  EVIDENCE_NOTE: 'EVIDENCE_NOTE'
+} as const
+
+export type DisputeEventKind = (typeof DisputeEventKind)[keyof typeof DisputeEventKind]
 
 
 export const BuyerOrgRole = {
@@ -1257,7 +1391,8 @@ export const SellerOfferStatus = {
   ACTIVE: 'ACTIVE',
   PAUSED: 'PAUSED',
   NEEDS_CHANGES: 'NEEDS_CHANGES',
-  ARCHIVED: 'ARCHIVED'
+  ARCHIVED: 'ARCHIVED',
+  BLOCKED: 'BLOCKED'
 } as const
 
 export type SellerOfferStatus = (typeof SellerOfferStatus)[keyof typeof SellerOfferStatus]
@@ -1370,7 +1505,8 @@ export const SellerNotificationKind = {
   PREORDER_CONFIRMED: 'PREORDER_CONFIRMED',
   PREORDER_CLOSED: 'PREORDER_CLOSED',
   PREORDER_DELIVERY_RISK: 'PREORDER_DELIVERY_RISK',
-  INVOICE_CREDIT_NOTE_REQUIRED: 'INVOICE_CREDIT_NOTE_REQUIRED'
+  INVOICE_CREDIT_NOTE_REQUIRED: 'INVOICE_CREDIT_NOTE_REQUIRED',
+  INSPECTION_UPDATE: 'INSPECTION_UPDATE'
 } as const
 
 export type SellerNotificationKind = (typeof SellerNotificationKind)[keyof typeof SellerNotificationKind]
@@ -1891,7 +2027,8 @@ export const LogisticsNotificationKind = {
   USER_INVITED: 'USER_INVITED',
   SECURITY_EVENT: 'SECURITY_EVENT',
   LEG_ASSIGNED: 'LEG_ASSIGNED',
-  LEG_WITHDRAWN: 'LEG_WITHDRAWN'
+  LEG_WITHDRAWN: 'LEG_WITHDRAWN',
+  DISPATCH_AUTHORISED: 'DISPATCH_AUTHORISED'
 } as const
 
 export type LogisticsNotificationKind = (typeof LogisticsNotificationKind)[keyof typeof LogisticsNotificationKind]
@@ -2284,11 +2421,22 @@ export type PlatformFeeBasis = (typeof PlatformFeeBasis)[keyof typeof PlatformFe
 
 export const PlatformFeePolicyStatus = {
   DRAFT: 'DRAFT',
+  PENDING_APPROVAL: 'PENDING_APPROVAL',
   PUBLISHED: 'PUBLISHED',
   RETIRED: 'RETIRED'
 } as const
 
 export type PlatformFeePolicyStatus = (typeof PlatformFeePolicyStatus)[keyof typeof PlatformFeePolicyStatus]
+
+
+export const PlatformFeeRuleKind = {
+  VALUE_BAND: 'VALUE_BAND',
+  VOLUME_TIER: 'VOLUME_TIER',
+  SELLER_TIER: 'SELLER_TIER',
+  PROMOTION: 'PROMOTION'
+} as const
+
+export type PlatformFeeRuleKind = (typeof PlatformFeeRuleKind)[keyof typeof PlatformFeeRuleKind]
 
 
 export const PlatformFeeScope = {
@@ -2732,9 +2880,32 @@ export const ConsentPurpose = {
 export type ConsentPurpose = (typeof ConsentPurpose)[keyof typeof ConsentPurpose]
 
 
+export const BuyerCompanyApprovalStage = {
+  APPROVER: 'APPROVER',
+  FINANCE: 'FINANCE'
+} as const
+
+export type BuyerCompanyApprovalStage = (typeof BuyerCompanyApprovalStage)[keyof typeof BuyerCompanyApprovalStage]
+
+
+export const BuyerCompanyApprovalDecision = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type BuyerCompanyApprovalDecision = (typeof BuyerCompanyApprovalDecision)[keyof typeof BuyerCompanyApprovalDecision]
+
+
 export const LegalDocumentKind = {
   PLATFORM_TERMS: 'PLATFORM_TERMS',
-  LOGISTICS_PARTNER_TERMS: 'LOGISTICS_PARTNER_TERMS'
+  LOGISTICS_PARTNER_TERMS: 'LOGISTICS_PARTNER_TERMS',
+  SELLER_TERMS: 'SELLER_TERMS',
+  PRIVACY_POLICY: 'PRIVACY_POLICY',
+  INSPECTION_POLICY: 'INSPECTION_POLICY',
+  BUYER_PROTECTION_POLICY: 'BUYER_PROTECTION_POLICY',
+  PROHIBITED_PRODUCTS: 'PROHIBITED_PRODUCTS'
 } as const
 
 export type LegalDocumentKind = (typeof LegalDocumentKind)[keyof typeof LegalDocumentKind]
@@ -2816,3 +2987,476 @@ export const CommissionEligibleStage = {
 } as const
 
 export type CommissionEligibleStage = (typeof CommissionEligibleStage)[keyof typeof CommissionEligibleStage]
+
+
+export const InspectionRequirementLevel = {
+  MANDATORY: 'MANDATORY',
+  RISK_TRIGGERED: 'RISK_TRIGGERED',
+  BUYER_REQUESTED: 'BUYER_REQUESTED',
+  NOT_REQUIRED: 'NOT_REQUIRED'
+} as const
+
+export type InspectionRequirementLevel = (typeof InspectionRequirementLevel)[keyof typeof InspectionRequirementLevel]
+
+
+export const InspectionRequirementStatus = {
+  NOT_REQUIRED: 'NOT_REQUIRED',
+  AWAITING_BOOKING: 'AWAITING_BOOKING',
+  BOOKED: 'BOOKED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  REPORT_IN_REVIEW: 'REPORT_IN_REVIEW',
+  FAILED: 'FAILED',
+  BLOCKED_BY_NCR: 'BLOCKED_BY_NCR',
+  RELEASE_PENDING_APPROVAL: 'RELEASE_PENDING_APPROVAL',
+  RELEASED: 'RELEASED',
+  RELEASED_CONDITIONALLY: 'RELEASED_CONDITIONALLY',
+  REEVALUATION_REQUIRED: 'REEVALUATION_REQUIRED',
+  DISPATCHED: 'DISPATCHED'
+} as const
+
+export type InspectionRequirementStatus = (typeof InspectionRequirementStatus)[keyof typeof InspectionRequirementStatus]
+
+
+export const InspectionJobStatus = {
+  REQUESTED: 'REQUESTED',
+  ACCEPTED: 'ACCEPTED',
+  DECLINED: 'DECLINED',
+  INSPECTOR_ASSIGNED: 'INSPECTOR_ASSIGNED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  REPORT_SUBMITTED: 'REPORT_SUBMITTED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type InspectionJobStatus = (typeof InspectionJobStatus)[keyof typeof InspectionJobStatus]
+
+
+export const InspectionJobKind = {
+  INITIAL: 'INITIAL',
+  REINSPECTION: 'REINSPECTION'
+} as const
+
+export type InspectionJobKind = (typeof InspectionJobKind)[keyof typeof InspectionJobKind]
+
+
+export const InspectionParty = {
+  SYSTEM: 'SYSTEM',
+  SELLER: 'SELLER',
+  BUYER: 'BUYER',
+  OPERATOR: 'OPERATOR',
+  AGENCY: 'AGENCY'
+} as const
+
+export type InspectionParty = (typeof InspectionParty)[keyof typeof InspectionParty]
+
+
+export const InspectionPayer = {
+  BUYER: 'BUYER',
+  SELLER: 'SELLER',
+  PLATFORM: 'PLATFORM'
+} as const
+
+export type InspectionPayer = (typeof InspectionPayer)[keyof typeof InspectionPayer]
+
+
+export const InspectionPointType = {
+  SELLER_PREMISES: 'SELLER_PREMISES',
+  WAREHOUSE: 'WAREHOUSE',
+  PORT: 'PORT',
+  OTHER: 'OTHER'
+} as const
+
+export type InspectionPointType = (typeof InspectionPointType)[keyof typeof InspectionPointType]
+
+
+export const InspectionAgencyStatus = {
+  ACTIVE: 'ACTIVE',
+  SUSPENDED: 'SUSPENDED'
+} as const
+
+export type InspectionAgencyStatus = (typeof InspectionAgencyStatus)[keyof typeof InspectionAgencyStatus]
+
+
+export const InspectionAgencyRole = {
+  AGENCY_ADMIN: 'AGENCY_ADMIN',
+  COORDINATOR: 'COORDINATOR',
+  INSPECTOR: 'INSPECTOR',
+  QA_REVIEWER: 'QA_REVIEWER'
+} as const
+
+export type InspectionAgencyRole = (typeof InspectionAgencyRole)[keyof typeof InspectionAgencyRole]
+
+
+export const InspectionMemberStatus = {
+  ACTIVE: 'ACTIVE',
+  DISABLED: 'DISABLED'
+} as const
+
+export type InspectionMemberStatus = (typeof InspectionMemberStatus)[keyof typeof InspectionMemberStatus]
+
+
+export const InspectionCheckOutcome = {
+  CONFORM: 'CONFORM',
+  NONCONFORM: 'NONCONFORM',
+  NOT_APPLICABLE: 'NOT_APPLICABLE'
+} as const
+
+export type InspectionCheckOutcome = (typeof InspectionCheckOutcome)[keyof typeof InspectionCheckOutcome]
+
+
+export const InspectionDefectSeverity = {
+  CRITICAL: 'CRITICAL',
+  MAJOR: 'MAJOR',
+  MINOR: 'MINOR'
+} as const
+
+export type InspectionDefectSeverity = (typeof InspectionDefectSeverity)[keyof typeof InspectionDefectSeverity]
+
+
+export const InspectionNcrStatus = {
+  OPEN: 'OPEN',
+  CAPA_SUBMITTED: 'CAPA_SUBMITTED',
+  VERIFIED_CLOSED: 'VERIFIED_CLOSED'
+} as const
+
+export type InspectionNcrStatus = (typeof InspectionNcrStatus)[keyof typeof InspectionNcrStatus]
+
+
+export const InspectionReportStatus = {
+  SUBMITTED: 'SUBMITTED',
+  RETURNED: 'RETURNED',
+  SIGNED: 'SIGNED'
+} as const
+
+export type InspectionReportStatus = (typeof InspectionReportStatus)[keyof typeof InspectionReportStatus]
+
+
+export const InspectionResult = {
+  PASS: 'PASS',
+  FAIL: 'FAIL'
+} as const
+
+export type InspectionResult = (typeof InspectionResult)[keyof typeof InspectionResult]
+
+
+export const InspectionReleaseKind = {
+  PASS: 'PASS',
+  CONDITIONAL: 'CONDITIONAL'
+} as const
+
+export type InspectionReleaseKind = (typeof InspectionReleaseKind)[keyof typeof InspectionReleaseKind]
+
+
+export const InspectionReleaseState = {
+  PENDING_APPROVAL: 'PENDING_APPROVAL',
+  ACTIVE: 'ACTIVE',
+  REJECTED: 'REJECTED',
+  SUPERSEDED: 'SUPERSEDED'
+} as const
+
+export type InspectionReleaseState = (typeof InspectionReleaseState)[keyof typeof InspectionReleaseState]
+
+
+export const InspectionEvidencePurpose = {
+  GENERAL: 'GENERAL',
+  CHECKLIST: 'CHECKLIST',
+  SAMPLING: 'SAMPLING',
+  PACKAGING: 'PACKAGING',
+  MEASUREMENT: 'MEASUREMENT',
+  DEFECT: 'DEFECT',
+  CAPA: 'CAPA',
+  RELEASE: 'RELEASE',
+  BINDING: 'BINDING',
+  RECLASSIFICATION: 'RECLASSIFICATION'
+} as const
+
+export type InspectionEvidencePurpose = (typeof InspectionEvidencePurpose)[keyof typeof InspectionEvidencePurpose]
+
+
+export const InspectionMediaKind = {
+  IMAGE: 'IMAGE',
+  VIDEO: 'VIDEO',
+  DOCUMENT: 'DOCUMENT'
+} as const
+
+export type InspectionMediaKind = (typeof InspectionMediaKind)[keyof typeof InspectionMediaKind]
+
+
+export const InspectionInvoiceStatus = {
+  SUBMITTED: 'SUBMITTED',
+  APPROVED: 'APPROVED',
+  PAID: 'PAID',
+  DISPUTED: 'DISPUTED',
+  VOID: 'VOID'
+} as const
+
+export type InspectionInvoiceStatus = (typeof InspectionInvoiceStatus)[keyof typeof InspectionInvoiceStatus]
+
+
+export const InspectionSupplierRiskTier = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH'
+} as const
+
+export type InspectionSupplierRiskTier = (typeof InspectionSupplierRiskTier)[keyof typeof InspectionSupplierRiskTier]
+
+
+export const InspectionBuyerReportAccess = {
+  BEFORE_RELEASE: 'BEFORE_RELEASE',
+  AFTER_RELEASE: 'AFTER_RELEASE',
+  NONE: 'NONE'
+} as const
+
+export type InspectionBuyerReportAccess = (typeof InspectionBuyerReportAccess)[keyof typeof InspectionBuyerReportAccess]
+
+
+export const InspectionBuyerNcrVisibility = {
+  ALL: 'ALL',
+  MAJOR_AND_CRITICAL: 'MAJOR_AND_CRITICAL',
+  NONE: 'NONE'
+} as const
+
+export type InspectionBuyerNcrVisibility = (typeof InspectionBuyerNcrVisibility)[keyof typeof InspectionBuyerNcrVisibility]
+
+
+export const TrustCheckState = {
+  PENDING: 'PENDING',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type TrustCheckState = (typeof TrustCheckState)[keyof typeof TrustCheckState]
+
+
+export const TrustCheckKind = {
+  LEGAL_ENTITY: 'LEGAL_ENTITY',
+  TAX_REGISTRATION: 'TAX_REGISTRATION',
+  UDYAM_REGISTRATION: 'UDYAM_REGISTRATION',
+  IMPORT_EXPORT_CODE: 'IMPORT_EXPORT_CODE',
+  EXPORT_CAPABILITY: 'EXPORT_CAPABILITY',
+  BENEFICIAL_OWNERSHIP: 'BENEFICIAL_OWNERSHIP',
+  BANK_ACCOUNT: 'BANK_ACCOUNT',
+  FACTORY: 'FACTORY'
+} as const
+
+export type TrustCheckKind = (typeof TrustCheckKind)[keyof typeof TrustCheckKind]
+
+
+export const CertificateExpiryPolicy = {
+  WARN: 'WARN',
+  HOLD_LISTINGS: 'HOLD_LISTINGS'
+} as const
+
+export type CertificateExpiryPolicy = (typeof CertificateExpiryPolicy)[keyof typeof CertificateExpiryPolicy]
+
+
+export const ScreeningState = {
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  CLEAR: 'CLEAR',
+  POTENTIAL_MATCH: 'POTENTIAL_MATCH',
+  CONFIRMED_MATCH: 'CONFIRMED_MATCH'
+} as const
+
+export type ScreeningState = (typeof ScreeningState)[keyof typeof ScreeningState]
+
+
+export const ScreeningSubjectType = {
+  ENTITY: 'ENTITY',
+  BENEFICIAL_OWNER: 'BENEFICIAL_OWNER'
+} as const
+
+export type ScreeningSubjectType = (typeof ScreeningSubjectType)[keyof typeof ScreeningSubjectType]
+
+
+export const ProfileChangeStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  WITHDRAWN: 'WITHDRAWN'
+} as const
+
+export type ProfileChangeStatus = (typeof ProfileChangeStatus)[keyof typeof ProfileChangeStatus]
+
+
+export const MarketRuleScope = {
+  PRODUCT: 'PRODUCT',
+  CATEGORY: 'CATEGORY'
+} as const
+
+export type MarketRuleScope = (typeof MarketRuleScope)[keyof typeof MarketRuleScope]
+
+
+export const MarketRuleEffect = {
+  BLOCK: 'BLOCK',
+  DOCUMENTS_REQUIRED: 'DOCUMENTS_REQUIRED'
+} as const
+
+export type MarketRuleEffect = (typeof MarketRuleEffect)[keyof typeof MarketRuleEffect]
+
+
+export const ProductionStage = {
+  RAW_MATERIAL: 'RAW_MATERIAL',
+  IN_PRODUCTION: 'IN_PRODUCTION',
+  QUALITY_CHECKED: 'QUALITY_CHECKED',
+  READY: 'READY'
+} as const
+
+export type ProductionStage = (typeof ProductionStage)[keyof typeof ProductionStage]
+
+
+export const ProductionDelayReason = {
+  RAW_MATERIAL_SHORTAGE: 'RAW_MATERIAL_SHORTAGE',
+  MACHINE_BREAKDOWN: 'MACHINE_BREAKDOWN',
+  LABOUR_SHORTAGE: 'LABOUR_SHORTAGE',
+  QUALITY_REWORK: 'QUALITY_REWORK',
+  SUPPLIER_DELAY: 'SUPPLIER_DELAY',
+  TESTING_OR_CERTIFICATION: 'TESTING_OR_CERTIFICATION',
+  BUYER_CHANGE_REQUEST: 'BUYER_CHANGE_REQUEST',
+  LOGISTICS: 'LOGISTICS',
+  OTHER: 'OTHER'
+} as const
+
+export type ProductionDelayReason = (typeof ProductionDelayReason)[keyof typeof ProductionDelayReason]
+
+
+export const TradeDocumentSource = {
+  GENERATED: 'GENERATED',
+  UPLOADED: 'UPLOADED',
+  REFERENCE: 'REFERENCE'
+} as const
+
+export type TradeDocumentSource = (typeof TradeDocumentSource)[keyof typeof TradeDocumentSource]
+
+
+export const TradeDocumentValidation = {
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  VALID: 'VALID',
+  REJECTED: 'REJECTED'
+} as const
+
+export type TradeDocumentValidation = (typeof TradeDocumentValidation)[keyof typeof TradeDocumentValidation]
+
+
+export const HsVerificationState = {
+  DECLARED: 'DECLARED',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type HsVerificationState = (typeof HsVerificationState)[keyof typeof HsVerificationState]
+
+
+export const TradeRestriction = {
+  NONE: 'NONE',
+  RESTRICTED: 'RESTRICTED',
+  PROHIBITED: 'PROHIBITED'
+} as const
+
+export type TradeRestriction = (typeof TradeRestriction)[keyof typeof TradeRestriction]
+
+
+export const TradeResponsibleParty = {
+  SELLER: 'SELLER',
+  BUYER: 'BUYER',
+  FORWARDER: 'FORWARDER',
+  OPERATOR: 'OPERATOR'
+} as const
+
+export type TradeResponsibleParty = (typeof TradeResponsibleParty)[keyof typeof TradeResponsibleParty]
+
+
+export const ShipmentTransportMode = {
+  ROAD: 'ROAD',
+  AIR: 'AIR',
+  SEA: 'SEA',
+  RAIL: 'RAIL',
+  COURIER: 'COURIER',
+  MULTIMODAL: 'MULTIMODAL'
+} as const
+
+export type ShipmentTransportMode = (typeof ShipmentTransportMode)[keyof typeof ShipmentTransportMode]
+
+
+export const LedgerAccountCode = {
+  PROVIDER_BALANCE: 'PROVIDER_BALANCE',
+  BUYER_FUNDS_CLEARING: 'BUYER_FUNDS_CLEARING',
+  SELLER_HELD: 'SELLER_HELD',
+  SELLER_RESERVE: 'SELLER_RESERVE',
+  SELLER_AVAILABLE: 'SELLER_AVAILABLE',
+  PAYOUTS_IN_TRANSIT: 'PAYOUTS_IN_TRANSIT',
+  PLATFORM_COMMISSION: 'PLATFORM_COMMISSION',
+  PLATFORM_FEE_TAX: 'PLATFORM_FEE_TAX',
+  CHARGEBACK_RECEIVABLE: 'CHARGEBACK_RECEIVABLE',
+  CHARGEBACK_LOSSES: 'CHARGEBACK_LOSSES'
+} as const
+
+export type LedgerAccountCode = (typeof LedgerAccountCode)[keyof typeof LedgerAccountCode]
+
+
+export const LedgerEntryKind = {
+  PAYMENT_CAPTURED: 'PAYMENT_CAPTURED',
+  SALE_ALLOCATED: 'SALE_ALLOCATED',
+  REFUND_ISSUED: 'REFUND_ISSUED',
+  REFUND_CHARGED_TO_SELLER: 'REFUND_CHARGED_TO_SELLER',
+  FUNDS_RELEASED: 'FUNDS_RELEASED',
+  RESERVE_RELEASED: 'RESERVE_RELEASED',
+  PAYOUT_INITIATED: 'PAYOUT_INITIATED',
+  PAYOUT_SETTLED: 'PAYOUT_SETTLED',
+  CHARGEBACK_OPENED: 'CHARGEBACK_OPENED',
+  CHARGEBACK_WON: 'CHARGEBACK_WON',
+  CHARGEBACK_LOST: 'CHARGEBACK_LOST',
+  CHARGEBACK_FEE: 'CHARGEBACK_FEE',
+  REVERSAL: 'REVERSAL'
+} as const
+
+export type LedgerEntryKind = (typeof LedgerEntryKind)[keyof typeof LedgerEntryKind]
+
+
+export const SellerFundHoldStatus = {
+  HELD: 'HELD',
+  ON_HOLD: 'ON_HOLD',
+  RELEASED: 'RELEASED'
+} as const
+
+export type SellerFundHoldStatus = (typeof SellerFundHoldStatus)[keyof typeof SellerFundHoldStatus]
+
+
+export const SellerFundHoldCode = {
+  DISPUTE: 'DISPUTE',
+  MANUAL: 'MANUAL'
+} as const
+
+export type SellerFundHoldCode = (typeof SellerFundHoldCode)[keyof typeof SellerFundHoldCode]
+
+
+export const SellerFundReleaseRequestStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type SellerFundReleaseRequestStatus = (typeof SellerFundReleaseRequestStatus)[keyof typeof SellerFundReleaseRequestStatus]
+
+
+export const LedgerReconciliationStatus = {
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+} as const
+
+export type LedgerReconciliationStatus = (typeof LedgerReconciliationStatus)[keyof typeof LedgerReconciliationStatus]
+
+
+export const LedgerReconciliationItemKind = {
+  MATCHED: 'MATCHED',
+  AMOUNT_MISMATCH: 'AMOUNT_MISMATCH',
+  MISSING_IN_LEDGER: 'MISSING_IN_LEDGER',
+  MISSING_AT_PROVIDER: 'MISSING_AT_PROVIDER',
+  CURRENCY_CONVERTED: 'CURRENCY_CONVERTED',
+  UNBALANCED_ENTRY: 'UNBALANCED_ENTRY',
+  STATEMENT_MISMATCH: 'STATEMENT_MISMATCH'
+} as const
+
+export type LedgerReconciliationItemKind = (typeof LedgerReconciliationItemKind)[keyof typeof LedgerReconciliationItemKind]

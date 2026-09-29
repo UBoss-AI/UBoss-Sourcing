@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**267 tables · 254 enums · 652 extra indexes and unique keys**, in 48 groups. The groups follow the section banners in the schema file.
+**337 tables · 315 enums · 781 extra indexes and unique keys**, in 54 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -33,9 +33,9 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [Customers](#group-customers) | 2 | 1 |
 | [Cart](#group-cart) | 2 | 1 |
 | [Orders](#group-orders) | 5 | 6 |
-| [Payments](#group-payments) | 5 | 7 |
+| [Payments](#group-payments) | 6 | 8 |
 | [Recurring purchases](#group-recurring-purchases) | 6 | 10 |
-| [/ one warehouse's offer for one basket, frozen. / / rows are cheap and short-lived: one per eligible option per request, swept / once they expire unless an order points at them. a quote attached to an / order is kept for ever - it is the evidence of what the customer was shown / before they agreed to pay.](#group-one-warehouse-s-offer-for-one-basket-frozen-rows-are-cheap-and-short-lived-one-per-eligible-option-per-request-swept-once-they-expire-unless-an-order-points-at-them-a-quote-attached-to-an-order-is-kept-for-ever-it-is-the-evidence-of-what-the-customer-was-shown-before-they-agreed-to-pay) | 3 | 2 |
+| [/ one warehouse's offer for one basket, frozen. / / rows are cheap and short-lived: one per eligible option per request, swept / once they expire unless an order points at them. a quote attached to an / order is kept for ever - it is the evidence of what the customer was shown / before they agreed to pay.](#group-one-warehouse-s-offer-for-one-basket-frozen-rows-are-cheap-and-short-lived-one-per-eligible-option-per-request-swept-once-they-expire-unless-an-order-points-at-them-a-quote-attached-to-an-order-is-kept-for-ever-it-is-the-evidence-of-what-the-customer-was-shown-before-they-agreed-to-pay) | 7 | 6 |
 | [Integrations (custom product/inventory API connector)](#group-integrations-custom-product-inventory-api-connector) | 3 | 5 |
 | [Bulk import / export](#group-bulk-import-export) | 3 | 1 |
 | [Notifications (transactional outbox)](#group-notifications-transactional-outbox) | 2 | 1 |
@@ -52,27 +52,33 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [Invoicing](#group-invoicing) | 1 | 0 |
 | [/ the roles union product law recognises for whoever put a product on the / market. named after the law rather than after the supply chain: an / "importer" here is the art. 4 reg. 2019/1020 economic operator, not / whichever company happens to have shipped the container.](#group-the-roles-union-product-law-recognises-for-whoever-put-a-product-on-the-market-named-after-the-law-rather-than-after-the-supply-chain-an-importer-here-is-the-art-4-reg-2019-1020-economic-operator-not-whichever-company-happens-to-have-shipped-the-container) | 1 | 1 |
 | [/ risk class, under the annex viii rules. / / class i is subdivided because the subdivision decides whether a notified / body is involved at all: a plain class i device is self-certified, but one / that is supplied sterile, has a measuring function, or is a reusable / surgical instrument needs a notified body for that specific aspect. a / validator that treated "class i" as one thing would let a sterile syringe / publish with no nb number, which is the exact case it exists to catch.](#group-risk-class-under-the-annex-viii-rules-class-i-is-subdivided-because-the-subdivision-decides-whether-a-notified-body-is-involved-at-all-a-plain-class-i-device-is-self-certified-but-one-that-is-supplied-sterile-has-a-measuring-function-or-is-a-reusable-surgical-instrument-needs-a-notified-body-for-that-specific-aspect-a-validator-that-treated-class-i-as-one-thing-would-let-a-sterile-syringe-publish-with-no-nb-number-which-is-the-exact-case-it-exists-to-catch) | 2 | 1 |
-| [/ where the ERP connection stands. / / the order matters and the gaps matter. draft -&gt; testing -&gt; connected is the / setup path, and active is reachable only from connected: a connection that / has never answered a test cannot start carrying orders. see / `ERP-connection-state.ts`, which is the only thing allowed to move a row / between these.](#group-where-the-erp-connection-stands-the-order-matters-and-the-gaps-matter-draft-testing-connected-is-the-setup-path-and-active-is-reachable-only-from-connected-a-connection-that-has-never-answered-a-test-cannot-start-carrying-orders-see-erp-connection-state-ts-which-is-the-only-thing-allowed-to-move-a-row-between-these) | 7 | 9 |
+| [/ where the ERP connection stands. / / the order matters and the gaps matter. draft -&gt; testing -&gt; connected is the / setup path, and active is reachable only from connected: a connection that / has never answered a test cannot start carrying orders. see / `ERP-connection-state.ts`, which is the only thing allowed to move a row / between these.](#group-where-the-erp-connection-stands-the-order-matters-and-the-gaps-matter-draft-testing-connected-is-the-setup-path-and-active-is-reachable-only-from-connected-a-connection-that-has-never-answered-a-test-cannot-start-carrying-orders-see-erp-connection-state-ts-which-is-the-only-thing-allowed-to-move-a-row-between-these) | 7 | 10 |
 | [Saved for later](#group-saved-for-later) | 1 | 0 |
 | [Instructions left on a product without buying it](#group-instructions-left-on-a-product-without-buying-it) | 1 | 0 |
 | [/ whether a review is shown on the storefront. / / two members. a review is published the moment it is written - there is no / queue a buyer waits in - and a member of staff can hide one afterwards and / put it back. appending a member later is safe; reordering is not, because / MariaDB stores an enum by position.](#group-whether-a-review-is-shown-on-the-storefront-two-members-a-review-is-published-the-moment-it-is-written-there-is-no-queue-a-buyer-waits-in-and-a-member-of-staff-can-hide-one-afterwards-and-put-it-back-appending-a-member-later-is-safe-reordering-is-not-because-mariadb-stores-an-enum-by-position) | 1 | 1 |
-| [/ where a ticket is in its life. see `domain/support-ticket-state.ts`. / / append only - MariaDB stores an enum by position.](#group-where-a-ticket-is-in-its-life-see-domain-support-ticket-state-ts-append-only-mariadb-stores-an-enum-by-position) | 3 | 8 |
+| [/ where a ticket is in its life. see `domain/support-ticket-state.ts`. / / append only - MariaDB stores an enum by position.](#group-where-a-ticket-is-in-its-life-see-domain-support-ticket-state-ts-append-only-mariadb-stores-an-enum-by-position) | 4 | 9 |
+| [/ append only - MariaDB stores an enum by position.](#group-append-only-mariadb-stores-an-enum-by-position) | 4 | 5 |
 | [/ what somebody may do inside a buyer organisation. / / three levels rather than a permission matrix, because there are exactly / three questions a buyer's it department actually has: who owns this, who / may change the credentials, and who may look. a fourth role would have to / be explained to somebody, and nobody has asked for one.](#group-what-somebody-may-do-inside-a-buyer-organisation-three-levels-rather-than-a-permission-matrix-because-there-are-exactly-three-questions-a-buyer-s-it-department-actually-has-who-owns-this-who-may-change-the-credentials-and-who-may-look-a-fourth-role-would-have-to-be-explained-to-somebody-and-nobody-has-asked-for-one) | 19 | 20 |
 | [/ where a seller's application has got to. / / the order matters: this is a state machine, enforced in / `domain/seller-state.ts`, and nothing writes this column directly - the / same rule `orderstatus` and `schedulestatus` follow, for the same reason. / an application decides whether a business may put medical devices in front / of hospitals, so "how did it get to approved" must always have an answer.](#group-where-a-seller-s-application-has-got-to-the-order-matters-this-is-a-state-machine-enforced-in-domain-seller-state-ts-and-nothing-writes-this-column-directly-the-same-rule-orderstatus-and-schedulestatus-follow-for-the-same-reason-an-application-decides-whether-a-business-may-put-medical-devices-in-front-of-hospitals-so-how-did-it-get-to-approved-must-always-have-an-answer) | 33 | 25 |
 | [/ how a seller came to be able to use a carrier. / / stored because it decides who may end the relationship and on what notice, / which is a question that gets asked exactly once - during a dispute.](#group-how-a-seller-came-to-be-able-to-use-a-carrier-stored-because-it-decides-who-may-end-the-relationship-and-on-what-notice-which-is-a-question-that-gets-asked-exactly-once-during-a-dispute) | 1 | 2 |
 | [/ who is responsible for moving a seller's goods. / / read together with `sellerfulfilmentmethod.status`: a mode says what kind / of delivery this is, the status says whether it may be used yet. a seller / can have a dedicated_partner method sitting in pending_approval for a / fortnight while their integrated_carrier method carries everything.](#group-who-is-responsible-for-moving-a-seller-s-goods-read-together-with-sellerfulfilmentmethod-status-a-mode-says-what-kind-of-delivery-this-is-the-status-says-whether-it-may-be-used-yet-a-seller-can-have-a-dedicated-partner-method-sitting-in-pending-approval-for-a-fortnight-while-their-integrated-carrier-method-carries-everything) | 11 | 12 |
-| [Logistics partner portal](#group-logistics-partner-portal) | 29 | 32 |
+| [Logistics partner portal](#group-logistics-partner-portal) | 30 | 32 |
 | [Demo catalogue](#group-demo-catalogue) | 1 | 0 |
 | [/ a package a buyer can order by. / / parallel to the four bulk members of `orderingunit` rather than the same / enum, because the two answer different questions: this one is configuration / ("may this be bought by the pallet?") and that one is a historical fact on / a line ("this was bought by the pallet"). keeping them apart is what lets a / package type be retired from the configuration without rewriting the / meaning of every order that used it.](#group-a-package-a-buyer-can-order-by-parallel-to-the-four-bulk-members-of-orderingunit-rather-than-the-same-enum-because-the-two-answer-different-questions-this-one-is-configuration-may-this-be-bought-by-the-pallet-and-that-one-is-a-historical-fact-on-a-line-this-was-bought-by-the-pallet-keeping-them-apart-is-what-lets-a-package-type-be-retired-from-the-configuration-without-rewriting-the-meaning-of-every-order-that-used-it) | 6 | 9 |
 | [/ what kind of transport a consignment actually needs.](#group-what-kind-of-transport-a-consignment-actually-needs) | 1 | 2 |
 | [/ which accounting system. one member today; the abstraction is the point. / / the connector interface, the job pipeline, the mapping table and the bridge / are all provider-agnostic; only the payload builder and the response parser / are tally-specific. a second provider is a new module, not a new schema.](#group-which-accounting-system-one-member-today-the-abstraction-is-the-point-the-connector-interface-the-job-pipeline-the-mapping-table-and-the-bridge-are-all-provider-agnostic-only-the-payload-builder-and-the-response-parser-are-tally-specific-a-second-provider-is-a-new-module-not-a-new-schema) | 11 | 10 |
-| [Seller logistics policy - who controls each of the four delivery levels, what each level costs, and what the seller is owed afterwards](#group-seller-logistics-policy-who-controls-each-of-the-four-delivery-levels-what-each-level-costs-and-what-the-seller-is-owed-afterwards) | 9 | 12 |
+| [Seller logistics policy - who controls each of the four delivery levels, what each level costs, and what the seller is owed afterwards](#group-seller-logistics-policy-who-controls-each-of-the-four-delivery-levels-what-each-level-costs-and-what-the-seller-is-owed-afterwards) | 11 | 13 |
 | [/ which level of the fallback chain a policy sits at. / / offer -&gt; product -&gt; seller_default -&gt; the platform's own defaults (config) / / the first one that exists wins, whole. a variant whose own policy says / "disabled" is disabled, and does not fall through to an enabled product / policy - a seller who switched one variant off meant it.](#group-which-level-of-the-fallback-chain-a-policy-sits-at-offer-product-seller-default-the-platform-s-own-defaults-config-the-first-one-that-exists-wins-whole-a-variant-whose-own-policy-says-disabled-is-disabled-and-does-not-fall-through-to-an-enabled-product-policy-a-seller-who-switched-one-variant-off-meant-it) | 9 | 14 |
 | [/ where a conversation stands. moved only by `domain/preorder-chat-state.ts`.](#group-where-a-conversation-stands-moved-only-by-domain-preorder-chat-state-ts) | 8 | 7 |
 | [Seller documents: invoices and packing lists](#group-seller-documents-invoices-and-packing-lists) | 5 | 3 |
-| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 12 | 17 |
+| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 14 | 19 |
 | [/ which agreement a document is. each account type is asked for its own.](#group-which-agreement-a-document-is-each-account-type-is-asked-for-its-own) | 2 | 2 |
 | [Seller commission invoices](#group-seller-commission-invoices) | 6 | 7 |
+| [/ how strongly an order needs inspecting, decided by the rules engine.](#group-how-strongly-an-order-needs-inspecting-decided-by-the-rules-engine) | 17 | 23 |
+| [/ where one check has got to.](#group-where-one-check-has-got-to) | 18 | 8 |
+| [--------------------------------------------------------------------------- seller hub: production, export documents, trade rules and booking terms](#group-seller-hub-production-export-documents-trade-rules-and-booking-terms) | 11 | 8 |
+| [/ what a ledger account represents. balances are never stored; they are the / sum of the account's lines.](#group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines) | 8 | 7 |
+| [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
 
 <a id="group-identity-access"></a>
 
@@ -147,6 +153,7 @@ Table `users`
 | `mfaEnabledAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `mfaLastCounter` | BigInt | yes |  |  | The highest TOTP counter this account has already spent. |
 | `mfaRecoveryCodeHashesJson` | Json | yes |  |  | SHA-256 of each UNUSED recovery code, as a JSON array of strings. |
+| `mfaFailedCount` | Int |  |  | 0 | Wrong two-step codes in a row, across sessions. Reset by a right one. |
 | `preferredLanguage` | String · VarChar(10) | yes |  |  | The language the interface is rendered in for this account, as a BCP-47 primary subtag ("pl", "el", "nl"). Deliberately on `User` rather than on `CustomerProfile`: staff need it too, and a staff account has no profile row to hang it from. |
 | `lastLoginAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `failedLoginCount` | Int |  |  | 0 |  |
@@ -180,6 +187,10 @@ Table `users`
 - `supportTicketAttachments` ← [SupportTicketAttachment](#model-supportticketattachment) - has many
 - `consentRecords` ← [ConsentRecord](#model-consentrecord) - has many
 - `buyerCompanyEmailChallenges` ← [BuyerCompanyEmailChallenge](#model-buyercompanyemailchallenge) - has many
+- `disputesRaised` ← [Dispute](#model-dispute) - has many
+- `disputesAssigned` ← [Dispute](#model-dispute) - has many
+- `disputeEvents` ← [DisputeEvent](#model-disputeevent) - has many
+- `disputeAttachments` ← [DisputeAttachment](#model-disputeattachment) - has many
 
 **Indexes and keys**
 
@@ -219,6 +230,8 @@ Table `permissions`
 | `id` | String · Char(26) |  | PK |  |  |
 | `key` | String · VarChar(96) |  | UNIQUE |  | Dotted resource.action, e.g. `product.publish`, `refund.create`. |
 | `description` | String · VarChar(512) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -234,6 +247,8 @@ Table `role_permissions`
 |---|---|---|---|---|---|
 | `roleId` | String · Char(26) |  | FK → [Role](#model-role) |  | (on delete: Cascade) |
 | `permissionId` | String · Char(26) |  | FK → [Permission](#model-permission) |  | (on delete: Cascade) |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -257,6 +272,8 @@ Table `user_roles`
 | `roleId` | String · Char(26) |  | FK → [Role](#model-role) |  | (on delete: Restrict) |
 | `assignedById` | String · Char(26) | yes |  |  |  |
 | `assignedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -289,6 +306,7 @@ Table `sessions`
 | `locationCountry` | String · Char(2) | yes |  |  | The country that place is in, ISO-3166-1 alpha-2, when the geocoder named one. It is what the console prices for: a member of staff signing in from Germany is shown what a German customer pays, because that is the only market they can speak for. Null wherever no geocoder answered, and the console then quotes the… |
 | `locationCapturedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `mfaVerifiedAt` | DateTime · DateTime(3) | yes |  |  | When THIS session passed its second-factor challenge. |
+| `reauthenticatedAt` | DateTime · DateTime(3) | yes |  |  | When THIS session last confirmed it was still the account holder, for a sensitive act (step-up): the password again, or a two-step code. A sensitive act is refused unless this is within STEP_UP_WINDOW_SECONDS. Carried across a rotation like `mfaVerifiedAt`; the window ends it. |
 | `sellerUnlockedAt` | DateTime · DateTime(3) | yes |  |  | When THIS session last presented the seller password, and for whom. |
 | `sellerUnlockedForId` | String · Char(26) | yes |  |  |  |
 | `sellerLastActivityAt` | DateTime · DateTime(3) | yes |  |  | The last time this session did something in the Seller Hub that a person did on purpose - a change, or a page they opened - as opposed to a badge polling in a background tab. The Hub re-locks after SELLER_HUB_IDLE_TIMEOUT_SECONDS without one, on the server, whatever any browser tab believes. Null while the Hub is… |
@@ -301,6 +319,7 @@ Table `sessions`
 | `buyerCompanyId` | String · Char(26) | yes | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: SetNull) |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `lastUsedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -329,6 +348,7 @@ Table `auth_tokens`
 | `consumedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdById` | String · Char(26) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -354,6 +374,7 @@ Table `login_attempts`
 | `success` | Boolean |  |  |  |  |
 | `failureReason` | String · VarChar(64) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Indexes and keys**
 
@@ -588,6 +609,7 @@ Table `feature_flags`
 | `description` | String · VarChar(512) | yes |  |  |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 | `updatedById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 
 <a id="model-notificationsetting"></a>
 
@@ -652,6 +674,7 @@ Table `media_assets`
 | `checksum` | String · Char(64) | yes |  |  | SHA-256 of the bytes; lets repeat uploads reuse an existing asset. |
 | `uploadedById` | String · Char(26) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -801,6 +824,7 @@ Table `categories`
 - `translations` ← [CategoryTranslation](#model-categorytranslation) - has many
 - `attributeDefinitions` ← [CategoryAttributeDefinition](#model-categoryattributedefinition) - has many
 - `listingDrafts` ← [SellerListingDraft](#model-sellerlistingdraft) - has many
+- `marketRules` ← [MarketRule](#model-marketrule) - has many
 
 **Indexes and keys**
 
@@ -890,6 +914,8 @@ Table `products`
 - `instructions` ← [ProductInstruction](#model-productinstruction) - has many
 - `reviews` ← [ProductReview](#model-productreview) - has many
 - `countryRestrictions` ← [ProductCountryRestriction](#model-productcountryrestriction) - has many
+- `marketRules` ← [MarketRule](#model-marketrule) - has many
+- `listingTrust` ← [SellerListingTrust](#model-sellerlistingtrust) - has many
 - `packagings` ← [ProductPackaging](#model-productpackaging) - has many
 - `importRecords` ← [ProductImportRecord](#model-productimportrecord) - has many
 - `sellerOffers` ← [SellerOffer](#model-selleroffer) - has many
@@ -986,6 +1012,7 @@ A photograph of one particular size or colour.
 | `sortOrder` | Int |  |  | 0 |  |
 | `isPrimary` | Boolean |  |  | false |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -1011,6 +1038,7 @@ Table `product_media`
 | `sortOrder` | Int |  |  | 0 |  |
 | `isPrimary` | Boolean |  |  | false |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -1039,6 +1067,8 @@ Table `product_attributes`
 | `groupKey` | String · VarChar(32) | yes |  |  | Which specification group it is shown under - one of `SPEC_GROUPS` in `domain/product-specifications.ts`. NULL for rows written before groups existed; those read as GENERAL, so every existing product still renders. |
 | `unit` | String · VarChar(24) | yes |  |  | One of `SPEC_UNITS`, or NULL when the unit is part of the value. |
 | `isHighlight` | Boolean |  |  | false | Shown in the product's highlights, at the top of its information. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -1066,6 +1096,8 @@ A specification that is different for one variant: a row with the same label as 
 | `unit` | String · VarChar(24) | yes |  |  |  |
 | `groupKey` | String · VarChar(32) | yes |  |  | NULL keeps the product row's group. |
 | `sortOrder` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -1156,6 +1188,8 @@ Table `product_pack_dimensions`
 | `displayValue` | String · VarChar(128) | yes |  |  | The numbers, normalised to one separator: "460 x 350 x 210". Null when nothing could be read. Never invented - a two-number source stays two numbers rather than gaining a height. |
 | `unit` | String · VarChar(16) | yes |  |  | "mm", "inch" - only when the source actually said so. A unit nobody wrote down is not a unit, and guessing millimetres onto an inch measurement is a twenty-five-fold error. |
 | `parseStatus` | [enum DimensionParseStatus](#enum-dimensionparsestatus) |  |  | UNPARSED |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -1404,6 +1438,7 @@ A country this warehouse will not deliver to, whatever the radius says.
 | `countryCode` | String · Char(2) |  |  |  | ISO 3166-1 alpha-2, upper case. Not an FK - see the model comment. |
 | `reason` | String · VarChar(256) | yes |  |  | Why this country is closed, in the operator's own words. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -1472,6 +1507,7 @@ Table `inventory_balances`
 | `reservedQty` | Int |  |  | 0 |  |
 | `version` | Int |  |  | 0 | Optimistic-locking counter, bumped on every write. |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 
 **Relations**
 
@@ -1508,6 +1544,7 @@ Table `inventory_movements`
 | `actorUserId` | String · Char(26) | yes |  |  |  |
 | `actorType` | [enum ActorType](#enum-actortype) |  |  | SYSTEM |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -1544,6 +1581,7 @@ Table `stock_reservations`
 | `releasedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `releaseReason` | String · VarChar(128) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -1695,6 +1733,7 @@ Table `customer_profiles`
 - `preorderChatBlock` ← [PreorderChatCustomerBlock](#model-preorderchatcustomerblock) - has zero or one
 - `organizationMembership` ← [BuyerOrganizationMember](#model-buyerorganizationmember) - has zero or one
 - `sellerMembership` ← [SellerMember](#model-sellermember) - has zero or one
+- `disputes` ← [Dispute](#model-dispute) - has many
 
 **Indexes and keys**
 
@@ -2025,6 +2064,7 @@ Table `orders`
 - `payments` ← [PaymentTransaction](#model-paymenttransaction) - has many
 - `paymentLinks` ← [PaymentLink](#model-paymentlink) - has many
 - `refunds` ← [Refund](#model-refund) - has many
+- `paymentReceipts` ← [PaymentReceipt](#model-paymentreceipt) - has many
 - `shipments` ← [Shipment](#model-shipment) - has many
 - `returnRequests` ← [ReturnRequest](#model-returnrequest) - has many
 - `reservations` ← [StockReservation](#model-stockreservation) - has many
@@ -2037,6 +2077,8 @@ Table `orders`
 - `sellerInvoices` ← [SellerInvoice](#model-sellerinvoice) - has many
 - `packingLists` ← [SellerPackingList](#model-sellerpackinglist) - has many
 - `commissionInvoices` ← [CommissionInvoice](#model-commissioninvoice) - has many
+- `disputes` ← [Dispute](#model-dispute) - has many
+- `buyerCompanyApprovals` ← [BuyerCompanyOrderApproval](#model-buyercompanyorderapproval) - has many
 
 **Indexes and keys**
 
@@ -2086,6 +2128,7 @@ Table `order_items`
 | `productInfoSnapshotJson` | Json | yes |  |  | What the customer bought, as it was described at the moment the order was created: description, specifications (with the variant's own values applied), packaging, minimum, carton and container figures, the options chosen and the special instructions. Written once, in the transaction that creates the order item, by… |
 | `productInfoCapturedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -2094,6 +2137,8 @@ Table `order_items`
 - `variant` → [ProductVariant](#model-productvariant) via `variantId` - many-to-one, optional, on delete **Restrict**
 - `sellerOffer` → [SellerOffer](#model-selleroffer) via `sellerOfferId` - many-to-one, optional, on delete **Restrict**
 - `packaging` ← [OrderItemPackaging](#model-orderitempackaging) - has zero or one
+- `returnLines` ← [ReturnRequestLine](#model-returnrequestline) - has many
+- `disputes` ← [Dispute](#model-dispute) - has many
 
 **Indexes and keys**
 
@@ -2119,6 +2164,7 @@ Table `order_status_history`
 | `metaJson` | Json | yes |  |  |  |
 | `correlationId` | String · VarChar(64) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -2145,6 +2191,7 @@ Table `order_approvals`
 | `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `comment` | String · VarChar(512) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -2174,6 +2221,7 @@ Table `idempotency_records`
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `completedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Indexes and keys**
 
@@ -2255,7 +2303,7 @@ How an order's money was arrived at in the currency it was charged in.
 
 ## Payments
 
-[PaymentProviderConnection](#model-paymentproviderconnection) · [PaymentTransaction](#model-paymenttransaction) · [PaymentEvent](#model-paymentevent) · [PaymentLink](#model-paymentlink) · [Refund](#model-refund)
+[PaymentProviderConnection](#model-paymentproviderconnection) · [PaymentTransaction](#model-paymenttransaction) · [PaymentEvent](#model-paymentevent) · [PaymentLink](#model-paymentlink) · [Refund](#model-refund) · [PaymentReceipt](#model-paymentreceipt)
 
 ```mermaid
 erDiagram
@@ -2267,6 +2315,7 @@ erDiagram
     Order ||--o{ PaymentLink : "order"
     Order ||--o{ Refund : "order"
     PaymentTransaction ||--o{ Refund : "paymentTransaction"
+    Order ||--o{ PaymentReceipt : "order"
     PaymentProviderConnection {
         String id PK
         String lastTestStatus
@@ -2297,6 +2346,11 @@ erDiagram
         String paymentTransactionId FK
         BigInt amountMinor
         RefundStatus status
+    }
+    PaymentReceipt {
+        String id PK
+        String orderId FK
+        BigInt amountMinor
     }
 ```
 
@@ -2377,6 +2431,7 @@ Table `payment_transactions`
 - `connection` → [PaymentProviderConnection](#model-paymentproviderconnection) via `connectionId` - many-to-one, required, on delete **Restrict**
 - `refunds` ← [Refund](#model-refund) - has many
 - `events` ← [PaymentEvent](#model-paymentevent) - has many
+- `disputes` ← [Dispute](#model-dispute) - has many
 
 **Indexes and keys**
 
@@ -2406,6 +2461,8 @@ Table `payment_events`
 | `receivedAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `processedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `attemptStartedAt` | DateTime · DateTime(3) | yes |  |  | When the attempt currently holding this row began. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -2443,6 +2500,7 @@ Table `payment_links`
 | `supersededByLinkId` | String · Char(26) | yes |  |  | When a link is resent, the old row points at the new one and stays invalid. |
 | `createdById` | String · Char(26) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -2484,11 +2542,45 @@ Table `refunds`
 - `order` → [Order](#model-order) via `orderId` - many-to-one, required, on delete **Restrict**
 - `paymentTransaction` → [PaymentTransaction](#model-paymenttransaction) via `paymentTransactionId` - many-to-one, required, on delete **Restrict**
 - `returnRequests` ← [ReturnRequest](#model-returnrequest) - has many
+- `disputes` ← [Dispute](#model-dispute) - has many
 
 **Indexes and keys**
 
 - `@@index([orderId, createdAt], map: "ix_refund_order_time")`
 - `@@index([status, createdAt], map: "ix_refund_status_time")`
+
+<a id="model-paymentreceipt"></a>
+
+### PaymentReceipt
+
+Table `payment_receipts`
+
+The receipt number issued for one captured payment or one succeeded refund.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `receiptNumber` | String · VarChar(32) |  |  |  |  |
+| `kind` | [enum PaymentReceiptKind](#enum-paymentreceiptkind) |  |  |  |  |
+| `sourceKey` | String · VarChar(64) |  |  |  | `payment:&lt;paymentTransactionId&gt;` or `refund:&lt;refundId&gt;`. One receipt each. |
+| `orderId` | String · Char(26) |  | FK → [Order](#model-order) |  | (on delete: Cascade) |
+| `paymentTransactionId` | String · Char(26) |  |  |  |  |
+| `refundId` | String · Char(26) | yes |  |  |  |
+| `amountMinor` | BigInt |  |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `snapshotJson` | Json |  |  |  |  |
+| `issuedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `order` → [Order](#model-order) via `orderId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([receiptNumber], map: "uq_payment_receipt_number")`
+- `@@unique([sourceKey], map: "uq_payment_receipt_source")`
+- `@@index([orderId], map: "ix_payment_receipt_order")`
 
 ### Enums in Payments
 
@@ -2571,6 +2663,17 @@ What the customer chose to pay with, in the words they were shown.
 | `FAILED` |  |
 | `CANCELLED` |  |
 
+<a id="enum-paymentreceiptkind"></a>
+
+#### enum PaymentReceiptKind
+
+Which kind of money movement a receipt acknowledges.
+
+| Value | Meaning |
+|---|---|
+| `PAYMENT` | A captured payment from the buyer. |
+| `REFUND` | A refund the provider confirmed. |
+
 <a id="group-recurring-purchases"></a>
 
 ## Recurring purchases
@@ -2584,6 +2687,7 @@ erDiagram
     Address ||--o{ RecurringSchedule : "billingAddress"
     CustomerPaymentMethod |o--o{ RecurringSchedule : "paymentMethod"
     InventoryLocation |o--o{ RecurringSchedule : "inventoryLocation"
+    BuyerCompany |o--o{ RecurringSchedule : "buyerCompany"
     RecurringSchedule ||--o{ RecurringScheduleItem : "schedule"
     Product ||--o{ RecurringScheduleItem : "product"
     ProductVariant |o--o{ RecurringScheduleItem : "variant"
@@ -2604,6 +2708,7 @@ erDiagram
         BigInt repriceApprovalThresholdMinor
         BigInt priceToleranceMinor
         String inventoryLocationId FK
+        String buyerCompanyId FK
     }
     RecurringScheduleItem {
         String id PK
@@ -2620,6 +2725,7 @@ erDiagram
         BigInt quotedTotalMinor
         BigInt actualTotalMinor
         ErpPushStatus erpPushStatus
+        BigInt confirmedTotalMinor
     }
     CustomerPaymentMethod {
         String id PK
@@ -2698,6 +2804,7 @@ Table `recurring_schedules`
 | `leaseExpiresAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `buyerCompanyId` | String · Char(26) | yes | FK → [BuyerCompany](#model-buyercompany) |  | The company this plan buys for, or NULL for the person's own plan. (on delete: Restrict) |
 
 **Relations**
 
@@ -2706,6 +2813,7 @@ Table `recurring_schedules`
 - `billingAddress` → [Address](#model-address) via `billingAddressId` - many-to-one, required, on delete **Restrict**
 - `paymentMethod` → [CustomerPaymentMethod](#model-customerpaymentmethod) via `paymentMethodId` - many-to-one, optional, on delete **Restrict**
 - `inventoryLocation` → [InventoryLocation](#model-inventorylocation) via `inventoryLocationId` - many-to-one, optional, on delete **Restrict**
+- `buyerCompany` → [BuyerCompany](#model-buyercompany) via `buyerCompanyId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
 - `items` ← [RecurringScheduleItem](#model-recurringscheduleitem) - has many
 - `occurrences` ← [ScheduleOccurrence](#model-scheduleoccurrence) - has many
 
@@ -2717,6 +2825,7 @@ Table `recurring_schedules`
 - `@@index([customerProfileId, kind, status], map: "ix_schedule_customer_kind")`
 - `@@index([paymentMethodId], map: "ix_schedule_payment_method")`
 - `@@index([inventoryLocationId], map: "ix_schedule_location")`
+- `@@index([buyerCompanyId], map: "ix_schedule_buyer_company")`
 
 <a id="model-recurringscheduleitem"></a>
 
@@ -2784,9 +2893,14 @@ Table `schedule_occurrences`
 | `failureMessage` | String · VarChar(512) | yes |  |  |  |
 | `skipReason` | String · VarChar(512) | yes |  |  |  |
 | `actionRequiredAt` | DateTime · DateTime(3) | yes |  |  | When Stripe asked for the cardholder. Read by the reminder that chases an ACTION_REQUIRED occurrence before its window closes. |
+| `confirmationDueAt` | DateTime · DateTime(3) | yes |  |  | --- Price reconfirmation (AWAITING_CONFIRMATION) --- The last moment the customer may accept the new price. |
+| `confirmedTotalMinor` | BigInt | yes |  |  | The total the customer accepted. The charge is made only if a fresh quote still comes to exactly this. |
+| `confirmedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `confirmedByUserId` | String · Char(26) | yes |  |  |  |
 | `reminderSentAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `completedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -3002,6 +3116,7 @@ The life of one billing cycle.
 | `SKIPPED` | Deliberately not run: product unpublished, stock short, limit breached, or the customer skipped it. |
 | `CANCELLED` | The customer or an administrator cancelled this cycle, or the whole plan was cancelled before it ran. Distinct from SKIPPED, which the engine also decides for itself. |
 | `FAILED` |  |
+| `AWAITING_CONFIRMATION` | The price moved beyond the tolerance the customer approved. Nothing has been charged and no order exists. The customer is shown the new total and may accept it - the delivery is then re-priced by `quoteSchedule` and charged only if the total is still the one they accepted - or decline it. Skipped by the system if… |
 | `PENDING` | --- Retained for rows written before the statuses above existed --- |
 | `ORDER_CREATED` |  |
 | `PAID` |  |
@@ -3046,7 +3161,7 @@ What a stored card's owner agreed to. See `CustomerPaymentMethod`.
 
 ##  / one warehouse's offer for one basket, frozen. / / rows are cheap and short-lived: one per eligible option per request, swept / once they expire unless an order points at them. a quote attached to an / order is kept for ever - it is the evidence of what the customer was shown / before they agreed to pay.
 
-[FulfilmentQuote](#model-fulfilmentquote) · [Shipment](#model-shipment) · [ReturnRequest](#model-returnrequest)
+[FulfilmentQuote](#model-fulfilmentquote) · [Shipment](#model-shipment) · [ReturnRequest](#model-returnrequest) · [ReturnRequestLine](#model-returnrequestline) · [ReturnRequestEvent](#model-returnrequestevent) · [ReturnRequestFile](#model-returnrequestfile) · [ReturnSettings](#model-returnsettings)
 
 ```mermaid
 erDiagram
@@ -3058,6 +3173,11 @@ erDiagram
     Order ||--o{ Shipment : "order"
     Order ||--o{ ReturnRequest : "order"
     Refund |o--o{ ReturnRequest : "refund"
+    SellerOrderGroup |o--o{ ReturnRequest : "sellerOrderGroup"
+    ReturnRequest ||--o{ ReturnRequestLine : "returnRequest"
+    OrderItem ||--o{ ReturnRequestLine : "orderItem"
+    ReturnRequest ||--o{ ReturnRequestEvent : "returnRequest"
+    ReturnRequest ||--o{ ReturnRequestFile : "returnRequest"
     FulfilmentQuote {
         String id PK
         String customerProfileId FK
@@ -3080,7 +3200,25 @@ erDiagram
         String id PK
         String orderId FK
         ReturnStatus status
+        String sellerOrderGroupId FK
         String refundId FK
+    }
+    ReturnRequestLine {
+        String id PK
+        String returnRequestId FK
+        String orderItemId FK
+    }
+    ReturnRequestEvent {
+        String id PK
+        String returnRequestId FK
+        ReturnStatus toStatus
+    }
+    ReturnRequestFile {
+        String id PK
+        String returnRequestId FK
+    }
+    ReturnSettings {
+        String id PK
     }
 ```
 
@@ -3120,6 +3258,7 @@ Table `fulfilment_quotes`
 | `itemsJson` | Json |  |  |  | The lines themselves, for the audit trail and for a support conversation months later about what exactly was offered. |
 | `expiresAt` | DateTime · DateTime(3) |  |  |  | When it stops being an offer. Short - see FULFILMENT_QUOTE_TTL_MINUTES - because it holds a stock figure, and a stock figure is the fastest-moving input in this system. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -3177,17 +3316,34 @@ Table `shipments`
 
 Table `return_requests`
 
+A buyer's request to send goods back, and everything that happens to it.
+
 | Column | Type | Null? | Key | Default | Notes |
 |---|---|---|---|---|---|
 | `id` | String · Char(26) |  | PK |  |  |
 | `orderId` | String · Char(26) |  | FK → [Order](#model-order) |  | (on delete: Cascade) |
 | `status` | [enum ReturnStatus](#enum-returnstatus) |  |  | REQUESTED |  |
-| `reason` | String · VarChar(512) |  |  |  |  |
-| `itemsJson` | Json |  |  |  | Requested items with quantity, plus the post-inspection sellable versus quarantined split that drives the restock movements. |
+| `reason` | String · VarChar(512) |  |  |  | The buyer's own words about the problem. Empty when they gave none; the reason itself is `reasonCode`. |
+| `reasonCode` | String · VarChar(48) | yes |  |  | A code from the operator's enabled list (see ReturnSettings). Null only on returns recorded before reason codes existed. |
+| `preferredResolution` | [enum ReturnResolution](#enum-returnresolution) |  |  | REFUND |  |
+| `origin` | [enum ReturnOrigin](#enum-returnorigin) |  |  | STAFF |  |
+| `sellerOrderGroupId` | String · Char(26) | yes | FK → [SellerOrderGroup](#model-sellerordergroup) |  | The seller whose goods these are. Null when they are the operator's own. (on delete: SetNull) |
+| `itemsJson` | Json |  |  |  | A snapshot of what was asked for, as `[{ orderItemId, quantity }]`. `lines` is the record every rule reads. |
 | `requestedById` | String · Char(26) |  |  |  |  |
 | `decidedById` | String · Char(26) | yes |  |  |  |
 | `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
-| `decisionNote` | String · VarChar(512) | yes |  |  |  |
+| `decisionNote` | String · VarChar(512) | yes |  |  | Why it was rejected (required), or a note on the approval. |
+| `sellerResponse` | [enum ReturnSellerResponse](#enum-returnsellerresponse) | yes |  |  |  |
+| `sellerResponseNote` | String · Text | yes |  |  |  |
+| `sellerRespondedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `sellerRespondedById` | String · Char(26) | yes |  |  |  |
+| `returnInstructions` | String · Text | yes |  |  | How to send the goods back. Written by the seller or staff; defaults from the seller's return location or the operator's return settings. |
+| `instructionsSetAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `approvedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `rejectedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `receivedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `inspectedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `resolutionNote` | String · VarChar(512) | yes |  |  | What staff recorded when a replacement was sent instead of a refund. |
 | `refundId` | String · Char(26) | yes | FK → [Refund](#model-refund) |  | (on delete: SetNull) |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
@@ -3197,11 +3353,127 @@ Table `return_requests`
 
 - `order` → [Order](#model-order) via `orderId` - many-to-one, required, on delete **Cascade**
 - `refund` → [Refund](#model-refund) via `refundId` - many-to-one, optional, on delete **SetNull**
+- `sellerOrderGroup` → [SellerOrderGroup](#model-sellerordergroup) via `sellerOrderGroupId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `lines` ← [ReturnRequestLine](#model-returnrequestline) - has many
+- `events` ← [ReturnRequestEvent](#model-returnrequestevent) - has many
+- `files` ← [ReturnRequestFile](#model-returnrequestfile) - has many
 
 **Indexes and keys**
 
 - `@@index([orderId], map: "ix_return_order")`
 - `@@index([status, createdAt], map: "ix_return_status_time")`
+- `@@index([sellerOrderGroupId, status], map: "ix_return_seller_group")`
+
+<a id="model-returnrequestline"></a>
+
+### ReturnRequestLine
+
+Table `return_request_lines`
+
+One order line on a return: how many were asked for, and after inspection how many are sellable again and how many are damaged.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `returnRequestId` | String · Char(26) |  | FK → [ReturnRequest](#model-returnrequest) |  | (on delete: Cascade) |
+| `orderItemId` | String · Char(26) |  | FK → [OrderItem](#model-orderitem) |  | (on delete: Cascade) |
+| `quantity` | Int |  |  |  |  |
+| `sellableQty` | Int | yes |  |  |  |
+| `damagedQty` | Int | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `returnRequest` → [ReturnRequest](#model-returnrequest) via `returnRequestId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `orderItem` → [OrderItem](#model-orderitem) via `orderItemId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([returnRequestId, orderItemId], map: "uq_return_line_item")`
+- `@@index([orderItemId], map: "ix_return_line_order_item")`
+
+<a id="model-returnrequestevent"></a>
+
+### ReturnRequestEvent
+
+Table `return_request_events`
+
+The timeline of a return, one row per step. `visibleToBuyer` is false only for the seller's own response, which is between the seller and the operator.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `returnRequestId` | String · Char(26) |  | FK → [ReturnRequest](#model-returnrequest) |  | (on delete: Cascade) |
+| `kind` | String · VarChar(32) |  |  |  | REQUESTED, SELLER_RESPONDED, APPROVED, REJECTED, INSTRUCTIONS, LABEL, EVIDENCE, RECEIVED, INSPECTED, REFUND_ISSUED, REPLACEMENT, COMPLETED. |
+| `toStatus` | [enum ReturnStatus](#enum-returnstatus) | yes |  |  |  |
+| `note` | String · Text | yes |  |  |  |
+| `visibleToBuyer` | Boolean |  |  | true |  |
+| `actorType` | String · VarChar(16) |  |  |  | CUSTOMER, SELLER, ADMIN or SYSTEM, and which account. The account is not shown to the buyer; the role is. |
+| `actorId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `returnRequest` → [ReturnRequest](#model-returnrequest) via `returnRequestId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([returnRequestId, createdAt], map: "ix_return_event_request")`
+
+<a id="model-returnrequestfile"></a>
+
+### ReturnRequestFile
+
+Table `return_request_files`
+
+A file on a return. Same pipeline as support attachments: the bytes decide the type, it is scanned before it is stored, it sits in private storage and leaves only through a single-use link.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `returnRequestId` | String · Char(26) |  | FK → [ReturnRequest](#model-returnrequest) |  | (on delete: Cascade) |
+| `kind` | [enum ReturnFileKind](#enum-returnfilekind) |  |  |  |  |
+| `storageKey` | String · VarChar(512) |  |  |  |  |
+| `fileName` | String · VarChar(255) |  |  |  |  |
+| `contentType` | String · VarChar(128) |  |  |  |  |
+| `mediaKind` | [enum SupportAttachmentKind](#enum-supportattachmentkind) |  |  |  |  |
+| `byteSize` | Int |  |  |  |  |
+| `contentHash` | String · Char(64) |  |  |  |  |
+| `scanState` | [enum SupportAttachmentScanState](#enum-supportattachmentscanstate) |  |  |  |  |
+| `uploadedById` | String · Char(26) | yes |  |  |  |
+| `uploaderType` | String · VarChar(16) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `returnRequest` → [ReturnRequest](#model-returnrequest) via `returnRequestId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([returnRequestId, createdAt], map: "ix_return_file_request")`
+
+<a id="model-returnsettings"></a>
+
+### ReturnSettings
+
+Table `return_settings`
+
+The operator's return policy. A single row, created with the defaults the first time it is read, and changed under Returns in the console.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `windowDays` | Int · SmallInt |  |  | 14 | Days after delivery a buyer may ask for a return. 0 switches buyer returns off; staff can still record one. |
+| `reasonCodesJson` | Json |  |  |  | The reason codes buyers may choose from, as a JSON array of codes from the catalogue in `domain/return-state.ts`, in display order. |
+| `evidenceRequiredJson` | Json |  |  |  | The subset of those that need at least one photograph or video. |
+| `replacementEnabled` | Boolean |  |  | false | Whether a buyer may ask for a replacement rather than a refund. |
+| `operatorInstructions` | String · Text | yes |  |  | How to send the operator's own goods back. Sellers' returns use the seller's return location instead. |
+| `updatedById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 
 ### Enums in  / one warehouse's offer for one basket, frozen. / / rows are cheap and short-lived: one per eligible option per request, swept / once they expire unless an order points at them. a quote attached to an / order is kept for ever - it is the evidence of what the customer was shown / before they agreed to pay.
 
@@ -3230,6 +3502,50 @@ Table `return_requests`
 | `RECEIVED` |  |
 | `INSPECTED` |  |
 | `COMPLETED` |  |
+
+<a id="enum-returnresolution"></a>
+
+#### enum ReturnResolution
+
+What the buyer would like to happen once the goods are back.
+
+| Value | Meaning |
+|---|---|
+| `REFUND` |  |
+| `REPLACEMENT` | Offered only when the operator switches replacements on in the return settings. Staff record the replacement; no refund is issued for it. |
+
+<a id="enum-returnorigin"></a>
+
+#### enum ReturnOrigin
+
+Who opened the return: the buyer from their order page, or staff on the buyer's behalf (a phone call, an email).
+
+| Value | Meaning |
+|---|---|
+| `BUYER` |  |
+| `STAFF` |  |
+
+<a id="enum-returnsellerresponse"></a>
+
+#### enum ReturnSellerResponse
+
+What the seller said about a return on their part of an order. Advisory: the operator makes the decision, with the seller's view in front of them.
+
+| Value | Meaning |
+|---|---|
+| `ACCEPT` |  |
+| `CONTEST` |  |
+
+<a id="enum-returnfilekind"></a>
+
+#### enum ReturnFileKind
+
+A file on a return: the buyer's photographs or video of the problem, or a return label the seller or staff made at their carrier.
+
+| Value | Meaning |
+|---|---|
+| `EVIDENCE` |  |
+| `LABEL` |  |
 
 <a id="group-integrations-custom-product-inventory-api-connector"></a>
 
@@ -3318,6 +3634,8 @@ Table `sync_runs`
 | `failureCount` | Int |  |  | 0 |  |
 | `summaryJson` | Json | yes |  |  |  |
 | `errorMessage` | String · VarChar(1024) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -3345,6 +3663,7 @@ Table `sync_errors`
 | `errorMessage` | String · VarChar(1024) |  |  |  |  |
 | `payloadJson` | Json | yes |  |  | Offending record, with credentials and personal data already redacted. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -3458,6 +3777,7 @@ Table `import_jobs`
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `startedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `completedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -3482,6 +3802,8 @@ Table `import_row_errors`
 | `code` | String · VarChar(64) |  |  |  |  |
 | `message` | String · VarChar(1024) |  |  |  |  |
 | `rawJson` | Json | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -3513,6 +3835,7 @@ Table `export_jobs`
 | `createdById` | String · Char(26) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `completedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Indexes and keys**
 
@@ -3609,6 +3932,7 @@ Table `notification_deliveries`
 | `errorMessage` | String · VarChar(1024) | yes |  |  |  |
 | `durationMs` | Int | yes |  |  | Milliseconds spent in the provider call, for latency dashboards. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -3682,6 +4006,7 @@ Table `admin_notifications`
 | `relatedId` | String · Char(26) | yes |  |  |  |
 | `dedupeKey` | String · VarChar(191) | yes | UNIQUE |  | One row per business event even when the operation is retried - the same guarantee `notification_outbox.dedupeKey` gives outgoing mail. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -3711,6 +4036,8 @@ One person's own state on one console row.
 | `userId` | String · Char(26) |  | FK → [User](#model-user) |  | (on delete: Cascade) |
 | `readAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `dismissedAt` | DateTime · DateTime(3) | yes |  |  | This reader has hidden the row without claiming the problem is fixed. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -3832,6 +4159,7 @@ Table `rate_limit_buckets`
 | `windowStart` | DateTime · DateTime(3) |  |  |  |  |
 | `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 
 **Indexes and keys**
 
@@ -3864,6 +4192,7 @@ Table `audit_logs`
 | `actorType` | [enum ActorType](#enum-actortype) |  |  | SYSTEM |  |
 | `actorUserId` | String · Char(26) | yes | FK → [User](#model-user) |  | (on delete: SetNull) |
 | `actorEmail` | String · VarChar(320) | yes |  |  |  |
+| `actorRoles` | String · VarChar(255) | yes |  |  | Comma-separated role keys the actor held WHEN THEY ACTED, looked up by recordAudit at write time. Never joined from today's grants on read: a role changes, and the entry must still say what it was then. NULL for rows with no signed-in actor and for every row written before 2026-10. |
 | `action` | String · VarChar(96) |  |  |  | Dotted verb, e.g. product.published, refund.created, connector.updated. |
 | `resourceType` | String · VarChar(48) |  |  |  |  |
 | `resourceId` | String · Char(26) | yes |  |  |  |
@@ -3873,6 +4202,7 @@ Table `audit_logs`
 | `userAgent` | String · VarChar(512) | yes |  |  |  |
 | `correlationId` | String · VarChar(64) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -3911,6 +4241,7 @@ Table `number_sequences`
 | `prefix` | String · VarChar(16) |  |  |  |  |
 | `padding` | Int |  |  | 6 | Zero-padding width for the numeric part. |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 
 <a id="group-localisation-currency-pricing"></a>
 
@@ -4109,6 +4440,7 @@ One quoted pair inside one snapshot. Never updated.
 | `quoteCurrency` | String · Char(3) |  |  |  |  |
 | `rate` | Decimal · Decimal(24, 12) |  |  |  | How many `quoteCurrency` one `baseCurrency` buys. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -4239,6 +4571,8 @@ Table `coupon_categories`
 | `couponId` | String · Char(26) |  | FK → [Coupon](#model-coupon) |  | (on delete: Cascade) |
 | `categoryId` | String · Char(26) |  | FK → [Category](#model-category) |  | (on delete: Cascade) |
 | `includeDescendants` | Boolean |  |  | true | Include products in descendant categories too. A coupon on "Packaging" almost always means the whole branch. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -4261,6 +4595,8 @@ Table `coupon_minimums`
 | `couponId` | String · Char(26) |  | FK → [Coupon](#model-coupon) |  | (on delete: Cascade) |
 | `currencyCode` | String · Char(3) |  | FK → [Currency](#model-currency) |  | (on delete: Restrict) |
 | `minOrderMinor` | BigInt |  |  | 0 | Cart subtotal, before discount and before tax, at or above which the coupon applies. Zero means no threshold in this currency. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -4288,6 +4624,8 @@ Table `coupon_redemptions`
 | `currencyCode` | String · Char(3) |  |  |  |  |
 | `discountMinor` | BigInt |  |  |  |  |
 | `redeemedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -4428,6 +4766,7 @@ Table `assistant_messages`
 | `role` | [enum AssistantMessageRole](#enum-assistantmessagerole) |  |  |  |  |
 | `content` | String · Text |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -4646,6 +4985,8 @@ A VAT number that has been checked, and what the check said.
 | `consultationNumber` | String · VarChar(64) | yes |  |  | The VIES consultation reference. Art. 31 of Reg. 904/2010 evidence. |
 | `unavailableReason` | String · VarChar(255) | yes |  |  | Set when no answer could be obtained at all - a timeout, a member state's node being down. Distinct from `isValid = false`, which is a real answer meaning "no such number". |
 | `checkedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Indexes and keys**
 
@@ -4733,6 +5074,7 @@ Table `invoices`
 | `grandTotalMinor` | BigInt |  |  |  |  |
 | `creditsInvoiceId` | String · Char(26) | yes | FK → [Invoice](#model-invoice) |  | Set when this invoice cancels an earlier one. A credit note rather than a deletion: an issued invoice is never removed, because the sequence it belongs to must have no gaps anyone can explain away. (on delete: Restrict) |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -4876,6 +5218,7 @@ A country this product may not be delivered to.
 | `countryCode` | String · Char(2) |  |  |  | ISO 3166-1 alpha-2, upper case. Validated against the ISO list in the service; the CHECK constraint is the backstop for a direct SQL write. |
 | `reason` | String · VarChar(256) | yes |  |  | Why, in the operator's own words - "no MDR registration", "import licence required". Optional, and worth having: the person reading this row in a year is not the person who wrote it, and the reasons expire at different times. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -4953,6 +5296,7 @@ erDiagram
         String paymentMethodId FK
         BigInt maxTransactionMinor
         BigInt approvalThresholdMinor
+        BigInt periodCapMinor
     }
 ```
 
@@ -5053,6 +5397,8 @@ One pass over the ERP's inventory feed, and what it did.
 | `rateLimitedUntil` | DateTime · DateTime(3) | yes |  |  | Set when the ERP asked us to slow down. Rendered as "paused until", which is the only part of a 429 anybody needs. |
 | `errorCode` | String · VarChar(64) | yes |  |  |  |
 | `errorMessage` | String · VarChar(1024) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -5081,6 +5427,7 @@ One record a sync could not read, and why.
 | `errorCode` | String · VarChar(64) |  |  |  |  |
 | `errorMessage` | String · VarChar(1024) |  |  |  | Already safe for display. Redaction happens before the write, not before the read - a value reaching this column has been through `safeErrorMessage`. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -5190,6 +5537,8 @@ An inbound webhook we have already seen.
 | `receivedAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `processedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `syncRunId` | String · Char(26) | yes |  |  | Null until processed. Set to the run that applied it, so a redelivery can answer "already applied, in run X" rather than merely "seen before". |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -5218,6 +5567,12 @@ One customer's authority to be charged without being present.
 | `approvalThresholdMinor` | BigInt · BigInt | yes |  |  | Above this, nothing is charged automatically - the customer is asked first. NULL means never ask. Held apart from the maximum because they are different instructions: one refuses, the other defers. |
 | `limitCurrency` | String · Char(3) | yes |  |  | The currency both amounts are in, required whenever either is set. A bare number is not a limit, and comparing 5000 JPY against a EUR total is the kind of bug that charges somebody eighty times what they agreed to. |
 | `retryPreference` | [enum AutoPayRetryPreference](#enum-autopayretrypreference) |  |  | STANDARD |  |
+| `authorityExpiresAt` | DateTime · DateTime(3) | yes |  |  | The last moment this standing authority may be used, chosen by the customer. NULL means until they switch it off. After it, every charge is refused with AUTOPAY_AUTHORITY_EXPIRED and nothing is taken. |
+| `authorityStartsAt` | DateTime · DateTime(3) | yes |  |  | The first moment this standing authority may be used. NULL means from the moment it is switched on. Before it, every charge is refused with AUTOPAY_AUTHORITY_NOT_STARTED. |
+| `periodCapMinor` | BigInt · BigInt | yes |  |  | The most that may be charged automatically across one calendar period (`capPeriod`, UTC), in `limitCurrency`. NULL means no period cap. A charge that would take the period's total above it is not made: the order waits for the customer to pay it themselves, which is their explicit approval. `chk_autopay_period_cap`… |
+| `capPeriod` | [enum AutoPayCapPeriod](#enum-autopaycapperiod) | yes |  |  |  |
+| `scopeSellerKeysJson` | Json | yes |  |  | Which suppliers this authority covers: seller account ids, and `MARKETPLACE` for the operator's own stock. NULL means every supplier. |
+| `scopeCategoryIdsJson` | Json | yes |  |  | Which catalogue categories it covers. NULL means every category. |
 | `notifyOnCharge` | Boolean |  |  | true |  |
 | `notifyOnFailure` | Boolean |  |  | true |  |
 | `consentAcceptedAt` | DateTime · DateTime(3) | yes |  |  | --- Consent. The same evidence shape as CustomerPaymentMethod. --- |
@@ -5347,6 +5702,19 @@ Whether a customer has authorised charges made without them present.
 | `ACTIVE` |  |
 | `PAUSED` | Opted in, consent intact, temporarily stopped. Resuming does NOT ask for consent again, because it was never withdrawn - which is exactly why pause and disable are two different things. |
 
+<a id="enum-autopaycapperiod"></a>
+
+#### enum AutoPayCapPeriod
+
+The calendar period an AutoPay period cap is counted over, in UTC.
+
+| Value | Meaning |
+|---|---|
+| `WEEK` |  |
+| `MONTH` |  |
+| `QUARTER` |  |
+| `YEAR` |  |
+
 <a id="enum-autopayretrypreference"></a>
 
 #### enum AutoPayRetryPreference
@@ -5389,6 +5757,7 @@ Table `wishlist_items`
 | `productId` | String · Char(26) |  | FK → [Product](#model-product) |  | (on delete: Cascade) |
 | `variantKey` | String · Char(26) |  |  | "" | The variant ULID, or '' for the base product. Never null - see above. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -5520,7 +5889,7 @@ Table `product_reviews`
 
 ##  / where a ticket is in its life. see `domain/support-ticket-state.ts`. / / append only - MariaDB stores an enum by position.
 
-[SupportTicket](#model-supportticket) · [SupportTicketEvent](#model-supportticketevent) · [SupportTicketAttachment](#model-supportticketattachment)
+[SupportTicket](#model-supportticket) · [SupportTicketEvent](#model-supportticketevent) · [SupportTicketAttachment](#model-supportticketattachment) · [SupportSlaPolicy](#model-supportslapolicy)
 
 ```mermaid
 erDiagram
@@ -5556,6 +5925,9 @@ erDiagram
         String ticketId FK
         String uploadedByUserId FK
     }
+    SupportSlaPolicy {
+        String id PK
+    }
 ```
 
 <a id="model-supportticket"></a>
@@ -5590,6 +5962,10 @@ Table `support_tickets`
 | `lastActivityAt` | DateTime · DateTime(3) |  |  | now() | The last time anybody wrote on it or changed it. The inbox sorts by this. |
 | `resolvedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `closedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `firstResponseDueAt` | DateTime · DateTime(3) | yes |  |  | The service targets, copied from the category's SLA policy when the ticket is sent: when the first staff reply is due, and when it must be resolved by. A breach is a deadline passed without the thing it waits for. |
+| `resolutionDueAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `firstRespondedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `resolutionCode` | [enum SupportResolutionCode](#enum-supportresolutioncode) | yes |  |  | How it ended. Required to resolve or close; cleared when it reopens. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 
@@ -5634,6 +6010,7 @@ Table `support_ticket_events`
 | `fromValue` | String · VarChar(40) | yes |  |  | For a change: what it was and what it became (a status, a priority, or an assignee's user id). |
 | `toValue` | String · VarChar(40) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -5663,7 +6040,9 @@ Table `support_ticket_attachments`
 | `contentHash` | String · Char(64) |  |  |  |  |
 | `scanState` | [enum SupportAttachmentScanState](#enum-supportattachmentscanstate) |  |  |  |  |
 | `uploadedByUserId` | String · Char(26) | yes | FK → [User](#model-user) |  | Who attached it. Null once that account is gone. (on delete: SetNull) |
+| `uploadedByStaff` | Boolean |  |  | false | Attached by a member of staff rather than the sender. Both see it. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -5674,6 +6053,22 @@ Table `support_ticket_attachments`
 
 - `@@index([ticketId, createdAt], map: "ix_support_ticket_attachment_ticket")`
 - `@@index([uploadedByUserId], map: "ix_support_ticket_attachment_uploader")`
+
+<a id="model-supportslapolicy"></a>
+
+### SupportSlaPolicy
+
+Table `support_sla_policies`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `category` | [enum SupportTicketCategory](#enum-supportticketcategory) |  | UNIQUE |  |  |
+| `firstResponseHours` | Int · SmallInt |  |  |  |  |
+| `resolutionHours` | Int · SmallInt |  |  |  |  |
+| `updatedById` | String · Char(26) | yes |  |  | Who last saved it. Not a foreign key: the audit trail is the record. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 
 ### Enums in  / where a ticket is in its life. see `domain/support-ticket-state.ts`. / / append only - MariaDB stores an enum by position.
 
@@ -5784,6 +6179,327 @@ Whether a malware scanner looked at the file before it was stored.
 |---|---|
 | `CLEAN` |  |
 | `SCANNER_UNCONFIGURED` | No scanner is configured and the operator accepted unscanned files - a development machine only. Production refuses that setting. |
+
+<a id="enum-supportresolutioncode"></a>
+
+#### enum SupportResolutionCode
+
+How a support request ended, chosen by staff when they resolve or close it. Append only - MariaDB stores an enum by position.
+
+| Value | Meaning |
+|---|---|
+| `ANSWERED` | The question was answered; nothing needed changing. |
+| `FIXED` | Something was wrong and has been put right. |
+| `REFUNDED` | Money went back to the sender. |
+| `REPLACED` | Goods were replaced or re-sent. |
+| `REFERRED` | Handed to another process - a dispute, a return, a seller. |
+| `DUPLICATE` | The same problem is being handled on another request. |
+| `NO_RESPONSE` | The sender stopped answering. |
+| `NO_ACTION` | Nothing could or should be done. |
+
+<a id="group-append-only-mariadb-stores-an-enum-by-position"></a>
+
+##  / append only - MariaDB stores an enum by position.
+
+[Dispute](#model-dispute) · [DisputeEvent](#model-disputeevent) · [DisputeAttachment](#model-disputeattachment) · [DisputeSettings](#model-disputesettings)
+
+```mermaid
+erDiagram
+    Order ||--o{ Dispute : "order"
+    OrderItem |o--o{ Dispute : "orderItem"
+    SellerOrderGroup |o--o{ Dispute : "sellerOrderGroup"
+    SellerAccount |o--o{ Dispute : "sellerAccount"
+    CustomerProfile ||--o{ Dispute : "customerProfile"
+    User |o--o{ Dispute : "raisedBy"
+    User |o--o{ Dispute : "assignedAdmin"
+    Refund |o--o{ Dispute : "refund"
+    PaymentTransaction |o--o{ Dispute : "paymentTransaction"
+    Dispute ||--o{ DisputeEvent : "dispute"
+    User |o--o{ DisputeEvent : "actor"
+    Dispute ||--o{ DisputeAttachment : "dispute"
+    User |o--o{ DisputeAttachment : "uploadedBy"
+    Dispute {
+        String id PK
+        DisputeStatus status
+        String orderId FK
+        String orderItemId FK
+        String sellerOrderGroupId FK
+        String sellerAccountId FK
+        String customerProfileId FK
+        String raisedByUserId FK
+        BigInt requestedAmountMinor
+        BigInt sellerProposalAmountMinor
+        String assignedAdminId FK
+        BigInt proposedAmountMinor
+        BigInt resolutionAmountMinor
+        String refundId FK
+    }
+    DisputeEvent {
+        String id PK
+        String disputeId FK
+        String actorUserId FK
+        BigInt amountMinor
+    }
+    DisputeAttachment {
+        String id PK
+        String disputeId FK
+        String uploadedByUserId FK
+    }
+    DisputeSettings {
+        String id PK
+        BigInt approvalThresholdMinor
+    }
+```
+
+<a id="model-dispute"></a>
+
+### Dispute
+
+Table `disputes`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `reference` | String · VarChar(16) |  | UNIQUE |  | What the parties quote. Random, not sequential. DP-XXXX-XXXX. |
+| `kind` | [enum DisputeKind](#enum-disputekind) |  |  |  |  |
+| `status` | [enum DisputeStatus](#enum-disputestatus) |  |  |  |  |
+| `orderId` | String · Char(26) |  | FK → [Order](#model-order) |  | (on delete: Cascade) |
+| `orderItemId` | String · Char(26) | yes | FK → [OrderItem](#model-orderitem) |  | The line a claim is about. Null: the whole order. (on delete: SetNull) |
+| `sellerOrderGroupId` | String · Char(26) | yes | FK → [SellerOrderGroup](#model-sellerordergroup) |  | (on delete: SetNull) |
+| `sellerAccountId` | String · Char(26) | yes | FK → [SellerAccount](#model-selleraccount) |  | (on delete: SetNull) |
+| `customerProfileId` | String · Char(26) |  | FK → [CustomerProfile](#model-customerprofile) |  | (on delete: Cascade) |
+| `raisedByUserId` | String · Char(26) | yes | FK → [User](#model-user) |  | Who raised it. Null for a chargeback, and once that account is gone. (on delete: SetNull) |
+| `reasonCode` | String · VarChar(40) |  |  |  | A claim: one of `DisputeReasonValues`. A chargeback: the provider's word. |
+| `description` | String · Text | yes |  |  | The buyer's account of the problem. Plain text, rendered as text. |
+| `desiredOutcome` | [enum DisputeResolution](#enum-disputeresolution) | yes |  |  |  |
+| `requestedAmountMinor` | BigInt | yes |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `sellerResponseDueAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `decisionDueAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `sellerRespondedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `sellerProposal` | [enum DisputeResolution](#enum-disputeresolution) | yes |  |  | What the seller offered, if anything. |
+| `sellerProposalAmountMinor` | BigInt | yes |  |  |  |
+| `assignedAdminId` | String · Char(26) | yes | FK → [User](#model-user) |  | (on delete: SetNull) |
+| `proposedResolution` | [enum DisputeResolution](#enum-disputeresolution) | yes |  |  | A decision above the approval threshold, waiting for a second member of staff. Cleared when it is approved or refused. |
+| `proposedAmountMinor` | BigInt | yes |  |  |  |
+| `proposedReason` | String · VarChar(1000) | yes |  |  |  |
+| `proposedById` | String · Char(26) | yes |  |  | Not foreign keys: people come and go, and the audit trail is the record. |
+| `proposedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `resolution` | [enum DisputeResolution](#enum-disputeresolution) | yes |  |  |  |
+| `resolutionAmountMinor` | BigInt | yes |  |  |  |
+| `decisionReason` | String · VarChar(1000) | yes |  |  |  |
+| `decidedById` | String · Char(26) | yes |  |  |  |
+| `approvedById` | String · Char(26) | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `refundId` | String · Char(26) | yes | FK → [Refund](#model-refund) |  | The refund the decision made, through the ordinary refund path. (on delete: SetNull) |
+| `appealDueAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `appealCount` | Int · TinyInt |  |  | 0 |  |
+| `providerDisputeId` | String · VarChar(128) | yes | UNIQUE |  | Chargebacks. The provider's own dispute id (dp_...) is the idempotency key for its events: one provider dispute is one row, however often told. |
+| `paymentTransactionId` | String · Char(26) | yes | FK → [PaymentTransaction](#model-paymenttransaction) |  | (on delete: SetNull) |
+| `providerStatus` | String · VarChar(40) | yes |  |  |  |
+| `evidenceDueAt` | DateTime · DateTime(3) | yes |  |  | When evidence must reach the provider by. |
+| `disputedAmountMinor` | BigInt | yes |  |  |  |
+| `closedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `lastActivityAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `order` → [Order](#model-order) via `orderId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `orderItem` → [OrderItem](#model-orderitem) via `orderItemId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `sellerOrderGroup` → [SellerOrderGroup](#model-sellerordergroup) via `sellerOrderGroupId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `raisedBy` → [User](#model-user) via `raisedByUserId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `assignedAdmin` → [User](#model-user) via `assignedAdminId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `refund` → [Refund](#model-refund) via `refundId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `paymentTransaction` → [PaymentTransaction](#model-paymenttransaction) via `paymentTransactionId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `events` ← [DisputeEvent](#model-disputeevent) - has many
+- `attachments` ← [DisputeAttachment](#model-disputeattachment) - has many
+
+**Indexes and keys**
+
+- `@@index([status, lastActivityAt], map: "ix_dispute_status")`
+- `@@index([kind, status], map: "ix_dispute_kind_status")`
+- `@@index([orderId], map: "ix_dispute_order")`
+- `@@index([orderItemId], map: "ix_dispute_order_item")`
+- `@@index([sellerOrderGroupId], map: "ix_dispute_seller_group")`
+- `@@index([sellerAccountId, status], map: "ix_dispute_seller")`
+- `@@index([customerProfileId, createdAt], map: "ix_dispute_customer")`
+- `@@index([raisedByUserId], map: "ix_dispute_raised_by")`
+- `@@index([assignedAdminId, status], map: "ix_dispute_assignee")`
+- `@@index([refundId], map: "ix_dispute_refund")`
+- `@@index([paymentTransactionId], map: "ix_dispute_payment")`
+
+<a id="model-disputeevent"></a>
+
+### DisputeEvent
+
+Table `dispute_events`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `disputeId` | String · Char(26) |  | FK → [Dispute](#model-dispute) |  | (on delete: Cascade) |
+| `kind` | [enum DisputeEventKind](#enum-disputeeventkind) |  |  |  |  |
+| `party` | [enum DisputeParty](#enum-disputeparty) |  |  |  |  |
+| `visibleToBuyer` | Boolean |  |  |  |  |
+| `visibleToSeller` | Boolean |  |  |  |  |
+| `actorUserId` | String · Char(26) | yes | FK → [User](#model-user) |  | Who did it. Null for the provider, the system, or a removed account. (on delete: SetNull) |
+| `body` | String · Text | yes |  |  | The message or note. Plain text; null for a change. |
+| `fromValue` | String · VarChar(40) | yes |  |  |  |
+| `toValue` | String · VarChar(40) | yes |  |  |  |
+| `amountMinor` | BigInt | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `dispute` → [Dispute](#model-dispute) via `disputeId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `actor` → [User](#model-user) via `actorUserId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([disputeId, createdAt], map: "ix_dispute_event_dispute")`
+- `@@index([actorUserId], map: "ix_dispute_event_actor")`
+
+<a id="model-disputeattachment"></a>
+
+### DisputeAttachment
+
+Table `dispute_attachments`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `disputeId` | String · Char(26) |  | FK → [Dispute](#model-dispute) |  | (on delete: Cascade) |
+| `party` | [enum DisputeParty](#enum-disputeparty) |  |  |  |  |
+| `storageKey` | String · VarChar(512) |  |  |  |  |
+| `fileName` | String · VarChar(255) |  |  |  |  |
+| `contentType` | String · VarChar(128) |  |  |  |  |
+| `kind` | [enum SupportAttachmentKind](#enum-supportattachmentkind) |  |  |  |  |
+| `byteSize` | Int |  |  |  |  |
+| `contentHash` | String · Char(64) |  |  |  |  |
+| `scanState` | [enum SupportAttachmentScanState](#enum-supportattachmentscanstate) |  |  |  |  |
+| `uploadedByUserId` | String · Char(26) | yes | FK → [User](#model-user) |  | (on delete: SetNull) |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `dispute` → [Dispute](#model-dispute) via `disputeId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `uploadedBy` → [User](#model-user) via `uploadedByUserId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([disputeId, createdAt], map: "ix_dispute_attachment_dispute")`
+- `@@index([uploadedByUserId], map: "ix_dispute_attachment_uploader")`
+
+<a id="model-disputesettings"></a>
+
+### DisputeSettings
+
+Table `dispute_settings`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `version` | Int |  |  | 0 |  |
+| `claimWindowDays` | Int · SmallInt |  |  |  | How long after the order was placed a buyer may raise a claim. |
+| `sellerResponseHours` | Int · SmallInt |  |  |  | How long the seller has to answer a claim. |
+| `decisionHours` | Int · SmallInt |  |  |  | How long the operator has to decide, from when the claim was raised. |
+| `appealWindowDays` | Int · SmallInt |  |  |  | How long after a decision either party may appeal it, once. |
+| `approvalThresholdMinor` | BigInt |  |  |  | Refund decisions ABOVE this amount need a second member of staff. |
+| `approvalCurrency` | String · Char(3) |  |  |  | The currency the threshold is in. A decision in another currency always needs the second approval. |
+| `enabledReasonsJson` | Json |  |  |  | Which of `DisputeReasonValues` the claim form offers, as a JSON array. |
+| `updatedById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+### Enums in  / append only - MariaDB stores an enum by position.
+
+<a id="enum-disputekind"></a>
+
+#### enum DisputeKind
+
+| Value | Meaning |
+|---|---|
+| `CLAIM` |  |
+| `CHARGEBACK` |  |
+
+<a id="enum-disputestatus"></a>
+
+#### enum DisputeStatus
+
+See `domain/dispute-state.ts` for what each means and how it moves.
+
+| Value | Meaning |
+|---|---|
+| `AWAITING_SELLER` |  |
+| `UNDER_REVIEW` |  |
+| `PENDING_APPROVAL` |  |
+| `RESOLVED` |  |
+| `REJECTED` |  |
+| `APPEALED` |  |
+| `WITHDRAWN` |  |
+| `CHARGEBACK_OPEN` |  |
+| `NEEDS_RESPONSE` |  |
+| `CHARGEBACK_UNDER_REVIEW` |  |
+| `WON` |  |
+| `LOST` |  |
+
+<a id="enum-disputeresolution"></a>
+
+#### enum DisputeResolution
+
+How a claim is settled. REJECT is only ever a decision, never a request.
+
+| Value | Meaning |
+|---|---|
+| `REFUND_FULL` |  |
+| `REFUND_PARTIAL` |  |
+| `REPLACEMENT` |  |
+| `REJECT` |  |
+
+<a id="enum-disputeparty"></a>
+
+#### enum DisputeParty
+
+Who a line of a dispute's history came from.
+
+| Value | Meaning |
+|---|---|
+| `BUYER` |  |
+| `SELLER` |  |
+| `STAFF` |  |
+| `PROVIDER` |  |
+| `SYSTEM` |  |
+
+<a id="enum-disputeeventkind"></a>
+
+#### enum DisputeEventKind
+
+One line of a dispute's history. Append only.
+
+| Value | Meaning |
+|---|---|
+| `CREATED` |  |
+| `MESSAGE` |  |
+| `INTERNAL_NOTE` |  |
+| `EVIDENCE_ADDED` |  |
+| `STATUS_CHANGED` |  |
+| `SELLER_RESPONSE` |  |
+| `ESCALATED` |  |
+| `WITHDRAWN` |  |
+| `ASSIGNED` |  |
+| `DECISION_PROPOSED` |  |
+| `DECISION_APPROVED` |  |
+| `DECISION_REFUSED` |  |
+| `DECISION_APPLIED` |  |
+| `APPEALED` |  |
+| `PROVIDER_UPDATE` |  |
+| `EVIDENCE_NOTE` |  |
 
 <a id="group-what-somebody-may-do-inside-a-buyer-organisation-three-levels-rather-than-a-permission-matrix-because-there-are-exactly-three-questions-a-buyer-s-it-department-actually-has-who-owns-this-who-may-change-the-credentials-and-who-may-look-a-fourth-role-would-have-to-be-explained-to-somebody-and-nobody-has-asked-for-one"></a>
 
@@ -5947,6 +6663,7 @@ One person's place in one buyer organisation.
 | `invitedByProfileId` | String · Char(26) | yes |  |  | The member who brought them in. Null for the founder. |
 | `joinedAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 
 **Relations**
 
@@ -5978,6 +6695,7 @@ An outstanding invitation to join a buyer organisation.
 | `acceptedByProfileId` | String · Char(26) | yes |  |  |  |
 | `revokedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -6318,6 +7036,8 @@ One pass of scheduled or manual work, and what it did.
 | `errorCode` | String · VarChar(64) | yes |  |  |  |
 | `errorMessage` | String · VarChar(1024) | yes |  |  |  |
 | `startedByProfileId` | String · Char(26) | yes |  |  | The member who pressed the button, for a manual run. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -6351,6 +7071,8 @@ An inbound webhook, once it has been through the door.
 | `syncEventId` | String · Char(26) | yes |  |  | The event this delivery produced, once it produced one. Null for a duplicate, a rejection, or a payload the connection had no rule for. |
 | `payloadJson` | Json | yes |  |  | The body, redacted and capped. The evidence behind "we did receive it". |
 | `correlationId` | String · VarChar(64) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -6530,6 +7252,8 @@ Somebody in the buyer's organisation being asked before a write happens.
 | `decidedByProfileId` | String · Char(26) | yes |  |  |  |
 | `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `decisionNote` | String · VarChar(512) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -6560,6 +7284,7 @@ An OAuth authorisation-code flow in flight.
 | `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
 | `consumedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -6593,6 +7318,7 @@ The buyer's own audit trail over their own integration.
 | `userAgent` | String · VarChar(512) | yes |  |  |  |
 | `correlationId` | String · VarChar(64) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -6966,6 +7692,8 @@ erDiagram
     SellerPayoutAccountReference {
         String id PK
         String sellerAccountId FK
+        String bankAccountStatus
+        String lastBankPayoutStatus
     }
     SellerLocation {
         String id PK
@@ -7133,6 +7861,7 @@ A seller business, as a tenant.
 | `internalNotes` | String · Text | yes |  |  | Operator-only. Never serialised to a seller route. |
 | `resubmissionAllowed` | Boolean |  |  | true | Whether a rejected application may be started again. False means the operator closed the door and a new attempt needs them to reopen it. |
 | `commissionBasisPoints` | Int · SmallInt | yes |  |  | The commission the operator takes, in basis points (250 = 2.50%). A SETTING with a null default meaning "use the platform rate", never a hard-coded percentage: what a marketplace charges is a business decision each deployment makes for itself. |
+| `feeTier` | String · VarChar(32) | yes |  |  | The fee tier finance placed this seller in, e.g. `GOLD`. Matched by SELLER_TIER fee rules; null is "no tier". A label the operator chooses, never a list in code. |
 | `qualityScore` | Decimal · Decimal(5, 2) | yes |  |  | Rolled-up performance, recomputed by the worker. Nullable because a seller with no orders has no score, which is different from a score of zero. |
 | `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
@@ -7201,6 +7930,15 @@ A seller business, as a tenant.
 - `linkedBuyerCompanies` ← [BuyerCompany](#model-buyercompany) - has many
 - `supportTickets` ← [SupportTicket](#model-supportticket) - has many
 - `commissionInvoices` ← [CommissionInvoice](#model-commissioninvoice) - has many
+- `disputes` ← [Dispute](#model-dispute) - has many
+- `trustProfile` ← [SellerTrustProfile](#model-sellertrustprofile) - has zero or one
+- `beneficialOwners` ← [SellerBeneficialOwner](#model-sellerbeneficialowner) - has many
+- `factories` ← [SellerFactory](#model-sellerfactory) - has many
+- `certifications` ← [SellerCertification](#model-sellercertification) - has many
+- `trustChecks` ← [SellerTrustCheck](#model-sellertrustcheck) - has many
+- `screeningChecks` ← [SellerScreeningCheck](#model-sellerscreeningcheck) - has many
+- `profileChangeRequests` ← [SellerProfileChangeRequest](#model-sellerprofilechangerequest) - has many
+- `listingTrust` ← [SellerListingTrust](#model-sellerlistingtrust) - has many
 
 **Indexes and keys**
 
@@ -7227,6 +7965,7 @@ One person's place in one seller organisation.
 | `joinedAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 | `removedAt` | DateTime · DateTime(3) | yes |  |  | Set instead of deleting the row, so historical actions still resolve to a person. A removed member fails the guard. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 
 **Relations**
 
@@ -7259,6 +7998,7 @@ An outstanding invitation to join a seller organisation.
 | `acceptedByProfileId` | String · Char(26) | yes |  |  |  |
 | `revokedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -7463,6 +8203,8 @@ A seller accepting one agreement, once, at a version.
 | `ipAddress` | String · VarChar(45) | yes |  |  | Evidence of the act itself. IP and user agent are the usual minimum for a click-through to be worth anything later. |
 | `userAgent` | String · VarChar(512) | yes |  |  |  |
 | `acceptedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -7496,6 +8238,10 @@ The marketplace's pointer to a payout account held somewhere else.
 | `payoutsHeldByOperator` | Boolean |  |  | false | The operator has paused payouts to this seller, regardless of what the provider thinks. Used while a dispute is open. |
 | `payoutHoldReason` | String · Text | yes |  |  |  |
 | `lastSyncedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `bankAccountStatus` | String · VarChar(32) | yes |  |  | The bank account's status at the provider (new, validated, verified, verification_failed, errored): the bank validation the seller sees. |
+| `detailsSubmitted` | Boolean |  |  | false | The seller finished the provider's onboarding form. |
+| `lastBankPayoutStatus` | String · VarChar(32) | yes |  |  | The connected account's last payout to the bank, as the provider said. |
+| `lastBankPayoutAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 
@@ -7793,6 +8539,7 @@ One thing wrong with a listing, tied to the field it is wrong in.
 | `isFromModerator` | Boolean |  |  | false | Raised by the automated checks, or written by a moderator. Both end up beside the same field, which is what the seller needs; the source decides whether re-running validation clears it. |
 | `resolvedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -7847,6 +8594,17 @@ One seller's terms for one catalogue product.
 | `archivedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `hsnCode` | String · VarChar(10) | yes |  |  | The goods' tariff code: an Indian HSN (4, 6 or 8 digits) or an international HS code. The seller's statement about their own goods, and required on a GST tax invoice - so it is on the seller's offer rather than on the shared catalogue product, where two sellers could disagree. |
 | `countryOfOrigin` | String · Char(2) | yes |  |  | ISO-3166 alpha-2. Printed on an export invoice and a packing list. |
+| `hsVerificationState` | [enum HsVerificationState](#enum-hsverificationstate) |  |  | DECLARED | Where the marketplace's review of `hsnCode` stands. DECLARED is the seller's word; VERIFIED means staff (or a customs broker working for the operator) confirmed it, possibly correcting it to `hsVerifiedCode`; REJECTED means it is wrong and the seller must change it. Changing the declared code sends it back to… |
+| `hsVerifiedCode` | String · VarChar(10) | yes |  |  |  |
+| `hsVerificationNote` | String · VarChar(1000) | yes |  |  |  |
+| `hsVerifiedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `hsVerifiedByUserId` | String · Char(26) | yes |  |  |  |
+| `blockedReason` | String · VarChar(1000) | yes |  |  | Why the marketplace BLOCKED it, who did, and when. Seller-visible. |
+| `blockedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `blockedByUserId` | String · Char(26) | yes |  |  |  |
+| `statusBeforeBlock` | [enum SellerOfferStatus](#enum-sellerofferstatus) | yes |  |  | The status it had before it was blocked, so lifting the block returns it there (never straight to ACTIVE without the resume checks). |
+| `capacityUnitsPerWeek` | Int | yes |  |  | What the seller can make, beyond what is on the shelf: pieces per week and how many days before the first of them are ready. Null where the seller only sells from stock. A preorder or bulk request for more than stock plus capacity over the lead time is flagged, not silently accepted. |
+| `capacityLeadTimeDays` | Int · SmallInt | yes |  |  |  |
 
 **Relations**
 
@@ -7863,6 +8621,7 @@ One seller's terms for one catalogue product.
 - `cartItems` ← [CartItem](#model-cartitem) - has many
 - `orderItems` ← [OrderItem](#model-orderitem) - has many
 - `preorderRequests` ← [PreorderRequest](#model-preorderrequest) - has many
+- `complianceHolds` ← [SellerOfferComplianceHold](#model-selleroffercompliancehold) - has many
 
 **Indexes and keys**
 
@@ -7989,6 +8748,7 @@ Every change to seller stock, ever.
 | `actorProfileId` | String · Char(26) | yes |  |  | The person, when a person did it. Null for worker and ERP movements. |
 | `idempotencyKey` | String · VarChar(128) | yes |  |  | Makes a retried write harmless. A sync that times out and is repeated must not move the same stock twice. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -8029,6 +8789,9 @@ A spreadsheet of listings, being processed.
 | `startedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `finishedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `requestedByProfileId` | String · Char(26) | yes |  |  |  |
+| `fileSha256` | String · Char(64) | yes |  |  | SHA-256 of the uploaded bytes, so the job list can say "you already imported this exact file" before a seller applies it twice. |
+| `sourceJobId` | String · Char(26) | yes | UNIQUE |  | The dry run a commit run applies. UNIQUE: one dry run is committed at most once, whatever a double click or a retried request does. |
+| `fileFormat` | String · VarChar(8) |  |  | "CSV" | CSV or XLSX, decided from the bytes, not the file name. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 
@@ -8059,6 +8822,7 @@ One row of one upload that could not be accepted.
 | `message` | String · VarChar(512) |  |  |  |  |
 | `rawValue` | String · VarChar(512) | yes |  |  | The offending cell, so the report is readable without the original file open beside it. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -8107,6 +8871,7 @@ One seller's part of one buyer order.
 - `lines` ← [SellerOrderLine](#model-sellerorderline) - has many
 - `shipments` ← [SellerShipment](#model-sellershipment) - has many
 - `returns` ← [SellerReturn](#model-sellerreturn) - has many
+- `returnRequests` ← [ReturnRequest](#model-returnrequest) - has many
 - `settlementLines` ← [SellerSettlementLine](#model-sellersettlementline) - has many
 - `logisticsShipments` ← [LogisticsShipment](#model-logisticsshipment) - has many
 - `shipmentLegs` ← [ShipmentLeg](#model-shipmentleg) - has many
@@ -8114,6 +8879,12 @@ One seller's part of one buyer order.
 - `sellerInvoices` ← [SellerInvoice](#model-sellerinvoice) - has many
 - `packingLists` ← [SellerPackingList](#model-sellerpackinglist) - has many
 - `commissionInvoices` ← [CommissionInvoice](#model-commissioninvoice) - has many
+- `disputes` ← [Dispute](#model-dispute) - has many
+- `inspectionRequirement` ← [InspectionRequirement](#model-inspectionrequirement) - has zero or one
+- `productionMilestones` ← [SellerProductionMilestone](#model-sellerproductionmilestone) - has many
+- `productionDelays` ← [SellerProductionDelay](#model-sellerproductiondelay) - has many
+- `buyerUpdates` ← [SellerOrderBuyerUpdate](#model-sellerorderbuyerupdate) - has many
+- `tradeDocuments` ← [OrderTradeDocument](#model-ordertradedocument) - has many
 
 **Indexes and keys**
 
@@ -8272,6 +9043,7 @@ What a seller earned over one period.
 **Indexes and keys**
 
 - `@@unique([reference], map: "uq_seller_settlement_reference")`
+- `@@unique([sellerAccountId, periodStart, periodEnd, currency], map: "uq_seller_settlement_period_currency")`
 - `@@index([sellerAccountId, status, periodEnd], map: "ix_seller_settlement_period")`
 
 <a id="model-sellersettlementline"></a>
@@ -8295,6 +9067,7 @@ One entry on a statement.
 | `occurredAt` | DateTime · DateTime(3) |  |  |  |  |
 | `createdByUserId` | String · Char(26) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -8332,6 +9105,8 @@ One transfer to a seller.
 | `scheduledFor` | DateTime · DateTime(3) | yes |  |  |  |
 | `paidAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `idempotencyKey` | String · VarChar(128) | yes |  |  | Makes a retried payout request harmless. The one guarantee that matters here: a retry must never pay a seller twice. |
+| `deadLetteredAt` | DateTime · DateTime(3) | yes |  |  | When the send job ran out of retries (dead-lettered). The payout stays PENDING, its money in transit, until finance retries it. |
+| `lastAttemptError` | String · VarChar(512) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 
@@ -8375,6 +9150,7 @@ An in-app notification for a seller organisation.
 | `dedupeKey` | String · VarChar(120) |  |  |  | The identity of the thing being announced, for deduplication. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `expiresAt` | DateTime · DateTime(3) | yes |  |  | Swept after this. Notifications are not a record; the audit log is. |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -8411,6 +9187,7 @@ Everything that happened to one seller account, and who did it.
 | `summary` | String · VarChar(512) | yes |  |  | Seller-visible summary. Written deliberately rather than derived from the JSON, because the JSON is a diff and a diff is not a sentence. |
 | `correlationId` | String · VarChar(64) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -8708,6 +9485,7 @@ How badly an issue blocks a listing.
 | `PAUSED` | The seller paused it - holidays, a recall, a supplier problem. |
 | `NEEDS_CHANGES` | Something is wrong that the seller must fix: an expired certificate, a retired brand, a compliance document nobody renewed. Not buyable, and the listings page says why. |
 | `ARCHIVED` | Withdrawn. Kept because orders reference it. |
+| `BLOCKED` | Taken off sale by the MARKETPLACE - a safety alert, a legal complaint, a counterfeit report. Only staff set it and only staff lift it; the seller sees why (`blockedReason`) and cannot put it back on sale, edit it live or archive their way around it. Never buyable. |
 
 <a id="enum-sellerinventorymovementtype"></a>
 
@@ -8835,6 +9613,7 @@ What a seller is being told about.
 | `PREORDER_CLOSED` | The preorder ended without an order: cancelled, rejected or expired. |
 | `PREORDER_DELIVERY_RISK` | A confirmed preorder is close to its committed date and is not ready. |
 | `INVOICE_CREDIT_NOTE_REQUIRED` | An issued invoice's goods were cancelled or returned, so a credit note is owed. An ALERT, closed when the credit note is issued. |
+| `INSPECTION_UPDATE` | An inspection moved: booked, reported, failed, released. See the THIRD-PARTY PRE-SHIPMENT INSPECTION block. |
 
 <a id="group-how-a-seller-came-to-be-able-to-use-a-carrier-stored-because-it-decides-who-may-end-the-relationship-and-on-what-notice-which-is-a-question-that-gets-asked-exactly-once-during-a-dispute"></a>
 
@@ -9413,6 +10192,7 @@ One attempt to buy one consignment at one provider.
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `completedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `purchasedShipmentId` | String · Char(26) | yes |  |  | One SUCCEEDED purchase per consignment, enforced by the database rather than by a check the second caller loses the race to. Holds the shipment id on success and NULL otherwise. |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -9445,6 +10225,7 @@ Every status a seller-to-carrier arrangement has held.
 | `actorPartnerUserId` | String · Char(26) | yes |  |  |  |
 | `actorLabel` | String · VarChar(160) | yes |  |  | Where nobody did it: a sweep, a migration, an expiry. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -9665,7 +10446,7 @@ Where a seller's invitation to a new delivery company stands.
 
 ## Logistics partner portal
 
-[LogisticsPartner](#model-logisticspartner) · [LogisticsPartnerProfileChange](#model-logisticspartnerprofilechange) · [LogisticsPartnerDocument](#model-logisticspartnerdocument) · [LogisticsPartnerUser](#model-logisticspartneruser) · [LogisticsPartnerInvitation](#model-logisticspartnerinvitation) · [LogisticsServiceRegion](#model-logisticsserviceregion) · [LogisticsCapability](#model-logisticscapability) · [LogisticsSlaPolicy](#model-logisticsslapolicy) · [LogisticsShipment](#model-logisticsshipment) · [LogisticsShipmentPackage](#model-logisticsshipmentpackage) · [SellerManualCarrierBooking](#model-sellermanualcarrierbooking) · [LogisticsShipmentAssignment](#model-logisticsshipmentassignment) · [LogisticsShipmentEvent](#model-logisticsshipmentevent) · [LogisticsShipmentException](#model-logisticsshipmentexception) · [LogisticsShipmentDocument](#model-logisticsshipmentdocument) · [LogisticsProofOfDelivery](#model-logisticsproofofdelivery) · [LogisticsPickupRequest](#model-logisticspickuprequest) · [LogisticsDispatchManifest](#model-logisticsdispatchmanifest) · [LogisticsDispatchManifestEntry](#model-logisticsdispatchmanifestentry) · [LogisticsDriverProfile](#model-logisticsdriverprofile) · [LogisticsVehicle](#model-logisticsvehicle) · [LogisticsDriverAssignment](#model-logisticsdriverassignment) · [LogisticsActiveTrip](#model-logisticsactivetrip) · [LogisticsLocationPing](#model-logisticslocationping) · [CarrierIntegration](#model-carrierintegration) · [CarrierStatusMapping](#model-carrierstatusmapping) · [CarrierWebhookEvent](#model-carrierwebhookevent) · [LogisticsNotification](#model-logisticsnotification) · [LogisticsAuditLog](#model-logisticsauditlog)
+[LogisticsPartner](#model-logisticspartner) · [LogisticsPartnerProfileChange](#model-logisticspartnerprofilechange) · [LogisticsPartnerDocument](#model-logisticspartnerdocument) · [LogisticsPartnerUser](#model-logisticspartneruser) · [LogisticsPartnerInvitation](#model-logisticspartnerinvitation) · [LogisticsServiceRegion](#model-logisticsserviceregion) · [LogisticsCapability](#model-logisticscapability) · [LogisticsSlaPolicy](#model-logisticsslapolicy) · [LogisticsShipment](#model-logisticsshipment) · [LogisticsShipmentPackage](#model-logisticsshipmentpackage) · [SellerManualCarrierBooking](#model-sellermanualcarrierbooking) · [LogisticsShipmentAssignment](#model-logisticsshipmentassignment) · [LogisticsShipmentEvent](#model-logisticsshipmentevent) · [LogisticsShipmentException](#model-logisticsshipmentexception) · [LogisticsShipmentDocument](#model-logisticsshipmentdocument) · [LogisticsProofOfDelivery](#model-logisticsproofofdelivery) · [LogisticsDeliveryCode](#model-logisticsdeliverycode) · [LogisticsPickupRequest](#model-logisticspickuprequest) · [LogisticsDispatchManifest](#model-logisticsdispatchmanifest) · [LogisticsDispatchManifestEntry](#model-logisticsdispatchmanifestentry) · [LogisticsDriverProfile](#model-logisticsdriverprofile) · [LogisticsVehicle](#model-logisticsvehicle) · [LogisticsDriverAssignment](#model-logisticsdriverassignment) · [LogisticsActiveTrip](#model-logisticsactivetrip) · [LogisticsLocationPing](#model-logisticslocationping) · [CarrierIntegration](#model-carrierintegration) · [CarrierStatusMapping](#model-carrierstatusmapping) · [CarrierWebhookEvent](#model-carrierwebhookevent) · [LogisticsNotification](#model-logisticsnotification) · [LogisticsAuditLog](#model-logisticsauditlog)
 
 ```mermaid
 erDiagram
@@ -9698,6 +10479,7 @@ erDiagram
     LogisticsPartner |o--o{ LogisticsShipmentException : "partner"
     LogisticsShipment ||--o{ LogisticsShipmentDocument : "shipment"
     LogisticsShipment ||--o| LogisticsProofOfDelivery : "shipment"
+    LogisticsShipment ||--o{ LogisticsDeliveryCode : "shipment"
     LogisticsPartner |o--o{ LogisticsPickupRequest : "partner"
     SellerAccount |o--o{ LogisticsPickupRequest : "sellerAccount"
     SellerCarrierConnection |o--o{ LogisticsPickupRequest : "sellerConnection"
@@ -9814,6 +10596,10 @@ erDiagram
         String shipmentId FK
     }
     LogisticsProofOfDelivery {
+        String id PK
+        String shipmentId FK
+    }
+    LogisticsDeliveryCode {
         String id PK
         String shipmentId FK
     }
@@ -10011,6 +10797,8 @@ A change to who a logistics company IS, waiting for the operator.
 | `decidedByUserId` | String · Char(26) | yes |  |  |  |
 | `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `decisionNote` | String · VarChar(512) | yes |  |  | Shown to the carrier. A rejection with no reason cannot be fixed. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -10049,6 +10837,7 @@ A licence, a certificate of insurance, a permit - the carrier's file.
 | `uploadedByLabel` | String · VarChar(160) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `supersededAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -10120,6 +10909,7 @@ An emailed invitation to join a carrier's portal account.
 | `invitedByPartnerUserId` | String · Char(26) | yes | FK → [LogisticsPartnerUser](#model-logisticspartneruser) |  | Null when the marketplace itself sent it - which is how the first owner of every carrier account is created. (on delete: SetNull) |
 | `invitedByAdminUserId` | String · Char(26) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -10342,8 +11132,10 @@ A consignment moving from a warehouse to a business.
 - `exceptions` ← [LogisticsShipmentException](#model-logisticsshipmentexception) - has many
 - `documents` ← [LogisticsShipmentDocument](#model-logisticsshipmentdocument) - has many
 - `proofOfDelivery` ← [LogisticsProofOfDelivery](#model-logisticsproofofdelivery) - has zero or one
+- `deliveryCodes` ← [LogisticsDeliveryCode](#model-logisticsdeliverycode) - has many
 - `pickupRequests` ← [LogisticsPickupRequest](#model-logisticspickuprequest) - has many
 - `manualCarrierBookings` ← [SellerManualCarrierBooking](#model-sellermanualcarrierbooking) - has many
+- `bookingTerms` ← [ConsignmentBookingTerms](#model-consignmentbookingterms) - has zero or one
 - `manifestEntries` ← [LogisticsDispatchManifestEntry](#model-logisticsdispatchmanifestentry) - has many
 - `lines` ← [LogisticsShipmentLine](#model-logisticsshipmentline) - has many
 - `sellerInvoices` ← [SellerInvoice](#model-sellerinvoice) - has many
@@ -10521,6 +11313,7 @@ One thing that happened to a consignment.
 | `exceptionId` | String · Char(26) | yes |  |  | The exception this event raised or resolved, and the document it points at. Both SetNull: deleting a document must not delete the fact that one was attached. |
 | `documentId` | String · Char(26) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -10606,6 +11399,7 @@ A file attached to a consignment.
 | `uploadedBySource` | [enum LogisticsEventSource](#enum-logisticseventsource) |  |  | LOGISTICS_PORTAL |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `deletedAt` | DateTime · DateTime(3) | yes |  |  | Soft delete: a document withdrawn from a consignment stays as evidence that it once existed. |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -10653,6 +11447,35 @@ Evidence that a consignment was handed over.
 **Indexes and keys**
 
 - `@@index([deliveredAt], map: "ix_logistics_pod_delivered")`
+
+<a id="model-logisticsdeliverycode"></a>
+
+### LogisticsDeliveryCode
+
+Table `logistics_delivery_codes`
+
+A delivery code: six digits emailed to the BUYER, read out at the door.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `shipmentId` | String · Char(26) |  | FK → [LogisticsShipment](#model-logisticsshipment) |  | (on delete: Cascade) |
+| `codeHash` | String · Char(64) |  |  |  |  |
+| `attempts` | Int |  |  | 0 |  |
+| `origin` | String · VarChar(24) |  |  |  | `OUT_FOR_DELIVERY` (sent automatically when the van left) or `REQUESTED` (a carrier's driver or staff asked for it to be sent again). |
+| `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
+| `consumedAt` | DateTime · DateTime(3) | yes |  |  | Spent: a delivery was completed with it. |
+| `supersededAt` | DateTime · DateTime(3) | yes |  |  | Replaced by a newer code before it was used. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `shipment` → [LogisticsShipment](#model-logisticsshipment) via `shipmentId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([shipmentId, createdAt], map: "ix_logistics_delivery_code_shipment")`
 
 <a id="model-logisticspickuprequest"></a>
 
@@ -10765,6 +11588,8 @@ Table `logistics_dispatch_manifest_entries`
 | `packageCount` | Int |  |  | 0 | How many of the consignment's packages went on this load. A consignment split across two vans is unusual and real. |
 | `addedAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `removedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -10962,6 +11787,8 @@ One position report.
 | `receivedAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `sequence` | Int |  |  |  | Monotonic per trip. What makes a duplicate or reordered ping cheap to reject. |
 | `idempotencyKey` | String · VarChar(64) |  |  |  | The caller's key. UNIQUE with the trip, so an offline queue flushing twice writes each position once. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -11079,6 +11906,8 @@ One inbound webhook, as it arrived.
 | `processedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `deadLetteredAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `receivedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -11120,6 +11949,7 @@ Something the portal should tell somebody about.
 | `readAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `emailedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -11159,6 +11989,7 @@ What was done inside one logistics organisation.
 | `ipAddress` | String · VarChar(45) | yes |  |  |  |
 | `correlationId` | String · VarChar(64) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -11583,6 +12414,7 @@ Who may read one document.
 | `SECURITY_EVENT` |  |
 | `LEG_ASSIGNED` | A leg of a four-level journey (L1-L4) was given to this company. |
 | `LEG_WITHDRAWN` | A leg this company held was taken back by whoever controls it. |
+| `DISPATCH_AUTHORISED` | The goods passed their pre-shipment inspection (or were conditionally released) and this consignment may now be collected. |
 
 <a id="enum-logisticspartnerverificationstate"></a>
 
@@ -11953,6 +12785,8 @@ The bulk breakdown of one basket line, frozen the moment it was chosen.
 | `profileVersion` | Int |  |  |  | Which version of the seller's profile this was taken from, and when. |
 | `snapshotAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `requiresFreightQuote` | Boolean |  |  | false | True when this line cannot be priced for delivery instantly and needs a quotation. Decided from the package type and the seller's price mode, and held here so the basket does not have to re-derive it on every read. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -11998,6 +12832,7 @@ The bulk breakdown of one order line. Immutable.
 | `incotermSnapshot` | String · VarChar(8) | yes |  |  |  |
 | `originPortLabelSnapshot` | String · VarChar(160) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -12424,6 +13259,7 @@ A short-lived, single-use code that pairs one machine.
 | `deviceLabel` | String · VarChar(120) |  |  |  | The machine label the seller typed when they generated it, carried onto the device. |
 | `createdByProfileId` | String · Char(26) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -12481,6 +13317,8 @@ The master lists read back from Tally, so the mapping screen has something to ch
 | `parentName` | String · VarChar(255) | yes |  |  | The group or parent, where Tally reports one - "Sundry Debtors", "Duties & Taxes". What makes a list of four hundred ledgers usable. |
 | `extraJson` | Json | yes |  |  | Anything else worth showing in the picker - a unit's decimal places, a stock item's base unit. Non-financial, non-personal. |
 | `lastSeenAt` | DateTime · DateTime(3) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -12646,6 +13484,7 @@ One go at one job.
 | `responseHash` | String · Char(64) | yes |  |  |  |
 | `correlationId` | String · VarChar(64) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -12710,6 +13549,7 @@ Security-relevant things that happened to a seller's ERP setup.
 | `ipHash` | String · Char(64) | yes |  |  |  |
 | `correlationId` | String · VarChar(64) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -12889,7 +13729,7 @@ How a cancellation is expressed in the books.
 
 ## Seller logistics policy - who controls each of the four delivery levels, what each level costs, and what the seller is owed afterwards
 
-[SellerLogisticsPolicy](#model-sellerlogisticspolicy) · [SellerLogisticsPolicyVersion](#model-sellerlogisticspolicyversion) · [SellerLogisticsProvider](#model-sellerlogisticsprovider) · [LogisticsLevelRate](#model-logisticslevelrate) · [OrderLogisticsLeg](#model-orderlogisticsleg) · [ShipmentLeg](#model-shipmentleg) · [ShipmentLegEvent](#model-shipmentlegevent) · [PlatformFeePolicy](#model-platformfeepolicy) · [SellerOrderSettlement](#model-sellerordersettlement)
+[SellerLogisticsPolicy](#model-sellerlogisticspolicy) · [SellerLogisticsPolicyVersion](#model-sellerlogisticspolicyversion) · [SellerLogisticsProvider](#model-sellerlogisticsprovider) · [LogisticsLevelRate](#model-logisticslevelrate) · [OrderLogisticsLeg](#model-orderlogisticsleg) · [ShipmentLeg](#model-shipmentleg) · [ShipmentLegEvent](#model-shipmentlegevent) · [PlatformFeePolicy](#model-platformfeepolicy) · [PlatformFeeRule](#model-platformfeerule) · [PlatformFeeRuleApplication](#model-platformfeeruleapplication) · [SellerOrderSettlement](#model-sellerordersettlement)
 
 ```mermaid
 erDiagram
@@ -12910,6 +13750,8 @@ erDiagram
     OrderLogisticsLeg |o--o{ ShipmentLeg : "orderLeg"
     LogisticsPartner |o--o{ ShipmentLeg : "logisticsPartner"
     ShipmentLeg ||--o{ ShipmentLegEvent : "leg"
+    SellerOrderSettlement ||--o{ PlatformFeeRuleApplication : "settlement"
+    PlatformFeeRule ||--o{ PlatformFeeRuleApplication : "rule"
     SellerOrderGroup ||--o{ SellerOrderSettlement : "sellerOrderGroup"
     SellerAccount ||--o{ SellerOrderSettlement : "sellerAccount"
     PlatformFeePolicy |o--o{ SellerOrderSettlement : "feePolicy"
@@ -12964,6 +13806,19 @@ erDiagram
         BigInt flatFeeMinor
         BigInt minFeeMinor
         BigInt maxFeeMinor
+    }
+    PlatformFeeRule {
+        String id PK
+        PlatformFeePolicyStatus status
+        BigInt minValueMinor
+        BigInt maxValueMinor
+        BigInt volumeThresholdMinor
+    }
+    PlatformFeeRuleApplication {
+        String id PK
+        String settlementId FK
+        String ruleId FK
+        BigInt effectMinor
     }
     SellerOrderSettlement {
         String id PK
@@ -13036,6 +13891,8 @@ One published state of a seller's policy. Never updated except to record when it
 | `publishedAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `publishedByUserId` | String · Char(26) | yes |  |  |  |
 | `supersededAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -13177,6 +14034,7 @@ What one level cost one buyer, frozen at checkout.
 | `taxInclusive` | Boolean |  |  | false |  |
 | `priceSource` | [enum LogisticsPriceSource](#enum-logisticspricesource) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -13271,6 +14129,8 @@ Everything that happened to a leg, append-only: who named which carrier, the par
 | `note` | String · VarChar(512) | yes |  |  |  |
 | `occurredAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `idempotencyKey` | String · VarChar(80) | yes |  |  | A retried request collides here rather than recording a handover twice. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -13322,6 +14182,12 @@ What the marketplace deducts from a seller's proceeds, and the tax charged on th
 | `publishedByUserId` | String · Char(26) | yes |  |  |  |
 | `retiredAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdByUserId` | String · Char(26) | yes |  |  |  |
+| `lastEditedByUserId` | String · Char(26) | yes |  |  | Maker-checker. The approver must be none of creator, last editor and submitter; a rejection needs a reason and sends the draft back. |
+| `submittedByUserId` | String · Char(26) | yes |  |  |  |
+| `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `rejectedByUserId` | String · Char(26) | yes |  |  |  |
+| `rejectedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `rejectionReason` | String · VarChar(1000) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 
@@ -13334,6 +14200,87 @@ What the marketplace deducts from a seller's proceeds, and the tax charged on th
 - `@@unique([scopeKey, versionNumber], map: "uq_platform_fee_version")`
 - `@@unique([activeScopeKey], map: "uq_platform_fee_active")`
 - `@@index([status, scope], map: "ix_platform_fee_status")`
+
+<a id="model-platformfeerule"></a>
+
+### PlatformFeeRule
+
+Table `platform_fee_rules`
+
+A commercial rule on top of the fee policy: a value band, a volume tier, a seller tier or a promotion. Many may be live at once for one scope.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `kind` | [enum PlatformFeeRuleKind](#enum-platformfeerulekind) |  |  |  |  |
+| `scope` | [enum PlatformFeeScope](#enum-platformfeescope) |  |  |  |  |
+| `scopeKey` | String · VarChar(64) |  |  |  |  |
+| `sellerAccountId` | String · Char(26) | yes |  |  |  |
+| `categoryId` | String · Char(26) | yes |  |  |  |
+| `marketCountry` | String · Char(2) | yes |  |  |  |
+| `status` | [enum PlatformFeePolicyStatus](#enum-platformfeepolicystatus) |  |  | DRAFT |  |
+| `name` | String · VarChar(160) |  |  |  |  |
+| `currency` | String · Char(3) | yes |  |  | Required for VALUE_BAND and VOLUME_TIER, whose amounts are in it; a rule in another currency than the order never matches. |
+| `minValueMinor` | BigInt | yes |  |  | VALUE_BAND: the fee basis must be &gt;= min and &lt; max (max null: no top). |
+| `maxValueMinor` | BigInt | yes |  |  |  |
+| `volumeThresholdMinor` | BigInt | yes |  |  | VOLUME_TIER: the seller's goods sold over the last `volumeWindowDays`. |
+| `volumeWindowDays` | Int · SmallInt | yes |  |  |  |
+| `sellerTier` | String · VarChar(32) | yes |  |  | SELLER_TIER: matched against `SellerAccount.feeTier`. |
+| `percentRate` | Decimal · Decimal(9, 6) | yes |  |  | The percentage part of the fee this rule sets (VALUE_BAND, VOLUME_TIER, SELLER_TIER). Flat parts, minimum and maximum stay the policy's. |
+| `discountPercent` | Decimal · Decimal(9, 6) | yes |  |  | PROMOTION: percent taken off the fee. |
+| `effectiveFrom` | DateTime · DateTime(3) |  |  |  |  |
+| `effectiveTo` | DateTime · DateTime(3) | yes |  |  |  |
+| `notes` | String · VarChar(1024) | yes |  |  |  |
+| `supersedesRuleId` | String · Char(26) | yes |  |  |  |
+| `createdByUserId` | String · Char(26) | yes |  |  |  |
+| `lastEditedByUserId` | String · Char(26) | yes |  |  |  |
+| `submittedByUserId` | String · Char(26) | yes |  |  |  |
+| `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `publishedByUserId` | String · Char(26) | yes |  |  |  |
+| `publishedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `rejectedByUserId` | String · Char(26) | yes |  |  |  |
+| `rejectedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `rejectionReason` | String · VarChar(1000) | yes |  |  |  |
+| `retiredAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `applications` ← [PlatformFeeRuleApplication](#model-platformfeeruleapplication) - has many
+
+**Indexes and keys**
+
+- `@@index([status, kind], map: "ix_platform_fee_rule_status")`
+- `@@index([scopeKey, status], map: "ix_platform_fee_rule_scope")`
+
+<a id="model-platformfeeruleapplication"></a>
+
+### PlatformFeeRuleApplication
+
+Table `platform_fee_rule_applications`
+
+Which fee rule changed which seller order's fee, and by how much. Written once, with the settlement, so "which rule applied" is a query, not a guess.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `settlementId` | String · Char(26) |  | FK → [SellerOrderSettlement](#model-sellerordersettlement) |  | (on delete: Cascade) |
+| `ruleId` | String · Char(26) |  | FK → [PlatformFeeRule](#model-platformfeerule) |  | (on delete: Restrict) |
+| `kind` | [enum PlatformFeeRuleKind](#enum-platformfeerulekind) |  |  |  |  |
+| `effectMinor` | BigInt |  |  |  | What the fee would have been minus what it was: positive is a saving to the seller, negative a higher fee. |
+| `currency` | String · Char(3) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `settlement` → [SellerOrderSettlement](#model-sellerordersettlement) via `settlementId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `rule` → [PlatformFeeRule](#model-platformfeerule) via `ruleId` - many-to-one, required, on delete **Restrict**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([settlementId, ruleId], map: "uq_fee_rule_app")`
+- `@@index([ruleId, createdAt], map: "ix_fee_rule_app_rule")`
 
 <a id="model-sellerordersettlement"></a>
 
@@ -13364,6 +14311,8 @@ What one seller is owed for one order, and how that was worked out.
 | `feeTaxVerified` | Boolean |  |  | false |  |
 | `breakdownJson` | Json |  |  |  | How the fee was reached, per policy, for the screen that explains it. |
 | `computedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -13371,6 +14320,7 @@ What one seller is owed for one order, and how that was worked out.
 - `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
 - `feePolicy` → [PlatformFeePolicy](#model-platformfeepolicy) via `platformFeePolicyId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
 - `commissionInvoices` ← [CommissionInvoice](#model-commissioninvoice) - has many
+- `feeRuleApplications` ← [PlatformFeeRuleApplication](#model-platformfeeruleapplication) - has many
 
 **Indexes and keys**
 
@@ -13501,8 +14451,22 @@ One leg of a confirmed order, moving. Changed only through `assertLegTransition`
 | Value | Meaning |
 |---|---|
 | `DRAFT` |  |
+| `PENDING_APPROVAL` | Submitted by its maker, waiting for a second member of finance staff. Nobody who created, edited or submitted it may approve it. |
 | `PUBLISHED` |  |
 | `RETIRED` |  |
+
+<a id="enum-platformfeerulekind"></a>
+
+#### enum PlatformFeeRuleKind
+
+What a fee rule adjusts. Every rule sits on top of the fee policy that applies to a seller's order; see `domain/platform-fee.ts`.
+
+| Value | Meaning |
+|---|---|
+| `VALUE_BAND` | A rate for orders whose fee basis falls in a value band. |
+| `VOLUME_TIER` | A rate for sellers whose trailing sales reach a threshold. |
+| `SELLER_TIER` | A rate for sellers an administrator has placed in a named tier. |
+| `PROMOTION` | A time-boxed discount, in percent, off the fee itself. |
 
 <a id="enum-platformfeescope"></a>
 
@@ -13662,6 +14626,7 @@ Table `preorder_price_tiers`
 | `unitPriceMinor` | BigInt |  |  |  | The price of ONE base unit in this band. Minor units. |
 | `currency` | String · Char(3) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -13869,6 +14834,7 @@ Every status a preorder has been through. Append-only.
 | `reason` | String · VarChar(1000) | yes |  |  |  |
 | `metaJson` | Json | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -13928,6 +14894,7 @@ Stock on a seller's shelf held for one accepted preorder, per location.
 | `status` | [enum PreorderStockHoldStatus](#enum-preorderstockholdstatus) |  |  | HELD |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `releasedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -13951,6 +14918,8 @@ Table `customer_acknowledgements`
 | `type` | [enum AcknowledgementType](#enum-acknowledgementtype) |  |  |  |  |
 | `policyVersion` | String · VarChar(32) |  |  |  |  |
 | `acknowledgedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -14283,6 +15252,8 @@ One person's place in a conversation: when they joined and how far they have rea
 | `lastReadSeq` | Int |  |  | 0 | The furthest `serverSequence` this person has read. A sequence rather than a message id, because "everything up to here" is then one comparison and does not depend on ids sorting in send order. |
 | `lastReadAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `joinedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -14323,6 +15294,7 @@ One message the customer can see. Internal notes are NOT here.
 | `redactedAt` | DateTime · DateTime(3) | yes |  |  | A moderator removed the words. The row, its sequence and who sent it stay; `redactionReason` says why, and the audit trail says who. |
 | `redactedByUserId` | String · Char(26) | yes |  |  |  |
 | `redactionReason` | String · VarChar(255) | yes |  |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -14421,6 +15393,7 @@ A file sent in a conversation. The bytes are under the PRIVATE storage prefix an
 | `uploadedByUserId` | String · Char(26) |  |  |  |  |
 | `uploaderType` | [enum PreorderChatSenderType](#enum-preorderchatsendertype) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -14446,6 +15419,7 @@ A customer the operator's team has stopped messaging. Per customer rather than p
 | `reason` | String · VarChar(500) |  |  |  |  |
 | `blockedByUserId` | String · Char(26) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -14465,6 +15439,7 @@ Live events in flight between API processes, under REALTIME_BUS_DRIVER=database.
 | `instanceId` | String · VarChar(40) |  |  |  | Which process wrote it, so it does not deliver its own event twice. |
 | `payloadJson` | Json |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Indexes and keys**
 
@@ -14692,6 +15667,7 @@ What one package holds: this many of this order line, of this batch.
 | `expiryDate` | DateTime · Date | yes |  |  |  |
 | `serialNumbersJson` | Json | yes |  |  | Serial numbers, where the goods are serialised. Their count must equal the quantity. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -14870,7 +15846,7 @@ A packing list for one consignment - one vehicle, one load.
 
 ##  / which buyer the session is acting as. null on a session row means individual.
 
-[BuyerCompany](#model-buyercompany) · [BuyerCompanyAddress](#model-buyercompanyaddress) · [BuyerCompanyIdentifier](#model-buyercompanyidentifier) · [BuyerCompanyLocation](#model-buyercompanylocation) · [BuyerCompanyMember](#model-buyercompanymember) · [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) · [BuyerCompanyCheck](#model-buyercompanycheck) · [BuyerCompanyDocument](#model-buyercompanydocument) · [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) · [BuyerCompanyReviewEvent](#model-buyercompanyreviewevent) · [BuyerCompanyStatusHistory](#model-buyercompanystatushistory) · [ConsentRecord](#model-consentrecord)
+[BuyerCompany](#model-buyercompany) · [BuyerCompanyAddress](#model-buyercompanyaddress) · [BuyerCompanyIdentifier](#model-buyercompanyidentifier) · [BuyerCompanyLocation](#model-buyercompanylocation) · [BuyerCompanyMember](#model-buyercompanymember) · [BuyerCompanyApprovalPolicy](#model-buyercompanyapprovalpolicy) · [BuyerCompanyOrderApproval](#model-buyercompanyorderapproval) · [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) · [BuyerCompanyCheck](#model-buyercompanycheck) · [BuyerCompanyDocument](#model-buyercompanydocument) · [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) · [BuyerCompanyReviewEvent](#model-buyercompanyreviewevent) · [BuyerCompanyStatusHistory](#model-buyercompanystatushistory) · [ConsentRecord](#model-consentrecord)
 
 ```mermaid
 erDiagram
@@ -14880,6 +15856,9 @@ erDiagram
     BuyerCompany ||--o{ BuyerCompanyLocation : "company"
     BuyerCompany ||--o{ BuyerCompanyMember : "company"
     User ||--o{ BuyerCompanyMember : "user"
+    BuyerCompany ||--o| BuyerCompanyApprovalPolicy : "company"
+    Order ||--o{ BuyerCompanyOrderApproval : "order"
+    BuyerCompany ||--o{ BuyerCompanyOrderApproval : "company"
     BuyerCompany ||--o{ BuyerCompanyVerificationCase : "company"
     User |o--o{ BuyerCompanyVerificationCase : "assignedReviewer"
     BuyerCompany ||--o{ BuyerCompanyCheck : "company"
@@ -14915,6 +15894,18 @@ erDiagram
         String companyId FK
         String userId FK
         BuyerCompanyMemberStatus status
+    }
+    BuyerCompanyApprovalPolicy {
+        String id PK
+        String companyId FK
+        BigInt approverThresholdMinor
+        BigInt financeThresholdMinor
+    }
+    BuyerCompanyOrderApproval {
+        String id PK
+        String orderId FK
+        String companyId FK
+        BigInt amountMinor
     }
     BuyerCompanyVerificationCase {
         String id PK
@@ -15026,6 +16017,9 @@ Table `buyer_companies`
 - `addressBook` ← [Address](#model-address) - has many
 - `preorderRequests` ← [PreorderRequest](#model-preorderrequest) - has many
 - `supportTickets` ← [SupportTicket](#model-supportticket) - has many
+- `schedules` ← [RecurringSchedule](#model-recurringschedule) - has many
+- `approvalPolicy` ← [BuyerCompanyApprovalPolicy](#model-buyercompanyapprovalpolicy) - has zero or one
+- `orderApprovals` ← [BuyerCompanyOrderApproval](#model-buyercompanyorderapproval) - has many
 
 **Indexes and keys**
 
@@ -15162,6 +16156,63 @@ One person's place in one company. A person may hold several - unlike `buyer_org
 - `@@unique([companyId, userId], map: "uq_buyer_company_member")`
 - `@@index([userId, status], map: "ix_buyer_company_member_user")`
 
+<a id="model-buyercompanyapprovalpolicy"></a>
+
+### BuyerCompanyApprovalPolicy
+
+Table `buyer_company_approval_policies`
+
+A buyer company's own rule for who must sign an order off before it can be paid: requestor -> approver -> finance.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `companyId` | String · Char(26) |  | UNIQUE, FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `enabled` | Boolean |  |  | false |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `approverThresholdMinor` | BigInt |  |  | 0 | An order totalling at least this needs a member with APPROVE_ORDERS who is not the requestor. 0 means every order. |
+| `financeThresholdMinor` | BigInt | yes |  |  | An order totalling at least this ALSO needs a FINANCE member who is neither the requestor nor the approver. NULL means no finance stage. |
+| `updatedByUserId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - one-to-one, required, on delete **Cascade**, on update **Restrict**
+
+<a id="model-buyercompanyorderapproval"></a>
+
+### BuyerCompanyOrderApproval
+
+Table `buyer_company_order_approvals`
+
+One sign-off an order needs from inside the buyer company.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `orderId` | String · Char(26) |  | FK → [Order](#model-order) |  | (on delete: Cascade) |
+| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `stage` | [enum BuyerCompanyApprovalStage](#enum-buyercompanyapprovalstage) |  |  |  |  |
+| `decision` | [enum BuyerCompanyApprovalDecision](#enum-buyercompanyapprovaldecision) |  |  | PENDING |  |
+| `amountMinor` | BigInt |  |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `requestedByUserId` | String · Char(26) |  |  |  |  |
+| `decidedByUserId` | String · Char(26) | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reason` | String · VarChar(1000) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `order` → [Order](#model-order) via `orderId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([orderId, stage], map: "uq_buyer_company_order_approval_stage")`
+- `@@index([companyId, decision, createdAt], map: "ix_buyer_company_order_approval_queue")`
+
 <a id="model-buyercompanyverificationcase"></a>
 
 ### BuyerCompanyVerificationCase
@@ -15185,6 +16236,8 @@ One round of review: the first submission, a resubmission after a rejection, or 
 | `openedAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `closedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `outcome` | [enum BuyerCompanyStatus](#enum-buyercompanystatus) | yes |  |  | The status the case closed on - APPROVED or REJECTED. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -15221,6 +16274,8 @@ What one registry or rule said about the company, and when. Written once, never 
 | `sourceUrl` | String · VarChar(512) | yes |  |  | The official register a reviewer should open, for MANUAL_REQUIRED. |
 | `checkedAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `triggeredByUserId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -15290,6 +16345,7 @@ Table `buyer_company_info_requests`
 | `responseMessage` | String · Text | yes |  |  |  |
 | `respondedByUserId` | String · Char(26) | yes |  |  |  |
 | `respondedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -15320,6 +16376,7 @@ The timeline. Every reviewer action, every upload, every check, every note. Appe
 | `message` | String · Text | yes |  |  |  |
 | `dataJson` | Json | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -15348,6 +16405,7 @@ Every status change, from and to, by whom, and why. Append-only.
 | `actorType` | [enum ActorType](#enum-actortype) |  |  |  |  |
 | `actorUserId` | String · Char(26) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -15380,6 +16438,8 @@ One thing one person agreed to, with the exact wording's version and hash. Appen
 | `legalDocumentId` | String · Char(26) | yes | FK → [LegalDocument](#model-legaldocument) |  | For PLATFORM_TERMS and LOGISTICS_PARTNER_TERMS: the published document the person read and agreed to. `textVersion` and `textHash` are copied from it by the server, never taken from the request. Null for the company-application declarations, whose wording lives in code. (on delete: Restrict) |
 | `locale` | String · VarChar(10) | yes |  |  | The language of that document, e.g. "pl". Copied from the document. |
 | `acceptanceSource` | String · VarChar(48) | yes |  |  | Where it was accepted: STOREFRONT_SIGN_UP, CUSTOMER_INVITATION or LOGISTICS_INVITATION. Null for the company-application declarations. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -15613,6 +16673,26 @@ What a person agreed to. One row per purpose, never one checkbox for all.
 | `PLATFORM_TERMS` | The marketplace's Terms and Conditions, accepted when a buyer account is created. The row points at the exact `LegalDocument` that was shown. |
 | `LOGISTICS_PARTNER_TERMS` | The terms a carrier's staff accept when they activate a logistics portal account. The row points at the exact `LegalDocument` that was shown. |
 
+<a id="enum-buyercompanyapprovalstage"></a>
+
+#### enum BuyerCompanyApprovalStage
+
+| Value | Meaning |
+|---|---|
+| `APPROVER` |  |
+| `FINANCE` |  |
+
+<a id="enum-buyercompanyapprovaldecision"></a>
+
+#### enum BuyerCompanyApprovalDecision
+
+| Value | Meaning |
+|---|---|
+| `PENDING` |  |
+| `APPROVED` |  |
+| `REJECTED` |  |
+| `CANCELLED` | The order was cancelled some other way before this stage was reached. |
+
 <a id="group-which-agreement-a-document-is-each-account-type-is-asked-for-its-own"></a>
 
 ##  / which agreement a document is. each account type is asked for its own.
@@ -15693,6 +16773,7 @@ A six-digit code sent to the business email address. Stored hashed, expires, and
 | `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
 | `consumedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -15713,6 +16794,11 @@ A six-digit code sent to the business email address. Stored hashed, expires, and
 |---|---|
 | `PLATFORM_TERMS` | Terms and Conditions for buyers - individuals, and the person who signs up to register a company. Also accepted when an invited customer activates their account. |
 | `LOGISTICS_PARTNER_TERMS` | Terms for a carrier's staff, accepted when they activate a logistics portal account from an invitation. |
+| `SELLER_TERMS` | The informational policies the storefront footer links to. Never accepted at sign-up; written by the operator (the console offers a neutral template, clearly marked as one). |
+| `PRIVACY_POLICY` |  |
+| `INSPECTION_POLICY` |  |
+| `BUYER_PROTECTION_POLICY` |  |
+| `PROHIBITED_PRODUCTS` |  |
 
 <a id="enum-legaldocumentstatus"></a>
 
@@ -15968,6 +17054,8 @@ One service line on a commission invoice: the platform commission on one fee pol
 | `otherTaxMinor` | BigInt |  |  | 0 |  |
 | `taxMinor` | BigInt |  |  | 0 |  |
 | `totalMinor` | BigInt |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -16014,6 +17102,7 @@ A credit note reversing all or part of an issued commission invoice.
 | `linesJson` | Json |  |  |  | What it reverses on each invoice line, by position. |
 | `issuedByUserId` | String · Char(26) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -16049,6 +17138,7 @@ An issued PDF, in private object storage. Never overwritten: a document has exac
 | `pageCount` | Int · SmallInt |  |  |  |  |
 | `templateVersion` | String · VarChar(16) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -16081,6 +17171,7 @@ Everything that happened to a commission invoice, in order: generated, regenerat
 | `detailJson` | Json | yes |  |  | Numbers, hashes and amounts - never a free-text body or personal data. |
 | `snapshotHash` | String · Char(64) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -16179,4 +17270,2747 @@ The earliest point in a seller order at which its commission counts as final eno
 | `CONFIRMED` |  |
 | `SHIPPED` |  |
 | `DELIVERED` |  |
+
+<a id="group-how-strongly-an-order-needs-inspecting-decided-by-the-rules-engine"></a>
+
+##  / how strongly an order needs inspecting, decided by the rules engine.
+
+[InspectionPolicy](#model-inspectionpolicy) · [InspectionPlan](#model-inspectionplan) · [InspectionRule](#model-inspectionrule) · [InspectionSupplierRisk](#model-inspectionsupplierrisk) · [InspectionAgency](#model-inspectionagency) · [InspectionAgencyMember](#model-inspectionagencymember) · [InspectionRequirement](#model-inspectionrequirement) · [InspectionJob](#model-inspectionjob) · [InspectionConflictDeclaration](#model-inspectionconflictdeclaration) · [InspectionCheckResult](#model-inspectioncheckresult) · [InspectionDefect](#model-inspectiondefect) · [InspectionEvidence](#model-inspectionevidence) · [InspectionReport](#model-inspectionreport) · [InspectionRelease](#model-inspectionrelease) · [InspectionShipmentBinding](#model-inspectionshipmentbinding) · [InspectionAgencyInvoice](#model-inspectionagencyinvoice) · [InspectionEvent](#model-inspectionevent)
+
+```mermaid
+erDiagram
+    InspectionPlan |o--o{ InspectionRule : "plan"
+    InspectionAgency ||--o{ InspectionAgencyMember : "agency"
+    SellerOrderGroup ||--o{ InspectionRequirement : "sellerOrderGroup"
+    InspectionRequirement ||--o{ InspectionJob : "requirement"
+    InspectionAgency ||--o{ InspectionJob : "agency"
+    InspectionJob ||--o{ InspectionConflictDeclaration : "job"
+    InspectionAgencyMember ||--o{ InspectionConflictDeclaration : "member"
+    InspectionJob ||--o{ InspectionCheckResult : "job"
+    InspectionJob ||--o{ InspectionDefect : "job"
+    InspectionRequirement ||--o{ InspectionEvidence : "requirement"
+    InspectionJob |o--o{ InspectionEvidence : "job"
+    InspectionDefect |o--o{ InspectionEvidence : "defect"
+    InspectionJob ||--o{ InspectionReport : "job"
+    InspectionRequirement ||--o{ InspectionRelease : "requirement"
+    InspectionRequirement ||--o{ InspectionShipmentBinding : "requirement"
+    InspectionJob ||--o{ InspectionShipmentBinding : "job"
+    InspectionJob ||--o{ InspectionAgencyInvoice : "job"
+    InspectionAgency ||--o{ InspectionAgencyInvoice : "agency"
+    InspectionRequirement ||--o{ InspectionEvent : "requirement"
+    InspectionPolicy {
+        String id PK
+    }
+    InspectionPlan {
+        String id PK
+        String aqlMinor
+    }
+    InspectionRule {
+        String id PK
+        BigInt minOrderValueMinor
+        String planId FK
+    }
+    InspectionSupplierRisk {
+        String sellerAccountId PK
+    }
+    InspectionAgency {
+        String id PK
+        InspectionAgencyStatus status
+        BigInt defaultFeeMinor
+    }
+    InspectionAgencyMember {
+        String id PK
+        String agencyId FK
+        InspectionMemberStatus status
+    }
+    InspectionRequirement {
+        String id PK
+        String sellerOrderGroupId FK
+        InspectionRequirementStatus status
+    }
+    InspectionJob {
+        String id PK
+        String requirementId FK
+        String agencyId FK
+        InspectionJobStatus status
+    }
+    InspectionConflictDeclaration {
+        String id PK
+        String jobId FK
+        String memberId FK
+    }
+    InspectionCheckResult {
+        String id PK
+        String jobId FK
+    }
+    InspectionDefect {
+        String id PK
+        String jobId FK
+        InspectionNcrStatus status
+    }
+    InspectionEvidence {
+        String id PK
+        String requirementId FK
+        String jobId FK
+        String defectId FK
+    }
+    InspectionReport {
+        String id PK
+        String jobId FK
+        InspectionReportStatus status
+    }
+    InspectionRelease {
+        String id PK
+        String requirementId FK
+    }
+    InspectionShipmentBinding {
+        String id PK
+        String requirementId FK
+        String jobId FK
+    }
+    InspectionAgencyInvoice {
+        String id PK
+        String jobId FK
+        String agencyId FK
+        BigInt amountMinor
+        InspectionInvoiceStatus status
+    }
+    InspectionEvent {
+        String id PK
+        String requirementId FK
+    }
+```
+
+<a id="model-inspectionpolicy"></a>
+
+### InspectionPolicy
+
+Table `inspection_policies`
+
+The operator's inspection settings. One row, id `default`.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · VarChar(16) |  | PK |  |  |
+| `majorNcrBlocksDispatch` | Boolean |  |  | true | An open MAJOR non-conformance holds the goods even on a PASS. |
+| `minorNcrBlocksDispatch` | Boolean |  |  | false | The same for MINOR. Off by default: a scuffed carton is not a recall. |
+| `buyerReportAccess` | [enum InspectionBuyerReportAccess](#enum-inspectionbuyerreportaccess) |  |  | BEFORE_RELEASE |  |
+| `buyerNcrVisibility` | [enum InspectionBuyerNcrVisibility](#enum-inspectionbuyerncrvisibility) |  |  | MAJOR_AND_CRITICAL |  |
+| `buyerReviewHours` | Int |  |  | 0 | Hours the buyer has to read a signed report before the goods may leave. |
+| `buyerMayRequest` | Boolean |  |  | true |  |
+| `supplierRiskLookbackDays` | Int |  |  | 180 | Failed inspections within this many days that make a supplier HIGH risk. |
+| `supplierRiskFailThreshold` | Int |  |  | 2 |  |
+| `agencyAcceptSlaHours` | Int |  |  | 24 | How long an agency has to accept, and to deliver a signed report. |
+| `reportSlaHours` | Int |  |  | 72 |  |
+| `conditionalReleaseMinReasonLength` | Int |  |  | 20 |  |
+| `requirePackingListForReadiness` | Boolean |  |  | true | A seller cannot say the lot is ready while its packing list is missing. |
+| `requireInspectorCompetence` | Boolean |  |  | true | An inspector must be authorised for the order's category. |
+| `updatedById` | String · Char(26) | yes |  |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+<a id="model-inspectionplan"></a>
+
+### InspectionPlan
+
+Table `inspection_plans`
+
+A category's inspection plan: sampling and checklist, versioned.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `name` | String · VarChar(160) |  |  |  |  |
+| `categoryId` | String · Char(26) | yes |  |  | Null is the default plan for any category without one of its own. |
+| `version` | Int |  |  | 1 |  |
+| `isActive` | Boolean |  |  | true |  |
+| `effectiveFrom` | DateTime · DateTime(3) |  |  |  |  |
+| `effectiveTo` | DateTime · DateTime(3) | yes |  |  |  |
+| `inspectionLevel` | String · VarChar(4) |  |  | "II" | ISO 2859-1 general inspection level: I, II or III. |
+| `aqlCritical` | String · VarChar(8) |  |  | "0" | Acceptable quality limits, as decimal strings ("0", "2.5", "4.0"). |
+| `aqlMajor` | String · VarChar(8) |  |  | "2.5" |  |
+| `aqlMinor` | String · VarChar(8) |  |  | "4.0" |  |
+| `checklistJson` | Json |  |  |  | `[{ code, section, label, requirement, tolerance? }]` - see `domain/inspection-plan.ts` for the sections. |
+| `language` | String · VarChar(8) |  |  | "en" |  |
+| `createdById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `rules` ← [InspectionRule](#model-inspectionrule) - has many
+
+**Indexes and keys**
+
+- `@@index([categoryId, isActive], map: "ix_insp_plan_category")`
+
+<a id="model-inspectionrule"></a>
+
+### InspectionRule
+
+Table `inspection_rules`
+
+When an order must be inspected. Every condition set on a rule must match.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `name` | String · VarChar(160) |  |  |  |  |
+| `isActive` | Boolean |  |  | true |  |
+| `priority` | Int |  |  | 100 | Lower runs first when two rules of the same level match. |
+| `level` | [enum InspectionRequirementLevel](#enum-inspectionrequirementlevel) |  |  |  | MANDATORY or RISK_TRIGGERED. |
+| `categoryId` | String · Char(26) | yes |  |  |  |
+| `minOrderValueMinor` | BigInt | yes |  |  |  |
+| `currency` | String · Char(3) | yes |  |  |  |
+| `destinationCountriesJson` | Json | yes |  |  | Alpha-2 codes. Null is every destination. |
+| `supplierRiskAtLeast` | [enum InspectionSupplierRiskTier](#enum-inspectionsupplierrisktier) | yes |  |  |  |
+| `planId` | String · Char(26) | yes | FK → [InspectionPlan](#model-inspectionplan) |  | (on delete: SetNull) |
+| `preferredAgencyId` | String · Char(26) | yes |  |  |  |
+| `allowConditionalRelease` | Boolean |  |  | true | Whether the operator may conditionally release an order this rule caught. |
+| `effectiveFrom` | DateTime · DateTime(3) |  |  |  |  |
+| `effectiveTo` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdById` | String · Char(26) | yes |  |  |  |
+| `updatedById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `plan` → [InspectionPlan](#model-inspectionplan) via `planId` - many-to-one, optional, on delete **SetNull**
+
+**Indexes and keys**
+
+- `@@index([isActive, level, priority], map: "ix_insp_rule_active")`
+
+<a id="model-inspectionsupplierrisk"></a>
+
+### InspectionSupplierRisk
+
+Table `inspection_supplier_risks`
+
+The operator's view of how risky a supplier is.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `sellerAccountId` | String · Char(26) |  | PK |  |  |
+| `tier` | [enum InspectionSupplierRiskTier](#enum-inspectionsupplierrisktier) |  |  |  |  |
+| `reason` | String · VarChar(512) |  |  |  |  |
+| `setById` | String · Char(26) | yes |  |  |  |
+| `setAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+<a id="model-inspectionagency"></a>
+
+### InspectionAgency
+
+Table `inspection_agencies`
+
+An independent inspection company. Never the seller.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `name` | String · VarChar(160) |  |  |  |  |
+| `legalName` | String · VarChar(255) |  |  |  |  |
+| `registrationNumber` | String · VarChar(64) | yes |  |  |  |
+| `country` | String · Char(2) |  |  |  |  |
+| `contactEmail` | String · VarChar(320) |  |  |  |  |
+| `contactPhone` | String · VarChar(32) | yes |  |  |  |
+| `accreditation` | String · VarChar(512) | yes |  |  |  |
+| `categoryIdsJson` | Json | yes |  |  | Which categories and countries it may inspect. Null is all. |
+| `countriesJson` | Json | yes |  |  |  |
+| `status` | [enum InspectionAgencyStatus](#enum-inspectionagencystatus) |  |  | ACTIVE |  |
+| `suspendedReason` | String · VarChar(512) | yes |  |  |  |
+| `affiliatedSellerIdsJson` | Json | yes |  |  | Sellers the agency has declared a relationship with. It is never offered their jobs. |
+| `independenceStatement` | String · Text | yes |  |  |  |
+| `independenceDeclaredAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `dailyCapacity` | Int |  |  | 4 | Inspections it can carry out on one day. Booking refuses a full day. |
+| `defaultFeeMinor` | BigInt · BigInt | yes |  |  | What it charges, as a default the invoice can differ from. |
+| `feeCurrency` | String · Char(3) | yes |  |  |  |
+| `createdById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `members` ← [InspectionAgencyMember](#model-inspectionagencymember) - has many
+- `jobs` ← [InspectionJob](#model-inspectionjob) - has many
+- `invoices` ← [InspectionAgencyInvoice](#model-inspectionagencyinvoice) - has many
+
+**Indexes and keys**
+
+- `@@index([status], map: "ix_insp_agency_status")`
+
+<a id="model-inspectionagencymember"></a>
+
+### InspectionAgencyMember
+
+Table `inspection_agency_members`
+
+A person working for an agency. Their login is an ordinary storefront account; this row is what gives it the agency surface.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `agencyId` | String · Char(26) |  | FK → [InspectionAgency](#model-inspectionagency) |  | (on delete: Cascade) |
+| `userId` | String · Char(26) |  |  |  | One agency per person. |
+| `role` | [enum InspectionAgencyRole](#enum-inspectionagencyrole) |  |  |  |  |
+| `status` | [enum InspectionMemberStatus](#enum-inspectionmemberstatus) |  |  | ACTIVE |  |
+| `fullName` | String · VarChar(160) |  |  |  |  |
+| `jobTitle` | String · VarChar(120) | yes |  |  |  |
+| `idDocumentType` | String · VarChar(32) | yes |  |  | Identity: the document an inspector shows on site. |
+| `idDocumentNumber` | String · VarChar(64) | yes |  |  |  |
+| `identityVerifiedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `identityVerifiedById` | String · Char(26) | yes |  |  |  |
+| `competenceCategoryIdsJson` | Json | yes |  |  | Competence: categories this person is authorised to inspect. Null is none, not all. |
+| `credentials` | String · VarChar(1024) | yes |  |  |  |
+| `credentialExpiresAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `addedById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `agency` → [InspectionAgency](#model-inspectionagency) via `agencyId` - many-to-one, required, on delete **Cascade**
+- `declarations` ← [InspectionConflictDeclaration](#model-inspectionconflictdeclaration) - has many
+
+**Indexes and keys**
+
+- `@@unique([userId], map: "uq_insp_member_user")`
+- `@@index([agencyId, role], map: "ix_insp_member_agency")`
+
+<a id="model-inspectionrequirement"></a>
+
+### InspectionRequirement
+
+Table `inspection_requirements`
+
+One seller order's inspection: whether it is needed, and why.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerOrderGroupId` | String · Char(26) |  | FK → [SellerOrderGroup](#model-sellerordergroup) |  | (on delete: Cascade) |
+| `orderId` | String · Char(26) |  |  |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `level` | [enum InspectionRequirementLevel](#enum-inspectionrequirementlevel) |  |  |  |  |
+| `status` | [enum InspectionRequirementStatus](#enum-inspectionrequirementstatus) |  |  |  |  |
+| `ruleId` | String · Char(26) | yes |  |  | The rule that fired, copied so it survives the rule being edited. |
+| `ruleName` | String · VarChar(160) | yes |  |  |  |
+| `reason` | String · VarChar(512) |  |  |  |  |
+| `inputsJson` | Json |  |  |  | What the engine saw: category, value, destination, supplier risk. |
+| `planId` | String · Char(26) | yes |  |  |  |
+| `preferredAgencyId` | String · Char(26) | yes |  |  |  |
+| `allowConditionalRelease` | Boolean |  |  | true |  |
+| `buyerRequested` | Boolean |  |  | false |  |
+| `buyerRequestedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `buyerRequestNote` | String · VarChar(1024) | yes |  |  |  |
+| `evaluatedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `loadReleasedAt` | DateTime · DateTime(3) | yes |  |  | When the gate first let the goods go. After this a change to the packages is recorded but can no longer be re-inspected. |
+| `version` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerOrderGroup` → [SellerOrderGroup](#model-sellerordergroup) via `sellerOrderGroupId` - many-to-one, required, on delete **Cascade**
+- `jobs` ← [InspectionJob](#model-inspectionjob) - has many
+- `releases` ← [InspectionRelease](#model-inspectionrelease) - has many
+- `events` ← [InspectionEvent](#model-inspectionevent) - has many
+- `evidence` ← [InspectionEvidence](#model-inspectionevidence) - has many
+- `bindings` ← [InspectionShipmentBinding](#model-inspectionshipmentbinding) - has many
+
+**Indexes and keys**
+
+- `@@unique([sellerOrderGroupId], map: "uq_insp_requirement_group")`
+- `@@index([orderId], map: "ix_insp_requirement_order")`
+- `@@index([status, updatedAt], map: "ix_insp_requirement_status")`
+- `@@index([sellerAccountId, status], map: "ix_insp_requirement_seller")`
+
+<a id="model-inspectionjob"></a>
+
+### InspectionJob
+
+Table `inspection_jobs`
+
+A booked inspection, and the agency's work on it.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `jobNumber` | String · VarChar(32) |  |  |  |  |
+| `requirementId` | String · Char(26) |  | FK → [InspectionRequirement](#model-inspectionrequirement) |  | (on delete: Cascade) |
+| `agencyId` | String · Char(26) |  | FK → [InspectionAgency](#model-inspectionagency) |  | (on delete: Restrict) |
+| `kind` | [enum InspectionJobKind](#enum-inspectionjobkind) |  |  | INITIAL |  |
+| `reinspectionOfJobId` | String · Char(26) | yes |  |  |  |
+| `status` | [enum InspectionJobStatus](#enum-inspectionjobstatus) |  |  | REQUESTED |  |
+| `bookedByParty` | [enum InspectionParty](#enum-inspectionparty) |  |  |  |  |
+| `bookedById` | String · Char(26) | yes |  |  |  |
+| `bookedByLabel` | String · VarChar(160) |  |  |  |  |
+| `payer` | [enum InspectionPayer](#enum-inspectionpayer) |  |  |  |  |
+| `inspectionPointType` | [enum InspectionPointType](#enum-inspectionpointtype) |  |  |  |  |
+| `inspectionPointJson` | Json |  |  |  | Address or port, in words an inspector can travel to. |
+| `scheduledFor` | DateTime · DateTime(3) |  |  |  |  |
+| `language` | String · VarChar(8) |  |  |  |  |
+| `standard` | String · VarChar(160) |  |  |  |  |
+| `scopeJson` | Json |  |  |  | Generated from the order when booked: products, quantities, specifications, packaging, labelling and destination requirements. |
+| `planSnapshotJson` | Json |  |  |  | The plan as it was when booked. The inspector cannot change it. |
+| `lotSize` | Int |  |  |  |  |
+| `samplingJson` | Json |  |  |  | Sample size and accept/reject numbers per severity, from the plan. |
+| `readinessJson` | Json | yes |  |  | The seller presenting the final lot: lot, location, packing list, date, contact, packed status and the declaration that it matches the order. |
+| `readinessSubmittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `readinessSubmittedById` | String · Char(26) | yes |  |  |  |
+| `poReference` | String · VarChar(64) | yes |  |  |  |
+| `referenceSample` | String · VarChar(512) | yes |  |  |  |
+| `specialRequirements` | String · Text | yes |  |  |  |
+| `acceptDueAt` | DateTime · DateTime(3) |  |  |  |  |
+| `reportDueAt` | DateTime · DateTime(3) |  |  |  |  |
+| `acceptedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `acceptedById` | String · Char(26) | yes |  |  |  |
+| `agencyConflictStatement` | String · Text | yes |  |  |  |
+| `declinedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `declineReason` | String · VarChar(1024) | yes |  |  |  |
+| `inspectorMemberId` | String · Char(26) | yes |  |  |  |
+| `backupInspectorMemberId` | String · Char(26) | yes |  |  |  |
+| `assignedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `startedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `completedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `cancelledAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `cancelReason` | String · VarChar(1024) | yes |  |  |  |
+| `lotReference` | String · VarChar(64) | yes |  |  | The sampling record the inspector fills in. |
+| `sampledQuantity` | Int | yes |  |  |  |
+| `acceptedQuantity` | Int | yes |  |  |  |
+| `rejectedQuantity` | Int | yes |  |  |  |
+| `cartonsOpened` | Int | yes |  |  |  |
+| `version` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `requirement` → [InspectionRequirement](#model-inspectionrequirement) via `requirementId` - many-to-one, required, on delete **Cascade**
+- `agency` → [InspectionAgency](#model-inspectionagency) via `agencyId` - many-to-one, required, on delete **Restrict**
+- `declarations` ← [InspectionConflictDeclaration](#model-inspectionconflictdeclaration) - has many
+- `checks` ← [InspectionCheckResult](#model-inspectioncheckresult) - has many
+- `defects` ← [InspectionDefect](#model-inspectiondefect) - has many
+- `reports` ← [InspectionReport](#model-inspectionreport) - has many
+- `evidence` ← [InspectionEvidence](#model-inspectionevidence) - has many
+- `bindings` ← [InspectionShipmentBinding](#model-inspectionshipmentbinding) - has many
+- `invoices` ← [InspectionAgencyInvoice](#model-inspectionagencyinvoice) - has many
+
+**Indexes and keys**
+
+- `@@unique([jobNumber], map: "uq_insp_job_number")`
+- `@@index([agencyId, status, scheduledFor], map: "ix_insp_job_agency")`
+- `@@index([requirementId, createdAt], map: "ix_insp_job_requirement")`
+- `@@index([inspectorMemberId, status], map: "ix_insp_job_inspector")`
+
+<a id="model-inspectionconflictdeclaration"></a>
+
+### InspectionConflictDeclaration
+
+Table `inspection_conflict_declarations`
+
+An inspector's own conflict-of-interest declaration for one job.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `jobId` | String · Char(26) |  | FK → [InspectionJob](#model-inspectionjob) |  | (on delete: Cascade) |
+| `memberId` | String · Char(26) |  | FK → [InspectionAgencyMember](#model-inspectionagencymember) |  | (on delete: Cascade) |
+| `hasConflict` | Boolean |  |  |  |  |
+| `details` | String · Text | yes |  |  |  |
+| `declaredAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `job` → [InspectionJob](#model-inspectionjob) via `jobId` - many-to-one, required, on delete **Cascade**
+- `member` → [InspectionAgencyMember](#model-inspectionagencymember) via `memberId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@unique([jobId, memberId], map: "uq_insp_declaration")`
+- `@@index([memberId], map: "ix_insp_declaration_member")`
+
+<a id="model-inspectioncheckresult"></a>
+
+### InspectionCheckResult
+
+Table `inspection_check_results`
+
+One checklist line's result.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `jobId` | String · Char(26) |  | FK → [InspectionJob](#model-inspectionjob) |  | (on delete: Cascade) |
+| `itemCode` | String · VarChar(48) |  |  |  |  |
+| `section` | String · VarChar(24) |  |  |  |  |
+| `label` | String · VarChar(255) |  |  |  |  |
+| `requirement` | String · VarChar(512) | yes |  |  |  |
+| `outcome` | [enum InspectionCheckOutcome](#enum-inspectioncheckoutcome) |  |  |  |  |
+| `measuredValue` | String · VarChar(128) | yes |  |  |  |
+| `note` | String · VarChar(1024) | yes |  |  |  |
+| `recordedByMemberId` | String · Char(26) |  |  |  |  |
+| `recordedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `job` → [InspectionJob](#model-inspectionjob) via `jobId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@unique([jobId, itemCode], map: "uq_insp_check_item")`
+
+<a id="model-inspectiondefect"></a>
+
+### InspectionDefect
+
+Table `inspection_defects`
+
+A defect found, and the non-conformance report (NCR) it becomes.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `jobId` | String · Char(26) |  | FK → [InspectionJob](#model-inspectionjob) |  | (on delete: Cascade) |
+| `requirementId` | String · Char(26) |  |  |  |  |
+| `ncrNumber` | String · VarChar(40) |  |  |  |  |
+| `severity` | [enum InspectionDefectSeverity](#enum-inspectiondefectseverity) |  |  |  |  |
+| `originalSeverity` | [enum InspectionDefectSeverity](#enum-inspectiondefectseverity) |  |  |  | What the inspector first called it. Differs only after a QA reclassification, which needs a reason and evidence. |
+| `requirementRef` | String · VarChar(128) |  |  |  |  |
+| `description` | String · Text |  |  |  |  |
+| `defectQuantity` | Int |  |  | 1 |  |
+| `status` | [enum InspectionNcrStatus](#enum-inspectionncrstatus) |  |  | OPEN |  |
+| `recordedByMemberId` | String · Char(26) |  |  |  |  |
+| `recordedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `reclassifiedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reclassifiedByMemberId` | String · Char(26) | yes |  |  |  |
+| `reclassificationReason` | String · Text | yes |  |  |  |
+| `sellerResponse` | String · Text | yes |  |  |  |
+| `correctiveAction` | String · Text | yes |  |  |  |
+| `capaSubmittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `capaSubmittedById` | String · Char(26) | yes |  |  |  |
+| `capaSubmittedByLabel` | String · VarChar(160) | yes |  |  |  |
+| `verifiedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `verifiedByReportId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `job` → [InspectionJob](#model-inspectionjob) via `jobId` - many-to-one, required, on delete **Cascade**
+- `evidence` ← [InspectionEvidence](#model-inspectionevidence) - has many
+
+**Indexes and keys**
+
+- `@@unique([ncrNumber], map: "uq_insp_ncr_number")`
+- `@@index([jobId], map: "ix_insp_defect_job")`
+- `@@index([requirementId, status], map: "ix_insp_defect_requirement")`
+
+<a id="model-inspectionevidence"></a>
+
+### InspectionEvidence
+
+Table `inspection_evidence`
+
+A photo, video or document, held as evidence. Never deleted.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `requirementId` | String · Char(26) |  | FK → [InspectionRequirement](#model-inspectionrequirement) |  | (on delete: Cascade) |
+| `jobId` | String · Char(26) | yes | FK → [InspectionJob](#model-inspectionjob) |  | (on delete: Cascade) |
+| `defectId` | String · Char(26) | yes | FK → [InspectionDefect](#model-inspectiondefect) |  | (on delete: SetNull) |
+| `releaseId` | String · Char(26) | yes |  |  |  |
+| `bindingId` | String · Char(26) | yes |  |  |  |
+| `checkItemCode` | String · VarChar(48) | yes |  |  |  |
+| `purpose` | [enum InspectionEvidencePurpose](#enum-inspectionevidencepurpose) |  |  |  |  |
+| `mediaKind` | [enum InspectionMediaKind](#enum-inspectionmediakind) |  |  |  |  |
+| `fileName` | String · VarChar(255) |  |  |  |  |
+| `contentType` | String · VarChar(128) |  |  |  |  |
+| `sizeBytes` | Int |  |  |  |  |
+| `storageKey` | String · VarChar(512) |  |  |  |  |
+| `contentHash` | String · Char(64) |  |  |  | SHA-256 of the bytes as received. What makes a photograph evidence. |
+| `scanState` | String · VarChar(16) |  |  |  |  |
+| `capturedAt` | DateTime · DateTime(3) |  |  |  | When the device says it was taken, and when the server got it. |
+| `receivedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `uploadedById` | String · Char(26) | yes |  |  |  |
+| `uploadedByLabel` | String · VarChar(160) |  |  |  |  |
+| `uploadedByParty` | [enum InspectionParty](#enum-inspectionparty) |  |  |  |  |
+| `clientUploadId` | String · VarChar(64) | yes |  |  | A retry of a failed upload carries the same key and gets the same row. |
+| `latitude` | Decimal · Decimal(9, 6) | yes |  |  |  |
+| `longitude` | Decimal · Decimal(9, 6) | yes |  |  |  |
+| `measurement` | String · VarChar(255) | yes |  |  |  |
+| `note` | String · VarChar(512) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `requirement` → [InspectionRequirement](#model-inspectionrequirement) via `requirementId` - many-to-one, required, on delete **Cascade**
+- `job` → [InspectionJob](#model-inspectionjob) via `jobId` - many-to-one, optional, on delete **Cascade**
+- `defect` → [InspectionDefect](#model-inspectiondefect) via `defectId` - many-to-one, optional, on delete **SetNull**
+
+**Indexes and keys**
+
+- `@@unique([requirementId, clientUploadId], map: "uq_insp_evidence_upload")`
+- `@@index([jobId, purpose], map: "ix_insp_evidence_job")`
+- `@@index([defectId], map: "ix_insp_evidence_defect")`
+- `@@index([releaseId], map: "ix_insp_evidence_release")`
+
+<a id="model-inspectionreport"></a>
+
+### InspectionReport
+
+Table `inspection_reports`
+
+A report revision. SIGNED is final; a returned revision is kept.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `jobId` | String · Char(26) |  | FK → [InspectionJob](#model-inspectionjob) |  | (on delete: Cascade) |
+| `revision` | Int |  |  |  |  |
+| `status` | [enum InspectionReportStatus](#enum-inspectionreportstatus) |  |  | SUBMITTED |  |
+| `result` | [enum InspectionResult](#enum-inspectionresult) |  |  |  | Computed from the defects against the plan's accept numbers - never typed by a person. |
+| `summary` | String · Text | yes |  |  |  |
+| `computationJson` | Json |  |  |  |  |
+| `contentJson` | Json |  |  |  | Everything the report says, frozen at submission. |
+| `contentHash` | String · Char(64) |  |  |  |  |
+| `signature` | String · Char(64) | yes |  |  | HMAC over the hash, the signer and the time, written at sign-off. |
+| `submittedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `submittedByMemberId` | String · Char(26) |  |  |  |  |
+| `returnedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `returnedByMemberId` | String · Char(26) | yes |  |  |  |
+| `returnReason` | String · VarChar(1024) | yes |  |  |  |
+| `signedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `signedByMemberId` | String · Char(26) | yes |  |  |  |
+| `signedByName` | String · VarChar(160) | yes |  |  |  |
+| `publishedToBuyerAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `job` → [InspectionJob](#model-inspectionjob) via `jobId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@unique([jobId, revision], map: "uq_insp_report_revision")`
+
+<a id="model-inspectionrelease"></a>
+
+### InspectionRelease
+
+Table `inspection_releases`
+
+A decision that the goods may leave, and what it was bound to.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `requirementId` | String · Char(26) |  | FK → [InspectionRequirement](#model-inspectionrequirement) |  | (on delete: Cascade) |
+| `kind` | [enum InspectionReleaseKind](#enum-inspectionreleasekind) |  |  |  |  |
+| `state` | [enum InspectionReleaseState](#enum-inspectionreleasestate) |  |  |  |  |
+| `reportId` | String · Char(26) | yes |  |  |  |
+| `bindingId` | String · Char(26) | yes |  |  |  |
+| `reason` | String · Text | yes |  |  |  |
+| `riskNote` | String · VarChar(1024) | yes |  |  |  |
+| `requestedByParty` | [enum InspectionParty](#enum-inspectionparty) |  |  |  |  |
+| `requestedById` | String · Char(26) | yes |  |  |  |
+| `requestedByLabel` | String · VarChar(160) |  |  |  |  |
+| `requestedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `approvedById` | String · Char(26) | yes |  |  | The second person, for a conditional release. Never the requester. |
+| `approvedByLabel` | String · VarChar(160) | yes |  |  |  |
+| `approvedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `rejectedById` | String · Char(26) | yes |  |  |  |
+| `rejectedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `rejectionReason` | String · VarChar(1024) | yes |  |  |  |
+| `boundScopeHash` | String · Char(64) |  |  |  | Fingerprint of quantities, packages, containers and seals when released. |
+| `boundScopeJson` | Json |  |  |  |  |
+| `supersededAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `supersededReason` | String · VarChar(255) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `requirement` → [InspectionRequirement](#model-inspectionrequirement) via `requirementId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@index([requirementId, state], map: "ix_insp_release_requirement")`
+- `@@index([state, requestedAt], map: "ix_insp_release_state")`
+
+<a id="model-inspectionshipmentbinding"></a>
+
+### InspectionShipmentBinding
+
+Table `inspection_shipment_bindings`
+
+Inspected goods tied to a container and seal, witnessed at loading.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `requirementId` | String · Char(26) |  | FK → [InspectionRequirement](#model-inspectionrequirement) |  | (on delete: Cascade) |
+| `jobId` | String · Char(26) |  | FK → [InspectionJob](#model-inspectionjob) |  | (on delete: Cascade) |
+| `logisticsShipmentId` | String · Char(26) | yes |  |  |  |
+| `containerNumber` | String · VarChar(20) | yes |  |  |  |
+| `sealNumber` | String · VarChar(64) | yes |  |  |  |
+| `stuffedQuantity` | Int |  |  |  |  |
+| `stuffedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `witnessName` | String · VarChar(160) | yes |  |  |  |
+| `recordedByMemberId` | String · Char(26) |  |  |  |  |
+| `scopeHash` | String · Char(64) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `requirement` → [InspectionRequirement](#model-inspectionrequirement) via `requirementId` - many-to-one, required, on delete **Cascade**
+- `job` → [InspectionJob](#model-inspectionjob) via `jobId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@index([requirementId], map: "ix_insp_binding_requirement")`
+
+<a id="model-inspectionagencyinvoice"></a>
+
+### InspectionAgencyInvoice
+
+Table `inspection_agency_invoices`
+
+The agency's invoice for a job. Paying it changes nothing about the result.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `jobId` | String · Char(26) |  | FK → [InspectionJob](#model-inspectionjob) |  | (on delete: Cascade) |
+| `agencyId` | String · Char(26) |  | FK → [InspectionAgency](#model-inspectionagency) |  | (on delete: Cascade) |
+| `invoiceNumber` | String · VarChar(64) |  |  |  |  |
+| `amountMinor` | BigInt · BigInt |  |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `payer` | [enum InspectionPayer](#enum-inspectionpayer) |  |  |  |  |
+| `status` | [enum InspectionInvoiceStatus](#enum-inspectioninvoicestatus) |  |  | SUBMITTED |  |
+| `submittedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `submittedByMemberId` | String · Char(26) |  |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `decidedById` | String · Char(26) | yes |  |  |  |
+| `paidAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `note` | String · VarChar(1024) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `job` → [InspectionJob](#model-inspectionjob) via `jobId` - many-to-one, required, on delete **Cascade**
+- `agency` → [InspectionAgency](#model-inspectionagency) via `agencyId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@unique([agencyId, invoiceNumber], map: "uq_insp_invoice_number")`
+- `@@index([jobId], map: "ix_insp_invoice_job")`
+- `@@index([status, submittedAt], map: "ix_insp_invoice_status")`
+
+<a id="model-inspectionevent"></a>
+
+### InspectionEvent
+
+Table `inspection_events`
+
+The inspection timeline. Append-only.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `requirementId` | String · Char(26) |  | FK → [InspectionRequirement](#model-inspectionrequirement) |  | (on delete: Cascade) |
+| `jobId` | String · Char(26) | yes |  |  |  |
+| `orderId` | String · Char(26) |  |  |  |  |
+| `kind` | String · VarChar(48) |  |  |  |  |
+| `actorParty` | [enum InspectionParty](#enum-inspectionparty) |  |  |  |  |
+| `actorId` | String · Char(26) | yes |  |  |  |
+| `actorLabel` | String · VarChar(160) |  |  |  |  |
+| `summary` | String · VarChar(512) |  |  |  |  |
+| `dataJson` | Json | yes |  |  |  |
+| `visibleToBuyer` | Boolean |  |  | true |  |
+| `visibleToSeller` | Boolean |  |  | true |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `requirement` → [InspectionRequirement](#model-inspectionrequirement) via `requirementId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@index([requirementId, createdAt], map: "ix_insp_event_requirement")`
+- `@@index([orderId, createdAt], map: "ix_insp_event_order")`
+
+### Enums in  / how strongly an order needs inspecting, decided by the rules engine.
+
+<a id="enum-inspectionrequirementlevel"></a>
+
+#### enum InspectionRequirementLevel
+
+| Value | Meaning |
+|---|---|
+| `MANDATORY` | A rule the operator set says every order like this one is inspected. |
+| `RISK_TRIGGERED` | A risk rule fired: supplier risk, value or destination. |
+| `BUYER_REQUESTED` | No rule required it; the buyer asked for it. |
+| `NOT_REQUIRED` |  |
+
+<a id="enum-inspectionrequirementstatus"></a>
+
+#### enum InspectionRequirementStatus
+
+Where an order's inspection has got to. A summary for screens and queues; the gate itself is computed from the underlying rows, never from this.
+
+| Value | Meaning |
+|---|---|
+| `NOT_REQUIRED` |  |
+| `AWAITING_BOOKING` |  |
+| `BOOKED` |  |
+| `IN_PROGRESS` |  |
+| `REPORT_IN_REVIEW` |  |
+| `FAILED` |  |
+| `BLOCKED_BY_NCR` |  |
+| `RELEASE_PENDING_APPROVAL` |  |
+| `RELEASED` |  |
+| `RELEASED_CONDITIONALLY` |  |
+| `REEVALUATION_REQUIRED` |  |
+| `DISPATCHED` |  |
+
+<a id="enum-inspectionjobstatus"></a>
+
+#### enum InspectionJobStatus
+
+| Value | Meaning |
+|---|---|
+| `REQUESTED` | Booked and offered to the agency. Nothing has been accepted yet. |
+| `ACCEPTED` |  |
+| `DECLINED` |  |
+| `INSPECTOR_ASSIGNED` |  |
+| `IN_PROGRESS` |  |
+| `REPORT_SUBMITTED` | The inspector handed the report to the agency's QA reviewer. |
+| `COMPLETED` | QA signed the report. Final. |
+| `CANCELLED` |  |
+
+<a id="enum-inspectionjobkind"></a>
+
+#### enum InspectionJobKind
+
+| Value | Meaning |
+|---|---|
+| `INITIAL` |  |
+| `REINSPECTION` | A repeat inspection after corrective action, linked to the original. |
+
+<a id="enum-inspectionparty"></a>
+
+#### enum InspectionParty
+
+Who did something, in words every timeline shares.
+
+| Value | Meaning |
+|---|---|
+| `SYSTEM` |  |
+| `SELLER` |  |
+| `BUYER` |  |
+| `OPERATOR` |  |
+| `AGENCY` |  |
+
+<a id="enum-inspectionpayer"></a>
+
+#### enum InspectionPayer
+
+| Value | Meaning |
+|---|---|
+| `BUYER` |  |
+| `SELLER` |  |
+| `PLATFORM` |  |
+
+<a id="enum-inspectionpointtype"></a>
+
+#### enum InspectionPointType
+
+| Value | Meaning |
+|---|---|
+| `SELLER_PREMISES` |  |
+| `WAREHOUSE` |  |
+| `PORT` |  |
+| `OTHER` |  |
+
+<a id="enum-inspectionagencystatus"></a>
+
+#### enum InspectionAgencyStatus
+
+| Value | Meaning |
+|---|---|
+| `ACTIVE` |  |
+| `SUSPENDED` |  |
+
+<a id="enum-inspectionagencyrole"></a>
+
+#### enum InspectionAgencyRole
+
+A person's authority inside an inspection agency. Checked by `domain/inspection-permissions.ts`.
+
+| Value | Meaning |
+|---|---|
+| `AGENCY_ADMIN` |  |
+| `COORDINATOR` |  |
+| `INSPECTOR` |  |
+| `QA_REVIEWER` |  |
+
+<a id="enum-inspectionmemberstatus"></a>
+
+#### enum InspectionMemberStatus
+
+| Value | Meaning |
+|---|---|
+| `ACTIVE` |  |
+| `DISABLED` |  |
+
+<a id="enum-inspectioncheckoutcome"></a>
+
+#### enum InspectionCheckOutcome
+
+| Value | Meaning |
+|---|---|
+| `CONFORM` |  |
+| `NONCONFORM` |  |
+| `NOT_APPLICABLE` |  |
+
+<a id="enum-inspectiondefectseverity"></a>
+
+#### enum InspectionDefectSeverity
+
+| Value | Meaning |
+|---|---|
+| `CRITICAL` |  |
+| `MAJOR` |  |
+| `MINOR` |  |
+
+<a id="enum-inspectionncrstatus"></a>
+
+#### enum InspectionNcrStatus
+
+A defect is also a non-conformance report (NCR).
+
+| Value | Meaning |
+|---|---|
+| `OPEN` |  |
+| `CAPA_SUBMITTED` | The seller has said what they corrected, with evidence. |
+| `VERIFIED_CLOSED` | A re-inspection confirmed the correction. |
+
+<a id="enum-inspectionreportstatus"></a>
+
+#### enum InspectionReportStatus
+
+| Value | Meaning |
+|---|---|
+| `SUBMITTED` |  |
+| `RETURNED` | Sent back to the inspector by QA. Kept; the next revision replaces it. |
+| `SIGNED` | Signed by QA. Locked for ever. |
+
+<a id="enum-inspectionresult"></a>
+
+#### enum InspectionResult
+
+| Value | Meaning |
+|---|---|
+| `PASS` |  |
+| `FAIL` |  |
+
+<a id="enum-inspectionreleasekind"></a>
+
+#### enum InspectionReleaseKind
+
+| Value | Meaning |
+|---|---|
+| `PASS` | Released because a signed report passed. |
+| `CONDITIONAL` | Released by the operator despite the result, with a reason, evidence and a second approver. |
+
+<a id="enum-inspectionreleasestate"></a>
+
+#### enum InspectionReleaseState
+
+| Value | Meaning |
+|---|---|
+| `PENDING_APPROVAL` |  |
+| `ACTIVE` |  |
+| `REJECTED` |  |
+| `SUPERSEDED` |  |
+
+<a id="enum-inspectionevidencepurpose"></a>
+
+#### enum InspectionEvidencePurpose
+
+| Value | Meaning |
+|---|---|
+| `GENERAL` |  |
+| `CHECKLIST` |  |
+| `SAMPLING` |  |
+| `PACKAGING` |  |
+| `MEASUREMENT` |  |
+| `DEFECT` |  |
+| `CAPA` |  |
+| `RELEASE` |  |
+| `BINDING` |  |
+| `RECLASSIFICATION` |  |
+
+<a id="enum-inspectionmediakind"></a>
+
+#### enum InspectionMediaKind
+
+| Value | Meaning |
+|---|---|
+| `IMAGE` |  |
+| `VIDEO` |  |
+| `DOCUMENT` |  |
+
+<a id="enum-inspectioninvoicestatus"></a>
+
+#### enum InspectionInvoiceStatus
+
+The agency's bill for a job. Deliberately unconnected to the result: no state here reads or writes a report, a release or the gate.
+
+| Value | Meaning |
+|---|---|
+| `SUBMITTED` |  |
+| `APPROVED` |  |
+| `PAID` |  |
+| `DISPUTED` |  |
+| `VOID` |  |
+
+<a id="enum-inspectionsupplierrisktier"></a>
+
+#### enum InspectionSupplierRiskTier
+
+| Value | Meaning |
+|---|---|
+| `LOW` |  |
+| `MEDIUM` |  |
+| `HIGH` |  |
+
+<a id="enum-inspectionbuyerreportaccess"></a>
+
+#### enum InspectionBuyerReportAccess
+
+When the buyer may read the report.
+
+| Value | Meaning |
+|---|---|
+| `BEFORE_RELEASE` | As soon as QA signs it - before the goods may leave. |
+| `AFTER_RELEASE` | Only once the goods are released. |
+| `NONE` |  |
+
+<a id="enum-inspectionbuyerncrvisibility"></a>
+
+#### enum InspectionBuyerNcrVisibility
+
+| Value | Meaning |
+|---|---|
+| `ALL` |  |
+| `MAJOR_AND_CRITICAL` |  |
+| `NONE` |  |
+
+<a id="group-where-one-check-has-got-to"></a>
+
+##  / where one check has got to.
+
+[TrustSettings](#model-trustsettings) · [SellerTrustProfile](#model-sellertrustprofile) · [SellerBeneficialOwner](#model-sellerbeneficialowner) · [SellerFactory](#model-sellerfactory) · [SellerFactoryMachine](#model-sellerfactorymachine) · [SellerFactoryEvidence](#model-sellerfactoryevidence) · [SellerCertification](#model-sellercertification) · [SellerTrustCheck](#model-sellertrustcheck) · [SellerScreeningCheck](#model-sellerscreeningcheck) · [SellerProfileChangeRequest](#model-sellerprofilechangerequest) · [SellerListingTrust](#model-sellerlistingtrust) · [SellerListingCertification](#model-sellerlistingcertification) · [SellerOfferComplianceHold](#model-selleroffercompliancehold) · [MarketRule](#model-marketrule) · [MarketLandedCostRate](#model-marketlandedcostrate) · [MarketProfile](#model-marketprofile) · [SearchSynonym](#model-searchsynonym) · [SearchQueryLog](#model-searchquerylog)
+
+```mermaid
+erDiagram
+    SellerAccount ||--o| SellerTrustProfile : "sellerAccount"
+    SellerAccount ||--o{ SellerBeneficialOwner : "sellerAccount"
+    SellerAccount ||--o{ SellerFactory : "sellerAccount"
+    SellerFactory ||--o{ SellerFactoryMachine : "factory"
+    SellerFactory ||--o{ SellerFactoryEvidence : "factory"
+    SellerAccount ||--o{ SellerCertification : "sellerAccount"
+    SellerFactory |o--o{ SellerCertification : "factory"
+    SellerAccount ||--o{ SellerTrustCheck : "sellerAccount"
+    SellerAccount ||--o{ SellerScreeningCheck : "sellerAccount"
+    SellerAccount ||--o{ SellerProfileChangeRequest : "sellerAccount"
+    SellerAccount ||--o{ SellerListingTrust : "sellerAccount"
+    Product ||--o{ SellerListingTrust : "product"
+    SellerListingTrust ||--o{ SellerListingCertification : "listingTrust"
+    SellerCertification ||--o{ SellerListingCertification : "certification"
+    SellerOffer ||--o{ SellerOfferComplianceHold : "offer"
+    SellerCertification ||--o{ SellerOfferComplianceHold : "certification"
+    Product |o--o{ MarketRule : "product"
+    Category |o--o{ MarketRule : "category"
+    TrustSettings {
+        String id PK
+    }
+    SellerTrustProfile {
+        String id PK
+        String sellerAccountId FK
+    }
+    SellerBeneficialOwner {
+        String id PK
+        String sellerAccountId FK
+    }
+    SellerFactory {
+        String id PK
+        String sellerAccountId FK
+    }
+    SellerFactoryMachine {
+        String id PK
+        String factoryId FK
+    }
+    SellerFactoryEvidence {
+        String id PK
+        String factoryId FK
+    }
+    SellerCertification {
+        String id PK
+        String sellerAccountId FK
+        String factoryId FK
+    }
+    SellerTrustCheck {
+        String id PK
+        String sellerAccountId FK
+    }
+    SellerScreeningCheck {
+        String id PK
+        String sellerAccountId FK
+    }
+    SellerProfileChangeRequest {
+        String id PK
+        String sellerAccountId FK
+        ProfileChangeStatus status
+    }
+    SellerListingTrust {
+        String id PK
+        String sellerAccountId FK
+        String productId FK
+    }
+    SellerListingCertification {
+        String id PK
+        String listingTrustId FK
+        String certificationId FK
+    }
+    SellerOfferComplianceHold {
+        String id PK
+        String offerId FK
+        String certificationId FK
+        SellerOfferStatus previousStatus
+    }
+    MarketRule {
+        String id PK
+        String productId FK
+        String categoryId FK
+    }
+    MarketLandedCostRate {
+        String id PK
+    }
+    MarketProfile {
+        String countryCode PK
+    }
+    SearchSynonym {
+        String id PK
+    }
+    SearchQueryLog {
+        String id PK
+    }
+```
+
+<a id="model-trustsettings"></a>
+
+### TrustSettings
+
+Table `trust_settings`
+
+Single row, id 'default'. Every threshold here is the operator's setting.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · VarChar(16) |  | PK |  |  |
+| `certificateExpiryPolicy` | [enum CertificateExpiryPolicy](#enum-certificateexpirypolicy) |  |  | WARN |  |
+| `expiryWarningDays` | Int · SmallInt |  |  | 30 | How many days before expiry the seller is warned. |
+| `reverificationDays` | Int · SmallInt |  |  | 365 | A check older than this counts as expired and must be re-verified. |
+| `badgeRequiresTaxRegistration` | Boolean |  |  | true | Which checks the verified-supplier badge needs. Legal entity is always required; these add to it. |
+| `badgeRequiresScreening` | Boolean |  |  | true |  |
+| `badgeRequiresFactory` | Boolean |  |  | false |  |
+| `inspectionFeeBasisPoints` | Int · SmallInt | yes |  |  | Landed-cost estimate lines that are not in the duty table. Null means "not estimated", and the calculator says so rather than showing zero. |
+| `buyerServiceFeeBasisPoints` | Int · SmallInt | yes |  |  |  |
+| `updatedById` | String · Char(26) | yes |  |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+<a id="model-sellertrustprofile"></a>
+
+### SellerTrustProfile
+
+Table `seller_trust_profiles`
+
+What a supplier says about itself beyond the application, one row per seller. Verified-field edits after approval go through `SellerProfileChangeRequest`; the rest apply at once.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  | UNIQUE, FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `udyamNumber` | String · VarChar(32) | yes |  |  |  |
+| `iecNumber` | String · VarChar(16) | yes |  |  |  |
+| `exportCapable` | Boolean |  |  | false |  |
+| `exportMarketsJson` | Json | yes |  |  | ISO-3166 alpha-2 codes the supplier says it already exports to. |
+| `yearsExporting` | Int · SmallInt | yes |  |  |  |
+| `capabilitiesJson` | Json | yes |  |  | Capability tags - OEM, PRIVATE_LABEL, CUSTOM_PACKAGING, R_AND_D, CONTRACT_MANUFACTURING, STERILE_MANUFACTURING, TESTING_LAB. |
+| `responseSlaHours` | Int · SmallInt | yes |  |  | Hours the supplier commits to answering an enquiry in. |
+| `about` | String · Text | yes |  |  |  |
+| `badgeVerified` | Boolean |  |  | false | Derived by `recomputeBadge`. Never written by an HTTP route. |
+| `badgeComputedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `version` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - one-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([badgeVerified], map: "ix_seller_trust_profile_badge")`
+
+<a id="model-sellerbeneficialowner"></a>
+
+### SellerBeneficialOwner
+
+Table `seller_beneficial_owners`
+
+A natural person who ultimately owns or controls the supplier. Personal data of a third party: shown to the operator's reviewers only, never on a public page.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `fullName` | String · VarChar(160) |  |  |  |  |
+| `nationality` | String · Char(2) | yes |  |  |  |
+| `ownershipBasisPoints` | Int · SmallInt |  |  |  | 2500 = 25.00%. |
+| `isControllingPerson` | Boolean |  |  | false |  |
+| `role` | String · VarChar(120) | yes |  |  |  |
+| `archivedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, archivedAt], map: "ix_seller_beneficial_owner_seller")`
+
+<a id="model-sellerfactory"></a>
+
+### SellerFactory
+
+Table `seller_factories`
+
+One plant the supplier manufactures in.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `name` | String · VarChar(160) |  |  |  |  |
+| `addressLine1` | String · VarChar(255) |  |  |  |  |
+| `addressLine2` | String · VarChar(255) | yes |  |  |  |
+| `city` | String · VarChar(120) |  |  |  |  |
+| `region` | String · VarChar(120) | yes |  |  |  |
+| `postcode` | String · VarChar(24) |  |  |  |  |
+| `countryCode` | String · Char(2) |  |  |  |  |
+| `latitude` | Decimal · Decimal(10, 7) | yes |  |  | Where the plant is, when the seller chose to share it. |
+| `longitude` | Decimal · Decimal(10, 7) | yes |  |  |  |
+| `establishedYear` | Int · SmallInt | yes |  |  |  |
+| `floorAreaSqm` | Int | yes |  |  |  |
+| `workforceCount` | Int | yes |  |  |  |
+| `qcStaffCount` | Int | yes |  |  |  |
+| `monthlyCapacity` | Int | yes |  |  | "50000 pieces per month" is capacity 50000, unit "pieces", period MONTH. |
+| `capacityUnit` | String · VarChar(40) | yes |  |  |  |
+| `productsMade` | String · Text | yes |  |  |  |
+| `qcProcess` | String · Text | yes |  |  |  |
+| `archivedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `machines` ← [SellerFactoryMachine](#model-sellerfactorymachine) - has many
+- `evidence` ← [SellerFactoryEvidence](#model-sellerfactoryevidence) - has many
+- `certifications` ← [SellerCertification](#model-sellercertification) - has many
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, archivedAt], map: "ix_seller_factory_seller")`
+
+<a id="model-sellerfactorymachine"></a>
+
+### SellerFactoryMachine
+
+Table `seller_factory_machines`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `factoryId` | String · Char(26) |  | FK → [SellerFactory](#model-sellerfactory) |  | (on delete: Cascade) |
+| `name` | String · VarChar(160) |  |  |  |  |
+| `quantity` | Int |  |  | 1 |  |
+| `capacityNote` | String · VarChar(255) | yes |  |  |  |
+| `sortOrder` | Int |  |  | 0 |  |
+
+**Relations**
+
+- `factory` → [SellerFactory](#model-sellerfactory) via `factoryId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([factoryId, sortOrder], map: "ix_seller_factory_machine_factory")`
+
+<a id="model-sellerfactoryevidence"></a>
+
+### SellerFactoryEvidence
+
+Table `seller_factory_evidence`
+
+A document (a `SellerDocument`, through the existing upload pipeline) offered as proof of a factory: a photograph, an audit report, a lease.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `factoryId` | String · Char(26) |  | FK → [SellerFactory](#model-sellerfactory) |  | (on delete: Cascade) |
+| `documentId` | String · Char(26) |  |  |  |  |
+| `caption` | String · VarChar(255) | yes |  |  |  |
+| `capturedLatitude` | Decimal · Decimal(10, 7) | yes |  |  | Where the photograph says it was taken, when the seller supplied it. |
+| `capturedLongitude` | Decimal · Decimal(10, 7) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `factory` → [SellerFactory](#model-sellerfactory) via `factoryId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([factoryId, documentId], map: "uq_seller_factory_evidence")`
+
+<a id="model-sellercertification"></a>
+
+### SellerCertification
+
+Table `seller_certifications`
+
+A certificate the supplier holds, with its evidence and its own decision.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `factoryId` | String · Char(26) | yes | FK → [SellerFactory](#model-sellerfactory) |  | (on delete: SetNull) |
+| `standard` | String · VarChar(80) |  |  |  | "ISO 13485", "CE", "WHO-GMP". |
+| `certificateNumber` | String · VarChar(120) | yes |  |  |  |
+| `issuer` | String · VarChar(160) |  |  |  |  |
+| `scope` | String · Text | yes |  |  |  |
+| `issuedOn` | DateTime · Date | yes |  |  |  |
+| `expiresOn` | DateTime · Date | yes |  |  |  |
+| `documentId` | String · Char(26) | yes |  |  | The `SellerDocument` that proves it. Required to verify. |
+| `state` | [enum TrustCheckState](#enum-trustcheckstate) |  |  | PENDING |  |
+| `verifiedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `verifiedByUserId` | String · Char(26) | yes |  |  |  |
+| `lastCheckedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `rejectionReason` | String · Text | yes |  |  |  |
+| `expiryWarnedAt` | DateTime · DateTime(3) | yes |  |  | Set when the seller was warned about expiry, so the warning is sent once. |
+| `expiredAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `archivedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `factory` → [SellerFactory](#model-sellerfactory) via `factoryId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `listings` ← [SellerListingCertification](#model-sellerlistingcertification) - has many
+- `holds` ← [SellerOfferComplianceHold](#model-selleroffercompliancehold) - has many
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, state], map: "ix_seller_certification_seller")`
+- `@@index([state, expiresOn], map: "ix_seller_certification_expiry")`
+- `@@index([standard], map: "ix_seller_certification_standard")`
+
+<a id="model-sellertrustcheck"></a>
+
+### SellerTrustCheck
+
+Table `seller_trust_checks`
+
+One decision about one aspect of a supplier. Rows accumulate; `isCurrent` marks the newest per (seller, kind, subject).
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `kind` | [enum TrustCheckKind](#enum-trustcheckkind) |  |  |  |  |
+| `subjectId` | String · VarChar(26) |  |  | "" | A factory id for FACTORY, '' otherwise. Never null - see the note on MariaDB UNIQUE and NULL at the top of this file. |
+| `state` | [enum TrustCheckState](#enum-trustcheckstate) |  |  | PENDING |  |
+| `method` | String · VarChar(48) |  |  | "manual_review" | `manual_review`, or a provider's name. |
+| `issuer` | String · VarChar(160) | yes |  |  | Who issued the underlying evidence - "Ministry of MSME", "DGFT". |
+| `checkedValue` | String · VarChar(255) | yes |  |  | The value that was checked, e.g. the Udyam number, frozen with the decision so a later edit cannot silently inherit it. |
+| `evidenceDocumentId` | String · Char(26) | yes |  |  |  |
+| `checkedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `validUntil` | DateTime · DateTime(3) | yes |  |  |  |
+| `sellerReason` | String · Text | yes |  |  | Seller-visible. |
+| `internalNote` | String · Text | yes |  |  | Operator-only. |
+| `decidedByUserId` | String · Char(26) | yes |  |  |  |
+| `isCurrent` | Boolean |  |  | true |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, kind, subjectId, isCurrent], map: "ix_seller_trust_check_current")`
+
+<a id="model-sellerscreeningcheck"></a>
+
+### SellerScreeningCheck
+
+Table `seller_screening_checks`
+
+One screening of one subject. `automated` is false for the manual-review driver, and the interface says so.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `subjectType` | [enum ScreeningSubjectType](#enum-screeningsubjecttype) |  |  |  |  |
+| `beneficialOwnerId` | String · Char(26) | yes |  |  |  |
+| `subjectName` | String · VarChar(255) |  |  |  |  |
+| `provider` | String · VarChar(48) |  |  |  |  |
+| `automated` | Boolean |  |  | false |  |
+| `state` | [enum ScreeningState](#enum-screeningstate) |  |  | PENDING_REVIEW |  |
+| `listsChecked` | String · VarChar(512) | yes |  |  | Which lists the reviewer consulted, in their own words. |
+| `providerReference` | String · VarChar(128) | yes |  |  |  |
+| `note` | String · Text | yes |  |  |  |
+| `reviewedByUserId` | String · Char(26) | yes |  |  |  |
+| `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `isCurrent` | Boolean |  |  | true |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, isCurrent], map: "ix_seller_screening_current")`
+- `@@index([state], map: "ix_seller_screening_state")`
+
+<a id="model-sellerprofilechangerequest"></a>
+
+### SellerProfileChangeRequest
+
+Table `seller_profile_change_requests`
+
+A change to a verified field, waiting for the operator. The live value is untouched until it is approved.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `section` | String · VarChar(32) |  |  |  | `IDENTIFIERS` (Udyam, IEC), `EXPORT`, `FACTORY`, `BENEFICIAL_OWNERS`. |
+| `subjectId` | String · VarChar(26) |  |  | "" | The factory id for FACTORY, '' otherwise. |
+| `proposedJson` | Json |  |  |  |  |
+| `previousJson` | Json |  |  |  |  |
+| `status` | [enum ProfileChangeStatus](#enum-profilechangestatus) |  |  | PENDING |  |
+| `submittedByProfileId` | String · Char(26) | yes |  |  |  |
+| `decidedByUserId` | String · Char(26) | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `decisionReason` | String · Text | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, status], map: "ix_seller_profile_change_seller")`
+- `@@index([status, createdAt], map: "ix_seller_profile_change_queue")`
+
+<a id="model-sellerlistingtrust"></a>
+
+### SellerListingTrust
+
+Table `seller_listing_trust`
+
+Sourcing terms one supplier offers on one product.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `productId` | String · Char(26) |  | FK → [Product](#model-product) |  | (on delete: Cascade) |
+| `sampleAvailable` | Boolean |  |  | false |  |
+| `sampleNote` | String · VarChar(255) | yes |  |  |  |
+| `privateLabelAvailable` | Boolean |  |  | false |  |
+| `oemAvailable` | Boolean |  |  | false |  |
+| `leadTimeDaysMin` | Int · SmallInt | yes |  |  | Production lead time for a bulk order, in days. |
+| `leadTimeDaysMax` | Int · SmallInt | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `product` → [Product](#model-product) via `productId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `certifications` ← [SellerListingCertification](#model-sellerlistingcertification) - has many
+
+**Indexes and keys**
+
+- `@@unique([sellerAccountId, productId], map: "uq_seller_listing_trust")`
+- `@@index([productId], map: "ix_seller_listing_trust_product")`
+
+<a id="model-sellerlistingcertification"></a>
+
+### SellerListingCertification
+
+Table `seller_listing_certifications`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `listingTrustId` | String · Char(26) |  | FK → [SellerListingTrust](#model-sellerlistingtrust) |  | (on delete: Cascade) |
+| `certificationId` | String · Char(26) |  | FK → [SellerCertification](#model-sellercertification) |  | (on delete: Cascade) |
+
+**Relations**
+
+- `listingTrust` → [SellerListingTrust](#model-sellerlistingtrust) via `listingTrustId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `certification` → [SellerCertification](#model-sellercertification) via `certificationId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([listingTrustId, certificationId], map: "uq_seller_listing_certification")`
+- `@@index([certificationId], map: "ix_seller_listing_cert_certification")`
+
+<a id="model-selleroffercompliancehold"></a>
+
+### SellerOfferComplianceHold
+
+Table `seller_offer_compliance_holds`
+
+An offer paused because a certificate it relies on expired. Released - and the offer restored to `previousStatus` - when a renewal is verified.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `offerId` | String · Char(26) |  | FK → [SellerOffer](#model-selleroffer) |  | (on delete: Cascade) |
+| `certificationId` | String · Char(26) |  | FK → [SellerCertification](#model-sellercertification) |  | (on delete: Cascade) |
+| `previousStatus` | [enum SellerOfferStatus](#enum-sellerofferstatus) |  |  |  |  |
+| `heldAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `releasedAt` | DateTime · DateTime(3) | yes |  |  |  |
+
+**Relations**
+
+- `offer` → [SellerOffer](#model-selleroffer) via `offerId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `certification` → [SellerCertification](#model-sellercertification) via `certificationId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([offerId, releasedAt], map: "ix_offer_compliance_hold_offer")`
+- `@@index([certificationId, releasedAt], map: "ix_offer_compliance_hold_certification")`
+
+<a id="model-marketrule"></a>
+
+### MarketRule
+
+Table `market_rules`
+
+A destination rule for a product or a whole category (and its sub-categories). Every rule names its source, version and owner.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `scope` | [enum MarketRuleScope](#enum-marketrulescope) |  |  |  |  |
+| `productId` | String · Char(26) | yes | FK → [Product](#model-product) |  | (on delete: Cascade) |
+| `categoryId` | String · Char(26) | yes | FK → [Category](#model-category) |  | (on delete: Cascade) |
+| `countryCode` | String · Char(2) |  |  |  | ISO-3166 alpha-2, upper case. |
+| `effect` | [enum MarketRuleEffect](#enum-marketruleeffect) |  |  |  |  |
+| `reason` | String · VarChar(512) |  |  |  | Buyer-facing: why, in a sentence. |
+| `requiredDocumentsJson` | Json | yes |  |  | Document names the buyer must hold, for DOCUMENTS_REQUIRED. |
+| `source` | String · VarChar(255) |  |  |  | The regulation, licence or policy the rule rests on. |
+| `version` | String · VarChar(32) |  |  |  |  |
+| `ownerName` | String · VarChar(160) |  |  |  |  |
+| `effectiveFrom` | DateTime · DateTime(3) |  |  |  |  |
+| `effectiveUntil` | DateTime · DateTime(3) | yes |  |  |  |
+| `isActive` | Boolean |  |  | true |  |
+| `createdById` | String · Char(26) | yes |  |  |  |
+| `updatedById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `product` → [Product](#model-product) via `productId` - many-to-one, optional, on delete **Cascade**, on update **Restrict**
+- `category` → [Category](#model-category) via `categoryId` - many-to-one, optional, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([countryCode, isActive, effect], map: "ix_market_rule_country")`
+- `@@index([productId], map: "ix_market_rule_product")`
+- `@@index([categoryId], map: "ix_market_rule_category")`
+
+<a id="model-marketlandedcostrate"></a>
+
+### MarketLandedCostRate
+
+Table `market_landed_cost_rates`
+
+The configurable rate table behind the landed-cost ESTIMATE. `hsPrefix` '' is the destination's fallback row; a longer prefix wins.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `countryCode` | String · Char(2) |  |  |  |  |
+| `hsPrefix` | String · VarChar(10) |  |  | "" |  |
+| `dutyBasisPoints` | Int · SmallInt |  |  |  | 1000 = 10.00%. |
+| `importTaxBasisPoints` | Int · SmallInt |  |  |  |  |
+| `freightBasisPoints` | Int · SmallInt | yes |  |  | Freight as a share of the goods value. Null = freight not estimated. |
+| `transitDaysMin` | Int · SmallInt | yes |  |  |  |
+| `transitDaysMax` | Int · SmallInt | yes |  |  |  |
+| `source` | String · VarChar(255) |  |  |  |  |
+| `version` | String · VarChar(32) |  |  |  |  |
+| `ownerName` | String · VarChar(160) |  |  |  |  |
+| `isActive` | Boolean |  |  | true |  |
+| `updatedById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([countryCode, hsPrefix], map: "uq_market_landed_cost_rate")`
+
+<a id="model-marketprofile"></a>
+
+### MarketProfile
+
+Table `market_profiles`
+
+Operator-written content for one destination's landing page.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `countryCode` | String · Char(2) |  | PK |  |  |
+| `headline` | String · VarChar(200) | yes |  |  |  |
+| `intro` | String · Text | yes |  |  |  |
+| `dutiesGuidance` | String · Text | yes |  |  |  |
+| `deliveryPromise` | String · Text | yes |  |  |  |
+| `complianceNotes` | String · Text | yes |  |  |  |
+| `featuredCategoriesJson` | Json | yes |  |  | Category slugs to feature, in order. |
+| `isPublished` | Boolean |  |  | false |  |
+| `updatedById` | String · Char(26) | yes |  |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+<a id="model-searchsynonym"></a>
+
+### SearchSynonym
+
+Table `search_synonyms`
+
+"cannula" also finds "IV catheter". Maintained by the operator.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `term` | String · VarChar(120) |  | UNIQUE |  | Lower-cased, trimmed. |
+| `synonymsJson` | Json |  |  |  | The other terms it expands to. |
+| `isActive` | Boolean |  |  | true |  |
+| `updatedById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+<a id="model-searchquerylog"></a>
+
+### SearchQueryLog
+
+Table `search_query_logs`
+
+One search, anonymously. No user, no session, no address - the analytics only need what was asked and whether anything came back.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `queryNormalized` | String · VarChar(120) |  |  |  |  |
+| `surface` | String · VarChar(16) |  |  |  |  |
+| `resultCount` | Int |  |  |  |  |
+| `correctedTo` | String · VarChar(120) | yes |  |  |  |
+| `countryCode` | String · Char(2) | yes |  |  |  |
+| `language` | String · VarChar(10) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Indexes and keys**
+
+- `@@index([createdAt], map: "ix_search_query_log_created")`
+- `@@index([queryNormalized, createdAt], map: "ix_search_query_log_query")`
+
+### Enums in  / where one check has got to.
+
+<a id="enum-trustcheckstate"></a>
+
+#### enum TrustCheckState
+
+| Value | Meaning |
+|---|---|
+| `PENDING` | Submitted, not yet decided. |
+| `VERIFIED` | An operator (or a configured provider) confirmed it against evidence. |
+| `REJECTED` | Refused, with a seller-visible reason. |
+| `EXPIRED` | Was verified, and the evidence has passed its date or its re-verification interval. |
+
+<a id="enum-trustcheckkind"></a>
+
+#### enum TrustCheckKind
+
+What one trust check is about.
+
+| Value | Meaning |
+|---|---|
+| `LEGAL_ENTITY` | The business exists and is registered as it says. |
+| `TAX_REGISTRATION` | GSTIN / VAT / the country's tax registration. |
+| `UDYAM_REGISTRATION` | India: Udyam (MSME) registration. |
+| `IMPORT_EXPORT_CODE` | India: Importer-Exporter Code. |
+| `EXPORT_CAPABILITY` | The supplier has exported, to the markets it claims. |
+| `BENEFICIAL_OWNERSHIP` | Who ultimately owns and controls the business. |
+| `BANK_ACCOUNT` | The payout bank account belongs to the business. A hook: see `modules/trust/bank-validation.ts`. |
+| `FACTORY` | One factory, with `subjectId` = the factory. |
+
+<a id="enum-certificateexpirypolicy"></a>
+
+#### enum CertificateExpiryPolicy
+
+What happens to listings when a certificate they rely on expires.
+
+| Value | Meaning |
+|---|---|
+| `WARN` | Notify the seller and drop the certificate from the badge. Listings stay. |
+| `HOLD_LISTINGS` | As WARN, and pause every listing linked to the certificate until a renewed one is verified. |
+
+<a id="enum-screeningstate"></a>
+
+#### enum ScreeningState
+
+Result of screening one subject against sanctions / restricted-party lists.
+
+| Value | Meaning |
+|---|---|
+| `PENDING_REVIEW` | Nothing decided yet. The manual-review driver always starts here. |
+| `CLEAR` | Reviewed, no match. |
+| `POTENTIAL_MATCH` | A possible match that needs a closer look. |
+| `CONFIRMED_MATCH` | A confirmed match. The seller cannot hold the badge. |
+
+<a id="enum-screeningsubjecttype"></a>
+
+#### enum ScreeningSubjectType
+
+| Value | Meaning |
+|---|---|
+| `ENTITY` |  |
+| `BENEFICIAL_OWNER` |  |
+
+<a id="enum-profilechangestatus"></a>
+
+#### enum ProfileChangeStatus
+
+| Value | Meaning |
+|---|---|
+| `PENDING` |  |
+| `APPROVED` |  |
+| `REJECTED` |  |
+| `WITHDRAWN` |  |
+
+<a id="enum-marketrulescope"></a>
+
+#### enum MarketRuleScope
+
+| Value | Meaning |
+|---|---|
+| `PRODUCT` |  |
+| `CATEGORY` |  |
+
+<a id="enum-marketruleeffect"></a>
+
+#### enum MarketRuleEffect
+
+| Value | Meaning |
+|---|---|
+| `BLOCK` | The product may not be sold to the destination at all. |
+| `DOCUMENTS_REQUIRED` | It may, and the buyer must hold the listed documents. Shown, not blocked. |
+
+<a id="group-seller-hub-production-export-documents-trade-rules-and-booking-terms"></a>
+
+##  --------------------------------------------------------------------------- seller hub: production, export documents, trade rules and booking terms
+
+[SellerProductionMilestone](#model-sellerproductionmilestone) · [SellerProductionDelay](#model-sellerproductiondelay) · [SellerOrderBuyerUpdate](#model-sellerorderbuyerupdate) · [OrderTradeDocument](#model-ordertradedocument) · [OrderTradeDocumentVersion](#model-ordertradedocumentversion) · [OrderTradeDocumentEvent](#model-ordertradedocumentevent) · [TradeComplianceRule](#model-tradecompliancerule) · [ConsignmentBookingTerms](#model-consignmentbookingterms) · [LogisticsTradeSettings](#model-logisticstradesettings) · [LogisticsLane](#model-logisticslane) · [LogisticsLaneBand](#model-logisticslaneband)
+
+```mermaid
+erDiagram
+    SellerOrderGroup ||--o{ SellerProductionMilestone : "orderGroup"
+    SellerOrderGroup ||--o{ SellerProductionDelay : "orderGroup"
+    SellerOrderGroup ||--o{ SellerOrderBuyerUpdate : "orderGroup"
+    SellerOrderGroup ||--o{ OrderTradeDocument : "orderGroup"
+    OrderTradeDocument ||--o{ OrderTradeDocumentVersion : "document"
+    OrderTradeDocument ||--o{ OrderTradeDocumentEvent : "document"
+    LogisticsShipment ||--o| ConsignmentBookingTerms : "shipment"
+    LogisticsLane ||--o{ LogisticsLaneBand : "lane"
+    SellerProductionMilestone {
+        String id PK
+        String orderGroupId FK
+    }
+    SellerProductionDelay {
+        String id PK
+        String orderGroupId FK
+    }
+    SellerOrderBuyerUpdate {
+        String id PK
+        String orderGroupId FK
+    }
+    OrderTradeDocument {
+        String id PK
+        String orderGroupId FK
+    }
+    OrderTradeDocumentVersion {
+        String id PK
+        String documentId FK
+    }
+    OrderTradeDocumentEvent {
+        String id PK
+        String documentId FK
+    }
+    TradeComplianceRule {
+        String id PK
+    }
+    ConsignmentBookingTerms {
+        String id PK
+        String shipmentId FK
+        BigInt insuredValueMinor
+        BigInt insurancePremiumMinor
+    }
+    LogisticsTradeSettings {
+        String id PK
+    }
+    LogisticsLane {
+        String id PK
+        BigInt minimumChargeMinor
+    }
+    LogisticsLaneBand {
+        String id PK
+        String laneId FK
+        BigInt amountMinor
+        BigInt perKgMinor
+    }
+```
+
+<a id="model-sellerproductionmilestone"></a>
+
+### SellerProductionMilestone
+
+Table `seller_production_milestones`
+
+One milestone of one seller order group. Written only by `modules/seller/production.service.ts`, whose moves are decided by `domain/production-milestones.ts`: in order, never skipped, never after the goods have left.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `orderGroupId` | String · Char(26) |  | FK → [SellerOrderGroup](#model-sellerordergroup) |  | (on delete: Cascade) |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `stage` | [enum ProductionStage](#enum-productionstage) |  |  |  |  |
+| `plannedFor` | DateTime · Date | yes |  |  | The date the seller expects to reach it. A calendar date, not a moment. |
+| `completedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `completedByLabel` | String · VarChar(160) | yes |  |  |  |
+| `internalNote` | String · VarChar(2000) | yes |  |  | The seller's own note. NEVER sent to the buyer. |
+| `buyerNote` | String · VarChar(1000) | yes |  |  | What the seller chose to tell the buyer, if anything. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `orderGroup` → [SellerOrderGroup](#model-sellerordergroup) via `orderGroupId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@unique([orderGroupId, stage], map: "uq_production_milestone_stage")`
+- `@@index([sellerAccountId, updatedAt], map: "ix_production_milestone_seller")`
+
+<a id="model-sellerproductiondelay"></a>
+
+### SellerProductionDelay
+
+Table `seller_production_delays`
+
+A production delay or exception, raised and later resolved. Kept for ever: "how often is this supplier late, and why" is asked of this table.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `orderGroupId` | String · Char(26) |  | FK → [SellerOrderGroup](#model-sellerordergroup) |  | (on delete: Cascade) |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `stage` | [enum ProductionStage](#enum-productionstage) |  |  |  |  |
+| `reason` | [enum ProductionDelayReason](#enum-productiondelayreason) |  |  |  |  |
+| `detail` | String · VarChar(2000) | yes |  |  | The seller's own detail. NEVER sent to the buyer. |
+| `buyerMessage` | String · VarChar(1000) | yes |  |  | What the buyer is told, in the seller's words. Optional. |
+| `revisedDate` | DateTime · Date |  |  |  | When the stage is now expected. |
+| `raisedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `raisedByLabel` | String · VarChar(160) |  |  |  |  |
+| `resolvedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `resolvedByLabel` | String · VarChar(160) | yes |  |  |  |
+| `resolutionNote` | String · VarChar(1000) | yes |  |  |  |
+
+**Relations**
+
+- `orderGroup` → [SellerOrderGroup](#model-sellerordergroup) via `orderGroupId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@index([orderGroupId, raisedAt], map: "ix_production_delay_group")`
+- `@@index([sellerAccountId, resolvedAt], map: "ix_production_delay_seller")`
+
+<a id="model-sellerorderbuyerupdate"></a>
+
+### SellerOrderBuyerUpdate
+
+Table `seller_order_buyer_updates`
+
+What a buyer is told about a seller's part of their order, as it happens.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `orderGroupId` | String · Char(26) |  | FK → [SellerOrderGroup](#model-sellerordergroup) |  | (on delete: Cascade) |
+| `orderId` | String · Char(26) |  |  |  | The buyer's order, so the buyer's page is one indexed query. |
+| `kind` | String · VarChar(32) |  |  |  | MILESTONE_REACHED, MILESTONE_PLANNED, DELAY_RAISED, DELAY_RESOLVED. |
+| `stage` | [enum ProductionStage](#enum-productionstage) |  |  |  |  |
+| `reason` | [enum ProductionDelayReason](#enum-productiondelayreason) | yes |  |  |  |
+| `expectedDate` | DateTime · Date | yes |  |  |  |
+| `message` | String · VarChar(1000) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `orderGroup` → [SellerOrderGroup](#model-sellerordergroup) via `orderGroupId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@index([orderId, createdAt], map: "ix_buyer_update_order")`
+- `@@index([orderGroupId, createdAt], map: "ix_buyer_update_group")`
+
+<a id="model-ordertradedocument"></a>
+
+### OrderTradeDocument
+
+Table `order_trade_documents`
+
+One document slot of one seller order group: "the certificate of origin for consignment X". The content lives in its versions.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `orderGroupId` | String · Char(26) |  | FK → [SellerOrderGroup](#model-sellerordergroup) |  | (on delete: Cascade) |
+| `orderId` | String · Char(26) |  |  |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `shipmentKey` | String · VarChar(26) |  |  | "" | The consignment it belongs to, or '' for the whole seller order. Never NULL, so the UNIQUE below holds on MariaDB. |
+| `kind` | String · VarChar(64) |  |  |  | CERTIFICATE_OF_ORIGIN, SHIPPING_BILL, BILL_OF_LADING, AIR_WAYBILL, INSPECTION_CERTIFICATE, EXPORT_LICENCE, IMPORT_LICENCE, OTHER, or CATEGORY:&lt;code&gt; for a document a trade rule requires. |
+| `title` | String · VarChar(160) |  |  |  |  |
+| `buyerVisibility` | String · VarChar(8) | yes |  |  | VISIBLE or HIDDEN to override the kind's default; null uses the default. |
+| `currentVersion` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `orderGroup` → [SellerOrderGroup](#model-sellerordergroup) via `orderGroupId` - many-to-one, required, on delete **Cascade**
+- `versions` ← [OrderTradeDocumentVersion](#model-ordertradedocumentversion) - has many
+- `events` ← [OrderTradeDocumentEvent](#model-ordertradedocumentevent) - has many
+
+**Indexes and keys**
+
+- `@@unique([orderGroupId, shipmentKey, kind], map: "uq_trade_document_slot")`
+- `@@index([orderId], map: "ix_trade_document_order")`
+- `@@index([sellerAccountId, updatedAt], map: "ix_trade_document_seller")`
+
+<a id="model-ordertradedocumentversion"></a>
+
+### OrderTradeDocumentVersion
+
+Table `order_trade_document_versions`
+
+One version of a trade document. Never edited: a correction is a new version, and the one it replaces keeps its bytes and gets `supersededAt`.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `documentId` | String · Char(26) |  | FK → [OrderTradeDocument](#model-ordertradedocument) |  | (on delete: Cascade) |
+| `version` | Int |  |  |  |  |
+| `source` | [enum TradeDocumentSource](#enum-tradedocumentsource) |  |  |  |  |
+| `referenceNumber` | String · VarChar(64) | yes |  |  |  |
+| `issuerName` | String · VarChar(200) |  |  |  | Who issued it: a chamber of commerce, a shipping line, customs. |
+| `issuedOn` | DateTime · Date | yes |  |  |  |
+| `expiresOn` | DateTime · Date | yes |  |  |  |
+| `storageKey` | String · VarChar(512) | yes |  |  |  |
+| `fileName` | String · VarChar(255) | yes |  |  |  |
+| `contentType` | String · VarChar(100) | yes |  |  |  |
+| `sizeBytes` | Int | yes |  |  |  |
+| `sha256` | String · Char(64) | yes |  |  |  |
+| `scanState` | String · VarChar(24) | yes |  |  | CLEAN or SCANNER_UNCONFIGURED, as the upload found it. |
+| `validation` | [enum TradeDocumentValidation](#enum-tradedocumentvalidation) |  |  | PENDING_REVIEW |  |
+| `validatedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `validatedByUserId` | String · Char(26) | yes |  |  |  |
+| `validationNote` | String · VarChar(1000) | yes |  |  |  |
+| `supersededAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdByLabel` | String · VarChar(160) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `document` → [OrderTradeDocument](#model-ordertradedocument) via `documentId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@unique([documentId, version], map: "uq_trade_document_version")`
+- `@@index([validation, createdAt], map: "ix_trade_document_version_review")`
+
+<a id="model-ordertradedocumentevent"></a>
+
+### OrderTradeDocumentEvent
+
+Table `order_trade_document_events`
+
+Everything that happened to a trade document, for its audit history.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `documentId` | String · Char(26) |  | FK → [OrderTradeDocument](#model-ordertradedocument) |  | (on delete: Cascade) |
+| `versionId` | String · Char(26) | yes |  |  |  |
+| `action` | String · VarChar(32) |  |  |  | UPLOADED, GENERATED, REFERENCE_RECORDED, VALIDATED, REJECTED, VISIBILITY_CHANGED, DOWNLOADED. |
+| `actorType` | String · VarChar(16) |  |  |  | SELLER, STAFF, BUYER or SYSTEM. |
+| `actorLabel` | String · VarChar(160) |  |  |  |  |
+| `note` | String · VarChar(1000) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `document` → [OrderTradeDocument](#model-ordertradedocument) via `documentId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@index([documentId, createdAt], map: "ix_trade_document_event")`
+
+<a id="model-tradecompliancerule"></a>
+
+### TradeComplianceRule
+
+Table `trade_compliance_rules`
+
+One of the operator's destination and category rules.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `name` | String · VarChar(160) |  |  |  |  |
+| `destinationCountry` | String · VarChar(2) |  |  | "" |  |
+| `categoryId` | String · Char(26) | yes |  |  |  |
+| `hsPrefix` | String · VarChar(10) |  |  | "" |  |
+| `restriction` | [enum TradeRestriction](#enum-traderestriction) |  |  | NONE |  |
+| `requiredDocumentKind` | String · VarChar(64) | yes |  |  | A trade document kind (see OrderTradeDocument.kind) that must be VALID. |
+| `requiredDocumentName` | String · VarChar(160) | yes |  |  |  |
+| `responsibleParty` | [enum TradeResponsibleParty](#enum-traderesponsibleparty) |  |  | SELLER |  |
+| `requiresHsVerification` | Boolean |  |  | false |  |
+| `documentBuyerVisible` | Boolean |  |  | true | Whether the buyer may see the document this rule requires. |
+| `note` | String · VarChar(1000) | yes |  |  |  |
+| `isActive` | Boolean |  |  | true |  |
+| `createdByUserId` | String · Char(26) | yes |  |  |  |
+| `updatedByUserId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([destinationCountry, isActive], map: "ix_trade_rule_destination")`
+
+<a id="model-consignmentbookingterms"></a>
+
+### ConsignmentBookingTerms
+
+Table `consignment_booking_terms`
+
+The commercial terms a seller stated when booking a consignment.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `shipmentId` | String · Char(26) |  | UNIQUE, FK → [LogisticsShipment](#model-logisticsshipment) |  | (on delete: Cascade) |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `incoterm` | String · VarChar(3) |  |  |  | One of `INCOTERMS` in `domain/packaging.ts`. |
+| `incotermPlace` | String · VarChar(120) | yes |  |  | The named place the Incoterm refers to: "FOB Nhava Sheva". |
+| `mode` | [enum ShipmentTransportMode](#enum-shipmenttransportmode) |  |  |  |  |
+| `originPort` | String · VarChar(5) | yes |  |  | UN/LOCODE, five characters: INNSA, DEHAM. |
+| `destinationPort` | String · VarChar(5) | yes |  |  |  |
+| `routeNote` | String · VarChar(500) | yes |  |  |  |
+| `insured` | Boolean |  |  | false |  |
+| `insuredValueMinor` | BigInt | yes |  |  | Minor units in `currency`. |
+| `insurancePremiumMinor` | BigInt | yes |  |  |  |
+| `insuranceBasisPointsApplied` | Int | yes |  |  | The rate in force when it was booked, kept beside the figure it gave. |
+| `currency` | String · Char(3) | yes |  |  |  |
+| `updatedByLabel` | String · VarChar(160) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `shipment` → [LogisticsShipment](#model-logisticsshipment) via `shipmentId` - one-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId], map: "ix_booking_terms_seller")`
+
+<a id="model-logisticstradesettings"></a>
+
+### LogisticsTradeSettings
+
+Table `logistics_trade_settings`
+
+The operator's booking settings. One row, id 'default'.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · VarChar(16) |  | PK | "default" |  |
+| `insuranceBasisPoints` | Int |  |  | 0 | Cargo insurance premium, as basis points of the insured value. 0 means insurance is not offered on this installation - the default. |
+| `maxInsuredBasisPoints` | Int |  |  | 11000 | The most that may be insured, in basis points of the goods value. 11000 is 110%, the usual CIF/CIP convention. Never below 10000. |
+| `requireTermsCrossBorder` | Boolean |  |  | true | Whether a cross-border consignment must state its Incoterm, mode and ports before it can be booked. |
+| `updatedByUserId` | String · Char(26) | yes |  |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+<a id="model-logisticslane"></a>
+
+### LogisticsLane
+
+Table `logistics_lanes`
+
+One of the operator's own lanes: origin to destination by one mode with one carrier, and what it costs by weight. Used to price a consignment when the seller has no rate card of their own for it.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `name` | String · VarChar(160) |  |  |  |  |
+| `originCountry` | String · Char(2) |  |  |  |  |
+| `originRegion` | String · VarChar(64) |  |  | "" | '' for the whole country. Never NULL, for the indexes. |
+| `originPort` | String · VarChar(5) |  |  | "" |  |
+| `destinationCountry` | String · Char(2) |  |  |  |  |
+| `destinationRegion` | String · VarChar(64) |  |  | "" |  |
+| `destinationPort` | String · VarChar(5) |  |  | "" |  |
+| `mode` | [enum ShipmentTransportMode](#enum-shipmenttransportmode) |  |  |  |  |
+| `carrierName` | String · VarChar(120) |  |  |  |  |
+| `serviceLevel` | String · VarChar(48) |  |  | "STANDARD" |  |
+| `transitDaysMin` | Int · SmallInt |  |  |  |  |
+| `transitDaysMax` | Int · SmallInt |  |  |  |  |
+| `isServiceable` | Boolean |  |  | true | Off stops the lane being offered without deleting its history. |
+| `currency` | String · Char(3) |  |  |  |  |
+| `minimumChargeMinor` | BigInt |  |  | 0 |  |
+| `fuelSurchargeBasisPoints` | Int |  |  | 0 |  |
+| `validFrom` | DateTime · DateTime(3) |  |  |  |  |
+| `validTo` | DateTime · DateTime(3) | yes |  |  |  |
+| `isActive` | Boolean |  |  | true |  |
+| `version` | Int |  |  | 1 | Bumped on every saved change, so a price can be traced to what the lane said at the time. |
+| `createdByUserId` | String · Char(26) | yes |  |  |  |
+| `updatedByUserId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `bands` ← [LogisticsLaneBand](#model-logisticslaneband) - has many
+
+**Indexes and keys**
+
+- `@@index([originCountry, destinationCountry, mode, isActive], map: "ix_logistics_lane_match")`
+
+<a id="model-logisticslaneband"></a>
+
+### LogisticsLaneBand
+
+Table `logistics_lane_bands`
+
+One weight break of a lane: from `minWeightGrams` (inclusive) to `maxWeightGrams` (inclusive, null = and above), a fixed amount plus an amount per started kilogram.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `laneId` | String · Char(26) |  | FK → [LogisticsLane](#model-logisticslane) |  | (on delete: Cascade) |
+| `minWeightGrams` | Int |  |  |  |  |
+| `maxWeightGrams` | Int | yes |  |  |  |
+| `amountMinor` | BigInt |  |  |  |  |
+| `perKgMinor` | BigInt |  |  | 0 |  |
+| `sortOrder` | Int |  |  | 0 |  |
+
+**Relations**
+
+- `lane` → [LogisticsLane](#model-logisticslane) via `laneId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@unique([laneId, minWeightGrams], map: "uq_logistics_lane_band")`
+
+### Enums in  --------------------------------------------------------------------------- seller hub: production, export documents, trade rules and booking terms
+
+<a id="enum-productionstage"></a>
+
+#### enum ProductionStage
+
+The four production milestones, in the order they happen.
+
+| Value | Meaning |
+|---|---|
+| `RAW_MATERIAL` |  |
+| `IN_PRODUCTION` |  |
+| `QUALITY_CHECKED` |  |
+| `READY` |  |
+
+<a id="enum-productiondelayreason"></a>
+
+#### enum ProductionDelayReason
+
+Why production is late. Stable codes; the buyer sees a translated label.
+
+| Value | Meaning |
+|---|---|
+| `RAW_MATERIAL_SHORTAGE` |  |
+| `MACHINE_BREAKDOWN` |  |
+| `LABOUR_SHORTAGE` |  |
+| `QUALITY_REWORK` |  |
+| `SUPPLIER_DELAY` |  |
+| `TESTING_OR_CERTIFICATION` |  |
+| `BUYER_CHANGE_REQUEST` |  |
+| `LOGISTICS` |  |
+| `OTHER` |  |
+
+<a id="enum-tradedocumentsource"></a>
+
+#### enum TradeDocumentSource
+
+How a version of a trade document came to exist.
+
+| Value | Meaning |
+|---|---|
+| `GENERATED` | Produced by this system from the order (a certificate of origin draft). |
+| `UPLOADED` | A file the seller, or staff, uploaded. |
+| `REFERENCE` | A number only - a shipping bill or a waybill - with an optional file. |
+
+<a id="enum-tradedocumentvalidation"></a>
+
+#### enum TradeDocumentValidation
+
+Whether a version has been checked. EXPIRED is not stored: it is read from `expiresOn`, so a certificate expires at midnight without a worker.
+
+| Value | Meaning |
+|---|---|
+| `PENDING_REVIEW` |  |
+| `VALID` |  |
+| `REJECTED` |  |
+
+<a id="enum-hsverificationstate"></a>
+
+#### enum HsVerificationState
+
+The marketplace's review of a seller's declared HS code.
+
+| Value | Meaning |
+|---|---|
+| `DECLARED` |  |
+| `VERIFIED` |  |
+| `REJECTED` |  |
+
+<a id="enum-traderestriction"></a>
+
+#### enum TradeRestriction
+
+What a trade rule says about goods matching it.
+
+| Value | Meaning |
+|---|---|
+| `NONE` |  |
+| `RESTRICTED` | Allowed only with the rule's required document (a licence, a permit). |
+| `PROHIBITED` | Not to be sent there at all. |
+
+<a id="enum-traderesponsibleparty"></a>
+
+#### enum TradeResponsibleParty
+
+Who has to produce what a rule requires.
+
+| Value | Meaning |
+|---|---|
+| `SELLER` |  |
+| `BUYER` |  |
+| `FORWARDER` |  |
+| `OPERATOR` |  |
+
+<a id="enum-shipmenttransportmode"></a>
+
+#### enum ShipmentTransportMode
+
+How goods travel.
+
+| Value | Meaning |
+|---|---|
+| `ROAD` |  |
+| `AIR` |  |
+| `SEA` |  |
+| `RAIL` |  |
+| `COURIER` |  |
+| `MULTIMODAL` |  |
+
+<a id="group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines"></a>
+
+##  / what a ledger account represents. balances are never stored; they are the / sum of the account's lines.
+
+[LedgerAccount](#model-ledgeraccount) · [LedgerEntry](#model-ledgerentry) · [LedgerLine](#model-ledgerline) · [SellerFundHold](#model-sellerfundhold) · [SellerFundReleaseRequest](#model-sellerfundreleaserequest) · [PayoutProviderEvent](#model-payoutproviderevent) · [LedgerReconciliationRun](#model-ledgerreconciliationrun) · [LedgerReconciliationItem](#model-ledgerreconciliationitem)
+
+```mermaid
+erDiagram
+    LedgerEntry ||--o{ LedgerLine : "entry"
+    LedgerAccount ||--o{ LedgerLine : "account"
+    LedgerReconciliationRun ||--o{ LedgerReconciliationItem : "run"
+    LedgerAccount {
+        String id PK
+    }
+    LedgerEntry {
+        String id PK
+    }
+    LedgerLine {
+        String id PK
+        String entryId FK
+        String accountId FK
+        BigInt amountMinor
+    }
+    SellerFundHold {
+        String id PK
+        SellerFundHoldStatus status
+        BigInt allocatedMinor
+        BigInt releasedMinor
+        BigInt reserveMinor
+    }
+    SellerFundReleaseRequest {
+        String id PK
+        SellerFundReleaseRequestStatus status
+    }
+    PayoutProviderEvent {
+        String id PK
+        String status
+    }
+    LedgerReconciliationRun {
+        String id PK
+        LedgerReconciliationStatus status
+    }
+    LedgerReconciliationItem {
+        String id PK
+        String runId FK
+        BigInt providerAmountMinor
+        BigInt ledgerAmountMinor
+    }
+```
+
+<a id="model-ledgeraccount"></a>
+
+### LedgerAccount
+
+Table `ledger_accounts`
+
+One account in the ledger, per owner and currency.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `code` | [enum LedgerAccountCode](#enum-ledgeraccountcode) |  |  |  |  |
+| `ownerKey` | String · VarChar(32) |  |  |  | 'PLATFORM', or the seller account id. Never null: a UNIQUE index treats every NULL as distinct, and two platform accounts would split a balance. |
+| `sellerAccountId` | String · Char(26) | yes |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `lines` ← [LedgerLine](#model-ledgerline) - has many
+
+**Indexes and keys**
+
+- `@@unique([code, ownerKey, currency], map: "uq_ledger_account")`
+- `@@index([sellerAccountId, code], map: "ix_ledger_account_seller")`
+
+<a id="model-ledgerentry"></a>
+
+### LedgerEntry
+
+Table `ledger_entries`
+
+One journal entry: a balanced set of lines, written once.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `kind` | [enum LedgerEntryKind](#enum-ledgerentrykind) |  |  |  |  |
+| `idempotencyKey` | String · VarChar(191) |  |  |  | Derived from what caused it (`capture:&lt;paymentTransactionId&gt;`, `refund:&lt;refundId&gt;`, `payout:&lt;payoutId&gt;` ...), so a webhook delivered twice or a job run twice writes nothing the second time. |
+| `currency` | String · Char(3) |  |  |  |  |
+| `orderId` | String · Char(26) | yes |  |  |  |
+| `sellerOrderGroupId` | String · Char(26) | yes |  |  |  |
+| `sellerAccountId` | String · Char(26) | yes |  |  |  |
+| `paymentTransactionId` | String · Char(26) | yes |  |  |  |
+| `refundId` | String · Char(26) | yes |  |  |  |
+| `payoutId` | String · Char(26) | yes |  |  |  |
+| `disputeId` | String · Char(26) | yes |  |  |  |
+| `providerReference` | String · VarChar(128) | yes |  |  | The provider's own id for the movement (ch_, re_, tr_, dp_ ...). What reconciliation matches against the provider's balance transactions. |
+| `reversesEntryId` | String · Char(26) | yes |  |  | Set only on a REVERSAL, and unique: an entry can be reversed once. |
+| `memo` | String · VarChar(255) |  |  |  |  |
+| `actorLabel` | String · VarChar(160) |  |  |  | 'System', or the staff member's email. |
+| `occurredAt` | DateTime · DateTime(3) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `lines` ← [LedgerLine](#model-ledgerline) - has many
+
+**Indexes and keys**
+
+- `@@unique([idempotencyKey], map: "uq_ledger_entry_idempotency")`
+- `@@unique([reversesEntryId], map: "uq_ledger_entry_reverses")`
+- `@@index([orderId], map: "ix_ledger_entry_order")`
+- `@@index([sellerOrderGroupId], map: "ix_ledger_entry_group")`
+- `@@index([sellerAccountId, occurredAt], map: "ix_ledger_entry_seller")`
+- `@@index([providerReference], map: "ix_ledger_entry_provider_ref")`
+- `@@index([kind, occurredAt], map: "ix_ledger_entry_kind")`
+
+<a id="model-ledgerline"></a>
+
+### LedgerLine
+
+Table `ledger_lines`
+
+One side of an entry. Signed minor units: a debit is positive, a credit negative, and zero is refused by `chk_ledger_line_nonzero`.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `entryId` | String · Char(26) |  | FK → [LedgerEntry](#model-ledgerentry) |  | (on delete: Restrict) |
+| `accountId` | String · Char(26) |  | FK → [LedgerAccount](#model-ledgeraccount) |  | (on delete: Restrict) |
+| `amountMinor` | BigInt |  |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+
+**Relations**
+
+- `entry` → [LedgerEntry](#model-ledgerentry) via `entryId` - many-to-one, required, on delete **Restrict**, on update **Restrict**
+- `account` → [LedgerAccount](#model-ledgeraccount) via `accountId` - many-to-one, required, on delete **Restrict**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([entryId], map: "ix_ledger_line_entry")`
+- `@@index([accountId], map: "ix_ledger_line_account")`
+
+<a id="model-sellerfundhold"></a>
+
+### SellerFundHold
+
+Table `seller_fund_holds`
+
+The protected-collection record for one seller order: its disclosed release terms, whether they are met, and when the money was released.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerOrderGroupId` | String · Char(26) |  |  |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `orderId` | String · Char(26) |  |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `status` | [enum SellerFundHoldStatus](#enum-sellerfundholdstatus) |  |  | HELD |  |
+| `allocatedMinor` | BigInt |  |  |  | The seller's share when the sale was allocated. Display only; the ledger is the balance. |
+| `releasedMinor` | BigInt |  |  | 0 | What moved to available, and what went to the reserve, at release. |
+| `reserveMinor` | BigInt |  |  | 0 |  |
+| `termsJson` | Json |  |  |  | The terms as they were disclosed when the sale was made. Kept, so a later change of settings never changes a sale already made. |
+| `conditionsJson` | Json | yes |  |  | The last evaluation of each condition, for the screens. |
+| `holdCode` | [enum SellerFundHoldCode](#enum-sellerfundholdcode) | yes |  |  |  |
+| `holdReason` | String · VarChar(1000) | yes |  |  |  |
+| `holdPlacedBy` | String · VarChar(160) | yes |  |  |  |
+| `holdPlacedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `releaseKind` | String · VarChar(16) | yes |  |  |  |
+| `releaseReason` | String · VarChar(1000) | yes |  |  |  |
+| `releasedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reserveReleaseAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reserveReleasedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `payoutId` | String · Char(26) | yes |  |  | The payout that carried the released amount. |
+| `lastEvaluatedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([sellerOrderGroupId], map: "uq_seller_fund_hold_group")`
+- `@@index([status, lastEvaluatedAt], map: "ix_seller_fund_hold_status")`
+- `@@index([sellerAccountId, status], map: "ix_seller_fund_hold_seller")`
+- `@@index([orderId], map: "ix_seller_fund_hold_order")`
+- `@@index([reserveReleaseAt], map: "ix_seller_fund_hold_reserve")`
+
+<a id="model-sellerfundreleaserequest"></a>
+
+### SellerFundReleaseRequest
+
+Table `seller_fund_release_requests`
+
+A manual, early release of held funds: asked for by one member of staff with a reason, approved by a different one.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `fundHoldId` | String · Char(26) |  |  |  |  |
+| `sellerOrderGroupId` | String · Char(26) |  |  |  |  |
+| `status` | [enum SellerFundReleaseRequestStatus](#enum-sellerfundreleaserequeststatus) |  |  | PENDING |  |
+| `reason` | String · VarChar(1000) |  |  |  |  |
+| `requestedById` | String · Char(26) |  |  |  |  |
+| `requestedByLabel` | String · VarChar(160) |  |  |  |  |
+| `requestedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `decidedById` | String · Char(26) | yes |  |  |  |
+| `decidedByLabel` | String · VarChar(160) | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `decisionNote` | String · VarChar(1000) | yes |  |  |  |
+| `pendingKey` | String · Char(26) | yes |  |  | The hold's id while PENDING, null once decided: one open request per hold, because a UNIQUE index ignores NULLs. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Indexes and keys**
+
+- `@@unique([pendingKey], map: "uq_seller_fund_release_pending")`
+- `@@index([fundHoldId, requestedAt], map: "ix_seller_fund_release_hold")`
+- `@@index([status, requestedAt], map: "ix_seller_fund_release_status")`
+
+<a id="model-payoutproviderevent"></a>
+
+### PayoutProviderEvent
+
+Table `payout_provider_events`
+
+A signed event from the payout provider, recorded once.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `provider` | String · VarChar(48) |  |  |  |  |
+| `providerEventId` | String · VarChar(128) |  |  |  |  |
+| `eventType` | String · VarChar(96) |  |  |  |  |
+| `accountRef` | String · VarChar(128) | yes |  |  | The connected account the event is about, when it names one. |
+| `status` | String · VarChar(16) |  |  |  | PROCESSED, IGNORED or FAILED. |
+| `note` | String · VarChar(512) | yes |  |  |  |
+| `receivedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `processedAt` | DateTime · DateTime(3) | yes |  |  |  |
+
+**Indexes and keys**
+
+- `@@unique([provider, providerEventId], map: "uq_payout_provider_event")`
+- `@@index([eventType, receivedAt], map: "ix_payout_provider_event_type")`
+
+<a id="model-ledgerreconciliationrun"></a>
+
+### LedgerReconciliationRun
+
+Table `ledger_reconciliation_runs`
+
+One comparison of the ledger with the provider's balance transactions.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `provider` | String · VarChar(48) |  |  |  |  |
+| `periodStart` | DateTime · DateTime(3) |  |  |  |  |
+| `periodEnd` | DateTime · DateTime(3) |  |  |  |  |
+| `status` | [enum LedgerReconciliationStatus](#enum-ledgerreconciliationstatus) |  |  | RUNNING |  |
+| `providerTransactionCount` | Int |  |  | 0 |  |
+| `matchedCount` | Int |  |  | 0 |  |
+| `mismatchCount` | Int |  |  | 0 |  |
+| `startedByLabel` | String · VarChar(160) |  |  |  |  |
+| `errorMessage` | String · VarChar(1000) | yes |  |  |  |
+| `startedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `completedAt` | DateTime · DateTime(3) | yes |  |  |  |
+
+**Relations**
+
+- `items` ← [LedgerReconciliationItem](#model-ledgerreconciliationitem) - has many
+
+**Indexes and keys**
+
+- `@@index([startedAt], map: "ix_ledger_recon_run_started")`
+
+<a id="model-ledgerreconciliationitem"></a>
+
+### LedgerReconciliationItem
+
+Table `ledger_reconciliation_items`
+
+One finding of a run: a match, or a difference finance must look at.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `runId` | String · Char(26) |  | FK → [LedgerReconciliationRun](#model-ledgerreconciliationrun) |  | (on delete: Cascade) |
+| `kind` | [enum LedgerReconciliationItemKind](#enum-ledgerreconciliationitemkind) |  |  |  |  |
+| `providerReference` | String · VarChar(128) | yes |  |  |  |
+| `providerType` | String · VarChar(48) | yes |  |  |  |
+| `providerAmountMinor` | BigInt | yes |  |  |  |
+| `ledgerAmountMinor` | BigInt | yes |  |  |  |
+| `currency` | String · Char(3) | yes |  |  |  |
+| `ledgerEntryId` | String · Char(26) | yes |  |  |  |
+| `note` | String · VarChar(512) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `run` → [LedgerReconciliationRun](#model-ledgerreconciliationrun) via `runId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([runId, kind], map: "ix_ledger_recon_item_run")`
+
+### Enums in  / what a ledger account represents. balances are never stored; they are the / sum of the account's lines.
+
+<a id="enum-ledgeraccountcode"></a>
+
+#### enum LedgerAccountCode
+
+| Value | Meaning |
+|---|---|
+| `PROVIDER_BALANCE` | Money on the platform's payment-provider balance. An asset. |
+| `BUYER_FUNDS_CLEARING` | A buyer's payment received and not yet split between sellers and fees. |
+| `SELLER_HELD` | A seller's share of a sale, held until its release terms are met. |
+| `SELLER_RESERVE` | Part of a released amount kept back for the reserve period. |
+| `SELLER_AVAILABLE` | Released to the seller and waiting to be paid out. |
+| `PAYOUTS_IN_TRANSIT` | Sent to the seller's connected account, not yet confirmed by the provider. |
+| `PLATFORM_COMMISSION` | The platform's fee on sales. |
+| `PLATFORM_FEE_TAX` | The tax charged on that fee. |
+| `CHARGEBACK_RECEIVABLE` | Money the provider withdrew for a chargeback, pending its outcome. |
+| `CHARGEBACK_LOSSES` | Chargebacks lost and chargeback fees the platform bears. |
+
+<a id="enum-ledgerentrykind"></a>
+
+#### enum LedgerEntryKind
+
+Why an entry was written.
+
+| Value | Meaning |
+|---|---|
+| `PAYMENT_CAPTURED` |  |
+| `SALE_ALLOCATED` |  |
+| `REFUND_ISSUED` |  |
+| `REFUND_CHARGED_TO_SELLER` |  |
+| `FUNDS_RELEASED` |  |
+| `RESERVE_RELEASED` |  |
+| `PAYOUT_INITIATED` |  |
+| `PAYOUT_SETTLED` |  |
+| `CHARGEBACK_OPENED` |  |
+| `CHARGEBACK_WON` |  |
+| `CHARGEBACK_LOST` |  |
+| `CHARGEBACK_FEE` |  |
+| `REVERSAL` | Undoes exactly one earlier entry, line for line with the signs flipped. |
+
+<a id="enum-sellerfundholdstatus"></a>
+
+#### enum SellerFundHoldStatus
+
+Where one seller order's money is on its way to the seller.
+
+| Value | Meaning |
+|---|---|
+| `HELD` | Waiting for its release terms: delivery, the return window, inspection. |
+| `ON_HOLD` | Stopped by an open dispute or by the operator, whatever the terms say. |
+| `RELEASED` | Moved to the seller's available balance (less any reserve). |
+
+<a id="enum-sellerfundholdcode"></a>
+
+#### enum SellerFundHoldCode
+
+| Value | Meaning |
+|---|---|
+| `DISPUTE` |  |
+| `MANUAL` |  |
+
+<a id="enum-sellerfundreleaserequeststatus"></a>
+
+#### enum SellerFundReleaseRequestStatus
+
+| Value | Meaning |
+|---|---|
+| `PENDING` |  |
+| `APPROVED` |  |
+| `REJECTED` |  |
+
+<a id="enum-ledgerreconciliationstatus"></a>
+
+#### enum LedgerReconciliationStatus
+
+| Value | Meaning |
+|---|---|
+| `RUNNING` |  |
+| `COMPLETED` |  |
+| `FAILED` |  |
+
+<a id="enum-ledgerreconciliationitemkind"></a>
+
+#### enum LedgerReconciliationItemKind
+
+| Value | Meaning |
+|---|---|
+| `MATCHED` |  |
+| `AMOUNT_MISMATCH` |  |
+| `MISSING_IN_LEDGER` |  |
+| `MISSING_AT_PROVIDER` |  |
+| `CURRENCY_CONVERTED` |  |
+| `UNBALANCED_ENTRY` |  |
+| `STATEMENT_MISMATCH` |  |
+
+<a id="group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts"></a>
+
+##  / when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.
+
+[SecretFingerprint](#model-secretfingerprint)
+
+```mermaid
+erDiagram
+    SecretFingerprint {
+        String id PK
+    }
+```
+
+<a id="model-secretfingerprint"></a>
+
+### SecretFingerprint
+
+Table `secret_fingerprints`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `secretName` | String · VarChar(64) |  |  |  | The setting's name, e.g. `SESSION_COOKIE_SECRET`. |
+| `fingerprint` | String · Char(16) |  |  |  |  |
+| `firstSeenAt` | DateTime · DateTime(3) |  |  |  |  |
+| `lastSeenAt` | DateTime · DateTime(3) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([secretName, fingerprint], map: "uq_secret_fingerprint")`
 

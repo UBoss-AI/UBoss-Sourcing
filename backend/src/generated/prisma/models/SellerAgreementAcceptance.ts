@@ -40,6 +40,8 @@ export type SellerAgreementAcceptanceMinAggregateOutputType = {
   ipAddress: string | null
   userAgent: string | null
   acceptedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerAgreementAcceptanceMaxAggregateOutputType = {
@@ -54,6 +56,8 @@ export type SellerAgreementAcceptanceMaxAggregateOutputType = {
   ipAddress: string | null
   userAgent: string | null
   acceptedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerAgreementAcceptanceCountAggregateOutputType = {
@@ -68,6 +72,8 @@ export type SellerAgreementAcceptanceCountAggregateOutputType = {
   ipAddress: number
   userAgent: number
   acceptedAt: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -84,6 +90,8 @@ export type SellerAgreementAcceptanceMinAggregateInputType = {
   ipAddress?: true
   userAgent?: true
   acceptedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerAgreementAcceptanceMaxAggregateInputType = {
@@ -98,6 +106,8 @@ export type SellerAgreementAcceptanceMaxAggregateInputType = {
   ipAddress?: true
   userAgent?: true
   acceptedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerAgreementAcceptanceCountAggregateInputType = {
@@ -112,6 +122,8 @@ export type SellerAgreementAcceptanceCountAggregateInputType = {
   ipAddress?: true
   userAgent?: true
   acceptedAt?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -199,6 +211,8 @@ export type SellerAgreementAcceptanceGroupByOutputType = {
   ipAddress: string | null
   userAgent: string | null
   acceptedAt: Date
+  createdAt: Date
+  updatedAt: Date
   _count: SellerAgreementAcceptanceCountAggregateOutputType | null
   _min: SellerAgreementAcceptanceMinAggregateOutputType | null
   _max: SellerAgreementAcceptanceMaxAggregateOutputType | null
@@ -234,6 +248,8 @@ export type SellerAgreementAcceptanceWhereInput = {
   ipAddress?: Prisma.StringNullableFilter<"SellerAgreementAcceptance"> | string | null
   userAgent?: Prisma.StringNullableFilter<"SellerAgreementAcceptance"> | string | null
   acceptedAt?: Prisma.DateTimeFilter<"SellerAgreementAcceptance"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"SellerAgreementAcceptance"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerAgreementAcceptance"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
 }
 
@@ -249,6 +265,8 @@ export type SellerAgreementAcceptanceOrderByWithRelationInput = {
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   userAgent?: Prisma.SortOrderInput | Prisma.SortOrder
   acceptedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   _relevance?: Prisma.SellerAgreementAcceptanceOrderByRelevanceInput
 }
@@ -268,6 +286,8 @@ export type SellerAgreementAcceptanceWhereUniqueInput = Prisma.AtLeast<{
   ipAddress?: Prisma.StringNullableFilter<"SellerAgreementAcceptance"> | string | null
   userAgent?: Prisma.StringNullableFilter<"SellerAgreementAcceptance"> | string | null
   acceptedAt?: Prisma.DateTimeFilter<"SellerAgreementAcceptance"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"SellerAgreementAcceptance"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerAgreementAcceptance"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
 }, "id">
 
@@ -283,6 +303,8 @@ export type SellerAgreementAcceptanceOrderByWithAggregationInput = {
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   userAgent?: Prisma.SortOrderInput | Prisma.SortOrder
   acceptedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerAgreementAcceptanceCountOrderByAggregateInput
   _max?: Prisma.SellerAgreementAcceptanceMaxOrderByAggregateInput
   _min?: Prisma.SellerAgreementAcceptanceMinOrderByAggregateInput
@@ -303,6 +325,8 @@ export type SellerAgreementAcceptanceScalarWhereWithAggregatesInput = {
   ipAddress?: Prisma.StringNullableWithAggregatesFilter<"SellerAgreementAcceptance"> | string | null
   userAgent?: Prisma.StringNullableWithAggregatesFilter<"SellerAgreementAcceptance"> | string | null
   acceptedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerAgreementAcceptance"> | Date | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerAgreementAcceptance"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerAgreementAcceptance"> | Date | string
 }
 
 export type SellerAgreementAcceptanceCreateInput = {
@@ -316,6 +340,8 @@ export type SellerAgreementAcceptanceCreateInput = {
   ipAddress?: string | null
   userAgent?: string | null
   acceptedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutAgreementsInput
 }
 
@@ -331,6 +357,8 @@ export type SellerAgreementAcceptanceUncheckedCreateInput = {
   ipAddress?: string | null
   userAgent?: string | null
   acceptedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerAgreementAcceptanceUpdateInput = {
@@ -344,6 +372,8 @@ export type SellerAgreementAcceptanceUpdateInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutAgreementsNestedInput
 }
 
@@ -359,6 +389,8 @@ export type SellerAgreementAcceptanceUncheckedUpdateInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerAgreementAcceptanceCreateManyInput = {
@@ -373,6 +405,8 @@ export type SellerAgreementAcceptanceCreateManyInput = {
   ipAddress?: string | null
   userAgent?: string | null
   acceptedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerAgreementAcceptanceUpdateManyMutationInput = {
@@ -386,6 +420,8 @@ export type SellerAgreementAcceptanceUpdateManyMutationInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerAgreementAcceptanceUncheckedUpdateManyInput = {
@@ -400,6 +436,8 @@ export type SellerAgreementAcceptanceUncheckedUpdateManyInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerAgreementAcceptanceListRelationFilter = {
@@ -430,6 +468,8 @@ export type SellerAgreementAcceptanceCountOrderByAggregateInput = {
   ipAddress?: Prisma.SortOrder
   userAgent?: Prisma.SortOrder
   acceptedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerAgreementAcceptanceMaxOrderByAggregateInput = {
@@ -444,6 +484,8 @@ export type SellerAgreementAcceptanceMaxOrderByAggregateInput = {
   ipAddress?: Prisma.SortOrder
   userAgent?: Prisma.SortOrder
   acceptedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerAgreementAcceptanceMinOrderByAggregateInput = {
@@ -458,6 +500,8 @@ export type SellerAgreementAcceptanceMinOrderByAggregateInput = {
   ipAddress?: Prisma.SortOrder
   userAgent?: Prisma.SortOrder
   acceptedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerAgreementAcceptanceCreateNestedManyWithoutSellerAccountInput = {
@@ -521,6 +565,8 @@ export type SellerAgreementAcceptanceCreateWithoutSellerAccountInput = {
   ipAddress?: string | null
   userAgent?: string | null
   acceptedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerAgreementAcceptanceUncheckedCreateWithoutSellerAccountInput = {
@@ -534,6 +580,8 @@ export type SellerAgreementAcceptanceUncheckedCreateWithoutSellerAccountInput = 
   ipAddress?: string | null
   userAgent?: string | null
   acceptedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerAgreementAcceptanceCreateOrConnectWithoutSellerAccountInput = {
@@ -577,6 +625,8 @@ export type SellerAgreementAcceptanceScalarWhereInput = {
   ipAddress?: Prisma.StringNullableFilter<"SellerAgreementAcceptance"> | string | null
   userAgent?: Prisma.StringNullableFilter<"SellerAgreementAcceptance"> | string | null
   acceptedAt?: Prisma.DateTimeFilter<"SellerAgreementAcceptance"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"SellerAgreementAcceptance"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerAgreementAcceptance"> | Date | string
 }
 
 export type SellerAgreementAcceptanceCreateManySellerAccountInput = {
@@ -590,6 +640,8 @@ export type SellerAgreementAcceptanceCreateManySellerAccountInput = {
   ipAddress?: string | null
   userAgent?: string | null
   acceptedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerAgreementAcceptanceUpdateWithoutSellerAccountInput = {
@@ -603,6 +655,8 @@ export type SellerAgreementAcceptanceUpdateWithoutSellerAccountInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerAgreementAcceptanceUncheckedUpdateWithoutSellerAccountInput = {
@@ -616,6 +670,8 @@ export type SellerAgreementAcceptanceUncheckedUpdateWithoutSellerAccountInput = 
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerAgreementAcceptanceUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -629,6 +685,8 @@ export type SellerAgreementAcceptanceUncheckedUpdateManyWithoutSellerAccountInpu
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -645,6 +703,8 @@ export type SellerAgreementAcceptanceSelect<ExtArgs extends runtime.Types.Extens
   ipAddress?: boolean
   userAgent?: boolean
   acceptedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerAgreementAcceptance"]>
 
@@ -662,9 +722,11 @@ export type SellerAgreementAcceptanceSelectScalar = {
   ipAddress?: boolean
   userAgent?: boolean
   acceptedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerAgreementAcceptanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "kind" | "version" | "method" | "acceptedByProfileId" | "acceptedName" | "signatureStorageKey" | "ipAddress" | "userAgent" | "acceptedAt", ExtArgs["result"]["sellerAgreementAcceptance"]>
+export type SellerAgreementAcceptanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "kind" | "version" | "method" | "acceptedByProfileId" | "acceptedName" | "signatureStorageKey" | "ipAddress" | "userAgent" | "acceptedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerAgreementAcceptance"]>
 export type SellerAgreementAcceptanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }
@@ -702,6 +764,8 @@ export type $SellerAgreementAcceptancePayload<ExtArgs extends runtime.Types.Exte
     ipAddress: string | null
     userAgent: string | null
     acceptedAt: Date
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerAgreementAcceptance"]>
   composites: {}
 }
@@ -1083,6 +1147,8 @@ export interface SellerAgreementAcceptanceFieldRefs {
   readonly ipAddress: Prisma.FieldRef<"SellerAgreementAcceptance", 'String'>
   readonly userAgent: Prisma.FieldRef<"SellerAgreementAcceptance", 'String'>
   readonly acceptedAt: Prisma.FieldRef<"SellerAgreementAcceptance", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"SellerAgreementAcceptance", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerAgreementAcceptance", 'DateTime'>
 }
     
 

@@ -78,6 +78,7 @@ export type OrderLogisticsLegMinAggregateOutputType = {
   taxInclusive: boolean | null
   priceSource: $Enums.LogisticsPriceSource | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type OrderLogisticsLegMaxAggregateOutputType = {
@@ -109,6 +110,7 @@ export type OrderLogisticsLegMaxAggregateOutputType = {
   taxInclusive: boolean | null
   priceSource: $Enums.LogisticsPriceSource | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type OrderLogisticsLegCountAggregateOutputType = {
@@ -140,6 +142,7 @@ export type OrderLogisticsLegCountAggregateOutputType = {
   taxInclusive: number
   priceSource: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -191,6 +194,7 @@ export type OrderLogisticsLegMinAggregateInputType = {
   taxInclusive?: true
   priceSource?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type OrderLogisticsLegMaxAggregateInputType = {
@@ -222,6 +226,7 @@ export type OrderLogisticsLegMaxAggregateInputType = {
   taxInclusive?: true
   priceSource?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type OrderLogisticsLegCountAggregateInputType = {
@@ -253,6 +258,7 @@ export type OrderLogisticsLegCountAggregateInputType = {
   taxInclusive?: true
   priceSource?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -371,6 +377,7 @@ export type OrderLogisticsLegGroupByOutputType = {
   taxInclusive: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt: Date
+  updatedAt: Date
   _count: OrderLogisticsLegCountAggregateOutputType | null
   _avg: OrderLogisticsLegAvgAggregateOutputType | null
   _sum: OrderLogisticsLegSumAggregateOutputType | null
@@ -425,6 +432,7 @@ export type OrderLogisticsLegWhereInput = {
   taxInclusive?: Prisma.BoolFilter<"OrderLogisticsLeg"> | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFilter<"OrderLogisticsLeg"> | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFilter<"OrderLogisticsLeg"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderLogisticsLeg"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   policyVersion?: Prisma.XOR<Prisma.SellerLogisticsPolicyVersionScalarRelationFilter, Prisma.SellerLogisticsPolicyVersionWhereInput>
@@ -460,6 +468,7 @@ export type OrderLogisticsLegOrderByWithRelationInput = {
   taxInclusive?: Prisma.SortOrder
   priceSource?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   order?: Prisma.OrderOrderByWithRelationInput
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   policyVersion?: Prisma.SellerLogisticsPolicyVersionOrderByWithRelationInput
@@ -500,6 +509,7 @@ export type OrderLogisticsLegWhereUniqueInput = Prisma.AtLeast<{
   taxInclusive?: Prisma.BoolFilter<"OrderLogisticsLeg"> | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFilter<"OrderLogisticsLeg"> | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFilter<"OrderLogisticsLeg"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderLogisticsLeg"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   policyVersion?: Prisma.XOR<Prisma.SellerLogisticsPolicyVersionScalarRelationFilter, Prisma.SellerLogisticsPolicyVersionWhereInput>
@@ -535,6 +545,7 @@ export type OrderLogisticsLegOrderByWithAggregationInput = {
   taxInclusive?: Prisma.SortOrder
   priceSource?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrderLogisticsLegCountOrderByAggregateInput
   _avg?: Prisma.OrderLogisticsLegAvgOrderByAggregateInput
   _max?: Prisma.OrderLogisticsLegMaxOrderByAggregateInput
@@ -574,6 +585,7 @@ export type OrderLogisticsLegScalarWhereWithAggregatesInput = {
   taxInclusive?: Prisma.BoolWithAggregatesFilter<"OrderLogisticsLeg"> | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceWithAggregatesFilter<"OrderLogisticsLeg"> | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OrderLogisticsLeg"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"OrderLogisticsLeg"> | Date | string
 }
 
 export type OrderLogisticsLegCreateInput = {
@@ -602,6 +614,7 @@ export type OrderLogisticsLegCreateInput = {
   taxInclusive?: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt?: Date | string
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutLogisticsLegChargesInput
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOrderLogisticsLegsInput
   policyVersion: Prisma.SellerLogisticsPolicyVersionCreateNestedOneWithoutLegChargesInput
@@ -637,6 +650,7 @@ export type OrderLogisticsLegUncheckedCreateInput = {
   taxInclusive?: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt?: Date | string
+  updatedAt?: Date | string
   shipmentLeg?: Prisma.ShipmentLegUncheckedCreateNestedOneWithoutOrderLegInput
 }
 
@@ -666,6 +680,7 @@ export type OrderLogisticsLegUpdateInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutLogisticsLegChargesNestedInput
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOrderLogisticsLegsNestedInput
   policyVersion?: Prisma.SellerLogisticsPolicyVersionUpdateOneRequiredWithoutLegChargesNestedInput
@@ -701,6 +716,7 @@ export type OrderLogisticsLegUncheckedUpdateInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shipmentLeg?: Prisma.ShipmentLegUncheckedUpdateOneWithoutOrderLegNestedInput
 }
 
@@ -733,6 +749,7 @@ export type OrderLogisticsLegCreateManyInput = {
   taxInclusive?: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderLogisticsLegUpdateManyMutationInput = {
@@ -761,6 +778,7 @@ export type OrderLogisticsLegUpdateManyMutationInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderLogisticsLegUncheckedUpdateManyInput = {
@@ -792,6 +810,7 @@ export type OrderLogisticsLegUncheckedUpdateManyInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderLogisticsLegListRelationFilter = {
@@ -845,6 +864,7 @@ export type OrderLogisticsLegCountOrderByAggregateInput = {
   taxInclusive?: Prisma.SortOrder
   priceSource?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderLogisticsLegAvgOrderByAggregateInput = {
@@ -885,6 +905,7 @@ export type OrderLogisticsLegMaxOrderByAggregateInput = {
   taxInclusive?: Prisma.SortOrder
   priceSource?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderLogisticsLegMinOrderByAggregateInput = {
@@ -916,6 +937,7 @@ export type OrderLogisticsLegMinOrderByAggregateInput = {
   taxInclusive?: Prisma.SortOrder
   priceSource?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderLogisticsLegSumOrderByAggregateInput = {
@@ -1100,6 +1122,7 @@ export type OrderLogisticsLegCreateWithoutOrderInput = {
   taxInclusive?: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt?: Date | string
+  updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOrderLogisticsLegsInput
   policyVersion: Prisma.SellerLogisticsPolicyVersionCreateNestedOneWithoutLegChargesInput
   shipmentLeg?: Prisma.ShipmentLegCreateNestedOneWithoutOrderLegInput
@@ -1133,6 +1156,7 @@ export type OrderLogisticsLegUncheckedCreateWithoutOrderInput = {
   taxInclusive?: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt?: Date | string
+  updatedAt?: Date | string
   shipmentLeg?: Prisma.ShipmentLegUncheckedCreateNestedOneWithoutOrderLegInput
 }
 
@@ -1194,6 +1218,7 @@ export type OrderLogisticsLegScalarWhereInput = {
   taxInclusive?: Prisma.BoolFilter<"OrderLogisticsLeg"> | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFilter<"OrderLogisticsLeg"> | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFilter<"OrderLogisticsLeg"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderLogisticsLeg"> | Date | string
 }
 
 export type OrderLogisticsLegCreateWithoutSellerAccountInput = {
@@ -1222,6 +1247,7 @@ export type OrderLogisticsLegCreateWithoutSellerAccountInput = {
   taxInclusive?: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt?: Date | string
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutLogisticsLegChargesInput
   policyVersion: Prisma.SellerLogisticsPolicyVersionCreateNestedOneWithoutLegChargesInput
   shipmentLeg?: Prisma.ShipmentLegCreateNestedOneWithoutOrderLegInput
@@ -1255,6 +1281,7 @@ export type OrderLogisticsLegUncheckedCreateWithoutSellerAccountInput = {
   taxInclusive?: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt?: Date | string
+  updatedAt?: Date | string
   shipmentLeg?: Prisma.ShipmentLegUncheckedCreateNestedOneWithoutOrderLegInput
 }
 
@@ -1310,6 +1337,7 @@ export type OrderLogisticsLegCreateWithoutPolicyVersionInput = {
   taxInclusive?: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt?: Date | string
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutLogisticsLegChargesInput
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOrderLogisticsLegsInput
   shipmentLeg?: Prisma.ShipmentLegCreateNestedOneWithoutOrderLegInput
@@ -1343,6 +1371,7 @@ export type OrderLogisticsLegUncheckedCreateWithoutPolicyVersionInput = {
   taxInclusive?: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt?: Date | string
+  updatedAt?: Date | string
   shipmentLeg?: Prisma.ShipmentLegUncheckedCreateNestedOneWithoutOrderLegInput
 }
 
@@ -1398,6 +1427,7 @@ export type OrderLogisticsLegCreateWithoutShipmentLegInput = {
   taxInclusive?: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt?: Date | string
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutLogisticsLegChargesInput
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOrderLogisticsLegsInput
   policyVersion: Prisma.SellerLogisticsPolicyVersionCreateNestedOneWithoutLegChargesInput
@@ -1432,6 +1462,7 @@ export type OrderLogisticsLegUncheckedCreateWithoutShipmentLegInput = {
   taxInclusive?: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderLogisticsLegCreateOrConnectWithoutShipmentLegInput = {
@@ -1476,6 +1507,7 @@ export type OrderLogisticsLegUpdateWithoutShipmentLegInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutLogisticsLegChargesNestedInput
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOrderLogisticsLegsNestedInput
   policyVersion?: Prisma.SellerLogisticsPolicyVersionUpdateOneRequiredWithoutLegChargesNestedInput
@@ -1510,6 +1542,7 @@ export type OrderLogisticsLegUncheckedUpdateWithoutShipmentLegInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderLogisticsLegCreateManyOrderInput = {
@@ -1540,6 +1573,7 @@ export type OrderLogisticsLegCreateManyOrderInput = {
   taxInclusive?: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderLogisticsLegUpdateWithoutOrderInput = {
@@ -1568,6 +1602,7 @@ export type OrderLogisticsLegUpdateWithoutOrderInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOrderLogisticsLegsNestedInput
   policyVersion?: Prisma.SellerLogisticsPolicyVersionUpdateOneRequiredWithoutLegChargesNestedInput
   shipmentLeg?: Prisma.ShipmentLegUpdateOneWithoutOrderLegNestedInput
@@ -1601,6 +1636,7 @@ export type OrderLogisticsLegUncheckedUpdateWithoutOrderInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shipmentLeg?: Prisma.ShipmentLegUncheckedUpdateOneWithoutOrderLegNestedInput
 }
 
@@ -1632,6 +1668,7 @@ export type OrderLogisticsLegUncheckedUpdateManyWithoutOrderInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderLogisticsLegCreateManySellerAccountInput = {
@@ -1662,6 +1699,7 @@ export type OrderLogisticsLegCreateManySellerAccountInput = {
   taxInclusive?: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderLogisticsLegUpdateWithoutSellerAccountInput = {
@@ -1690,6 +1728,7 @@ export type OrderLogisticsLegUpdateWithoutSellerAccountInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutLogisticsLegChargesNestedInput
   policyVersion?: Prisma.SellerLogisticsPolicyVersionUpdateOneRequiredWithoutLegChargesNestedInput
   shipmentLeg?: Prisma.ShipmentLegUpdateOneWithoutOrderLegNestedInput
@@ -1723,6 +1762,7 @@ export type OrderLogisticsLegUncheckedUpdateWithoutSellerAccountInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shipmentLeg?: Prisma.ShipmentLegUncheckedUpdateOneWithoutOrderLegNestedInput
 }
 
@@ -1754,6 +1794,7 @@ export type OrderLogisticsLegUncheckedUpdateManyWithoutSellerAccountInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderLogisticsLegCreateManyPolicyVersionInput = {
@@ -1784,6 +1825,7 @@ export type OrderLogisticsLegCreateManyPolicyVersionInput = {
   taxInclusive?: boolean
   priceSource: $Enums.LogisticsPriceSource
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderLogisticsLegUpdateWithoutPolicyVersionInput = {
@@ -1812,6 +1854,7 @@ export type OrderLogisticsLegUpdateWithoutPolicyVersionInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutLogisticsLegChargesNestedInput
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOrderLogisticsLegsNestedInput
   shipmentLeg?: Prisma.ShipmentLegUpdateOneWithoutOrderLegNestedInput
@@ -1845,6 +1888,7 @@ export type OrderLogisticsLegUncheckedUpdateWithoutPolicyVersionInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shipmentLeg?: Prisma.ShipmentLegUncheckedUpdateOneWithoutOrderLegNestedInput
 }
 
@@ -1876,6 +1920,7 @@ export type OrderLogisticsLegUncheckedUpdateManyWithoutPolicyVersionInput = {
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   priceSource?: Prisma.EnumLogisticsPriceSourceFieldUpdateOperationsInput | $Enums.LogisticsPriceSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1909,6 +1954,7 @@ export type OrderLogisticsLegSelect<ExtArgs extends runtime.Types.Extensions.Int
   taxInclusive?: boolean
   priceSource?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   policyVersion?: boolean | Prisma.SellerLogisticsPolicyVersionDefaultArgs<ExtArgs>
@@ -1946,9 +1992,10 @@ export type OrderLogisticsLegSelectScalar = {
   taxInclusive?: boolean
   priceSource?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type OrderLogisticsLegOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "sellerAccountId" | "level" | "owner" | "policyVersionId" | "rateId" | "rateVersionNumber" | "transportMode" | "provider" | "logisticsPartnerId" | "providerLabel" | "serviceName" | "originLabel" | "destinationLabel" | "transitDaysMin" | "transitDaysMax" | "originalAmountMinor" | "originalCurrency" | "fxRate" | "fxProvider" | "fxRateAsOf" | "amountMinor" | "currency" | "isFree" | "taxInclusive" | "priceSource" | "createdAt", ExtArgs["result"]["orderLogisticsLeg"]>
+export type OrderLogisticsLegOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "sellerAccountId" | "level" | "owner" | "policyVersionId" | "rateId" | "rateVersionNumber" | "transportMode" | "provider" | "logisticsPartnerId" | "providerLabel" | "serviceName" | "originLabel" | "destinationLabel" | "transitDaysMin" | "transitDaysMax" | "originalAmountMinor" | "originalCurrency" | "fxRate" | "fxProvider" | "fxRateAsOf" | "amountMinor" | "currency" | "isFree" | "taxInclusive" | "priceSource" | "createdAt" | "updatedAt", ExtArgs["result"]["orderLogisticsLeg"]>
 export type OrderLogisticsLegInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
@@ -2006,6 +2053,7 @@ export type $OrderLogisticsLegPayload<ExtArgs extends runtime.Types.Extensions.I
     taxInclusive: boolean
     priceSource: $Enums.LogisticsPriceSource
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["orderLogisticsLeg"]>
   composites: {}
 }
@@ -2407,6 +2455,7 @@ export interface OrderLogisticsLegFieldRefs {
   readonly taxInclusive: Prisma.FieldRef<"OrderLogisticsLeg", 'Boolean'>
   readonly priceSource: Prisma.FieldRef<"OrderLogisticsLeg", 'LogisticsPriceSource'>
   readonly createdAt: Prisma.FieldRef<"OrderLogisticsLeg", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"OrderLogisticsLeg", 'DateTime'>
 }
     
 

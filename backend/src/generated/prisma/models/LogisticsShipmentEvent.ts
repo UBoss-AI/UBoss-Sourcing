@@ -81,6 +81,7 @@ export type LogisticsShipmentEventMinAggregateOutputType = {
   exceptionId: string | null
   documentId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsShipmentEventMaxAggregateOutputType = {
@@ -109,6 +110,7 @@ export type LogisticsShipmentEventMaxAggregateOutputType = {
   exceptionId: string | null
   documentId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsShipmentEventCountAggregateOutputType = {
@@ -137,6 +139,7 @@ export type LogisticsShipmentEventCountAggregateOutputType = {
   exceptionId: number
   documentId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -177,6 +180,7 @@ export type LogisticsShipmentEventMinAggregateInputType = {
   exceptionId?: true
   documentId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsShipmentEventMaxAggregateInputType = {
@@ -205,6 +209,7 @@ export type LogisticsShipmentEventMaxAggregateInputType = {
   exceptionId?: true
   documentId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsShipmentEventCountAggregateInputType = {
@@ -233,6 +238,7 @@ export type LogisticsShipmentEventCountAggregateInputType = {
   exceptionId?: true
   documentId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -348,6 +354,7 @@ export type LogisticsShipmentEventGroupByOutputType = {
   exceptionId: string | null
   documentId: string | null
   createdAt: Date
+  updatedAt: Date
   _count: LogisticsShipmentEventCountAggregateOutputType | null
   _avg: LogisticsShipmentEventAvgAggregateOutputType | null
   _sum: LogisticsShipmentEventSumAggregateOutputType | null
@@ -399,6 +406,7 @@ export type LogisticsShipmentEventWhereInput = {
   exceptionId?: Prisma.StringNullableFilter<"LogisticsShipmentEvent"> | string | null
   documentId?: Prisma.StringNullableFilter<"LogisticsShipmentEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsShipmentEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsShipmentEvent"> | Date | string
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentScalarRelationFilter, Prisma.LogisticsShipmentWhereInput>
 }
 
@@ -428,6 +436,7 @@ export type LogisticsShipmentEventOrderByWithRelationInput = {
   exceptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   documentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   shipment?: Prisma.LogisticsShipmentOrderByWithRelationInput
   _relevance?: Prisma.LogisticsShipmentEventOrderByRelevanceInput
 }
@@ -462,6 +471,7 @@ export type LogisticsShipmentEventWhereUniqueInput = Prisma.AtLeast<{
   exceptionId?: Prisma.StringNullableFilter<"LogisticsShipmentEvent"> | string | null
   documentId?: Prisma.StringNullableFilter<"LogisticsShipmentEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsShipmentEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsShipmentEvent"> | Date | string
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentScalarRelationFilter, Prisma.LogisticsShipmentWhereInput>
 }, "id" | "externalEventKey" | "shipmentId_idempotencyKey">
 
@@ -491,6 +501,7 @@ export type LogisticsShipmentEventOrderByWithAggregationInput = {
   exceptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   documentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LogisticsShipmentEventCountOrderByAggregateInput
   _avg?: Prisma.LogisticsShipmentEventAvgOrderByAggregateInput
   _max?: Prisma.LogisticsShipmentEventMaxOrderByAggregateInput
@@ -527,6 +538,7 @@ export type LogisticsShipmentEventScalarWhereWithAggregatesInput = {
   exceptionId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsShipmentEvent"> | string | null
   documentId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsShipmentEvent"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsShipmentEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsShipmentEvent"> | Date | string
 }
 
 export type LogisticsShipmentEventCreateInput = {
@@ -554,6 +566,7 @@ export type LogisticsShipmentEventCreateInput = {
   exceptionId?: string | null
   documentId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   shipment: Prisma.LogisticsShipmentCreateNestedOneWithoutEventsInput
 }
 
@@ -583,6 +596,7 @@ export type LogisticsShipmentEventUncheckedCreateInput = {
   exceptionId?: string | null
   documentId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentEventUpdateInput = {
@@ -610,6 +624,7 @@ export type LogisticsShipmentEventUpdateInput = {
   exceptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shipment?: Prisma.LogisticsShipmentUpdateOneRequiredWithoutEventsNestedInput
 }
 
@@ -639,6 +654,7 @@ export type LogisticsShipmentEventUncheckedUpdateInput = {
   exceptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentEventCreateManyInput = {
@@ -667,6 +683,7 @@ export type LogisticsShipmentEventCreateManyInput = {
   exceptionId?: string | null
   documentId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentEventUpdateManyMutationInput = {
@@ -694,6 +711,7 @@ export type LogisticsShipmentEventUpdateManyMutationInput = {
   exceptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentEventUncheckedUpdateManyInput = {
@@ -722,6 +740,7 @@ export type LogisticsShipmentEventUncheckedUpdateManyInput = {
   exceptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentEventListRelationFilter = {
@@ -771,6 +790,7 @@ export type LogisticsShipmentEventCountOrderByAggregateInput = {
   exceptionId?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsShipmentEventAvgOrderByAggregateInput = {
@@ -804,6 +824,7 @@ export type LogisticsShipmentEventMaxOrderByAggregateInput = {
   exceptionId?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsShipmentEventMinOrderByAggregateInput = {
@@ -832,6 +853,7 @@ export type LogisticsShipmentEventMinOrderByAggregateInput = {
   exceptionId?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsShipmentEventSumOrderByAggregateInput = {
@@ -914,6 +936,7 @@ export type LogisticsShipmentEventCreateWithoutShipmentInput = {
   exceptionId?: string | null
   documentId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentEventUncheckedCreateWithoutShipmentInput = {
@@ -941,6 +964,7 @@ export type LogisticsShipmentEventUncheckedCreateWithoutShipmentInput = {
   exceptionId?: string | null
   documentId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentEventCreateOrConnectWithoutShipmentInput = {
@@ -998,6 +1022,7 @@ export type LogisticsShipmentEventScalarWhereInput = {
   exceptionId?: Prisma.StringNullableFilter<"LogisticsShipmentEvent"> | string | null
   documentId?: Prisma.StringNullableFilter<"LogisticsShipmentEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsShipmentEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsShipmentEvent"> | Date | string
 }
 
 export type LogisticsShipmentEventCreateManyShipmentInput = {
@@ -1025,6 +1050,7 @@ export type LogisticsShipmentEventCreateManyShipmentInput = {
   exceptionId?: string | null
   documentId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentEventUpdateWithoutShipmentInput = {
@@ -1052,6 +1078,7 @@ export type LogisticsShipmentEventUpdateWithoutShipmentInput = {
   exceptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentEventUncheckedUpdateWithoutShipmentInput = {
@@ -1079,6 +1106,7 @@ export type LogisticsShipmentEventUncheckedUpdateWithoutShipmentInput = {
   exceptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentEventUncheckedUpdateManyWithoutShipmentInput = {
@@ -1106,6 +1134,7 @@ export type LogisticsShipmentEventUncheckedUpdateManyWithoutShipmentInput = {
   exceptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1136,6 +1165,7 @@ export type LogisticsShipmentEventSelect<ExtArgs extends runtime.Types.Extension
   exceptionId?: boolean
   documentId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   shipment?: boolean | Prisma.LogisticsShipmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["logisticsShipmentEvent"]>
 
@@ -1167,9 +1197,10 @@ export type LogisticsShipmentEventSelectScalar = {
   exceptionId?: boolean
   documentId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LogisticsShipmentEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "shipmentId" | "previousStatus" | "status" | "publicDescription" | "internalNote" | "occurredAt" | "recordedAt" | "locationLabel" | "locationCountry" | "locationLatitude" | "locationLongitude" | "source" | "actorUserId" | "actorLogisticsPartnerId" | "externalEventId" | "externalStatusCode" | "carrierIntegrationId" | "externalEventKey" | "idempotencyKey" | "isCorrection" | "reason" | "exceptionId" | "documentId" | "createdAt", ExtArgs["result"]["logisticsShipmentEvent"]>
+export type LogisticsShipmentEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "shipmentId" | "previousStatus" | "status" | "publicDescription" | "internalNote" | "occurredAt" | "recordedAt" | "locationLabel" | "locationCountry" | "locationLatitude" | "locationLongitude" | "source" | "actorUserId" | "actorLogisticsPartnerId" | "externalEventId" | "externalStatusCode" | "carrierIntegrationId" | "externalEventKey" | "idempotencyKey" | "isCorrection" | "reason" | "exceptionId" | "documentId" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsShipmentEvent"]>
 export type LogisticsShipmentEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   shipment?: boolean | Prisma.LogisticsShipmentDefaultArgs<ExtArgs>
 }
@@ -1256,6 +1287,7 @@ export type $LogisticsShipmentEventPayload<ExtArgs extends runtime.Types.Extensi
     exceptionId: string | null
     documentId: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["logisticsShipmentEvent"]>
   composites: {}
 }
@@ -1651,6 +1683,7 @@ export interface LogisticsShipmentEventFieldRefs {
   readonly exceptionId: Prisma.FieldRef<"LogisticsShipmentEvent", 'String'>
   readonly documentId: Prisma.FieldRef<"LogisticsShipmentEvent", 'String'>
   readonly createdAt: Prisma.FieldRef<"LogisticsShipmentEvent", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LogisticsShipmentEvent", 'DateTime'>
 }
     
 

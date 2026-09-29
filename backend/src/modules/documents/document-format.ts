@@ -11,6 +11,7 @@
 import { createHmac } from 'node:crypto';
 
 import { env } from '../../config/env.js';
+import { sessionSecrets } from '../../infra/signing-secrets.js';
 import { formatMinorToMajor } from '../../domain/money.js';
 import QRCode from 'qrcode';
 
@@ -76,7 +77,28 @@ export type VerifiableKind = 'invoice' | 'packing-list' | 'commission-invoice' |
  * carton is read by strangers.
  */
 export function verificationCode(kind: VerifiableKind, number: string, issuerId = ''): string {
-  return createHmac('sha256', `document-verification:${env.SESSION_COOKIE_SECRET}`)
+  return codeUnder(env.SESSION_COOKIE_SECRET, kind, number, issuerId);
+}
+
+/**
+ * Does `given` match, under the current session secret OR a previous one?
+ *
+ * A verification code is printed on paper and read years later, so rotating
+ * the secret must not turn every earlier document into a "not ours". Keep a
+ * rotated value in SESSION_COOKIE_SECRET_PREVIOUS for as long as documents
+ * signed with it may be checked.
+ */
+export function verificationCodeMatches(
+  kind: VerifiableKind,
+  number: string,
+  given: string,
+  issuerId = '',
+): boolean {
+  return sessionSecrets().some((secret) => codeUnder(secret, kind, number, issuerId) === given);
+}
+
+function codeUnder(secret: string, kind: VerifiableKind, number: string, issuerId: string): string {
+  return createHmac('sha256', `document-verification:${secret}`)
     .update(issuerId === '' ? `${kind}:${number}` : `${kind}:${issuerId}:${number}`)
     .digest('hex')
     .slice(0, 16)

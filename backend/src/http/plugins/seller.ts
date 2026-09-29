@@ -36,6 +36,7 @@ import {
   type SellerMembership,
 } from '../../modules/seller/account.service.js';
 import { env } from '../../config/env.js';
+import { assertSellerMfaSatisfied } from '../../modules/identity/customer-mfa.service.js';
 import {
   assertSellerUnlocked,
   expireIdleSellerSession,
@@ -131,6 +132,15 @@ export function requireSeller(...permissions: SellerPermissionKey[]) {
         new Date(since.getTime() + env.SELLER_HUB_IDLE_TIMEOUT_SECONDS * 1000).toISOString(),
       );
     }
+
+    /*
+     * Two-step sign-in, for the roles that must have it: the owner and anybody
+     * holding payout or finance permissions. After the Hub's own lock and
+     * before any permission, so every Hub route - the payout and settlement
+     * screens included - is shut to them until it is set up, and the refusal
+     * (MFA_SETUP_REQUIRED) is what the Hub turns into the setup screen.
+     */
+    assertSellerMfaSatisfied(membership, auth);
 
     for (const permission of permissions) {
       assertSellerPermission(membership, permission);

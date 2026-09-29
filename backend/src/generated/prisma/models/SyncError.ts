@@ -32,6 +32,7 @@ export type SyncErrorMinAggregateOutputType = {
   errorCode: string | null
   errorMessage: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SyncErrorMaxAggregateOutputType = {
@@ -42,6 +43,7 @@ export type SyncErrorMaxAggregateOutputType = {
   errorCode: string | null
   errorMessage: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SyncErrorCountAggregateOutputType = {
@@ -53,6 +55,7 @@ export type SyncErrorCountAggregateOutputType = {
   errorMessage: number
   payloadJson: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -65,6 +68,7 @@ export type SyncErrorMinAggregateInputType = {
   errorCode?: true
   errorMessage?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SyncErrorMaxAggregateInputType = {
@@ -75,6 +79,7 @@ export type SyncErrorMaxAggregateInputType = {
   errorCode?: true
   errorMessage?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SyncErrorCountAggregateInputType = {
@@ -86,6 +91,7 @@ export type SyncErrorCountAggregateInputType = {
   errorMessage?: true
   payloadJson?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -170,6 +176,7 @@ export type SyncErrorGroupByOutputType = {
   errorMessage: string
   payloadJson: runtime.JsonValue | null
   createdAt: Date
+  updatedAt: Date
   _count: SyncErrorCountAggregateOutputType | null
   _min: SyncErrorMinAggregateOutputType | null
   _max: SyncErrorMaxAggregateOutputType | null
@@ -202,6 +209,7 @@ export type SyncErrorWhereInput = {
   errorMessage?: Prisma.StringFilter<"SyncError"> | string
   payloadJson?: Prisma.JsonNullableFilter<"SyncError">
   createdAt?: Prisma.DateTimeFilter<"SyncError"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SyncError"> | Date | string
   syncRun?: Prisma.XOR<Prisma.SyncRunScalarRelationFilter, Prisma.SyncRunWhereInput>
 }
 
@@ -214,6 +222,7 @@ export type SyncErrorOrderByWithRelationInput = {
   errorMessage?: Prisma.SortOrder
   payloadJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   syncRun?: Prisma.SyncRunOrderByWithRelationInput
   _relevance?: Prisma.SyncErrorOrderByRelevanceInput
 }
@@ -230,6 +239,7 @@ export type SyncErrorWhereUniqueInput = Prisma.AtLeast<{
   errorMessage?: Prisma.StringFilter<"SyncError"> | string
   payloadJson?: Prisma.JsonNullableFilter<"SyncError">
   createdAt?: Prisma.DateTimeFilter<"SyncError"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SyncError"> | Date | string
   syncRun?: Prisma.XOR<Prisma.SyncRunScalarRelationFilter, Prisma.SyncRunWhereInput>
 }, "id">
 
@@ -242,6 +252,7 @@ export type SyncErrorOrderByWithAggregationInput = {
   errorMessage?: Prisma.SortOrder
   payloadJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SyncErrorCountOrderByAggregateInput
   _max?: Prisma.SyncErrorMaxOrderByAggregateInput
   _min?: Prisma.SyncErrorMinOrderByAggregateInput
@@ -259,6 +270,7 @@ export type SyncErrorScalarWhereWithAggregatesInput = {
   errorMessage?: Prisma.StringWithAggregatesFilter<"SyncError"> | string
   payloadJson?: Prisma.JsonNullableWithAggregatesFilter<"SyncError">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SyncError"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SyncError"> | Date | string
 }
 
 export type SyncErrorCreateInput = {
@@ -269,6 +281,7 @@ export type SyncErrorCreateInput = {
   errorMessage: string
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
   syncRun: Prisma.SyncRunCreateNestedOneWithoutErrorsInput
 }
 
@@ -281,6 +294,7 @@ export type SyncErrorUncheckedCreateInput = {
   errorMessage: string
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SyncErrorUpdateInput = {
@@ -291,6 +305,7 @@ export type SyncErrorUpdateInput = {
   errorMessage?: Prisma.StringFieldUpdateOperationsInput | string
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   syncRun?: Prisma.SyncRunUpdateOneRequiredWithoutErrorsNestedInput
 }
 
@@ -303,6 +318,7 @@ export type SyncErrorUncheckedUpdateInput = {
   errorMessage?: Prisma.StringFieldUpdateOperationsInput | string
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SyncErrorCreateManyInput = {
@@ -314,6 +330,7 @@ export type SyncErrorCreateManyInput = {
   errorMessage: string
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SyncErrorUpdateManyMutationInput = {
@@ -324,6 +341,7 @@ export type SyncErrorUpdateManyMutationInput = {
   errorMessage?: Prisma.StringFieldUpdateOperationsInput | string
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SyncErrorUncheckedUpdateManyInput = {
@@ -335,6 +353,7 @@ export type SyncErrorUncheckedUpdateManyInput = {
   errorMessage?: Prisma.StringFieldUpdateOperationsInput | string
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SyncErrorListRelationFilter = {
@@ -362,6 +381,7 @@ export type SyncErrorCountOrderByAggregateInput = {
   errorMessage?: Prisma.SortOrder
   payloadJson?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SyncErrorMaxOrderByAggregateInput = {
@@ -372,6 +392,7 @@ export type SyncErrorMaxOrderByAggregateInput = {
   errorCode?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SyncErrorMinOrderByAggregateInput = {
@@ -382,6 +403,7 @@ export type SyncErrorMinOrderByAggregateInput = {
   errorCode?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SyncErrorCreateNestedManyWithoutSyncRunInput = {
@@ -434,6 +456,7 @@ export type SyncErrorCreateWithoutSyncRunInput = {
   errorMessage: string
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SyncErrorUncheckedCreateWithoutSyncRunInput = {
@@ -444,6 +467,7 @@ export type SyncErrorUncheckedCreateWithoutSyncRunInput = {
   errorMessage: string
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SyncErrorCreateOrConnectWithoutSyncRunInput = {
@@ -484,6 +508,7 @@ export type SyncErrorScalarWhereInput = {
   errorMessage?: Prisma.StringFilter<"SyncError"> | string
   payloadJson?: Prisma.JsonNullableFilter<"SyncError">
   createdAt?: Prisma.DateTimeFilter<"SyncError"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SyncError"> | Date | string
 }
 
 export type SyncErrorCreateManySyncRunInput = {
@@ -494,6 +519,7 @@ export type SyncErrorCreateManySyncRunInput = {
   errorMessage: string
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SyncErrorUpdateWithoutSyncRunInput = {
@@ -504,6 +530,7 @@ export type SyncErrorUpdateWithoutSyncRunInput = {
   errorMessage?: Prisma.StringFieldUpdateOperationsInput | string
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SyncErrorUncheckedUpdateWithoutSyncRunInput = {
@@ -514,6 +541,7 @@ export type SyncErrorUncheckedUpdateWithoutSyncRunInput = {
   errorMessage?: Prisma.StringFieldUpdateOperationsInput | string
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SyncErrorUncheckedUpdateManyWithoutSyncRunInput = {
@@ -524,6 +552,7 @@ export type SyncErrorUncheckedUpdateManyWithoutSyncRunInput = {
   errorMessage?: Prisma.StringFieldUpdateOperationsInput | string
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -537,6 +566,7 @@ export type SyncErrorSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   errorMessage?: boolean
   payloadJson?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   syncRun?: boolean | Prisma.SyncRunDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["syncError"]>
 
@@ -551,9 +581,10 @@ export type SyncErrorSelectScalar = {
   errorMessage?: boolean
   payloadJson?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SyncErrorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "syncRunId" | "rowRef" | "field" | "errorCode" | "errorMessage" | "payloadJson" | "createdAt", ExtArgs["result"]["syncError"]>
+export type SyncErrorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "syncRunId" | "rowRef" | "field" | "errorCode" | "errorMessage" | "payloadJson" | "createdAt" | "updatedAt", ExtArgs["result"]["syncError"]>
 export type SyncErrorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   syncRun?: boolean | Prisma.SyncRunDefaultArgs<ExtArgs>
 }
@@ -578,6 +609,7 @@ export type $SyncErrorPayload<ExtArgs extends runtime.Types.Extensions.InternalA
      */
     payloadJson: runtime.JsonValue | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["syncError"]>
   composites: {}
 }
@@ -956,6 +988,7 @@ export interface SyncErrorFieldRefs {
   readonly errorMessage: Prisma.FieldRef<"SyncError", 'String'>
   readonly payloadJson: Prisma.FieldRef<"SyncError", 'Json'>
   readonly createdAt: Prisma.FieldRef<"SyncError", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SyncError", 'DateTime'>
 }
     
 

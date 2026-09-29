@@ -62,6 +62,8 @@ export type CarrierWebhookEventMinAggregateOutputType = {
   processedAt: Date | null
   deadLetteredAt: Date | null
   receivedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CarrierWebhookEventMaxAggregateOutputType = {
@@ -80,6 +82,8 @@ export type CarrierWebhookEventMaxAggregateOutputType = {
   processedAt: Date | null
   deadLetteredAt: Date | null
   receivedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CarrierWebhookEventCountAggregateOutputType = {
@@ -99,6 +103,8 @@ export type CarrierWebhookEventCountAggregateOutputType = {
   processedAt: number
   deadLetteredAt: number
   receivedAt: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -127,6 +133,8 @@ export type CarrierWebhookEventMinAggregateInputType = {
   processedAt?: true
   deadLetteredAt?: true
   receivedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CarrierWebhookEventMaxAggregateInputType = {
@@ -145,6 +153,8 @@ export type CarrierWebhookEventMaxAggregateInputType = {
   processedAt?: true
   deadLetteredAt?: true
   receivedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CarrierWebhookEventCountAggregateInputType = {
@@ -164,6 +174,8 @@ export type CarrierWebhookEventCountAggregateInputType = {
   processedAt?: true
   deadLetteredAt?: true
   receivedAt?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -270,6 +282,8 @@ export type CarrierWebhookEventGroupByOutputType = {
   processedAt: Date | null
   deadLetteredAt: Date | null
   receivedAt: Date
+  createdAt: Date
+  updatedAt: Date
   _count: CarrierWebhookEventCountAggregateOutputType | null
   _avg: CarrierWebhookEventAvgAggregateOutputType | null
   _sum: CarrierWebhookEventSumAggregateOutputType | null
@@ -312,6 +326,8 @@ export type CarrierWebhookEventWhereInput = {
   processedAt?: Prisma.DateTimeNullableFilter<"CarrierWebhookEvent"> | Date | string | null
   deadLetteredAt?: Prisma.DateTimeNullableFilter<"CarrierWebhookEvent"> | Date | string | null
   receivedAt?: Prisma.DateTimeFilter<"CarrierWebhookEvent"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"CarrierWebhookEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CarrierWebhookEvent"> | Date | string
   integration?: Prisma.XOR<Prisma.CarrierIntegrationScalarRelationFilter, Prisma.CarrierIntegrationWhereInput>
 }
 
@@ -332,6 +348,8 @@ export type CarrierWebhookEventOrderByWithRelationInput = {
   processedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deadLetteredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   integration?: Prisma.CarrierIntegrationOrderByWithRelationInput
   _relevance?: Prisma.CarrierWebhookEventOrderByRelevanceInput
 }
@@ -357,6 +375,8 @@ export type CarrierWebhookEventWhereUniqueInput = Prisma.AtLeast<{
   processedAt?: Prisma.DateTimeNullableFilter<"CarrierWebhookEvent"> | Date | string | null
   deadLetteredAt?: Prisma.DateTimeNullableFilter<"CarrierWebhookEvent"> | Date | string | null
   receivedAt?: Prisma.DateTimeFilter<"CarrierWebhookEvent"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"CarrierWebhookEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CarrierWebhookEvent"> | Date | string
   integration?: Prisma.XOR<Prisma.CarrierIntegrationScalarRelationFilter, Prisma.CarrierIntegrationWhereInput>
 }, "id" | "carrierIntegrationId_providerEventId">
 
@@ -377,6 +397,8 @@ export type CarrierWebhookEventOrderByWithAggregationInput = {
   processedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deadLetteredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CarrierWebhookEventCountOrderByAggregateInput
   _avg?: Prisma.CarrierWebhookEventAvgOrderByAggregateInput
   _max?: Prisma.CarrierWebhookEventMaxOrderByAggregateInput
@@ -404,6 +426,8 @@ export type CarrierWebhookEventScalarWhereWithAggregatesInput = {
   processedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CarrierWebhookEvent"> | Date | string | null
   deadLetteredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CarrierWebhookEvent"> | Date | string | null
   receivedAt?: Prisma.DateTimeWithAggregatesFilter<"CarrierWebhookEvent"> | Date | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"CarrierWebhookEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CarrierWebhookEvent"> | Date | string
 }
 
 export type CarrierWebhookEventCreateInput = {
@@ -422,6 +446,8 @@ export type CarrierWebhookEventCreateInput = {
   processedAt?: Date | string | null
   deadLetteredAt?: Date | string | null
   receivedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   integration: Prisma.CarrierIntegrationCreateNestedOneWithoutWebhookEventsInput
 }
 
@@ -442,6 +468,8 @@ export type CarrierWebhookEventUncheckedCreateInput = {
   processedAt?: Date | string | null
   deadLetteredAt?: Date | string | null
   receivedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CarrierWebhookEventUpdateInput = {
@@ -460,6 +488,8 @@ export type CarrierWebhookEventUpdateInput = {
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   integration?: Prisma.CarrierIntegrationUpdateOneRequiredWithoutWebhookEventsNestedInput
 }
 
@@ -480,6 +510,8 @@ export type CarrierWebhookEventUncheckedUpdateInput = {
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CarrierWebhookEventCreateManyInput = {
@@ -499,6 +531,8 @@ export type CarrierWebhookEventCreateManyInput = {
   processedAt?: Date | string | null
   deadLetteredAt?: Date | string | null
   receivedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CarrierWebhookEventUpdateManyMutationInput = {
@@ -517,6 +551,8 @@ export type CarrierWebhookEventUpdateManyMutationInput = {
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CarrierWebhookEventUncheckedUpdateManyInput = {
@@ -536,6 +572,8 @@ export type CarrierWebhookEventUncheckedUpdateManyInput = {
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CarrierWebhookEventListRelationFilter = {
@@ -576,6 +614,8 @@ export type CarrierWebhookEventCountOrderByAggregateInput = {
   processedAt?: Prisma.SortOrder
   deadLetteredAt?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CarrierWebhookEventAvgOrderByAggregateInput = {
@@ -598,6 +638,8 @@ export type CarrierWebhookEventMaxOrderByAggregateInput = {
   processedAt?: Prisma.SortOrder
   deadLetteredAt?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CarrierWebhookEventMinOrderByAggregateInput = {
@@ -616,6 +658,8 @@ export type CarrierWebhookEventMinOrderByAggregateInput = {
   processedAt?: Prisma.SortOrder
   deadLetteredAt?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CarrierWebhookEventSumOrderByAggregateInput = {
@@ -684,6 +728,8 @@ export type CarrierWebhookEventCreateWithoutIntegrationInput = {
   processedAt?: Date | string | null
   deadLetteredAt?: Date | string | null
   receivedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CarrierWebhookEventUncheckedCreateWithoutIntegrationInput = {
@@ -702,6 +748,8 @@ export type CarrierWebhookEventUncheckedCreateWithoutIntegrationInput = {
   processedAt?: Date | string | null
   deadLetteredAt?: Date | string | null
   receivedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CarrierWebhookEventCreateOrConnectWithoutIntegrationInput = {
@@ -750,6 +798,8 @@ export type CarrierWebhookEventScalarWhereInput = {
   processedAt?: Prisma.DateTimeNullableFilter<"CarrierWebhookEvent"> | Date | string | null
   deadLetteredAt?: Prisma.DateTimeNullableFilter<"CarrierWebhookEvent"> | Date | string | null
   receivedAt?: Prisma.DateTimeFilter<"CarrierWebhookEvent"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"CarrierWebhookEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CarrierWebhookEvent"> | Date | string
 }
 
 export type CarrierWebhookEventCreateManyIntegrationInput = {
@@ -768,6 +818,8 @@ export type CarrierWebhookEventCreateManyIntegrationInput = {
   processedAt?: Date | string | null
   deadLetteredAt?: Date | string | null
   receivedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CarrierWebhookEventUpdateWithoutIntegrationInput = {
@@ -786,6 +838,8 @@ export type CarrierWebhookEventUpdateWithoutIntegrationInput = {
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CarrierWebhookEventUncheckedUpdateWithoutIntegrationInput = {
@@ -804,6 +858,8 @@ export type CarrierWebhookEventUncheckedUpdateWithoutIntegrationInput = {
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CarrierWebhookEventUncheckedUpdateManyWithoutIntegrationInput = {
@@ -822,6 +878,8 @@ export type CarrierWebhookEventUncheckedUpdateManyWithoutIntegrationInput = {
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -843,6 +901,8 @@ export type CarrierWebhookEventSelect<ExtArgs extends runtime.Types.Extensions.I
   processedAt?: boolean
   deadLetteredAt?: boolean
   receivedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   integration?: boolean | Prisma.CarrierIntegrationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["carrierWebhookEvent"]>
 
@@ -865,9 +925,11 @@ export type CarrierWebhookEventSelectScalar = {
   processedAt?: boolean
   deadLetteredAt?: boolean
   receivedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CarrierWebhookEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "carrierIntegrationId" | "providerEventId" | "state" | "trackingNumber" | "shipmentId" | "providerStatusCode" | "resolvedStatus" | "payloadJson" | "signatureVerified" | "attempts" | "nextRetryAt" | "lastError" | "processedAt" | "deadLetteredAt" | "receivedAt", ExtArgs["result"]["carrierWebhookEvent"]>
+export type CarrierWebhookEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "carrierIntegrationId" | "providerEventId" | "state" | "trackingNumber" | "shipmentId" | "providerStatusCode" | "resolvedStatus" | "payloadJson" | "signatureVerified" | "attempts" | "nextRetryAt" | "lastError" | "processedAt" | "deadLetteredAt" | "receivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["carrierWebhookEvent"]>
 export type CarrierWebhookEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   integration?: boolean | Prisma.CarrierIntegrationDefaultArgs<ExtArgs>
 }
@@ -915,6 +977,8 @@ export type $CarrierWebhookEventPayload<ExtArgs extends runtime.Types.Extensions
     processedAt: Date | null
     deadLetteredAt: Date | null
     receivedAt: Date
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["carrierWebhookEvent"]>
   composites: {}
 }
@@ -1301,6 +1365,8 @@ export interface CarrierWebhookEventFieldRefs {
   readonly processedAt: Prisma.FieldRef<"CarrierWebhookEvent", 'DateTime'>
   readonly deadLetteredAt: Prisma.FieldRef<"CarrierWebhookEvent", 'DateTime'>
   readonly receivedAt: Prisma.FieldRef<"CarrierWebhookEvent", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"CarrierWebhookEvent", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CarrierWebhookEvent", 'DateTime'>
 }
     
 

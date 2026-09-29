@@ -46,6 +46,7 @@ export type LogisticsPartnerInvitationMinAggregateOutputType = {
   invitedByPartnerUserId: string | null
   invitedByAdminUserId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsPartnerInvitationMaxAggregateOutputType = {
@@ -62,6 +63,7 @@ export type LogisticsPartnerInvitationMaxAggregateOutputType = {
   invitedByPartnerUserId: string | null
   invitedByAdminUserId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsPartnerInvitationCountAggregateOutputType = {
@@ -78,6 +80,7 @@ export type LogisticsPartnerInvitationCountAggregateOutputType = {
   invitedByPartnerUserId: number
   invitedByAdminUserId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -96,6 +99,7 @@ export type LogisticsPartnerInvitationMinAggregateInputType = {
   invitedByPartnerUserId?: true
   invitedByAdminUserId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsPartnerInvitationMaxAggregateInputType = {
@@ -112,6 +116,7 @@ export type LogisticsPartnerInvitationMaxAggregateInputType = {
   invitedByPartnerUserId?: true
   invitedByAdminUserId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsPartnerInvitationCountAggregateInputType = {
@@ -128,6 +133,7 @@ export type LogisticsPartnerInvitationCountAggregateInputType = {
   invitedByPartnerUserId?: true
   invitedByAdminUserId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -217,6 +223,7 @@ export type LogisticsPartnerInvitationGroupByOutputType = {
   invitedByPartnerUserId: string | null
   invitedByAdminUserId: string | null
   createdAt: Date
+  updatedAt: Date
   _count: LogisticsPartnerInvitationCountAggregateOutputType | null
   _min: LogisticsPartnerInvitationMinAggregateOutputType | null
   _max: LogisticsPartnerInvitationMaxAggregateOutputType | null
@@ -254,6 +261,7 @@ export type LogisticsPartnerInvitationWhereInput = {
   invitedByPartnerUserId?: Prisma.StringNullableFilter<"LogisticsPartnerInvitation"> | string | null
   invitedByAdminUserId?: Prisma.StringNullableFilter<"LogisticsPartnerInvitation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsPartnerInvitation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsPartnerInvitation"> | Date | string
   partner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
   invitedBy?: Prisma.XOR<Prisma.LogisticsPartnerUserNullableScalarRelationFilter, Prisma.LogisticsPartnerUserWhereInput> | null
 }
@@ -272,6 +280,7 @@ export type LogisticsPartnerInvitationOrderByWithRelationInput = {
   invitedByPartnerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   invitedByAdminUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   partner?: Prisma.LogisticsPartnerOrderByWithRelationInput
   invitedBy?: Prisma.LogisticsPartnerUserOrderByWithRelationInput
   _relevance?: Prisma.LogisticsPartnerInvitationOrderByRelevanceInput
@@ -294,6 +303,7 @@ export type LogisticsPartnerInvitationWhereUniqueInput = Prisma.AtLeast<{
   invitedByPartnerUserId?: Prisma.StringNullableFilter<"LogisticsPartnerInvitation"> | string | null
   invitedByAdminUserId?: Prisma.StringNullableFilter<"LogisticsPartnerInvitation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsPartnerInvitation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsPartnerInvitation"> | Date | string
   partner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
   invitedBy?: Prisma.XOR<Prisma.LogisticsPartnerUserNullableScalarRelationFilter, Prisma.LogisticsPartnerUserWhereInput> | null
 }, "id" | "tokenHash">
@@ -312,6 +322,7 @@ export type LogisticsPartnerInvitationOrderByWithAggregationInput = {
   invitedByPartnerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   invitedByAdminUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LogisticsPartnerInvitationCountOrderByAggregateInput
   _max?: Prisma.LogisticsPartnerInvitationMaxOrderByAggregateInput
   _min?: Prisma.LogisticsPartnerInvitationMinOrderByAggregateInput
@@ -334,6 +345,7 @@ export type LogisticsPartnerInvitationScalarWhereWithAggregatesInput = {
   invitedByPartnerUserId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPartnerInvitation"> | string | null
   invitedByAdminUserId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPartnerInvitation"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsPartnerInvitation"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsPartnerInvitation"> | Date | string
 }
 
 export type LogisticsPartnerInvitationCreateInput = {
@@ -348,6 +360,7 @@ export type LogisticsPartnerInvitationCreateInput = {
   revokedAt?: Date | string | null
   invitedByAdminUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutInvitationsInput
   invitedBy?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutInvitationsSentInput
 }
@@ -366,6 +379,7 @@ export type LogisticsPartnerInvitationUncheckedCreateInput = {
   invitedByPartnerUserId?: string | null
   invitedByAdminUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerInvitationUpdateInput = {
@@ -380,6 +394,7 @@ export type LogisticsPartnerInvitationUpdateInput = {
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByAdminUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutInvitationsNestedInput
   invitedBy?: Prisma.LogisticsPartnerUserUpdateOneWithoutInvitationsSentNestedInput
 }
@@ -398,6 +413,7 @@ export type LogisticsPartnerInvitationUncheckedUpdateInput = {
   invitedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedByAdminUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerInvitationCreateManyInput = {
@@ -414,6 +430,7 @@ export type LogisticsPartnerInvitationCreateManyInput = {
   invitedByPartnerUserId?: string | null
   invitedByAdminUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerInvitationUpdateManyMutationInput = {
@@ -428,6 +445,7 @@ export type LogisticsPartnerInvitationUpdateManyMutationInput = {
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByAdminUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerInvitationUncheckedUpdateManyInput = {
@@ -444,6 +462,7 @@ export type LogisticsPartnerInvitationUncheckedUpdateManyInput = {
   invitedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedByAdminUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerInvitationListRelationFilter = {
@@ -476,6 +495,7 @@ export type LogisticsPartnerInvitationCountOrderByAggregateInput = {
   invitedByPartnerUserId?: Prisma.SortOrder
   invitedByAdminUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsPartnerInvitationMaxOrderByAggregateInput = {
@@ -492,6 +512,7 @@ export type LogisticsPartnerInvitationMaxOrderByAggregateInput = {
   invitedByPartnerUserId?: Prisma.SortOrder
   invitedByAdminUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsPartnerInvitationMinOrderByAggregateInput = {
@@ -508,6 +529,7 @@ export type LogisticsPartnerInvitationMinOrderByAggregateInput = {
   invitedByPartnerUserId?: Prisma.SortOrder
   invitedByAdminUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput = {
@@ -606,6 +628,7 @@ export type LogisticsPartnerInvitationCreateWithoutPartnerInput = {
   revokedAt?: Date | string | null
   invitedByAdminUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   invitedBy?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutInvitationsSentInput
 }
 
@@ -622,6 +645,7 @@ export type LogisticsPartnerInvitationUncheckedCreateWithoutPartnerInput = {
   invitedByPartnerUserId?: string | null
   invitedByAdminUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerInvitationCreateOrConnectWithoutPartnerInput = {
@@ -667,6 +691,7 @@ export type LogisticsPartnerInvitationScalarWhereInput = {
   invitedByPartnerUserId?: Prisma.StringNullableFilter<"LogisticsPartnerInvitation"> | string | null
   invitedByAdminUserId?: Prisma.StringNullableFilter<"LogisticsPartnerInvitation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsPartnerInvitation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsPartnerInvitation"> | Date | string
 }
 
 export type LogisticsPartnerInvitationCreateWithoutInvitedByInput = {
@@ -681,6 +706,7 @@ export type LogisticsPartnerInvitationCreateWithoutInvitedByInput = {
   revokedAt?: Date | string | null
   invitedByAdminUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutInvitationsInput
 }
 
@@ -697,6 +723,7 @@ export type LogisticsPartnerInvitationUncheckedCreateWithoutInvitedByInput = {
   revokedAt?: Date | string | null
   invitedByAdminUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerInvitationCreateOrConnectWithoutInvitedByInput = {
@@ -738,6 +765,7 @@ export type LogisticsPartnerInvitationCreateManyPartnerInput = {
   invitedByPartnerUserId?: string | null
   invitedByAdminUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerInvitationUpdateWithoutPartnerInput = {
@@ -752,6 +780,7 @@ export type LogisticsPartnerInvitationUpdateWithoutPartnerInput = {
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByAdminUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitedBy?: Prisma.LogisticsPartnerUserUpdateOneWithoutInvitationsSentNestedInput
 }
 
@@ -768,6 +797,7 @@ export type LogisticsPartnerInvitationUncheckedUpdateWithoutPartnerInput = {
   invitedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedByAdminUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerInput = {
@@ -783,6 +813,7 @@ export type LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerInput = {
   invitedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invitedByAdminUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerInvitationCreateManyInvitedByInput = {
@@ -798,6 +829,7 @@ export type LogisticsPartnerInvitationCreateManyInvitedByInput = {
   revokedAt?: Date | string | null
   invitedByAdminUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerInvitationUpdateWithoutInvitedByInput = {
@@ -812,6 +844,7 @@ export type LogisticsPartnerInvitationUpdateWithoutInvitedByInput = {
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByAdminUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutInvitationsNestedInput
 }
 
@@ -828,6 +861,7 @@ export type LogisticsPartnerInvitationUncheckedUpdateWithoutInvitedByInput = {
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByAdminUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerInvitationUncheckedUpdateManyWithoutInvitedByInput = {
@@ -843,6 +877,7 @@ export type LogisticsPartnerInvitationUncheckedUpdateManyWithoutInvitedByInput =
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByAdminUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -861,6 +896,7 @@ export type LogisticsPartnerInvitationSelect<ExtArgs extends runtime.Types.Exten
   invitedByPartnerUserId?: boolean
   invitedByAdminUserId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
   invitedBy?: boolean | Prisma.LogisticsPartnerInvitation$invitedByArgs<ExtArgs>
 }, ExtArgs["result"]["logisticsPartnerInvitation"]>
@@ -881,9 +917,10 @@ export type LogisticsPartnerInvitationSelectScalar = {
   invitedByPartnerUserId?: boolean
   invitedByAdminUserId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LogisticsPartnerInvitationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "email" | "emailNormalized" | "fullName" | "role" | "tokenHash" | "expiresAt" | "acceptedAt" | "revokedAt" | "invitedByPartnerUserId" | "invitedByAdminUserId" | "createdAt", ExtArgs["result"]["logisticsPartnerInvitation"]>
+export type LogisticsPartnerInvitationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "email" | "emailNormalized" | "fullName" | "role" | "tokenHash" | "expiresAt" | "acceptedAt" | "revokedAt" | "invitedByPartnerUserId" | "invitedByAdminUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsPartnerInvitation"]>
 export type LogisticsPartnerInvitationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
   invitedBy?: boolean | Prisma.LogisticsPartnerInvitation$invitedByArgs<ExtArgs>
@@ -916,6 +953,7 @@ export type $LogisticsPartnerInvitationPayload<ExtArgs extends runtime.Types.Ext
     invitedByPartnerUserId: string | null
     invitedByAdminUserId: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["logisticsPartnerInvitation"]>
   composites: {}
 }
@@ -1300,6 +1338,7 @@ export interface LogisticsPartnerInvitationFieldRefs {
   readonly invitedByPartnerUserId: Prisma.FieldRef<"LogisticsPartnerInvitation", 'String'>
   readonly invitedByAdminUserId: Prisma.FieldRef<"LogisticsPartnerInvitation", 'String'>
   readonly createdAt: Prisma.FieldRef<"LogisticsPartnerInvitation", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LogisticsPartnerInvitation", 'DateTime'>
 }
     
 

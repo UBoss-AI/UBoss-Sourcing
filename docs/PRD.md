@@ -614,6 +614,11 @@ Operations Agent, **TRK** Tracking Viewer.
 | `logistics.audit.read` | Y | Y | | | | |
 | `logistics.integration.read` | Y | Y | | | | |
 
+A driver has no `logistics.shipment.read`, so they cannot list shipments. Three
+reads — a shipment's page, its timeline and its proof of delivery — accept
+`logistics.driver.task.read` in its place, and then only for a stop assigned
+to that driver (FR-LOG-006).
+
 The marketplace's own authority over **all** carriers is a separate set of
 **staff** permissions (`logistics.read`, `logistics.write`, `logistics.assign`,
 `logistics.integration.write`, §3.3.1). The two catalogues are kept apart on
@@ -1466,7 +1471,7 @@ all absent (`BUYER_COMPANIES_DISABLED`).
   5. It is told not to give clinical/medical advice.
   6. Conversations belong to the account (history, rename, soft delete) and are retained for `RETENTION_ASSISTANT_CONVERSATION_DAYS` (default 180).
   7. If the provider fails, the shop keeps working; with no key the AI tab is not offered.
-  8. A failed reply is never replaced by a made-up answer. The stream's `error` frame names the reason as `BUSY`, `QUOTA`, `TIMEOUT`, `UNAVAILABLE` or `REFUSED`, with `retryable`; the page words it in the visitor's language and offers *Try again* only when a second attempt can work. A refused key or a missing model reaches the visitor only as `UNAVAILABLE`; the real reason is logged. Both provider clients give up after 30 seconds.
+  8. A failed reply is never replaced by a made-up answer. The stream's `error` frame names the reason as `BUSY`, `QUOTA`, `TIMEOUT`, `UNAVAILABLE` or `REFUSED`, with `retryable`; the page words it in the visitor's language and offers *Try again* only when a second attempt can work. A refused key or a missing model reaches the visitor only as `UNAVAILABLE`; the real reason is logged. Both provider clients give up: Gemini after 30 seconds per attempt, answer included; Anthropic after 30 seconds without a response or 60 seconds for the whole answer, whichever comes first.
   9. `GET /api/v1/admin/assistant/status` (`settings.read`) reports `DISABLED`, `MISSING_CREDENTIALS` or `CONFIGURED` with the provider and model; `?probe=true` makes one real call (10 per hour). It never returns the key.
   10. The provider key is read by the API process only. CI fails a frontend build whose bundle contains a server secret's name or a secret-shaped value.
 - **Rules.** Rate limit `ASSISTANT_RATE_LIMIT_PER_5MIN` (default 20); max tokens `ASSISTANT_MAX_TOKENS` (400); max turns `ASSISTANT_MAX_TURNS` (20).
@@ -1490,7 +1495,7 @@ all absent (`BUYER_COMPANIES_DISABLED`).
   1. Requires a session (it spends the operator's AI budget); rate limited to 12 per 5 minutes.
   2. Every returned slug is checked against the catalogue index; invented slugs are dropped.
   3. The image type is decided by magic bytes; SVG refused; **the bytes are never stored**.
-  4. Distinct errors: `IMAGE_SEARCH_BUSY` (503) and `IMAGE_SEARCH_UNREADABLE` (502).
+  4. Distinct errors: `IMAGE_SEARCH_BUSY` (503: busy, over quota, timed out or unreachable - try again), `IMAGE_SEARCH_UNAVAILABLE` (503: the key or model was refused - a retry cannot help) and `IMAGE_SEARCH_UNREADABLE` (502). The storefront words each in the page's language.
 - **Rules.** This is recognition by a model, **not** perceptual-similarity search; there is no embedding index.
 - **Status.** Built. Needs an AI provider key.
 
@@ -1508,8 +1513,8 @@ all absent (`BUYER_COMPANIES_DISABLED`).
   curated shelves, an animated sourcing globe (maps ship with the build) and
   feature cards (assistant, autopay, schedule, ERP), each a real button that
   opens its screen or explains why it cannot.
-- **Rules.** Reduced-motion, low-power and no-WebGL fallbacks; decoration is hidden from assistive technology.
-- **Status.** Built.
+- **Rules.** A card never links somewhere the person cannot go. A feature this deployment has switched off shows a note instead of a link, to guests and customers alike: the public config reports `features.customerAutopay` (true only when `FEATURE_CUSTOMER_AUTOPAY` and `FEATURE_SUBSCRIPTION_AUTOPAY` are both on) and `features.customerErp` (`FEATURE_CUSTOMER_ERP`); a config without them counts as off. Reduced-motion, low-power and no-WebGL fallbacks; decoration is hidden from assistive technology.
+- **Status.** Built. Until 29 Sep 2026 the Autopay and ERP cards linked to their pages even when those features were off, which left the customer at a dead end.
 
 ### FR-SRCH-009 — The About page
 
@@ -2013,7 +2018,7 @@ all absent (`BUYER_COMPANIES_DISABLED`).
   5. Removing a card is refused while an ACTIVE or PAUSED Autopay mandate uses it (`PAYMENT_METHOD_IN_USE`, detail `AUTOPAY_DEPENDS_ON_METHOD`).
   6. Cards saved with the old in-page tick carry `allow_redisplay: unspecified`, so Checkout would not offer them. The one-off, idempotent `npm run payments:backfill-redisplay` (in `backend/`) sets `always` on active Stripe cards with scope `CHECKOUT` only; Autopay cards are untouched.
 - **Rules.** Two different consents: `CHECKOUT` ("so I need not retype it") and `OFF_SESSION` ("charge it while I am away"). Only `OFF_SESSION` cards can be charged by the worker (`assertChargeable`); a `CHECKOUT` card can never be charged off-session, and the save box on Checkout does **not** create an Autopay mandate. Autopay needs its own separate card enrolment (a Stripe SetupIntent on Stripe's Payment Element, using the same mapped Stripe Customer) with its own off-session consent. On Stripe, saved cards are chosen on Stripe's page, not charged from this site (`savedCardsChargeableHere` is false). **Razorpay** saved cards are also picked inside Razorpay's own sheet; a Razorpay token arrives only on a verified `payment.captured` webhook. The payment-method routes are refused unless `FEATURE_SUBSCRIPTION_AUTOPAY` is on.
-- **Status.** Built; card-saving for schedules **behind a flag** (`FEATURE_SUBSCRIPTION_AUTOPAY`, default `false`, needs Stripe).
+- **Status.** Built; card-saving for schedules **behind a flag** (`FEATURE_SUBSCRIPTION_AUTOPAY`, default `true` since 29 Sep 2026). It is only offered once Stripe is connected (Settings > Payments or env keys); the store starts without it.
 
 ### FR-PAY-007 — Autopay (customer's standing authority)
 
@@ -2026,7 +2031,12 @@ all absent (`BUYER_COMPANIES_DISABLED`).
   3. Payment attempts per occurrence are capped at `SCHEDULE_MAX_PAYMENT_ATTEMPTS` (default 3).
   4. "Authentication required" (3-D Secure) moves the occurrence to ACTION_REQUIRED; nothing retries on its own.
   5. A failed charge never cancels the subscription.
-- **Status.** Behind flags — `FEATURE_CUSTOMER_AUTOPAY` **and** `FEATURE_SUBSCRIPTION_AUTOPAY` (both default `false`); needs Stripe.
+  6. The customer's limits bind every scheduled off-session charge. Before charging, the worker asks `evaluateAutoPay`:
+     - Above the customer's maximum or the operator ceiling, or while Autopay is paused: **nothing is charged and no order is created**. The delivery is skipped with the reason code, the plan is paused, and the customer is told.
+     - Above the approval threshold: the order is created but **not charged**. The delivery goes to ACTION_REQUIRED (`AUTOPAY_APPROVAL_REQUIRED`), and the customer pays it themselves or not at all.
+     - A customer with no account-wide Autopay setting, or with it switched off, is governed by the schedule's own consent.
+     - Every withheld charge is audited as `autopay.charge_withheld`.
+- **Status.** Behind flags — `FEATURE_CUSTOMER_AUTOPAY` **and** `FEATURE_SUBSCRIPTION_AUTOPAY` (both default `true` since 29 Sep 2026). Offered to customers only once Stripe is connected; until then the routes refuse with `FEATURE_DISABLED` and the home card explains. This replaced a production start-up refusal. Criterion 6 was added on 29 Sep 2026; before that, the limits were stored but never applied when a card was charged (found in the pre-go-live verification, `Checklist.md`).
 
 ### FR-PAY-008 — Refunds
 
@@ -2039,7 +2049,7 @@ all absent (`BUYER_COMPANIES_DISABLED`).
 
 - **Statement.** Money collected for sellers' goods is paid out to sellers.
 - **Rules.** The platform operator is the **merchant of record** (the business in whose name the customer is charged): one Stripe account, and the platform collects every payment. Splitting a payment between sellers would need **Stripe Connect**, and Stripe does not support "separate charges and transfers", or destination charges with application fees, for India-registered platforms. That is a documented blocker for an India-registered operator.
-- **Status.** **Unconfigured by design / not built.** Settlements and commission are calculated as records; `payout.service.ts` has one adapter, `unconfigured`, returning `PROVIDER_UNCONFIGURED`. No bank details are collected. No fund splitting or payouts are built; Stripe Connect or equivalent is not wired. How sellers are to be paid remains an owner decision (D13). Gap **M3**.
+- **Status.** **Unconfigured by design / not built.** Settlements and commission are calculated as records, and settlement statements can be produced behind `FEATURE_SELLER_SETTLEMENT_STATEMENTS` (FR-SEL-012), but a statement moves no money; `payout.service.ts` has one adapter, `unconfigured`, returning `PROVIDER_UNCONFIGURED`. No bank details are collected. No fund splitting or payouts are built; Stripe Connect or equivalent is not wired. How sellers are to be paid remains an owner decision (D13). Gap **M3**.
 
 ### FR-PAY-010 — Card payments on Stripe-hosted Checkout
 
@@ -2097,10 +2107,13 @@ all absent (`BUYER_COMPANIES_DISABLED`).
 
 ### FR-ORD-002 — Buyer's order history and detail
 
-- **Statement.** A buyer can list their orders, open one, see its tracking,
-  the carrier carrying each consignment, delivery levels, issued seller
-  invoices, and download the operator's invoice.
-- **Status.** Built.
+- **Statement.** A buyer can list their orders, filter the list by status,
+  open one, see its tracking, the carrier carrying each consignment, delivery
+  levels and issued seller invoices. The filter is in the address
+  (`?status=`) and is applied by the API, so it covers every order and not
+  only the first page.
+- **Status.** Built. The operator's own invoice can be read through the API
+  (`GET /orders/:id/invoice`), but no screen links to it yet.
 
 ### FR-ORD-003 — Buyer cancels their own order
 
@@ -2949,7 +2962,8 @@ selling involves) is public.
   verified before a document may call it GST. A seller previews their
   settlement (`/seller/settlements/estimate`).
 - **Rules.** The platform fee is a **deduction from the seller's proceeds, never added to what a buyer pays**. Rates are exact decimals, amounts BigInt, rounding half-up once per step; no rate is a constant in code. Needs `finance.policy.*` / `finance.tax.verify`.
-- **Status.** Built as records. **Payouts** (moving money) — Unconfigured by design (FR-PAY-009). The operator's own invoice to the seller for this fee is §5.14a.
+- **Settlement statements.** A daily worker job closes the last finished period into **one statement per seller and currency** (status `PENDING_PAYOUT`, number `STL-YYYY-MM-NNNN`), shown in **Seller Hub → Payments**. The operator decides the period (`SELLER_SETTLEMENT_PERIOD`: `MONTHLY` or `WEEKLY`, UTC) and the return window (`SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS`, no default): an order counts only if delivered at least that many days before the period ended. Lines are copied from each order's settlement record, never recalculated: sale (+), the seller's own delivery (+), platform fee (−), tax on the fee (−), refunds (−). Each order is sold on exactly one statement; a later refund goes on the next statement as the difference only. The statement header must satisfy gross − commission − processing fee − refunds + adjustments = net before it is written. Re-running the close writes nothing twice (`uq_seller_settlement_period_currency`). The Seller Hub shows the period as the days it covers and labels each line by its kind in the reader's language, followed by the seller order number.
+- **Status.** Settlement calculation: built. **Settlement statements: built, behind a flag** — `FEATURE_SELLER_SETTLEMENT_STATEMENTS` (default `false`); before 29 Sep 2026 nothing created them, so the statements page was always empty. A statement moves no money. **Payouts** (moving money) — Unconfigured by design (FR-PAY-009); paying a statement is refused with `SELLER_PAYOUT_PROVIDER_UNCONFIGURED`. The operator's own invoice to the seller for this fee is §5.14a; once a statement exists, a commission invoice shows its reference, and its collection becomes "taken from settlement" only when that statement is paid, which cannot happen while payouts are unconfigured.
 
 ### FR-SEL-013 — Seller team and roles
 
@@ -3431,8 +3445,15 @@ carrier can be created, and the Logistics group is absent from the console.
 
 - **Statement.** A driver sees only their own stops for today, scans packages,
   updates status and captures proof of delivery.
-- **Rules.** DELIVERED is reachable only from OUT_FOR_DELIVERY or DELIVERY_ATTEMPTED and requires proof of delivery per the deployment's POD policy. A driver's device token lasts `LOGISTICS_TRIP_TOKEN_TTL_HOURS` (default 14).
-- **Status.** Behind a flag.
+- **Rules.** DELIVERED is reachable only from OUT_FOR_DELIVERY or DELIVERY_ATTEMPTED and requires proof of delivery for every shipment, per the shipment's SLA policy. Proof is captured on the shipment detail page: choosing **Delivered** opens **Complete the delivery** for a role with `logistics.pod.write` (partner owner, admin, driver — not dispatcher or operations agent). It asks for what the policy requires (recipient name by default; optionally their role, a signature image, a photo), plus a company-stamp tick and a note. Images only, up to 10 MB, uploaded as shipment documents first; recording the proof moves the shipment to DELIVERED. One idempotency key per opening; a repeat capture after a successful one is answered as a duplicate. A person without the permission is told to ask their company administrator. A driver's device token lasts `LOGISTICS_TRIP_TOKEN_TTL_HOURS` (default 14).
+- **Delivery codes (OTP).** Where the policy requires a delivery code, the buyer is emailed a six-digit code, in their own language, when the shipment goes OUT_FOR_DELIVERY. The dialog asks the driver for the code the buyer reads out and can send a new one while the shipment is OUT_FOR_DELIVERY or DELIVERY_ATTEMPTED; a new code cancels the old one. The code goes only to the buyer — never in a portal response, audit row or log — and is stored as a keyed hash. Limits: five wrong tries kill a code, five codes per shipment per 24 hours, one minute between codes, 12 hours of life (constants, not settings). With no buyer account to send it to, the dialog says so and the delivery cannot be completed there.
+- **Drivers.** A driver opens the shipment page (detail, timeline, proof of delivery) only for a stop assigned to them — live, or one they completed — and never another driver's, another company's, or anything without a driver profile. They still cannot list the company's shipments. Contact details stay masked on that page.
+- **Acceptance criteria.**
+  1. Going OUT_FOR_DELIVERY under a code policy emails the buyer one code; no email when the policy asks for none.
+  2. A wrong, missing, expired, killed or superseded code is refused and the shipment stays where it was; a repeated capture is answered as the same delivery.
+  3. A sixth code in 24 hours, or a second within a minute, is refused.
+  4. A driver can read and complete their own stop; a colleague's stop, another company's shipment and a driver with no profile get "not found".
+- **Status.** Behind a flag (`FEATURE_LOGISTICS_PORTAL`). Proof-of-delivery capture on the detail page: built (before 29 Sep 2026 no portal user could mark a shipment delivered). Delivery codes and drivers completing their own stops: built 29 Sep 2026 (gaps **G14**, **G15** closed). Not covered: a seller's hand-booked outside carrier never uses this dialog, so no code is sent for it.
 
 ### FR-LOG-007 — Exceptions and SLA
 
@@ -3605,7 +3626,7 @@ carrier can be created, and the Logistics group is absent from the console.
   7. Switching on is refused until a test passed and the mapping was checked against the buyer's own real response.
   8. A portal with a login and no API is refused, in those words.
 - **Rules.** Owned by a **buyer organisation** with roles Owner / Integration manager / Member; members get a different API shape without credentials or endpoints. Joining is by single-use, expiring invitation checked against the signed-in email (`CUSTOMER_ERP_INVITE_TTL_HOURS`, 168). Credentials encrypted (`SECRETS_ENCRYPTION_KEY`) and never returned to the browser. Limits: `CUSTOMER_ERP_MAX_CONNECTIONS_PER_ORG` (5), attempts, retry, failure threshold, record and response-size limits. An admin view exists that does not expose the buyer's secrets. Connection states: DRAFT, TESTING, ACTIVE, PAUSED, ACTION_REQUIRED, FAILED, DISCONNECTED.
-- **Status.** Behind a flag — `FEATURE_CUSTOMER_ERP` (default `false`).
+- **Status.** Behind a flag — `FEATURE_CUSTOMER_ERP` (default `true` since 29 Sep 2026).
 
 ### 5.17.3 The seller's TallyPrime (ERP-TAL)
 
@@ -3716,6 +3737,12 @@ carrier can be created, and the Logistics group is absent from the console.
 ### FR-NOT-005 — SMS
 
 - **Status.** **Not built.** `NotificationChannel` names SMS; nothing sends it. Phone-change codes go to the verified email. Gap **M6**.
+
+### FR-NOT-006 — Dead background jobs and undeliverable emails
+
+- **Statement.** Staff open **Dead background jobs** (`/operations/dead-jobs`) and **Undeliverable emails** (`/operations/failed-notifications`) — the screens the dashboard's "dead background jobs" and "failed notifications" queues name — read why each one stopped, and try one again.
+- **Rules.** Listing needs `settings.read` (the same grant as the dashboard queue); retrying needs `settings.write`. Lists are paged (up to 100 a page). A job shows its type, attempts made and allowed, last error and when it stopped — never its payload. An email shows its event key, the recipient masked (first letter and domain), attempts, the last error with addresses masked, and the last attempt — never the body, subject, recipient name or phone. Retry asks for confirmation and gives **exactly one more attempt**: the attempt counter is not reset, and a second press or a second person gets `409 CONFLICT`. An email retry also re-arms its delivery job. An email to an erased person cannot be retried. Each retry is audited (`job.retried`, `notification.retried`).
+- **Status.** Built. Before 29 Sep 2026 the two queues' links pointed at pages that did not exist. No navigation-menu entry; each page links to the other. The dashboard ring does not draw queue links at present, so the pages are opened by address or from each other.
 
 ---
 
@@ -4007,7 +4034,7 @@ at the sender's company, seller or carrier sees them.
   **Data requests**, sorted by the one-month deadline with overdue named, see
   blockers (unpaid orders, open returns = "not yet"), and approve or refuse
   with a reason emailed verbatim with the right to complain.
-- **Rules.** Identity is proven by the authenticated session; no passport scan. Deciding needs `data_request.action` (Business Owner by default). Approved erasure pseudonymises the account and keeps invoiced orders (tax retention, Art. 17(3)(b)). It also marks the person's buyer-company memberships removed, clears IP and browser from their declarations and deletes their business-email codes; the company record stays (FR-BCO-018).
+- **Rules.** Identity is proven by the authenticated session; no passport scan. Deciding needs `data_request.action` (Business Owner by default). Approved erasure pseudonymises the account and keeps invoiced orders (tax retention, Art. 17(3)(b)). It also marks the person's buyer-company memberships removed, clears IP and browser from their declarations and deletes their business-email codes; the company record stays (FR-BCO-018). Audit rows are kept as evidence and stripped of the person's email, IP and user agent. This runs just after the erasure commits, as the maintenance account (FR-AUD-001). A failure there fails the erasure, and a rerun finishes it.
 - **Status.** **Built in code** — `modules/privacy/erasure.service.ts` has `findErasureBlockers` and `executeErasure`, as `backend/docs/DATA-PROTECTION.md` describes. **Sources disagree:** `docs/PRODUCT-READINESS.md` (M4) and `backend/docs/STATUS.md` still say deletion/anonymisation is not built. Trusting the code; the readiness entry looks stale. The operator must still approve a written policy for what "delete" means and set tax-retention periods before using it (Appendix A).
 
 ### FR-PRV-003 — Retention sweeps
@@ -4085,7 +4112,45 @@ at the sender's company, seller or carrier sees them.
 
 - **Statement.** Every state change records who, when, from where, what
   changed and why. Staff with `audit.read` read it at `/audit`.
-- **Rules.** `UPDATE` and `DELETE` on `audit_logs` are revoked from the application's database user (`deploy/scripts/apply-grants.sh`), so the application cannot rewrite its own history; no screen edits or deletes an entry. Retention `RETENTION_AUDIT_LOG_DAYS` (730). Sellers have their own audit (`seller.audit.read`); carriers theirs (`logistics.audit.read`).
+- **Rules.** `UPDATE` and `DELETE` on `audit_logs` are revoked from the application's database user (`deploy/scripts/apply-grants.sh`), so the application cannot rewrite its own history; no screen edits or deletes an entry. Retention `RETENTION_AUDIT_LOG_DAYS` (730). The only two changes ever made to an audit row, GDPR erasure (blanking `actorEmail`, `ipAddress` and `userAgent`) and the retention delete, run as a separate account, `uboss_maintenance` (`DATABASE_MAINTENANCE_URL`, required in production). Its grant is limited to those three columns (plus the `updatedAt` stamp Prisma writes on any update) and `DELETE`. Erasure pseudonymises the audit rows just after its own transaction commits. If that step fails, the erasure fails and a rerun completes it. Fixed 29 Sep 2026: before that, both ran as the application account and would have been refused in production. Sellers have their own audit (`seller.audit.read`); carriers theirs (`logistics.audit.read`).
+- **Status.** Built.
+
+### FR-AUD-002 — What each entry shows, and taking a copy
+
+- **Statement.** Each entry on `/audit` shows the time, the action, the
+  actor, the **role the actor held when they acted**, the record acted on,
+  the **reason** where the entry states one, the IP address, the **device**
+  (a browser-and-system summary, with the full User-Agent on hover), the
+  before/after values and the reference id. Staff holding both `audit.read`
+  and `export.create` can **download a CSV** of the current filter.
+- **Rules.**
+  1. The role is recorded on the row when it is written (`audit_logs.actorRoles`,
+     looked up by `recordAudit` inside the caller's transaction). It is never
+     joined from today's grants, so promoting somebody does not rewrite what
+     role they acted in. Entries written before 14 Oct 2026 have no role, and
+     the screen says "Role not recorded".
+  2. There is no reason column. The reason is read from the entry's `after`
+     values (`reason`, `reasonCode`, `declineReason`, `rejectionReason`); an
+     entry that states none shows none.
+  3. Every entry written during an HTTP request records that request's IP
+     address and User-Agent, even where the service passes neither: the API
+     keeps them in a request-scoped context (`infra/request-context.ts`) and
+     `recordAudit` falls back to it. A value the service passes wins. Entries
+     written by the worker or a script, outside any request, record neither.
+     Entries written before 14 Oct 2026 by services that passed no User-Agent
+     (most staff edits) have no device.
+  4. The export is `POST /admin/audit-logs/export`: CSRF-protected, 10 per
+     15 minutes, at most **10,000** entries newest first. It needs `audit.read`
+     **and** `export.create` — the file holds nothing the reader could not see
+     on screen, and taking records away is what `export.create` gates for
+     every other export. The file carries the same fields as the screen,
+     already redacted when the entry was written, plus the full User-Agent.
+  5. Every export writes its own `audit.exported` entry (filter, rows in the
+     file, rows matched, whether the cap cut it) **before** the file is sent,
+     in a transaction: an export that cannot be recorded is not handed out.
+     The file is pinned to the moment of the request.
+  6. The actor-email filter on the screen is honoured by the API (it was
+     silently ignored before 14 Oct 2026).
 - **Status.** Built.
 
 ---
@@ -5254,11 +5319,12 @@ Remove-Item Env:\DATABASE_URL
 | `FEATURE_RECURRING_ORDERS` | `true` | Subscribe & Reorder |
 | `FEATURE_SCHEDULED_ORDERS` | `true` | Buy Later |
 | `FEATURE_SCHEDULE_ANY_PRODUCT` | `true` | Every published product may be scheduled; `false` = only ticked products |
-| `FEATURE_SUBSCRIPTION_AUTOPAY` | `false` | Saved cards charged off-session for schedules (needs Stripe) |
-| `FEATURE_CUSTOMER_AUTOPAY` | `false` | The customer's standing Autopay authority with limits (needs the flag above and Stripe) |
+| `FEATURE_SUBSCRIPTION_AUTOPAY` | `true` | Saved cards charged off-session for schedules (offered only once Stripe is connected) |
+| `FEATURE_CUSTOMER_AUTOPAY` | `true` | The customer's standing Autopay authority with limits (needs the flag above and Stripe). Reported as `features.customerAutopay` in the public config, true only when both flags are on |
 | `FEATURE_ERP_INTEGRATION` | `false` | Operator's warehouse ERP configured from **Settings → ERP** |
-| `FEATURE_CUSTOMER_ERP` | `false` | Buyers connect their own ERP |
+| `FEATURE_CUSTOMER_ERP` | `true` | Buyers connect their own ERP. Reported as `features.customerErp` in the public config |
 | `FEATURE_SELLER_ERP` | `false` | Sellers connect TallyPrime (server half) |
+| `FEATURE_SELLER_SETTLEMENT_STATEMENTS` | `false` | A daily job closes each finished period into seller settlement statements (FR-SEL-012). Needs `SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS`; settings in §10.5 |
 | `FEATURE_LOGISTICS_PORTAL` | `false` | The logistics partner portal and every `/logistics/*` route |
 | `FEATURE_ADMIN_MFA` | `true` | Staff TOTP; must be `true` in production |
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `false` | Staff sign-in location requirement (needs HTTPS and a DPIA) |
@@ -5317,6 +5383,7 @@ VAT), `gpsrEnforced`, `mdrEnforced`, automatic exchange-rate updates and
 | `NODE_ENV` | `development` |
 | `API_PORT` / `API_HOST` | 4000 / `127.0.0.1` |
 | `DATABASE_URL` / `DB_POOL_SIZE` | required / 10 |
+| `DATABASE_MAINTENANCE_URL` | unset in development (the main connection is used). **Required in production** and must be a different account: the only account allowed to blank an erased person's email/IP/user agent on audit rows and to delete audit rows past retention (see `docs/DATABASE-PRODUCTION.md` §6) |
 | `QUEUE_DRIVER` / `CACHE_DRIVER` | `database` / `memory` (the Redis driver is a deliberate throw, not an implementation) |
 | `WORKER_POLL_INTERVAL_MS` / `WORKER_CONCURRENCY` / `WORKER_LEASE_SECONDS` | 2000 / 4 / 60 |
 | `STORAGE_DRIVER` | `local` (must be `s3` in production) |
@@ -5340,6 +5407,8 @@ VAT), `gpsrEnforced`, `mdrEnforced`, automatic exchange-rate updates and
 | `SCHEDULE_MAX_PAYMENT_ATTEMPTS` | 3 |
 | `SCHEDULE_MIN_NOTICE_DAYS` | 7 |
 | `FULFILMENT_QUOTE_TTL_MINUTES` | 15 |
+| `SELLER_SETTLEMENT_PERIOD` | `MONTHLY` (1st 00:00 UTC to the next 1st); `WEEKLY` is Monday 00:00 UTC to the next Monday |
+| `SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS` | **No default** (0–365). The return window. Required when `FEATURE_SELLER_SETTLEMENT_STATEMENTS` is on — the service refuses to start without it |
 
 ## 10.6 Preorders
 
@@ -5498,7 +5567,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 | M10 | **Live CEIDG, REGON and Indian registry checks** — manual with official links | Faster review for Polish sole traders and Indian businesses | FR-BCO-008 |
 | M11 | **Storefront in-app notifications**; project-wide emails other than the nine buyer-company emails are English-only | Applicants who miss an email | FR-BCO-016 |
 | M2 | **Continue with Google** | Low-friction sign-up | §4 |
-| M3 | **Seller payouts** (money does not move; needs D13 marketplace role decision) | Paying third-party sellers — a launch blocker for a paying marketplace | §4 |
+| M3 | **Seller payouts** (money does not move; needs D13 marketplace role decision). Settlement statements are built behind `FEATURE_SELLER_SETTLEMENT_STATEMENTS`, but paying one is refused | Paying third-party sellers — a launch blocker for a paying marketplace | §4 |
 | M4 | Customer erasure policy — code exists (§5.21) but the readiness audit still lists it missing; needs an approved "what delete means" policy | Art. 17 on accounts with orders | §4, Appendix A |
 | M5 | **KSeF** (Polish e-invoicing) | Selling from a Polish establishment | §4 |
 | M6 | **SMS** | Phone as a channel or second factor | §4 |
@@ -5516,6 +5585,8 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 | G11 | Documentation of seller logistics levels (L1–L4) in README and PROJECT-GUIDE | Readers of those guides | Appendix A |
 | G12 | Support tickets: guest tickets without an account, staff attaching files to a reply, live (websocket) updates on a ticket, SLA timers | Visitors who cannot sign in (they use the published email); staff sending a document back; seeing a reply without reloading; response-time targets | FR-SUP-012 |
 | G13 | Commission invoices: sending them to the seller (Seller Hub screen or email), GST IRP/IRN registration of them, and automatic credit notes on a refund | Sellers reading their own commission invoices; operators above the e-invoicing threshold | FR-CINV-012 |
+| G14 | **Closed 29 Sep 2026.** Delivery codes (OTP) are now emailed to the buyer when a shipment goes out for delivery, and can be re-sent from the portal within limits | — | FR-LOG-006 |
+| G15 | **Closed 29 Sep 2026.** A driver can open the shipment page for a stop on their own round and complete it; still not the company's other shipments | — | FR-LOG-006 |
 
 ## 12.3 Risks
 

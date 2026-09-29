@@ -48,6 +48,18 @@ export interface CustomerUser {
   permissions: string[];
   customerProfileId: string | null;
   mfaEnabled: boolean;
+  /**
+   * Two-step sign-in is on and this session has not passed its code yet. The
+   * session can do nothing else, so `isCustomer` is false until it has.
+   */
+  mfaChallengeRequired?: boolean;
+  /** This person's seller role requires two-step sign-in. */
+  mfaRequired?: boolean;
+  mfaRequiredReason?: 'SELLER_OWNER' | 'SELLER_FINANCE' | null;
+  /** Whether the store offers two-step sign-in to buyers and sellers. */
+  mfaAvailable?: boolean;
+  /** What "confirm it is you" asks this account for. */
+  stepUpMethod?: 'TOTP' | 'PASSWORD';
   /** Absent on an older backend; treated as INDIVIDUAL. */
   buyerContext?: BuyerContext;
   /** Every company this person may act for. */
@@ -67,8 +79,16 @@ export interface SessionState {
   isLoading: boolean;
   /** Signed in AND activated — the only state that may reach checkout. */
   isCustomer: boolean;
-  /** The tab chosen is an intent; the backend decides the context. */
-  login: (email: string, password: string, buyerType?: BuyerType) => Promise<{ next: SignInNext }>;
+  /**
+   * The tab chosen is an intent; the backend decides the context. The bot
+   * check's answer rides along when the store has one switched on.
+   */
+  login: (
+    email: string,
+    password: string,
+    buyerType?: BuyerType,
+    captchaToken?: string | null,
+  ) => Promise<{ next: SignInNext; mfaChallengeRequired: boolean }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   /** The confirmed buyer context, INDIVIDUAL when there is no session. */

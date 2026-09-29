@@ -55,6 +55,10 @@
 
 SET @app_user = IFNULL(@app_user, 'uboss_app');
 SET @app_host = IFNULL(@app_host, 'localhost');
+-- The audit maintenance account (DATABASE_MAINTENANCE_URL). Same host as the
+-- application account unless set.
+SET @maint_user = IFNULL(@maint_user, 'uboss_maintenance');
+SET @maint_host = IFNULL(@maint_host, @app_host);
 SET @db       = DATABASE();
 
 SET SESSION group_concat_max_len = 1048576;
@@ -92,6 +96,26 @@ SELECT CONCAT('GRANT UPDATE, DELETE ON `', @db, '`.`', TABLE_NAME, '` TO ''', @a
    AND TABLE_NAME NOT IN ('audit_logs', '_prisma_migrations')
  ORDER BY TABLE_NAME;
 
+-- --- 2b. The audit maintenance account ------------------------------------
+--
+-- Append-only has two exceptions the law requires, and nothing else:
+--
+--   * GDPR Art. 17 erasure blanks the actor's email, IP address and user agent
+--     on their audit rows (the rows themselves are the evidence and stay), and
+--   * the retention sweep deletes rows older than RETENTION_AUDIT_LOG_DAYS.
+--
+-- Both run as this second account, never as the application. Its grant is
+-- column-level: it can UPDATE those three columns (plus updatedAt, which
+-- Prisma stamps on every update it issues) and no others, so it cannot
+-- change what happened, when, to what, or who did it. It cannot INSERT, and it
+-- has no rights on any other table. Emitted only when the account exists -
+-- MariaDB refuses a GRANT to an account that does not (NO_AUTO_CREATE_USER), and
+-- apply-grants.sh says how to create it.
+SELECT CONCAT('GRANT SELECT, DELETE ON `', @db, '`.`audit_logs` TO ''', @maint_user, '''@''', @maint_host, ''';') AS ddl
+  FROM mysql.user WHERE User = @maint_user AND Host = @maint_host;
+SELECT CONCAT('GRANT UPDATE (actorEmail, ipAddress, updatedAt, userAgent) ON `', @db, '`.`audit_logs` TO ''', @maint_user, '''@''', @maint_host, ''';') AS ddl
+  FROM mysql.user WHERE User = @maint_user AND Host = @maint_host;
+
 SELECT 'FLUSH PRIVILEGES;' AS ddl;
 
 -- --- 3. Prove it took ------------------------------------------------------
@@ -106,4 +130,16 @@ SELECT CONCAT(
   'AND p.Db=''', @db, ''' AND p.Table_name=t.TABLE_NAME AND FIND_IN_SET(''Update'', p.Table_priv)), ''WRITABLE - NOT PROTECTED'', ''append-only'') AS state ',
   'FROM information_schema.TABLES t WHERE t.TABLE_SCHEMA=''', @db, ''' ',
   'AND t.TABLE_NAME IN (''audit_logs'', ''_prisma_migrations'');'
+) AS ddl;
+
+-- One row for the maintenance account: 'maintenance-scoped' when it holds
+-- exactly SELECT and DELETE on audit_logs and UPDATE on exactly the three
+-- pseudonymisation columns; anything else is reported as it is.
+SELECT CONCAT(
+  'SELECT ''MAINTENANCE'' AS status, ',
+  'IF((SELECT GROUP_CONCAT(p.Column_name ORDER BY p.Column_name) FROM mysql.columns_priv p WHERE p.User=''', @maint_user, ''' AND p.Host=''', @maint_host, ''' ',
+  'AND p.Db=''', @db, ''' AND p.Table_name=''audit_logs'' AND FIND_IN_SET(''Update'', p.Column_priv)) = ''actorEmail,ipAddress,updatedAt,userAgent'' ',
+  'AND EXISTS(SELECT 1 FROM mysql.tables_priv t WHERE t.User=''', @maint_user, ''' AND t.Host=''', @maint_host, ''' AND t.Db=''', @db, ''' AND t.Table_name=''audit_logs'' ',
+  'AND FIND_IN_SET(''Select'', t.Table_priv) AND FIND_IN_SET(''Delete'', t.Table_priv) AND NOT FIND_IN_SET(''Insert'', t.Table_priv) AND NOT FIND_IN_SET(''Update'', t.Table_priv)), ',
+  '''maintenance-scoped'', ''MAINTENANCE GRANT WRONG'') AS state;'
 ) AS ddl;

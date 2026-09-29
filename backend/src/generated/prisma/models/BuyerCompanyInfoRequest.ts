@@ -36,6 +36,7 @@ export type BuyerCompanyInfoRequestMinAggregateOutputType = {
   responseMessage: string | null
   respondedByUserId: string | null
   respondedAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerCompanyInfoRequestMaxAggregateOutputType = {
@@ -49,6 +50,7 @@ export type BuyerCompanyInfoRequestMaxAggregateOutputType = {
   responseMessage: string | null
   respondedByUserId: string | null
   respondedAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerCompanyInfoRequestCountAggregateOutputType = {
@@ -63,6 +65,7 @@ export type BuyerCompanyInfoRequestCountAggregateOutputType = {
   responseMessage: number
   respondedByUserId: number
   respondedAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -78,6 +81,7 @@ export type BuyerCompanyInfoRequestMinAggregateInputType = {
   responseMessage?: true
   respondedByUserId?: true
   respondedAt?: true
+  updatedAt?: true
 }
 
 export type BuyerCompanyInfoRequestMaxAggregateInputType = {
@@ -91,6 +95,7 @@ export type BuyerCompanyInfoRequestMaxAggregateInputType = {
   responseMessage?: true
   respondedByUserId?: true
   respondedAt?: true
+  updatedAt?: true
 }
 
 export type BuyerCompanyInfoRequestCountAggregateInputType = {
@@ -105,6 +110,7 @@ export type BuyerCompanyInfoRequestCountAggregateInputType = {
   responseMessage?: true
   respondedByUserId?: true
   respondedAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -192,6 +198,7 @@ export type BuyerCompanyInfoRequestGroupByOutputType = {
   responseMessage: string | null
   respondedByUserId: string | null
   respondedAt: Date | null
+  updatedAt: Date
   _count: BuyerCompanyInfoRequestCountAggregateOutputType | null
   _min: BuyerCompanyInfoRequestMinAggregateOutputType | null
   _max: BuyerCompanyInfoRequestMaxAggregateOutputType | null
@@ -227,6 +234,7 @@ export type BuyerCompanyInfoRequestWhereInput = {
   responseMessage?: Prisma.StringNullableFilter<"BuyerCompanyInfoRequest"> | string | null
   respondedByUserId?: Prisma.StringNullableFilter<"BuyerCompanyInfoRequest"> | string | null
   respondedAt?: Prisma.DateTimeNullableFilter<"BuyerCompanyInfoRequest"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyInfoRequest"> | Date | string
   company?: Prisma.XOR<Prisma.BuyerCompanyScalarRelationFilter, Prisma.BuyerCompanyWhereInput>
   case?: Prisma.XOR<Prisma.BuyerCompanyVerificationCaseNullableScalarRelationFilter, Prisma.BuyerCompanyVerificationCaseWhereInput> | null
 }
@@ -243,6 +251,7 @@ export type BuyerCompanyInfoRequestOrderByWithRelationInput = {
   responseMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   respondedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   respondedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   company?: Prisma.BuyerCompanyOrderByWithRelationInput
   case?: Prisma.BuyerCompanyVerificationCaseOrderByWithRelationInput
   _relevance?: Prisma.BuyerCompanyInfoRequestOrderByRelevanceInput
@@ -263,6 +272,7 @@ export type BuyerCompanyInfoRequestWhereUniqueInput = Prisma.AtLeast<{
   responseMessage?: Prisma.StringNullableFilter<"BuyerCompanyInfoRequest"> | string | null
   respondedByUserId?: Prisma.StringNullableFilter<"BuyerCompanyInfoRequest"> | string | null
   respondedAt?: Prisma.DateTimeNullableFilter<"BuyerCompanyInfoRequest"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyInfoRequest"> | Date | string
   company?: Prisma.XOR<Prisma.BuyerCompanyScalarRelationFilter, Prisma.BuyerCompanyWhereInput>
   case?: Prisma.XOR<Prisma.BuyerCompanyVerificationCaseNullableScalarRelationFilter, Prisma.BuyerCompanyVerificationCaseWhereInput> | null
 }, "id">
@@ -279,6 +289,7 @@ export type BuyerCompanyInfoRequestOrderByWithAggregationInput = {
   responseMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   respondedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   respondedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.BuyerCompanyInfoRequestCountOrderByAggregateInput
   _max?: Prisma.BuyerCompanyInfoRequestMaxOrderByAggregateInput
   _min?: Prisma.BuyerCompanyInfoRequestMinOrderByAggregateInput
@@ -299,6 +310,7 @@ export type BuyerCompanyInfoRequestScalarWhereWithAggregatesInput = {
   responseMessage?: Prisma.StringNullableWithAggregatesFilter<"BuyerCompanyInfoRequest"> | string | null
   respondedByUserId?: Prisma.StringNullableWithAggregatesFilter<"BuyerCompanyInfoRequest"> | string | null
   respondedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"BuyerCompanyInfoRequest"> | Date | string | null
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyInfoRequest"> | Date | string
 }
 
 export type BuyerCompanyInfoRequestCreateInput = {
@@ -311,6 +323,7 @@ export type BuyerCompanyInfoRequestCreateInput = {
   responseMessage?: string | null
   respondedByUserId?: string | null
   respondedAt?: Date | string | null
+  updatedAt?: Date | string
   company: Prisma.BuyerCompanyCreateNestedOneWithoutInfoRequestsInput
   case?: Prisma.BuyerCompanyVerificationCaseCreateNestedOneWithoutInfoRequestsInput
 }
@@ -327,6 +340,7 @@ export type BuyerCompanyInfoRequestUncheckedCreateInput = {
   responseMessage?: string | null
   respondedByUserId?: string | null
   respondedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyInfoRequestUpdateInput = {
@@ -339,6 +353,7 @@ export type BuyerCompanyInfoRequestUpdateInput = {
   responseMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneRequiredWithoutInfoRequestsNestedInput
   case?: Prisma.BuyerCompanyVerificationCaseUpdateOneWithoutInfoRequestsNestedInput
 }
@@ -355,6 +370,7 @@ export type BuyerCompanyInfoRequestUncheckedUpdateInput = {
   responseMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyInfoRequestCreateManyInput = {
@@ -369,6 +385,7 @@ export type BuyerCompanyInfoRequestCreateManyInput = {
   responseMessage?: string | null
   respondedByUserId?: string | null
   respondedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyInfoRequestUpdateManyMutationInput = {
@@ -381,6 +398,7 @@ export type BuyerCompanyInfoRequestUpdateManyMutationInput = {
   responseMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyInfoRequestUncheckedUpdateManyInput = {
@@ -395,6 +413,7 @@ export type BuyerCompanyInfoRequestUncheckedUpdateManyInput = {
   responseMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyInfoRequestListRelationFilter = {
@@ -425,6 +444,7 @@ export type BuyerCompanyInfoRequestCountOrderByAggregateInput = {
   responseMessage?: Prisma.SortOrder
   respondedByUserId?: Prisma.SortOrder
   respondedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyInfoRequestMaxOrderByAggregateInput = {
@@ -438,6 +458,7 @@ export type BuyerCompanyInfoRequestMaxOrderByAggregateInput = {
   responseMessage?: Prisma.SortOrder
   respondedByUserId?: Prisma.SortOrder
   respondedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyInfoRequestMinOrderByAggregateInput = {
@@ -451,6 +472,7 @@ export type BuyerCompanyInfoRequestMinOrderByAggregateInput = {
   responseMessage?: Prisma.SortOrder
   respondedByUserId?: Prisma.SortOrder
   respondedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyInfoRequestCreateNestedManyWithoutCompanyInput = {
@@ -551,6 +573,7 @@ export type BuyerCompanyInfoRequestCreateWithoutCompanyInput = {
   responseMessage?: string | null
   respondedByUserId?: string | null
   respondedAt?: Date | string | null
+  updatedAt?: Date | string
   case?: Prisma.BuyerCompanyVerificationCaseCreateNestedOneWithoutInfoRequestsInput
 }
 
@@ -565,6 +588,7 @@ export type BuyerCompanyInfoRequestUncheckedCreateWithoutCompanyInput = {
   responseMessage?: string | null
   respondedByUserId?: string | null
   respondedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyInfoRequestCreateOrConnectWithoutCompanyInput = {
@@ -608,6 +632,7 @@ export type BuyerCompanyInfoRequestScalarWhereInput = {
   responseMessage?: Prisma.StringNullableFilter<"BuyerCompanyInfoRequest"> | string | null
   respondedByUserId?: Prisma.StringNullableFilter<"BuyerCompanyInfoRequest"> | string | null
   respondedAt?: Prisma.DateTimeNullableFilter<"BuyerCompanyInfoRequest"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyInfoRequest"> | Date | string
 }
 
 export type BuyerCompanyInfoRequestCreateWithoutCaseInput = {
@@ -620,6 +645,7 @@ export type BuyerCompanyInfoRequestCreateWithoutCaseInput = {
   responseMessage?: string | null
   respondedByUserId?: string | null
   respondedAt?: Date | string | null
+  updatedAt?: Date | string
   company: Prisma.BuyerCompanyCreateNestedOneWithoutInfoRequestsInput
 }
 
@@ -634,6 +660,7 @@ export type BuyerCompanyInfoRequestUncheckedCreateWithoutCaseInput = {
   responseMessage?: string | null
   respondedByUserId?: string | null
   respondedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyInfoRequestCreateOrConnectWithoutCaseInput = {
@@ -673,6 +700,7 @@ export type BuyerCompanyInfoRequestCreateManyCompanyInput = {
   responseMessage?: string | null
   respondedByUserId?: string | null
   respondedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyInfoRequestUpdateWithoutCompanyInput = {
@@ -685,6 +713,7 @@ export type BuyerCompanyInfoRequestUpdateWithoutCompanyInput = {
   responseMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.BuyerCompanyVerificationCaseUpdateOneWithoutInfoRequestsNestedInput
 }
 
@@ -699,6 +728,7 @@ export type BuyerCompanyInfoRequestUncheckedUpdateWithoutCompanyInput = {
   responseMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyInfoRequestUncheckedUpdateManyWithoutCompanyInput = {
@@ -712,6 +742,7 @@ export type BuyerCompanyInfoRequestUncheckedUpdateManyWithoutCompanyInput = {
   responseMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyInfoRequestCreateManyCaseInput = {
@@ -725,6 +756,7 @@ export type BuyerCompanyInfoRequestCreateManyCaseInput = {
   responseMessage?: string | null
   respondedByUserId?: string | null
   respondedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyInfoRequestUpdateWithoutCaseInput = {
@@ -737,6 +769,7 @@ export type BuyerCompanyInfoRequestUpdateWithoutCaseInput = {
   responseMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneRequiredWithoutInfoRequestsNestedInput
 }
 
@@ -751,6 +784,7 @@ export type BuyerCompanyInfoRequestUncheckedUpdateWithoutCaseInput = {
   responseMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyInfoRequestUncheckedUpdateManyWithoutCaseInput = {
@@ -764,6 +798,7 @@ export type BuyerCompanyInfoRequestUncheckedUpdateManyWithoutCaseInput = {
   responseMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -780,6 +815,7 @@ export type BuyerCompanyInfoRequestSelect<ExtArgs extends runtime.Types.Extensio
   responseMessage?: boolean
   respondedByUserId?: boolean
   respondedAt?: boolean
+  updatedAt?: boolean
   company?: boolean | Prisma.BuyerCompanyDefaultArgs<ExtArgs>
   case?: boolean | Prisma.BuyerCompanyInfoRequest$caseArgs<ExtArgs>
 }, ExtArgs["result"]["buyerCompanyInfoRequest"]>
@@ -798,9 +834,10 @@ export type BuyerCompanyInfoRequestSelectScalar = {
   responseMessage?: boolean
   respondedByUserId?: boolean
   respondedAt?: boolean
+  updatedAt?: boolean
 }
 
-export type BuyerCompanyInfoRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "caseId" | "status" | "message" | "requestedDocumentKindsJson" | "createdByUserId" | "createdAt" | "responseMessage" | "respondedByUserId" | "respondedAt", ExtArgs["result"]["buyerCompanyInfoRequest"]>
+export type BuyerCompanyInfoRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "caseId" | "status" | "message" | "requestedDocumentKindsJson" | "createdByUserId" | "createdAt" | "responseMessage" | "respondedByUserId" | "respondedAt" | "updatedAt", ExtArgs["result"]["buyerCompanyInfoRequest"]>
 export type BuyerCompanyInfoRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.BuyerCompanyDefaultArgs<ExtArgs>
   case?: boolean | Prisma.BuyerCompanyInfoRequest$caseArgs<ExtArgs>
@@ -830,6 +867,7 @@ export type $BuyerCompanyInfoRequestPayload<ExtArgs extends runtime.Types.Extens
     responseMessage: string | null
     respondedByUserId: string | null
     respondedAt: Date | null
+    updatedAt: Date
   }, ExtArgs["result"]["buyerCompanyInfoRequest"]>
   composites: {}
 }
@@ -1212,6 +1250,7 @@ export interface BuyerCompanyInfoRequestFieldRefs {
   readonly responseMessage: Prisma.FieldRef<"BuyerCompanyInfoRequest", 'String'>
   readonly respondedByUserId: Prisma.FieldRef<"BuyerCompanyInfoRequest", 'String'>
   readonly respondedAt: Prisma.FieldRef<"BuyerCompanyInfoRequest", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"BuyerCompanyInfoRequest", 'DateTime'>
 }
     
 

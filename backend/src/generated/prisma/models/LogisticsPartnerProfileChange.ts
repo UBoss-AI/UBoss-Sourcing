@@ -46,6 +46,8 @@ export type LogisticsPartnerProfileChangeMinAggregateOutputType = {
   decidedByUserId: string | null
   decidedAt: Date | null
   decisionNote: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsPartnerProfileChangeMaxAggregateOutputType = {
@@ -59,6 +61,8 @@ export type LogisticsPartnerProfileChangeMaxAggregateOutputType = {
   decidedByUserId: string | null
   decidedAt: Date | null
   decisionNote: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsPartnerProfileChangeCountAggregateOutputType = {
@@ -74,6 +78,8 @@ export type LogisticsPartnerProfileChangeCountAggregateOutputType = {
   decidedByUserId: number
   decidedAt: number
   decisionNote: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -89,6 +95,8 @@ export type LogisticsPartnerProfileChangeMinAggregateInputType = {
   decidedByUserId?: true
   decidedAt?: true
   decisionNote?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsPartnerProfileChangeMaxAggregateInputType = {
@@ -102,6 +110,8 @@ export type LogisticsPartnerProfileChangeMaxAggregateInputType = {
   decidedByUserId?: true
   decidedAt?: true
   decisionNote?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsPartnerProfileChangeCountAggregateInputType = {
@@ -117,6 +127,8 @@ export type LogisticsPartnerProfileChangeCountAggregateInputType = {
   decidedByUserId?: true
   decidedAt?: true
   decisionNote?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -205,6 +217,8 @@ export type LogisticsPartnerProfileChangeGroupByOutputType = {
   decidedByUserId: string | null
   decidedAt: Date | null
   decisionNote: string | null
+  createdAt: Date
+  updatedAt: Date
   _count: LogisticsPartnerProfileChangeCountAggregateOutputType | null
   _min: LogisticsPartnerProfileChangeMinAggregateOutputType | null
   _max: LogisticsPartnerProfileChangeMaxAggregateOutputType | null
@@ -241,6 +255,8 @@ export type LogisticsPartnerProfileChangeWhereInput = {
   decidedByUserId?: Prisma.StringNullableFilter<"LogisticsPartnerProfileChange"> | string | null
   decidedAt?: Prisma.DateTimeNullableFilter<"LogisticsPartnerProfileChange"> | Date | string | null
   decisionNote?: Prisma.StringNullableFilter<"LogisticsPartnerProfileChange"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"LogisticsPartnerProfileChange"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsPartnerProfileChange"> | Date | string
   partner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
 }
 
@@ -257,6 +273,8 @@ export type LogisticsPartnerProfileChangeOrderByWithRelationInput = {
   decidedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   decidedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   decisionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   partner?: Prisma.LogisticsPartnerOrderByWithRelationInput
   _relevance?: Prisma.LogisticsPartnerProfileChangeOrderByRelevanceInput
 }
@@ -277,6 +295,8 @@ export type LogisticsPartnerProfileChangeWhereUniqueInput = Prisma.AtLeast<{
   decidedByUserId?: Prisma.StringNullableFilter<"LogisticsPartnerProfileChange"> | string | null
   decidedAt?: Prisma.DateTimeNullableFilter<"LogisticsPartnerProfileChange"> | Date | string | null
   decisionNote?: Prisma.StringNullableFilter<"LogisticsPartnerProfileChange"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"LogisticsPartnerProfileChange"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsPartnerProfileChange"> | Date | string
   partner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
 }, "id" | "pendingKey">
 
@@ -293,6 +313,8 @@ export type LogisticsPartnerProfileChangeOrderByWithAggregationInput = {
   decidedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   decidedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   decisionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LogisticsPartnerProfileChangeCountOrderByAggregateInput
   _max?: Prisma.LogisticsPartnerProfileChangeMaxOrderByAggregateInput
   _min?: Prisma.LogisticsPartnerProfileChangeMinOrderByAggregateInput
@@ -314,6 +336,8 @@ export type LogisticsPartnerProfileChangeScalarWhereWithAggregatesInput = {
   decidedByUserId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPartnerProfileChange"> | string | null
   decidedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsPartnerProfileChange"> | Date | string | null
   decisionNote?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPartnerProfileChange"> | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsPartnerProfileChange"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsPartnerProfileChange"> | Date | string
 }
 
 export type LogisticsPartnerProfileChangeCreateInput = {
@@ -328,6 +352,8 @@ export type LogisticsPartnerProfileChangeCreateInput = {
   decidedByUserId?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutProfileChangesInput
 }
 
@@ -344,6 +370,8 @@ export type LogisticsPartnerProfileChangeUncheckedCreateInput = {
   decidedByUserId?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerProfileChangeUpdateInput = {
@@ -358,6 +386,8 @@ export type LogisticsPartnerProfileChangeUpdateInput = {
   decidedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutProfileChangesNestedInput
 }
 
@@ -374,6 +404,8 @@ export type LogisticsPartnerProfileChangeUncheckedUpdateInput = {
   decidedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerProfileChangeCreateManyInput = {
@@ -389,6 +421,8 @@ export type LogisticsPartnerProfileChangeCreateManyInput = {
   decidedByUserId?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerProfileChangeUpdateManyMutationInput = {
@@ -403,6 +437,8 @@ export type LogisticsPartnerProfileChangeUpdateManyMutationInput = {
   decidedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerProfileChangeUncheckedUpdateManyInput = {
@@ -418,6 +454,8 @@ export type LogisticsPartnerProfileChangeUncheckedUpdateManyInput = {
   decidedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerProfileChangeListRelationFilter = {
@@ -449,6 +487,8 @@ export type LogisticsPartnerProfileChangeCountOrderByAggregateInput = {
   decidedByUserId?: Prisma.SortOrder
   decidedAt?: Prisma.SortOrder
   decisionNote?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsPartnerProfileChangeMaxOrderByAggregateInput = {
@@ -462,6 +502,8 @@ export type LogisticsPartnerProfileChangeMaxOrderByAggregateInput = {
   decidedByUserId?: Prisma.SortOrder
   decidedAt?: Prisma.SortOrder
   decisionNote?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsPartnerProfileChangeMinOrderByAggregateInput = {
@@ -475,6 +517,8 @@ export type LogisticsPartnerProfileChangeMinOrderByAggregateInput = {
   decidedByUserId?: Prisma.SortOrder
   decidedAt?: Prisma.SortOrder
   decisionNote?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsPartnerProfileChangeCreateNestedManyWithoutPartnerInput = {
@@ -535,6 +579,8 @@ export type LogisticsPartnerProfileChangeCreateWithoutPartnerInput = {
   decidedByUserId?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerProfileChangeUncheckedCreateWithoutPartnerInput = {
@@ -549,6 +595,8 @@ export type LogisticsPartnerProfileChangeUncheckedCreateWithoutPartnerInput = {
   decidedByUserId?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerProfileChangeCreateOrConnectWithoutPartnerInput = {
@@ -593,6 +641,8 @@ export type LogisticsPartnerProfileChangeScalarWhereInput = {
   decidedByUserId?: Prisma.StringNullableFilter<"LogisticsPartnerProfileChange"> | string | null
   decidedAt?: Prisma.DateTimeNullableFilter<"LogisticsPartnerProfileChange"> | Date | string | null
   decisionNote?: Prisma.StringNullableFilter<"LogisticsPartnerProfileChange"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"LogisticsPartnerProfileChange"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsPartnerProfileChange"> | Date | string
 }
 
 export type LogisticsPartnerProfileChangeCreateManyPartnerInput = {
@@ -607,6 +657,8 @@ export type LogisticsPartnerProfileChangeCreateManyPartnerInput = {
   decidedByUserId?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerProfileChangeUpdateWithoutPartnerInput = {
@@ -621,6 +673,8 @@ export type LogisticsPartnerProfileChangeUpdateWithoutPartnerInput = {
   decidedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerProfileChangeUncheckedUpdateWithoutPartnerInput = {
@@ -635,6 +689,8 @@ export type LogisticsPartnerProfileChangeUncheckedUpdateWithoutPartnerInput = {
   decidedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerProfileChangeUncheckedUpdateManyWithoutPartnerInput = {
@@ -649,6 +705,8 @@ export type LogisticsPartnerProfileChangeUncheckedUpdateManyWithoutPartnerInput 
   decidedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -666,6 +724,8 @@ export type LogisticsPartnerProfileChangeSelect<ExtArgs extends runtime.Types.Ex
   decidedByUserId?: boolean
   decidedAt?: boolean
   decisionNote?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["logisticsPartnerProfileChange"]>
 
@@ -684,9 +744,11 @@ export type LogisticsPartnerProfileChangeSelectScalar = {
   decidedByUserId?: boolean
   decidedAt?: boolean
   decisionNote?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LogisticsPartnerProfileChangeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "state" | "pendingKey" | "proposedJson" | "currentJson" | "requestedByUserId" | "requestedByLabel" | "requestedAt" | "decidedByUserId" | "decidedAt" | "decisionNote", ExtArgs["result"]["logisticsPartnerProfileChange"]>
+export type LogisticsPartnerProfileChangeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "state" | "pendingKey" | "proposedJson" | "currentJson" | "requestedByUserId" | "requestedByLabel" | "requestedAt" | "decidedByUserId" | "decidedAt" | "decisionNote" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsPartnerProfileChange"]>
 export type LogisticsPartnerProfileChangeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
 }
@@ -719,6 +781,8 @@ export type $LogisticsPartnerProfileChangePayload<ExtArgs extends runtime.Types.
      * Shown to the carrier. A rejection with no reason cannot be fixed.
      */
     decisionNote: string | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["logisticsPartnerProfileChange"]>
   composites: {}
 }
@@ -1101,6 +1165,8 @@ export interface LogisticsPartnerProfileChangeFieldRefs {
   readonly decidedByUserId: Prisma.FieldRef<"LogisticsPartnerProfileChange", 'String'>
   readonly decidedAt: Prisma.FieldRef<"LogisticsPartnerProfileChange", 'DateTime'>
   readonly decisionNote: Prisma.FieldRef<"LogisticsPartnerProfileChange", 'String'>
+  readonly createdAt: Prisma.FieldRef<"LogisticsPartnerProfileChange", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LogisticsPartnerProfileChange", 'DateTime'>
 }
     
 

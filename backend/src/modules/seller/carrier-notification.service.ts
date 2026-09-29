@@ -336,3 +336,137 @@ export async function resolveCarrierBookingIncomplete(params: {
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// The parcel moving, after the carrier has it
+// ---------------------------------------------------------------------------
+
+/** The resolution key of "this consignment is in trouble on the road". */
+export function consignmentTroubleKey(shipmentId: string): string {
+  return `consignment-trouble:${shipmentId}`;
+}
+
+/**
+ * What the seller is told when a consignment is in trouble, per status.
+ *
+ * Fixed sentences, never the carrier's own notes - the same rule the buyer's
+ * emails follow, and for the same reason.
+ */
+const SELLER_TROUBLE: Readonly<Partial<Record<string, string>>> = Object.freeze({
+  CUSTOMS_HOLD: 'is held at customs or at the port',
+  DELAYED: 'has been delayed',
+  ON_HOLD: 'has been put on hold by the carrier',
+  ADDRESS_ISSUE: 'has a problem with its delivery address',
+  DELIVERY_ATTEMPTED: 'could not be delivered at the first attempt',
+  DELIVERY_FAILED: 'could not be delivered',
+  DAMAGED: 'was reported damaged',
+  LOST: 'was reported lost',
+  TEMPERATURE_EXCEPTION: 'went outside its temperature range',
+});
+
+/**
+ * Tell the seller their consignment was collected, delivered, returned, or
+ * ran into trouble on the way.
+ *
+ * Collected, delivered and returned are NEWS, said once per consignment. A
+ * problem is an ALERT keyed on the consignment, so a parcel that is delayed
+ * and then held at customs is one problem with two entries - and any
+ * movement that is not itself a problem closes it, the same rule the
+ * carrier's own feed follows. Written with the existing `LOGISTICS_LEG_UPDATE`
+ * kind: the consignment IS the leg to the buyer, and a new enum member would
+ * need a migration for no difference the seller can see.
+ *
+ * Called after the event has committed; never throws.
+ */
+export async function notifySellerConsignmentMovement(params: {
+  shipmentId: string;
+  status: string;
+  eventId: string;
+}): Promise<void> {
+  try {
+    const trouble = SELLER_TROUBLE[params.status];
+
+    if (trouble === undefined) {
+      // Moving again, or finished: whatever it was stuck on is over.
+      await resolveSellerNotifications({
+        resolutionKey: consignmentTroubleKey(params.shipmentId),
+        source: 'DOMAIN_EVENT',
+        note: `Moved on to ${params.status.toLowerCase().replace(/_/g, ' ')}.`,
+      });
+    }
+
+    const news: Readonly<Record<string, { title: string; body: string; severity: 'INFO' | 'SUCCESS' }>> = {
+      PICKED_UP: {
+        title: 'collected',
+        body: 'The carrier has collected it.',
+        severity: 'INFO',
+      },
+      DELIVERED: {
+        title: 'delivered',
+        body: 'The carrier has delivered it. The proof of delivery is on the order.',
+        severity: 'SUCCESS',
+      },
+      RETURNED: {
+        title: 'returned to you',
+        body: 'The carrier has brought it back.',
+        severity: 'INFO',
+      },
+    };
+    const milestone = news[params.status];
+
+    if (trouble === undefined && milestone === undefined) return;
+
+    const shipment = await prisma.logisticsShipment.findUnique({
+      where: { id: params.shipmentId },
+      select: {
+        sellerAccountId: true,
+        sellerOrderGroupId: true,
+        shipmentReference: true,
+        receivingCompanyName: true,
+      },
+    });
+    if (shipment === null || shipment.sellerAccountId === null) return;
+
+    const linkPath =
+      shipment.sellerOrderGroupId === null ? '/seller/orders' : `/seller/orders/${shipment.sellerOrderGroupId}`;
+
+    if (trouble !== undefined) {
+      await notifySeller({
+        sellerAccountId: shipment.sellerAccountId,
+        kind: 'LOGISTICS_LEG_UPDATE',
+        title: `${shipment.shipmentReference} ${trouble}`,
+        body: `Consignment ${shipment.shipmentReference} to ${shipment.receivingCompanyName} ${trouble}. The buyer has been told. The latest news is on the order.`,
+        linkPath,
+        severity: 'WARNING',
+        subjectType: 'logistics_shipment',
+        subjectId: params.shipmentId,
+        // Per event: a second delay on another day is a second thing to read.
+        dedupeKey: `movement:${params.eventId}`,
+        class: 'ALERT',
+        resolutionKey: consignmentTroubleKey(params.shipmentId),
+      });
+      return;
+    }
+
+    if (milestone === undefined) return;
+
+    await notifySeller({
+      sellerAccountId: shipment.sellerAccountId,
+      kind: 'LOGISTICS_LEG_UPDATE',
+      title: `${shipment.shipmentReference} ${milestone.title}`,
+      body: `Consignment ${shipment.shipmentReference} to ${shipment.receivingCompanyName}: ${milestone.body}`,
+      linkPath,
+      severity: milestone.severity,
+      subjectType: 'logistics_shipment',
+      subjectId: params.shipmentId,
+      // Per consignment and milestone: a carrier reporting DELIVERED twice
+      // announces it once.
+      dedupeKey: `movement:${params.shipmentId}:${params.status}`,
+    });
+  } catch (error) {
+    logger.warn(
+      { err: error, shipmentId: params.shipmentId, status: params.status },
+      'could not tell the seller about their consignment moving',
+    );
+  }
+}

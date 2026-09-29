@@ -40,6 +40,8 @@ export type ErpWebhookReceiptMinAggregateOutputType = {
   receivedAt: Date | null
   processedAt: Date | null
   syncRunId: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ErpWebhookReceiptMaxAggregateOutputType = {
@@ -49,6 +51,8 @@ export type ErpWebhookReceiptMaxAggregateOutputType = {
   receivedAt: Date | null
   processedAt: Date | null
   syncRunId: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ErpWebhookReceiptCountAggregateOutputType = {
@@ -58,6 +62,8 @@ export type ErpWebhookReceiptCountAggregateOutputType = {
   receivedAt: number
   processedAt: number
   syncRunId: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -69,6 +75,8 @@ export type ErpWebhookReceiptMinAggregateInputType = {
   receivedAt?: true
   processedAt?: true
   syncRunId?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ErpWebhookReceiptMaxAggregateInputType = {
@@ -78,6 +86,8 @@ export type ErpWebhookReceiptMaxAggregateInputType = {
   receivedAt?: true
   processedAt?: true
   syncRunId?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ErpWebhookReceiptCountAggregateInputType = {
@@ -87,6 +97,8 @@ export type ErpWebhookReceiptCountAggregateInputType = {
   receivedAt?: true
   processedAt?: true
   syncRunId?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -169,6 +181,8 @@ export type ErpWebhookReceiptGroupByOutputType = {
   receivedAt: Date
   processedAt: Date | null
   syncRunId: string | null
+  createdAt: Date
+  updatedAt: Date
   _count: ErpWebhookReceiptCountAggregateOutputType | null
   _min: ErpWebhookReceiptMinAggregateOutputType | null
   _max: ErpWebhookReceiptMaxAggregateOutputType | null
@@ -199,6 +213,8 @@ export type ErpWebhookReceiptWhereInput = {
   receivedAt?: Prisma.DateTimeFilter<"ErpWebhookReceipt"> | Date | string
   processedAt?: Prisma.DateTimeNullableFilter<"ErpWebhookReceipt"> | Date | string | null
   syncRunId?: Prisma.StringNullableFilter<"ErpWebhookReceipt"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"ErpWebhookReceipt"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ErpWebhookReceipt"> | Date | string
   connection?: Prisma.XOR<Prisma.ErpConnectionScalarRelationFilter, Prisma.ErpConnectionWhereInput>
 }
 
@@ -209,6 +225,8 @@ export type ErpWebhookReceiptOrderByWithRelationInput = {
   receivedAt?: Prisma.SortOrder
   processedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   syncRunId?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   connection?: Prisma.ErpConnectionOrderByWithRelationInput
   _relevance?: Prisma.ErpWebhookReceiptOrderByRelevanceInput
 }
@@ -224,6 +242,8 @@ export type ErpWebhookReceiptWhereUniqueInput = Prisma.AtLeast<{
   receivedAt?: Prisma.DateTimeFilter<"ErpWebhookReceipt"> | Date | string
   processedAt?: Prisma.DateTimeNullableFilter<"ErpWebhookReceipt"> | Date | string | null
   syncRunId?: Prisma.StringNullableFilter<"ErpWebhookReceipt"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"ErpWebhookReceipt"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ErpWebhookReceipt"> | Date | string
   connection?: Prisma.XOR<Prisma.ErpConnectionScalarRelationFilter, Prisma.ErpConnectionWhereInput>
 }, "id" | "connectionId_externalEventId">
 
@@ -234,6 +254,8 @@ export type ErpWebhookReceiptOrderByWithAggregationInput = {
   receivedAt?: Prisma.SortOrder
   processedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   syncRunId?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ErpWebhookReceiptCountOrderByAggregateInput
   _max?: Prisma.ErpWebhookReceiptMaxOrderByAggregateInput
   _min?: Prisma.ErpWebhookReceiptMinOrderByAggregateInput
@@ -249,6 +271,8 @@ export type ErpWebhookReceiptScalarWhereWithAggregatesInput = {
   receivedAt?: Prisma.DateTimeWithAggregatesFilter<"ErpWebhookReceipt"> | Date | string
   processedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ErpWebhookReceipt"> | Date | string | null
   syncRunId?: Prisma.StringNullableWithAggregatesFilter<"ErpWebhookReceipt"> | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ErpWebhookReceipt"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ErpWebhookReceipt"> | Date | string
 }
 
 export type ErpWebhookReceiptCreateInput = {
@@ -257,6 +281,8 @@ export type ErpWebhookReceiptCreateInput = {
   receivedAt?: Date | string
   processedAt?: Date | string | null
   syncRunId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   connection: Prisma.ErpConnectionCreateNestedOneWithoutWebhookReceiptsInput
 }
 
@@ -267,6 +293,8 @@ export type ErpWebhookReceiptUncheckedCreateInput = {
   receivedAt?: Date | string
   processedAt?: Date | string | null
   syncRunId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ErpWebhookReceiptUpdateInput = {
@@ -275,6 +303,8 @@ export type ErpWebhookReceiptUpdateInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   syncRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   connection?: Prisma.ErpConnectionUpdateOneRequiredWithoutWebhookReceiptsNestedInput
 }
 
@@ -285,6 +315,8 @@ export type ErpWebhookReceiptUncheckedUpdateInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   syncRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ErpWebhookReceiptCreateManyInput = {
@@ -294,6 +326,8 @@ export type ErpWebhookReceiptCreateManyInput = {
   receivedAt?: Date | string
   processedAt?: Date | string | null
   syncRunId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ErpWebhookReceiptUpdateManyMutationInput = {
@@ -302,6 +336,8 @@ export type ErpWebhookReceiptUpdateManyMutationInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   syncRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ErpWebhookReceiptUncheckedUpdateManyInput = {
@@ -311,6 +347,8 @@ export type ErpWebhookReceiptUncheckedUpdateManyInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   syncRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ErpWebhookReceiptListRelationFilter = {
@@ -341,6 +379,8 @@ export type ErpWebhookReceiptCountOrderByAggregateInput = {
   receivedAt?: Prisma.SortOrder
   processedAt?: Prisma.SortOrder
   syncRunId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ErpWebhookReceiptMaxOrderByAggregateInput = {
@@ -350,6 +390,8 @@ export type ErpWebhookReceiptMaxOrderByAggregateInput = {
   receivedAt?: Prisma.SortOrder
   processedAt?: Prisma.SortOrder
   syncRunId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ErpWebhookReceiptMinOrderByAggregateInput = {
@@ -359,6 +401,8 @@ export type ErpWebhookReceiptMinOrderByAggregateInput = {
   receivedAt?: Prisma.SortOrder
   processedAt?: Prisma.SortOrder
   syncRunId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ErpWebhookReceiptCreateNestedManyWithoutConnectionInput = {
@@ -409,6 +453,8 @@ export type ErpWebhookReceiptCreateWithoutConnectionInput = {
   receivedAt?: Date | string
   processedAt?: Date | string | null
   syncRunId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ErpWebhookReceiptUncheckedCreateWithoutConnectionInput = {
@@ -417,6 +463,8 @@ export type ErpWebhookReceiptUncheckedCreateWithoutConnectionInput = {
   receivedAt?: Date | string
   processedAt?: Date | string | null
   syncRunId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ErpWebhookReceiptCreateOrConnectWithoutConnectionInput = {
@@ -455,6 +503,8 @@ export type ErpWebhookReceiptScalarWhereInput = {
   receivedAt?: Prisma.DateTimeFilter<"ErpWebhookReceipt"> | Date | string
   processedAt?: Prisma.DateTimeNullableFilter<"ErpWebhookReceipt"> | Date | string | null
   syncRunId?: Prisma.StringNullableFilter<"ErpWebhookReceipt"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"ErpWebhookReceipt"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ErpWebhookReceipt"> | Date | string
 }
 
 export type ErpWebhookReceiptCreateManyConnectionInput = {
@@ -463,6 +513,8 @@ export type ErpWebhookReceiptCreateManyConnectionInput = {
   receivedAt?: Date | string
   processedAt?: Date | string | null
   syncRunId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ErpWebhookReceiptUpdateWithoutConnectionInput = {
@@ -471,6 +523,8 @@ export type ErpWebhookReceiptUpdateWithoutConnectionInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   syncRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ErpWebhookReceiptUncheckedUpdateWithoutConnectionInput = {
@@ -479,6 +533,8 @@ export type ErpWebhookReceiptUncheckedUpdateWithoutConnectionInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   syncRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ErpWebhookReceiptUncheckedUpdateManyWithoutConnectionInput = {
@@ -487,6 +543,8 @@ export type ErpWebhookReceiptUncheckedUpdateManyWithoutConnectionInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   syncRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -498,6 +556,8 @@ export type ErpWebhookReceiptSelect<ExtArgs extends runtime.Types.Extensions.Int
   receivedAt?: boolean
   processedAt?: boolean
   syncRunId?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   connection?: boolean | Prisma.ErpConnectionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["erpWebhookReceipt"]>
 
@@ -510,9 +570,11 @@ export type ErpWebhookReceiptSelectScalar = {
   receivedAt?: boolean
   processedAt?: boolean
   syncRunId?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ErpWebhookReceiptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "externalEventId" | "receivedAt" | "processedAt" | "syncRunId", ExtArgs["result"]["erpWebhookReceipt"]>
+export type ErpWebhookReceiptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "externalEventId" | "receivedAt" | "processedAt" | "syncRunId" | "createdAt" | "updatedAt", ExtArgs["result"]["erpWebhookReceipt"]>
 export type ErpWebhookReceiptInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   connection?: boolean | Prisma.ErpConnectionDefaultArgs<ExtArgs>
 }
@@ -536,6 +598,8 @@ export type $ErpWebhookReceiptPayload<ExtArgs extends runtime.Types.Extensions.I
      * answer "already applied, in run X" rather than merely "seen before".
      */
     syncRunId: string | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["erpWebhookReceipt"]>
   composites: {}
 }
@@ -912,6 +976,8 @@ export interface ErpWebhookReceiptFieldRefs {
   readonly receivedAt: Prisma.FieldRef<"ErpWebhookReceipt", 'DateTime'>
   readonly processedAt: Prisma.FieldRef<"ErpWebhookReceipt", 'DateTime'>
   readonly syncRunId: Prisma.FieldRef<"ErpWebhookReceipt", 'String'>
+  readonly createdAt: Prisma.FieldRef<"ErpWebhookReceipt", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ErpWebhookReceipt", 'DateTime'>
 }
     
 

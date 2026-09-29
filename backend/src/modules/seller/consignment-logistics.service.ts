@@ -83,6 +83,11 @@ import {
 } from '../logistics/assignment.service.js';
 import { storeShipmentFile } from '../logistics/document.service.js';
 import {
+  readSellerDeliverySummary,
+  type TrackingEta,
+  type TrackingProofOfDelivery,
+} from '../logistics/buyer-tracking.service.js';
+import {
   appendEventInTransaction,
   recordShipmentEvent,
 } from '../logistics/shipment-event.service.js';
@@ -1939,6 +1944,16 @@ export interface SellerTrackingView {
     source: string;
   }[];
   documents: { id: string; kind: LogisticsDocumentKind; fileName: string; createdAt: string }[];
+  /**
+   * The same ETA and proof-of-delivery summary the buyer is shown, from the
+   * same function - with the recipient's name masked to "Given F." and no
+   * images. See `logistics/buyer-tracking.service.ts` for why.
+   */
+  delivery: {
+    eta: TrackingEta;
+    proofOfDelivery: TrackingProofOfDelivery | null;
+    deliveredWithoutProof: boolean;
+  };
 }
 
 /**
@@ -1953,7 +1968,9 @@ export async function readSellerTracking(
 ): Promise<SellerTrackingView> {
   const state = await consignmentState(sellerAccountId, shipmentId);
 
-  const [events, documents] = await Promise.all([
+  // `consignmentState` above has already refused a consignment that is not
+  // this seller's, so everything below reads a shipment id it may trust.
+  const [events, documents, delivery] = await Promise.all([
     prisma.logisticsShipmentEvent.findMany({
       where: { shipmentId },
       orderBy: { occurredAt: 'asc' },
@@ -1964,6 +1981,7 @@ export async function readSellerTracking(
       orderBy: { createdAt: 'asc' },
       select: { id: true, kind: true, fileName: true, createdAt: true },
     }),
+    readSellerDeliverySummary(shipmentId),
   ]);
 
   return {
@@ -1981,6 +1999,7 @@ export async function readSellerTracking(
       fileName: document.fileName,
       createdAt: document.createdAt.toISOString(),
     })),
+    delivery,
   };
 }
 

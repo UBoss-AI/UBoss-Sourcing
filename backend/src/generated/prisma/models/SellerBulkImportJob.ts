@@ -65,6 +65,9 @@ export type SellerBulkImportJobMinAggregateOutputType = {
   startedAt: Date | null
   finishedAt: Date | null
   requestedByProfileId: string | null
+  fileSha256: string | null
+  sourceJobId: string | null
+  fileFormat: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -87,6 +90,9 @@ export type SellerBulkImportJobMaxAggregateOutputType = {
   startedAt: Date | null
   finishedAt: Date | null
   requestedByProfileId: string | null
+  fileSha256: string | null
+  sourceJobId: string | null
+  fileFormat: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -110,6 +116,9 @@ export type SellerBulkImportJobCountAggregateOutputType = {
   startedAt: number
   finishedAt: number
   requestedByProfileId: number
+  fileSha256: number
+  sourceJobId: number
+  fileFormat: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -150,6 +159,9 @@ export type SellerBulkImportJobMinAggregateInputType = {
   startedAt?: true
   finishedAt?: true
   requestedByProfileId?: true
+  fileSha256?: true
+  sourceJobId?: true
+  fileFormat?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -172,6 +184,9 @@ export type SellerBulkImportJobMaxAggregateInputType = {
   startedAt?: true
   finishedAt?: true
   requestedByProfileId?: true
+  fileSha256?: true
+  sourceJobId?: true
+  fileFormat?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -195,6 +210,9 @@ export type SellerBulkImportJobCountAggregateInputType = {
   startedAt?: true
   finishedAt?: true
   requestedByProfileId?: true
+  fileSha256?: true
+  sourceJobId?: true
+  fileFormat?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -305,6 +323,9 @@ export type SellerBulkImportJobGroupByOutputType = {
   startedAt: Date | null
   finishedAt: Date | null
   requestedByProfileId: string | null
+  fileSha256: string | null
+  sourceJobId: string | null
+  fileFormat: string
   createdAt: Date
   updatedAt: Date
   _count: SellerBulkImportJobCountAggregateOutputType | null
@@ -351,6 +372,9 @@ export type SellerBulkImportJobWhereInput = {
   startedAt?: Prisma.DateTimeNullableFilter<"SellerBulkImportJob"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableFilter<"SellerBulkImportJob"> | Date | string | null
   requestedByProfileId?: Prisma.StringNullableFilter<"SellerBulkImportJob"> | string | null
+  fileSha256?: Prisma.StringNullableFilter<"SellerBulkImportJob"> | string | null
+  sourceJobId?: Prisma.StringNullableFilter<"SellerBulkImportJob"> | string | null
+  fileFormat?: Prisma.StringFilter<"SellerBulkImportJob"> | string
   createdAt?: Prisma.DateTimeFilter<"SellerBulkImportJob"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerBulkImportJob"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
@@ -376,6 +400,9 @@ export type SellerBulkImportJobOrderByWithRelationInput = {
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   finishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   requestedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  fileSha256?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceJobId?: Prisma.SortOrderInput | Prisma.SortOrder
+  fileFormat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
@@ -385,6 +412,7 @@ export type SellerBulkImportJobOrderByWithRelationInput = {
 
 export type SellerBulkImportJobWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  sourceJobId?: string
   AND?: Prisma.SellerBulkImportJobWhereInput | Prisma.SellerBulkImportJobWhereInput[]
   OR?: Prisma.SellerBulkImportJobWhereInput[]
   NOT?: Prisma.SellerBulkImportJobWhereInput | Prisma.SellerBulkImportJobWhereInput[]
@@ -405,11 +433,13 @@ export type SellerBulkImportJobWhereUniqueInput = Prisma.AtLeast<{
   startedAt?: Prisma.DateTimeNullableFilter<"SellerBulkImportJob"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableFilter<"SellerBulkImportJob"> | Date | string | null
   requestedByProfileId?: Prisma.StringNullableFilter<"SellerBulkImportJob"> | string | null
+  fileSha256?: Prisma.StringNullableFilter<"SellerBulkImportJob"> | string | null
+  fileFormat?: Prisma.StringFilter<"SellerBulkImportJob"> | string
   createdAt?: Prisma.DateTimeFilter<"SellerBulkImportJob"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerBulkImportJob"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   rowErrors?: Prisma.SellerBulkImportRowErrorListRelationFilter
-}, "id">
+}, "id" | "sourceJobId">
 
 export type SellerBulkImportJobOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -430,6 +460,9 @@ export type SellerBulkImportJobOrderByWithAggregationInput = {
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   finishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   requestedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  fileSha256?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceJobId?: Prisma.SortOrderInput | Prisma.SortOrder
+  fileFormat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerBulkImportJobCountOrderByAggregateInput
@@ -461,6 +494,9 @@ export type SellerBulkImportJobScalarWhereWithAggregatesInput = {
   startedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerBulkImportJob"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerBulkImportJob"> | Date | string | null
   requestedByProfileId?: Prisma.StringNullableWithAggregatesFilter<"SellerBulkImportJob"> | string | null
+  fileSha256?: Prisma.StringNullableWithAggregatesFilter<"SellerBulkImportJob"> | string | null
+  sourceJobId?: Prisma.StringNullableWithAggregatesFilter<"SellerBulkImportJob"> | string | null
+  fileFormat?: Prisma.StringWithAggregatesFilter<"SellerBulkImportJob"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerBulkImportJob"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerBulkImportJob"> | Date | string
 }
@@ -483,6 +519,9 @@ export type SellerBulkImportJobCreateInput = {
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
   requestedByProfileId?: string | null
+  fileSha256?: string | null
+  sourceJobId?: string | null
+  fileFormat?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutBulkImportsInput
@@ -508,6 +547,9 @@ export type SellerBulkImportJobUncheckedCreateInput = {
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
   requestedByProfileId?: string | null
+  fileSha256?: string | null
+  sourceJobId?: string | null
+  fileFormat?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   rowErrors?: Prisma.SellerBulkImportRowErrorUncheckedCreateNestedManyWithoutJobInput
@@ -531,6 +573,9 @@ export type SellerBulkImportJobUpdateInput = {
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   requestedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileFormat?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutBulkImportsNestedInput
@@ -556,6 +601,9 @@ export type SellerBulkImportJobUncheckedUpdateInput = {
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   requestedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileFormat?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rowErrors?: Prisma.SellerBulkImportRowErrorUncheckedUpdateManyWithoutJobNestedInput
@@ -580,6 +628,9 @@ export type SellerBulkImportJobCreateManyInput = {
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
   requestedByProfileId?: string | null
+  fileSha256?: string | null
+  sourceJobId?: string | null
+  fileFormat?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -602,6 +653,9 @@ export type SellerBulkImportJobUpdateManyMutationInput = {
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   requestedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileFormat?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -625,6 +679,9 @@ export type SellerBulkImportJobUncheckedUpdateManyInput = {
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   requestedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileFormat?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -664,6 +721,9 @@ export type SellerBulkImportJobCountOrderByAggregateInput = {
   startedAt?: Prisma.SortOrder
   finishedAt?: Prisma.SortOrder
   requestedByProfileId?: Prisma.SortOrder
+  fileSha256?: Prisma.SortOrder
+  sourceJobId?: Prisma.SortOrder
+  fileFormat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -694,6 +754,9 @@ export type SellerBulkImportJobMaxOrderByAggregateInput = {
   startedAt?: Prisma.SortOrder
   finishedAt?: Prisma.SortOrder
   requestedByProfileId?: Prisma.SortOrder
+  fileSha256?: Prisma.SortOrder
+  sourceJobId?: Prisma.SortOrder
+  fileFormat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -716,6 +779,9 @@ export type SellerBulkImportJobMinOrderByAggregateInput = {
   startedAt?: Prisma.SortOrder
   finishedAt?: Prisma.SortOrder
   requestedByProfileId?: Prisma.SortOrder
+  fileSha256?: Prisma.SortOrder
+  sourceJobId?: Prisma.SortOrder
+  fileFormat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -807,6 +873,9 @@ export type SellerBulkImportJobCreateWithoutSellerAccountInput = {
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
   requestedByProfileId?: string | null
+  fileSha256?: string | null
+  sourceJobId?: string | null
+  fileFormat?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   rowErrors?: Prisma.SellerBulkImportRowErrorCreateNestedManyWithoutJobInput
@@ -830,6 +899,9 @@ export type SellerBulkImportJobUncheckedCreateWithoutSellerAccountInput = {
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
   requestedByProfileId?: string | null
+  fileSha256?: string | null
+  sourceJobId?: string | null
+  fileFormat?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   rowErrors?: Prisma.SellerBulkImportRowErrorUncheckedCreateNestedManyWithoutJobInput
@@ -883,6 +955,9 @@ export type SellerBulkImportJobScalarWhereInput = {
   startedAt?: Prisma.DateTimeNullableFilter<"SellerBulkImportJob"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableFilter<"SellerBulkImportJob"> | Date | string | null
   requestedByProfileId?: Prisma.StringNullableFilter<"SellerBulkImportJob"> | string | null
+  fileSha256?: Prisma.StringNullableFilter<"SellerBulkImportJob"> | string | null
+  sourceJobId?: Prisma.StringNullableFilter<"SellerBulkImportJob"> | string | null
+  fileFormat?: Prisma.StringFilter<"SellerBulkImportJob"> | string
   createdAt?: Prisma.DateTimeFilter<"SellerBulkImportJob"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerBulkImportJob"> | Date | string
 }
@@ -905,6 +980,9 @@ export type SellerBulkImportJobCreateWithoutRowErrorsInput = {
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
   requestedByProfileId?: string | null
+  fileSha256?: string | null
+  sourceJobId?: string | null
+  fileFormat?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutBulkImportsInput
@@ -929,6 +1007,9 @@ export type SellerBulkImportJobUncheckedCreateWithoutRowErrorsInput = {
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
   requestedByProfileId?: string | null
+  fileSha256?: string | null
+  sourceJobId?: string | null
+  fileFormat?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -967,6 +1048,9 @@ export type SellerBulkImportJobUpdateWithoutRowErrorsInput = {
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   requestedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileFormat?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutBulkImportsNestedInput
@@ -991,6 +1075,9 @@ export type SellerBulkImportJobUncheckedUpdateWithoutRowErrorsInput = {
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   requestedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileFormat?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1013,6 +1100,9 @@ export type SellerBulkImportJobCreateManySellerAccountInput = {
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
   requestedByProfileId?: string | null
+  fileSha256?: string | null
+  sourceJobId?: string | null
+  fileFormat?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1035,6 +1125,9 @@ export type SellerBulkImportJobUpdateWithoutSellerAccountInput = {
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   requestedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileFormat?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rowErrors?: Prisma.SellerBulkImportRowErrorUpdateManyWithoutJobNestedInput
@@ -1058,6 +1151,9 @@ export type SellerBulkImportJobUncheckedUpdateWithoutSellerAccountInput = {
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   requestedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileFormat?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rowErrors?: Prisma.SellerBulkImportRowErrorUncheckedUpdateManyWithoutJobNestedInput
@@ -1081,6 +1177,9 @@ export type SellerBulkImportJobUncheckedUpdateManyWithoutSellerAccountInput = {
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   requestedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceJobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileFormat?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1135,6 +1234,9 @@ export type SellerBulkImportJobSelect<ExtArgs extends runtime.Types.Extensions.I
   startedAt?: boolean
   finishedAt?: boolean
   requestedByProfileId?: boolean
+  fileSha256?: boolean
+  sourceJobId?: boolean
+  fileFormat?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
@@ -1163,11 +1265,14 @@ export type SellerBulkImportJobSelectScalar = {
   startedAt?: boolean
   finishedAt?: boolean
   requestedByProfileId?: boolean
+  fileSha256?: boolean
+  sourceJobId?: boolean
+  fileFormat?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SellerBulkImportJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "status" | "isDryRun" | "categoryId" | "originalFileName" | "storageKey" | "columnMappingJson" | "totalRows" | "validRows" | "invalidRows" | "createdRows" | "updatedRows" | "errorReportStorageKey" | "failureReason" | "startedAt" | "finishedAt" | "requestedByProfileId" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerBulkImportJob"]>
+export type SellerBulkImportJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "status" | "isDryRun" | "categoryId" | "originalFileName" | "storageKey" | "columnMappingJson" | "totalRows" | "validRows" | "invalidRows" | "createdRows" | "updatedRows" | "errorReportStorageKey" | "failureReason" | "startedAt" | "finishedAt" | "requestedByProfileId" | "fileSha256" | "sourceJobId" | "fileFormat" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerBulkImportJob"]>
 export type SellerBulkImportJobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   rowErrors?: boolean | Prisma.SellerBulkImportJob$rowErrorsArgs<ExtArgs>
@@ -1214,6 +1319,20 @@ export type $SellerBulkImportJobPayload<ExtArgs extends runtime.Types.Extensions
     startedAt: Date | null
     finishedAt: Date | null
     requestedByProfileId: string | null
+    /**
+     * SHA-256 of the uploaded bytes, so the job list can say "you already
+     * imported this exact file" before a seller applies it twice.
+     */
+    fileSha256: string | null
+    /**
+     * The dry run a commit run applies. UNIQUE: one dry run is committed at
+     * most once, whatever a double click or a retried request does.
+     */
+    sourceJobId: string | null
+    /**
+     * CSV or XLSX, decided from the bytes, not the file name.
+     */
+    fileFormat: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["sellerBulkImportJob"]>
@@ -1605,6 +1724,9 @@ export interface SellerBulkImportJobFieldRefs {
   readonly startedAt: Prisma.FieldRef<"SellerBulkImportJob", 'DateTime'>
   readonly finishedAt: Prisma.FieldRef<"SellerBulkImportJob", 'DateTime'>
   readonly requestedByProfileId: Prisma.FieldRef<"SellerBulkImportJob", 'String'>
+  readonly fileSha256: Prisma.FieldRef<"SellerBulkImportJob", 'String'>
+  readonly sourceJobId: Prisma.FieldRef<"SellerBulkImportJob", 'String'>
+  readonly fileFormat: Prisma.FieldRef<"SellerBulkImportJob", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerBulkImportJob", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SellerBulkImportJob", 'DateTime'>
 }

@@ -35,7 +35,7 @@ import {
   packagesLockReason,
 } from './consignment.service.js';
 import { verifyCommissionDocument } from '../commission-invoicing/commission-invoice.service.js';
-import { verificationCode, type VerifiableKind } from './document-format.js';
+import { verificationCodeMatches, type VerifiableKind } from './document-format.js';
 import { issuePackingListInTx, serialisePackingList } from './packing-list.service.js';
 import { discardStored, issueInvoiceInTx, serialiseInvoice } from './seller-invoice.service.js';
 
@@ -601,7 +601,8 @@ export async function verifyDocument(
     });
     const row =
       candidates.find(
-        (candidate) => verificationCode('invoice', number, candidate.sellerAccountId) === given,
+        (candidate) =>
+          verificationCodeMatches('invoice', number, given, candidate.sellerAccountId),
       ) ?? null;
     if (row === null) return { valid: false };
     return {
@@ -613,7 +614,7 @@ export async function verifyDocument(
       issuer: row.sellerAccount.legalName,
     };
   }
-  if (given !== verificationCode(kind, number)) return { valid: false };
+  if (!verificationCodeMatches(kind, number, given)) return { valid: false };
   if (kind === 'commission-invoice' || kind === 'commission-credit-note') {
     // The operator's own invoice to a seller: no seller, no amounts - only what
     // is printed beside the QR already.

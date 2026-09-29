@@ -53,6 +53,11 @@ import { LanguageSwitcher, TranslationQualityNotice } from '@/i18n/LanguageSwitc
 import { ApiError, NetworkError } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { errorMessage } from '@/lib/errors';
+import { CaptchaWidget } from '@/components/security/CaptchaWidget';
+import { useCaptchaRequired } from '@/components/security/use-captcha-required';
+import { MfaChallengeForm } from '@/components/security/MfaChallengeForm';
+import { useToast } from '@/components/toast-context';
+import type { SignInNext } from '@/auth/session-context';
 
 /**
  * Built per render rather than once at module scope, because the messages
@@ -84,9 +89,10 @@ function buyerTypeFrom(search: string, companiesOffered: boolean): BuyerType {
 }
 
 export function LoginPage(): React.JSX.Element {
-  const { user, isCustomer, isLoading, login } = useSession();
+  const { user, isCustomer, isLoading, login, logout, refreshUser } = useSession();
   const { business, features } = useStorefront();
   const { t } = useI18n();
+  const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -115,6 +121,14 @@ export function LoginPage(): React.JSX.Element {
   } | null>(null);
 
   useDocumentMeta({ title: t('auth.login.pageTitle'), noIndex: true }, business.displayName);
+
+  // The bot check, when the store has one. The widget is remounted after a
+  // failed attempt, because a provider's token is good for one submission.
+  const captchaRequired = useCaptchaRequired();
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaRound, setCaptchaRound] = useState(0);
+  // Where the sign-in was heading, kept across the two-step code screen.
+  const [pendingNext, setPendingNext] = useState<SignInNext | null>(null);
 
   const {
     register,
@@ -145,7 +159,41 @@ export function LoginPage(): React.JSX.Element {
   }
 
   if (isCustomer) {
-    return <Navigate to={returnTarget(location.state, location.search)} replace />;
+    const target = returnTarget(location.state, location.search);
+    if (pendingNext === 'CHOOSE_COMPANY' || pendingNext === 'NO_COMPANY') {
+      return <Navigate to="/select-company" replace state={{ from: target, next: pendingNext }} />;
+    }
+    return <Navigate to={target} replace />;
+  }
+
+  // Password accepted, and the account has two-step sign-in: the code comes
+  // next, and nothing else is reachable until it is given.
+  if (user !== null && user.mfaChallengeRequired === true) {
+    return (
+      <AuthSplit>
+        <LanguageSwitcher placement="auth" />
+        <AuthCard className="mt-2">
+          <h1 className="text-xl font-bold text-ink">{t('security.challenge.heading')}</h1>
+          <div className="mt-6">
+            <MfaChallengeForm
+              onVerified={(result) => {
+                if (result.usedRecoveryCode) {
+                  // A recovery code is gone once used; say how many are left.
+                  toast.info(
+                    t('security.challenge.recoveryUsed', { remaining: String(result.recoveryCodesRemaining) }),
+                  );
+                }
+                void refreshUser();
+              }}
+              onCancel={() => {
+                setPendingNext(null);
+                void logout();
+              }}
+            />
+          </div>
+        </AuthCard>
+      </AuthSplit>
+    );
   }
 
   /**
@@ -191,13 +239,23 @@ export function LoginPage(): React.JSX.Element {
     setFormError(null);
     setHelpCode(null);
 
+    if (captchaRequired && captchaToken === null) {
+      setFormError(t('security.captcha.required'));
+      return;
+    }
+
     try {
       // `acceptedTerms` gates the submit and is not sent: `/auth/login` takes
       // an email and a password, and the acceptance that is recorded against
       // an account is the one given at registration or activation.
-      const { next } = companiesOffered
-        ? await login(values.email, values.password, buyerType)
-        : await login(values.email, values.password);
+      const { next, mfaChallengeRequired } = companiesOffered
+        ? await login(values.email, values.password, buyerType, captchaToken)
+        : await login(values.email, values.password, undefined, captchaToken);
+      if (mfaChallengeRequired) {
+        // The page redraws as the code screen; where to go after it is kept.
+        setPendingNext(next);
+        return;
+      }
       const target = returnTarget(location.state, location.search);
       // Several companies, or none: the selector decides with the person,
       // after sign-in. Everyone else goes straight to where they were going.
@@ -207,13 +265,20 @@ export function LoginPage(): React.JSX.Element {
         void navigate(target, { replace: true });
       }
     } catch (error) {
+      setCaptchaToken(null);
+      setCaptchaRound((round) => round + 1);
+
       if (error instanceof NetworkError) {
         setFormError(errorMessage(t, error));
         return;
       }
 
       if (error instanceof ApiError) {
-        setFormError(error.message);
+        setFormError(
+          error.code === 'CAPTCHA_REQUIRED' || error.code === 'CAPTCHA_FAILED'
+            ? errorMessage(t, error)
+            : error.message,
+        );
 
         // Each of these has a different next action, and leaving a customer to
         // guess which one applies is how a support call starts.
@@ -325,6 +390,8 @@ export function LoginPage(): React.JSX.Element {
 
           {/* Above the button, not below it. The tick is a condition of signing
               in, so it has to be read before the thing it gates. */}
+          <CaptchaWidget key={captchaRound} onToken={setCaptchaToken} />
+
           <AcceptTermsCheckbox
             label={t('auth.login.acceptTerms')}
             error={errors.acceptedTerms?.message}

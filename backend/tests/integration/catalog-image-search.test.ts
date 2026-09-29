@@ -415,6 +415,37 @@ describe('when the provider cannot answer', () => {
     expect(error.message).not.toContain('quota exhausted');
   });
 
+  it('reports a provider that timed out as busy, not as a 500', async () => {
+    const { AssistantProviderError } = await import('../../src/modules/assistant/provider.js');
+    analyseProductImage.mockRejectedValue(
+      new AssistantProviderError('Anthropic did not finish within 60 seconds.', 'timeout'),
+    );
+
+    const response = await upload(buyer);
+
+    expect(response.statusCode).toBe(503);
+    const { error } = response.json<{
+      error: { code: string; message: string; details: { code?: string }[] };
+    }>();
+    expect(error.code).toBe('IMAGE_SEARCH_BUSY');
+    expect(error.details[0]?.code).toBe('TIMEOUT');
+    expect(error.message).not.toContain('Anthropic');
+  });
+
+  it('reports a refused key as unavailable, which a retry cannot fix', async () => {
+    const { AssistantProviderError } = await import('../../src/modules/assistant/provider.js');
+    analyseProductImage.mockRejectedValue(
+      new AssistantProviderError('API_KEY_INVALID', 'credentials', 400),
+    );
+
+    const response = await upload(buyer);
+
+    expect(response.statusCode).toBe(503);
+    expect(response.json<{ error: { code: string } }>().error.code).toBe(
+      'IMAGE_SEARCH_UNAVAILABLE',
+    );
+  });
+
   it('reports an unreadable reply as something the shopper can act on', async () => {
     const { ImageSearchUnreadableError } = await import(
       '../../src/modules/assistant/image-search.service.js'

@@ -49,6 +49,7 @@ export type PreorderChatAttachmentMinAggregateOutputType = {
   uploadedByUserId: string | null
   uploaderType: $Enums.PreorderChatSenderType | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PreorderChatAttachmentMaxAggregateOutputType = {
@@ -64,6 +65,7 @@ export type PreorderChatAttachmentMaxAggregateOutputType = {
   uploadedByUserId: string | null
   uploaderType: $Enums.PreorderChatSenderType | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PreorderChatAttachmentCountAggregateOutputType = {
@@ -79,6 +81,7 @@ export type PreorderChatAttachmentCountAggregateOutputType = {
   uploadedByUserId: number
   uploaderType: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -104,6 +107,7 @@ export type PreorderChatAttachmentMinAggregateInputType = {
   uploadedByUserId?: true
   uploaderType?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PreorderChatAttachmentMaxAggregateInputType = {
@@ -119,6 +123,7 @@ export type PreorderChatAttachmentMaxAggregateInputType = {
   uploadedByUserId?: true
   uploaderType?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PreorderChatAttachmentCountAggregateInputType = {
@@ -134,6 +139,7 @@ export type PreorderChatAttachmentCountAggregateInputType = {
   uploadedByUserId?: true
   uploaderType?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -236,6 +242,7 @@ export type PreorderChatAttachmentGroupByOutputType = {
   uploadedByUserId: string
   uploaderType: $Enums.PreorderChatSenderType
   createdAt: Date
+  updatedAt: Date
   _count: PreorderChatAttachmentCountAggregateOutputType | null
   _avg: PreorderChatAttachmentAvgAggregateOutputType | null
   _sum: PreorderChatAttachmentSumAggregateOutputType | null
@@ -274,6 +281,7 @@ export type PreorderChatAttachmentWhereInput = {
   uploadedByUserId?: Prisma.StringFilter<"PreorderChatAttachment"> | string
   uploaderType?: Prisma.EnumPreorderChatSenderTypeFilter<"PreorderChatAttachment"> | $Enums.PreorderChatSenderType
   createdAt?: Prisma.DateTimeFilter<"PreorderChatAttachment"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PreorderChatAttachment"> | Date | string
   conversation?: Prisma.XOR<Prisma.PreorderChatConversationScalarRelationFilter, Prisma.PreorderChatConversationWhereInput>
   message?: Prisma.XOR<Prisma.PreorderChatMessageNullableScalarRelationFilter, Prisma.PreorderChatMessageWhereInput> | null
 }
@@ -291,6 +299,7 @@ export type PreorderChatAttachmentOrderByWithRelationInput = {
   uploadedByUserId?: Prisma.SortOrder
   uploaderType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   conversation?: Prisma.PreorderChatConversationOrderByWithRelationInput
   message?: Prisma.PreorderChatMessageOrderByWithRelationInput
   _relevance?: Prisma.PreorderChatAttachmentOrderByRelevanceInput
@@ -312,6 +321,7 @@ export type PreorderChatAttachmentWhereUniqueInput = Prisma.AtLeast<{
   uploadedByUserId?: Prisma.StringFilter<"PreorderChatAttachment"> | string
   uploaderType?: Prisma.EnumPreorderChatSenderTypeFilter<"PreorderChatAttachment"> | $Enums.PreorderChatSenderType
   createdAt?: Prisma.DateTimeFilter<"PreorderChatAttachment"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PreorderChatAttachment"> | Date | string
   conversation?: Prisma.XOR<Prisma.PreorderChatConversationScalarRelationFilter, Prisma.PreorderChatConversationWhereInput>
   message?: Prisma.XOR<Prisma.PreorderChatMessageNullableScalarRelationFilter, Prisma.PreorderChatMessageWhereInput> | null
 }, "id" | "messageId">
@@ -329,6 +339,7 @@ export type PreorderChatAttachmentOrderByWithAggregationInput = {
   uploadedByUserId?: Prisma.SortOrder
   uploaderType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PreorderChatAttachmentCountOrderByAggregateInput
   _avg?: Prisma.PreorderChatAttachmentAvgOrderByAggregateInput
   _max?: Prisma.PreorderChatAttachmentMaxOrderByAggregateInput
@@ -352,6 +363,7 @@ export type PreorderChatAttachmentScalarWhereWithAggregatesInput = {
   uploadedByUserId?: Prisma.StringWithAggregatesFilter<"PreorderChatAttachment"> | string
   uploaderType?: Prisma.EnumPreorderChatSenderTypeWithAggregatesFilter<"PreorderChatAttachment"> | $Enums.PreorderChatSenderType
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderChatAttachment"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderChatAttachment"> | Date | string
 }
 
 export type PreorderChatAttachmentCreateInput = {
@@ -365,6 +377,7 @@ export type PreorderChatAttachmentCreateInput = {
   uploadedByUserId: string
   uploaderType: $Enums.PreorderChatSenderType
   createdAt?: Date | string
+  updatedAt?: Date | string
   conversation: Prisma.PreorderChatConversationCreateNestedOneWithoutAttachmentsInput
   message?: Prisma.PreorderChatMessageCreateNestedOneWithoutAttachmentInput
 }
@@ -382,6 +395,7 @@ export type PreorderChatAttachmentUncheckedCreateInput = {
   uploadedByUserId: string
   uploaderType: $Enums.PreorderChatSenderType
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatAttachmentUpdateInput = {
@@ -395,6 +409,7 @@ export type PreorderChatAttachmentUpdateInput = {
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   uploaderType?: Prisma.EnumPreorderChatSenderTypeFieldUpdateOperationsInput | $Enums.PreorderChatSenderType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conversation?: Prisma.PreorderChatConversationUpdateOneRequiredWithoutAttachmentsNestedInput
   message?: Prisma.PreorderChatMessageUpdateOneWithoutAttachmentNestedInput
 }
@@ -412,6 +427,7 @@ export type PreorderChatAttachmentUncheckedUpdateInput = {
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   uploaderType?: Prisma.EnumPreorderChatSenderTypeFieldUpdateOperationsInput | $Enums.PreorderChatSenderType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatAttachmentCreateManyInput = {
@@ -427,6 +443,7 @@ export type PreorderChatAttachmentCreateManyInput = {
   uploadedByUserId: string
   uploaderType: $Enums.PreorderChatSenderType
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatAttachmentUpdateManyMutationInput = {
@@ -440,6 +457,7 @@ export type PreorderChatAttachmentUpdateManyMutationInput = {
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   uploaderType?: Prisma.EnumPreorderChatSenderTypeFieldUpdateOperationsInput | $Enums.PreorderChatSenderType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatAttachmentUncheckedUpdateManyInput = {
@@ -455,6 +473,7 @@ export type PreorderChatAttachmentUncheckedUpdateManyInput = {
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   uploaderType?: Prisma.EnumPreorderChatSenderTypeFieldUpdateOperationsInput | $Enums.PreorderChatSenderType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatAttachmentListRelationFilter = {
@@ -491,6 +510,7 @@ export type PreorderChatAttachmentCountOrderByAggregateInput = {
   uploadedByUserId?: Prisma.SortOrder
   uploaderType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderChatAttachmentAvgOrderByAggregateInput = {
@@ -510,6 +530,7 @@ export type PreorderChatAttachmentMaxOrderByAggregateInput = {
   uploadedByUserId?: Prisma.SortOrder
   uploaderType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderChatAttachmentMinOrderByAggregateInput = {
@@ -525,6 +546,7 @@ export type PreorderChatAttachmentMinOrderByAggregateInput = {
   uploadedByUserId?: Prisma.SortOrder
   uploaderType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderChatAttachmentSumOrderByAggregateInput = {
@@ -620,6 +642,7 @@ export type PreorderChatAttachmentCreateWithoutConversationInput = {
   uploadedByUserId: string
   uploaderType: $Enums.PreorderChatSenderType
   createdAt?: Date | string
+  updatedAt?: Date | string
   message?: Prisma.PreorderChatMessageCreateNestedOneWithoutAttachmentInput
 }
 
@@ -635,6 +658,7 @@ export type PreorderChatAttachmentUncheckedCreateWithoutConversationInput = {
   uploadedByUserId: string
   uploaderType: $Enums.PreorderChatSenderType
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatAttachmentCreateOrConnectWithoutConversationInput = {
@@ -679,6 +703,7 @@ export type PreorderChatAttachmentScalarWhereInput = {
   uploadedByUserId?: Prisma.StringFilter<"PreorderChatAttachment"> | string
   uploaderType?: Prisma.EnumPreorderChatSenderTypeFilter<"PreorderChatAttachment"> | $Enums.PreorderChatSenderType
   createdAt?: Prisma.DateTimeFilter<"PreorderChatAttachment"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PreorderChatAttachment"> | Date | string
 }
 
 export type PreorderChatAttachmentCreateWithoutMessageInput = {
@@ -692,6 +717,7 @@ export type PreorderChatAttachmentCreateWithoutMessageInput = {
   uploadedByUserId: string
   uploaderType: $Enums.PreorderChatSenderType
   createdAt?: Date | string
+  updatedAt?: Date | string
   conversation: Prisma.PreorderChatConversationCreateNestedOneWithoutAttachmentsInput
 }
 
@@ -707,6 +733,7 @@ export type PreorderChatAttachmentUncheckedCreateWithoutMessageInput = {
   uploadedByUserId: string
   uploaderType: $Enums.PreorderChatSenderType
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatAttachmentCreateOrConnectWithoutMessageInput = {
@@ -736,6 +763,7 @@ export type PreorderChatAttachmentUpdateWithoutMessageInput = {
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   uploaderType?: Prisma.EnumPreorderChatSenderTypeFieldUpdateOperationsInput | $Enums.PreorderChatSenderType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conversation?: Prisma.PreorderChatConversationUpdateOneRequiredWithoutAttachmentsNestedInput
 }
 
@@ -751,6 +779,7 @@ export type PreorderChatAttachmentUncheckedUpdateWithoutMessageInput = {
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   uploaderType?: Prisma.EnumPreorderChatSenderTypeFieldUpdateOperationsInput | $Enums.PreorderChatSenderType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatAttachmentCreateManyConversationInput = {
@@ -765,6 +794,7 @@ export type PreorderChatAttachmentCreateManyConversationInput = {
   uploadedByUserId: string
   uploaderType: $Enums.PreorderChatSenderType
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatAttachmentUpdateWithoutConversationInput = {
@@ -778,6 +808,7 @@ export type PreorderChatAttachmentUpdateWithoutConversationInput = {
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   uploaderType?: Prisma.EnumPreorderChatSenderTypeFieldUpdateOperationsInput | $Enums.PreorderChatSenderType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   message?: Prisma.PreorderChatMessageUpdateOneWithoutAttachmentNestedInput
 }
 
@@ -793,6 +824,7 @@ export type PreorderChatAttachmentUncheckedUpdateWithoutConversationInput = {
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   uploaderType?: Prisma.EnumPreorderChatSenderTypeFieldUpdateOperationsInput | $Enums.PreorderChatSenderType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatAttachmentUncheckedUpdateManyWithoutConversationInput = {
@@ -807,6 +839,7 @@ export type PreorderChatAttachmentUncheckedUpdateManyWithoutConversationInput = 
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   uploaderType?: Prisma.EnumPreorderChatSenderTypeFieldUpdateOperationsInput | $Enums.PreorderChatSenderType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -824,6 +857,7 @@ export type PreorderChatAttachmentSelect<ExtArgs extends runtime.Types.Extension
   uploadedByUserId?: boolean
   uploaderType?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   conversation?: boolean | Prisma.PreorderChatConversationDefaultArgs<ExtArgs>
   message?: boolean | Prisma.PreorderChatAttachment$messageArgs<ExtArgs>
 }, ExtArgs["result"]["preorderChatAttachment"]>
@@ -843,9 +877,10 @@ export type PreorderChatAttachmentSelectScalar = {
   uploadedByUserId?: boolean
   uploaderType?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PreorderChatAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "conversationId" | "messageId" | "storageKey" | "fileName" | "contentType" | "byteSize" | "contentHash" | "scanState" | "uploadedByUserId" | "uploaderType" | "createdAt", ExtArgs["result"]["preorderChatAttachment"]>
+export type PreorderChatAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "conversationId" | "messageId" | "storageKey" | "fileName" | "contentType" | "byteSize" | "contentHash" | "scanState" | "uploadedByUserId" | "uploaderType" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderChatAttachment"]>
 export type PreorderChatAttachmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   conversation?: boolean | Prisma.PreorderChatConversationDefaultArgs<ExtArgs>
   message?: boolean | Prisma.PreorderChatAttachment$messageArgs<ExtArgs>
@@ -874,6 +909,7 @@ export type $PreorderChatAttachmentPayload<ExtArgs extends runtime.Types.Extensi
     uploadedByUserId: string
     uploaderType: $Enums.PreorderChatSenderType
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["preorderChatAttachment"]>
   composites: {}
 }
@@ -1257,6 +1293,7 @@ export interface PreorderChatAttachmentFieldRefs {
   readonly uploadedByUserId: Prisma.FieldRef<"PreorderChatAttachment", 'String'>
   readonly uploaderType: Prisma.FieldRef<"PreorderChatAttachment", 'PreorderChatSenderType'>
   readonly createdAt: Prisma.FieldRef<"PreorderChatAttachment", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"PreorderChatAttachment", 'DateTime'>
 }
     
 

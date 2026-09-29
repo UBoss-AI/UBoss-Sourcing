@@ -26,6 +26,8 @@ vi.mock('../../src/infra/prisma.js', () => ({
         return Promise.resolve([]);
       },
     },
+    // No fee rules: the scope a policy is looked up under is what is tested.
+    platformFeeRule: { findMany: () => Promise.resolve([]) },
     sellerOffer: {
       findFirst: ({ where }: { where: { id: string; sellerAccountId: string } }) => {
         const offer = state.offers.get(where.id);

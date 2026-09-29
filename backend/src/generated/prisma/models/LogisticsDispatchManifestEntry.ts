@@ -41,6 +41,8 @@ export type LogisticsDispatchManifestEntryMinAggregateOutputType = {
   packageCount: number | null
   addedAt: Date | null
   removedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsDispatchManifestEntryMaxAggregateOutputType = {
@@ -50,6 +52,8 @@ export type LogisticsDispatchManifestEntryMaxAggregateOutputType = {
   packageCount: number | null
   addedAt: Date | null
   removedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsDispatchManifestEntryCountAggregateOutputType = {
@@ -59,6 +63,8 @@ export type LogisticsDispatchManifestEntryCountAggregateOutputType = {
   packageCount: number
   addedAt: number
   removedAt: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -78,6 +84,8 @@ export type LogisticsDispatchManifestEntryMinAggregateInputType = {
   packageCount?: true
   addedAt?: true
   removedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsDispatchManifestEntryMaxAggregateInputType = {
@@ -87,6 +95,8 @@ export type LogisticsDispatchManifestEntryMaxAggregateInputType = {
   packageCount?: true
   addedAt?: true
   removedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsDispatchManifestEntryCountAggregateInputType = {
@@ -96,6 +106,8 @@ export type LogisticsDispatchManifestEntryCountAggregateInputType = {
   packageCount?: true
   addedAt?: true
   removedAt?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -192,6 +204,8 @@ export type LogisticsDispatchManifestEntryGroupByOutputType = {
   packageCount: number
   addedAt: Date
   removedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
   _count: LogisticsDispatchManifestEntryCountAggregateOutputType | null
   _avg: LogisticsDispatchManifestEntryAvgAggregateOutputType | null
   _sum: LogisticsDispatchManifestEntrySumAggregateOutputType | null
@@ -224,6 +238,8 @@ export type LogisticsDispatchManifestEntryWhereInput = {
   packageCount?: Prisma.IntFilter<"LogisticsDispatchManifestEntry"> | number
   addedAt?: Prisma.DateTimeFilter<"LogisticsDispatchManifestEntry"> | Date | string
   removedAt?: Prisma.DateTimeNullableFilter<"LogisticsDispatchManifestEntry"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"LogisticsDispatchManifestEntry"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsDispatchManifestEntry"> | Date | string
   manifest?: Prisma.XOR<Prisma.LogisticsDispatchManifestScalarRelationFilter, Prisma.LogisticsDispatchManifestWhereInput>
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentScalarRelationFilter, Prisma.LogisticsShipmentWhereInput>
 }
@@ -235,6 +251,8 @@ export type LogisticsDispatchManifestEntryOrderByWithRelationInput = {
   packageCount?: Prisma.SortOrder
   addedAt?: Prisma.SortOrder
   removedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   manifest?: Prisma.LogisticsDispatchManifestOrderByWithRelationInput
   shipment?: Prisma.LogisticsShipmentOrderByWithRelationInput
   _relevance?: Prisma.LogisticsDispatchManifestEntryOrderByRelevanceInput
@@ -251,6 +269,8 @@ export type LogisticsDispatchManifestEntryWhereUniqueInput = Prisma.AtLeast<{
   packageCount?: Prisma.IntFilter<"LogisticsDispatchManifestEntry"> | number
   addedAt?: Prisma.DateTimeFilter<"LogisticsDispatchManifestEntry"> | Date | string
   removedAt?: Prisma.DateTimeNullableFilter<"LogisticsDispatchManifestEntry"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"LogisticsDispatchManifestEntry"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsDispatchManifestEntry"> | Date | string
   manifest?: Prisma.XOR<Prisma.LogisticsDispatchManifestScalarRelationFilter, Prisma.LogisticsDispatchManifestWhereInput>
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentScalarRelationFilter, Prisma.LogisticsShipmentWhereInput>
 }, "id" | "manifestId_shipmentId">
@@ -262,6 +282,8 @@ export type LogisticsDispatchManifestEntryOrderByWithAggregationInput = {
   packageCount?: Prisma.SortOrder
   addedAt?: Prisma.SortOrder
   removedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LogisticsDispatchManifestEntryCountOrderByAggregateInput
   _avg?: Prisma.LogisticsDispatchManifestEntryAvgOrderByAggregateInput
   _max?: Prisma.LogisticsDispatchManifestEntryMaxOrderByAggregateInput
@@ -279,6 +301,8 @@ export type LogisticsDispatchManifestEntryScalarWhereWithAggregatesInput = {
   packageCount?: Prisma.IntWithAggregatesFilter<"LogisticsDispatchManifestEntry"> | number
   addedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsDispatchManifestEntry"> | Date | string
   removedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsDispatchManifestEntry"> | Date | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsDispatchManifestEntry"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsDispatchManifestEntry"> | Date | string
 }
 
 export type LogisticsDispatchManifestEntryCreateInput = {
@@ -286,6 +310,8 @@ export type LogisticsDispatchManifestEntryCreateInput = {
   packageCount?: number
   addedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   manifest: Prisma.LogisticsDispatchManifestCreateNestedOneWithoutEntriesInput
   shipment: Prisma.LogisticsShipmentCreateNestedOneWithoutManifestEntriesInput
 }
@@ -297,6 +323,8 @@ export type LogisticsDispatchManifestEntryUncheckedCreateInput = {
   packageCount?: number
   addedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsDispatchManifestEntryUpdateInput = {
@@ -304,6 +332,8 @@ export type LogisticsDispatchManifestEntryUpdateInput = {
   packageCount?: Prisma.IntFieldUpdateOperationsInput | number
   addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   manifest?: Prisma.LogisticsDispatchManifestUpdateOneRequiredWithoutEntriesNestedInput
   shipment?: Prisma.LogisticsShipmentUpdateOneRequiredWithoutManifestEntriesNestedInput
 }
@@ -315,6 +345,8 @@ export type LogisticsDispatchManifestEntryUncheckedUpdateInput = {
   packageCount?: Prisma.IntFieldUpdateOperationsInput | number
   addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsDispatchManifestEntryCreateManyInput = {
@@ -324,6 +356,8 @@ export type LogisticsDispatchManifestEntryCreateManyInput = {
   packageCount?: number
   addedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsDispatchManifestEntryUpdateManyMutationInput = {
@@ -331,6 +365,8 @@ export type LogisticsDispatchManifestEntryUpdateManyMutationInput = {
   packageCount?: Prisma.IntFieldUpdateOperationsInput | number
   addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsDispatchManifestEntryUncheckedUpdateManyInput = {
@@ -340,6 +376,8 @@ export type LogisticsDispatchManifestEntryUncheckedUpdateManyInput = {
   packageCount?: Prisma.IntFieldUpdateOperationsInput | number
   addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsDispatchManifestEntryListRelationFilter = {
@@ -370,6 +408,8 @@ export type LogisticsDispatchManifestEntryCountOrderByAggregateInput = {
   packageCount?: Prisma.SortOrder
   addedAt?: Prisma.SortOrder
   removedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsDispatchManifestEntryAvgOrderByAggregateInput = {
@@ -383,6 +423,8 @@ export type LogisticsDispatchManifestEntryMaxOrderByAggregateInput = {
   packageCount?: Prisma.SortOrder
   addedAt?: Prisma.SortOrder
   removedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsDispatchManifestEntryMinOrderByAggregateInput = {
@@ -392,6 +434,8 @@ export type LogisticsDispatchManifestEntryMinOrderByAggregateInput = {
   packageCount?: Prisma.SortOrder
   addedAt?: Prisma.SortOrder
   removedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsDispatchManifestEntrySumOrderByAggregateInput = {
@@ -487,6 +531,8 @@ export type LogisticsDispatchManifestEntryCreateWithoutShipmentInput = {
   packageCount?: number
   addedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   manifest: Prisma.LogisticsDispatchManifestCreateNestedOneWithoutEntriesInput
 }
 
@@ -496,6 +542,8 @@ export type LogisticsDispatchManifestEntryUncheckedCreateWithoutShipmentInput = 
   packageCount?: number
   addedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsDispatchManifestEntryCreateOrConnectWithoutShipmentInput = {
@@ -534,6 +582,8 @@ export type LogisticsDispatchManifestEntryScalarWhereInput = {
   packageCount?: Prisma.IntFilter<"LogisticsDispatchManifestEntry"> | number
   addedAt?: Prisma.DateTimeFilter<"LogisticsDispatchManifestEntry"> | Date | string
   removedAt?: Prisma.DateTimeNullableFilter<"LogisticsDispatchManifestEntry"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"LogisticsDispatchManifestEntry"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsDispatchManifestEntry"> | Date | string
 }
 
 export type LogisticsDispatchManifestEntryCreateWithoutManifestInput = {
@@ -541,6 +591,8 @@ export type LogisticsDispatchManifestEntryCreateWithoutManifestInput = {
   packageCount?: number
   addedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   shipment: Prisma.LogisticsShipmentCreateNestedOneWithoutManifestEntriesInput
 }
 
@@ -550,6 +602,8 @@ export type LogisticsDispatchManifestEntryUncheckedCreateWithoutManifestInput = 
   packageCount?: number
   addedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsDispatchManifestEntryCreateOrConnectWithoutManifestInput = {
@@ -584,6 +638,8 @@ export type LogisticsDispatchManifestEntryCreateManyShipmentInput = {
   packageCount?: number
   addedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsDispatchManifestEntryUpdateWithoutShipmentInput = {
@@ -591,6 +647,8 @@ export type LogisticsDispatchManifestEntryUpdateWithoutShipmentInput = {
   packageCount?: Prisma.IntFieldUpdateOperationsInput | number
   addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   manifest?: Prisma.LogisticsDispatchManifestUpdateOneRequiredWithoutEntriesNestedInput
 }
 
@@ -600,6 +658,8 @@ export type LogisticsDispatchManifestEntryUncheckedUpdateWithoutShipmentInput = 
   packageCount?: Prisma.IntFieldUpdateOperationsInput | number
   addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentInput = {
@@ -608,6 +668,8 @@ export type LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentInpu
   packageCount?: Prisma.IntFieldUpdateOperationsInput | number
   addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsDispatchManifestEntryCreateManyManifestInput = {
@@ -616,6 +678,8 @@ export type LogisticsDispatchManifestEntryCreateManyManifestInput = {
   packageCount?: number
   addedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsDispatchManifestEntryUpdateWithoutManifestInput = {
@@ -623,6 +687,8 @@ export type LogisticsDispatchManifestEntryUpdateWithoutManifestInput = {
   packageCount?: Prisma.IntFieldUpdateOperationsInput | number
   addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shipment?: Prisma.LogisticsShipmentUpdateOneRequiredWithoutManifestEntriesNestedInput
 }
 
@@ -632,6 +698,8 @@ export type LogisticsDispatchManifestEntryUncheckedUpdateWithoutManifestInput = 
   packageCount?: Prisma.IntFieldUpdateOperationsInput | number
   addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutManifestInput = {
@@ -640,6 +708,8 @@ export type LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutManifestInpu
   packageCount?: Prisma.IntFieldUpdateOperationsInput | number
   addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -651,6 +721,8 @@ export type LogisticsDispatchManifestEntrySelect<ExtArgs extends runtime.Types.E
   packageCount?: boolean
   addedAt?: boolean
   removedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   manifest?: boolean | Prisma.LogisticsDispatchManifestDefaultArgs<ExtArgs>
   shipment?: boolean | Prisma.LogisticsShipmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["logisticsDispatchManifestEntry"]>
@@ -664,9 +736,11 @@ export type LogisticsDispatchManifestEntrySelectScalar = {
   packageCount?: boolean
   addedAt?: boolean
   removedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LogisticsDispatchManifestEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "manifestId" | "shipmentId" | "packageCount" | "addedAt" | "removedAt", ExtArgs["result"]["logisticsDispatchManifestEntry"]>
+export type LogisticsDispatchManifestEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "manifestId" | "shipmentId" | "packageCount" | "addedAt" | "removedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsDispatchManifestEntry"]>
 export type LogisticsDispatchManifestEntryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   manifest?: boolean | Prisma.LogisticsDispatchManifestDefaultArgs<ExtArgs>
   shipment?: boolean | Prisma.LogisticsShipmentDefaultArgs<ExtArgs>
@@ -689,6 +763,8 @@ export type $LogisticsDispatchManifestEntryPayload<ExtArgs extends runtime.Types
     packageCount: number
     addedAt: Date
     removedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["logisticsDispatchManifestEntry"]>
   composites: {}
 }
@@ -1066,6 +1142,8 @@ export interface LogisticsDispatchManifestEntryFieldRefs {
   readonly packageCount: Prisma.FieldRef<"LogisticsDispatchManifestEntry", 'Int'>
   readonly addedAt: Prisma.FieldRef<"LogisticsDispatchManifestEntry", 'DateTime'>
   readonly removedAt: Prisma.FieldRef<"LogisticsDispatchManifestEntry", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"LogisticsDispatchManifestEntry", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LogisticsDispatchManifestEntry", 'DateTime'>
 }
     
 

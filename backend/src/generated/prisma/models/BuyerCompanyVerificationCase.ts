@@ -49,6 +49,8 @@ export type BuyerCompanyVerificationCaseMinAggregateOutputType = {
   openedAt: Date | null
   closedAt: Date | null
   outcome: $Enums.BuyerCompanyStatus | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerCompanyVerificationCaseMaxAggregateOutputType = {
@@ -65,6 +67,8 @@ export type BuyerCompanyVerificationCaseMaxAggregateOutputType = {
   openedAt: Date | null
   closedAt: Date | null
   outcome: $Enums.BuyerCompanyStatus | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerCompanyVerificationCaseCountAggregateOutputType = {
@@ -81,6 +85,8 @@ export type BuyerCompanyVerificationCaseCountAggregateOutputType = {
   openedAt: number
   closedAt: number
   outcome: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -107,6 +113,8 @@ export type BuyerCompanyVerificationCaseMinAggregateInputType = {
   openedAt?: true
   closedAt?: true
   outcome?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type BuyerCompanyVerificationCaseMaxAggregateInputType = {
@@ -123,6 +131,8 @@ export type BuyerCompanyVerificationCaseMaxAggregateInputType = {
   openedAt?: true
   closedAt?: true
   outcome?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type BuyerCompanyVerificationCaseCountAggregateInputType = {
@@ -139,6 +149,8 @@ export type BuyerCompanyVerificationCaseCountAggregateInputType = {
   openedAt?: true
   closedAt?: true
   outcome?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -242,6 +254,8 @@ export type BuyerCompanyVerificationCaseGroupByOutputType = {
   openedAt: Date
   closedAt: Date | null
   outcome: $Enums.BuyerCompanyStatus | null
+  createdAt: Date
+  updatedAt: Date
   _count: BuyerCompanyVerificationCaseCountAggregateOutputType | null
   _avg: BuyerCompanyVerificationCaseAvgAggregateOutputType | null
   _sum: BuyerCompanyVerificationCaseSumAggregateOutputType | null
@@ -281,6 +295,8 @@ export type BuyerCompanyVerificationCaseWhereInput = {
   openedAt?: Prisma.DateTimeFilter<"BuyerCompanyVerificationCase"> | Date | string
   closedAt?: Prisma.DateTimeNullableFilter<"BuyerCompanyVerificationCase"> | Date | string | null
   outcome?: Prisma.EnumBuyerCompanyStatusNullableFilter<"BuyerCompanyVerificationCase"> | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFilter<"BuyerCompanyVerificationCase"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyVerificationCase"> | Date | string
   company?: Prisma.XOR<Prisma.BuyerCompanyScalarRelationFilter, Prisma.BuyerCompanyWhereInput>
   assignedReviewer?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   checks?: Prisma.BuyerCompanyCheckListRelationFilter
@@ -301,6 +317,8 @@ export type BuyerCompanyVerificationCaseOrderByWithRelationInput = {
   openedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   outcome?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   company?: Prisma.BuyerCompanyOrderByWithRelationInput
   assignedReviewer?: Prisma.UserOrderByWithRelationInput
   checks?: Prisma.BuyerCompanyCheckOrderByRelationAggregateInput
@@ -326,6 +344,8 @@ export type BuyerCompanyVerificationCaseWhereUniqueInput = Prisma.AtLeast<{
   openedAt?: Prisma.DateTimeFilter<"BuyerCompanyVerificationCase"> | Date | string
   closedAt?: Prisma.DateTimeNullableFilter<"BuyerCompanyVerificationCase"> | Date | string | null
   outcome?: Prisma.EnumBuyerCompanyStatusNullableFilter<"BuyerCompanyVerificationCase"> | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFilter<"BuyerCompanyVerificationCase"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyVerificationCase"> | Date | string
   company?: Prisma.XOR<Prisma.BuyerCompanyScalarRelationFilter, Prisma.BuyerCompanyWhereInput>
   assignedReviewer?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   checks?: Prisma.BuyerCompanyCheckListRelationFilter
@@ -346,6 +366,8 @@ export type BuyerCompanyVerificationCaseOrderByWithAggregationInput = {
   openedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   outcome?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.BuyerCompanyVerificationCaseCountOrderByAggregateInput
   _avg?: Prisma.BuyerCompanyVerificationCaseAvgOrderByAggregateInput
   _max?: Prisma.BuyerCompanyVerificationCaseMaxOrderByAggregateInput
@@ -370,6 +392,8 @@ export type BuyerCompanyVerificationCaseScalarWhereWithAggregatesInput = {
   openedAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyVerificationCase"> | Date | string
   closedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"BuyerCompanyVerificationCase"> | Date | string | null
   outcome?: Prisma.EnumBuyerCompanyStatusNullableWithAggregatesFilter<"BuyerCompanyVerificationCase"> | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyVerificationCase"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyVerificationCase"> | Date | string
 }
 
 export type BuyerCompanyVerificationCaseCreateInput = {
@@ -384,6 +408,8 @@ export type BuyerCompanyVerificationCaseCreateInput = {
   openedAt?: Date | string
   closedAt?: Date | string | null
   outcome?: $Enums.BuyerCompanyStatus | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   company: Prisma.BuyerCompanyCreateNestedOneWithoutCasesInput
   assignedReviewer?: Prisma.UserCreateNestedOneWithoutBuyerCompanyCasesInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCaseInput
@@ -404,6 +430,8 @@ export type BuyerCompanyVerificationCaseUncheckedCreateInput = {
   openedAt?: Date | string
   closedAt?: Date | string | null
   outcome?: $Enums.BuyerCompanyStatus | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCaseInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedCreateNestedManyWithoutCaseInput
 }
@@ -420,6 +448,8 @@ export type BuyerCompanyVerificationCaseUpdateInput = {
   openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outcome?: Prisma.NullableEnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneRequiredWithoutCasesNestedInput
   assignedReviewer?: Prisma.UserUpdateOneWithoutBuyerCompanyCasesNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCaseNestedInput
@@ -440,6 +470,8 @@ export type BuyerCompanyVerificationCaseUncheckedUpdateInput = {
   openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outcome?: Prisma.NullableEnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCaseNestedInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedUpdateManyWithoutCaseNestedInput
 }
@@ -458,6 +490,8 @@ export type BuyerCompanyVerificationCaseCreateManyInput = {
   openedAt?: Date | string
   closedAt?: Date | string | null
   outcome?: $Enums.BuyerCompanyStatus | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyVerificationCaseUpdateManyMutationInput = {
@@ -472,6 +506,8 @@ export type BuyerCompanyVerificationCaseUpdateManyMutationInput = {
   openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outcome?: Prisma.NullableEnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyVerificationCaseUncheckedUpdateManyInput = {
@@ -488,6 +524,8 @@ export type BuyerCompanyVerificationCaseUncheckedUpdateManyInput = {
   openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outcome?: Prisma.NullableEnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyVerificationCaseListRelationFilter = {
@@ -525,6 +563,8 @@ export type BuyerCompanyVerificationCaseCountOrderByAggregateInput = {
   openedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
   outcome?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyVerificationCaseAvgOrderByAggregateInput = {
@@ -545,6 +585,8 @@ export type BuyerCompanyVerificationCaseMaxOrderByAggregateInput = {
   openedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
   outcome?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyVerificationCaseMinOrderByAggregateInput = {
@@ -561,6 +603,8 @@ export type BuyerCompanyVerificationCaseMinOrderByAggregateInput = {
   openedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
   outcome?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyVerificationCaseSumOrderByAggregateInput = {
@@ -712,6 +756,8 @@ export type BuyerCompanyVerificationCaseCreateWithoutAssignedReviewerInput = {
   openedAt?: Date | string
   closedAt?: Date | string | null
   outcome?: $Enums.BuyerCompanyStatus | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   company: Prisma.BuyerCompanyCreateNestedOneWithoutCasesInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCaseInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestCreateNestedManyWithoutCaseInput
@@ -730,6 +776,8 @@ export type BuyerCompanyVerificationCaseUncheckedCreateWithoutAssignedReviewerIn
   openedAt?: Date | string
   closedAt?: Date | string | null
   outcome?: $Enums.BuyerCompanyStatus | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCaseInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedCreateNestedManyWithoutCaseInput
 }
@@ -777,6 +825,8 @@ export type BuyerCompanyVerificationCaseScalarWhereInput = {
   openedAt?: Prisma.DateTimeFilter<"BuyerCompanyVerificationCase"> | Date | string
   closedAt?: Prisma.DateTimeNullableFilter<"BuyerCompanyVerificationCase"> | Date | string | null
   outcome?: Prisma.EnumBuyerCompanyStatusNullableFilter<"BuyerCompanyVerificationCase"> | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFilter<"BuyerCompanyVerificationCase"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyVerificationCase"> | Date | string
 }
 
 export type BuyerCompanyVerificationCaseCreateWithoutCompanyInput = {
@@ -791,6 +841,8 @@ export type BuyerCompanyVerificationCaseCreateWithoutCompanyInput = {
   openedAt?: Date | string
   closedAt?: Date | string | null
   outcome?: $Enums.BuyerCompanyStatus | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   assignedReviewer?: Prisma.UserCreateNestedOneWithoutBuyerCompanyCasesInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCaseInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestCreateNestedManyWithoutCaseInput
@@ -809,6 +861,8 @@ export type BuyerCompanyVerificationCaseUncheckedCreateWithoutCompanyInput = {
   openedAt?: Date | string
   closedAt?: Date | string | null
   outcome?: $Enums.BuyerCompanyStatus | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCaseInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedCreateNestedManyWithoutCaseInput
 }
@@ -851,6 +905,8 @@ export type BuyerCompanyVerificationCaseCreateWithoutChecksInput = {
   openedAt?: Date | string
   closedAt?: Date | string | null
   outcome?: $Enums.BuyerCompanyStatus | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   company: Prisma.BuyerCompanyCreateNestedOneWithoutCasesInput
   assignedReviewer?: Prisma.UserCreateNestedOneWithoutBuyerCompanyCasesInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestCreateNestedManyWithoutCaseInput
@@ -870,6 +926,8 @@ export type BuyerCompanyVerificationCaseUncheckedCreateWithoutChecksInput = {
   openedAt?: Date | string
   closedAt?: Date | string | null
   outcome?: $Enums.BuyerCompanyStatus | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedCreateNestedManyWithoutCaseInput
 }
 
@@ -901,6 +959,8 @@ export type BuyerCompanyVerificationCaseUpdateWithoutChecksInput = {
   openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outcome?: Prisma.NullableEnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneRequiredWithoutCasesNestedInput
   assignedReviewer?: Prisma.UserUpdateOneWithoutBuyerCompanyCasesNestedInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUpdateManyWithoutCaseNestedInput
@@ -920,6 +980,8 @@ export type BuyerCompanyVerificationCaseUncheckedUpdateWithoutChecksInput = {
   openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outcome?: Prisma.NullableEnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedUpdateManyWithoutCaseNestedInput
 }
 
@@ -935,6 +997,8 @@ export type BuyerCompanyVerificationCaseCreateWithoutInfoRequestsInput = {
   openedAt?: Date | string
   closedAt?: Date | string | null
   outcome?: $Enums.BuyerCompanyStatus | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   company: Prisma.BuyerCompanyCreateNestedOneWithoutCasesInput
   assignedReviewer?: Prisma.UserCreateNestedOneWithoutBuyerCompanyCasesInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCaseInput
@@ -954,6 +1018,8 @@ export type BuyerCompanyVerificationCaseUncheckedCreateWithoutInfoRequestsInput 
   openedAt?: Date | string
   closedAt?: Date | string | null
   outcome?: $Enums.BuyerCompanyStatus | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCaseInput
 }
 
@@ -985,6 +1051,8 @@ export type BuyerCompanyVerificationCaseUpdateWithoutInfoRequestsInput = {
   openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outcome?: Prisma.NullableEnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneRequiredWithoutCasesNestedInput
   assignedReviewer?: Prisma.UserUpdateOneWithoutBuyerCompanyCasesNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCaseNestedInput
@@ -1004,6 +1072,8 @@ export type BuyerCompanyVerificationCaseUncheckedUpdateWithoutInfoRequestsInput 
   openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outcome?: Prisma.NullableEnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCaseNestedInput
 }
 
@@ -1020,6 +1090,8 @@ export type BuyerCompanyVerificationCaseCreateManyAssignedReviewerInput = {
   openedAt?: Date | string
   closedAt?: Date | string | null
   outcome?: $Enums.BuyerCompanyStatus | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyVerificationCaseUpdateWithoutAssignedReviewerInput = {
@@ -1034,6 +1106,8 @@ export type BuyerCompanyVerificationCaseUpdateWithoutAssignedReviewerInput = {
   openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outcome?: Prisma.NullableEnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneRequiredWithoutCasesNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCaseNestedInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUpdateManyWithoutCaseNestedInput
@@ -1052,6 +1126,8 @@ export type BuyerCompanyVerificationCaseUncheckedUpdateWithoutAssignedReviewerIn
   openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outcome?: Prisma.NullableEnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCaseNestedInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedUpdateManyWithoutCaseNestedInput
 }
@@ -1069,6 +1145,8 @@ export type BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutAssignedReview
   openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outcome?: Prisma.NullableEnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyVerificationCaseCreateManyCompanyInput = {
@@ -1084,6 +1162,8 @@ export type BuyerCompanyVerificationCaseCreateManyCompanyInput = {
   openedAt?: Date | string
   closedAt?: Date | string | null
   outcome?: $Enums.BuyerCompanyStatus | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyVerificationCaseUpdateWithoutCompanyInput = {
@@ -1098,6 +1178,8 @@ export type BuyerCompanyVerificationCaseUpdateWithoutCompanyInput = {
   openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outcome?: Prisma.NullableEnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedReviewer?: Prisma.UserUpdateOneWithoutBuyerCompanyCasesNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCaseNestedInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUpdateManyWithoutCaseNestedInput
@@ -1116,6 +1198,8 @@ export type BuyerCompanyVerificationCaseUncheckedUpdateWithoutCompanyInput = {
   openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outcome?: Prisma.NullableEnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCaseNestedInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedUpdateManyWithoutCaseNestedInput
 }
@@ -1133,6 +1217,8 @@ export type BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyInput =
   openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outcome?: Prisma.NullableEnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1189,6 +1275,8 @@ export type BuyerCompanyVerificationCaseSelect<ExtArgs extends runtime.Types.Ext
   openedAt?: boolean
   closedAt?: boolean
   outcome?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   company?: boolean | Prisma.BuyerCompanyDefaultArgs<ExtArgs>
   assignedReviewer?: boolean | Prisma.BuyerCompanyVerificationCase$assignedReviewerArgs<ExtArgs>
   checks?: boolean | Prisma.BuyerCompanyVerificationCase$checksArgs<ExtArgs>
@@ -1212,9 +1300,11 @@ export type BuyerCompanyVerificationCaseSelectScalar = {
   openedAt?: boolean
   closedAt?: boolean
   outcome?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type BuyerCompanyVerificationCaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "round" | "trigger" | "state" | "assignedReviewerId" | "assignedAt" | "requiresSecondReview" | "firstApprovalById" | "firstApprovalAt" | "openedAt" | "closedAt" | "outcome", ExtArgs["result"]["buyerCompanyVerificationCase"]>
+export type BuyerCompanyVerificationCaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "round" | "trigger" | "state" | "assignedReviewerId" | "assignedAt" | "requiresSecondReview" | "firstApprovalById" | "firstApprovalAt" | "openedAt" | "closedAt" | "outcome" | "createdAt" | "updatedAt", ExtArgs["result"]["buyerCompanyVerificationCase"]>
 export type BuyerCompanyVerificationCaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.BuyerCompanyDefaultArgs<ExtArgs>
   assignedReviewer?: boolean | Prisma.BuyerCompanyVerificationCase$assignedReviewerArgs<ExtArgs>
@@ -1252,6 +1342,8 @@ export type $BuyerCompanyVerificationCasePayload<ExtArgs extends runtime.Types.E
      * The status the case closed on - APPROVED or REJECTED.
      */
     outcome: $Enums.BuyerCompanyStatus | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["buyerCompanyVerificationCase"]>
   composites: {}
 }
@@ -1638,6 +1730,8 @@ export interface BuyerCompanyVerificationCaseFieldRefs {
   readonly openedAt: Prisma.FieldRef<"BuyerCompanyVerificationCase", 'DateTime'>
   readonly closedAt: Prisma.FieldRef<"BuyerCompanyVerificationCase", 'DateTime'>
   readonly outcome: Prisma.FieldRef<"BuyerCompanyVerificationCase", 'BuyerCompanyStatus'>
+  readonly createdAt: Prisma.FieldRef<"BuyerCompanyVerificationCase", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"BuyerCompanyVerificationCase", 'DateTime'>
 }
     
 

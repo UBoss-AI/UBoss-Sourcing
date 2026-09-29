@@ -25,6 +25,12 @@
 import type { CarrierProviderName } from '../../../domain/carrier-status-map.js';
 import { ErrorCode, AppError } from '../../../domain/errors.js';
 import { decryptSecret } from '../../../infra/crypto.js';
+import {
+  OutboundRequestError,
+  safeFetch,
+  type SafeFetchOptions,
+  type SafeFetchResult,
+} from '../../../infra/outbound-http.js';
 import { prisma } from '../../../infra/prisma.js';
 import {
   UnconfiguredCarrierAdapter,
@@ -440,6 +446,59 @@ export function carrierRefused(provider: CarrierProviderName, detail: string): A
     message: `${provider} refused the request: ${detail}`,
     details: [{ code: 'CARRIER_REFUSED', meta: { provider } }],
   });
+}
+
+/**
+ * Raised where a carrier never answered at all.
+ *
+ * A timeout, a refused connection, a redirect loop or an answer too large to
+ * hold. The same code as a refusal - to a seller both mean "that booking did
+ * not happen, try again or book by hand" - but its own detail code and status,
+ * so a log or a screen can tell "DHL said no" from "DHL said nothing".
+ *
+ * 504 for a timeout, because that is what a gateway that gave up waiting
+ * returns; 502 for the rest. The transport error is kept as the cause for the
+ * log and never put in the message, which a seller reads.
+ */
+export function carrierUnreachable(
+  provider: CarrierProviderName,
+  error: OutboundRequestError,
+): AppError {
+  const timedOut = error.code === 'TIMEOUT';
+
+  return new AppError({
+    statusCode: timedOut ? 504 : 502,
+    code: ErrorCode.CARRIER_REQUEST_FAILED,
+    message: timedOut
+      ? `${provider} did not respond in time. Nothing was booked; please try again.`
+      : `${provider} could not be reached. Nothing was booked; please try again.`,
+    details: [
+      { code: timedOut ? 'CARRIER_TIMEOUT' : 'CARRIER_UNREACHABLE', meta: { provider } },
+    ],
+    cause: error,
+  });
+}
+
+/**
+ * One call to a carrier's API, through `safeFetch`.
+ *
+ * `safeFetch` already bounds the whole exchange - connect, headers and body -
+ * by `timeoutMs`, and raises `OutboundRequestError` when it gives up. What this
+ * adds is the translation: that error names "the system", because it was
+ * written for ERP connections, and escaping a route unmapped it became a bare
+ * 500. Here it becomes the carrier error every caller already handles.
+ */
+export async function carrierFetch(
+  provider: CarrierProviderName,
+  url: string,
+  options: SafeFetchOptions,
+): Promise<SafeFetchResult> {
+  try {
+    return await safeFetch(url, options);
+  } catch (error) {
+    if (error instanceof OutboundRequestError) throw carrierUnreachable(provider, error);
+    throw error;
+  }
 }
 
 /**

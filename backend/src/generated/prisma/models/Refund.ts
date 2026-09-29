@@ -315,6 +315,7 @@ export type RefundWhereInput = {
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   paymentTransaction?: Prisma.XOR<Prisma.PaymentTransactionScalarRelationFilter, Prisma.PaymentTransactionWhereInput>
   returnRequests?: Prisma.ReturnRequestListRelationFilter
+  disputes?: Prisma.DisputeListRelationFilter
 }
 
 export type RefundOrderByWithRelationInput = {
@@ -338,6 +339,7 @@ export type RefundOrderByWithRelationInput = {
   order?: Prisma.OrderOrderByWithRelationInput
   paymentTransaction?: Prisma.PaymentTransactionOrderByWithRelationInput
   returnRequests?: Prisma.ReturnRequestOrderByRelationAggregateInput
+  disputes?: Prisma.DisputeOrderByRelationAggregateInput
   _relevance?: Prisma.RefundOrderByRelevanceInput
 }
 
@@ -365,6 +367,7 @@ export type RefundWhereUniqueInput = Prisma.AtLeast<{
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   paymentTransaction?: Prisma.XOR<Prisma.PaymentTransactionScalarRelationFilter, Prisma.PaymentTransactionWhereInput>
   returnRequests?: Prisma.ReturnRequestListRelationFilter
+  disputes?: Prisma.DisputeListRelationFilter
 }, "id" | "providerRefundId" | "idempotencyKey">
 
 export type RefundOrderByWithAggregationInput = {
@@ -434,6 +437,7 @@ export type RefundCreateInput = {
   order: Prisma.OrderCreateNestedOneWithoutRefundsInput
   paymentTransaction: Prisma.PaymentTransactionCreateNestedOneWithoutRefundsInput
   returnRequests?: Prisma.ReturnRequestCreateNestedManyWithoutRefundInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutRefundInput
 }
 
 export type RefundUncheckedCreateInput = {
@@ -455,6 +459,7 @@ export type RefundUncheckedCreateInput = {
   updatedAt?: Date | string
   completedAt?: Date | string | null
   returnRequests?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutRefundInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutRefundInput
 }
 
 export type RefundUpdateInput = {
@@ -476,6 +481,7 @@ export type RefundUpdateInput = {
   order?: Prisma.OrderUpdateOneRequiredWithoutRefundsNestedInput
   paymentTransaction?: Prisma.PaymentTransactionUpdateOneRequiredWithoutRefundsNestedInput
   returnRequests?: Prisma.ReturnRequestUpdateManyWithoutRefundNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutRefundNestedInput
 }
 
 export type RefundUncheckedUpdateInput = {
@@ -497,6 +503,7 @@ export type RefundUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   returnRequests?: Prisma.ReturnRequestUncheckedUpdateManyWithoutRefundNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutRefundNestedInput
 }
 
 export type RefundCreateManyInput = {
@@ -750,6 +757,22 @@ export type RefundUpdateOneWithoutReturnRequestsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RefundUpdateToOneWithWhereWithoutReturnRequestsInput, Prisma.RefundUpdateWithoutReturnRequestsInput>, Prisma.RefundUncheckedUpdateWithoutReturnRequestsInput>
 }
 
+export type RefundCreateNestedOneWithoutDisputesInput = {
+  create?: Prisma.XOR<Prisma.RefundCreateWithoutDisputesInput, Prisma.RefundUncheckedCreateWithoutDisputesInput>
+  connectOrCreate?: Prisma.RefundCreateOrConnectWithoutDisputesInput
+  connect?: Prisma.RefundWhereUniqueInput
+}
+
+export type RefundUpdateOneWithoutDisputesNestedInput = {
+  create?: Prisma.XOR<Prisma.RefundCreateWithoutDisputesInput, Prisma.RefundUncheckedCreateWithoutDisputesInput>
+  connectOrCreate?: Prisma.RefundCreateOrConnectWithoutDisputesInput
+  upsert?: Prisma.RefundUpsertWithoutDisputesInput
+  disconnect?: Prisma.RefundWhereInput | boolean
+  delete?: Prisma.RefundWhereInput | boolean
+  connect?: Prisma.RefundWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RefundUpdateToOneWithWhereWithoutDisputesInput, Prisma.RefundUpdateWithoutDisputesInput>, Prisma.RefundUncheckedUpdateWithoutDisputesInput>
+}
+
 export type RefundCreateWithoutOrderInput = {
   id: string
   provider: $Enums.PaymentProviderKind
@@ -768,6 +791,7 @@ export type RefundCreateWithoutOrderInput = {
   completedAt?: Date | string | null
   paymentTransaction: Prisma.PaymentTransactionCreateNestedOneWithoutRefundsInput
   returnRequests?: Prisma.ReturnRequestCreateNestedManyWithoutRefundInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutRefundInput
 }
 
 export type RefundUncheckedCreateWithoutOrderInput = {
@@ -788,6 +812,7 @@ export type RefundUncheckedCreateWithoutOrderInput = {
   updatedAt?: Date | string
   completedAt?: Date | string | null
   returnRequests?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutRefundInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutRefundInput
 }
 
 export type RefundCreateOrConnectWithoutOrderInput = {
@@ -857,6 +882,7 @@ export type RefundCreateWithoutPaymentTransactionInput = {
   completedAt?: Date | string | null
   order: Prisma.OrderCreateNestedOneWithoutRefundsInput
   returnRequests?: Prisma.ReturnRequestCreateNestedManyWithoutRefundInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutRefundInput
 }
 
 export type RefundUncheckedCreateWithoutPaymentTransactionInput = {
@@ -877,6 +903,7 @@ export type RefundUncheckedCreateWithoutPaymentTransactionInput = {
   updatedAt?: Date | string
   completedAt?: Date | string | null
   returnRequests?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutRefundInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutRefundInput
 }
 
 export type RefundCreateOrConnectWithoutPaymentTransactionInput = {
@@ -923,6 +950,7 @@ export type RefundCreateWithoutReturnRequestsInput = {
   completedAt?: Date | string | null
   order: Prisma.OrderCreateNestedOneWithoutRefundsInput
   paymentTransaction: Prisma.PaymentTransactionCreateNestedOneWithoutRefundsInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutRefundInput
 }
 
 export type RefundUncheckedCreateWithoutReturnRequestsInput = {
@@ -943,6 +971,7 @@ export type RefundUncheckedCreateWithoutReturnRequestsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   completedAt?: Date | string | null
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutRefundInput
 }
 
 export type RefundCreateOrConnectWithoutReturnRequestsInput = {
@@ -979,6 +1008,7 @@ export type RefundUpdateWithoutReturnRequestsInput = {
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order?: Prisma.OrderUpdateOneRequiredWithoutRefundsNestedInput
   paymentTransaction?: Prisma.PaymentTransactionUpdateOneRequiredWithoutRefundsNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutRefundNestedInput
 }
 
 export type RefundUncheckedUpdateWithoutReturnRequestsInput = {
@@ -999,6 +1029,107 @@ export type RefundUncheckedUpdateWithoutReturnRequestsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutRefundNestedInput
+}
+
+export type RefundCreateWithoutDisputesInput = {
+  id: string
+  provider: $Enums.PaymentProviderKind
+  providerRefundId?: string | null
+  amountMinor: bigint | number
+  currency: string
+  reason: string
+  status?: $Enums.RefundStatus
+  requestedById: string
+  approvedById?: string | null
+  idempotencyKey: string
+  failureCode?: string | null
+  failureMessage?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  completedAt?: Date | string | null
+  order: Prisma.OrderCreateNestedOneWithoutRefundsInput
+  paymentTransaction: Prisma.PaymentTransactionCreateNestedOneWithoutRefundsInput
+  returnRequests?: Prisma.ReturnRequestCreateNestedManyWithoutRefundInput
+}
+
+export type RefundUncheckedCreateWithoutDisputesInput = {
+  id: string
+  orderId: string
+  paymentTransactionId: string
+  provider: $Enums.PaymentProviderKind
+  providerRefundId?: string | null
+  amountMinor: bigint | number
+  currency: string
+  reason: string
+  status?: $Enums.RefundStatus
+  requestedById: string
+  approvedById?: string | null
+  idempotencyKey: string
+  failureCode?: string | null
+  failureMessage?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  completedAt?: Date | string | null
+  returnRequests?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutRefundInput
+}
+
+export type RefundCreateOrConnectWithoutDisputesInput = {
+  where: Prisma.RefundWhereUniqueInput
+  create: Prisma.XOR<Prisma.RefundCreateWithoutDisputesInput, Prisma.RefundUncheckedCreateWithoutDisputesInput>
+}
+
+export type RefundUpsertWithoutDisputesInput = {
+  update: Prisma.XOR<Prisma.RefundUpdateWithoutDisputesInput, Prisma.RefundUncheckedUpdateWithoutDisputesInput>
+  create: Prisma.XOR<Prisma.RefundCreateWithoutDisputesInput, Prisma.RefundUncheckedCreateWithoutDisputesInput>
+  where?: Prisma.RefundWhereInput
+}
+
+export type RefundUpdateToOneWithWhereWithoutDisputesInput = {
+  where?: Prisma.RefundWhereInput
+  data: Prisma.XOR<Prisma.RefundUpdateWithoutDisputesInput, Prisma.RefundUncheckedUpdateWithoutDisputesInput>
+}
+
+export type RefundUpdateWithoutDisputesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.EnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind
+  providerRefundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRefundStatusFieldUpdateOperationsInput | $Enums.RefundStatus
+  requestedById?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  order?: Prisma.OrderUpdateOneRequiredWithoutRefundsNestedInput
+  paymentTransaction?: Prisma.PaymentTransactionUpdateOneRequiredWithoutRefundsNestedInput
+  returnRequests?: Prisma.ReturnRequestUpdateManyWithoutRefundNestedInput
+}
+
+export type RefundUncheckedUpdateWithoutDisputesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentTransactionId?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.EnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind
+  providerRefundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRefundStatusFieldUpdateOperationsInput | $Enums.RefundStatus
+  requestedById?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  returnRequests?: Prisma.ReturnRequestUncheckedUpdateManyWithoutRefundNestedInput
 }
 
 export type RefundCreateManyOrderInput = {
@@ -1038,6 +1169,7 @@ export type RefundUpdateWithoutOrderInput = {
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paymentTransaction?: Prisma.PaymentTransactionUpdateOneRequiredWithoutRefundsNestedInput
   returnRequests?: Prisma.ReturnRequestUpdateManyWithoutRefundNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutRefundNestedInput
 }
 
 export type RefundUncheckedUpdateWithoutOrderInput = {
@@ -1058,6 +1190,7 @@ export type RefundUncheckedUpdateWithoutOrderInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   returnRequests?: Prisma.ReturnRequestUncheckedUpdateManyWithoutRefundNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutRefundNestedInput
 }
 
 export type RefundUncheckedUpdateManyWithoutOrderInput = {
@@ -1116,6 +1249,7 @@ export type RefundUpdateWithoutPaymentTransactionInput = {
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order?: Prisma.OrderUpdateOneRequiredWithoutRefundsNestedInput
   returnRequests?: Prisma.ReturnRequestUpdateManyWithoutRefundNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutRefundNestedInput
 }
 
 export type RefundUncheckedUpdateWithoutPaymentTransactionInput = {
@@ -1136,6 +1270,7 @@ export type RefundUncheckedUpdateWithoutPaymentTransactionInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   returnRequests?: Prisma.ReturnRequestUncheckedUpdateManyWithoutRefundNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutRefundNestedInput
 }
 
 export type RefundUncheckedUpdateManyWithoutPaymentTransactionInput = {
@@ -1164,10 +1299,12 @@ export type RefundUncheckedUpdateManyWithoutPaymentTransactionInput = {
 
 export type RefundCountOutputType = {
   returnRequests: number
+  disputes: number
 }
 
 export type RefundCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   returnRequests?: boolean | RefundCountOutputTypeCountReturnRequestsArgs
+  disputes?: boolean | RefundCountOutputTypeCountDisputesArgs
 }
 
 /**
@@ -1185,6 +1322,13 @@ export type RefundCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exten
  */
 export type RefundCountOutputTypeCountReturnRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ReturnRequestWhereInput
+}
+
+/**
+ * RefundCountOutputType without action
+ */
+export type RefundCountOutputTypeCountDisputesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DisputeWhereInput
 }
 
 
@@ -1209,6 +1353,7 @@ export type RefundSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   paymentTransaction?: boolean | Prisma.PaymentTransactionDefaultArgs<ExtArgs>
   returnRequests?: boolean | Prisma.Refund$returnRequestsArgs<ExtArgs>
+  disputes?: boolean | Prisma.Refund$disputesArgs<ExtArgs>
   _count?: boolean | Prisma.RefundCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["refund"]>
 
@@ -1239,6 +1384,7 @@ export type RefundInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   paymentTransaction?: boolean | Prisma.PaymentTransactionDefaultArgs<ExtArgs>
   returnRequests?: boolean | Prisma.Refund$returnRequestsArgs<ExtArgs>
+  disputes?: boolean | Prisma.Refund$disputesArgs<ExtArgs>
   _count?: boolean | Prisma.RefundCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1248,6 +1394,7 @@ export type $RefundPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     order: Prisma.$OrderPayload<ExtArgs>
     paymentTransaction: Prisma.$PaymentTransactionPayload<ExtArgs>
     returnRequests: Prisma.$ReturnRequestPayload<ExtArgs>[]
+    disputes: Prisma.$DisputePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1610,6 +1757,7 @@ export interface Prisma__RefundClient<T, Null = never, ExtArgs extends runtime.T
   order<T extends Prisma.OrderDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrderDefaultArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   paymentTransaction<T extends Prisma.PaymentTransactionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PaymentTransactionDefaultArgs<ExtArgs>>): Prisma.Prisma__PaymentTransactionClient<runtime.Types.Result.GetResult<Prisma.$PaymentTransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   returnRequests<T extends Prisma.Refund$returnRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Refund$returnRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReturnRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  disputes<T extends Prisma.Refund$disputesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Refund$disputesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2025,6 +2173,30 @@ export type Refund$returnRequestsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.ReturnRequestScalarFieldEnum | Prisma.ReturnRequestScalarFieldEnum[]
+}
+
+/**
+ * Refund.disputes
+ */
+export type Refund$disputesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Dispute
+   */
+  select?: Prisma.DisputeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Dispute
+   */
+  omit?: Prisma.DisputeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DisputeInclude<ExtArgs> | null
+  where?: Prisma.DisputeWhereInput
+  orderBy?: Prisma.DisputeOrderByWithRelationInput | Prisma.DisputeOrderByWithRelationInput[]
+  cursor?: Prisma.DisputeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DisputeScalarFieldEnum | Prisma.DisputeScalarFieldEnum[]
 }
 
 /**

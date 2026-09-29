@@ -42,7 +42,7 @@ import { assertWithinSizeLimit, sniffImageType } from '../../infra/storage/index
 import { getAvailabilityMap } from '../../modules/inventory/inventory.service.js';
 import { requireCustomer } from '../plugins/auth.js';
 import {
-  AssistantBusyError,
+  AssistantProviderError,
   isAssistantConfigured,
 } from '../../modules/assistant/assistant.service.js';
 import {
@@ -1174,6 +1174,60 @@ async function listSellerProducts(input: {
   };
 }
 
+/**
+ * What a failed photograph search tells the customer.
+ *
+ * The image-search counterpart of `streamErrorFor` on the chat route, sorted
+ * by the same provider failure kinds. Every provider failure used to be either
+ * "busy" or an unmapped 500, and a timeout - the likeliest failure on a vision
+ * call - was the 500. Now:
+ *
+ *   - busy, quota, timeout, network -> IMAGE_SEARCH_BUSY (503). A retry in a
+ *     moment can work, and that is what the customer is told to do.
+ *   - credentials, model -> IMAGE_SEARCH_UNAVAILABLE (503). A retry cannot
+ *     work; the deployment has to fix its key or model.
+ *   - a reply that could not be parsed -> IMAGE_SEARCH_UNREADABLE (502).
+ *
+ * The provider's reason rides along as a detail code for the log and the
+ * operator. Null for anything that is not a provider failure, which the caller
+ * rethrows untouched. Exported for the tests.
+ */
+export function imageSearchErrorFor(error: unknown): AppError | null {
+  if (error instanceof ImageSearchUnreadableError) {
+    return new AppError({
+      statusCode: 502,
+      code: ErrorCode.IMAGE_SEARCH_UNREADABLE,
+      message:
+        'Image search could not read that photograph. Try a clearer one, or search by name.',
+    });
+  }
+
+  if (!(error instanceof AssistantProviderError)) return null;
+
+  const details = [{ code: error.reason.toUpperCase() }];
+
+  if (error.reason === 'credentials' || error.reason === 'model') {
+    return new AppError({
+      statusCode: 503,
+      code: ErrorCode.IMAGE_SEARCH_UNAVAILABLE,
+      message: 'Image search is unavailable right now. Please search by name instead.',
+      details,
+      cause: error,
+    });
+  }
+
+  return new AppError({
+    statusCode: 503,
+    code: ErrorCode.IMAGE_SEARCH_BUSY,
+    message:
+      error.reason === 'timeout'
+        ? 'Image search took too long to answer. Please try again in a moment.'
+        : 'Image search is busy right now. Please try again in a moment.',
+    details,
+    cause: error,
+  });
+}
+
 export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void> {
   /**
    * The variant axis definitions, for the whole catalogue.
@@ -1955,29 +2009,26 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
           { signal: abort.signal },
         );
       } catch (error) {
-        if (error instanceof AssistantBusyError) {
-          // The provider's own wording names quota metrics and internal
-          // detail, so it is logged in full and never sent: "out of quota" and
-          // "briefly overloaded" need different actions from the operator.
-          request.log.error({ err: error }, 'image search provider unavailable');
-          throw new AppError({
-            statusCode: 503,
-            code: ErrorCode.IMAGE_SEARCH_BUSY,
-            message: 'Image search is busy right now. Please try again in a moment.',
-          });
-        }
+        const mapped = imageSearchErrorFor(error);
+        if (mapped === null) throw error;
 
         if (error instanceof ImageSearchUnreadableError) {
           request.log.warn('image search reply could not be parsed');
-          throw new AppError({
-            statusCode: 502,
-            code: ErrorCode.IMAGE_SEARCH_UNREADABLE,
-            message:
-              'Image search could not read that photograph. Try a clearer one, or search by name.',
-          });
+        } else {
+          // The provider's own wording names quota metrics and internal
+          // detail, so it is logged in full and never sent: "out of quota" and
+          // "briefly overloaded" need different actions from the operator.
+          request.log.error(
+            {
+              err: error,
+              reason: error instanceof AssistantProviderError ? error.reason : undefined,
+              code: mapped.code,
+            },
+            'image search provider unavailable',
+          );
         }
 
-        throw error;
+        throw mapped;
       }
 
       // Counts and identifiers only. Not the image, not the description, and

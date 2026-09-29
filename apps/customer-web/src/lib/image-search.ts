@@ -109,3 +109,25 @@ export async function searchByImage(
     ...(options.signal === undefined ? {} : { signal: options.signal }),
   });
 }
+
+/**
+ * The sentence for a refusal from the image-search route, in the page's own
+ * language.
+ *
+ * The server's message is English and there is one published code per thing
+ * the customer can do about it - wait and retry, try a clearer photograph, or
+ * search by name - so the code is what is read, never the text. Null for any
+ * other code, which the caller words itself.
+ */
+export function imageSearchErrorKey(code: string): TranslationKey | null {
+  switch (code) {
+    case 'IMAGE_SEARCH_BUSY':
+      return 'imageSearch.error.busy';
+    case 'IMAGE_SEARCH_UNAVAILABLE':
+      return 'imageSearch.error.unavailable';
+    case 'IMAGE_SEARCH_UNREADABLE':
+      return 'imageSearch.error.unreadable';
+    default:
+      return null;
+  }
+}

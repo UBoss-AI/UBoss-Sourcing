@@ -159,6 +159,45 @@ describe('searching products', () => {
     expect(input).toHaveValue('');
     expect(navigate).not.toHaveBeenCalled();
   });
+
+  it('shows the first press was heard and ignores a second one', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<HeroSearch />, { config: config() });
+
+    const input = screen.getByRole('textbox');
+    await user.type(input, 'gauze');
+    const button = screen.getByRole('button', { name: 'Search' });
+    await user.click(button);
+
+    // The catalogue is a lazy route; until it arrives the button is busy and
+    // cannot be pressed again, by pointer or by Enter.
+    expect(button).toBeDisabled();
+    await user.click(button);
+    await user.type(input, '{Enter}');
+
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/products?q=gauze');
+  });
+});
+
+describe('the Products item', () => {
+  it('opens the whole catalogue while the box is empty', () => {
+    renderWithProviders(<HeroSearch />, { config: config(), route: '/' });
+
+    expect(screen.getByRole('link', { name: 'Products' })).toHaveAttribute('href', '/products');
+  });
+
+  it('keeps what is typed, so switching to the catalogue does not lose it', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<HeroSearch />, { config: config(), route: '/' });
+
+    await user.type(screen.getByRole('textbox'), '  nitrile gloves ');
+
+    expect(screen.getByRole('link', { name: 'Products' })).toHaveAttribute(
+      'href',
+      '/products?q=nitrile%20gloves',
+    );
+  });
 });
 
 describe('leaving for AI Mode', () => {

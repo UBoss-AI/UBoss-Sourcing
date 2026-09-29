@@ -41,6 +41,7 @@ export type BuyerOrganizationInviteMinAggregateOutputType = {
   acceptedByProfileId: string | null
   revokedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerOrganizationInviteMaxAggregateOutputType = {
@@ -55,6 +56,7 @@ export type BuyerOrganizationInviteMaxAggregateOutputType = {
   acceptedByProfileId: string | null
   revokedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerOrganizationInviteCountAggregateOutputType = {
@@ -69,6 +71,7 @@ export type BuyerOrganizationInviteCountAggregateOutputType = {
   acceptedByProfileId: number
   revokedAt: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -85,6 +88,7 @@ export type BuyerOrganizationInviteMinAggregateInputType = {
   acceptedByProfileId?: true
   revokedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type BuyerOrganizationInviteMaxAggregateInputType = {
@@ -99,6 +103,7 @@ export type BuyerOrganizationInviteMaxAggregateInputType = {
   acceptedByProfileId?: true
   revokedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type BuyerOrganizationInviteCountAggregateInputType = {
@@ -113,6 +118,7 @@ export type BuyerOrganizationInviteCountAggregateInputType = {
   acceptedByProfileId?: true
   revokedAt?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -200,6 +206,7 @@ export type BuyerOrganizationInviteGroupByOutputType = {
   acceptedByProfileId: string | null
   revokedAt: Date | null
   createdAt: Date
+  updatedAt: Date
   _count: BuyerOrganizationInviteCountAggregateOutputType | null
   _min: BuyerOrganizationInviteMinAggregateOutputType | null
   _max: BuyerOrganizationInviteMaxAggregateOutputType | null
@@ -235,6 +242,7 @@ export type BuyerOrganizationInviteWhereInput = {
   acceptedByProfileId?: Prisma.StringNullableFilter<"BuyerOrganizationInvite"> | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"BuyerOrganizationInvite"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"BuyerOrganizationInvite"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerOrganizationInvite"> | Date | string
   organization?: Prisma.XOR<Prisma.BuyerOrganizationScalarRelationFilter, Prisma.BuyerOrganizationWhereInput>
 }
 
@@ -250,6 +258,7 @@ export type BuyerOrganizationInviteOrderByWithRelationInput = {
   acceptedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   organization?: Prisma.BuyerOrganizationOrderByWithRelationInput
   _relevance?: Prisma.BuyerOrganizationInviteOrderByRelevanceInput
 }
@@ -269,6 +278,7 @@ export type BuyerOrganizationInviteWhereUniqueInput = Prisma.AtLeast<{
   acceptedByProfileId?: Prisma.StringNullableFilter<"BuyerOrganizationInvite"> | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"BuyerOrganizationInvite"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"BuyerOrganizationInvite"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerOrganizationInvite"> | Date | string
   organization?: Prisma.XOR<Prisma.BuyerOrganizationScalarRelationFilter, Prisma.BuyerOrganizationWhereInput>
 }, "id" | "tokenHash">
 
@@ -284,6 +294,7 @@ export type BuyerOrganizationInviteOrderByWithAggregationInput = {
   acceptedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.BuyerOrganizationInviteCountOrderByAggregateInput
   _max?: Prisma.BuyerOrganizationInviteMaxOrderByAggregateInput
   _min?: Prisma.BuyerOrganizationInviteMinOrderByAggregateInput
@@ -304,6 +315,7 @@ export type BuyerOrganizationInviteScalarWhereWithAggregatesInput = {
   acceptedByProfileId?: Prisma.StringNullableWithAggregatesFilter<"BuyerOrganizationInvite"> | string | null
   revokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"BuyerOrganizationInvite"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerOrganizationInvite"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerOrganizationInvite"> | Date | string
 }
 
 export type BuyerOrganizationInviteCreateInput = {
@@ -317,6 +329,7 @@ export type BuyerOrganizationInviteCreateInput = {
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   organization: Prisma.BuyerOrganizationCreateNestedOneWithoutInvitesInput
 }
 
@@ -332,6 +345,7 @@ export type BuyerOrganizationInviteUncheckedCreateInput = {
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerOrganizationInviteUpdateInput = {
@@ -345,6 +359,7 @@ export type BuyerOrganizationInviteUpdateInput = {
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.BuyerOrganizationUpdateOneRequiredWithoutInvitesNestedInput
 }
 
@@ -360,6 +375,7 @@ export type BuyerOrganizationInviteUncheckedUpdateInput = {
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerOrganizationInviteCreateManyInput = {
@@ -374,6 +390,7 @@ export type BuyerOrganizationInviteCreateManyInput = {
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerOrganizationInviteUpdateManyMutationInput = {
@@ -387,6 +404,7 @@ export type BuyerOrganizationInviteUpdateManyMutationInput = {
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerOrganizationInviteUncheckedUpdateManyInput = {
@@ -401,6 +419,7 @@ export type BuyerOrganizationInviteUncheckedUpdateManyInput = {
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerOrganizationInviteListRelationFilter = {
@@ -431,6 +450,7 @@ export type BuyerOrganizationInviteCountOrderByAggregateInput = {
   acceptedByProfileId?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerOrganizationInviteMaxOrderByAggregateInput = {
@@ -445,6 +465,7 @@ export type BuyerOrganizationInviteMaxOrderByAggregateInput = {
   acceptedByProfileId?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerOrganizationInviteMinOrderByAggregateInput = {
@@ -459,6 +480,7 @@ export type BuyerOrganizationInviteMinOrderByAggregateInput = {
   acceptedByProfileId?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerOrganizationInviteCreateNestedManyWithoutOrganizationInput = {
@@ -514,6 +536,7 @@ export type BuyerOrganizationInviteCreateWithoutOrganizationInput = {
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerOrganizationInviteUncheckedCreateWithoutOrganizationInput = {
@@ -527,6 +550,7 @@ export type BuyerOrganizationInviteUncheckedCreateWithoutOrganizationInput = {
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerOrganizationInviteCreateOrConnectWithoutOrganizationInput = {
@@ -570,6 +594,7 @@ export type BuyerOrganizationInviteScalarWhereInput = {
   acceptedByProfileId?: Prisma.StringNullableFilter<"BuyerOrganizationInvite"> | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"BuyerOrganizationInvite"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"BuyerOrganizationInvite"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerOrganizationInvite"> | Date | string
 }
 
 export type BuyerOrganizationInviteCreateManyOrganizationInput = {
@@ -583,6 +608,7 @@ export type BuyerOrganizationInviteCreateManyOrganizationInput = {
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerOrganizationInviteUpdateWithoutOrganizationInput = {
@@ -596,6 +622,7 @@ export type BuyerOrganizationInviteUpdateWithoutOrganizationInput = {
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerOrganizationInviteUncheckedUpdateWithoutOrganizationInput = {
@@ -609,6 +636,7 @@ export type BuyerOrganizationInviteUncheckedUpdateWithoutOrganizationInput = {
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerOrganizationInviteUncheckedUpdateManyWithoutOrganizationInput = {
@@ -622,6 +650,7 @@ export type BuyerOrganizationInviteUncheckedUpdateManyWithoutOrganizationInput =
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -638,6 +667,7 @@ export type BuyerOrganizationInviteSelect<ExtArgs extends runtime.Types.Extensio
   acceptedByProfileId?: boolean
   revokedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   organization?: boolean | Prisma.BuyerOrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["buyerOrganizationInvite"]>
 
@@ -655,9 +685,10 @@ export type BuyerOrganizationInviteSelectScalar = {
   acceptedByProfileId?: boolean
   revokedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type BuyerOrganizationInviteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "emailNormalized" | "role" | "tokenHash" | "expiresAt" | "invitedByProfileId" | "acceptedAt" | "acceptedByProfileId" | "revokedAt" | "createdAt", ExtArgs["result"]["buyerOrganizationInvite"]>
+export type BuyerOrganizationInviteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "emailNormalized" | "role" | "tokenHash" | "expiresAt" | "invitedByProfileId" | "acceptedAt" | "acceptedByProfileId" | "revokedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["buyerOrganizationInvite"]>
 export type BuyerOrganizationInviteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.BuyerOrganizationDefaultArgs<ExtArgs>
 }
@@ -684,6 +715,7 @@ export type $BuyerOrganizationInvitePayload<ExtArgs extends runtime.Types.Extens
     acceptedByProfileId: string | null
     revokedAt: Date | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["buyerOrganizationInvite"]>
   composites: {}
 }
@@ -1065,6 +1097,7 @@ export interface BuyerOrganizationInviteFieldRefs {
   readonly acceptedByProfileId: Prisma.FieldRef<"BuyerOrganizationInvite", 'String'>
   readonly revokedAt: Prisma.FieldRef<"BuyerOrganizationInvite", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"BuyerOrganizationInvite", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"BuyerOrganizationInvite", 'DateTime'>
 }
     
 

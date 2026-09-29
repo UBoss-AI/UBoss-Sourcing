@@ -30,6 +30,7 @@ export type AssistantMessageMinAggregateOutputType = {
   role: $Enums.AssistantMessageRole | null
   content: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type AssistantMessageMaxAggregateOutputType = {
@@ -38,6 +39,7 @@ export type AssistantMessageMaxAggregateOutputType = {
   role: $Enums.AssistantMessageRole | null
   content: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type AssistantMessageCountAggregateOutputType = {
@@ -46,6 +48,7 @@ export type AssistantMessageCountAggregateOutputType = {
   role: number
   content: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -56,6 +59,7 @@ export type AssistantMessageMinAggregateInputType = {
   role?: true
   content?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type AssistantMessageMaxAggregateInputType = {
@@ -64,6 +68,7 @@ export type AssistantMessageMaxAggregateInputType = {
   role?: true
   content?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type AssistantMessageCountAggregateInputType = {
@@ -72,6 +77,7 @@ export type AssistantMessageCountAggregateInputType = {
   role?: true
   content?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -153,6 +159,7 @@ export type AssistantMessageGroupByOutputType = {
   role: $Enums.AssistantMessageRole
   content: string
   createdAt: Date
+  updatedAt: Date
   _count: AssistantMessageCountAggregateOutputType | null
   _min: AssistantMessageMinAggregateOutputType | null
   _max: AssistantMessageMaxAggregateOutputType | null
@@ -182,6 +189,7 @@ export type AssistantMessageWhereInput = {
   role?: Prisma.EnumAssistantMessageRoleFilter<"AssistantMessage"> | $Enums.AssistantMessageRole
   content?: Prisma.StringFilter<"AssistantMessage"> | string
   createdAt?: Prisma.DateTimeFilter<"AssistantMessage"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"AssistantMessage"> | Date | string
   conversation?: Prisma.XOR<Prisma.AssistantConversationScalarRelationFilter, Prisma.AssistantConversationWhereInput>
 }
 
@@ -191,6 +199,7 @@ export type AssistantMessageOrderByWithRelationInput = {
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   conversation?: Prisma.AssistantConversationOrderByWithRelationInput
   _relevance?: Prisma.AssistantMessageOrderByRelevanceInput
 }
@@ -204,6 +213,7 @@ export type AssistantMessageWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.EnumAssistantMessageRoleFilter<"AssistantMessage"> | $Enums.AssistantMessageRole
   content?: Prisma.StringFilter<"AssistantMessage"> | string
   createdAt?: Prisma.DateTimeFilter<"AssistantMessage"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"AssistantMessage"> | Date | string
   conversation?: Prisma.XOR<Prisma.AssistantConversationScalarRelationFilter, Prisma.AssistantConversationWhereInput>
 }, "id">
 
@@ -213,6 +223,7 @@ export type AssistantMessageOrderByWithAggregationInput = {
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.AssistantMessageCountOrderByAggregateInput
   _max?: Prisma.AssistantMessageMaxOrderByAggregateInput
   _min?: Prisma.AssistantMessageMinOrderByAggregateInput
@@ -227,6 +238,7 @@ export type AssistantMessageScalarWhereWithAggregatesInput = {
   role?: Prisma.EnumAssistantMessageRoleWithAggregatesFilter<"AssistantMessage"> | $Enums.AssistantMessageRole
   content?: Prisma.StringWithAggregatesFilter<"AssistantMessage"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AssistantMessage"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AssistantMessage"> | Date | string
 }
 
 export type AssistantMessageCreateInput = {
@@ -234,6 +246,7 @@ export type AssistantMessageCreateInput = {
   role: $Enums.AssistantMessageRole
   content: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   conversation: Prisma.AssistantConversationCreateNestedOneWithoutMessagesInput
 }
 
@@ -243,6 +256,7 @@ export type AssistantMessageUncheckedCreateInput = {
   role: $Enums.AssistantMessageRole
   content: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AssistantMessageUpdateInput = {
@@ -250,6 +264,7 @@ export type AssistantMessageUpdateInput = {
   role?: Prisma.EnumAssistantMessageRoleFieldUpdateOperationsInput | $Enums.AssistantMessageRole
   content?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conversation?: Prisma.AssistantConversationUpdateOneRequiredWithoutMessagesNestedInput
 }
 
@@ -259,6 +274,7 @@ export type AssistantMessageUncheckedUpdateInput = {
   role?: Prisma.EnumAssistantMessageRoleFieldUpdateOperationsInput | $Enums.AssistantMessageRole
   content?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AssistantMessageCreateManyInput = {
@@ -267,6 +283,7 @@ export type AssistantMessageCreateManyInput = {
   role: $Enums.AssistantMessageRole
   content: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AssistantMessageUpdateManyMutationInput = {
@@ -274,6 +291,7 @@ export type AssistantMessageUpdateManyMutationInput = {
   role?: Prisma.EnumAssistantMessageRoleFieldUpdateOperationsInput | $Enums.AssistantMessageRole
   content?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AssistantMessageUncheckedUpdateManyInput = {
@@ -282,6 +300,7 @@ export type AssistantMessageUncheckedUpdateManyInput = {
   role?: Prisma.EnumAssistantMessageRoleFieldUpdateOperationsInput | $Enums.AssistantMessageRole
   content?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AssistantMessageListRelationFilter = {
@@ -306,6 +325,7 @@ export type AssistantMessageCountOrderByAggregateInput = {
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type AssistantMessageMaxOrderByAggregateInput = {
@@ -314,6 +334,7 @@ export type AssistantMessageMaxOrderByAggregateInput = {
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type AssistantMessageMinOrderByAggregateInput = {
@@ -322,6 +343,7 @@ export type AssistantMessageMinOrderByAggregateInput = {
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type AssistantMessageCreateNestedManyWithoutConversationInput = {
@@ -375,6 +397,7 @@ export type AssistantMessageCreateWithoutConversationInput = {
   role: $Enums.AssistantMessageRole
   content: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AssistantMessageUncheckedCreateWithoutConversationInput = {
@@ -382,6 +405,7 @@ export type AssistantMessageUncheckedCreateWithoutConversationInput = {
   role: $Enums.AssistantMessageRole
   content: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AssistantMessageCreateOrConnectWithoutConversationInput = {
@@ -419,6 +443,7 @@ export type AssistantMessageScalarWhereInput = {
   role?: Prisma.EnumAssistantMessageRoleFilter<"AssistantMessage"> | $Enums.AssistantMessageRole
   content?: Prisma.StringFilter<"AssistantMessage"> | string
   createdAt?: Prisma.DateTimeFilter<"AssistantMessage"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"AssistantMessage"> | Date | string
 }
 
 export type AssistantMessageCreateManyConversationInput = {
@@ -426,6 +451,7 @@ export type AssistantMessageCreateManyConversationInput = {
   role: $Enums.AssistantMessageRole
   content: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AssistantMessageUpdateWithoutConversationInput = {
@@ -433,6 +459,7 @@ export type AssistantMessageUpdateWithoutConversationInput = {
   role?: Prisma.EnumAssistantMessageRoleFieldUpdateOperationsInput | $Enums.AssistantMessageRole
   content?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AssistantMessageUncheckedUpdateWithoutConversationInput = {
@@ -440,6 +467,7 @@ export type AssistantMessageUncheckedUpdateWithoutConversationInput = {
   role?: Prisma.EnumAssistantMessageRoleFieldUpdateOperationsInput | $Enums.AssistantMessageRole
   content?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AssistantMessageUncheckedUpdateManyWithoutConversationInput = {
@@ -447,6 +475,7 @@ export type AssistantMessageUncheckedUpdateManyWithoutConversationInput = {
   role?: Prisma.EnumAssistantMessageRoleFieldUpdateOperationsInput | $Enums.AssistantMessageRole
   content?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -457,6 +486,7 @@ export type AssistantMessageSelect<ExtArgs extends runtime.Types.Extensions.Inte
   role?: boolean
   content?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   conversation?: boolean | Prisma.AssistantConversationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["assistantMessage"]>
 
@@ -468,9 +498,10 @@ export type AssistantMessageSelectScalar = {
   role?: boolean
   content?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type AssistantMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "conversationId" | "role" | "content" | "createdAt", ExtArgs["result"]["assistantMessage"]>
+export type AssistantMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "conversationId" | "role" | "content" | "createdAt" | "updatedAt", ExtArgs["result"]["assistantMessage"]>
 export type AssistantMessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   conversation?: boolean | Prisma.AssistantConversationDefaultArgs<ExtArgs>
 }
@@ -486,6 +517,7 @@ export type $AssistantMessagePayload<ExtArgs extends runtime.Types.Extensions.In
     role: $Enums.AssistantMessageRole
     content: string
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["assistantMessage"]>
   composites: {}
 }
@@ -861,6 +893,7 @@ export interface AssistantMessageFieldRefs {
   readonly role: Prisma.FieldRef<"AssistantMessage", 'AssistantMessageRole'>
   readonly content: Prisma.FieldRef<"AssistantMessage", 'String'>
   readonly createdAt: Prisma.FieldRef<"AssistantMessage", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"AssistantMessage", 'DateTime'>
 }
     
 

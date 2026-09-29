@@ -200,12 +200,13 @@ What the rehearsal does, and the order is the point:
 
 ## 6. Accounts and least privilege
 
-Four accounts. The application's credential must not be able to change the
+Five accounts. The application's credential must not be able to change the
 schema, and must not be able to rewrite what it did.
 
 | Account | Used by | Privileges | Where its password lives |
 |---|---|---|---|
 | `uboss_app` | API, worker | `SELECT, INSERT` on the database; `UPDATE, DELETE` **per table**, not on `audit_logs` or `_prisma_migrations` | `DATABASE_URL` in `/srv/uboss/shared/.env` |
+| `uboss_maintenance` | GDPR erasure and the audit retention sweep, nothing else | On `audit_logs` only: `SELECT`, `DELETE`, and `UPDATE` of the **columns** `actorEmail`, `ipAddress` and `userAgent` (plus `updatedAt`, which Prisma stamps on every update). No `INSERT`, no other column, no other table | `DATABASE_MAINTENANCE_URL`, same file. **Production refuses to start without it** |
 | `uboss_migrate` | `prisma migrate deploy`, during a release only | `ALL PRIVILEGES` on the database. Nothing server-wide | `MIGRATE_DATABASE_URL`, same file, read by `release.sh` and never by the API |
 | `uboss_backup` | the nightly dump | `SELECT, LOCK TABLES, SHOW VIEW, EVENT, TRIGGER` on the database, and **nothing at the server level** — see below | `UBOSS_BACKUP_DATABASE_URL` |
 | `uboss_binlog` | `ship-binlogs.sh` | `REPLICATION SLAVE, BINLOG MONITOR, RELOAD` server-wide. **No `SELECT` on any table** — it reads the log of changes, never the data | `UBOSS_BINLOG_URL` in `/etc/uboss/backup.env` |
@@ -276,6 +277,49 @@ step *"The application account cannot rewrite its own audit log"*:
 | `DELETE FROM audit_logs` | **denied** — `ERROR 1142` |
 | `CREATE TABLE` | **denied** — `ERROR 1142` |
 | `UPDATE orders` | allowed |
+
+### The two exceptions to append-only, and the account that makes them
+
+Append-only has two exceptions that the law requires, and only two:
+
+- **GDPR Art. 17 erasure** keeps a person's audit rows, because they are the
+  evidence of what was done, this erasure included. It blanks their email, IP
+  address and user agent.
+- **The retention sweep** deletes rows older than `RETENTION_AUDIT_LOG_DAYS`.
+
+Neither can run as `uboss_app`, which is the point of the grant above. **Until
+29 September 2026 both tried to.** Erasure ran `UPDATE audit_logs` inside its
+own transaction, so under these grants every production erasure would have been
+refused (`ERROR 1142`) and rolled back. Nothing showed it, because CI's check
+proved the denial and the test suite runs with full grants. It was found in the
+pre-go-live checklist verification (`Checklist.md`, SEC-009).
+
+Both now run as `uboss_maintenance`, through a separate connection
+(`auditMaintenancePrisma()` in `backend/src/infra/prisma.ts`):
+
+- **The grant is column-level.** It can blank the three columns that name a
+  person, and it cannot change `action`, `resourceType`, `resourceId`,
+  `beforeJson`, `afterJson`, `actorUserId` or `createdAt`. In other words, it
+  cannot alter what happened, when, to what, or who did it.
+- It cannot `INSERT` a row, and it has no rights on any other table.
+- `apply-grants.sh` refuses to finish if the account is missing, or if its
+  grant is wider or narrower than this.
+- Erasure pseudonymises the audit rows **just after** its transaction commits.
+  If that step fails, the erasure throws and the request stays open. Running it
+  again completes the step, because the "already erased" path pseudonymises
+  too, and the update is idempotent.
+
+Proven on MariaDB 10.4 (local, throwaway schema and accounts, 29 Sep 2026)
+**[tested]**, through the real Prisma clients as well as the SQL client, and
+re-proven on every pull request by the same CI step:
+
+| As `uboss_maintenance` | Result |
+|---|---|
+| `UPDATE audit_logs SET actorEmail=…, ipAddress=NULL, userAgent=NULL` | allowed |
+| `DELETE FROM audit_logs` (retention) | allowed |
+| `UPDATE audit_logs SET action=…` / `afterJson=…` / `actorUserId=…` | **denied**: `ERROR 1143` (column) |
+| `INSERT INTO audit_logs` | **denied** |
+| `UPDATE orders` | **denied** |
 
 ### Emergency access
 
@@ -652,7 +696,7 @@ In order. Nothing here can be done before there is a machine.
 3. Load the timezone tables: `mariadb-tzinfo-to-sql /usr/share/zoneinfo | mariadb mysql`
    — without them `Europe/Warsaw` does not resolve at a SQL prompt.
 4. Create the database with an explicit `COLLATE utf8mb4_unicode_ci`, and the
-   four accounts, with four generated passwords (`bootstrap.sh` prints the
+   five accounts, with five generated passwords (`bootstrap.sh` prints the
    block).
 5. `prisma migrate deploy` as `uboss_migrate`.
 6. `apply-grants.sh` — **this is the step that makes the audit log

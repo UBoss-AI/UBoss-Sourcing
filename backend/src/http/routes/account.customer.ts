@@ -65,6 +65,7 @@ import {
   currentUser,
   requireCustomer,
 } from '../plugins/auth.js';
+import { assertRecentStepUp } from '../../modules/identity/customer-mfa.service.js';
 import {
   INSIGHT_RATE_LIMIT,
   assertUsableWindow,
@@ -713,6 +714,10 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     async (request, reply) => {
       const auth = currentUser(request);
       const body = emailChangeSchema.parse(request.body);
+
+      // The sign-in address is the account: moving it needs a fresh
+      // confirmation that this is still its holder.
+      assertRecentStepUp(auth);
 
       const result = await requestEmailChange(auth.id, body.email, {
         userId: auth.id,

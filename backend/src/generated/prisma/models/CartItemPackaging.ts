@@ -99,6 +99,8 @@ export type CartItemPackagingMinAggregateOutputType = {
   profileVersion: number | null
   snapshotAt: Date | null
   requiresFreightQuote: boolean | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CartItemPackagingMaxAggregateOutputType = {
@@ -128,6 +130,8 @@ export type CartItemPackagingMaxAggregateOutputType = {
   profileVersion: number | null
   snapshotAt: Date | null
   requiresFreightQuote: boolean | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CartItemPackagingCountAggregateOutputType = {
@@ -157,6 +161,8 @@ export type CartItemPackagingCountAggregateOutputType = {
   profileVersion: number
   snapshotAt: number
   requiresFreightQuote: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -226,6 +232,8 @@ export type CartItemPackagingMinAggregateInputType = {
   profileVersion?: true
   snapshotAt?: true
   requiresFreightQuote?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CartItemPackagingMaxAggregateInputType = {
@@ -255,6 +263,8 @@ export type CartItemPackagingMaxAggregateInputType = {
   profileVersion?: true
   snapshotAt?: true
   requiresFreightQuote?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CartItemPackagingCountAggregateInputType = {
@@ -284,6 +294,8 @@ export type CartItemPackagingCountAggregateInputType = {
   profileVersion?: true
   snapshotAt?: true
   requiresFreightQuote?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -400,6 +412,8 @@ export type CartItemPackagingGroupByOutputType = {
   profileVersion: number
   snapshotAt: Date
   requiresFreightQuote: boolean
+  createdAt: Date
+  updatedAt: Date
   _count: CartItemPackagingCountAggregateOutputType | null
   _avg: CartItemPackagingAvgAggregateOutputType | null
   _sum: CartItemPackagingSumAggregateOutputType | null
@@ -452,6 +466,8 @@ export type CartItemPackagingWhereInput = {
   profileVersion?: Prisma.IntFilter<"CartItemPackaging"> | number
   snapshotAt?: Prisma.DateTimeFilter<"CartItemPackaging"> | Date | string
   requiresFreightQuote?: Prisma.BoolFilter<"CartItemPackaging"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"CartItemPackaging"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CartItemPackaging"> | Date | string
   cartItem?: Prisma.XOR<Prisma.CartItemScalarRelationFilter, Prisma.CartItemWhereInput>
 }
 
@@ -482,6 +498,8 @@ export type CartItemPackagingOrderByWithRelationInput = {
   profileVersion?: Prisma.SortOrder
   snapshotAt?: Prisma.SortOrder
   requiresFreightQuote?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   cartItem?: Prisma.CartItemOrderByWithRelationInput
   _relevance?: Prisma.CartItemPackagingOrderByRelevanceInput
 }
@@ -516,6 +534,8 @@ export type CartItemPackagingWhereUniqueInput = Prisma.AtLeast<{
   profileVersion?: Prisma.IntFilter<"CartItemPackaging"> | number
   snapshotAt?: Prisma.DateTimeFilter<"CartItemPackaging"> | Date | string
   requiresFreightQuote?: Prisma.BoolFilter<"CartItemPackaging"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"CartItemPackaging"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CartItemPackaging"> | Date | string
   cartItem?: Prisma.XOR<Prisma.CartItemScalarRelationFilter, Prisma.CartItemWhereInput>
 }, "id" | "cartItemId">
 
@@ -546,6 +566,8 @@ export type CartItemPackagingOrderByWithAggregationInput = {
   profileVersion?: Prisma.SortOrder
   snapshotAt?: Prisma.SortOrder
   requiresFreightQuote?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CartItemPackagingCountOrderByAggregateInput
   _avg?: Prisma.CartItemPackagingAvgOrderByAggregateInput
   _max?: Prisma.CartItemPackagingMaxOrderByAggregateInput
@@ -583,6 +605,8 @@ export type CartItemPackagingScalarWhereWithAggregatesInput = {
   profileVersion?: Prisma.IntWithAggregatesFilter<"CartItemPackaging"> | number
   snapshotAt?: Prisma.DateTimeWithAggregatesFilter<"CartItemPackaging"> | Date | string
   requiresFreightQuote?: Prisma.BoolWithAggregatesFilter<"CartItemPackaging"> | boolean
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"CartItemPackaging"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CartItemPackaging"> | Date | string
 }
 
 export type CartItemPackagingCreateInput = {
@@ -611,6 +635,8 @@ export type CartItemPackagingCreateInput = {
   profileVersion: number
   snapshotAt?: Date | string
   requiresFreightQuote?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
   cartItem: Prisma.CartItemCreateNestedOneWithoutPackagingInput
 }
 
@@ -641,6 +667,8 @@ export type CartItemPackagingUncheckedCreateInput = {
   profileVersion: number
   snapshotAt?: Date | string
   requiresFreightQuote?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CartItemPackagingUpdateInput = {
@@ -669,6 +697,8 @@ export type CartItemPackagingUpdateInput = {
   profileVersion?: Prisma.IntFieldUpdateOperationsInput | number
   snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requiresFreightQuote?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cartItem?: Prisma.CartItemUpdateOneRequiredWithoutPackagingNestedInput
 }
 
@@ -699,6 +729,8 @@ export type CartItemPackagingUncheckedUpdateInput = {
   profileVersion?: Prisma.IntFieldUpdateOperationsInput | number
   snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requiresFreightQuote?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CartItemPackagingCreateManyInput = {
@@ -728,6 +760,8 @@ export type CartItemPackagingCreateManyInput = {
   profileVersion: number
   snapshotAt?: Date | string
   requiresFreightQuote?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CartItemPackagingUpdateManyMutationInput = {
@@ -756,6 +790,8 @@ export type CartItemPackagingUpdateManyMutationInput = {
   profileVersion?: Prisma.IntFieldUpdateOperationsInput | number
   snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requiresFreightQuote?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CartItemPackagingUncheckedUpdateManyInput = {
@@ -785,6 +821,8 @@ export type CartItemPackagingUncheckedUpdateManyInput = {
   profileVersion?: Prisma.IntFieldUpdateOperationsInput | number
   snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requiresFreightQuote?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CartItemPackagingNullableScalarRelationFilter = {
@@ -825,6 +863,8 @@ export type CartItemPackagingCountOrderByAggregateInput = {
   profileVersion?: Prisma.SortOrder
   snapshotAt?: Prisma.SortOrder
   requiresFreightQuote?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CartItemPackagingAvgOrderByAggregateInput = {
@@ -873,6 +913,8 @@ export type CartItemPackagingMaxOrderByAggregateInput = {
   profileVersion?: Prisma.SortOrder
   snapshotAt?: Prisma.SortOrder
   requiresFreightQuote?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CartItemPackagingMinOrderByAggregateInput = {
@@ -902,6 +944,8 @@ export type CartItemPackagingMinOrderByAggregateInput = {
   profileVersion?: Prisma.SortOrder
   snapshotAt?: Prisma.SortOrder
   requiresFreightQuote?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CartItemPackagingSumOrderByAggregateInput = {
@@ -981,6 +1025,8 @@ export type CartItemPackagingCreateWithoutCartItemInput = {
   profileVersion: number
   snapshotAt?: Date | string
   requiresFreightQuote?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CartItemPackagingUncheckedCreateWithoutCartItemInput = {
@@ -1009,6 +1055,8 @@ export type CartItemPackagingUncheckedCreateWithoutCartItemInput = {
   profileVersion: number
   snapshotAt?: Date | string
   requiresFreightQuote?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CartItemPackagingCreateOrConnectWithoutCartItemInput = {
@@ -1053,6 +1101,8 @@ export type CartItemPackagingUpdateWithoutCartItemInput = {
   profileVersion?: Prisma.IntFieldUpdateOperationsInput | number
   snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requiresFreightQuote?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CartItemPackagingUncheckedUpdateWithoutCartItemInput = {
@@ -1081,6 +1131,8 @@ export type CartItemPackagingUncheckedUpdateWithoutCartItemInput = {
   profileVersion?: Prisma.IntFieldUpdateOperationsInput | number
   snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requiresFreightQuote?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1112,6 +1164,8 @@ export type CartItemPackagingSelect<ExtArgs extends runtime.Types.Extensions.Int
   profileVersion?: boolean
   snapshotAt?: boolean
   requiresFreightQuote?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   cartItem?: boolean | Prisma.CartItemDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["cartItemPackaging"]>
 
@@ -1144,9 +1198,11 @@ export type CartItemPackagingSelectScalar = {
   profileVersion?: boolean
   snapshotAt?: boolean
   requiresFreightQuote?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CartItemPackagingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cartItemId" | "packageType" | "palletStandard" | "containerType" | "containerLoadMode" | "containerLoadingMethod" | "packageQuantity" | "unitsPerPackage" | "totalBaseUnits" | "unitsPerCarton" | "cartonsPerPallet" | "palletsPerContainer" | "cartonsPerContainer" | "lengthMm" | "widthMm" | "heightMm" | "grossWeightGrams" | "cargoVolumeCm3" | "packagePriceMinor" | "unitPriceMinor" | "currency" | "appliedTierMinPackages" | "profileVersion" | "snapshotAt" | "requiresFreightQuote", ExtArgs["result"]["cartItemPackaging"]>
+export type CartItemPackagingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cartItemId" | "packageType" | "palletStandard" | "containerType" | "containerLoadMode" | "containerLoadingMethod" | "packageQuantity" | "unitsPerPackage" | "totalBaseUnits" | "unitsPerCarton" | "cartonsPerPallet" | "palletsPerContainer" | "cartonsPerContainer" | "lengthMm" | "widthMm" | "heightMm" | "grossWeightGrams" | "cargoVolumeCm3" | "packagePriceMinor" | "unitPriceMinor" | "currency" | "appliedTierMinPackages" | "profileVersion" | "snapshotAt" | "requiresFreightQuote" | "createdAt" | "updatedAt", ExtArgs["result"]["cartItemPackaging"]>
 export type CartItemPackagingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cartItem?: boolean | Prisma.CartItemDefaultArgs<ExtArgs>
 }
@@ -1210,6 +1266,8 @@ export type $CartItemPackagingPayload<ExtArgs extends runtime.Types.Extensions.I
      * held here so the basket does not have to re-derive it on every read.
      */
     requiresFreightQuote: boolean
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["cartItemPackaging"]>
   composites: {}
 }
@@ -1606,6 +1664,8 @@ export interface CartItemPackagingFieldRefs {
   readonly profileVersion: Prisma.FieldRef<"CartItemPackaging", 'Int'>
   readonly snapshotAt: Prisma.FieldRef<"CartItemPackaging", 'DateTime'>
   readonly requiresFreightQuote: Prisma.FieldRef<"CartItemPackaging", 'Boolean'>
+  readonly createdAt: Prisma.FieldRef<"CartItemPackaging", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CartItemPackaging", 'DateTime'>
 }
     
 

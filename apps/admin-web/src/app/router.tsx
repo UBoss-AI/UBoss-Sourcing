@@ -485,6 +485,20 @@ export const router = createBrowserRouter([
         ]),
       },
       {
+        // The dead-letter queues the dashboard counts. settings.read, the grant
+        // the dashboard queue itself uses; retrying needs settings.write.
+        path: 'operations/dead-jobs',
+        ...lazyRoute(() => import('@/pages/DeadLetterPage').then((m) => m.DeadJobsPage), [
+          Permission.SETTINGS_READ,
+        ]),
+      },
+      {
+        path: 'operations/failed-notifications',
+        ...lazyRoute(() => import('@/pages/DeadLetterPage').then((m) => m.FailedNotificationsPage), [
+          Permission.SETTINGS_READ,
+        ]),
+      },
+      {
         // The Terms and Conditions every new account agrees to: drafts, publishing, history.
         path: 'settings/legal-documents',
         ...lazyRoute(

@@ -45,6 +45,7 @@ export type BuyerCompanyEmailChallengeMinAggregateOutputType = {
   expiresAt: Date | null
   consumedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerCompanyEmailChallengeMaxAggregateOutputType = {
@@ -57,6 +58,7 @@ export type BuyerCompanyEmailChallengeMaxAggregateOutputType = {
   expiresAt: Date | null
   consumedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerCompanyEmailChallengeCountAggregateOutputType = {
@@ -69,6 +71,7 @@ export type BuyerCompanyEmailChallengeCountAggregateOutputType = {
   expiresAt: number
   consumedAt: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -91,6 +94,7 @@ export type BuyerCompanyEmailChallengeMinAggregateInputType = {
   expiresAt?: true
   consumedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type BuyerCompanyEmailChallengeMaxAggregateInputType = {
@@ -103,6 +107,7 @@ export type BuyerCompanyEmailChallengeMaxAggregateInputType = {
   expiresAt?: true
   consumedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type BuyerCompanyEmailChallengeCountAggregateInputType = {
@@ -115,6 +120,7 @@ export type BuyerCompanyEmailChallengeCountAggregateInputType = {
   expiresAt?: true
   consumedAt?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -214,6 +220,7 @@ export type BuyerCompanyEmailChallengeGroupByOutputType = {
   expiresAt: Date
   consumedAt: Date | null
   createdAt: Date
+  updatedAt: Date
   _count: BuyerCompanyEmailChallengeCountAggregateOutputType | null
   _avg: BuyerCompanyEmailChallengeAvgAggregateOutputType | null
   _sum: BuyerCompanyEmailChallengeSumAggregateOutputType | null
@@ -249,6 +256,7 @@ export type BuyerCompanyEmailChallengeWhereInput = {
   expiresAt?: Prisma.DateTimeFilter<"BuyerCompanyEmailChallenge"> | Date | string
   consumedAt?: Prisma.DateTimeNullableFilter<"BuyerCompanyEmailChallenge"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"BuyerCompanyEmailChallenge"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyEmailChallenge"> | Date | string
   company?: Prisma.XOR<Prisma.BuyerCompanyScalarRelationFilter, Prisma.BuyerCompanyWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -263,6 +271,7 @@ export type BuyerCompanyEmailChallengeOrderByWithRelationInput = {
   expiresAt?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   company?: Prisma.BuyerCompanyOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.BuyerCompanyEmailChallengeOrderByRelevanceInput
@@ -281,6 +290,7 @@ export type BuyerCompanyEmailChallengeWhereUniqueInput = Prisma.AtLeast<{
   expiresAt?: Prisma.DateTimeFilter<"BuyerCompanyEmailChallenge"> | Date | string
   consumedAt?: Prisma.DateTimeNullableFilter<"BuyerCompanyEmailChallenge"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"BuyerCompanyEmailChallenge"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyEmailChallenge"> | Date | string
   company?: Prisma.XOR<Prisma.BuyerCompanyScalarRelationFilter, Prisma.BuyerCompanyWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
@@ -295,6 +305,7 @@ export type BuyerCompanyEmailChallengeOrderByWithAggregationInput = {
   expiresAt?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.BuyerCompanyEmailChallengeCountOrderByAggregateInput
   _avg?: Prisma.BuyerCompanyEmailChallengeAvgOrderByAggregateInput
   _max?: Prisma.BuyerCompanyEmailChallengeMaxOrderByAggregateInput
@@ -315,6 +326,7 @@ export type BuyerCompanyEmailChallengeScalarWhereWithAggregatesInput = {
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyEmailChallenge"> | Date | string
   consumedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"BuyerCompanyEmailChallenge"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyEmailChallenge"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyEmailChallenge"> | Date | string
 }
 
 export type BuyerCompanyEmailChallengeCreateInput = {
@@ -325,6 +337,7 @@ export type BuyerCompanyEmailChallengeCreateInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   company: Prisma.BuyerCompanyCreateNestedOneWithoutEmailChallengesInput
   user: Prisma.UserCreateNestedOneWithoutBuyerCompanyEmailChallengesInput
 }
@@ -339,6 +352,7 @@ export type BuyerCompanyEmailChallengeUncheckedCreateInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyEmailChallengeUpdateInput = {
@@ -349,6 +363,7 @@ export type BuyerCompanyEmailChallengeUpdateInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneRequiredWithoutEmailChallengesNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutBuyerCompanyEmailChallengesNestedInput
 }
@@ -363,6 +378,7 @@ export type BuyerCompanyEmailChallengeUncheckedUpdateInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyEmailChallengeCreateManyInput = {
@@ -375,6 +391,7 @@ export type BuyerCompanyEmailChallengeCreateManyInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyEmailChallengeUpdateManyMutationInput = {
@@ -385,6 +402,7 @@ export type BuyerCompanyEmailChallengeUpdateManyMutationInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyEmailChallengeUncheckedUpdateManyInput = {
@@ -397,6 +415,7 @@ export type BuyerCompanyEmailChallengeUncheckedUpdateManyInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyEmailChallengeListRelationFilter = {
@@ -425,6 +444,7 @@ export type BuyerCompanyEmailChallengeCountOrderByAggregateInput = {
   expiresAt?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyEmailChallengeAvgOrderByAggregateInput = {
@@ -441,6 +461,7 @@ export type BuyerCompanyEmailChallengeMaxOrderByAggregateInput = {
   expiresAt?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyEmailChallengeMinOrderByAggregateInput = {
@@ -453,6 +474,7 @@ export type BuyerCompanyEmailChallengeMinOrderByAggregateInput = {
   expiresAt?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyEmailChallengeSumOrderByAggregateInput = {
@@ -551,6 +573,7 @@ export type BuyerCompanyEmailChallengeCreateWithoutUserInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   company: Prisma.BuyerCompanyCreateNestedOneWithoutEmailChallengesInput
 }
 
@@ -563,6 +586,7 @@ export type BuyerCompanyEmailChallengeUncheckedCreateWithoutUserInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyEmailChallengeCreateOrConnectWithoutUserInput = {
@@ -604,6 +628,7 @@ export type BuyerCompanyEmailChallengeScalarWhereInput = {
   expiresAt?: Prisma.DateTimeFilter<"BuyerCompanyEmailChallenge"> | Date | string
   consumedAt?: Prisma.DateTimeNullableFilter<"BuyerCompanyEmailChallenge"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"BuyerCompanyEmailChallenge"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyEmailChallenge"> | Date | string
 }
 
 export type BuyerCompanyEmailChallengeCreateWithoutCompanyInput = {
@@ -614,6 +639,7 @@ export type BuyerCompanyEmailChallengeCreateWithoutCompanyInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutBuyerCompanyEmailChallengesInput
 }
 
@@ -626,6 +652,7 @@ export type BuyerCompanyEmailChallengeUncheckedCreateWithoutCompanyInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyEmailChallengeCreateOrConnectWithoutCompanyInput = {
@@ -663,6 +690,7 @@ export type BuyerCompanyEmailChallengeCreateManyUserInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyEmailChallengeUpdateWithoutUserInput = {
@@ -673,6 +701,7 @@ export type BuyerCompanyEmailChallengeUpdateWithoutUserInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneRequiredWithoutEmailChallengesNestedInput
 }
 
@@ -685,6 +714,7 @@ export type BuyerCompanyEmailChallengeUncheckedUpdateWithoutUserInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyEmailChallengeUncheckedUpdateManyWithoutUserInput = {
@@ -696,6 +726,7 @@ export type BuyerCompanyEmailChallengeUncheckedUpdateManyWithoutUserInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyEmailChallengeCreateManyCompanyInput = {
@@ -707,6 +738,7 @@ export type BuyerCompanyEmailChallengeCreateManyCompanyInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyEmailChallengeUpdateWithoutCompanyInput = {
@@ -717,6 +749,7 @@ export type BuyerCompanyEmailChallengeUpdateWithoutCompanyInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutBuyerCompanyEmailChallengesNestedInput
 }
 
@@ -729,6 +762,7 @@ export type BuyerCompanyEmailChallengeUncheckedUpdateWithoutCompanyInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyEmailChallengeUncheckedUpdateManyWithoutCompanyInput = {
@@ -740,6 +774,7 @@ export type BuyerCompanyEmailChallengeUncheckedUpdateManyWithoutCompanyInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -754,6 +789,7 @@ export type BuyerCompanyEmailChallengeSelect<ExtArgs extends runtime.Types.Exten
   expiresAt?: boolean
   consumedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   company?: boolean | Prisma.BuyerCompanyDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["buyerCompanyEmailChallenge"]>
@@ -770,9 +806,10 @@ export type BuyerCompanyEmailChallengeSelectScalar = {
   expiresAt?: boolean
   consumedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type BuyerCompanyEmailChallengeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "userId" | "emailNormalized" | "codeHash" | "attempts" | "expiresAt" | "consumedAt" | "createdAt", ExtArgs["result"]["buyerCompanyEmailChallenge"]>
+export type BuyerCompanyEmailChallengeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "userId" | "emailNormalized" | "codeHash" | "attempts" | "expiresAt" | "consumedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["buyerCompanyEmailChallenge"]>
 export type BuyerCompanyEmailChallengeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.BuyerCompanyDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -794,6 +831,7 @@ export type $BuyerCompanyEmailChallengePayload<ExtArgs extends runtime.Types.Ext
     expiresAt: Date
     consumedAt: Date | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["buyerCompanyEmailChallenge"]>
   composites: {}
 }
@@ -1174,6 +1212,7 @@ export interface BuyerCompanyEmailChallengeFieldRefs {
   readonly expiresAt: Prisma.FieldRef<"BuyerCompanyEmailChallenge", 'DateTime'>
   readonly consumedAt: Prisma.FieldRef<"BuyerCompanyEmailChallenge", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"BuyerCompanyEmailChallenge", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"BuyerCompanyEmailChallenge", 'DateTime'>
 }
     
 

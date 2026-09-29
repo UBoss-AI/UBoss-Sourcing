@@ -71,6 +71,8 @@ export type LogisticsLocationPingMinAggregateOutputType = {
   receivedAt: Date | null
   sequence: number | null
   idempotencyKey: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsLocationPingMaxAggregateOutputType = {
@@ -87,6 +89,8 @@ export type LogisticsLocationPingMaxAggregateOutputType = {
   receivedAt: Date | null
   sequence: number | null
   idempotencyKey: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsLocationPingCountAggregateOutputType = {
@@ -103,6 +107,8 @@ export type LogisticsLocationPingCountAggregateOutputType = {
   receivedAt: number
   sequence: number
   idempotencyKey: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -139,6 +145,8 @@ export type LogisticsLocationPingMinAggregateInputType = {
   receivedAt?: true
   sequence?: true
   idempotencyKey?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsLocationPingMaxAggregateInputType = {
@@ -155,6 +163,8 @@ export type LogisticsLocationPingMaxAggregateInputType = {
   receivedAt?: true
   sequence?: true
   idempotencyKey?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsLocationPingCountAggregateInputType = {
@@ -171,6 +181,8 @@ export type LogisticsLocationPingCountAggregateInputType = {
   receivedAt?: true
   sequence?: true
   idempotencyKey?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -274,6 +286,8 @@ export type LogisticsLocationPingGroupByOutputType = {
   receivedAt: Date
   sequence: number
   idempotencyKey: string
+  createdAt: Date
+  updatedAt: Date
   _count: LogisticsLocationPingCountAggregateOutputType | null
   _avg: LogisticsLocationPingAvgAggregateOutputType | null
   _sum: LogisticsLocationPingSumAggregateOutputType | null
@@ -313,6 +327,8 @@ export type LogisticsLocationPingWhereInput = {
   receivedAt?: Prisma.DateTimeFilter<"LogisticsLocationPing"> | Date | string
   sequence?: Prisma.IntFilter<"LogisticsLocationPing"> | number
   idempotencyKey?: Prisma.StringFilter<"LogisticsLocationPing"> | string
+  createdAt?: Prisma.DateTimeFilter<"LogisticsLocationPing"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsLocationPing"> | Date | string
   trip?: Prisma.XOR<Prisma.LogisticsActiveTripScalarRelationFilter, Prisma.LogisticsActiveTripWhereInput>
   driver?: Prisma.XOR<Prisma.LogisticsDriverProfileScalarRelationFilter, Prisma.LogisticsDriverProfileWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -332,6 +348,8 @@ export type LogisticsLocationPingOrderByWithRelationInput = {
   receivedAt?: Prisma.SortOrder
   sequence?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   trip?: Prisma.LogisticsActiveTripOrderByWithRelationInput
   driver?: Prisma.LogisticsDriverProfileOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
@@ -357,6 +375,8 @@ export type LogisticsLocationPingWhereUniqueInput = Prisma.AtLeast<{
   receivedAt?: Prisma.DateTimeFilter<"LogisticsLocationPing"> | Date | string
   sequence?: Prisma.IntFilter<"LogisticsLocationPing"> | number
   idempotencyKey?: Prisma.StringFilter<"LogisticsLocationPing"> | string
+  createdAt?: Prisma.DateTimeFilter<"LogisticsLocationPing"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsLocationPing"> | Date | string
   trip?: Prisma.XOR<Prisma.LogisticsActiveTripScalarRelationFilter, Prisma.LogisticsActiveTripWhereInput>
   driver?: Prisma.XOR<Prisma.LogisticsDriverProfileScalarRelationFilter, Prisma.LogisticsDriverProfileWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -376,6 +396,8 @@ export type LogisticsLocationPingOrderByWithAggregationInput = {
   receivedAt?: Prisma.SortOrder
   sequence?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LogisticsLocationPingCountOrderByAggregateInput
   _avg?: Prisma.LogisticsLocationPingAvgOrderByAggregateInput
   _max?: Prisma.LogisticsLocationPingMaxOrderByAggregateInput
@@ -400,6 +422,8 @@ export type LogisticsLocationPingScalarWhereWithAggregatesInput = {
   receivedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsLocationPing"> | Date | string
   sequence?: Prisma.IntWithAggregatesFilter<"LogisticsLocationPing"> | number
   idempotencyKey?: Prisma.StringWithAggregatesFilter<"LogisticsLocationPing"> | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsLocationPing"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsLocationPing"> | Date | string
 }
 
 export type LogisticsLocationPingCreateInput = {
@@ -413,6 +437,8 @@ export type LogisticsLocationPingCreateInput = {
   receivedAt?: Date | string
   sequence: number
   idempotencyKey: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   trip: Prisma.LogisticsActiveTripCreateNestedOneWithoutPingsInput
   driver: Prisma.LogisticsDriverProfileCreateNestedOneWithoutPingsInput
   user?: Prisma.UserCreateNestedOneWithoutLogisticsPingsInput
@@ -432,6 +458,8 @@ export type LogisticsLocationPingUncheckedCreateInput = {
   receivedAt?: Date | string
   sequence: number
   idempotencyKey: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsLocationPingUpdateInput = {
@@ -445,6 +473,8 @@ export type LogisticsLocationPingUpdateInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trip?: Prisma.LogisticsActiveTripUpdateOneRequiredWithoutPingsNestedInput
   driver?: Prisma.LogisticsDriverProfileUpdateOneRequiredWithoutPingsNestedInput
   user?: Prisma.UserUpdateOneWithoutLogisticsPingsNestedInput
@@ -464,6 +494,8 @@ export type LogisticsLocationPingUncheckedUpdateInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsLocationPingCreateManyInput = {
@@ -480,6 +512,8 @@ export type LogisticsLocationPingCreateManyInput = {
   receivedAt?: Date | string
   sequence: number
   idempotencyKey: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsLocationPingUpdateManyMutationInput = {
@@ -493,6 +527,8 @@ export type LogisticsLocationPingUpdateManyMutationInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsLocationPingUncheckedUpdateManyInput = {
@@ -509,6 +545,8 @@ export type LogisticsLocationPingUncheckedUpdateManyInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsLocationPingListRelationFilter = {
@@ -551,6 +589,8 @@ export type LogisticsLocationPingCountOrderByAggregateInput = {
   receivedAt?: Prisma.SortOrder
   sequence?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsLocationPingAvgOrderByAggregateInput = {
@@ -576,6 +616,8 @@ export type LogisticsLocationPingMaxOrderByAggregateInput = {
   receivedAt?: Prisma.SortOrder
   sequence?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsLocationPingMinOrderByAggregateInput = {
@@ -592,6 +634,8 @@ export type LogisticsLocationPingMinOrderByAggregateInput = {
   receivedAt?: Prisma.SortOrder
   sequence?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsLocationPingSumOrderByAggregateInput = {
@@ -740,6 +784,8 @@ export type LogisticsLocationPingCreateWithoutUserInput = {
   receivedAt?: Date | string
   sequence: number
   idempotencyKey: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   trip: Prisma.LogisticsActiveTripCreateNestedOneWithoutPingsInput
   driver: Prisma.LogisticsDriverProfileCreateNestedOneWithoutPingsInput
 }
@@ -757,6 +803,8 @@ export type LogisticsLocationPingUncheckedCreateWithoutUserInput = {
   receivedAt?: Date | string
   sequence: number
   idempotencyKey: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsLocationPingCreateOrConnectWithoutUserInput = {
@@ -802,6 +850,8 @@ export type LogisticsLocationPingScalarWhereInput = {
   receivedAt?: Prisma.DateTimeFilter<"LogisticsLocationPing"> | Date | string
   sequence?: Prisma.IntFilter<"LogisticsLocationPing"> | number
   idempotencyKey?: Prisma.StringFilter<"LogisticsLocationPing"> | string
+  createdAt?: Prisma.DateTimeFilter<"LogisticsLocationPing"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsLocationPing"> | Date | string
 }
 
 export type LogisticsLocationPingCreateWithoutDriverInput = {
@@ -815,6 +865,8 @@ export type LogisticsLocationPingCreateWithoutDriverInput = {
   receivedAt?: Date | string
   sequence: number
   idempotencyKey: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   trip: Prisma.LogisticsActiveTripCreateNestedOneWithoutPingsInput
   user?: Prisma.UserCreateNestedOneWithoutLogisticsPingsInput
 }
@@ -832,6 +884,8 @@ export type LogisticsLocationPingUncheckedCreateWithoutDriverInput = {
   receivedAt?: Date | string
   sequence: number
   idempotencyKey: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsLocationPingCreateOrConnectWithoutDriverInput = {
@@ -871,6 +925,8 @@ export type LogisticsLocationPingCreateWithoutTripInput = {
   receivedAt?: Date | string
   sequence: number
   idempotencyKey: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   driver: Prisma.LogisticsDriverProfileCreateNestedOneWithoutPingsInput
   user?: Prisma.UserCreateNestedOneWithoutLogisticsPingsInput
 }
@@ -888,6 +944,8 @@ export type LogisticsLocationPingUncheckedCreateWithoutTripInput = {
   receivedAt?: Date | string
   sequence: number
   idempotencyKey: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsLocationPingCreateOrConnectWithoutTripInput = {
@@ -929,6 +987,8 @@ export type LogisticsLocationPingCreateManyUserInput = {
   receivedAt?: Date | string
   sequence: number
   idempotencyKey: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsLocationPingUpdateWithoutUserInput = {
@@ -942,6 +1002,8 @@ export type LogisticsLocationPingUpdateWithoutUserInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trip?: Prisma.LogisticsActiveTripUpdateOneRequiredWithoutPingsNestedInput
   driver?: Prisma.LogisticsDriverProfileUpdateOneRequiredWithoutPingsNestedInput
 }
@@ -959,6 +1021,8 @@ export type LogisticsLocationPingUncheckedUpdateWithoutUserInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsLocationPingUncheckedUpdateManyWithoutUserInput = {
@@ -974,6 +1038,8 @@ export type LogisticsLocationPingUncheckedUpdateManyWithoutUserInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsLocationPingCreateManyDriverInput = {
@@ -989,6 +1055,8 @@ export type LogisticsLocationPingCreateManyDriverInput = {
   receivedAt?: Date | string
   sequence: number
   idempotencyKey: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsLocationPingUpdateWithoutDriverInput = {
@@ -1002,6 +1070,8 @@ export type LogisticsLocationPingUpdateWithoutDriverInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trip?: Prisma.LogisticsActiveTripUpdateOneRequiredWithoutPingsNestedInput
   user?: Prisma.UserUpdateOneWithoutLogisticsPingsNestedInput
 }
@@ -1019,6 +1089,8 @@ export type LogisticsLocationPingUncheckedUpdateWithoutDriverInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsLocationPingUncheckedUpdateManyWithoutDriverInput = {
@@ -1034,6 +1106,8 @@ export type LogisticsLocationPingUncheckedUpdateManyWithoutDriverInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsLocationPingCreateManyTripInput = {
@@ -1049,6 +1123,8 @@ export type LogisticsLocationPingCreateManyTripInput = {
   receivedAt?: Date | string
   sequence: number
   idempotencyKey: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsLocationPingUpdateWithoutTripInput = {
@@ -1062,6 +1138,8 @@ export type LogisticsLocationPingUpdateWithoutTripInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   driver?: Prisma.LogisticsDriverProfileUpdateOneRequiredWithoutPingsNestedInput
   user?: Prisma.UserUpdateOneWithoutLogisticsPingsNestedInput
 }
@@ -1079,6 +1157,8 @@ export type LogisticsLocationPingUncheckedUpdateWithoutTripInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsLocationPingUncheckedUpdateManyWithoutTripInput = {
@@ -1094,6 +1174,8 @@ export type LogisticsLocationPingUncheckedUpdateManyWithoutTripInput = {
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sequence?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1112,6 +1194,8 @@ export type LogisticsLocationPingSelect<ExtArgs extends runtime.Types.Extensions
   receivedAt?: boolean
   sequence?: boolean
   idempotencyKey?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   trip?: boolean | Prisma.LogisticsActiveTripDefaultArgs<ExtArgs>
   driver?: boolean | Prisma.LogisticsDriverProfileDefaultArgs<ExtArgs>
   user?: boolean | Prisma.LogisticsLocationPing$userArgs<ExtArgs>
@@ -1133,9 +1217,11 @@ export type LogisticsLocationPingSelectScalar = {
   receivedAt?: boolean
   sequence?: boolean
   idempotencyKey?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LogisticsLocationPingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tripId" | "driverProfileId" | "driverUserId" | "latitude" | "longitude" | "accuracyM" | "headingDeg" | "speedMps" | "deviceTimestamp" | "receivedAt" | "sequence" | "idempotencyKey", ExtArgs["result"]["logisticsLocationPing"]>
+export type LogisticsLocationPingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tripId" | "driverProfileId" | "driverUserId" | "latitude" | "longitude" | "accuracyM" | "headingDeg" | "speedMps" | "deviceTimestamp" | "receivedAt" | "sequence" | "idempotencyKey" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsLocationPing"]>
 export type LogisticsLocationPingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   trip?: boolean | Prisma.LogisticsActiveTripDefaultArgs<ExtArgs>
   driver?: boolean | Prisma.LogisticsDriverProfileDefaultArgs<ExtArgs>
@@ -1192,6 +1278,8 @@ export type $LogisticsLocationPingPayload<ExtArgs extends runtime.Types.Extensio
      * twice writes each position once.
      */
     idempotencyKey: string
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["logisticsLocationPing"]>
   composites: {}
 }
@@ -1577,6 +1665,8 @@ export interface LogisticsLocationPingFieldRefs {
   readonly receivedAt: Prisma.FieldRef<"LogisticsLocationPing", 'DateTime'>
   readonly sequence: Prisma.FieldRef<"LogisticsLocationPing", 'Int'>
   readonly idempotencyKey: Prisma.FieldRef<"LogisticsLocationPing", 'String'>
+  readonly createdAt: Prisma.FieldRef<"LogisticsLocationPing", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LogisticsLocationPing", 'DateTime'>
 }
     
 

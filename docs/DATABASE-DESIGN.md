@@ -162,15 +162,16 @@ green test run on a laptop proves nothing about the strict server, which is why
 - Calendar dates with no time of day (a delivery date, a VAT rate's start
   date) use `DATE`.
 
-### The four database accounts
+### The five database accounts
 
 The application must not be able to change the schema, and must not be able to
-rewrite its own audit trail. So production has four accounts, none of them
+rewrite its own audit trail. So production has five accounts, none of them
 `root` (from `docs/DATABASE-PRODUCTION.md` section 6):
 
 | Account | Used by | What it may do |
 |---|---|---|
 | `uboss_app` | the API and the worker | `SELECT` and `INSERT` everywhere; `UPDATE` and `DELETE` granted **table by table**, and never on `audit_logs` or `_prisma_migrations` |
+| `uboss_maintenance` | GDPR erasure and the audit retention sweep only | On `audit_logs`: `SELECT`, `DELETE`, and `UPDATE` of the columns `actorEmail`, `ipAddress` and `userAgent` only (plus `updatedAt`, which Prisma stamps on every update it issues). Nothing else, anywhere (see `DATABASE-PRODUCTION.md` §6) |
 | `uboss_migrate` | `prisma migrate deploy`, during a release only | All privileges on the database, nothing server-wide |
 | `uboss_backup` | the nightly dump | Read-only dump privileges on the database, nothing server-wide |
 | `uboss_binlog` | shipping binary logs for point-in-time recovery | Replication privileges only, **no `SELECT` on any table** |
@@ -531,9 +532,23 @@ database stores the result; it does not decide the rule.
 
 `audit_logs` (model `AuditLog`) records who did what to which resource:
 `actorType`, `actorUserId`, `action`, `resourceType`, `resourceId`,
-`beforeJson`, `afterJson`, `ipAddress`, `correlationId`. The application never
+`beforeJson`, `afterJson`, `ipAddress`, `userAgent`, `correlationId`, and
+`actorRoles`. The application never
 updates or deletes it, and in production **the database account cannot**
-(see [section 2](#the-four-database-accounts)). Sellers and logistics
+(see [section 2](#the-four-database-accounts)).
+
+`actorRoles` (added 14 Oct 2026, migration `20261014090000_audit_actor_roles`)
+holds the comma-separated role keys the actor held **at the moment the row was
+written**. `recordAudit` reads them from `user_roles` through the caller's own
+transaction, so the entry cannot drift when the person's roles change later.
+It is deliberately a copy, not a join: a join would answer "what may this
+person do today", which is the wrong question about an old entry. Rows written
+before the migration hold `NULL`, meaning "not recorded" — nothing backfills
+them from today's grants. Role keys are not personal data, so the maintenance
+account's pseudonymisation grant (three columns) does not include it. There is
+no reason column: a reason is part of `afterJson` where the action has one.
+
+Sellers and logistics
 partners have their own trails, scoped to their tenant: `seller_audit_logs`,
 `logistics_audit_logs`, `seller_erp_audit_events`,
 `customer_erp_audit_logs`.
@@ -596,6 +611,7 @@ Three different jobs, deliberately kept apart (`backend/src/infra/crypto.ts`):
 | Passwords | **Argon2id** hash | `users.passwordHash` |
 | Secrets the server must use again (gateway keys, ERP credentials, carrier keys, webhook secrets, the DeepL key, the TOTP secret) | **AES-256-GCM** ciphertext, keyed by `SECRETS_ENCRYPTION_KEY`, bound to its row. Columns end in `Enc` or `Encrypted`; a `...Mask` or `...Hint` column holds what a screen may show | `payment_provider_connections.credentialsEnc`, `.webhookSecretEnc`, `integration_connections.credentialsEnc`, `users.mfaSecretEnc`, `catalog_translation_sync.apiKeyEncrypted`, `customer_erp_credentials`, `seller_carrier_credentials` |
 | Lookup tokens sent by link (invitations, password resets, payment links, downloads, device tokens) | **SHA-256** of 32 random bytes. Columns end in `Hash` | `auth_tokens.tokenHash`, `payment_links.tokenHash`, `sessions.refreshTokenHash`, `export_jobs.downloadTokenHash`, `seller_erp_bridge_devices.tokenHash` |
+| Short codes a person types (six digits) | **HMAC-SHA-256** keyed with `SESSION_COOKIE_SECRET`, so a copied table cannot be guessed offline; a wrong-guess counter on the row | `buyer_company_email_challenges.codeHash`, `logistics_delivery_codes.codeHash` |
 
 A database dump therefore contains **no usable link and no readable secret**.
 No card number is ever stored: `customer_payment_methods` holds the gateway's
@@ -3321,8 +3337,8 @@ erDiagram
 | [`SellerOrderGroup`](reference/DATABASE-TABLES.md#model-sellerordergroup) | `seller_order_groups` | **one seller's share of one order**: its own number, status, goods, tax, shipping, commission and net |
 | [`SellerOrderLine`](reference/DATABASE-TABLES.md#model-sellerorderline) | `seller_order_lines` | one order line that belongs to that seller |
 | [`SellerShipment`](reference/DATABASE-TABLES.md#model-sellershipment) / [`SellerReturn`](reference/DATABASE-TABLES.md#model-sellerreturn) | `seller_shipments` / `seller_returns` | a seller's dispatch note / a return against the seller's share |
-| [`SellerSettlement`](reference/DATABASE-TABLES.md#model-sellersettlement) | `seller_settlements` | one settlement period: gross, commission, fees, refunds, adjustments, **net payable** |
-| [`SellerSettlementLine`](reference/DATABASE-TABLES.md#model-sellersettlementline) | `seller_settlement_lines` | one signed amount in it (sale, commission, refund, manual adjustment) |
+| [`SellerSettlement`](reference/DATABASE-TABLES.md#model-sellersettlement) | `seller_settlements` | one statement: one seller, one period, one currency — gross, commission, fees, refunds, adjustments, **net payable** |
+| [`SellerSettlementLine`](reference/DATABASE-TABLES.md#model-sellersettlementline) | `seller_settlement_lines` | one signed amount in it (sale, the seller's own delivery, commission, refund, manual adjustment) |
 | [`SellerPayout`](reference/DATABASE-TABLES.md#model-sellerpayout) | `seller_payouts` | one transfer of money to the seller |
 | [`SellerNotification`](reference/DATABASE-TABLES.md#model-sellernotification) / [`SellerAuditLog`](reference/DATABASE-TABLES.md#model-sellerauditlog) | `seller_notifications` / `seller_audit_logs` | the seller's own bell / the seller's own audit trail |
 
@@ -3510,6 +3526,11 @@ The listing-draft lifecycle is in the same file (`LISTING_TRANSITIONS`).
   `uq_seller_order_number (sellerAccountId, sellerOrderNumber)`.
 - `uq_seller_settlement_reference`, `uq_seller_payout_reference`,
   `uq_seller_payout_idempotency (sellerAccountId, idempotencyKey)`.
+- `uq_seller_settlement_period_currency (sellerAccountId, periodStart,
+  periodEnd, currency)`: **one statement per seller, period and currency**.
+  The job that closes a period relies on it: a retried or concurrent close
+  collides on the key instead of writing the same money twice. Added by
+  `20261013090000_seller_settlement_statements`.
 - `seller_order_lines.offerId` is `Restrict`: an offer that sold cannot be
   deleted. Nearly everything else cascades from `seller_accounts`.
 - The commission applied is frozen on the group
@@ -3524,8 +3545,42 @@ Seller A and Seller B plus one operator line. When the webhook confirms it,
 `sellerOrderNumber`, totals and commission) and one `seller_order_lines` row
 per seller line. The operator's line gets no group. Seller A accepts (group
 `ACCEPTED`, stock reserved at a named `seller_locations` row), dispatches
-(`SHIPPED`), and at period end a `seller_settlement_lines` row of kind `SALE`
-and one of kind `COMMISSION` land in Seller A's `OPEN` settlement.
+(`SHIPPED`) and delivers (`DELIVERED`).
+
+**How a statement is produced.** Only when the operator turns on
+`FEATURE_SELLER_SETTLEMENT_STATEMENTS` (off by default). A daily worker job,
+`seller_settlement.close`, takes the last period that has fully ended
+(`SELLER_SETTLEMENT_PERIOD`: `MONTHLY`, the 1st 00:00 UTC to the next 1st, or
+`WEEKLY`, Monday to Monday; `periodEnd` is exclusive). A group counts once it
+is `DELIVERED` at least `SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS` (the return
+window, no default) before `periodEnd`, has a `seller_order_settlements` row,
+and has never had a `SALE` line — so groups delivered before the feature was
+switched on are caught up. For each seller and currency it writes one
+`seller_settlements` row, status `PENDING_PAYOUT`, reference
+`STL-YYYY-MM-NNNN` (the month the period starts), and per group lines copied
+from `seller_order_settlements`, never recalculated:
+
+| Kind | Sign | Amount |
+|---|---|---|
+| `SALE` | + | goods proceeds |
+| `SHIPPING_CHARGE` | + | the seller's own delivery proceeds |
+| `COMMISSION` | − | platform fee |
+| `COMMISSION` | − | tax on the platform fee |
+| `REFUND` | − | refunds recorded so far |
+
+A group is **sold on exactly one statement** (the one with its `SALE` line). A
+refund recorded later goes on the next statement as the difference between
+what the group's settlement now says and what earlier statements already
+deducted; a refund later given back comes back as a positive amount, counted
+under adjustments. The header is filled so that `grossMinor` = goods + seller
+delivery, `commissionMinor` = fee + fee tax, `netPayableMinor` = the sum of
+the lines, and the identity gross − commission − processing fee − refunds +
+adjustments = net is checked before the row is written; the tax and shipping
+header columns stay 0. The groups are locked (`FOR UPDATE`) and re-checked
+inside the transaction, and with `uq_seller_settlement_period_currency` that
+makes the close idempotent. A statement moves no money: `seller_payouts` stays
+empty while no payout provider is configured. Code:
+`backend/src/modules/seller/settlement-statement.service.ts`.
 
 ### 5.18 Seller carriers and fulfilment modes
 
@@ -3703,6 +3758,7 @@ and links to them rather than replacing them.
 | [`LogisticsShipmentAssignment`](reference/DATABASE-TABLES.md#model-logisticsshipmentassignment) | `logistics_shipment_assignments` | one offer of the consignment to a partner, and its answer |
 | [`LogisticsShipmentEvent`](reference/DATABASE-TABLES.md#model-logisticsshipmentevent) | `logistics_shipment_events` | one tracking event / status change |
 | `LogisticsShipmentException`, `LogisticsShipmentDocument`, `LogisticsProofOfDelivery` | `logistics_shipment_exceptions`, `logistics_shipment_documents`, `logistics_proof_of_delivery` | a problem, a document (scanned), the proof of delivery (one per consignment) |
+| `LogisticsDeliveryCode` | `logistics_delivery_codes` | one delivery code emailed to the buyer (keyed hash only; wrong-guess count; spent or superseded) |
 | `LogisticsPickupRequest`, `LogisticsDispatchManifest`, `LogisticsDispatchManifestEntry` | `logistics_pickup_requests`, `logistics_dispatch_manifests`, `logistics_dispatch_manifest_entries` | a collection booking; a driver's run sheet and its lines |
 | `LogisticsDriverProfile`, `LogisticsVehicle`, `LogisticsDriverAssignment`, `LogisticsActiveTrip`, `LogisticsLocationPing` | `logistics_driver_profiles`, `logistics_vehicles`, `logistics_driver_assignments`, `logistics_active_trips`, `logistics_location_pings` | drivers, vehicles, who drives which consignment, a live trip, one GPS position |
 | `SellerManualCarrierBooking` | `seller_manual_carrier_bookings` | a consignment a seller books with a carrier by hand |
@@ -3724,6 +3780,7 @@ erDiagram
     logistics_partners ||--o{ logistics_shipment_assignments : "offered"
     logistics_shipments ||--o{ logistics_shipment_events : "tracked by"
     logistics_shipments ||--o| logistics_proof_of_delivery : "proved by"
+    logistics_shipments ||--o{ logistics_delivery_codes : "unlocked by"
     logistics_shipments ||--o{ logistics_driver_assignments : "driven by"
     logistics_partners {
         string id PK
@@ -3790,6 +3847,12 @@ erDiagram
     logistics_proof_of_delivery {
         string id PK
         string shipmentId UK
+    }
+    logistics_delivery_codes {
+        string id PK
+        string shipmentId FK
+        string codeHash
+        int attempts
     }
     logistics_driver_assignments {
         string id PK
@@ -3937,6 +4000,16 @@ status `ACCEPTANCE_PENDING`. The carrier accepts, assigns a driver
 (`logistics_driver_assignments` with `activeShipmentId` set), and each scan
 appends a `logistics_shipment_events` row until a `logistics_proof_of_delivery`
 row and the status `DELIVERED`.
+
+**Delivery codes.** Where the SLA policy sets `podRequiresOtp`, going
+`OUT_FOR_DELIVERY` writes a `logistics_delivery_codes` row and queues the
+buyer's email in the same transaction (the consignment's row is locked with
+`SELECT ... FOR UPDATE` so the daily cap holds under concurrent presses). The
+live code is the newest row with neither `consumedAt` nor `supersededAt`;
+sending a new one sets `supersededAt` on the old. `codeHash` is an HMAC keyed
+with `SESSION_COOKIE_SECRET`, never the digits; `attempts` counts wrong guesses
+(five kill it). No person's id is on the row, and it goes with its consignment
+(`ON DELETE CASCADE`).
 
 ### 5.20 Bulk ordering and freight
 
@@ -5408,6 +5481,11 @@ flowchart TD
     SSL --> SS["seller_settlements: netPayableMinor"]
     SS --> PO["seller_payouts: amountMinor"]
 ```
+
+The step into `seller_settlement_lines` (its figures copied from
+`seller_order_settlements`) is the daily statement close (section 5.17), which runs only with
+`FEATURE_SELLER_SETTLEMENT_STATEMENTS` on. The last step, a payout, is not
+built: no payout provider is configured.
 
 Guarantees along the way, all enforced by the database:
 

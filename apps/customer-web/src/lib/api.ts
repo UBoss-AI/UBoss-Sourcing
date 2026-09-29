@@ -135,6 +135,40 @@ function announceSessionEnded(): void {
   for (const listener of sessionEndedListeners) listener();
 }
 
+/**
+ * The confirmation a sensitive act asks for ("confirm it is you").
+ *
+ * The server refuses the act with STEP_UP_REQUIRED - or MFA_SETUP_REQUIRED
+ * when the act needs a real second factor the account does not have yet. One
+ * handler, registered by `StepUpProvider`, asks the person, and the request is
+ * sent again ONCE if they confirmed. So no screen that changes an email, a
+ * payout account, a team role or AutoPay needs to know the rule exists.
+ */
+export interface StepUpChallenge {
+  kind: 'STEP_UP' | 'SETUP_FACTOR';
+  method: 'TOTP' | 'PASSWORD';
+}
+type StepUpHandler = (challenge: StepUpChallenge) => Promise<boolean>;
+let stepUpHandler: StepUpHandler | null = null;
+
+export function setStepUpHandler(handler: StepUpHandler | null): () => void {
+  stepUpHandler = handler;
+  return () => {
+    if (stepUpHandler === handler) stepUpHandler = null;
+  };
+}
+
+function stepUpChallengeOf(error: ApiError): StepUpChallenge | null {
+  if (error.status !== 403) return null;
+  if (error.code === 'STEP_UP_REQUIRED') {
+    return { kind: 'STEP_UP', method: error.details[0]?.meta?.['method'] === 'TOTP' ? 'TOTP' : 'PASSWORD' };
+  }
+  if (error.code === 'MFA_SETUP_REQUIRED' && error.details[0]?.code === 'STEP_UP_FACTOR') {
+    return { kind: 'SETUP_FACTOR', method: 'TOTP' };
+  }
+  return null;
+}
+
 /** The in-flight refresh, shared by every request that hit 401 together. */
 let refreshInFlight: Promise<boolean> | null = null;
 
@@ -194,6 +228,8 @@ export interface RequestOptions {
   idempotencyKey?: string;
   /** Internal: prevents a refreshed request from refreshing again. */
   retryOnUnauthorised?: boolean;
+  /** Internal: a request re-sent after a step-up is not stepped up twice. */
+  stepUpRetried?: boolean;
 }
 
 function buildUrl(path: string, query: RequestOptions['query']): string {
@@ -350,7 +386,15 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     announceSessionEnded();
   }
 
-  throw toApiError(response.status, payload, response.headers.get('retry-after'));
+  const failure = toApiError(response.status, payload, response.headers.get('retry-after'));
+
+  const challenge =
+    stepUpHandler === null || options.stepUpRetried === true ? null : stepUpChallengeOf(failure);
+  if (challenge !== null && stepUpHandler !== null && (await stepUpHandler(challenge))) {
+    return request<T>(path, { ...options, stepUpRetried: true });
+  }
+
+  throw failure;
 }
 
 /**

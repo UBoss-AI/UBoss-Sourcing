@@ -56,6 +56,8 @@ export type CustomerErpApprovalMinAggregateOutputType = {
   decidedByProfileId: string | null
   decidedAt: Date | null
   decisionNote: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CustomerErpApprovalMaxAggregateOutputType = {
@@ -74,6 +76,8 @@ export type CustomerErpApprovalMaxAggregateOutputType = {
   decidedByProfileId: string | null
   decidedAt: Date | null
   decisionNote: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CustomerErpApprovalCountAggregateOutputType = {
@@ -92,6 +96,8 @@ export type CustomerErpApprovalCountAggregateOutputType = {
   decidedByProfileId: number
   decidedAt: number
   decisionNote: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -120,6 +126,8 @@ export type CustomerErpApprovalMinAggregateInputType = {
   decidedByProfileId?: true
   decidedAt?: true
   decisionNote?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CustomerErpApprovalMaxAggregateInputType = {
@@ -138,6 +146,8 @@ export type CustomerErpApprovalMaxAggregateInputType = {
   decidedByProfileId?: true
   decidedAt?: true
   decisionNote?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CustomerErpApprovalCountAggregateInputType = {
@@ -156,6 +166,8 @@ export type CustomerErpApprovalCountAggregateInputType = {
   decidedByProfileId?: true
   decidedAt?: true
   decisionNote?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -261,6 +273,8 @@ export type CustomerErpApprovalGroupByOutputType = {
   decidedByProfileId: string | null
   decidedAt: Date | null
   decisionNote: string | null
+  createdAt: Date
+  updatedAt: Date
   _count: CustomerErpApprovalCountAggregateOutputType | null
   _avg: CustomerErpApprovalAvgAggregateOutputType | null
   _sum: CustomerErpApprovalSumAggregateOutputType | null
@@ -302,6 +316,8 @@ export type CustomerErpApprovalWhereInput = {
   decidedByProfileId?: Prisma.StringNullableFilter<"CustomerErpApproval"> | string | null
   decidedAt?: Prisma.DateTimeNullableFilter<"CustomerErpApproval"> | Date | string | null
   decisionNote?: Prisma.StringNullableFilter<"CustomerErpApproval"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"CustomerErpApproval"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpApproval"> | Date | string
   connection?: Prisma.XOR<Prisma.CustomerErpConnectionScalarRelationFilter, Prisma.CustomerErpConnectionWhereInput>
 }
 
@@ -321,6 +337,8 @@ export type CustomerErpApprovalOrderByWithRelationInput = {
   decidedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   decidedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   decisionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   connection?: Prisma.CustomerErpConnectionOrderByWithRelationInput
   _relevance?: Prisma.CustomerErpApprovalOrderByRelevanceInput
 }
@@ -344,6 +362,8 @@ export type CustomerErpApprovalWhereUniqueInput = Prisma.AtLeast<{
   decidedByProfileId?: Prisma.StringNullableFilter<"CustomerErpApproval"> | string | null
   decidedAt?: Prisma.DateTimeNullableFilter<"CustomerErpApproval"> | Date | string | null
   decisionNote?: Prisma.StringNullableFilter<"CustomerErpApproval"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"CustomerErpApproval"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpApproval"> | Date | string
   connection?: Prisma.XOR<Prisma.CustomerErpConnectionScalarRelationFilter, Prisma.CustomerErpConnectionWhereInput>
 }, "id" | "syncEventId">
 
@@ -363,6 +383,8 @@ export type CustomerErpApprovalOrderByWithAggregationInput = {
   decidedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   decidedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   decisionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CustomerErpApprovalCountOrderByAggregateInput
   _avg?: Prisma.CustomerErpApprovalAvgOrderByAggregateInput
   _max?: Prisma.CustomerErpApprovalMaxOrderByAggregateInput
@@ -389,6 +411,8 @@ export type CustomerErpApprovalScalarWhereWithAggregatesInput = {
   decidedByProfileId?: Prisma.StringNullableWithAggregatesFilter<"CustomerErpApproval"> | string | null
   decidedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerErpApproval"> | Date | string | null
   decisionNote?: Prisma.StringNullableWithAggregatesFilter<"CustomerErpApproval"> | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerErpApproval"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerErpApproval"> | Date | string
 }
 
 export type CustomerErpApprovalCreateInput = {
@@ -406,6 +430,8 @@ export type CustomerErpApprovalCreateInput = {
   decidedByProfileId?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   connection: Prisma.CustomerErpConnectionCreateNestedOneWithoutApprovalsInput
 }
 
@@ -425,6 +451,8 @@ export type CustomerErpApprovalUncheckedCreateInput = {
   decidedByProfileId?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpApprovalUpdateInput = {
@@ -442,6 +470,8 @@ export type CustomerErpApprovalUpdateInput = {
   decidedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   connection?: Prisma.CustomerErpConnectionUpdateOneRequiredWithoutApprovalsNestedInput
 }
 
@@ -461,6 +491,8 @@ export type CustomerErpApprovalUncheckedUpdateInput = {
   decidedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpApprovalCreateManyInput = {
@@ -479,6 +511,8 @@ export type CustomerErpApprovalCreateManyInput = {
   decidedByProfileId?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpApprovalUpdateManyMutationInput = {
@@ -496,6 +530,8 @@ export type CustomerErpApprovalUpdateManyMutationInput = {
   decidedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpApprovalUncheckedUpdateManyInput = {
@@ -514,6 +550,8 @@ export type CustomerErpApprovalUncheckedUpdateManyInput = {
   decidedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpApprovalListRelationFilter = {
@@ -548,6 +586,8 @@ export type CustomerErpApprovalCountOrderByAggregateInput = {
   decidedByProfileId?: Prisma.SortOrder
   decidedAt?: Prisma.SortOrder
   decisionNote?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpApprovalAvgOrderByAggregateInput = {
@@ -570,6 +610,8 @@ export type CustomerErpApprovalMaxOrderByAggregateInput = {
   decidedByProfileId?: Prisma.SortOrder
   decidedAt?: Prisma.SortOrder
   decisionNote?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpApprovalMinOrderByAggregateInput = {
@@ -588,6 +630,8 @@ export type CustomerErpApprovalMinOrderByAggregateInput = {
   decidedByProfileId?: Prisma.SortOrder
   decidedAt?: Prisma.SortOrder
   decisionNote?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpApprovalSumOrderByAggregateInput = {
@@ -659,6 +703,8 @@ export type CustomerErpApprovalCreateWithoutConnectionInput = {
   decidedByProfileId?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpApprovalUncheckedCreateWithoutConnectionInput = {
@@ -676,6 +722,8 @@ export type CustomerErpApprovalUncheckedCreateWithoutConnectionInput = {
   decidedByProfileId?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpApprovalCreateOrConnectWithoutConnectionInput = {
@@ -723,6 +771,8 @@ export type CustomerErpApprovalScalarWhereInput = {
   decidedByProfileId?: Prisma.StringNullableFilter<"CustomerErpApproval"> | string | null
   decidedAt?: Prisma.DateTimeNullableFilter<"CustomerErpApproval"> | Date | string | null
   decisionNote?: Prisma.StringNullableFilter<"CustomerErpApproval"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"CustomerErpApproval"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpApproval"> | Date | string
 }
 
 export type CustomerErpApprovalCreateManyConnectionInput = {
@@ -740,6 +790,8 @@ export type CustomerErpApprovalCreateManyConnectionInput = {
   decidedByProfileId?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpApprovalUpdateWithoutConnectionInput = {
@@ -757,6 +809,8 @@ export type CustomerErpApprovalUpdateWithoutConnectionInput = {
   decidedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpApprovalUncheckedUpdateWithoutConnectionInput = {
@@ -774,6 +828,8 @@ export type CustomerErpApprovalUncheckedUpdateWithoutConnectionInput = {
   decidedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpApprovalUncheckedUpdateManyWithoutConnectionInput = {
@@ -791,6 +847,8 @@ export type CustomerErpApprovalUncheckedUpdateManyWithoutConnectionInput = {
   decidedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -811,6 +869,8 @@ export type CustomerErpApprovalSelect<ExtArgs extends runtime.Types.Extensions.I
   decidedByProfileId?: boolean
   decidedAt?: boolean
   decisionNote?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   connection?: boolean | Prisma.CustomerErpConnectionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerErpApproval"]>
 
@@ -832,9 +892,11 @@ export type CustomerErpApprovalSelectScalar = {
   decidedByProfileId?: boolean
   decidedAt?: boolean
   decisionNote?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CustomerErpApprovalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "organizationId" | "kind" | "state" | "syncEventId" | "orderId" | "amountMinor" | "currency" | "summary" | "requestedAt" | "expiresAt" | "decidedByProfileId" | "decidedAt" | "decisionNote", ExtArgs["result"]["customerErpApproval"]>
+export type CustomerErpApprovalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "organizationId" | "kind" | "state" | "syncEventId" | "orderId" | "amountMinor" | "currency" | "summary" | "requestedAt" | "expiresAt" | "decidedByProfileId" | "decidedAt" | "decisionNote" | "createdAt" | "updatedAt", ExtArgs["result"]["customerErpApproval"]>
 export type CustomerErpApprovalInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   connection?: boolean | Prisma.CustomerErpConnectionDefaultArgs<ExtArgs>
 }
@@ -871,6 +933,8 @@ export type $CustomerErpApprovalPayload<ExtArgs extends runtime.Types.Extensions
     decidedByProfileId: string | null
     decidedAt: Date | null
     decisionNote: string | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["customerErpApproval"]>
   composites: {}
 }
@@ -1256,6 +1320,8 @@ export interface CustomerErpApprovalFieldRefs {
   readonly decidedByProfileId: Prisma.FieldRef<"CustomerErpApproval", 'String'>
   readonly decidedAt: Prisma.FieldRef<"CustomerErpApproval", 'DateTime'>
   readonly decisionNote: Prisma.FieldRef<"CustomerErpApproval", 'String'>
+  readonly createdAt: Prisma.FieldRef<"CustomerErpApproval", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CustomerErpApproval", 'DateTime'>
 }
     
 

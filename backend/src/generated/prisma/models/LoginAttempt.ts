@@ -32,6 +32,7 @@ export type LoginAttemptMinAggregateOutputType = {
   success: boolean | null
   failureReason: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LoginAttemptMaxAggregateOutputType = {
@@ -42,6 +43,7 @@ export type LoginAttemptMaxAggregateOutputType = {
   success: boolean | null
   failureReason: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LoginAttemptCountAggregateOutputType = {
@@ -52,6 +54,7 @@ export type LoginAttemptCountAggregateOutputType = {
   success: number
   failureReason: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -64,6 +67,7 @@ export type LoginAttemptMinAggregateInputType = {
   success?: true
   failureReason?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LoginAttemptMaxAggregateInputType = {
@@ -74,6 +78,7 @@ export type LoginAttemptMaxAggregateInputType = {
   success?: true
   failureReason?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LoginAttemptCountAggregateInputType = {
@@ -84,6 +89,7 @@ export type LoginAttemptCountAggregateInputType = {
   success?: true
   failureReason?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -167,6 +173,7 @@ export type LoginAttemptGroupByOutputType = {
   success: boolean
   failureReason: string | null
   createdAt: Date
+  updatedAt: Date
   _count: LoginAttemptCountAggregateOutputType | null
   _min: LoginAttemptMinAggregateOutputType | null
   _max: LoginAttemptMaxAggregateOutputType | null
@@ -198,6 +205,7 @@ export type LoginAttemptWhereInput = {
   success?: Prisma.BoolFilter<"LoginAttempt"> | boolean
   failureReason?: Prisma.StringNullableFilter<"LoginAttempt"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LoginAttempt"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LoginAttempt"> | Date | string
 }
 
 export type LoginAttemptOrderByWithRelationInput = {
@@ -208,6 +216,7 @@ export type LoginAttemptOrderByWithRelationInput = {
   success?: Prisma.SortOrder
   failureReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _relevance?: Prisma.LoginAttemptOrderByRelevanceInput
 }
 
@@ -222,6 +231,7 @@ export type LoginAttemptWhereUniqueInput = Prisma.AtLeast<{
   success?: Prisma.BoolFilter<"LoginAttempt"> | boolean
   failureReason?: Prisma.StringNullableFilter<"LoginAttempt"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LoginAttempt"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LoginAttempt"> | Date | string
 }, "id">
 
 export type LoginAttemptOrderByWithAggregationInput = {
@@ -232,6 +242,7 @@ export type LoginAttemptOrderByWithAggregationInput = {
   success?: Prisma.SortOrder
   failureReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LoginAttemptCountOrderByAggregateInput
   _max?: Prisma.LoginAttemptMaxOrderByAggregateInput
   _min?: Prisma.LoginAttemptMinOrderByAggregateInput
@@ -248,6 +259,7 @@ export type LoginAttemptScalarWhereWithAggregatesInput = {
   success?: Prisma.BoolWithAggregatesFilter<"LoginAttempt"> | boolean
   failureReason?: Prisma.StringNullableWithAggregatesFilter<"LoginAttempt"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LoginAttempt"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LoginAttempt"> | Date | string
 }
 
 export type LoginAttemptCreateInput = {
@@ -258,6 +270,7 @@ export type LoginAttemptCreateInput = {
   success: boolean
   failureReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LoginAttemptUncheckedCreateInput = {
@@ -268,6 +281,7 @@ export type LoginAttemptUncheckedCreateInput = {
   success: boolean
   failureReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LoginAttemptUpdateInput = {
@@ -278,6 +292,7 @@ export type LoginAttemptUpdateInput = {
   success?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LoginAttemptUncheckedUpdateInput = {
@@ -288,6 +303,7 @@ export type LoginAttemptUncheckedUpdateInput = {
   success?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LoginAttemptCreateManyInput = {
@@ -298,6 +314,7 @@ export type LoginAttemptCreateManyInput = {
   success: boolean
   failureReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LoginAttemptUpdateManyMutationInput = {
@@ -308,6 +325,7 @@ export type LoginAttemptUpdateManyMutationInput = {
   success?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LoginAttemptUncheckedUpdateManyInput = {
@@ -318,6 +336,7 @@ export type LoginAttemptUncheckedUpdateManyInput = {
   success?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LoginAttemptOrderByRelevanceInput = {
@@ -334,6 +353,7 @@ export type LoginAttemptCountOrderByAggregateInput = {
   success?: Prisma.SortOrder
   failureReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LoginAttemptMaxOrderByAggregateInput = {
@@ -344,6 +364,7 @@ export type LoginAttemptMaxOrderByAggregateInput = {
   success?: Prisma.SortOrder
   failureReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LoginAttemptMinOrderByAggregateInput = {
@@ -354,6 +375,7 @@ export type LoginAttemptMinOrderByAggregateInput = {
   success?: Prisma.SortOrder
   failureReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 
@@ -366,6 +388,7 @@ export type LoginAttemptSelect<ExtArgs extends runtime.Types.Extensions.Internal
   success?: boolean
   failureReason?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["loginAttempt"]>
 
 
@@ -378,9 +401,10 @@ export type LoginAttemptSelectScalar = {
   success?: boolean
   failureReason?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LoginAttemptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "emailNormalized" | "userType" | "ipAddress" | "success" | "failureReason" | "createdAt", ExtArgs["result"]["loginAttempt"]>
+export type LoginAttemptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "emailNormalized" | "userType" | "ipAddress" | "success" | "failureReason" | "createdAt" | "updatedAt", ExtArgs["result"]["loginAttempt"]>
 
 export type $LoginAttemptPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LoginAttempt"
@@ -393,6 +417,7 @@ export type $LoginAttemptPayload<ExtArgs extends runtime.Types.Extensions.Intern
     success: boolean
     failureReason: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["loginAttempt"]>
   composites: {}
 }
@@ -769,6 +794,7 @@ export interface LoginAttemptFieldRefs {
   readonly success: Prisma.FieldRef<"LoginAttempt", 'Boolean'>
   readonly failureReason: Prisma.FieldRef<"LoginAttempt", 'String'>
   readonly createdAt: Prisma.FieldRef<"LoginAttempt", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LoginAttempt", 'DateTime'>
 }
     
 

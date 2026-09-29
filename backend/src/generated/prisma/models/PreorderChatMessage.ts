@@ -53,6 +53,7 @@ export type PreorderChatMessageMinAggregateOutputType = {
   redactedAt: Date | null
   redactedByUserId: string | null
   redactionReason: string | null
+  updatedAt: Date | null
 }
 
 export type PreorderChatMessageMaxAggregateOutputType = {
@@ -74,6 +75,7 @@ export type PreorderChatMessageMaxAggregateOutputType = {
   redactedAt: Date | null
   redactedByUserId: string | null
   redactionReason: string | null
+  updatedAt: Date | null
 }
 
 export type PreorderChatMessageCountAggregateOutputType = {
@@ -96,6 +98,7 @@ export type PreorderChatMessageCountAggregateOutputType = {
   redactedAt: number
   redactedByUserId: number
   redactionReason: number
+  updatedAt: number
   _all: number
 }
 
@@ -127,6 +130,7 @@ export type PreorderChatMessageMinAggregateInputType = {
   redactedAt?: true
   redactedByUserId?: true
   redactionReason?: true
+  updatedAt?: true
 }
 
 export type PreorderChatMessageMaxAggregateInputType = {
@@ -148,6 +152,7 @@ export type PreorderChatMessageMaxAggregateInputType = {
   redactedAt?: true
   redactedByUserId?: true
   redactionReason?: true
+  updatedAt?: true
 }
 
 export type PreorderChatMessageCountAggregateInputType = {
@@ -170,6 +175,7 @@ export type PreorderChatMessageCountAggregateInputType = {
   redactedAt?: true
   redactedByUserId?: true
   redactionReason?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -279,6 +285,7 @@ export type PreorderChatMessageGroupByOutputType = {
   redactedAt: Date | null
   redactedByUserId: string | null
   redactionReason: string | null
+  updatedAt: Date
   _count: PreorderChatMessageCountAggregateOutputType | null
   _avg: PreorderChatMessageAvgAggregateOutputType | null
   _sum: PreorderChatMessageSumAggregateOutputType | null
@@ -324,6 +331,7 @@ export type PreorderChatMessageWhereInput = {
   redactedAt?: Prisma.DateTimeNullableFilter<"PreorderChatMessage"> | Date | string | null
   redactedByUserId?: Prisma.StringNullableFilter<"PreorderChatMessage"> | string | null
   redactionReason?: Prisma.StringNullableFilter<"PreorderChatMessage"> | string | null
+  updatedAt?: Prisma.DateTimeFilter<"PreorderChatMessage"> | Date | string
   conversation?: Prisma.XOR<Prisma.PreorderChatConversationScalarRelationFilter, Prisma.PreorderChatConversationWhereInput>
   attachment?: Prisma.XOR<Prisma.PreorderChatAttachmentNullableScalarRelationFilter, Prisma.PreorderChatAttachmentWhereInput> | null
 }
@@ -348,6 +356,7 @@ export type PreorderChatMessageOrderByWithRelationInput = {
   redactedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   redactedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   redactionReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   conversation?: Prisma.PreorderChatConversationOrderByWithRelationInput
   attachment?: Prisma.PreorderChatAttachmentOrderByWithRelationInput
   _relevance?: Prisma.PreorderChatMessageOrderByRelevanceInput
@@ -378,6 +387,7 @@ export type PreorderChatMessageWhereUniqueInput = Prisma.AtLeast<{
   redactedAt?: Prisma.DateTimeNullableFilter<"PreorderChatMessage"> | Date | string | null
   redactedByUserId?: Prisma.StringNullableFilter<"PreorderChatMessage"> | string | null
   redactionReason?: Prisma.StringNullableFilter<"PreorderChatMessage"> | string | null
+  updatedAt?: Prisma.DateTimeFilter<"PreorderChatMessage"> | Date | string
   conversation?: Prisma.XOR<Prisma.PreorderChatConversationScalarRelationFilter, Prisma.PreorderChatConversationWhereInput>
   attachment?: Prisma.XOR<Prisma.PreorderChatAttachmentNullableScalarRelationFilter, Prisma.PreorderChatAttachmentWhereInput> | null
 }, "id" | "conversationId_serverSequence" | "senderKey_clientMessageId">
@@ -402,6 +412,7 @@ export type PreorderChatMessageOrderByWithAggregationInput = {
   redactedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   redactedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   redactionReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PreorderChatMessageCountOrderByAggregateInput
   _avg?: Prisma.PreorderChatMessageAvgOrderByAggregateInput
   _max?: Prisma.PreorderChatMessageMaxOrderByAggregateInput
@@ -432,6 +443,7 @@ export type PreorderChatMessageScalarWhereWithAggregatesInput = {
   redactedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PreorderChatMessage"> | Date | string | null
   redactedByUserId?: Prisma.StringNullableWithAggregatesFilter<"PreorderChatMessage"> | string | null
   redactionReason?: Prisma.StringNullableWithAggregatesFilter<"PreorderChatMessage"> | string | null
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderChatMessage"> | Date | string
 }
 
 export type PreorderChatMessageCreateInput = {
@@ -453,6 +465,7 @@ export type PreorderChatMessageCreateInput = {
   redactedAt?: Date | string | null
   redactedByUserId?: string | null
   redactionReason?: string | null
+  updatedAt?: Date | string
   conversation: Prisma.PreorderChatConversationCreateNestedOneWithoutMessagesInput
   attachment?: Prisma.PreorderChatAttachmentCreateNestedOneWithoutMessageInput
 }
@@ -477,6 +490,7 @@ export type PreorderChatMessageUncheckedCreateInput = {
   redactedAt?: Date | string | null
   redactedByUserId?: string | null
   redactionReason?: string | null
+  updatedAt?: Date | string
   attachment?: Prisma.PreorderChatAttachmentUncheckedCreateNestedOneWithoutMessageInput
 }
 
@@ -499,6 +513,7 @@ export type PreorderChatMessageUpdateInput = {
   redactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   redactedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   redactionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conversation?: Prisma.PreorderChatConversationUpdateOneRequiredWithoutMessagesNestedInput
   attachment?: Prisma.PreorderChatAttachmentUpdateOneWithoutMessageNestedInput
 }
@@ -523,6 +538,7 @@ export type PreorderChatMessageUncheckedUpdateInput = {
   redactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   redactedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   redactionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attachment?: Prisma.PreorderChatAttachmentUncheckedUpdateOneWithoutMessageNestedInput
 }
 
@@ -546,6 +562,7 @@ export type PreorderChatMessageCreateManyInput = {
   redactedAt?: Date | string | null
   redactedByUserId?: string | null
   redactionReason?: string | null
+  updatedAt?: Date | string
 }
 
 export type PreorderChatMessageUpdateManyMutationInput = {
@@ -567,6 +584,7 @@ export type PreorderChatMessageUpdateManyMutationInput = {
   redactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   redactedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   redactionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatMessageUncheckedUpdateManyInput = {
@@ -589,6 +607,7 @@ export type PreorderChatMessageUncheckedUpdateManyInput = {
   redactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   redactedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   redactionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatMessageListRelationFilter = {
@@ -637,6 +656,7 @@ export type PreorderChatMessageCountOrderByAggregateInput = {
   redactedAt?: Prisma.SortOrder
   redactedByUserId?: Prisma.SortOrder
   redactionReason?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderChatMessageAvgOrderByAggregateInput = {
@@ -662,6 +682,7 @@ export type PreorderChatMessageMaxOrderByAggregateInput = {
   redactedAt?: Prisma.SortOrder
   redactedByUserId?: Prisma.SortOrder
   redactionReason?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderChatMessageMinOrderByAggregateInput = {
@@ -683,6 +704,7 @@ export type PreorderChatMessageMinOrderByAggregateInput = {
   redactedAt?: Prisma.SortOrder
   redactedByUserId?: Prisma.SortOrder
   redactionReason?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderChatMessageSumOrderByAggregateInput = {
@@ -779,6 +801,7 @@ export type PreorderChatMessageCreateWithoutConversationInput = {
   redactedAt?: Date | string | null
   redactedByUserId?: string | null
   redactionReason?: string | null
+  updatedAt?: Date | string
   attachment?: Prisma.PreorderChatAttachmentCreateNestedOneWithoutMessageInput
 }
 
@@ -801,6 +824,7 @@ export type PreorderChatMessageUncheckedCreateWithoutConversationInput = {
   redactedAt?: Date | string | null
   redactedByUserId?: string | null
   redactionReason?: string | null
+  updatedAt?: Date | string
   attachment?: Prisma.PreorderChatAttachmentUncheckedCreateNestedOneWithoutMessageInput
 }
 
@@ -853,6 +877,7 @@ export type PreorderChatMessageScalarWhereInput = {
   redactedAt?: Prisma.DateTimeNullableFilter<"PreorderChatMessage"> | Date | string | null
   redactedByUserId?: Prisma.StringNullableFilter<"PreorderChatMessage"> | string | null
   redactionReason?: Prisma.StringNullableFilter<"PreorderChatMessage"> | string | null
+  updatedAt?: Prisma.DateTimeFilter<"PreorderChatMessage"> | Date | string
 }
 
 export type PreorderChatMessageCreateWithoutAttachmentInput = {
@@ -874,6 +899,7 @@ export type PreorderChatMessageCreateWithoutAttachmentInput = {
   redactedAt?: Date | string | null
   redactedByUserId?: string | null
   redactionReason?: string | null
+  updatedAt?: Date | string
   conversation: Prisma.PreorderChatConversationCreateNestedOneWithoutMessagesInput
 }
 
@@ -897,6 +923,7 @@ export type PreorderChatMessageUncheckedCreateWithoutAttachmentInput = {
   redactedAt?: Date | string | null
   redactedByUserId?: string | null
   redactionReason?: string | null
+  updatedAt?: Date | string
 }
 
 export type PreorderChatMessageCreateOrConnectWithoutAttachmentInput = {
@@ -934,6 +961,7 @@ export type PreorderChatMessageUpdateWithoutAttachmentInput = {
   redactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   redactedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   redactionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conversation?: Prisma.PreorderChatConversationUpdateOneRequiredWithoutMessagesNestedInput
 }
 
@@ -957,6 +985,7 @@ export type PreorderChatMessageUncheckedUpdateWithoutAttachmentInput = {
   redactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   redactedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   redactionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatMessageCreateManyConversationInput = {
@@ -978,6 +1007,7 @@ export type PreorderChatMessageCreateManyConversationInput = {
   redactedAt?: Date | string | null
   redactedByUserId?: string | null
   redactionReason?: string | null
+  updatedAt?: Date | string
 }
 
 export type PreorderChatMessageUpdateWithoutConversationInput = {
@@ -999,6 +1029,7 @@ export type PreorderChatMessageUpdateWithoutConversationInput = {
   redactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   redactedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   redactionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attachment?: Prisma.PreorderChatAttachmentUpdateOneWithoutMessageNestedInput
 }
 
@@ -1021,6 +1052,7 @@ export type PreorderChatMessageUncheckedUpdateWithoutConversationInput = {
   redactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   redactedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   redactionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attachment?: Prisma.PreorderChatAttachmentUncheckedUpdateOneWithoutMessageNestedInput
 }
 
@@ -1043,6 +1075,7 @@ export type PreorderChatMessageUncheckedUpdateManyWithoutConversationInput = {
   redactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   redactedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   redactionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1067,6 +1100,7 @@ export type PreorderChatMessageSelect<ExtArgs extends runtime.Types.Extensions.I
   redactedAt?: boolean
   redactedByUserId?: boolean
   redactionReason?: boolean
+  updatedAt?: boolean
   conversation?: boolean | Prisma.PreorderChatConversationDefaultArgs<ExtArgs>
   attachment?: boolean | Prisma.PreorderChatMessage$attachmentArgs<ExtArgs>
 }, ExtArgs["result"]["preorderChatMessage"]>
@@ -1093,9 +1127,10 @@ export type PreorderChatMessageSelectScalar = {
   redactedAt?: boolean
   redactedByUserId?: boolean
   redactionReason?: boolean
+  updatedAt?: boolean
 }
 
-export type PreorderChatMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "conversationId" | "serverSequence" | "senderType" | "senderUserId" | "senderKey" | "clientMessageId" | "messageType" | "body" | "systemEvent" | "systemMetaJson" | "replyToMessageId" | "proposalId" | "createdAt" | "deliveredAt" | "editedAt" | "redactedAt" | "redactedByUserId" | "redactionReason", ExtArgs["result"]["preorderChatMessage"]>
+export type PreorderChatMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "conversationId" | "serverSequence" | "senderType" | "senderUserId" | "senderKey" | "clientMessageId" | "messageType" | "body" | "systemEvent" | "systemMetaJson" | "replyToMessageId" | "proposalId" | "createdAt" | "deliveredAt" | "editedAt" | "redactedAt" | "redactedByUserId" | "redactionReason" | "updatedAt", ExtArgs["result"]["preorderChatMessage"]>
 export type PreorderChatMessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   conversation?: boolean | Prisma.PreorderChatConversationDefaultArgs<ExtArgs>
   attachment?: boolean | Prisma.PreorderChatMessage$attachmentArgs<ExtArgs>
@@ -1159,6 +1194,7 @@ export type $PreorderChatMessagePayload<ExtArgs extends runtime.Types.Extensions
     redactedAt: Date | null
     redactedByUserId: string | null
     redactionReason: string | null
+    updatedAt: Date
   }, ExtArgs["result"]["preorderChatMessage"]>
   composites: {}
 }
@@ -1549,6 +1585,7 @@ export interface PreorderChatMessageFieldRefs {
   readonly redactedAt: Prisma.FieldRef<"PreorderChatMessage", 'DateTime'>
   readonly redactedByUserId: Prisma.FieldRef<"PreorderChatMessage", 'String'>
   readonly redactionReason: Prisma.FieldRef<"PreorderChatMessage", 'String'>
+  readonly updatedAt: Prisma.FieldRef<"PreorderChatMessage", 'DateTime'>
 }
     
 

@@ -34,6 +34,7 @@ export type BuyerCompanyStatusHistoryMinAggregateOutputType = {
   actorType: $Enums.ActorType | null
   actorUserId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerCompanyStatusHistoryMaxAggregateOutputType = {
@@ -46,6 +47,7 @@ export type BuyerCompanyStatusHistoryMaxAggregateOutputType = {
   actorType: $Enums.ActorType | null
   actorUserId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerCompanyStatusHistoryCountAggregateOutputType = {
@@ -58,6 +60,7 @@ export type BuyerCompanyStatusHistoryCountAggregateOutputType = {
   actorType: number
   actorUserId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -72,6 +75,7 @@ export type BuyerCompanyStatusHistoryMinAggregateInputType = {
   actorType?: true
   actorUserId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type BuyerCompanyStatusHistoryMaxAggregateInputType = {
@@ -84,6 +88,7 @@ export type BuyerCompanyStatusHistoryMaxAggregateInputType = {
   actorType?: true
   actorUserId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type BuyerCompanyStatusHistoryCountAggregateInputType = {
@@ -96,6 +101,7 @@ export type BuyerCompanyStatusHistoryCountAggregateInputType = {
   actorType?: true
   actorUserId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -181,6 +187,7 @@ export type BuyerCompanyStatusHistoryGroupByOutputType = {
   actorType: $Enums.ActorType
   actorUserId: string | null
   createdAt: Date
+  updatedAt: Date
   _count: BuyerCompanyStatusHistoryCountAggregateOutputType | null
   _min: BuyerCompanyStatusHistoryMinAggregateOutputType | null
   _max: BuyerCompanyStatusHistoryMaxAggregateOutputType | null
@@ -214,6 +221,7 @@ export type BuyerCompanyStatusHistoryWhereInput = {
   actorType?: Prisma.EnumActorTypeFilter<"BuyerCompanyStatusHistory"> | $Enums.ActorType
   actorUserId?: Prisma.StringNullableFilter<"BuyerCompanyStatusHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BuyerCompanyStatusHistory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyStatusHistory"> | Date | string
   company?: Prisma.XOR<Prisma.BuyerCompanyScalarRelationFilter, Prisma.BuyerCompanyWhereInput>
 }
 
@@ -227,6 +235,7 @@ export type BuyerCompanyStatusHistoryOrderByWithRelationInput = {
   actorType?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   company?: Prisma.BuyerCompanyOrderByWithRelationInput
   _relevance?: Prisma.BuyerCompanyStatusHistoryOrderByRelevanceInput
 }
@@ -244,6 +253,7 @@ export type BuyerCompanyStatusHistoryWhereUniqueInput = Prisma.AtLeast<{
   actorType?: Prisma.EnumActorTypeFilter<"BuyerCompanyStatusHistory"> | $Enums.ActorType
   actorUserId?: Prisma.StringNullableFilter<"BuyerCompanyStatusHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BuyerCompanyStatusHistory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyStatusHistory"> | Date | string
   company?: Prisma.XOR<Prisma.BuyerCompanyScalarRelationFilter, Prisma.BuyerCompanyWhereInput>
 }, "id">
 
@@ -257,6 +267,7 @@ export type BuyerCompanyStatusHistoryOrderByWithAggregationInput = {
   actorType?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.BuyerCompanyStatusHistoryCountOrderByAggregateInput
   _max?: Prisma.BuyerCompanyStatusHistoryMaxOrderByAggregateInput
   _min?: Prisma.BuyerCompanyStatusHistoryMinOrderByAggregateInput
@@ -275,6 +286,7 @@ export type BuyerCompanyStatusHistoryScalarWhereWithAggregatesInput = {
   actorType?: Prisma.EnumActorTypeWithAggregatesFilter<"BuyerCompanyStatusHistory"> | $Enums.ActorType
   actorUserId?: Prisma.StringNullableWithAggregatesFilter<"BuyerCompanyStatusHistory"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyStatusHistory"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyStatusHistory"> | Date | string
 }
 
 export type BuyerCompanyStatusHistoryCreateInput = {
@@ -286,6 +298,7 @@ export type BuyerCompanyStatusHistoryCreateInput = {
   actorType: $Enums.ActorType
   actorUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   company: Prisma.BuyerCompanyCreateNestedOneWithoutStatusHistoryInput
 }
 
@@ -299,6 +312,7 @@ export type BuyerCompanyStatusHistoryUncheckedCreateInput = {
   actorType: $Enums.ActorType
   actorUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyStatusHistoryUpdateInput = {
@@ -310,6 +324,7 @@ export type BuyerCompanyStatusHistoryUpdateInput = {
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneRequiredWithoutStatusHistoryNestedInput
 }
 
@@ -323,6 +338,7 @@ export type BuyerCompanyStatusHistoryUncheckedUpdateInput = {
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyStatusHistoryCreateManyInput = {
@@ -335,6 +351,7 @@ export type BuyerCompanyStatusHistoryCreateManyInput = {
   actorType: $Enums.ActorType
   actorUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyStatusHistoryUpdateManyMutationInput = {
@@ -346,6 +363,7 @@ export type BuyerCompanyStatusHistoryUpdateManyMutationInput = {
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyStatusHistoryUncheckedUpdateManyInput = {
@@ -358,6 +376,7 @@ export type BuyerCompanyStatusHistoryUncheckedUpdateManyInput = {
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyStatusHistoryListRelationFilter = {
@@ -386,6 +405,7 @@ export type BuyerCompanyStatusHistoryCountOrderByAggregateInput = {
   actorType?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyStatusHistoryMaxOrderByAggregateInput = {
@@ -398,6 +418,7 @@ export type BuyerCompanyStatusHistoryMaxOrderByAggregateInput = {
   actorType?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyStatusHistoryMinOrderByAggregateInput = {
@@ -410,6 +431,7 @@ export type BuyerCompanyStatusHistoryMinOrderByAggregateInput = {
   actorType?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyStatusHistoryCreateNestedManyWithoutCompanyInput = {
@@ -463,6 +485,7 @@ export type BuyerCompanyStatusHistoryCreateWithoutCompanyInput = {
   actorType: $Enums.ActorType
   actorUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyStatusHistoryUncheckedCreateWithoutCompanyInput = {
@@ -474,6 +497,7 @@ export type BuyerCompanyStatusHistoryUncheckedCreateWithoutCompanyInput = {
   actorType: $Enums.ActorType
   actorUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyStatusHistoryCreateOrConnectWithoutCompanyInput = {
@@ -515,6 +539,7 @@ export type BuyerCompanyStatusHistoryScalarWhereInput = {
   actorType?: Prisma.EnumActorTypeFilter<"BuyerCompanyStatusHistory"> | $Enums.ActorType
   actorUserId?: Prisma.StringNullableFilter<"BuyerCompanyStatusHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BuyerCompanyStatusHistory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyStatusHistory"> | Date | string
 }
 
 export type BuyerCompanyStatusHistoryCreateManyCompanyInput = {
@@ -526,6 +551,7 @@ export type BuyerCompanyStatusHistoryCreateManyCompanyInput = {
   actorType: $Enums.ActorType
   actorUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyStatusHistoryUpdateWithoutCompanyInput = {
@@ -537,6 +563,7 @@ export type BuyerCompanyStatusHistoryUpdateWithoutCompanyInput = {
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyStatusHistoryUncheckedUpdateWithoutCompanyInput = {
@@ -548,6 +575,7 @@ export type BuyerCompanyStatusHistoryUncheckedUpdateWithoutCompanyInput = {
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyStatusHistoryUncheckedUpdateManyWithoutCompanyInput = {
@@ -559,6 +587,7 @@ export type BuyerCompanyStatusHistoryUncheckedUpdateManyWithoutCompanyInput = {
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -573,6 +602,7 @@ export type BuyerCompanyStatusHistorySelect<ExtArgs extends runtime.Types.Extens
   actorType?: boolean
   actorUserId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   company?: boolean | Prisma.BuyerCompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["buyerCompanyStatusHistory"]>
 
@@ -588,9 +618,10 @@ export type BuyerCompanyStatusHistorySelectScalar = {
   actorType?: boolean
   actorUserId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type BuyerCompanyStatusHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "fromStatus" | "toStatus" | "reason" | "reasonCode" | "actorType" | "actorUserId" | "createdAt", ExtArgs["result"]["buyerCompanyStatusHistory"]>
+export type BuyerCompanyStatusHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "fromStatus" | "toStatus" | "reason" | "reasonCode" | "actorType" | "actorUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["buyerCompanyStatusHistory"]>
 export type BuyerCompanyStatusHistoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.BuyerCompanyDefaultArgs<ExtArgs>
 }
@@ -610,6 +641,7 @@ export type $BuyerCompanyStatusHistoryPayload<ExtArgs extends runtime.Types.Exte
     actorType: $Enums.ActorType
     actorUserId: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["buyerCompanyStatusHistory"]>
   composites: {}
 }
@@ -989,6 +1021,7 @@ export interface BuyerCompanyStatusHistoryFieldRefs {
   readonly actorType: Prisma.FieldRef<"BuyerCompanyStatusHistory", 'ActorType'>
   readonly actorUserId: Prisma.FieldRef<"BuyerCompanyStatusHistory", 'String'>
   readonly createdAt: Prisma.FieldRef<"BuyerCompanyStatusHistory", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"BuyerCompanyStatusHistory", 'DateTime'>
 }
     
 

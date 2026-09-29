@@ -198,7 +198,10 @@ async function loadConnection(connectionId: string): Promise<LoadedConnection> {
   };
 }
 
-function authHeaders(connection: LoadedConnection): Record<string, string> {
+/** What one feed call needs to know about its connection, and nothing else. */
+type FeedTarget = Pick<LoadedConnection, 'baseUrl' | 'timeoutMs' | 'authType' | 'credentials'>;
+
+function authHeaders(connection: FeedTarget): Record<string, string> {
   const credentials = connection.credentials;
   if (credentials === null) return {};
 
@@ -268,8 +271,13 @@ async function recordCircuitFailure(connectionId: string, failures: number): Pro
   }
 }
 
-/** One HTTP call with a bounded timeout and a response-size ceiling. */
-async function fetchFeed(connection: LoadedConnection): Promise<unknown> {
+/**
+ * One HTTP call with a bounded timeout and a response-size ceiling.
+ *
+ * Exported for its timeout test, which needs no database; nothing outside
+ * this file calls it.
+ */
+export async function fetchFeed(connection: FeedTarget): Promise<unknown> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), connection.timeoutMs);
 
@@ -295,6 +303,18 @@ async function fetchFeed(connection: LoadedConnection): Promise<unknown> {
     } catch {
       throw new Error('Remote returned a body that is not valid JSON');
     }
+  } catch (error) {
+    // The timer firing reaches here as the runtime's own AbortError, whose
+    // message - "This operation was aborted" - is what the connection screen
+    // and the sync log would otherwise show. Said the way erp-order.service
+    // says it for the same timer.
+    if (controller.signal.aborted) {
+      throw new Error(
+        `Remote did not respond within ${String(connection.timeoutMs)} ms`,
+        { cause: error },
+      );
+    }
+    throw error;
   } finally {
     clearTimeout(timer);
   }

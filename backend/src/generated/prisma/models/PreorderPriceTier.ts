@@ -47,6 +47,7 @@ export type PreorderPriceTierMinAggregateOutputType = {
   unitPriceMinor: bigint | null
   currency: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PreorderPriceTierMaxAggregateOutputType = {
@@ -56,6 +57,7 @@ export type PreorderPriceTierMaxAggregateOutputType = {
   unitPriceMinor: bigint | null
   currency: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PreorderPriceTierCountAggregateOutputType = {
@@ -65,6 +67,7 @@ export type PreorderPriceTierCountAggregateOutputType = {
   unitPriceMinor: number
   currency: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -86,6 +89,7 @@ export type PreorderPriceTierMinAggregateInputType = {
   unitPriceMinor?: true
   currency?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PreorderPriceTierMaxAggregateInputType = {
@@ -95,6 +99,7 @@ export type PreorderPriceTierMaxAggregateInputType = {
   unitPriceMinor?: true
   currency?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PreorderPriceTierCountAggregateInputType = {
@@ -104,6 +109,7 @@ export type PreorderPriceTierCountAggregateInputType = {
   unitPriceMinor?: true
   currency?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -200,6 +206,7 @@ export type PreorderPriceTierGroupByOutputType = {
   unitPriceMinor: bigint
   currency: string
   createdAt: Date
+  updatedAt: Date
   _count: PreorderPriceTierCountAggregateOutputType | null
   _avg: PreorderPriceTierAvgAggregateOutputType | null
   _sum: PreorderPriceTierSumAggregateOutputType | null
@@ -232,6 +239,7 @@ export type PreorderPriceTierWhereInput = {
   unitPriceMinor?: Prisma.BigIntFilter<"PreorderPriceTier"> | bigint | number
   currency?: Prisma.StringFilter<"PreorderPriceTier"> | string
   createdAt?: Prisma.DateTimeFilter<"PreorderPriceTier"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PreorderPriceTier"> | Date | string
   policy?: Prisma.XOR<Prisma.PreorderPolicyScalarRelationFilter, Prisma.PreorderPolicyWhereInput>
 }
 
@@ -242,6 +250,7 @@ export type PreorderPriceTierOrderByWithRelationInput = {
   unitPriceMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   policy?: Prisma.PreorderPolicyOrderByWithRelationInput
   _relevance?: Prisma.PreorderPriceTierOrderByRelevanceInput
 }
@@ -257,6 +266,7 @@ export type PreorderPriceTierWhereUniqueInput = Prisma.AtLeast<{
   unitPriceMinor?: Prisma.BigIntFilter<"PreorderPriceTier"> | bigint | number
   currency?: Prisma.StringFilter<"PreorderPriceTier"> | string
   createdAt?: Prisma.DateTimeFilter<"PreorderPriceTier"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PreorderPriceTier"> | Date | string
   policy?: Prisma.XOR<Prisma.PreorderPolicyScalarRelationFilter, Prisma.PreorderPolicyWhereInput>
 }, "id" | "policyId_minBaseUnits">
 
@@ -267,6 +277,7 @@ export type PreorderPriceTierOrderByWithAggregationInput = {
   unitPriceMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PreorderPriceTierCountOrderByAggregateInput
   _avg?: Prisma.PreorderPriceTierAvgOrderByAggregateInput
   _max?: Prisma.PreorderPriceTierMaxOrderByAggregateInput
@@ -284,6 +295,7 @@ export type PreorderPriceTierScalarWhereWithAggregatesInput = {
   unitPriceMinor?: Prisma.BigIntWithAggregatesFilter<"PreorderPriceTier"> | bigint | number
   currency?: Prisma.StringWithAggregatesFilter<"PreorderPriceTier"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderPriceTier"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderPriceTier"> | Date | string
 }
 
 export type PreorderPriceTierCreateInput = {
@@ -292,6 +304,7 @@ export type PreorderPriceTierCreateInput = {
   unitPriceMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   policy: Prisma.PreorderPolicyCreateNestedOneWithoutTiersInput
 }
 
@@ -302,6 +315,7 @@ export type PreorderPriceTierUncheckedCreateInput = {
   unitPriceMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderPriceTierUpdateInput = {
@@ -310,6 +324,7 @@ export type PreorderPriceTierUpdateInput = {
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   policy?: Prisma.PreorderPolicyUpdateOneRequiredWithoutTiersNestedInput
 }
 
@@ -320,6 +335,7 @@ export type PreorderPriceTierUncheckedUpdateInput = {
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderPriceTierCreateManyInput = {
@@ -329,6 +345,7 @@ export type PreorderPriceTierCreateManyInput = {
   unitPriceMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderPriceTierUpdateManyMutationInput = {
@@ -337,6 +354,7 @@ export type PreorderPriceTierUpdateManyMutationInput = {
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderPriceTierUncheckedUpdateManyInput = {
@@ -346,6 +364,7 @@ export type PreorderPriceTierUncheckedUpdateManyInput = {
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderPriceTierListRelationFilter = {
@@ -376,6 +395,7 @@ export type PreorderPriceTierCountOrderByAggregateInput = {
   unitPriceMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderPriceTierAvgOrderByAggregateInput = {
@@ -390,6 +410,7 @@ export type PreorderPriceTierMaxOrderByAggregateInput = {
   unitPriceMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderPriceTierMinOrderByAggregateInput = {
@@ -399,6 +420,7 @@ export type PreorderPriceTierMinOrderByAggregateInput = {
   unitPriceMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderPriceTierSumOrderByAggregateInput = {
@@ -454,6 +476,7 @@ export type PreorderPriceTierCreateWithoutPolicyInput = {
   unitPriceMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderPriceTierUncheckedCreateWithoutPolicyInput = {
@@ -462,6 +485,7 @@ export type PreorderPriceTierUncheckedCreateWithoutPolicyInput = {
   unitPriceMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderPriceTierCreateOrConnectWithoutPolicyInput = {
@@ -500,6 +524,7 @@ export type PreorderPriceTierScalarWhereInput = {
   unitPriceMinor?: Prisma.BigIntFilter<"PreorderPriceTier"> | bigint | number
   currency?: Prisma.StringFilter<"PreorderPriceTier"> | string
   createdAt?: Prisma.DateTimeFilter<"PreorderPriceTier"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PreorderPriceTier"> | Date | string
 }
 
 export type PreorderPriceTierCreateManyPolicyInput = {
@@ -508,6 +533,7 @@ export type PreorderPriceTierCreateManyPolicyInput = {
   unitPriceMinor: bigint | number
   currency: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderPriceTierUpdateWithoutPolicyInput = {
@@ -516,6 +542,7 @@ export type PreorderPriceTierUpdateWithoutPolicyInput = {
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderPriceTierUncheckedUpdateWithoutPolicyInput = {
@@ -524,6 +551,7 @@ export type PreorderPriceTierUncheckedUpdateWithoutPolicyInput = {
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderPriceTierUncheckedUpdateManyWithoutPolicyInput = {
@@ -532,6 +560,7 @@ export type PreorderPriceTierUncheckedUpdateManyWithoutPolicyInput = {
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -543,6 +572,7 @@ export type PreorderPriceTierSelect<ExtArgs extends runtime.Types.Extensions.Int
   unitPriceMinor?: boolean
   currency?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   policy?: boolean | Prisma.PreorderPolicyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["preorderPriceTier"]>
 
@@ -555,9 +585,10 @@ export type PreorderPriceTierSelectScalar = {
   unitPriceMinor?: boolean
   currency?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PreorderPriceTierOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "policyId" | "minBaseUnits" | "unitPriceMinor" | "currency" | "createdAt", ExtArgs["result"]["preorderPriceTier"]>
+export type PreorderPriceTierOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "policyId" | "minBaseUnits" | "unitPriceMinor" | "currency" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderPriceTier"]>
 export type PreorderPriceTierInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   policy?: boolean | Prisma.PreorderPolicyDefaultArgs<ExtArgs>
 }
@@ -577,6 +608,7 @@ export type $PreorderPriceTierPayload<ExtArgs extends runtime.Types.Extensions.I
     unitPriceMinor: bigint
     currency: string
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["preorderPriceTier"]>
   composites: {}
 }
@@ -953,6 +985,7 @@ export interface PreorderPriceTierFieldRefs {
   readonly unitPriceMinor: Prisma.FieldRef<"PreorderPriceTier", 'BigInt'>
   readonly currency: Prisma.FieldRef<"PreorderPriceTier", 'String'>
   readonly createdAt: Prisma.FieldRef<"PreorderPriceTier", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"PreorderPriceTier", 'DateTime'>
 }
     
 

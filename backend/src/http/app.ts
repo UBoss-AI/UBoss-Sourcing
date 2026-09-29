@@ -36,6 +36,7 @@ import { DatabaseRateLimitStore } from '../infra/database-rate-limit-store.js';
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import { localStorageRoot } from '../infra/storage/index.js';
+import { sessionSecrets } from '../infra/signing-secrets.js';
 import { authRoutes } from './routes/auth.js';
 import {
   registerCustomerAccountRoutes,
@@ -53,9 +54,20 @@ import { registerAdminCustomerRoutes } from './routes/customers.admin.js';
 import { registerAdminDirectoryRoutes } from './routes/directory.admin.js';
 import { registerAdminInventoryRoutes } from './routes/inventory.admin.js';
 import { registerAdminSettingsRoutes } from './routes/settings.admin.js';
+import {
+  registerAdminReturnRoutes,
+  registerCustomerReturnRoutes,
+  registerSellerReturnRoutes,
+} from './routes/returns.js';
 import { registerAdminOrderRoutes, registerCustomerOrderRoutes } from './routes/orders.js';
+import {
+  registerAdminPaymentReceiptRoutes,
+  registerCustomerPaymentReceiptRoutes,
+} from './routes/payment-receipts.js';
+import { registerCustomerOrderTrackingRoutes } from './routes/order-tracking.customer.js';
 import { registerCustomerPaymentMethodRoutes } from './routes/payment-methods.customer.js';
 import { registerCustomerAutoPayRoutes } from './routes/autopay.customer.js';
+import { registerCustomerSecurityRoutes } from './routes/security.customer.js';
 import { registerAdminErpRoutes } from './routes/erp.admin.js';
 import { registerErpWebhookRoutes } from './routes/erp-webhooks.js';
 import { registerCustomerErpRoutes } from './routes/customer-erp.customer.js';
@@ -102,6 +114,7 @@ import {
   registerLogisticsPortalLegRoutes,
 } from './routes/logistics-levels.admin.js';
 import { registerSellerLogisticsRoutes } from './routes/seller.logistics.js';
+import { registerAdminPlatformFeeRuleRoutes } from './routes/platform-fee-rules.admin.js';
 import { registerSellerPreorderRoutes } from './routes/seller.preorders.js';
 import { registerPreorderRoutes } from './routes/preorders.js';
 import { registerAdminPreorderRoutes } from './routes/preorders.admin.js';
@@ -121,8 +134,19 @@ import {
   registerLogisticsSupportRoutes,
   registerSellerSupportRoutes,
 } from './routes/support.js';
+import {
+  registerAdminDisputeRoutes,
+  registerCustomerDisputeRoutes,
+  registerSellerDisputeRoutes,
+} from './routes/disputes.js';
 import { resolveHost } from '../modules/seller/storefront.service.js';
 import type { SellerStorefront } from '../modules/seller/storefront.service.js';
+import { AUDIT_EXPORT_HEADERS } from '../modules/audit/audit-log.read.js';
+import { type RequestContext, runWithRequestContext } from '../infra/request-context.js';
+import { installRouteTable } from './route-table.js';
+
+/** The context each request opened with, for the preValidation re-entry. */
+const requestContexts = new WeakMap<object, RequestContext>();
 
 export const CORRELATION_HEADER = 'x-correlation-id';
 
@@ -222,10 +246,34 @@ export async function buildApp() {
   });
 
   // --- 1. Correlation id ---------------------------------------------------
+  //
+  // The same hook opens the request context (infra/request-context.ts): the
+  // caller's address and User-Agent, which `recordAudit` falls back to when a
+  // service passes none. `run(..., done)` is what makes every later hook and
+  // the handler inherit it.
   app.addHook('onRequest', (request, reply, done) => {
     request.correlationId = String(request.id);
     reply.header(CORRELATION_HEADER, request.correlationId);
-    done();
+    const agent = request.headers['user-agent'];
+    const context: RequestContext = {
+      ipAddress: request.ip,
+      userAgent: typeof agent === 'string' && agent !== '' ? agent.slice(0, 512) : null,
+    };
+    requestContexts.set(request, context);
+    runWithRequestContext(context, done);
+  });
+
+  // Re-entered once the body is read. Body parsing continues from the
+  // socket's stream events, which run in the socket's async context rather
+  // than the request's, so without this every POST handler would lose it.
+  // (@fastify/request-context does the same, for the same reason.)
+  app.addHook('preValidation', (request, _reply, done) => {
+    const context = requestContexts.get(request);
+    if (context === undefined) {
+      done();
+      return;
+    }
+    runWithRequestContext(context, done);
   });
 
   /*
@@ -357,13 +405,23 @@ export async function buildApp() {
       // open Hub re-locks. See plugins/seller.ts.
       SELLER_ACTIVITY_HEADER,
     ],
-    exposedHeaders: [CORRELATION_HEADER, 'RateLimit-Limit', 'RateLimit-Remaining', SELLER_EXPIRES_HEADER],
+    exposedHeaders: [
+      CORRELATION_HEADER,
+      'RateLimit-Limit',
+      'RateLimit-Remaining',
+      SELLER_EXPIRES_HEADER,
+      // The audit-log export says how many entries matched and how many the
+      // file holds, so the panel can say when the row cap cut it short.
+      ...AUDIT_EXPORT_HEADERS,
+    ],
     maxAge: 86_400,
   });
 
   // --- 4. Cookies ----------------------------------------------------------
   await app.register(cookie, {
-    secret: env.SESSION_COOKIE_SECRET,
+    // Signs with the first, verifies with any: rotation without signing
+    // everybody out. See infra/signing-secrets.ts.
+    secret: [...sessionSecrets()],
     parseOptions: {
       httpOnly: true,
       secure: env.COOKIE_SECURE,
@@ -531,6 +589,14 @@ export async function buildApp() {
     });
   });
 
+  // --- 7a. The route table ------------------------------------------------
+  //
+  // Records every route as it registers and attaches the central
+  // Idempotency-Key hook to the ones `idempotency-policy.ts` declares a key
+  // required for. Must precede every route registration, the chat runtime's
+  // included.
+  installRouteTable(app as unknown as FastifyInstance);
+
   // --- 7b. Live connections ------------------------------------------------
   //
   // The WebSocket plugin and the preorder chat's bus and gateway. On the root
@@ -548,6 +614,9 @@ export async function buildApp() {
   // customer endpoint (or the reverse) fails before the password is compared.
   await app.register(authRoutes('ADMIN'), { prefix: `${API_PREFIX}/admin/auth` });
   await app.register(authRoutes('CUSTOMER'), { prefix: `${API_PREFIX}/auth` });
+  // Two-step sign-in and step-up for buyers and sellers. Beside the sign-in
+  // routes because a session still owing its code must reach them.
+  await app.register(registerCustomerSecurityRoutes, { prefix: `${API_PREFIX}/auth` });
   // The third audience. Same factory, same tokens, same rotation - a different
   // cookie jar and a different `users.type`, which is what stops a credential
   // minted here reaching the console or the storefront.
@@ -573,6 +642,13 @@ export async function buildApp() {
   await app.register(registerSellerSupportRoutes, { prefix: `${API_PREFIX}/seller` });
   await app.register(registerLogisticsSupportRoutes, { prefix: `${API_PREFIX}/logistics` });
   await app.register(registerAdminSupportRoutes, { prefix: `${API_PREFIX}/admin` });
+
+  // Disputes: buyer claims raised from the storefront, answered in Seller Hub,
+  // decided in the console, and chargebacks from signed payment webhooks.
+  // See `modules/disputes/`.
+  await app.register(registerCustomerDisputeRoutes, { prefix: `${API_PREFIX}/disputes` });
+  await app.register(registerSellerDisputeRoutes, { prefix: `${API_PREFIX}/seller` });
+  await app.register(registerAdminDisputeRoutes, { prefix: `${API_PREFIX}/admin` });
   // The sitemap. Unauthenticated because a sitemap has to be, and it discloses
   // nothing a visitor could not find by browsing: the same products, at the
   // same addresses, under the same visibility rules the catalogue uses.
@@ -614,6 +690,12 @@ export async function buildApp() {
   await app.register(registerAdminSettingsRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminCouponRoutes, { prefix: `${API_PREFIX}/admin` });
 
+  // Returns on all three surfaces: the buyer asks, the seller answers, staff
+  // decide and refund. See routes/returns.ts.
+  await app.register(registerCustomerReturnRoutes, { prefix: API_PREFIX });
+  await app.register(registerSellerReturnRoutes, { prefix: `${API_PREFIX}/seller` });
+  await app.register(registerAdminReturnRoutes, { prefix: `${API_PREFIX}/admin` });
+
   // Customer self-service. Every handler derives the profile from the session,
   // so there is no id-taking endpoint to forget an ownership check on.
   await app.register(registerCustomerAccountRoutes, { prefix: `${API_PREFIX}/account` });
@@ -630,6 +712,11 @@ export async function buildApp() {
     prefix: `${API_PREFIX}/fulfilment`,
   });
   await app.register(registerCustomerOrderRoutes, { prefix: `${API_PREFIX}/orders` });
+  // The carrier timeline, ETA and proof of delivery of the buyer's own orders.
+  await app.register(registerCustomerOrderTrackingRoutes, { prefix: `${API_PREFIX}/orders` });
+  // Payment and refund receipts: the buyer's own, and the staff copy.
+  await app.register(registerCustomerPaymentReceiptRoutes, { prefix: `${API_PREFIX}/orders` });
+  await app.register(registerAdminPaymentReceiptRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminOrderRoutes, { prefix: `${API_PREFIX}/admin` });
 
   // The webhook inside this tree is unauthenticated by design: its authority
@@ -794,6 +881,8 @@ export async function buildApp() {
   await app.register(registerAdminLogisticsRoutes, { prefix: `${API_PREFIX}/admin` });
   // UBOSS-managed levels, legs, and the platform fee (finance permissions).
   await app.register(registerAdminLogisticsLevelRoutes, { prefix: `${API_PREFIX}/admin` });
+  // Fee rules, seller fee tiers and maker-checker on fee changes (finance).
+  await app.register(registerAdminPlatformFeeRuleRoutes, { prefix: `${API_PREFIX}/admin` });
   // The legs a delivery company holds, in its own portal.
   await app.register(registerLogisticsPortalLegRoutes, { prefix: `${API_PREFIX}/logistics` });
   // The buyer's delivery quote and an order's price breakdown.

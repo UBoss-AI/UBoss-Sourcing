@@ -49,6 +49,7 @@ export type StockReservationMinAggregateOutputType = {
   releasedAt: Date | null
   releaseReason: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type StockReservationMaxAggregateOutputType = {
@@ -66,6 +67,7 @@ export type StockReservationMaxAggregateOutputType = {
   releasedAt: Date | null
   releaseReason: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type StockReservationCountAggregateOutputType = {
@@ -83,6 +85,7 @@ export type StockReservationCountAggregateOutputType = {
   releasedAt: number
   releaseReason: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -110,6 +113,7 @@ export type StockReservationMinAggregateInputType = {
   releasedAt?: true
   releaseReason?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type StockReservationMaxAggregateInputType = {
@@ -127,6 +131,7 @@ export type StockReservationMaxAggregateInputType = {
   releasedAt?: true
   releaseReason?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type StockReservationCountAggregateInputType = {
@@ -144,6 +149,7 @@ export type StockReservationCountAggregateInputType = {
   releasedAt?: true
   releaseReason?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -248,6 +254,7 @@ export type StockReservationGroupByOutputType = {
   releasedAt: Date | null
   releaseReason: string | null
   createdAt: Date
+  updatedAt: Date
   _count: StockReservationCountAggregateOutputType | null
   _avg: StockReservationAvgAggregateOutputType | null
   _sum: StockReservationSumAggregateOutputType | null
@@ -288,6 +295,7 @@ export type StockReservationWhereInput = {
   releasedAt?: Prisma.DateTimeNullableFilter<"StockReservation"> | Date | string | null
   releaseReason?: Prisma.StringNullableFilter<"StockReservation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"StockReservation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"StockReservation"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   variant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
   location?: Prisma.XOR<Prisma.InventoryLocationScalarRelationFilter, Prisma.InventoryLocationWhereInput>
@@ -310,6 +318,7 @@ export type StockReservationOrderByWithRelationInput = {
   releasedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   releaseReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   product?: Prisma.ProductOrderByWithRelationInput
   variant?: Prisma.ProductVariantOrderByWithRelationInput
   location?: Prisma.InventoryLocationOrderByWithRelationInput
@@ -336,6 +345,7 @@ export type StockReservationWhereUniqueInput = Prisma.AtLeast<{
   releasedAt?: Prisma.DateTimeNullableFilter<"StockReservation"> | Date | string | null
   releaseReason?: Prisma.StringNullableFilter<"StockReservation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"StockReservation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"StockReservation"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   variant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
   location?: Prisma.XOR<Prisma.InventoryLocationScalarRelationFilter, Prisma.InventoryLocationWhereInput>
@@ -358,6 +368,7 @@ export type StockReservationOrderByWithAggregationInput = {
   releasedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   releaseReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.StockReservationCountOrderByAggregateInput
   _avg?: Prisma.StockReservationAvgOrderByAggregateInput
   _max?: Prisma.StockReservationMaxOrderByAggregateInput
@@ -383,6 +394,7 @@ export type StockReservationScalarWhereWithAggregatesInput = {
   releasedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"StockReservation"> | Date | string | null
   releaseReason?: Prisma.StringNullableWithAggregatesFilter<"StockReservation"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"StockReservation"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"StockReservation"> | Date | string
 }
 
 export type StockReservationCreateInput = {
@@ -395,6 +407,7 @@ export type StockReservationCreateInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutStockReservationsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutStockReservationsInput
   location: Prisma.InventoryLocationCreateNestedOneWithoutReservationsInput
@@ -417,6 +430,7 @@ export type StockReservationUncheckedCreateInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockReservationUpdateInput = {
@@ -429,6 +443,7 @@ export type StockReservationUpdateInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutStockReservationsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutStockReservationsNestedInput
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutReservationsNestedInput
@@ -451,6 +466,7 @@ export type StockReservationUncheckedUpdateInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockReservationCreateManyInput = {
@@ -468,6 +484,7 @@ export type StockReservationCreateManyInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockReservationUpdateManyMutationInput = {
@@ -480,6 +497,7 @@ export type StockReservationUpdateManyMutationInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockReservationUncheckedUpdateManyInput = {
@@ -497,6 +515,7 @@ export type StockReservationUncheckedUpdateManyInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockReservationListRelationFilter = {
@@ -530,6 +549,7 @@ export type StockReservationCountOrderByAggregateInput = {
   releasedAt?: Prisma.SortOrder
   releaseReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type StockReservationAvgOrderByAggregateInput = {
@@ -551,6 +571,7 @@ export type StockReservationMaxOrderByAggregateInput = {
   releasedAt?: Prisma.SortOrder
   releaseReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type StockReservationMinOrderByAggregateInput = {
@@ -568,6 +589,7 @@ export type StockReservationMinOrderByAggregateInput = {
   releasedAt?: Prisma.SortOrder
   releaseReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type StockReservationSumOrderByAggregateInput = {
@@ -798,6 +820,7 @@ export type StockReservationCreateWithoutProductInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   variant?: Prisma.ProductVariantCreateNestedOneWithoutStockReservationsInput
   location: Prisma.InventoryLocationCreateNestedOneWithoutReservationsInput
   cart?: Prisma.CartCreateNestedOneWithoutReservationsInput
@@ -818,6 +841,7 @@ export type StockReservationUncheckedCreateWithoutProductInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockReservationCreateOrConnectWithoutProductInput = {
@@ -864,6 +888,7 @@ export type StockReservationScalarWhereInput = {
   releasedAt?: Prisma.DateTimeNullableFilter<"StockReservation"> | Date | string | null
   releaseReason?: Prisma.StringNullableFilter<"StockReservation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"StockReservation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"StockReservation"> | Date | string
 }
 
 export type StockReservationCreateWithoutVariantInput = {
@@ -876,6 +901,7 @@ export type StockReservationCreateWithoutVariantInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutStockReservationsInput
   location: Prisma.InventoryLocationCreateNestedOneWithoutReservationsInput
   cart?: Prisma.CartCreateNestedOneWithoutReservationsInput
@@ -896,6 +922,7 @@ export type StockReservationUncheckedCreateWithoutVariantInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockReservationCreateOrConnectWithoutVariantInput = {
@@ -934,6 +961,7 @@ export type StockReservationCreateWithoutLocationInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutStockReservationsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutStockReservationsInput
   cart?: Prisma.CartCreateNestedOneWithoutReservationsInput
@@ -954,6 +982,7 @@ export type StockReservationUncheckedCreateWithoutLocationInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockReservationCreateOrConnectWithoutLocationInput = {
@@ -992,6 +1021,7 @@ export type StockReservationCreateWithoutCartInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutStockReservationsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutStockReservationsInput
   location: Prisma.InventoryLocationCreateNestedOneWithoutReservationsInput
@@ -1012,6 +1042,7 @@ export type StockReservationUncheckedCreateWithoutCartInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockReservationCreateOrConnectWithoutCartInput = {
@@ -1050,6 +1081,7 @@ export type StockReservationCreateWithoutOrderInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutStockReservationsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutStockReservationsInput
   location: Prisma.InventoryLocationCreateNestedOneWithoutReservationsInput
@@ -1070,6 +1102,7 @@ export type StockReservationUncheckedCreateWithoutOrderInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockReservationCreateOrConnectWithoutOrderInput = {
@@ -1112,6 +1145,7 @@ export type StockReservationCreateManyProductInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockReservationUpdateWithoutProductInput = {
@@ -1124,6 +1158,7 @@ export type StockReservationUpdateWithoutProductInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variant?: Prisma.ProductVariantUpdateOneWithoutStockReservationsNestedInput
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutReservationsNestedInput
   cart?: Prisma.CartUpdateOneWithoutReservationsNestedInput
@@ -1144,6 +1179,7 @@ export type StockReservationUncheckedUpdateWithoutProductInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockReservationUncheckedUpdateManyWithoutProductInput = {
@@ -1160,6 +1196,7 @@ export type StockReservationUncheckedUpdateManyWithoutProductInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockReservationCreateManyVariantInput = {
@@ -1176,6 +1213,7 @@ export type StockReservationCreateManyVariantInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockReservationUpdateWithoutVariantInput = {
@@ -1188,6 +1226,7 @@ export type StockReservationUpdateWithoutVariantInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutStockReservationsNestedInput
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutReservationsNestedInput
   cart?: Prisma.CartUpdateOneWithoutReservationsNestedInput
@@ -1208,6 +1247,7 @@ export type StockReservationUncheckedUpdateWithoutVariantInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockReservationUncheckedUpdateManyWithoutVariantInput = {
@@ -1224,6 +1264,7 @@ export type StockReservationUncheckedUpdateManyWithoutVariantInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockReservationCreateManyLocationInput = {
@@ -1240,6 +1281,7 @@ export type StockReservationCreateManyLocationInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockReservationUpdateWithoutLocationInput = {
@@ -1252,6 +1294,7 @@ export type StockReservationUpdateWithoutLocationInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutStockReservationsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutStockReservationsNestedInput
   cart?: Prisma.CartUpdateOneWithoutReservationsNestedInput
@@ -1272,6 +1315,7 @@ export type StockReservationUncheckedUpdateWithoutLocationInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockReservationUncheckedUpdateManyWithoutLocationInput = {
@@ -1288,6 +1332,7 @@ export type StockReservationUncheckedUpdateManyWithoutLocationInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockReservationCreateManyCartInput = {
@@ -1304,6 +1349,7 @@ export type StockReservationCreateManyCartInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockReservationUpdateWithoutCartInput = {
@@ -1316,6 +1362,7 @@ export type StockReservationUpdateWithoutCartInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutStockReservationsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutStockReservationsNestedInput
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutReservationsNestedInput
@@ -1336,6 +1383,7 @@ export type StockReservationUncheckedUpdateWithoutCartInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockReservationUncheckedUpdateManyWithoutCartInput = {
@@ -1352,6 +1400,7 @@ export type StockReservationUncheckedUpdateManyWithoutCartInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockReservationCreateManyOrderInput = {
@@ -1368,6 +1417,7 @@ export type StockReservationCreateManyOrderInput = {
   releasedAt?: Date | string | null
   releaseReason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockReservationUpdateWithoutOrderInput = {
@@ -1380,6 +1430,7 @@ export type StockReservationUpdateWithoutOrderInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutStockReservationsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutStockReservationsNestedInput
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutReservationsNestedInput
@@ -1400,6 +1451,7 @@ export type StockReservationUncheckedUpdateWithoutOrderInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockReservationUncheckedUpdateManyWithoutOrderInput = {
@@ -1416,6 +1468,7 @@ export type StockReservationUncheckedUpdateManyWithoutOrderInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   releaseReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1435,6 +1488,7 @@ export type StockReservationSelect<ExtArgs extends runtime.Types.Extensions.Inte
   releasedAt?: boolean
   releaseReason?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.StockReservation$variantArgs<ExtArgs>
   location?: boolean | Prisma.InventoryLocationDefaultArgs<ExtArgs>
@@ -1459,9 +1513,10 @@ export type StockReservationSelectScalar = {
   releasedAt?: boolean
   releaseReason?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type StockReservationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "variantId" | "variantKey" | "locationId" | "cartId" | "orderId" | "quantity" | "status" | "expiresAt" | "committedAt" | "releasedAt" | "releaseReason" | "createdAt", ExtArgs["result"]["stockReservation"]>
+export type StockReservationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "variantId" | "variantKey" | "locationId" | "cartId" | "orderId" | "quantity" | "status" | "expiresAt" | "committedAt" | "releasedAt" | "releaseReason" | "createdAt" | "updatedAt", ExtArgs["result"]["stockReservation"]>
 export type StockReservationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.StockReservation$variantArgs<ExtArgs>
@@ -1494,6 +1549,7 @@ export type $StockReservationPayload<ExtArgs extends runtime.Types.Extensions.In
     releasedAt: Date | null
     releaseReason: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["stockReservation"]>
   composites: {}
 }
@@ -1882,6 +1938,7 @@ export interface StockReservationFieldRefs {
   readonly releasedAt: Prisma.FieldRef<"StockReservation", 'DateTime'>
   readonly releaseReason: Prisma.FieldRef<"StockReservation", 'String'>
   readonly createdAt: Prisma.FieldRef<"StockReservation", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"StockReservation", 'DateTime'>
 }
     
 

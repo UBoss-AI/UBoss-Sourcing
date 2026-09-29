@@ -79,6 +79,8 @@ export type CommissionInvoiceLineMinAggregateOutputType = {
   otherTaxMinor: bigint | null
   taxMinor: bigint | null
   totalMinor: bigint | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CommissionInvoiceLineMaxAggregateOutputType = {
@@ -103,6 +105,8 @@ export type CommissionInvoiceLineMaxAggregateOutputType = {
   otherTaxMinor: bigint | null
   taxMinor: bigint | null
   totalMinor: bigint | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CommissionInvoiceLineCountAggregateOutputType = {
@@ -127,6 +131,8 @@ export type CommissionInvoiceLineCountAggregateOutputType = {
   otherTaxMinor: number
   taxMinor: number
   totalMinor: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -183,6 +189,8 @@ export type CommissionInvoiceLineMinAggregateInputType = {
   otherTaxMinor?: true
   taxMinor?: true
   totalMinor?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CommissionInvoiceLineMaxAggregateInputType = {
@@ -207,6 +215,8 @@ export type CommissionInvoiceLineMaxAggregateInputType = {
   otherTaxMinor?: true
   taxMinor?: true
   totalMinor?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CommissionInvoiceLineCountAggregateInputType = {
@@ -231,6 +241,8 @@ export type CommissionInvoiceLineCountAggregateInputType = {
   otherTaxMinor?: true
   taxMinor?: true
   totalMinor?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -342,6 +354,8 @@ export type CommissionInvoiceLineGroupByOutputType = {
   otherTaxMinor: bigint
   taxMinor: bigint
   totalMinor: bigint
+  createdAt: Date
+  updatedAt: Date
   _count: CommissionInvoiceLineCountAggregateOutputType | null
   _avg: CommissionInvoiceLineAvgAggregateOutputType | null
   _sum: CommissionInvoiceLineSumAggregateOutputType | null
@@ -389,6 +403,8 @@ export type CommissionInvoiceLineWhereInput = {
   otherTaxMinor?: Prisma.BigIntFilter<"CommissionInvoiceLine"> | bigint | number
   taxMinor?: Prisma.BigIntFilter<"CommissionInvoiceLine"> | bigint | number
   totalMinor?: Prisma.BigIntFilter<"CommissionInvoiceLine"> | bigint | number
+  createdAt?: Prisma.DateTimeFilter<"CommissionInvoiceLine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommissionInvoiceLine"> | Date | string
   invoice?: Prisma.XOR<Prisma.CommissionInvoiceScalarRelationFilter, Prisma.CommissionInvoiceWhereInput>
 }
 
@@ -414,6 +430,8 @@ export type CommissionInvoiceLineOrderByWithRelationInput = {
   otherTaxMinor?: Prisma.SortOrder
   taxMinor?: Prisma.SortOrder
   totalMinor?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   invoice?: Prisma.CommissionInvoiceOrderByWithRelationInput
   _relevance?: Prisma.CommissionInvoiceLineOrderByRelevanceInput
 }
@@ -444,6 +462,8 @@ export type CommissionInvoiceLineWhereUniqueInput = Prisma.AtLeast<{
   otherTaxMinor?: Prisma.BigIntFilter<"CommissionInvoiceLine"> | bigint | number
   taxMinor?: Prisma.BigIntFilter<"CommissionInvoiceLine"> | bigint | number
   totalMinor?: Prisma.BigIntFilter<"CommissionInvoiceLine"> | bigint | number
+  createdAt?: Prisma.DateTimeFilter<"CommissionInvoiceLine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommissionInvoiceLine"> | Date | string
   invoice?: Prisma.XOR<Prisma.CommissionInvoiceScalarRelationFilter, Prisma.CommissionInvoiceWhereInput>
 }, "id" | "invoiceId_position">
 
@@ -469,6 +489,8 @@ export type CommissionInvoiceLineOrderByWithAggregationInput = {
   otherTaxMinor?: Prisma.SortOrder
   taxMinor?: Prisma.SortOrder
   totalMinor?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CommissionInvoiceLineCountOrderByAggregateInput
   _avg?: Prisma.CommissionInvoiceLineAvgOrderByAggregateInput
   _max?: Prisma.CommissionInvoiceLineMaxOrderByAggregateInput
@@ -501,6 +523,8 @@ export type CommissionInvoiceLineScalarWhereWithAggregatesInput = {
   otherTaxMinor?: Prisma.BigIntWithAggregatesFilter<"CommissionInvoiceLine"> | bigint | number
   taxMinor?: Prisma.BigIntWithAggregatesFilter<"CommissionInvoiceLine"> | bigint | number
   totalMinor?: Prisma.BigIntWithAggregatesFilter<"CommissionInvoiceLine"> | bigint | number
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"CommissionInvoiceLine"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CommissionInvoiceLine"> | Date | string
 }
 
 export type CommissionInvoiceLineCreateInput = {
@@ -524,6 +548,8 @@ export type CommissionInvoiceLineCreateInput = {
   otherTaxMinor?: bigint | number
   taxMinor?: bigint | number
   totalMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
   invoice: Prisma.CommissionInvoiceCreateNestedOneWithoutLinesInput
 }
 
@@ -549,6 +575,8 @@ export type CommissionInvoiceLineUncheckedCreateInput = {
   otherTaxMinor?: bigint | number
   taxMinor?: bigint | number
   totalMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionInvoiceLineUpdateInput = {
@@ -572,6 +600,8 @@ export type CommissionInvoiceLineUpdateInput = {
   otherTaxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   totalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invoice?: Prisma.CommissionInvoiceUpdateOneRequiredWithoutLinesNestedInput
 }
 
@@ -597,6 +627,8 @@ export type CommissionInvoiceLineUncheckedUpdateInput = {
   otherTaxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   totalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionInvoiceLineCreateManyInput = {
@@ -621,6 +653,8 @@ export type CommissionInvoiceLineCreateManyInput = {
   otherTaxMinor?: bigint | number
   taxMinor?: bigint | number
   totalMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionInvoiceLineUpdateManyMutationInput = {
@@ -644,6 +678,8 @@ export type CommissionInvoiceLineUpdateManyMutationInput = {
   otherTaxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   totalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionInvoiceLineUncheckedUpdateManyInput = {
@@ -668,6 +704,8 @@ export type CommissionInvoiceLineUncheckedUpdateManyInput = {
   otherTaxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   totalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionInvoiceLineListRelationFilter = {
@@ -713,6 +751,8 @@ export type CommissionInvoiceLineCountOrderByAggregateInput = {
   otherTaxMinor?: Prisma.SortOrder
   taxMinor?: Prisma.SortOrder
   totalMinor?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommissionInvoiceLineAvgOrderByAggregateInput = {
@@ -752,6 +792,8 @@ export type CommissionInvoiceLineMaxOrderByAggregateInput = {
   otherTaxMinor?: Prisma.SortOrder
   taxMinor?: Prisma.SortOrder
   totalMinor?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommissionInvoiceLineMinOrderByAggregateInput = {
@@ -776,6 +818,8 @@ export type CommissionInvoiceLineMinOrderByAggregateInput = {
   otherTaxMinor?: Prisma.SortOrder
   taxMinor?: Prisma.SortOrder
   totalMinor?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommissionInvoiceLineSumOrderByAggregateInput = {
@@ -856,6 +900,8 @@ export type CommissionInvoiceLineCreateWithoutInvoiceInput = {
   otherTaxMinor?: bigint | number
   taxMinor?: bigint | number
   totalMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionInvoiceLineUncheckedCreateWithoutInvoiceInput = {
@@ -879,6 +925,8 @@ export type CommissionInvoiceLineUncheckedCreateWithoutInvoiceInput = {
   otherTaxMinor?: bigint | number
   taxMinor?: bigint | number
   totalMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionInvoiceLineCreateOrConnectWithoutInvoiceInput = {
@@ -932,6 +980,8 @@ export type CommissionInvoiceLineScalarWhereInput = {
   otherTaxMinor?: Prisma.BigIntFilter<"CommissionInvoiceLine"> | bigint | number
   taxMinor?: Prisma.BigIntFilter<"CommissionInvoiceLine"> | bigint | number
   totalMinor?: Prisma.BigIntFilter<"CommissionInvoiceLine"> | bigint | number
+  createdAt?: Prisma.DateTimeFilter<"CommissionInvoiceLine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommissionInvoiceLine"> | Date | string
 }
 
 export type CommissionInvoiceLineCreateManyInvoiceInput = {
@@ -955,6 +1005,8 @@ export type CommissionInvoiceLineCreateManyInvoiceInput = {
   otherTaxMinor?: bigint | number
   taxMinor?: bigint | number
   totalMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionInvoiceLineUpdateWithoutInvoiceInput = {
@@ -978,6 +1030,8 @@ export type CommissionInvoiceLineUpdateWithoutInvoiceInput = {
   otherTaxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   totalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionInvoiceLineUncheckedUpdateWithoutInvoiceInput = {
@@ -1001,6 +1055,8 @@ export type CommissionInvoiceLineUncheckedUpdateWithoutInvoiceInput = {
   otherTaxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   totalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionInvoiceLineUncheckedUpdateManyWithoutInvoiceInput = {
@@ -1024,6 +1080,8 @@ export type CommissionInvoiceLineUncheckedUpdateManyWithoutInvoiceInput = {
   otherTaxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   totalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1050,6 +1108,8 @@ export type CommissionInvoiceLineSelect<ExtArgs extends runtime.Types.Extensions
   otherTaxMinor?: boolean
   taxMinor?: boolean
   totalMinor?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   invoice?: boolean | Prisma.CommissionInvoiceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["commissionInvoiceLine"]>
 
@@ -1077,9 +1137,11 @@ export type CommissionInvoiceLineSelectScalar = {
   otherTaxMinor?: boolean
   taxMinor?: boolean
   totalMinor?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CommissionInvoiceLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceId" | "position" | "kind" | "description" | "detail" | "serviceCode" | "orderReference" | "feeType" | "basisMinor" | "feeRatePercent" | "policyId" | "policyVersion" | "taxableMinor" | "taxRatePercent" | "cgstMinor" | "sgstMinor" | "igstMinor" | "otherTaxMinor" | "taxMinor" | "totalMinor", ExtArgs["result"]["commissionInvoiceLine"]>
+export type CommissionInvoiceLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceId" | "position" | "kind" | "description" | "detail" | "serviceCode" | "orderReference" | "feeType" | "basisMinor" | "feeRatePercent" | "policyId" | "policyVersion" | "taxableMinor" | "taxRatePercent" | "cgstMinor" | "sgstMinor" | "igstMinor" | "otherTaxMinor" | "taxMinor" | "totalMinor" | "createdAt" | "updatedAt", ExtArgs["result"]["commissionInvoiceLine"]>
 export type CommissionInvoiceLineInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   invoice?: boolean | Prisma.CommissionInvoiceDefaultArgs<ExtArgs>
 }
@@ -1123,6 +1185,8 @@ export type $CommissionInvoiceLinePayload<ExtArgs extends runtime.Types.Extensio
     otherTaxMinor: bigint
     taxMinor: bigint
     totalMinor: bigint
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["commissionInvoiceLine"]>
   composites: {}
 }
@@ -1514,6 +1578,8 @@ export interface CommissionInvoiceLineFieldRefs {
   readonly otherTaxMinor: Prisma.FieldRef<"CommissionInvoiceLine", 'BigInt'>
   readonly taxMinor: Prisma.FieldRef<"CommissionInvoiceLine", 'BigInt'>
   readonly totalMinor: Prisma.FieldRef<"CommissionInvoiceLine", 'BigInt'>
+  readonly createdAt: Prisma.FieldRef<"CommissionInvoiceLine", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CommissionInvoiceLine", 'DateTime'>
 }
     
 

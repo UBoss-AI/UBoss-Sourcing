@@ -14,6 +14,10 @@
  *     proportion to what they were owed out of the order total: the rest of
  *     that total is tax and marketplace delivery, which never reached them and
  *     so is not taken back from them. Never more than their proceeds.
+ *   - **A return of one seller's goods.** A refund issued for a return names
+ *     that return's seller, so on an order shared between sellers it is still
+ *     theirs: in proportion to what they were owed out of that part of the
+ *     order, never more than their proceeds.
  *   - **Anything else** - a partial refund on an order shared between sellers,
  *     or between a seller and the operator's own stock - names no line, so
  *     nothing here can say whose goods it was for. It is left unattributed and
@@ -44,6 +48,13 @@ export interface SettlementRefundInput {
   /** Order lines that are the operator's own stock. */
   operatorLineCount: number;
   groups: readonly SettlementRefundGroup[];
+  /**
+   * Succeeded refunds issued for a return of ONE seller's goods, summed per
+   * seller group. A return names its lines, so its refund is not a guess even
+   * on an order shared between sellers. `groupTotalMinor` is what the buyer
+   * was charged for that seller's part (goods, tax, delivery).
+   */
+  returnRefunds?: readonly { groupId: string; amountMinor: Minor; groupTotalMinor: Minor }[];
 }
 
 export interface SettlementRefundAttribution {
@@ -51,7 +62,7 @@ export interface SettlementRefundAttribution {
   byGroup: Map<string, Minor>;
   /** Refunded money that could not be put on any one seller. Zero when all was. */
   unattributedMinor: Minor;
-  basis: 'NONE' | 'FULL_REFUND' | 'SINGLE_SELLER' | 'AMBIGUOUS';
+  basis: 'NONE' | 'FULL_REFUND' | 'SINGLE_SELLER' | 'RETURN_LINES' | 'AMBIGUOUS';
 }
 
 export function attributeRefundsToSellers(input: SettlementRefundInput): SettlementRefundAttribution {
@@ -79,6 +90,38 @@ export function attributeRefundsToSellers(input: SettlementRefundInput): Settlem
         : input.succeededRefundsMinor;
     if (share > proceeds) share = proceeds;
     return { byGroup: new Map([[only.id, share]]), unattributedMinor: 0n, basis: 'SINGLE_SELLER' };
+  }
+
+  /*
+   * A return's refund, on an order shared between sellers. The seller carries
+   * the refund in proportion to what they were owed out of what the buyer was
+   * charged for their part - the same rule as the single-seller case, applied
+   * to that seller's part alone - never more than their proceeds. Whatever
+   * else was refunded on the order still names no line and stays unattributed.
+   */
+  const returnRefunds = (input.returnRefunds ?? []).filter((entry) => entry.amountMinor > 0n);
+  if (returnRefunds.length > 0) {
+    const byGroup = zero();
+    let attributed = 0n;
+    for (const entry of returnRefunds) {
+      const group = input.groups.find((candidate) => candidate.id === entry.groupId);
+      if (group === undefined) continue;
+      const proceeds = positive(group.proceedsMinor);
+      const total = entry.groupTotalMinor > 0n ? entry.groupTotalMinor : proceeds;
+      let share =
+        total > 0n ? (entry.amountMinor * proceeds * 2n + total) / (2n * total) : entry.amountMinor;
+      const already = byGroup.get(group.id) ?? 0n;
+      if (already + share > proceeds) share = proceeds - already;
+      if (share < 0n) share = 0n;
+      byGroup.set(group.id, already + share);
+      attributed += entry.amountMinor;
+    }
+    const remaining = input.succeededRefundsMinor - attributed;
+    return {
+      byGroup,
+      unattributedMinor: remaining > 0n ? remaining : 0n,
+      basis: 'RETURN_LINES',
+    };
   }
 
   return { byGroup: zero(), unattributedMinor: input.succeededRefundsMinor, basis: 'AMBIGUOUS' };

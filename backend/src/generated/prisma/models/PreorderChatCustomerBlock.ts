@@ -32,6 +32,7 @@ export type PreorderChatCustomerBlockMinAggregateOutputType = {
   reason: string | null
   blockedByUserId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PreorderChatCustomerBlockMaxAggregateOutputType = {
@@ -40,6 +41,7 @@ export type PreorderChatCustomerBlockMaxAggregateOutputType = {
   reason: string | null
   blockedByUserId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PreorderChatCustomerBlockCountAggregateOutputType = {
@@ -48,6 +50,7 @@ export type PreorderChatCustomerBlockCountAggregateOutputType = {
   reason: number
   blockedByUserId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -58,6 +61,7 @@ export type PreorderChatCustomerBlockMinAggregateInputType = {
   reason?: true
   blockedByUserId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PreorderChatCustomerBlockMaxAggregateInputType = {
@@ -66,6 +70,7 @@ export type PreorderChatCustomerBlockMaxAggregateInputType = {
   reason?: true
   blockedByUserId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PreorderChatCustomerBlockCountAggregateInputType = {
@@ -74,6 +79,7 @@ export type PreorderChatCustomerBlockCountAggregateInputType = {
   reason?: true
   blockedByUserId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -155,6 +161,7 @@ export type PreorderChatCustomerBlockGroupByOutputType = {
   reason: string
   blockedByUserId: string
   createdAt: Date
+  updatedAt: Date
   _count: PreorderChatCustomerBlockCountAggregateOutputType | null
   _min: PreorderChatCustomerBlockMinAggregateOutputType | null
   _max: PreorderChatCustomerBlockMaxAggregateOutputType | null
@@ -184,6 +191,7 @@ export type PreorderChatCustomerBlockWhereInput = {
   reason?: Prisma.StringFilter<"PreorderChatCustomerBlock"> | string
   blockedByUserId?: Prisma.StringFilter<"PreorderChatCustomerBlock"> | string
   createdAt?: Prisma.DateTimeFilter<"PreorderChatCustomerBlock"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PreorderChatCustomerBlock"> | Date | string
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
 }
 
@@ -193,6 +201,7 @@ export type PreorderChatCustomerBlockOrderByWithRelationInput = {
   reason?: Prisma.SortOrder
   blockedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   customerProfile?: Prisma.CustomerProfileOrderByWithRelationInput
   _relevance?: Prisma.PreorderChatCustomerBlockOrderByRelevanceInput
 }
@@ -206,6 +215,7 @@ export type PreorderChatCustomerBlockWhereUniqueInput = Prisma.AtLeast<{
   reason?: Prisma.StringFilter<"PreorderChatCustomerBlock"> | string
   blockedByUserId?: Prisma.StringFilter<"PreorderChatCustomerBlock"> | string
   createdAt?: Prisma.DateTimeFilter<"PreorderChatCustomerBlock"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PreorderChatCustomerBlock"> | Date | string
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
 }, "id" | "customerProfileId">
 
@@ -215,6 +225,7 @@ export type PreorderChatCustomerBlockOrderByWithAggregationInput = {
   reason?: Prisma.SortOrder
   blockedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PreorderChatCustomerBlockCountOrderByAggregateInput
   _max?: Prisma.PreorderChatCustomerBlockMaxOrderByAggregateInput
   _min?: Prisma.PreorderChatCustomerBlockMinOrderByAggregateInput
@@ -229,6 +240,7 @@ export type PreorderChatCustomerBlockScalarWhereWithAggregatesInput = {
   reason?: Prisma.StringWithAggregatesFilter<"PreorderChatCustomerBlock"> | string
   blockedByUserId?: Prisma.StringWithAggregatesFilter<"PreorderChatCustomerBlock"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderChatCustomerBlock"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderChatCustomerBlock"> | Date | string
 }
 
 export type PreorderChatCustomerBlockCreateInput = {
@@ -236,6 +248,7 @@ export type PreorderChatCustomerBlockCreateInput = {
   reason: string
   blockedByUserId: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutPreorderChatBlockInput
 }
 
@@ -245,6 +258,7 @@ export type PreorderChatCustomerBlockUncheckedCreateInput = {
   reason: string
   blockedByUserId: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatCustomerBlockUpdateInput = {
@@ -252,6 +266,7 @@ export type PreorderChatCustomerBlockUpdateInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   blockedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutPreorderChatBlockNestedInput
 }
 
@@ -261,6 +276,7 @@ export type PreorderChatCustomerBlockUncheckedUpdateInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   blockedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatCustomerBlockCreateManyInput = {
@@ -269,6 +285,7 @@ export type PreorderChatCustomerBlockCreateManyInput = {
   reason: string
   blockedByUserId: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatCustomerBlockUpdateManyMutationInput = {
@@ -276,6 +293,7 @@ export type PreorderChatCustomerBlockUpdateManyMutationInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   blockedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatCustomerBlockUncheckedUpdateManyInput = {
@@ -284,6 +302,7 @@ export type PreorderChatCustomerBlockUncheckedUpdateManyInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   blockedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatCustomerBlockNullableScalarRelationFilter = {
@@ -303,6 +322,7 @@ export type PreorderChatCustomerBlockCountOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   blockedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderChatCustomerBlockMaxOrderByAggregateInput = {
@@ -311,6 +331,7 @@ export type PreorderChatCustomerBlockMaxOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   blockedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderChatCustomerBlockMinOrderByAggregateInput = {
@@ -319,6 +340,7 @@ export type PreorderChatCustomerBlockMinOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   blockedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput = {
@@ -358,6 +380,7 @@ export type PreorderChatCustomerBlockCreateWithoutCustomerProfileInput = {
   reason: string
   blockedByUserId: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatCustomerBlockUncheckedCreateWithoutCustomerProfileInput = {
@@ -365,6 +388,7 @@ export type PreorderChatCustomerBlockUncheckedCreateWithoutCustomerProfileInput 
   reason: string
   blockedByUserId: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatCustomerBlockCreateOrConnectWithoutCustomerProfileInput = {
@@ -388,6 +412,7 @@ export type PreorderChatCustomerBlockUpdateWithoutCustomerProfileInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   blockedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatCustomerBlockUncheckedUpdateWithoutCustomerProfileInput = {
@@ -395,6 +420,7 @@ export type PreorderChatCustomerBlockUncheckedUpdateWithoutCustomerProfileInput 
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   blockedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -405,6 +431,7 @@ export type PreorderChatCustomerBlockSelect<ExtArgs extends runtime.Types.Extens
   reason?: boolean
   blockedByUserId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["preorderChatCustomerBlock"]>
 
@@ -416,9 +443,10 @@ export type PreorderChatCustomerBlockSelectScalar = {
   reason?: boolean
   blockedByUserId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PreorderChatCustomerBlockOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "reason" | "blockedByUserId" | "createdAt", ExtArgs["result"]["preorderChatCustomerBlock"]>
+export type PreorderChatCustomerBlockOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "reason" | "blockedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderChatCustomerBlock"]>
 export type PreorderChatCustomerBlockInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
 }
@@ -434,6 +462,7 @@ export type $PreorderChatCustomerBlockPayload<ExtArgs extends runtime.Types.Exte
     reason: string
     blockedByUserId: string
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["preorderChatCustomerBlock"]>
   composites: {}
 }
@@ -809,6 +838,7 @@ export interface PreorderChatCustomerBlockFieldRefs {
   readonly reason: Prisma.FieldRef<"PreorderChatCustomerBlock", 'String'>
   readonly blockedByUserId: Prisma.FieldRef<"PreorderChatCustomerBlock", 'String'>
   readonly createdAt: Prisma.FieldRef<"PreorderChatCustomerBlock", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"PreorderChatCustomerBlock", 'DateTime'>
 }
     
 

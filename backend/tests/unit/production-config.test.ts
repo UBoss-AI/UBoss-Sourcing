@@ -54,6 +54,7 @@ function productionEnv(overrides: Record<string, string | undefined> = {}): Reco
   return {
     NODE_ENV: 'production',
     DATABASE_URL: 'mysql://app:pw@127.0.0.1:3306/uboss',
+    DATABASE_MAINTENANCE_URL: 'mysql://maintenance:pw@127.0.0.1:3306/uboss',
 
     API_PUBLIC_URL: 'https://api.example.com',
     ADMIN_WEB_ORIGIN: 'https://admin.example.com',
@@ -314,5 +315,45 @@ describe('the same settings outside production', () => {
     );
 
     expect(issues).toEqual([]);
+  });
+});
+
+describe('the audit maintenance account', () => {
+  // The application account cannot UPDATE or DELETE audit_logs in production,
+  // so GDPR erasure and the audit retention sweep need a second account. Without
+  // it every erasure would be refused by the database and roll back.
+  it('refuses production without DATABASE_MAINTENANCE_URL', () => {
+    const issues = issuesFor('DATABASE_MAINTENANCE_URL', { DATABASE_MAINTENANCE_URL: undefined });
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toContain('erasure');
+  });
+
+  it('refuses the maintenance account being the application account', () => {
+    const issues = issuesFor('DATABASE_MAINTENANCE_URL', {
+      DATABASE_MAINTENANCE_URL: 'mysql://app:pw@127.0.0.1:3306/uboss',
+    });
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toContain('different account');
+  });
+});
+
+describe('seller settlement statements', () => {
+  // When an order becomes payable to its seller is the operator's policy, so
+  // switching statements on without saying when refuses to start.
+  it('refuses statements switched on without a payable-after-delivery delay', () => {
+    const issues = issuesFor('SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS', {
+      FEATURE_SELLER_SETTLEMENT_STATEMENTS: 'true',
+    });
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toContain('no default');
+  });
+
+  it('accepts them once the operator has chosen it', () => {
+    expect(
+      issuesFor('SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS', {
+        FEATURE_SELLER_SETTLEMENT_STATEMENTS: 'true',
+        SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS: '14',
+      }),
+    ).toEqual([]);
   });
 });

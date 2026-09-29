@@ -50,6 +50,7 @@ export type MediaAssetMinAggregateOutputType = {
   checksum: string | null
   uploadedById: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type MediaAssetMaxAggregateOutputType = {
@@ -64,6 +65,7 @@ export type MediaAssetMaxAggregateOutputType = {
   checksum: string | null
   uploadedById: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type MediaAssetCountAggregateOutputType = {
@@ -78,6 +80,7 @@ export type MediaAssetCountAggregateOutputType = {
   checksum: number
   uploadedById: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -106,6 +109,7 @@ export type MediaAssetMinAggregateInputType = {
   checksum?: true
   uploadedById?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type MediaAssetMaxAggregateInputType = {
@@ -120,6 +124,7 @@ export type MediaAssetMaxAggregateInputType = {
   checksum?: true
   uploadedById?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type MediaAssetCountAggregateInputType = {
@@ -134,6 +139,7 @@ export type MediaAssetCountAggregateInputType = {
   checksum?: true
   uploadedById?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -235,6 +241,7 @@ export type MediaAssetGroupByOutputType = {
   checksum: string | null
   uploadedById: string | null
   createdAt: Date
+  updatedAt: Date
   _count: MediaAssetCountAggregateOutputType | null
   _avg: MediaAssetAvgAggregateOutputType | null
   _sum: MediaAssetSumAggregateOutputType | null
@@ -272,6 +279,7 @@ export type MediaAssetWhereInput = {
   checksum?: Prisma.StringNullableFilter<"MediaAsset"> | string | null
   uploadedById?: Prisma.StringNullableFilter<"MediaAsset"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MediaAsset"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"MediaAsset"> | Date | string
   productMedia?: Prisma.ProductMediaListRelationFilter
   variantMedia?: Prisma.ProductVariantMediaListRelationFilter
   descriptionSectionImages?: Prisma.ProductDescriptionSectionListRelationFilter
@@ -292,6 +300,7 @@ export type MediaAssetOrderByWithRelationInput = {
   checksum?: Prisma.SortOrderInput | Prisma.SortOrder
   uploadedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   productMedia?: Prisma.ProductMediaOrderByRelationAggregateInput
   variantMedia?: Prisma.ProductVariantMediaOrderByRelationAggregateInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionOrderByRelationAggregateInput
@@ -316,6 +325,7 @@ export type MediaAssetWhereUniqueInput = Prisma.AtLeast<{
   checksum?: Prisma.StringNullableFilter<"MediaAsset"> | string | null
   uploadedById?: Prisma.StringNullableFilter<"MediaAsset"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MediaAsset"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"MediaAsset"> | Date | string
   productMedia?: Prisma.ProductMediaListRelationFilter
   variantMedia?: Prisma.ProductVariantMediaListRelationFilter
   descriptionSectionImages?: Prisma.ProductDescriptionSectionListRelationFilter
@@ -336,6 +346,7 @@ export type MediaAssetOrderByWithAggregationInput = {
   checksum?: Prisma.SortOrderInput | Prisma.SortOrder
   uploadedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.MediaAssetCountOrderByAggregateInput
   _avg?: Prisma.MediaAssetAvgOrderByAggregateInput
   _max?: Prisma.MediaAssetMaxOrderByAggregateInput
@@ -358,6 +369,7 @@ export type MediaAssetScalarWhereWithAggregatesInput = {
   checksum?: Prisma.StringNullableWithAggregatesFilter<"MediaAsset"> | string | null
   uploadedById?: Prisma.StringNullableWithAggregatesFilter<"MediaAsset"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"MediaAsset"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"MediaAsset"> | Date | string
 }
 
 export type MediaAssetCreateInput = {
@@ -372,6 +384,7 @@ export type MediaAssetCreateInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   productMedia?: Prisma.ProductMediaCreateNestedManyWithoutMediaInput
   variantMedia?: Prisma.ProductVariantMediaCreateNestedManyWithoutMediaInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionCreateNestedManyWithoutImageInput
@@ -392,6 +405,7 @@ export type MediaAssetUncheckedCreateInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   productMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutMediaInput
   variantMedia?: Prisma.ProductVariantMediaUncheckedCreateNestedManyWithoutMediaInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUncheckedCreateNestedManyWithoutImageInput
@@ -412,6 +426,7 @@ export type MediaAssetUpdateInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUpdateManyWithoutMediaNestedInput
   variantMedia?: Prisma.ProductVariantMediaUpdateManyWithoutMediaNestedInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUpdateManyWithoutImageNestedInput
@@ -432,6 +447,7 @@ export type MediaAssetUncheckedUpdateInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutMediaNestedInput
   variantMedia?: Prisma.ProductVariantMediaUncheckedUpdateManyWithoutMediaNestedInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUncheckedUpdateManyWithoutImageNestedInput
@@ -452,6 +468,7 @@ export type MediaAssetCreateManyInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type MediaAssetUpdateManyMutationInput = {
@@ -466,6 +483,7 @@ export type MediaAssetUpdateManyMutationInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type MediaAssetUncheckedUpdateManyInput = {
@@ -480,6 +498,7 @@ export type MediaAssetUncheckedUpdateManyInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type MediaAssetNullableScalarRelationFilter = {
@@ -505,6 +524,7 @@ export type MediaAssetCountOrderByAggregateInput = {
   checksum?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type MediaAssetAvgOrderByAggregateInput = {
@@ -525,6 +545,7 @@ export type MediaAssetMaxOrderByAggregateInput = {
   checksum?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type MediaAssetMinOrderByAggregateInput = {
@@ -539,6 +560,7 @@ export type MediaAssetMinOrderByAggregateInput = {
   checksum?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type MediaAssetSumOrderByAggregateInput = {
@@ -656,6 +678,7 @@ export type MediaAssetCreateWithoutBusinessProfilesInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   productMedia?: Prisma.ProductMediaCreateNestedManyWithoutMediaInput
   variantMedia?: Prisma.ProductVariantMediaCreateNestedManyWithoutMediaInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionCreateNestedManyWithoutImageInput
@@ -675,6 +698,7 @@ export type MediaAssetUncheckedCreateWithoutBusinessProfilesInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   productMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutMediaInput
   variantMedia?: Prisma.ProductVariantMediaUncheckedCreateNestedManyWithoutMediaInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUncheckedCreateNestedManyWithoutImageInput
@@ -710,6 +734,7 @@ export type MediaAssetUpdateWithoutBusinessProfilesInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUpdateManyWithoutMediaNestedInput
   variantMedia?: Prisma.ProductVariantMediaUpdateManyWithoutMediaNestedInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUpdateManyWithoutImageNestedInput
@@ -729,6 +754,7 @@ export type MediaAssetUncheckedUpdateWithoutBusinessProfilesInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutMediaNestedInput
   variantMedia?: Prisma.ProductVariantMediaUncheckedUpdateManyWithoutMediaNestedInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUncheckedUpdateManyWithoutImageNestedInput
@@ -748,6 +774,7 @@ export type MediaAssetCreateWithoutCategoryImagesInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   productMedia?: Prisma.ProductMediaCreateNestedManyWithoutMediaInput
   variantMedia?: Prisma.ProductVariantMediaCreateNestedManyWithoutMediaInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionCreateNestedManyWithoutImageInput
@@ -767,6 +794,7 @@ export type MediaAssetUncheckedCreateWithoutCategoryImagesInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   productMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutMediaInput
   variantMedia?: Prisma.ProductVariantMediaUncheckedCreateNestedManyWithoutMediaInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUncheckedCreateNestedManyWithoutImageInput
@@ -791,6 +819,7 @@ export type MediaAssetCreateWithoutCategoryBannersInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   productMedia?: Prisma.ProductMediaCreateNestedManyWithoutMediaInput
   variantMedia?: Prisma.ProductVariantMediaCreateNestedManyWithoutMediaInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionCreateNestedManyWithoutImageInput
@@ -810,6 +839,7 @@ export type MediaAssetUncheckedCreateWithoutCategoryBannersInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   productMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutMediaInput
   variantMedia?: Prisma.ProductVariantMediaUncheckedCreateNestedManyWithoutMediaInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUncheckedCreateNestedManyWithoutImageInput
@@ -845,6 +875,7 @@ export type MediaAssetUpdateWithoutCategoryImagesInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUpdateManyWithoutMediaNestedInput
   variantMedia?: Prisma.ProductVariantMediaUpdateManyWithoutMediaNestedInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUpdateManyWithoutImageNestedInput
@@ -864,6 +895,7 @@ export type MediaAssetUncheckedUpdateWithoutCategoryImagesInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutMediaNestedInput
   variantMedia?: Prisma.ProductVariantMediaUncheckedUpdateManyWithoutMediaNestedInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUncheckedUpdateManyWithoutImageNestedInput
@@ -894,6 +926,7 @@ export type MediaAssetUpdateWithoutCategoryBannersInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUpdateManyWithoutMediaNestedInput
   variantMedia?: Prisma.ProductVariantMediaUpdateManyWithoutMediaNestedInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUpdateManyWithoutImageNestedInput
@@ -913,6 +946,7 @@ export type MediaAssetUncheckedUpdateWithoutCategoryBannersInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutMediaNestedInput
   variantMedia?: Prisma.ProductVariantMediaUncheckedUpdateManyWithoutMediaNestedInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUncheckedUpdateManyWithoutImageNestedInput
@@ -932,6 +966,7 @@ export type MediaAssetCreateWithoutVariantMediaInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   productMedia?: Prisma.ProductMediaCreateNestedManyWithoutMediaInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionCreateNestedManyWithoutImageInput
   categoryImages?: Prisma.CategoryCreateNestedManyWithoutImageMediaInput
@@ -951,6 +986,7 @@ export type MediaAssetUncheckedCreateWithoutVariantMediaInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   productMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutMediaInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUncheckedCreateNestedManyWithoutImageInput
   categoryImages?: Prisma.CategoryUncheckedCreateNestedManyWithoutImageMediaInput
@@ -986,6 +1022,7 @@ export type MediaAssetUpdateWithoutVariantMediaInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUpdateManyWithoutMediaNestedInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUpdateManyWithoutImageNestedInput
   categoryImages?: Prisma.CategoryUpdateManyWithoutImageMediaNestedInput
@@ -1005,6 +1042,7 @@ export type MediaAssetUncheckedUpdateWithoutVariantMediaInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutMediaNestedInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUncheckedUpdateManyWithoutImageNestedInput
   categoryImages?: Prisma.CategoryUncheckedUpdateManyWithoutImageMediaNestedInput
@@ -1024,6 +1062,7 @@ export type MediaAssetCreateWithoutProductMediaInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   variantMedia?: Prisma.ProductVariantMediaCreateNestedManyWithoutMediaInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionCreateNestedManyWithoutImageInput
   categoryImages?: Prisma.CategoryCreateNestedManyWithoutImageMediaInput
@@ -1043,6 +1082,7 @@ export type MediaAssetUncheckedCreateWithoutProductMediaInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   variantMedia?: Prisma.ProductVariantMediaUncheckedCreateNestedManyWithoutMediaInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUncheckedCreateNestedManyWithoutImageInput
   categoryImages?: Prisma.CategoryUncheckedCreateNestedManyWithoutImageMediaInput
@@ -1078,6 +1118,7 @@ export type MediaAssetUpdateWithoutProductMediaInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variantMedia?: Prisma.ProductVariantMediaUpdateManyWithoutMediaNestedInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUpdateManyWithoutImageNestedInput
   categoryImages?: Prisma.CategoryUpdateManyWithoutImageMediaNestedInput
@@ -1097,6 +1138,7 @@ export type MediaAssetUncheckedUpdateWithoutProductMediaInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variantMedia?: Prisma.ProductVariantMediaUncheckedUpdateManyWithoutMediaNestedInput
   descriptionSectionImages?: Prisma.ProductDescriptionSectionUncheckedUpdateManyWithoutImageNestedInput
   categoryImages?: Prisma.CategoryUncheckedUpdateManyWithoutImageMediaNestedInput
@@ -1116,6 +1158,7 @@ export type MediaAssetCreateWithoutDescriptionSectionImagesInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   productMedia?: Prisma.ProductMediaCreateNestedManyWithoutMediaInput
   variantMedia?: Prisma.ProductVariantMediaCreateNestedManyWithoutMediaInput
   categoryImages?: Prisma.CategoryCreateNestedManyWithoutImageMediaInput
@@ -1135,6 +1178,7 @@ export type MediaAssetUncheckedCreateWithoutDescriptionSectionImagesInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   productMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutMediaInput
   variantMedia?: Prisma.ProductVariantMediaUncheckedCreateNestedManyWithoutMediaInput
   categoryImages?: Prisma.CategoryUncheckedCreateNestedManyWithoutImageMediaInput
@@ -1170,6 +1214,7 @@ export type MediaAssetUpdateWithoutDescriptionSectionImagesInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUpdateManyWithoutMediaNestedInput
   variantMedia?: Prisma.ProductVariantMediaUpdateManyWithoutMediaNestedInput
   categoryImages?: Prisma.CategoryUpdateManyWithoutImageMediaNestedInput
@@ -1189,6 +1234,7 @@ export type MediaAssetUncheckedUpdateWithoutDescriptionSectionImagesInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutMediaNestedInput
   variantMedia?: Prisma.ProductVariantMediaUncheckedUpdateManyWithoutMediaNestedInput
   categoryImages?: Prisma.CategoryUncheckedUpdateManyWithoutImageMediaNestedInput
@@ -1284,6 +1330,7 @@ export type MediaAssetSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   checksum?: boolean
   uploadedById?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   productMedia?: boolean | Prisma.MediaAsset$productMediaArgs<ExtArgs>
   variantMedia?: boolean | Prisma.MediaAsset$variantMediaArgs<ExtArgs>
   descriptionSectionImages?: boolean | Prisma.MediaAsset$descriptionSectionImagesArgs<ExtArgs>
@@ -1307,9 +1354,10 @@ export type MediaAssetSelectScalar = {
   checksum?: boolean
   uploadedById?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type MediaAssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "storageKey" | "url" | "mimeType" | "sizeBytes" | "width" | "height" | "altText" | "checksum" | "uploadedById" | "createdAt", ExtArgs["result"]["mediaAsset"]>
+export type MediaAssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "storageKey" | "url" | "mimeType" | "sizeBytes" | "width" | "height" | "altText" | "checksum" | "uploadedById" | "createdAt" | "updatedAt", ExtArgs["result"]["mediaAsset"]>
 export type MediaAssetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   productMedia?: boolean | Prisma.MediaAsset$productMediaArgs<ExtArgs>
   variantMedia?: boolean | Prisma.MediaAsset$variantMediaArgs<ExtArgs>
@@ -1348,6 +1396,7 @@ export type $MediaAssetPayload<ExtArgs extends runtime.Types.Extensions.Internal
     checksum: string | null
     uploadedById: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["mediaAsset"]>
   composites: {}
 }
@@ -1734,6 +1783,7 @@ export interface MediaAssetFieldRefs {
   readonly checksum: Prisma.FieldRef<"MediaAsset", 'String'>
   readonly uploadedById: Prisma.FieldRef<"MediaAsset", 'String'>
   readonly createdAt: Prisma.FieldRef<"MediaAsset", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"MediaAsset", 'DateTime'>
 }
     
 

@@ -14,7 +14,16 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model ReturnRequest
+ * A buyer's request to send goods back, and everything that happens to it.
  * 
+ * ONE return concerns ONE fulfiller: a single seller's part of the order
+ * (`sellerOrderGroupId`) or the operator's own lines (null). The seller who
+ * must answer, the address the goods go back to and the settlement the refund
+ * comes out of are all per fulfiller, so a return spanning two is two returns.
+ * 
+ * Status moves only through `domain/return-state.ts`. The refund is issued by
+ * the ordinary refund path (`createRefund`) and linked by `refundId`; there is
+ * no second way of paying a buyer back.
  */
 export type ReturnRequestModel = runtime.Types.Result.DefaultSelection<Prisma.$ReturnRequestPayload>
 
@@ -29,10 +38,25 @@ export type ReturnRequestMinAggregateOutputType = {
   orderId: string | null
   status: $Enums.ReturnStatus | null
   reason: string | null
+  reasonCode: string | null
+  preferredResolution: $Enums.ReturnResolution | null
+  origin: $Enums.ReturnOrigin | null
+  sellerOrderGroupId: string | null
   requestedById: string | null
   decidedById: string | null
   decidedAt: Date | null
   decisionNote: string | null
+  sellerResponse: $Enums.ReturnSellerResponse | null
+  sellerResponseNote: string | null
+  sellerRespondedAt: Date | null
+  sellerRespondedById: string | null
+  returnInstructions: string | null
+  instructionsSetAt: Date | null
+  approvedAt: Date | null
+  rejectedAt: Date | null
+  receivedAt: Date | null
+  inspectedAt: Date | null
+  resolutionNote: string | null
   refundId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -44,10 +68,25 @@ export type ReturnRequestMaxAggregateOutputType = {
   orderId: string | null
   status: $Enums.ReturnStatus | null
   reason: string | null
+  reasonCode: string | null
+  preferredResolution: $Enums.ReturnResolution | null
+  origin: $Enums.ReturnOrigin | null
+  sellerOrderGroupId: string | null
   requestedById: string | null
   decidedById: string | null
   decidedAt: Date | null
   decisionNote: string | null
+  sellerResponse: $Enums.ReturnSellerResponse | null
+  sellerResponseNote: string | null
+  sellerRespondedAt: Date | null
+  sellerRespondedById: string | null
+  returnInstructions: string | null
+  instructionsSetAt: Date | null
+  approvedAt: Date | null
+  rejectedAt: Date | null
+  receivedAt: Date | null
+  inspectedAt: Date | null
+  resolutionNote: string | null
   refundId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -59,11 +98,26 @@ export type ReturnRequestCountAggregateOutputType = {
   orderId: number
   status: number
   reason: number
+  reasonCode: number
+  preferredResolution: number
+  origin: number
+  sellerOrderGroupId: number
   itemsJson: number
   requestedById: number
   decidedById: number
   decidedAt: number
   decisionNote: number
+  sellerResponse: number
+  sellerResponseNote: number
+  sellerRespondedAt: number
+  sellerRespondedById: number
+  returnInstructions: number
+  instructionsSetAt: number
+  approvedAt: number
+  rejectedAt: number
+  receivedAt: number
+  inspectedAt: number
+  resolutionNote: number
   refundId: number
   createdAt: number
   updatedAt: number
@@ -77,10 +131,25 @@ export type ReturnRequestMinAggregateInputType = {
   orderId?: true
   status?: true
   reason?: true
+  reasonCode?: true
+  preferredResolution?: true
+  origin?: true
+  sellerOrderGroupId?: true
   requestedById?: true
   decidedById?: true
   decidedAt?: true
   decisionNote?: true
+  sellerResponse?: true
+  sellerResponseNote?: true
+  sellerRespondedAt?: true
+  sellerRespondedById?: true
+  returnInstructions?: true
+  instructionsSetAt?: true
+  approvedAt?: true
+  rejectedAt?: true
+  receivedAt?: true
+  inspectedAt?: true
+  resolutionNote?: true
   refundId?: true
   createdAt?: true
   updatedAt?: true
@@ -92,10 +161,25 @@ export type ReturnRequestMaxAggregateInputType = {
   orderId?: true
   status?: true
   reason?: true
+  reasonCode?: true
+  preferredResolution?: true
+  origin?: true
+  sellerOrderGroupId?: true
   requestedById?: true
   decidedById?: true
   decidedAt?: true
   decisionNote?: true
+  sellerResponse?: true
+  sellerResponseNote?: true
+  sellerRespondedAt?: true
+  sellerRespondedById?: true
+  returnInstructions?: true
+  instructionsSetAt?: true
+  approvedAt?: true
+  rejectedAt?: true
+  receivedAt?: true
+  inspectedAt?: true
+  resolutionNote?: true
   refundId?: true
   createdAt?: true
   updatedAt?: true
@@ -107,11 +191,26 @@ export type ReturnRequestCountAggregateInputType = {
   orderId?: true
   status?: true
   reason?: true
+  reasonCode?: true
+  preferredResolution?: true
+  origin?: true
+  sellerOrderGroupId?: true
   itemsJson?: true
   requestedById?: true
   decidedById?: true
   decidedAt?: true
   decisionNote?: true
+  sellerResponse?: true
+  sellerResponseNote?: true
+  sellerRespondedAt?: true
+  sellerRespondedById?: true
+  returnInstructions?: true
+  instructionsSetAt?: true
+  approvedAt?: true
+  rejectedAt?: true
+  receivedAt?: true
+  inspectedAt?: true
+  resolutionNote?: true
   refundId?: true
   createdAt?: true
   updatedAt?: true
@@ -196,11 +295,26 @@ export type ReturnRequestGroupByOutputType = {
   orderId: string
   status: $Enums.ReturnStatus
   reason: string
+  reasonCode: string | null
+  preferredResolution: $Enums.ReturnResolution
+  origin: $Enums.ReturnOrigin
+  sellerOrderGroupId: string | null
   itemsJson: runtime.JsonValue
   requestedById: string
   decidedById: string | null
   decidedAt: Date | null
   decisionNote: string | null
+  sellerResponse: $Enums.ReturnSellerResponse | null
+  sellerResponseNote: string | null
+  sellerRespondedAt: Date | null
+  sellerRespondedById: string | null
+  returnInstructions: string | null
+  instructionsSetAt: Date | null
+  approvedAt: Date | null
+  rejectedAt: Date | null
+  receivedAt: Date | null
+  inspectedAt: Date | null
+  resolutionNote: string | null
   refundId: string | null
   createdAt: Date
   updatedAt: Date
@@ -233,17 +347,36 @@ export type ReturnRequestWhereInput = {
   orderId?: Prisma.StringFilter<"ReturnRequest"> | string
   status?: Prisma.EnumReturnStatusFilter<"ReturnRequest"> | $Enums.ReturnStatus
   reason?: Prisma.StringFilter<"ReturnRequest"> | string
+  reasonCode?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFilter<"ReturnRequest"> | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFilter<"ReturnRequest"> | $Enums.ReturnOrigin
+  sellerOrderGroupId?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
   itemsJson?: Prisma.JsonFilter<"ReturnRequest">
   requestedById?: Prisma.StringFilter<"ReturnRequest"> | string
   decidedById?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
   decidedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
   decisionNote?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  sellerResponse?: Prisma.EnumReturnSellerResponseNullableFilter<"ReturnRequest"> | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  sellerRespondedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  sellerRespondedById?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  returnInstructions?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  instructionsSetAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  rejectedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  receivedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  inspectedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  resolutionNote?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
   refundId?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ReturnRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ReturnRequest"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   refund?: Prisma.XOR<Prisma.RefundNullableScalarRelationFilter, Prisma.RefundWhereInput> | null
+  sellerOrderGroup?: Prisma.XOR<Prisma.SellerOrderGroupNullableScalarRelationFilter, Prisma.SellerOrderGroupWhereInput> | null
+  lines?: Prisma.ReturnRequestLineListRelationFilter
+  events?: Prisma.ReturnRequestEventListRelationFilter
+  files?: Prisma.ReturnRequestFileListRelationFilter
 }
 
 export type ReturnRequestOrderByWithRelationInput = {
@@ -251,17 +384,36 @@ export type ReturnRequestOrderByWithRelationInput = {
   orderId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  reasonCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  preferredResolution?: Prisma.SortOrder
+  origin?: Prisma.SortOrder
+  sellerOrderGroupId?: Prisma.SortOrderInput | Prisma.SortOrder
   itemsJson?: Prisma.SortOrder
   requestedById?: Prisma.SortOrder
   decidedById?: Prisma.SortOrderInput | Prisma.SortOrder
   decidedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   decisionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerResponse?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerResponseNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerRespondedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerRespondedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  returnInstructions?: Prisma.SortOrderInput | Prisma.SortOrder
+  instructionsSetAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  rejectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  receivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  inspectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionNote?: Prisma.SortOrderInput | Prisma.SortOrder
   refundId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   order?: Prisma.OrderOrderByWithRelationInput
   refund?: Prisma.RefundOrderByWithRelationInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupOrderByWithRelationInput
+  lines?: Prisma.ReturnRequestLineOrderByRelationAggregateInput
+  events?: Prisma.ReturnRequestEventOrderByRelationAggregateInput
+  files?: Prisma.ReturnRequestFileOrderByRelationAggregateInput
   _relevance?: Prisma.ReturnRequestOrderByRelevanceInput
 }
 
@@ -273,17 +425,36 @@ export type ReturnRequestWhereUniqueInput = Prisma.AtLeast<{
   orderId?: Prisma.StringFilter<"ReturnRequest"> | string
   status?: Prisma.EnumReturnStatusFilter<"ReturnRequest"> | $Enums.ReturnStatus
   reason?: Prisma.StringFilter<"ReturnRequest"> | string
+  reasonCode?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFilter<"ReturnRequest"> | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFilter<"ReturnRequest"> | $Enums.ReturnOrigin
+  sellerOrderGroupId?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
   itemsJson?: Prisma.JsonFilter<"ReturnRequest">
   requestedById?: Prisma.StringFilter<"ReturnRequest"> | string
   decidedById?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
   decidedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
   decisionNote?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  sellerResponse?: Prisma.EnumReturnSellerResponseNullableFilter<"ReturnRequest"> | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  sellerRespondedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  sellerRespondedById?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  returnInstructions?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  instructionsSetAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  rejectedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  receivedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  inspectedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  resolutionNote?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
   refundId?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ReturnRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ReturnRequest"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   refund?: Prisma.XOR<Prisma.RefundNullableScalarRelationFilter, Prisma.RefundWhereInput> | null
+  sellerOrderGroup?: Prisma.XOR<Prisma.SellerOrderGroupNullableScalarRelationFilter, Prisma.SellerOrderGroupWhereInput> | null
+  lines?: Prisma.ReturnRequestLineListRelationFilter
+  events?: Prisma.ReturnRequestEventListRelationFilter
+  files?: Prisma.ReturnRequestFileListRelationFilter
 }, "id">
 
 export type ReturnRequestOrderByWithAggregationInput = {
@@ -291,11 +462,26 @@ export type ReturnRequestOrderByWithAggregationInput = {
   orderId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  reasonCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  preferredResolution?: Prisma.SortOrder
+  origin?: Prisma.SortOrder
+  sellerOrderGroupId?: Prisma.SortOrderInput | Prisma.SortOrder
   itemsJson?: Prisma.SortOrder
   requestedById?: Prisma.SortOrder
   decidedById?: Prisma.SortOrderInput | Prisma.SortOrder
   decidedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   decisionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerResponse?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerResponseNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerRespondedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerRespondedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  returnInstructions?: Prisma.SortOrderInput | Prisma.SortOrder
+  instructionsSetAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  rejectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  receivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  inspectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionNote?: Prisma.SortOrderInput | Prisma.SortOrder
   refundId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -313,11 +499,26 @@ export type ReturnRequestScalarWhereWithAggregatesInput = {
   orderId?: Prisma.StringWithAggregatesFilter<"ReturnRequest"> | string
   status?: Prisma.EnumReturnStatusWithAggregatesFilter<"ReturnRequest"> | $Enums.ReturnStatus
   reason?: Prisma.StringWithAggregatesFilter<"ReturnRequest"> | string
+  reasonCode?: Prisma.StringNullableWithAggregatesFilter<"ReturnRequest"> | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionWithAggregatesFilter<"ReturnRequest"> | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginWithAggregatesFilter<"ReturnRequest"> | $Enums.ReturnOrigin
+  sellerOrderGroupId?: Prisma.StringNullableWithAggregatesFilter<"ReturnRequest"> | string | null
   itemsJson?: Prisma.JsonWithAggregatesFilter<"ReturnRequest">
   requestedById?: Prisma.StringWithAggregatesFilter<"ReturnRequest"> | string
   decidedById?: Prisma.StringNullableWithAggregatesFilter<"ReturnRequest"> | string | null
   decidedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ReturnRequest"> | Date | string | null
   decisionNote?: Prisma.StringNullableWithAggregatesFilter<"ReturnRequest"> | string | null
+  sellerResponse?: Prisma.EnumReturnSellerResponseNullableWithAggregatesFilter<"ReturnRequest"> | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.StringNullableWithAggregatesFilter<"ReturnRequest"> | string | null
+  sellerRespondedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ReturnRequest"> | Date | string | null
+  sellerRespondedById?: Prisma.StringNullableWithAggregatesFilter<"ReturnRequest"> | string | null
+  returnInstructions?: Prisma.StringNullableWithAggregatesFilter<"ReturnRequest"> | string | null
+  instructionsSetAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ReturnRequest"> | Date | string | null
+  approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ReturnRequest"> | Date | string | null
+  rejectedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ReturnRequest"> | Date | string | null
+  receivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ReturnRequest"> | Date | string | null
+  inspectedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ReturnRequest"> | Date | string | null
+  resolutionNote?: Prisma.StringNullableWithAggregatesFilter<"ReturnRequest"> | string | null
   refundId?: Prisma.StringNullableWithAggregatesFilter<"ReturnRequest"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ReturnRequest"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ReturnRequest"> | Date | string
@@ -328,16 +529,34 @@ export type ReturnRequestCreateInput = {
   id: string
   status?: $Enums.ReturnStatus
   reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById: string
   decidedById?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   completedAt?: Date | string | null
   order: Prisma.OrderCreateNestedOneWithoutReturnRequestsInput
   refund?: Prisma.RefundCreateNestedOneWithoutReturnRequestsInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupCreateNestedOneWithoutReturnRequestsInput
+  lines?: Prisma.ReturnRequestLineCreateNestedManyWithoutReturnRequestInput
+  events?: Prisma.ReturnRequestEventCreateNestedManyWithoutReturnRequestInput
+  files?: Prisma.ReturnRequestFileCreateNestedManyWithoutReturnRequestInput
 }
 
 export type ReturnRequestUncheckedCreateInput = {
@@ -345,31 +564,67 @@ export type ReturnRequestUncheckedCreateInput = {
   orderId: string
   status?: $Enums.ReturnStatus
   reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
+  sellerOrderGroupId?: string | null
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById: string
   decidedById?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
   refundId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   completedAt?: Date | string | null
+  lines?: Prisma.ReturnRequestLineUncheckedCreateNestedManyWithoutReturnRequestInput
+  events?: Prisma.ReturnRequestEventUncheckedCreateNestedManyWithoutReturnRequestInput
+  files?: Prisma.ReturnRequestFileUncheckedCreateNestedManyWithoutReturnRequestInput
 }
 
 export type ReturnRequestUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById?: Prisma.StringFieldUpdateOperationsInput | string
   decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order?: Prisma.OrderUpdateOneRequiredWithoutReturnRequestsNestedInput
   refund?: Prisma.RefundUpdateOneWithoutReturnRequestsNestedInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneWithoutReturnRequestsNestedInput
+  lines?: Prisma.ReturnRequestLineUpdateManyWithoutReturnRequestNestedInput
+  events?: Prisma.ReturnRequestEventUpdateManyWithoutReturnRequestNestedInput
+  files?: Prisma.ReturnRequestFileUpdateManyWithoutReturnRequestNestedInput
 }
 
 export type ReturnRequestUncheckedUpdateInput = {
@@ -377,15 +632,33 @@ export type ReturnRequestUncheckedUpdateInput = {
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  sellerOrderGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById?: Prisma.StringFieldUpdateOperationsInput | string
   decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   refundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lines?: Prisma.ReturnRequestLineUncheckedUpdateManyWithoutReturnRequestNestedInput
+  events?: Prisma.ReturnRequestEventUncheckedUpdateManyWithoutReturnRequestNestedInput
+  files?: Prisma.ReturnRequestFileUncheckedUpdateManyWithoutReturnRequestNestedInput
 }
 
 export type ReturnRequestCreateManyInput = {
@@ -393,11 +666,26 @@ export type ReturnRequestCreateManyInput = {
   orderId: string
   status?: $Enums.ReturnStatus
   reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
+  sellerOrderGroupId?: string | null
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById: string
   decidedById?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
   refundId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -408,11 +696,25 @@ export type ReturnRequestUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById?: Prisma.StringFieldUpdateOperationsInput | string
   decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -423,11 +725,26 @@ export type ReturnRequestUncheckedUpdateManyInput = {
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  sellerOrderGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById?: Prisma.StringFieldUpdateOperationsInput | string
   decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   refundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -455,11 +772,26 @@ export type ReturnRequestCountOrderByAggregateInput = {
   orderId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  reasonCode?: Prisma.SortOrder
+  preferredResolution?: Prisma.SortOrder
+  origin?: Prisma.SortOrder
+  sellerOrderGroupId?: Prisma.SortOrder
   itemsJson?: Prisma.SortOrder
   requestedById?: Prisma.SortOrder
   decidedById?: Prisma.SortOrder
   decidedAt?: Prisma.SortOrder
   decisionNote?: Prisma.SortOrder
+  sellerResponse?: Prisma.SortOrder
+  sellerResponseNote?: Prisma.SortOrder
+  sellerRespondedAt?: Prisma.SortOrder
+  sellerRespondedById?: Prisma.SortOrder
+  returnInstructions?: Prisma.SortOrder
+  instructionsSetAt?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
+  rejectedAt?: Prisma.SortOrder
+  receivedAt?: Prisma.SortOrder
+  inspectedAt?: Prisma.SortOrder
+  resolutionNote?: Prisma.SortOrder
   refundId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -471,10 +803,25 @@ export type ReturnRequestMaxOrderByAggregateInput = {
   orderId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  reasonCode?: Prisma.SortOrder
+  preferredResolution?: Prisma.SortOrder
+  origin?: Prisma.SortOrder
+  sellerOrderGroupId?: Prisma.SortOrder
   requestedById?: Prisma.SortOrder
   decidedById?: Prisma.SortOrder
   decidedAt?: Prisma.SortOrder
   decisionNote?: Prisma.SortOrder
+  sellerResponse?: Prisma.SortOrder
+  sellerResponseNote?: Prisma.SortOrder
+  sellerRespondedAt?: Prisma.SortOrder
+  sellerRespondedById?: Prisma.SortOrder
+  returnInstructions?: Prisma.SortOrder
+  instructionsSetAt?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
+  rejectedAt?: Prisma.SortOrder
+  receivedAt?: Prisma.SortOrder
+  inspectedAt?: Prisma.SortOrder
+  resolutionNote?: Prisma.SortOrder
   refundId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -486,14 +833,34 @@ export type ReturnRequestMinOrderByAggregateInput = {
   orderId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  reasonCode?: Prisma.SortOrder
+  preferredResolution?: Prisma.SortOrder
+  origin?: Prisma.SortOrder
+  sellerOrderGroupId?: Prisma.SortOrder
   requestedById?: Prisma.SortOrder
   decidedById?: Prisma.SortOrder
   decidedAt?: Prisma.SortOrder
   decisionNote?: Prisma.SortOrder
+  sellerResponse?: Prisma.SortOrder
+  sellerResponseNote?: Prisma.SortOrder
+  sellerRespondedAt?: Prisma.SortOrder
+  sellerRespondedById?: Prisma.SortOrder
+  returnInstructions?: Prisma.SortOrder
+  instructionsSetAt?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
+  rejectedAt?: Prisma.SortOrder
+  receivedAt?: Prisma.SortOrder
+  inspectedAt?: Prisma.SortOrder
+  resolutionNote?: Prisma.SortOrder
   refundId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+}
+
+export type ReturnRequestScalarRelationFilter = {
+  is?: Prisma.ReturnRequestWhereInput
+  isNot?: Prisma.ReturnRequestWhereInput
 }
 
 export type ReturnRequestCreateNestedManyWithoutOrderInput = {
@@ -584,34 +951,166 @@ export type EnumReturnStatusFieldUpdateOperationsInput = {
   set?: $Enums.ReturnStatus
 }
 
+export type EnumReturnResolutionFieldUpdateOperationsInput = {
+  set?: $Enums.ReturnResolution
+}
+
+export type EnumReturnOriginFieldUpdateOperationsInput = {
+  set?: $Enums.ReturnOrigin
+}
+
+export type NullableEnumReturnSellerResponseFieldUpdateOperationsInput = {
+  set?: $Enums.ReturnSellerResponse | null
+}
+
+export type ReturnRequestCreateNestedOneWithoutLinesInput = {
+  create?: Prisma.XOR<Prisma.ReturnRequestCreateWithoutLinesInput, Prisma.ReturnRequestUncheckedCreateWithoutLinesInput>
+  connectOrCreate?: Prisma.ReturnRequestCreateOrConnectWithoutLinesInput
+  connect?: Prisma.ReturnRequestWhereUniqueInput
+}
+
+export type ReturnRequestUpdateOneRequiredWithoutLinesNestedInput = {
+  create?: Prisma.XOR<Prisma.ReturnRequestCreateWithoutLinesInput, Prisma.ReturnRequestUncheckedCreateWithoutLinesInput>
+  connectOrCreate?: Prisma.ReturnRequestCreateOrConnectWithoutLinesInput
+  upsert?: Prisma.ReturnRequestUpsertWithoutLinesInput
+  connect?: Prisma.ReturnRequestWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ReturnRequestUpdateToOneWithWhereWithoutLinesInput, Prisma.ReturnRequestUpdateWithoutLinesInput>, Prisma.ReturnRequestUncheckedUpdateWithoutLinesInput>
+}
+
+export type ReturnRequestCreateNestedOneWithoutEventsInput = {
+  create?: Prisma.XOR<Prisma.ReturnRequestCreateWithoutEventsInput, Prisma.ReturnRequestUncheckedCreateWithoutEventsInput>
+  connectOrCreate?: Prisma.ReturnRequestCreateOrConnectWithoutEventsInput
+  connect?: Prisma.ReturnRequestWhereUniqueInput
+}
+
+export type ReturnRequestUpdateOneRequiredWithoutEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.ReturnRequestCreateWithoutEventsInput, Prisma.ReturnRequestUncheckedCreateWithoutEventsInput>
+  connectOrCreate?: Prisma.ReturnRequestCreateOrConnectWithoutEventsInput
+  upsert?: Prisma.ReturnRequestUpsertWithoutEventsInput
+  connect?: Prisma.ReturnRequestWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ReturnRequestUpdateToOneWithWhereWithoutEventsInput, Prisma.ReturnRequestUpdateWithoutEventsInput>, Prisma.ReturnRequestUncheckedUpdateWithoutEventsInput>
+}
+
+export type ReturnRequestCreateNestedOneWithoutFilesInput = {
+  create?: Prisma.XOR<Prisma.ReturnRequestCreateWithoutFilesInput, Prisma.ReturnRequestUncheckedCreateWithoutFilesInput>
+  connectOrCreate?: Prisma.ReturnRequestCreateOrConnectWithoutFilesInput
+  connect?: Prisma.ReturnRequestWhereUniqueInput
+}
+
+export type ReturnRequestUpdateOneRequiredWithoutFilesNestedInput = {
+  create?: Prisma.XOR<Prisma.ReturnRequestCreateWithoutFilesInput, Prisma.ReturnRequestUncheckedCreateWithoutFilesInput>
+  connectOrCreate?: Prisma.ReturnRequestCreateOrConnectWithoutFilesInput
+  upsert?: Prisma.ReturnRequestUpsertWithoutFilesInput
+  connect?: Prisma.ReturnRequestWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ReturnRequestUpdateToOneWithWhereWithoutFilesInput, Prisma.ReturnRequestUpdateWithoutFilesInput>, Prisma.ReturnRequestUncheckedUpdateWithoutFilesInput>
+}
+
+export type ReturnRequestCreateNestedManyWithoutSellerOrderGroupInput = {
+  create?: Prisma.XOR<Prisma.ReturnRequestCreateWithoutSellerOrderGroupInput, Prisma.ReturnRequestUncheckedCreateWithoutSellerOrderGroupInput> | Prisma.ReturnRequestCreateWithoutSellerOrderGroupInput[] | Prisma.ReturnRequestUncheckedCreateWithoutSellerOrderGroupInput[]
+  connectOrCreate?: Prisma.ReturnRequestCreateOrConnectWithoutSellerOrderGroupInput | Prisma.ReturnRequestCreateOrConnectWithoutSellerOrderGroupInput[]
+  createMany?: Prisma.ReturnRequestCreateManySellerOrderGroupInputEnvelope
+  connect?: Prisma.ReturnRequestWhereUniqueInput | Prisma.ReturnRequestWhereUniqueInput[]
+}
+
+export type ReturnRequestUncheckedCreateNestedManyWithoutSellerOrderGroupInput = {
+  create?: Prisma.XOR<Prisma.ReturnRequestCreateWithoutSellerOrderGroupInput, Prisma.ReturnRequestUncheckedCreateWithoutSellerOrderGroupInput> | Prisma.ReturnRequestCreateWithoutSellerOrderGroupInput[] | Prisma.ReturnRequestUncheckedCreateWithoutSellerOrderGroupInput[]
+  connectOrCreate?: Prisma.ReturnRequestCreateOrConnectWithoutSellerOrderGroupInput | Prisma.ReturnRequestCreateOrConnectWithoutSellerOrderGroupInput[]
+  createMany?: Prisma.ReturnRequestCreateManySellerOrderGroupInputEnvelope
+  connect?: Prisma.ReturnRequestWhereUniqueInput | Prisma.ReturnRequestWhereUniqueInput[]
+}
+
+export type ReturnRequestUpdateManyWithoutSellerOrderGroupNestedInput = {
+  create?: Prisma.XOR<Prisma.ReturnRequestCreateWithoutSellerOrderGroupInput, Prisma.ReturnRequestUncheckedCreateWithoutSellerOrderGroupInput> | Prisma.ReturnRequestCreateWithoutSellerOrderGroupInput[] | Prisma.ReturnRequestUncheckedCreateWithoutSellerOrderGroupInput[]
+  connectOrCreate?: Prisma.ReturnRequestCreateOrConnectWithoutSellerOrderGroupInput | Prisma.ReturnRequestCreateOrConnectWithoutSellerOrderGroupInput[]
+  upsert?: Prisma.ReturnRequestUpsertWithWhereUniqueWithoutSellerOrderGroupInput | Prisma.ReturnRequestUpsertWithWhereUniqueWithoutSellerOrderGroupInput[]
+  createMany?: Prisma.ReturnRequestCreateManySellerOrderGroupInputEnvelope
+  set?: Prisma.ReturnRequestWhereUniqueInput | Prisma.ReturnRequestWhereUniqueInput[]
+  disconnect?: Prisma.ReturnRequestWhereUniqueInput | Prisma.ReturnRequestWhereUniqueInput[]
+  delete?: Prisma.ReturnRequestWhereUniqueInput | Prisma.ReturnRequestWhereUniqueInput[]
+  connect?: Prisma.ReturnRequestWhereUniqueInput | Prisma.ReturnRequestWhereUniqueInput[]
+  update?: Prisma.ReturnRequestUpdateWithWhereUniqueWithoutSellerOrderGroupInput | Prisma.ReturnRequestUpdateWithWhereUniqueWithoutSellerOrderGroupInput[]
+  updateMany?: Prisma.ReturnRequestUpdateManyWithWhereWithoutSellerOrderGroupInput | Prisma.ReturnRequestUpdateManyWithWhereWithoutSellerOrderGroupInput[]
+  deleteMany?: Prisma.ReturnRequestScalarWhereInput | Prisma.ReturnRequestScalarWhereInput[]
+}
+
+export type ReturnRequestUncheckedUpdateManyWithoutSellerOrderGroupNestedInput = {
+  create?: Prisma.XOR<Prisma.ReturnRequestCreateWithoutSellerOrderGroupInput, Prisma.ReturnRequestUncheckedCreateWithoutSellerOrderGroupInput> | Prisma.ReturnRequestCreateWithoutSellerOrderGroupInput[] | Prisma.ReturnRequestUncheckedCreateWithoutSellerOrderGroupInput[]
+  connectOrCreate?: Prisma.ReturnRequestCreateOrConnectWithoutSellerOrderGroupInput | Prisma.ReturnRequestCreateOrConnectWithoutSellerOrderGroupInput[]
+  upsert?: Prisma.ReturnRequestUpsertWithWhereUniqueWithoutSellerOrderGroupInput | Prisma.ReturnRequestUpsertWithWhereUniqueWithoutSellerOrderGroupInput[]
+  createMany?: Prisma.ReturnRequestCreateManySellerOrderGroupInputEnvelope
+  set?: Prisma.ReturnRequestWhereUniqueInput | Prisma.ReturnRequestWhereUniqueInput[]
+  disconnect?: Prisma.ReturnRequestWhereUniqueInput | Prisma.ReturnRequestWhereUniqueInput[]
+  delete?: Prisma.ReturnRequestWhereUniqueInput | Prisma.ReturnRequestWhereUniqueInput[]
+  connect?: Prisma.ReturnRequestWhereUniqueInput | Prisma.ReturnRequestWhereUniqueInput[]
+  update?: Prisma.ReturnRequestUpdateWithWhereUniqueWithoutSellerOrderGroupInput | Prisma.ReturnRequestUpdateWithWhereUniqueWithoutSellerOrderGroupInput[]
+  updateMany?: Prisma.ReturnRequestUpdateManyWithWhereWithoutSellerOrderGroupInput | Prisma.ReturnRequestUpdateManyWithWhereWithoutSellerOrderGroupInput[]
+  deleteMany?: Prisma.ReturnRequestScalarWhereInput | Prisma.ReturnRequestScalarWhereInput[]
+}
+
 export type ReturnRequestCreateWithoutOrderInput = {
   id: string
   status?: $Enums.ReturnStatus
   reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById: string
   decidedById?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   completedAt?: Date | string | null
   refund?: Prisma.RefundCreateNestedOneWithoutReturnRequestsInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupCreateNestedOneWithoutReturnRequestsInput
+  lines?: Prisma.ReturnRequestLineCreateNestedManyWithoutReturnRequestInput
+  events?: Prisma.ReturnRequestEventCreateNestedManyWithoutReturnRequestInput
+  files?: Prisma.ReturnRequestFileCreateNestedManyWithoutReturnRequestInput
 }
 
 export type ReturnRequestUncheckedCreateWithoutOrderInput = {
   id: string
   status?: $Enums.ReturnStatus
   reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
+  sellerOrderGroupId?: string | null
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById: string
   decidedById?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
   refundId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   completedAt?: Date | string | null
+  lines?: Prisma.ReturnRequestLineUncheckedCreateNestedManyWithoutReturnRequestInput
+  events?: Prisma.ReturnRequestEventUncheckedCreateNestedManyWithoutReturnRequestInput
+  files?: Prisma.ReturnRequestFileUncheckedCreateNestedManyWithoutReturnRequestInput
 }
 
 export type ReturnRequestCreateOrConnectWithoutOrderInput = {
@@ -648,11 +1147,26 @@ export type ReturnRequestScalarWhereInput = {
   orderId?: Prisma.StringFilter<"ReturnRequest"> | string
   status?: Prisma.EnumReturnStatusFilter<"ReturnRequest"> | $Enums.ReturnStatus
   reason?: Prisma.StringFilter<"ReturnRequest"> | string
+  reasonCode?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFilter<"ReturnRequest"> | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFilter<"ReturnRequest"> | $Enums.ReturnOrigin
+  sellerOrderGroupId?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
   itemsJson?: Prisma.JsonFilter<"ReturnRequest">
   requestedById?: Prisma.StringFilter<"ReturnRequest"> | string
   decidedById?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
   decidedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
   decisionNote?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  sellerResponse?: Prisma.EnumReturnSellerResponseNullableFilter<"ReturnRequest"> | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  sellerRespondedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  sellerRespondedById?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  returnInstructions?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
+  instructionsSetAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  rejectedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  receivedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  inspectedAt?: Prisma.DateTimeNullableFilter<"ReturnRequest"> | Date | string | null
+  resolutionNote?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
   refundId?: Prisma.StringNullableFilter<"ReturnRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ReturnRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ReturnRequest"> | Date | string
@@ -663,15 +1177,33 @@ export type ReturnRequestCreateWithoutRefundInput = {
   id: string
   status?: $Enums.ReturnStatus
   reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById: string
   decidedById?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   completedAt?: Date | string | null
   order: Prisma.OrderCreateNestedOneWithoutReturnRequestsInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupCreateNestedOneWithoutReturnRequestsInput
+  lines?: Prisma.ReturnRequestLineCreateNestedManyWithoutReturnRequestInput
+  events?: Prisma.ReturnRequestEventCreateNestedManyWithoutReturnRequestInput
+  files?: Prisma.ReturnRequestFileCreateNestedManyWithoutReturnRequestInput
 }
 
 export type ReturnRequestUncheckedCreateWithoutRefundInput = {
@@ -679,14 +1211,32 @@ export type ReturnRequestUncheckedCreateWithoutRefundInput = {
   orderId: string
   status?: $Enums.ReturnStatus
   reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
+  sellerOrderGroupId?: string | null
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById: string
   decidedById?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   completedAt?: Date | string | null
+  lines?: Prisma.ReturnRequestLineUncheckedCreateNestedManyWithoutReturnRequestInput
+  events?: Prisma.ReturnRequestEventUncheckedCreateNestedManyWithoutReturnRequestInput
+  files?: Prisma.ReturnRequestFileUncheckedCreateNestedManyWithoutReturnRequestInput
 }
 
 export type ReturnRequestCreateOrConnectWithoutRefundInput = {
@@ -715,15 +1265,566 @@ export type ReturnRequestUpdateManyWithWhereWithoutRefundInput = {
   data: Prisma.XOR<Prisma.ReturnRequestUpdateManyMutationInput, Prisma.ReturnRequestUncheckedUpdateManyWithoutRefundInput>
 }
 
-export type ReturnRequestCreateManyOrderInput = {
+export type ReturnRequestCreateWithoutLinesInput = {
   id: string
   status?: $Enums.ReturnStatus
   reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById: string
   decidedById?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  completedAt?: Date | string | null
+  order: Prisma.OrderCreateNestedOneWithoutReturnRequestsInput
+  refund?: Prisma.RefundCreateNestedOneWithoutReturnRequestsInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupCreateNestedOneWithoutReturnRequestsInput
+  events?: Prisma.ReturnRequestEventCreateNestedManyWithoutReturnRequestInput
+  files?: Prisma.ReturnRequestFileCreateNestedManyWithoutReturnRequestInput
+}
+
+export type ReturnRequestUncheckedCreateWithoutLinesInput = {
+  id: string
+  orderId: string
+  status?: $Enums.ReturnStatus
+  reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
+  sellerOrderGroupId?: string | null
+  itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById: string
+  decidedById?: string | null
+  decidedAt?: Date | string | null
+  decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
+  refundId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  completedAt?: Date | string | null
+  events?: Prisma.ReturnRequestEventUncheckedCreateNestedManyWithoutReturnRequestInput
+  files?: Prisma.ReturnRequestFileUncheckedCreateNestedManyWithoutReturnRequestInput
+}
+
+export type ReturnRequestCreateOrConnectWithoutLinesInput = {
+  where: Prisma.ReturnRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.ReturnRequestCreateWithoutLinesInput, Prisma.ReturnRequestUncheckedCreateWithoutLinesInput>
+}
+
+export type ReturnRequestUpsertWithoutLinesInput = {
+  update: Prisma.XOR<Prisma.ReturnRequestUpdateWithoutLinesInput, Prisma.ReturnRequestUncheckedUpdateWithoutLinesInput>
+  create: Prisma.XOR<Prisma.ReturnRequestCreateWithoutLinesInput, Prisma.ReturnRequestUncheckedCreateWithoutLinesInput>
+  where?: Prisma.ReturnRequestWhereInput
+}
+
+export type ReturnRequestUpdateToOneWithWhereWithoutLinesInput = {
+  where?: Prisma.ReturnRequestWhereInput
+  data: Prisma.XOR<Prisma.ReturnRequestUpdateWithoutLinesInput, Prisma.ReturnRequestUncheckedUpdateWithoutLinesInput>
+}
+
+export type ReturnRequestUpdateWithoutLinesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById?: Prisma.StringFieldUpdateOperationsInput | string
+  decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  order?: Prisma.OrderUpdateOneRequiredWithoutReturnRequestsNestedInput
+  refund?: Prisma.RefundUpdateOneWithoutReturnRequestsNestedInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneWithoutReturnRequestsNestedInput
+  events?: Prisma.ReturnRequestEventUpdateManyWithoutReturnRequestNestedInput
+  files?: Prisma.ReturnRequestFileUpdateManyWithoutReturnRequestNestedInput
+}
+
+export type ReturnRequestUncheckedUpdateWithoutLinesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  sellerOrderGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById?: Prisma.StringFieldUpdateOperationsInput | string
+  decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  events?: Prisma.ReturnRequestEventUncheckedUpdateManyWithoutReturnRequestNestedInput
+  files?: Prisma.ReturnRequestFileUncheckedUpdateManyWithoutReturnRequestNestedInput
+}
+
+export type ReturnRequestCreateWithoutEventsInput = {
+  id: string
+  status?: $Enums.ReturnStatus
+  reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
+  itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById: string
+  decidedById?: string | null
+  decidedAt?: Date | string | null
+  decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  completedAt?: Date | string | null
+  order: Prisma.OrderCreateNestedOneWithoutReturnRequestsInput
+  refund?: Prisma.RefundCreateNestedOneWithoutReturnRequestsInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupCreateNestedOneWithoutReturnRequestsInput
+  lines?: Prisma.ReturnRequestLineCreateNestedManyWithoutReturnRequestInput
+  files?: Prisma.ReturnRequestFileCreateNestedManyWithoutReturnRequestInput
+}
+
+export type ReturnRequestUncheckedCreateWithoutEventsInput = {
+  id: string
+  orderId: string
+  status?: $Enums.ReturnStatus
+  reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
+  sellerOrderGroupId?: string | null
+  itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById: string
+  decidedById?: string | null
+  decidedAt?: Date | string | null
+  decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
+  refundId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  completedAt?: Date | string | null
+  lines?: Prisma.ReturnRequestLineUncheckedCreateNestedManyWithoutReturnRequestInput
+  files?: Prisma.ReturnRequestFileUncheckedCreateNestedManyWithoutReturnRequestInput
+}
+
+export type ReturnRequestCreateOrConnectWithoutEventsInput = {
+  where: Prisma.ReturnRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.ReturnRequestCreateWithoutEventsInput, Prisma.ReturnRequestUncheckedCreateWithoutEventsInput>
+}
+
+export type ReturnRequestUpsertWithoutEventsInput = {
+  update: Prisma.XOR<Prisma.ReturnRequestUpdateWithoutEventsInput, Prisma.ReturnRequestUncheckedUpdateWithoutEventsInput>
+  create: Prisma.XOR<Prisma.ReturnRequestCreateWithoutEventsInput, Prisma.ReturnRequestUncheckedCreateWithoutEventsInput>
+  where?: Prisma.ReturnRequestWhereInput
+}
+
+export type ReturnRequestUpdateToOneWithWhereWithoutEventsInput = {
+  where?: Prisma.ReturnRequestWhereInput
+  data: Prisma.XOR<Prisma.ReturnRequestUpdateWithoutEventsInput, Prisma.ReturnRequestUncheckedUpdateWithoutEventsInput>
+}
+
+export type ReturnRequestUpdateWithoutEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById?: Prisma.StringFieldUpdateOperationsInput | string
+  decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  order?: Prisma.OrderUpdateOneRequiredWithoutReturnRequestsNestedInput
+  refund?: Prisma.RefundUpdateOneWithoutReturnRequestsNestedInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneWithoutReturnRequestsNestedInput
+  lines?: Prisma.ReturnRequestLineUpdateManyWithoutReturnRequestNestedInput
+  files?: Prisma.ReturnRequestFileUpdateManyWithoutReturnRequestNestedInput
+}
+
+export type ReturnRequestUncheckedUpdateWithoutEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  sellerOrderGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById?: Prisma.StringFieldUpdateOperationsInput | string
+  decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lines?: Prisma.ReturnRequestLineUncheckedUpdateManyWithoutReturnRequestNestedInput
+  files?: Prisma.ReturnRequestFileUncheckedUpdateManyWithoutReturnRequestNestedInput
+}
+
+export type ReturnRequestCreateWithoutFilesInput = {
+  id: string
+  status?: $Enums.ReturnStatus
+  reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
+  itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById: string
+  decidedById?: string | null
+  decidedAt?: Date | string | null
+  decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  completedAt?: Date | string | null
+  order: Prisma.OrderCreateNestedOneWithoutReturnRequestsInput
+  refund?: Prisma.RefundCreateNestedOneWithoutReturnRequestsInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupCreateNestedOneWithoutReturnRequestsInput
+  lines?: Prisma.ReturnRequestLineCreateNestedManyWithoutReturnRequestInput
+  events?: Prisma.ReturnRequestEventCreateNestedManyWithoutReturnRequestInput
+}
+
+export type ReturnRequestUncheckedCreateWithoutFilesInput = {
+  id: string
+  orderId: string
+  status?: $Enums.ReturnStatus
+  reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
+  sellerOrderGroupId?: string | null
+  itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById: string
+  decidedById?: string | null
+  decidedAt?: Date | string | null
+  decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
+  refundId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  completedAt?: Date | string | null
+  lines?: Prisma.ReturnRequestLineUncheckedCreateNestedManyWithoutReturnRequestInput
+  events?: Prisma.ReturnRequestEventUncheckedCreateNestedManyWithoutReturnRequestInput
+}
+
+export type ReturnRequestCreateOrConnectWithoutFilesInput = {
+  where: Prisma.ReturnRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.ReturnRequestCreateWithoutFilesInput, Prisma.ReturnRequestUncheckedCreateWithoutFilesInput>
+}
+
+export type ReturnRequestUpsertWithoutFilesInput = {
+  update: Prisma.XOR<Prisma.ReturnRequestUpdateWithoutFilesInput, Prisma.ReturnRequestUncheckedUpdateWithoutFilesInput>
+  create: Prisma.XOR<Prisma.ReturnRequestCreateWithoutFilesInput, Prisma.ReturnRequestUncheckedCreateWithoutFilesInput>
+  where?: Prisma.ReturnRequestWhereInput
+}
+
+export type ReturnRequestUpdateToOneWithWhereWithoutFilesInput = {
+  where?: Prisma.ReturnRequestWhereInput
+  data: Prisma.XOR<Prisma.ReturnRequestUpdateWithoutFilesInput, Prisma.ReturnRequestUncheckedUpdateWithoutFilesInput>
+}
+
+export type ReturnRequestUpdateWithoutFilesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById?: Prisma.StringFieldUpdateOperationsInput | string
+  decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  order?: Prisma.OrderUpdateOneRequiredWithoutReturnRequestsNestedInput
+  refund?: Prisma.RefundUpdateOneWithoutReturnRequestsNestedInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneWithoutReturnRequestsNestedInput
+  lines?: Prisma.ReturnRequestLineUpdateManyWithoutReturnRequestNestedInput
+  events?: Prisma.ReturnRequestEventUpdateManyWithoutReturnRequestNestedInput
+}
+
+export type ReturnRequestUncheckedUpdateWithoutFilesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  sellerOrderGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById?: Prisma.StringFieldUpdateOperationsInput | string
+  decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lines?: Prisma.ReturnRequestLineUncheckedUpdateManyWithoutReturnRequestNestedInput
+  events?: Prisma.ReturnRequestEventUncheckedUpdateManyWithoutReturnRequestNestedInput
+}
+
+export type ReturnRequestCreateWithoutSellerOrderGroupInput = {
+  id: string
+  status?: $Enums.ReturnStatus
+  reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
+  itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById: string
+  decidedById?: string | null
+  decidedAt?: Date | string | null
+  decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  completedAt?: Date | string | null
+  order: Prisma.OrderCreateNestedOneWithoutReturnRequestsInput
+  refund?: Prisma.RefundCreateNestedOneWithoutReturnRequestsInput
+  lines?: Prisma.ReturnRequestLineCreateNestedManyWithoutReturnRequestInput
+  events?: Prisma.ReturnRequestEventCreateNestedManyWithoutReturnRequestInput
+  files?: Prisma.ReturnRequestFileCreateNestedManyWithoutReturnRequestInput
+}
+
+export type ReturnRequestUncheckedCreateWithoutSellerOrderGroupInput = {
+  id: string
+  orderId: string
+  status?: $Enums.ReturnStatus
+  reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
+  itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById: string
+  decidedById?: string | null
+  decidedAt?: Date | string | null
+  decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
+  refundId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  completedAt?: Date | string | null
+  lines?: Prisma.ReturnRequestLineUncheckedCreateNestedManyWithoutReturnRequestInput
+  events?: Prisma.ReturnRequestEventUncheckedCreateNestedManyWithoutReturnRequestInput
+  files?: Prisma.ReturnRequestFileUncheckedCreateNestedManyWithoutReturnRequestInput
+}
+
+export type ReturnRequestCreateOrConnectWithoutSellerOrderGroupInput = {
+  where: Prisma.ReturnRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.ReturnRequestCreateWithoutSellerOrderGroupInput, Prisma.ReturnRequestUncheckedCreateWithoutSellerOrderGroupInput>
+}
+
+export type ReturnRequestCreateManySellerOrderGroupInputEnvelope = {
+  data: Prisma.ReturnRequestCreateManySellerOrderGroupInput | Prisma.ReturnRequestCreateManySellerOrderGroupInput[]
+  skipDuplicates?: boolean
+}
+
+export type ReturnRequestUpsertWithWhereUniqueWithoutSellerOrderGroupInput = {
+  where: Prisma.ReturnRequestWhereUniqueInput
+  update: Prisma.XOR<Prisma.ReturnRequestUpdateWithoutSellerOrderGroupInput, Prisma.ReturnRequestUncheckedUpdateWithoutSellerOrderGroupInput>
+  create: Prisma.XOR<Prisma.ReturnRequestCreateWithoutSellerOrderGroupInput, Prisma.ReturnRequestUncheckedCreateWithoutSellerOrderGroupInput>
+}
+
+export type ReturnRequestUpdateWithWhereUniqueWithoutSellerOrderGroupInput = {
+  where: Prisma.ReturnRequestWhereUniqueInput
+  data: Prisma.XOR<Prisma.ReturnRequestUpdateWithoutSellerOrderGroupInput, Prisma.ReturnRequestUncheckedUpdateWithoutSellerOrderGroupInput>
+}
+
+export type ReturnRequestUpdateManyWithWhereWithoutSellerOrderGroupInput = {
+  where: Prisma.ReturnRequestScalarWhereInput
+  data: Prisma.XOR<Prisma.ReturnRequestUpdateManyMutationInput, Prisma.ReturnRequestUncheckedUpdateManyWithoutSellerOrderGroupInput>
+}
+
+export type ReturnRequestCreateManyOrderInput = {
+  id: string
+  status?: $Enums.ReturnStatus
+  reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
+  sellerOrderGroupId?: string | null
+  itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById: string
+  decidedById?: string | null
+  decidedAt?: Date | string | null
+  decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
   refundId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -734,41 +1835,92 @@ export type ReturnRequestUpdateWithoutOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById?: Prisma.StringFieldUpdateOperationsInput | string
   decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   refund?: Prisma.RefundUpdateOneWithoutReturnRequestsNestedInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneWithoutReturnRequestsNestedInput
+  lines?: Prisma.ReturnRequestLineUpdateManyWithoutReturnRequestNestedInput
+  events?: Prisma.ReturnRequestEventUpdateManyWithoutReturnRequestNestedInput
+  files?: Prisma.ReturnRequestFileUpdateManyWithoutReturnRequestNestedInput
 }
 
 export type ReturnRequestUncheckedUpdateWithoutOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  sellerOrderGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById?: Prisma.StringFieldUpdateOperationsInput | string
   decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   refundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lines?: Prisma.ReturnRequestLineUncheckedUpdateManyWithoutReturnRequestNestedInput
+  events?: Prisma.ReturnRequestEventUncheckedUpdateManyWithoutReturnRequestNestedInput
+  files?: Prisma.ReturnRequestFileUncheckedUpdateManyWithoutReturnRequestNestedInput
 }
 
 export type ReturnRequestUncheckedUpdateManyWithoutOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  sellerOrderGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById?: Prisma.StringFieldUpdateOperationsInput | string
   decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   refundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -780,11 +1932,26 @@ export type ReturnRequestCreateManyRefundInput = {
   orderId: string
   status?: $Enums.ReturnStatus
   reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
+  sellerOrderGroupId?: string | null
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById: string
   decidedById?: string | null
   decidedAt?: Date | string | null
   decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   completedAt?: Date | string | null
@@ -794,15 +1961,33 @@ export type ReturnRequestUpdateWithoutRefundInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById?: Prisma.StringFieldUpdateOperationsInput | string
   decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order?: Prisma.OrderUpdateOneRequiredWithoutReturnRequestsNestedInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneWithoutReturnRequestsNestedInput
+  lines?: Prisma.ReturnRequestLineUpdateManyWithoutReturnRequestNestedInput
+  events?: Prisma.ReturnRequestEventUpdateManyWithoutReturnRequestNestedInput
+  files?: Prisma.ReturnRequestFileUpdateManyWithoutReturnRequestNestedInput
 }
 
 export type ReturnRequestUncheckedUpdateWithoutRefundInput = {
@@ -810,14 +1995,32 @@ export type ReturnRequestUncheckedUpdateWithoutRefundInput = {
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  sellerOrderGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById?: Prisma.StringFieldUpdateOperationsInput | string
   decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lines?: Prisma.ReturnRequestLineUncheckedUpdateManyWithoutReturnRequestNestedInput
+  events?: Prisma.ReturnRequestEventUncheckedUpdateManyWithoutReturnRequestNestedInput
+  files?: Prisma.ReturnRequestFileUncheckedUpdateManyWithoutReturnRequestNestedInput
 }
 
 export type ReturnRequestUncheckedUpdateManyWithoutRefundInput = {
@@ -825,16 +2028,204 @@ export type ReturnRequestUncheckedUpdateManyWithoutRefundInput = {
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  sellerOrderGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   requestedById?: Prisma.StringFieldUpdateOperationsInput | string
   decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
+export type ReturnRequestCreateManySellerOrderGroupInput = {
+  id: string
+  orderId: string
+  status?: $Enums.ReturnStatus
+  reason: string
+  reasonCode?: string | null
+  preferredResolution?: $Enums.ReturnResolution
+  origin?: $Enums.ReturnOrigin
+  itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById: string
+  decidedById?: string | null
+  decidedAt?: Date | string | null
+  decisionNote?: string | null
+  sellerResponse?: $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: string | null
+  sellerRespondedAt?: Date | string | null
+  sellerRespondedById?: string | null
+  returnInstructions?: string | null
+  instructionsSetAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  inspectedAt?: Date | string | null
+  resolutionNote?: string | null
+  refundId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  completedAt?: Date | string | null
+}
+
+export type ReturnRequestUpdateWithoutSellerOrderGroupInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById?: Prisma.StringFieldUpdateOperationsInput | string
+  decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  order?: Prisma.OrderUpdateOneRequiredWithoutReturnRequestsNestedInput
+  refund?: Prisma.RefundUpdateOneWithoutReturnRequestsNestedInput
+  lines?: Prisma.ReturnRequestLineUpdateManyWithoutReturnRequestNestedInput
+  events?: Prisma.ReturnRequestEventUpdateManyWithoutReturnRequestNestedInput
+  files?: Prisma.ReturnRequestFileUpdateManyWithoutReturnRequestNestedInput
+}
+
+export type ReturnRequestUncheckedUpdateWithoutSellerOrderGroupInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById?: Prisma.StringFieldUpdateOperationsInput | string
+  decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lines?: Prisma.ReturnRequestLineUncheckedUpdateManyWithoutReturnRequestNestedInput
+  events?: Prisma.ReturnRequestEventUncheckedUpdateManyWithoutReturnRequestNestedInput
+  files?: Prisma.ReturnRequestFileUncheckedUpdateManyWithoutReturnRequestNestedInput
+}
+
+export type ReturnRequestUncheckedUpdateManyWithoutSellerOrderGroupInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  reasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredResolution?: Prisma.EnumReturnResolutionFieldUpdateOperationsInput | $Enums.ReturnResolution
+  origin?: Prisma.EnumReturnOriginFieldUpdateOperationsInput | $Enums.ReturnOrigin
+  itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  requestedById?: Prisma.StringFieldUpdateOperationsInput | string
+  decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableEnumReturnSellerResponseFieldUpdateOperationsInput | $Enums.ReturnSellerResponse | null
+  sellerResponseNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerRespondedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  returnInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instructionsSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  inspectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+
+/**
+ * Count Type ReturnRequestCountOutputType
+ */
+
+export type ReturnRequestCountOutputType = {
+  lines: number
+  events: number
+  files: number
+}
+
+export type ReturnRequestCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  lines?: boolean | ReturnRequestCountOutputTypeCountLinesArgs
+  events?: boolean | ReturnRequestCountOutputTypeCountEventsArgs
+  files?: boolean | ReturnRequestCountOutputTypeCountFilesArgs
+}
+
+/**
+ * ReturnRequestCountOutputType without action
+ */
+export type ReturnRequestCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReturnRequestCountOutputType
+   */
+  select?: Prisma.ReturnRequestCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ReturnRequestCountOutputType without action
+ */
+export type ReturnRequestCountOutputTypeCountLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReturnRequestLineWhereInput
+}
+
+/**
+ * ReturnRequestCountOutputType without action
+ */
+export type ReturnRequestCountOutputTypeCountEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReturnRequestEventWhereInput
+}
+
+/**
+ * ReturnRequestCountOutputType without action
+ */
+export type ReturnRequestCountOutputTypeCountFilesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReturnRequestFileWhereInput
+}
 
 
 export type ReturnRequestSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -842,17 +2233,37 @@ export type ReturnRequestSelect<ExtArgs extends runtime.Types.Extensions.Interna
   orderId?: boolean
   status?: boolean
   reason?: boolean
+  reasonCode?: boolean
+  preferredResolution?: boolean
+  origin?: boolean
+  sellerOrderGroupId?: boolean
   itemsJson?: boolean
   requestedById?: boolean
   decidedById?: boolean
   decidedAt?: boolean
   decisionNote?: boolean
+  sellerResponse?: boolean
+  sellerResponseNote?: boolean
+  sellerRespondedAt?: boolean
+  sellerRespondedById?: boolean
+  returnInstructions?: boolean
+  instructionsSetAt?: boolean
+  approvedAt?: boolean
+  rejectedAt?: boolean
+  receivedAt?: boolean
+  inspectedAt?: boolean
+  resolutionNote?: boolean
   refundId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   completedAt?: boolean
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   refund?: boolean | Prisma.ReturnRequest$refundArgs<ExtArgs>
+  sellerOrderGroup?: boolean | Prisma.ReturnRequest$sellerOrderGroupArgs<ExtArgs>
+  lines?: boolean | Prisma.ReturnRequest$linesArgs<ExtArgs>
+  events?: boolean | Prisma.ReturnRequest$eventsArgs<ExtArgs>
+  files?: boolean | Prisma.ReturnRequest$filesArgs<ExtArgs>
+  _count?: boolean | Prisma.ReturnRequestCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["returnRequest"]>
 
 
@@ -862,21 +2273,41 @@ export type ReturnRequestSelectScalar = {
   orderId?: boolean
   status?: boolean
   reason?: boolean
+  reasonCode?: boolean
+  preferredResolution?: boolean
+  origin?: boolean
+  sellerOrderGroupId?: boolean
   itemsJson?: boolean
   requestedById?: boolean
   decidedById?: boolean
   decidedAt?: boolean
   decisionNote?: boolean
+  sellerResponse?: boolean
+  sellerResponseNote?: boolean
+  sellerRespondedAt?: boolean
+  sellerRespondedById?: boolean
+  returnInstructions?: boolean
+  instructionsSetAt?: boolean
+  approvedAt?: boolean
+  rejectedAt?: boolean
+  receivedAt?: boolean
+  inspectedAt?: boolean
+  resolutionNote?: boolean
   refundId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   completedAt?: boolean
 }
 
-export type ReturnRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "status" | "reason" | "itemsJson" | "requestedById" | "decidedById" | "decidedAt" | "decisionNote" | "refundId" | "createdAt" | "updatedAt" | "completedAt", ExtArgs["result"]["returnRequest"]>
+export type ReturnRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "status" | "reason" | "reasonCode" | "preferredResolution" | "origin" | "sellerOrderGroupId" | "itemsJson" | "requestedById" | "decidedById" | "decidedAt" | "decisionNote" | "sellerResponse" | "sellerResponseNote" | "sellerRespondedAt" | "sellerRespondedById" | "returnInstructions" | "instructionsSetAt" | "approvedAt" | "rejectedAt" | "receivedAt" | "inspectedAt" | "resolutionNote" | "refundId" | "createdAt" | "updatedAt" | "completedAt", ExtArgs["result"]["returnRequest"]>
 export type ReturnRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   refund?: boolean | Prisma.ReturnRequest$refundArgs<ExtArgs>
+  sellerOrderGroup?: boolean | Prisma.ReturnRequest$sellerOrderGroupArgs<ExtArgs>
+  lines?: boolean | Prisma.ReturnRequest$linesArgs<ExtArgs>
+  events?: boolean | Prisma.ReturnRequest$eventsArgs<ExtArgs>
+  files?: boolean | Prisma.ReturnRequest$filesArgs<ExtArgs>
+  _count?: boolean | Prisma.ReturnRequestCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $ReturnRequestPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -884,21 +2315,61 @@ export type $ReturnRequestPayload<ExtArgs extends runtime.Types.Extensions.Inter
   objects: {
     order: Prisma.$OrderPayload<ExtArgs>
     refund: Prisma.$RefundPayload<ExtArgs> | null
+    sellerOrderGroup: Prisma.$SellerOrderGroupPayload<ExtArgs> | null
+    lines: Prisma.$ReturnRequestLinePayload<ExtArgs>[]
+    events: Prisma.$ReturnRequestEventPayload<ExtArgs>[]
+    files: Prisma.$ReturnRequestFilePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     orderId: string
     status: $Enums.ReturnStatus
+    /**
+     * The buyer's own words about the problem. Empty when they gave none; the
+     * reason itself is `reasonCode`.
+     */
     reason: string
     /**
-     * Requested items with quantity, plus the post-inspection sellable versus
-     * quarantined split that drives the restock movements.
+     * A code from the operator's enabled list (see ReturnSettings). Null only
+     * on returns recorded before reason codes existed.
+     */
+    reasonCode: string | null
+    preferredResolution: $Enums.ReturnResolution
+    origin: $Enums.ReturnOrigin
+    /**
+     * The seller whose goods these are. Null when they are the operator's own.
+     */
+    sellerOrderGroupId: string | null
+    /**
+     * A snapshot of what was asked for, as `[{ orderItemId, quantity }]`.
+     * `lines` is the record every rule reads.
      */
     itemsJson: runtime.JsonValue
     requestedById: string
     decidedById: string | null
     decidedAt: Date | null
+    /**
+     * Why it was rejected (required), or a note on the approval.
+     */
     decisionNote: string | null
+    sellerResponse: $Enums.ReturnSellerResponse | null
+    sellerResponseNote: string | null
+    sellerRespondedAt: Date | null
+    sellerRespondedById: string | null
+    /**
+     * How to send the goods back. Written by the seller or staff; defaults
+     * from the seller's return location or the operator's return settings.
+     */
+    returnInstructions: string | null
+    instructionsSetAt: Date | null
+    approvedAt: Date | null
+    rejectedAt: Date | null
+    receivedAt: Date | null
+    inspectedAt: Date | null
+    /**
+     * What staff recorded when a replacement was sent instead of a refund.
+     */
+    resolutionNote: string | null
     refundId: string | null
     createdAt: Date
     updatedAt: Date
@@ -1245,6 +2716,10 @@ export interface Prisma__ReturnRequestClient<T, Null = never, ExtArgs extends ru
   readonly [Symbol.toStringTag]: "PrismaPromise"
   order<T extends Prisma.OrderDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrderDefaultArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   refund<T extends Prisma.ReturnRequest$refundArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReturnRequest$refundArgs<ExtArgs>>): Prisma.Prisma__RefundClient<runtime.Types.Result.GetResult<Prisma.$RefundPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sellerOrderGroup<T extends Prisma.ReturnRequest$sellerOrderGroupArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReturnRequest$sellerOrderGroupArgs<ExtArgs>>): Prisma.Prisma__SellerOrderGroupClient<runtime.Types.Result.GetResult<Prisma.$SellerOrderGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  lines<T extends Prisma.ReturnRequest$linesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReturnRequest$linesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReturnRequestLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  events<T extends Prisma.ReturnRequest$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReturnRequest$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReturnRequestEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  files<T extends Prisma.ReturnRequest$filesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReturnRequest$filesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReturnRequestFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1278,11 +2753,26 @@ export interface ReturnRequestFieldRefs {
   readonly orderId: Prisma.FieldRef<"ReturnRequest", 'String'>
   readonly status: Prisma.FieldRef<"ReturnRequest", 'ReturnStatus'>
   readonly reason: Prisma.FieldRef<"ReturnRequest", 'String'>
+  readonly reasonCode: Prisma.FieldRef<"ReturnRequest", 'String'>
+  readonly preferredResolution: Prisma.FieldRef<"ReturnRequest", 'ReturnResolution'>
+  readonly origin: Prisma.FieldRef<"ReturnRequest", 'ReturnOrigin'>
+  readonly sellerOrderGroupId: Prisma.FieldRef<"ReturnRequest", 'String'>
   readonly itemsJson: Prisma.FieldRef<"ReturnRequest", 'Json'>
   readonly requestedById: Prisma.FieldRef<"ReturnRequest", 'String'>
   readonly decidedById: Prisma.FieldRef<"ReturnRequest", 'String'>
   readonly decidedAt: Prisma.FieldRef<"ReturnRequest", 'DateTime'>
   readonly decisionNote: Prisma.FieldRef<"ReturnRequest", 'String'>
+  readonly sellerResponse: Prisma.FieldRef<"ReturnRequest", 'ReturnSellerResponse'>
+  readonly sellerResponseNote: Prisma.FieldRef<"ReturnRequest", 'String'>
+  readonly sellerRespondedAt: Prisma.FieldRef<"ReturnRequest", 'DateTime'>
+  readonly sellerRespondedById: Prisma.FieldRef<"ReturnRequest", 'String'>
+  readonly returnInstructions: Prisma.FieldRef<"ReturnRequest", 'String'>
+  readonly instructionsSetAt: Prisma.FieldRef<"ReturnRequest", 'DateTime'>
+  readonly approvedAt: Prisma.FieldRef<"ReturnRequest", 'DateTime'>
+  readonly rejectedAt: Prisma.FieldRef<"ReturnRequest", 'DateTime'>
+  readonly receivedAt: Prisma.FieldRef<"ReturnRequest", 'DateTime'>
+  readonly inspectedAt: Prisma.FieldRef<"ReturnRequest", 'DateTime'>
+  readonly resolutionNote: Prisma.FieldRef<"ReturnRequest", 'String'>
   readonly refundId: Prisma.FieldRef<"ReturnRequest", 'String'>
   readonly createdAt: Prisma.FieldRef<"ReturnRequest", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ReturnRequest", 'DateTime'>
@@ -1651,6 +3141,97 @@ export type ReturnRequest$refundArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   include?: Prisma.RefundInclude<ExtArgs> | null
   where?: Prisma.RefundWhereInput
+}
+
+/**
+ * ReturnRequest.sellerOrderGroup
+ */
+export type ReturnRequest$sellerOrderGroupArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerOrderGroup
+   */
+  select?: Prisma.SellerOrderGroupSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerOrderGroup
+   */
+  omit?: Prisma.SellerOrderGroupOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerOrderGroupInclude<ExtArgs> | null
+  where?: Prisma.SellerOrderGroupWhereInput
+}
+
+/**
+ * ReturnRequest.lines
+ */
+export type ReturnRequest$linesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReturnRequestLine
+   */
+  select?: Prisma.ReturnRequestLineSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReturnRequestLine
+   */
+  omit?: Prisma.ReturnRequestLineOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReturnRequestLineInclude<ExtArgs> | null
+  where?: Prisma.ReturnRequestLineWhereInput
+  orderBy?: Prisma.ReturnRequestLineOrderByWithRelationInput | Prisma.ReturnRequestLineOrderByWithRelationInput[]
+  cursor?: Prisma.ReturnRequestLineWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReturnRequestLineScalarFieldEnum | Prisma.ReturnRequestLineScalarFieldEnum[]
+}
+
+/**
+ * ReturnRequest.events
+ */
+export type ReturnRequest$eventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReturnRequestEvent
+   */
+  select?: Prisma.ReturnRequestEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReturnRequestEvent
+   */
+  omit?: Prisma.ReturnRequestEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReturnRequestEventInclude<ExtArgs> | null
+  where?: Prisma.ReturnRequestEventWhereInput
+  orderBy?: Prisma.ReturnRequestEventOrderByWithRelationInput | Prisma.ReturnRequestEventOrderByWithRelationInput[]
+  cursor?: Prisma.ReturnRequestEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReturnRequestEventScalarFieldEnum | Prisma.ReturnRequestEventScalarFieldEnum[]
+}
+
+/**
+ * ReturnRequest.files
+ */
+export type ReturnRequest$filesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReturnRequestFile
+   */
+  select?: Prisma.ReturnRequestFileSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReturnRequestFile
+   */
+  omit?: Prisma.ReturnRequestFileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReturnRequestFileInclude<ExtArgs> | null
+  where?: Prisma.ReturnRequestFileWhereInput
+  orderBy?: Prisma.ReturnRequestFileOrderByWithRelationInput | Prisma.ReturnRequestFileOrderByWithRelationInput[]
+  cursor?: Prisma.ReturnRequestFileWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReturnRequestFileScalarFieldEnum | Prisma.ReturnRequestFileScalarFieldEnum[]
 }
 
 /**

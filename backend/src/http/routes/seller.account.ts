@@ -51,6 +51,10 @@ import { prisma } from '../../infra/prisma.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import { currentUser, requireCustomer } from '../plugins/auth.js';
 import {
+  assertRecentStepUp,
+  memberRequiresMfa,
+} from '../../modules/identity/customer-mfa.service.js';
+import {
   confirmCarrierForProduction,
   createCarrierConnection,
   listCarrierConnections,
@@ -302,6 +306,19 @@ export function registerSellerEntryRoutes(app: FastifyInstance): Promise<void> {
           sellerUnlockedAt: auth.sessionSellerUnlockedAt,
           sellerUnlockedForId: auth.sessionSellerUnlockedForId,
         }),
+        /*
+         * Two-step sign-in, as this role needs it. `required` is true for the
+         * owner and anybody holding payout or finance permissions; `satisfied`
+         * says whether this session may open the Hub. Carried here, like the
+         * lock, so the Hub draws the setup screen instead of a refusal.
+         */
+        mfa: {
+          required: memberRequiresMfa(membership),
+          enrolled: auth.mfaEnabled,
+          satisfied:
+            !memberRequiresMfa(membership) ||
+            (auth.mfaEnabled && auth.sessionMfaVerifiedAt !== null),
+        },
         /*
          * When the open Hub re-locks without further activity, and the
          * deployment's idle and warning settings, so the page times its
@@ -1798,6 +1815,10 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
         })
         .parse(request.body);
 
+      // Changing who holds which authority is a sensitive act: confirm it is
+      // still the member at the keyboard.
+      assertRecentStepUp(currentUser(request));
+
       await changeMemberRole(
         currentSeller(request),
         params.memberId,
@@ -1818,6 +1839,7 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     { preHandler: requireSeller(SellerPermission.MEMBER_WRITE) },
     async (request, reply) => {
       const params = z.object({ memberId: z.string().length(26) }).parse(request.params);
+      assertRecentStepUp(currentUser(request));
       await removeMember(currentSeller(request), params.memberId, request.correlationId);
       return reply.status(204).send();
     },

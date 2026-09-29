@@ -22,6 +22,10 @@ import {
   listRequests,
   rejectRequest,
 } from '../../modules/privacy/data-request.service.js';
+import {
+  processingRegister,
+  retentionSchedule,
+} from '../../modules/privacy/privacy-controls.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 
 const listQuery = z.object({
@@ -123,6 +127,24 @@ export function registerAdminPrivacyRoutes(app: FastifyInstance): Promise<void> 
       });
 
       return reply.status(200).send({ rejected: true });
+    },
+  );
+
+  // Every retention window this deployment enforces, read from its configuration.
+  app.get(
+    '/privacy/retention-schedule',
+    { preHandler: requireAdmin(Permission.DATA_REQUEST_READ) },
+    async (_request, reply) => {
+      return reply.status(200).send({ rules: retentionSchedule() });
+    },
+  );
+
+  // Every outside party this deployment can send personal data to, and whether it is on.
+  app.get(
+    '/privacy/processors',
+    { preHandler: requireAdmin(Permission.DATA_REQUEST_READ) },
+    async (_request, reply) => {
+      return reply.status(200).send({ processors: await processingRegister() });
     },
   );
 

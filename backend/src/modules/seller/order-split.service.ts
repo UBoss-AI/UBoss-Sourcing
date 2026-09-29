@@ -310,9 +310,10 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
 
     // What the seller is owed, and on which policy version - kept, so a fee
     // change next month leaves this order's settlement exactly as it is.
+    const settlementId = newId();
     await tx.sellerOrderSettlement.create({
       data: {
-        id: newId(),
+        id: settlementId,
         sellerOrderGroupId: groupId,
         sellerAccountId,
         currency: order.currency,
@@ -332,6 +333,21 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
         breakdownJson: settlement.breakdown as never,
       },
     });
+
+    // Which fee rules changed this fee, kept beside the settlement so "which
+    // rule applied to which order" is a query. Written once, like the rest.
+    if (settlement.ruleApplications.length > 0) {
+      await tx.platformFeeRuleApplication.createMany({
+        data: settlement.ruleApplications.map((entry) => ({
+          id: newId(),
+          settlementId,
+          ruleId: entry.ruleId,
+          kind: entry.kind,
+          effectMinor: entry.effectMinor,
+          currency: order.currency,
+        })),
+      });
+    }
 
     await notifySeller({
       sellerAccountId,

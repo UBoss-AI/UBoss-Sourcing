@@ -251,6 +251,19 @@ export class RazorpayAdapter implements CardVaultProvider {
         });
       }
 
+      // A 2xx whose body is not a JSON object - an HTML page from a proxy in
+      // front of the provider during an outage, or a reply cut short. See the
+      // same guard in stripe.adapter.ts.
+      if (parsed === null || typeof parsed !== 'object') {
+        logger.warn({ httpStatus: response.status, path }, 'razorpay reply was not JSON');
+        throw new PaymentProviderError({
+          message: 'Razorpay sent a reply that could not be read.',
+          providerCode: 'UNREADABLE_RESPONSE',
+          retryable: true,
+          httpStatus: response.status,
+        });
+      }
+
       return parsed as T;
     } catch (error) {
       if (error instanceof PaymentProviderError) throw error;

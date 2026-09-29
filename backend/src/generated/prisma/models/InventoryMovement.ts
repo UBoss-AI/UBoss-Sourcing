@@ -52,6 +52,7 @@ export type InventoryMovementMinAggregateOutputType = {
   actorUserId: string | null
   actorType: $Enums.ActorType | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type InventoryMovementMaxAggregateOutputType = {
@@ -70,6 +71,7 @@ export type InventoryMovementMaxAggregateOutputType = {
   actorUserId: string | null
   actorType: $Enums.ActorType | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type InventoryMovementCountAggregateOutputType = {
@@ -88,6 +90,7 @@ export type InventoryMovementCountAggregateOutputType = {
   actorUserId: number
   actorType: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -118,6 +121,7 @@ export type InventoryMovementMinAggregateInputType = {
   actorUserId?: true
   actorType?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type InventoryMovementMaxAggregateInputType = {
@@ -136,6 +140,7 @@ export type InventoryMovementMaxAggregateInputType = {
   actorUserId?: true
   actorType?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type InventoryMovementCountAggregateInputType = {
@@ -154,6 +159,7 @@ export type InventoryMovementCountAggregateInputType = {
   actorUserId?: true
   actorType?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -259,6 +265,7 @@ export type InventoryMovementGroupByOutputType = {
   actorUserId: string | null
   actorType: $Enums.ActorType
   createdAt: Date
+  updatedAt: Date
   _count: InventoryMovementCountAggregateOutputType | null
   _avg: InventoryMovementAvgAggregateOutputType | null
   _sum: InventoryMovementSumAggregateOutputType | null
@@ -300,6 +307,7 @@ export type InventoryMovementWhereInput = {
   actorUserId?: Prisma.StringNullableFilter<"InventoryMovement"> | string | null
   actorType?: Prisma.EnumActorTypeFilter<"InventoryMovement"> | $Enums.ActorType
   createdAt?: Prisma.DateTimeFilter<"InventoryMovement"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"InventoryMovement"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   variant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
   location?: Prisma.XOR<Prisma.InventoryLocationScalarRelationFilter, Prisma.InventoryLocationWhereInput>
@@ -321,6 +329,7 @@ export type InventoryMovementOrderByWithRelationInput = {
   actorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   actorType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   product?: Prisma.ProductOrderByWithRelationInput
   variant?: Prisma.ProductVariantOrderByWithRelationInput
   location?: Prisma.InventoryLocationOrderByWithRelationInput
@@ -346,6 +355,7 @@ export type InventoryMovementWhereUniqueInput = Prisma.AtLeast<{
   actorUserId?: Prisma.StringNullableFilter<"InventoryMovement"> | string | null
   actorType?: Prisma.EnumActorTypeFilter<"InventoryMovement"> | $Enums.ActorType
   createdAt?: Prisma.DateTimeFilter<"InventoryMovement"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"InventoryMovement"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   variant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
   location?: Prisma.XOR<Prisma.InventoryLocationScalarRelationFilter, Prisma.InventoryLocationWhereInput>
@@ -367,6 +377,7 @@ export type InventoryMovementOrderByWithAggregationInput = {
   actorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   actorType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.InventoryMovementCountOrderByAggregateInput
   _avg?: Prisma.InventoryMovementAvgOrderByAggregateInput
   _max?: Prisma.InventoryMovementMaxOrderByAggregateInput
@@ -393,6 +404,7 @@ export type InventoryMovementScalarWhereWithAggregatesInput = {
   actorUserId?: Prisma.StringNullableWithAggregatesFilter<"InventoryMovement"> | string | null
   actorType?: Prisma.EnumActorTypeWithAggregatesFilter<"InventoryMovement"> | $Enums.ActorType
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"InventoryMovement"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"InventoryMovement"> | Date | string
 }
 
 export type InventoryMovementCreateInput = {
@@ -408,6 +420,7 @@ export type InventoryMovementCreateInput = {
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
+  updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutInventoryMovementsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutInventoryMovementsInput
   location: Prisma.InventoryLocationCreateNestedOneWithoutMovementsInput
@@ -429,6 +442,7 @@ export type InventoryMovementUncheckedCreateInput = {
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InventoryMovementUpdateInput = {
@@ -444,6 +458,7 @@ export type InventoryMovementUpdateInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutInventoryMovementsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutInventoryMovementsNestedInput
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutMovementsNestedInput
@@ -465,6 +480,7 @@ export type InventoryMovementUncheckedUpdateInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryMovementCreateManyInput = {
@@ -483,6 +499,7 @@ export type InventoryMovementCreateManyInput = {
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InventoryMovementUpdateManyMutationInput = {
@@ -498,6 +515,7 @@ export type InventoryMovementUpdateManyMutationInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryMovementUncheckedUpdateManyInput = {
@@ -516,6 +534,7 @@ export type InventoryMovementUncheckedUpdateManyInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryMovementListRelationFilter = {
@@ -550,6 +569,7 @@ export type InventoryMovementCountOrderByAggregateInput = {
   actorUserId?: Prisma.SortOrder
   actorType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InventoryMovementAvgOrderByAggregateInput = {
@@ -573,6 +593,7 @@ export type InventoryMovementMaxOrderByAggregateInput = {
   actorUserId?: Prisma.SortOrder
   actorType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InventoryMovementMinOrderByAggregateInput = {
@@ -591,6 +612,7 @@ export type InventoryMovementMinOrderByAggregateInput = {
   actorUserId?: Prisma.SortOrder
   actorType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InventoryMovementSumOrderByAggregateInput = {
@@ -745,6 +767,7 @@ export type InventoryMovementCreateWithoutProductInput = {
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
+  updatedAt?: Date | string
   variant?: Prisma.ProductVariantCreateNestedOneWithoutInventoryMovementsInput
   location: Prisma.InventoryLocationCreateNestedOneWithoutMovementsInput
 }
@@ -764,6 +787,7 @@ export type InventoryMovementUncheckedCreateWithoutProductInput = {
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InventoryMovementCreateOrConnectWithoutProductInput = {
@@ -811,6 +835,7 @@ export type InventoryMovementScalarWhereInput = {
   actorUserId?: Prisma.StringNullableFilter<"InventoryMovement"> | string | null
   actorType?: Prisma.EnumActorTypeFilter<"InventoryMovement"> | $Enums.ActorType
   createdAt?: Prisma.DateTimeFilter<"InventoryMovement"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"InventoryMovement"> | Date | string
 }
 
 export type InventoryMovementCreateWithoutVariantInput = {
@@ -826,6 +851,7 @@ export type InventoryMovementCreateWithoutVariantInput = {
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
+  updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutInventoryMovementsInput
   location: Prisma.InventoryLocationCreateNestedOneWithoutMovementsInput
 }
@@ -845,6 +871,7 @@ export type InventoryMovementUncheckedCreateWithoutVariantInput = {
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InventoryMovementCreateOrConnectWithoutVariantInput = {
@@ -886,6 +913,7 @@ export type InventoryMovementCreateWithoutLocationInput = {
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
+  updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutInventoryMovementsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutInventoryMovementsInput
 }
@@ -905,6 +933,7 @@ export type InventoryMovementUncheckedCreateWithoutLocationInput = {
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InventoryMovementCreateOrConnectWithoutLocationInput = {
@@ -948,6 +977,7 @@ export type InventoryMovementCreateManyProductInput = {
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InventoryMovementUpdateWithoutProductInput = {
@@ -963,6 +993,7 @@ export type InventoryMovementUpdateWithoutProductInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variant?: Prisma.ProductVariantUpdateOneWithoutInventoryMovementsNestedInput
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutMovementsNestedInput
 }
@@ -982,6 +1013,7 @@ export type InventoryMovementUncheckedUpdateWithoutProductInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryMovementUncheckedUpdateManyWithoutProductInput = {
@@ -999,6 +1031,7 @@ export type InventoryMovementUncheckedUpdateManyWithoutProductInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryMovementCreateManyVariantInput = {
@@ -1016,6 +1049,7 @@ export type InventoryMovementCreateManyVariantInput = {
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InventoryMovementUpdateWithoutVariantInput = {
@@ -1031,6 +1065,7 @@ export type InventoryMovementUpdateWithoutVariantInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutInventoryMovementsNestedInput
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutMovementsNestedInput
 }
@@ -1050,6 +1085,7 @@ export type InventoryMovementUncheckedUpdateWithoutVariantInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryMovementUncheckedUpdateManyWithoutVariantInput = {
@@ -1067,6 +1103,7 @@ export type InventoryMovementUncheckedUpdateManyWithoutVariantInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryMovementCreateManyLocationInput = {
@@ -1084,6 +1121,7 @@ export type InventoryMovementCreateManyLocationInput = {
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InventoryMovementUpdateWithoutLocationInput = {
@@ -1099,6 +1137,7 @@ export type InventoryMovementUpdateWithoutLocationInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutInventoryMovementsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutInventoryMovementsNestedInput
 }
@@ -1118,6 +1157,7 @@ export type InventoryMovementUncheckedUpdateWithoutLocationInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryMovementUncheckedUpdateManyWithoutLocationInput = {
@@ -1135,6 +1175,7 @@ export type InventoryMovementUncheckedUpdateManyWithoutLocationInput = {
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1155,6 +1196,7 @@ export type InventoryMovementSelect<ExtArgs extends runtime.Types.Extensions.Int
   actorUserId?: boolean
   actorType?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.InventoryMovement$variantArgs<ExtArgs>
   location?: boolean | Prisma.InventoryLocationDefaultArgs<ExtArgs>
@@ -1178,9 +1220,10 @@ export type InventoryMovementSelectScalar = {
   actorUserId?: boolean
   actorType?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type InventoryMovementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "variantId" | "variantKey" | "locationId" | "type" | "quantityDelta" | "resultingOnHand" | "reason" | "referenceType" | "referenceId" | "dedupeKey" | "actorUserId" | "actorType" | "createdAt", ExtArgs["result"]["inventoryMovement"]>
+export type InventoryMovementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "variantId" | "variantKey" | "locationId" | "type" | "quantityDelta" | "resultingOnHand" | "reason" | "referenceType" | "referenceId" | "dedupeKey" | "actorUserId" | "actorType" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryMovement"]>
 export type InventoryMovementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.InventoryMovement$variantArgs<ExtArgs>
@@ -1229,6 +1272,7 @@ export type $InventoryMovementPayload<ExtArgs extends runtime.Types.Extensions.I
     actorUserId: string | null
     actorType: $Enums.ActorType
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["inventoryMovement"]>
   composites: {}
 }
@@ -1616,6 +1660,7 @@ export interface InventoryMovementFieldRefs {
   readonly actorUserId: Prisma.FieldRef<"InventoryMovement", 'String'>
   readonly actorType: Prisma.FieldRef<"InventoryMovement", 'ActorType'>
   readonly createdAt: Prisma.FieldRef<"InventoryMovement", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"InventoryMovement", 'DateTime'>
 }
     
 

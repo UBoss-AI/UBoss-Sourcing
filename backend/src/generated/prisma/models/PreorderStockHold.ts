@@ -50,6 +50,7 @@ export type PreorderStockHoldMinAggregateOutputType = {
   status: $Enums.PreorderStockHoldStatus | null
   createdAt: Date | null
   releasedAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PreorderStockHoldMaxAggregateOutputType = {
@@ -62,6 +63,7 @@ export type PreorderStockHoldMaxAggregateOutputType = {
   status: $Enums.PreorderStockHoldStatus | null
   createdAt: Date | null
   releasedAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PreorderStockHoldCountAggregateOutputType = {
@@ -74,6 +76,7 @@ export type PreorderStockHoldCountAggregateOutputType = {
   status: number
   createdAt: number
   releasedAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -96,6 +99,7 @@ export type PreorderStockHoldMinAggregateInputType = {
   status?: true
   createdAt?: true
   releasedAt?: true
+  updatedAt?: true
 }
 
 export type PreorderStockHoldMaxAggregateInputType = {
@@ -108,6 +112,7 @@ export type PreorderStockHoldMaxAggregateInputType = {
   status?: true
   createdAt?: true
   releasedAt?: true
+  updatedAt?: true
 }
 
 export type PreorderStockHoldCountAggregateInputType = {
@@ -120,6 +125,7 @@ export type PreorderStockHoldCountAggregateInputType = {
   status?: true
   createdAt?: true
   releasedAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -219,6 +225,7 @@ export type PreorderStockHoldGroupByOutputType = {
   status: $Enums.PreorderStockHoldStatus
   createdAt: Date
   releasedAt: Date | null
+  updatedAt: Date
   _count: PreorderStockHoldCountAggregateOutputType | null
   _avg: PreorderStockHoldAvgAggregateOutputType | null
   _sum: PreorderStockHoldSumAggregateOutputType | null
@@ -254,6 +261,7 @@ export type PreorderStockHoldWhereInput = {
   status?: Prisma.EnumPreorderStockHoldStatusFilter<"PreorderStockHold"> | $Enums.PreorderStockHoldStatus
   createdAt?: Prisma.DateTimeFilter<"PreorderStockHold"> | Date | string
   releasedAt?: Prisma.DateTimeNullableFilter<"PreorderStockHold"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"PreorderStockHold"> | Date | string
   request?: Prisma.XOR<Prisma.PreorderRequestScalarRelationFilter, Prisma.PreorderRequestWhereInput>
 }
 
@@ -267,6 +275,7 @@ export type PreorderStockHoldOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   releasedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   request?: Prisma.PreorderRequestOrderByWithRelationInput
   _relevance?: Prisma.PreorderStockHoldOrderByRelevanceInput
 }
@@ -285,6 +294,7 @@ export type PreorderStockHoldWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumPreorderStockHoldStatusFilter<"PreorderStockHold"> | $Enums.PreorderStockHoldStatus
   createdAt?: Prisma.DateTimeFilter<"PreorderStockHold"> | Date | string
   releasedAt?: Prisma.DateTimeNullableFilter<"PreorderStockHold"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"PreorderStockHold"> | Date | string
   request?: Prisma.XOR<Prisma.PreorderRequestScalarRelationFilter, Prisma.PreorderRequestWhereInput>
 }, "id" | "requestId_locationId">
 
@@ -298,6 +308,7 @@ export type PreorderStockHoldOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   releasedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PreorderStockHoldCountOrderByAggregateInput
   _avg?: Prisma.PreorderStockHoldAvgOrderByAggregateInput
   _max?: Prisma.PreorderStockHoldMaxOrderByAggregateInput
@@ -318,6 +329,7 @@ export type PreorderStockHoldScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumPreorderStockHoldStatusWithAggregatesFilter<"PreorderStockHold"> | $Enums.PreorderStockHoldStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderStockHold"> | Date | string
   releasedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PreorderStockHold"> | Date | string | null
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderStockHold"> | Date | string
 }
 
 export type PreorderStockHoldCreateInput = {
@@ -329,6 +341,7 @@ export type PreorderStockHoldCreateInput = {
   status?: $Enums.PreorderStockHoldStatus
   createdAt?: Date | string
   releasedAt?: Date | string | null
+  updatedAt?: Date | string
   request: Prisma.PreorderRequestCreateNestedOneWithoutStockHoldsInput
 }
 
@@ -342,6 +355,7 @@ export type PreorderStockHoldUncheckedCreateInput = {
   status?: $Enums.PreorderStockHoldStatus
   createdAt?: Date | string
   releasedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type PreorderStockHoldUpdateInput = {
@@ -353,6 +367,7 @@ export type PreorderStockHoldUpdateInput = {
   status?: Prisma.EnumPreorderStockHoldStatusFieldUpdateOperationsInput | $Enums.PreorderStockHoldStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   request?: Prisma.PreorderRequestUpdateOneRequiredWithoutStockHoldsNestedInput
 }
 
@@ -366,6 +381,7 @@ export type PreorderStockHoldUncheckedUpdateInput = {
   status?: Prisma.EnumPreorderStockHoldStatusFieldUpdateOperationsInput | $Enums.PreorderStockHoldStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderStockHoldCreateManyInput = {
@@ -378,6 +394,7 @@ export type PreorderStockHoldCreateManyInput = {
   status?: $Enums.PreorderStockHoldStatus
   createdAt?: Date | string
   releasedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type PreorderStockHoldUpdateManyMutationInput = {
@@ -389,6 +406,7 @@ export type PreorderStockHoldUpdateManyMutationInput = {
   status?: Prisma.EnumPreorderStockHoldStatusFieldUpdateOperationsInput | $Enums.PreorderStockHoldStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderStockHoldUncheckedUpdateManyInput = {
@@ -401,6 +419,7 @@ export type PreorderStockHoldUncheckedUpdateManyInput = {
   status?: Prisma.EnumPreorderStockHoldStatusFieldUpdateOperationsInput | $Enums.PreorderStockHoldStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderStockHoldListRelationFilter = {
@@ -434,6 +453,7 @@ export type PreorderStockHoldCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   releasedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderStockHoldAvgOrderByAggregateInput = {
@@ -450,6 +470,7 @@ export type PreorderStockHoldMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   releasedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderStockHoldMinOrderByAggregateInput = {
@@ -462,6 +483,7 @@ export type PreorderStockHoldMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   releasedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderStockHoldSumOrderByAggregateInput = {
@@ -523,6 +545,7 @@ export type PreorderStockHoldCreateWithoutRequestInput = {
   status?: $Enums.PreorderStockHoldStatus
   createdAt?: Date | string
   releasedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type PreorderStockHoldUncheckedCreateWithoutRequestInput = {
@@ -534,6 +557,7 @@ export type PreorderStockHoldUncheckedCreateWithoutRequestInput = {
   status?: $Enums.PreorderStockHoldStatus
   createdAt?: Date | string
   releasedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type PreorderStockHoldCreateOrConnectWithoutRequestInput = {
@@ -575,6 +599,7 @@ export type PreorderStockHoldScalarWhereInput = {
   status?: Prisma.EnumPreorderStockHoldStatusFilter<"PreorderStockHold"> | $Enums.PreorderStockHoldStatus
   createdAt?: Prisma.DateTimeFilter<"PreorderStockHold"> | Date | string
   releasedAt?: Prisma.DateTimeNullableFilter<"PreorderStockHold"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"PreorderStockHold"> | Date | string
 }
 
 export type PreorderStockHoldCreateManyRequestInput = {
@@ -586,6 +611,7 @@ export type PreorderStockHoldCreateManyRequestInput = {
   status?: $Enums.PreorderStockHoldStatus
   createdAt?: Date | string
   releasedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type PreorderStockHoldUpdateWithoutRequestInput = {
@@ -597,6 +623,7 @@ export type PreorderStockHoldUpdateWithoutRequestInput = {
   status?: Prisma.EnumPreorderStockHoldStatusFieldUpdateOperationsInput | $Enums.PreorderStockHoldStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderStockHoldUncheckedUpdateWithoutRequestInput = {
@@ -608,6 +635,7 @@ export type PreorderStockHoldUncheckedUpdateWithoutRequestInput = {
   status?: Prisma.EnumPreorderStockHoldStatusFieldUpdateOperationsInput | $Enums.PreorderStockHoldStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderStockHoldUncheckedUpdateManyWithoutRequestInput = {
@@ -619,6 +647,7 @@ export type PreorderStockHoldUncheckedUpdateManyWithoutRequestInput = {
   status?: Prisma.EnumPreorderStockHoldStatusFieldUpdateOperationsInput | $Enums.PreorderStockHoldStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -633,6 +662,7 @@ export type PreorderStockHoldSelect<ExtArgs extends runtime.Types.Extensions.Int
   status?: boolean
   createdAt?: boolean
   releasedAt?: boolean
+  updatedAt?: boolean
   request?: boolean | Prisma.PreorderRequestDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["preorderStockHold"]>
 
@@ -648,9 +678,10 @@ export type PreorderStockHoldSelectScalar = {
   status?: boolean
   createdAt?: boolean
   releasedAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PreorderStockHoldOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "requestId" | "sellerAccountId" | "offerId" | "locationId" | "quantityBaseUnits" | "status" | "createdAt" | "releasedAt", ExtArgs["result"]["preorderStockHold"]>
+export type PreorderStockHoldOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "requestId" | "sellerAccountId" | "offerId" | "locationId" | "quantityBaseUnits" | "status" | "createdAt" | "releasedAt" | "updatedAt", ExtArgs["result"]["preorderStockHold"]>
 export type PreorderStockHoldInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   request?: boolean | Prisma.PreorderRequestDefaultArgs<ExtArgs>
 }
@@ -674,6 +705,7 @@ export type $PreorderStockHoldPayload<ExtArgs extends runtime.Types.Extensions.I
     status: $Enums.PreorderStockHoldStatus
     createdAt: Date
     releasedAt: Date | null
+    updatedAt: Date
   }, ExtArgs["result"]["preorderStockHold"]>
   composites: {}
 }
@@ -1053,6 +1085,7 @@ export interface PreorderStockHoldFieldRefs {
   readonly status: Prisma.FieldRef<"PreorderStockHold", 'PreorderStockHoldStatus'>
   readonly createdAt: Prisma.FieldRef<"PreorderStockHold", 'DateTime'>
   readonly releasedAt: Prisma.FieldRef<"PreorderStockHold", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"PreorderStockHold", 'DateTime'>
 }
     
 

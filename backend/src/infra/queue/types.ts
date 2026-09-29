@@ -73,6 +73,9 @@ export const JobType = {
   /// read, raise the SLA alert for customers left waiting, expire proposals,
   /// and apply the operator's retention period to closed conversations.
   PREORDER_CHAT_SWEEP: 'preorder_chat.sweep',
+  /// The dispute clock: a claim whose seller let the time to answer pass goes
+  /// to the operator, and a missed decision or evidence deadline rings the bell.
+  DISPUTE_SLA_SWEEP: 'dispute.sla_sweep',
   REFUND_POLL: 'refund.poll',
   IMPORT_PROCESS: 'import.process',
   EXPORT_GENERATE: 'export.generate',
@@ -180,6 +183,11 @@ export const JobType = {
   /// reconciliation that repaired accounts on its own would be a second thing
   /// writing to somebody's books without being asked.
   SELLER_ERP_RECONCILE: 'seller_erp.reconcile',
+
+  /// Close the last finished settlement period into one statement per seller
+  /// and currency (FEATURE_SELLER_SETTLEMENT_STATEMENTS). Daily, keyed on the
+  /// date; the statement's own unique key makes a repeat a no-op.
+  SELLER_SETTLEMENT_CLOSE: 'seller_settlement.close',
 
   /// Run the registry checks for a buyer company that has just been submitted
   /// or resubmitted, then put it in front of a reviewer. A job rather than part

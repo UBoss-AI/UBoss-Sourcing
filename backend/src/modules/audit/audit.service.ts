@@ -15,6 +15,7 @@ import { Prisma } from '../../generated/prisma/client.js';
 import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
+import { currentRequestContext } from '../../infra/request-context.js';
 
 export const AuditAction = {
   // Identity
@@ -26,6 +27,16 @@ export const AuditAction = {
   USER_SESSIONS_REVOKED: 'user.sessions_revoked',
   USER_MFA_ENABLED: 'user.mfa_enabled',
   USER_MFA_RECOVERY_USED: 'user.mfa_recovery_used',
+  /// Two-step sign-in switched off by its holder, after a fresh step-up.
+  USER_MFA_DISABLED: 'user.mfa_disabled',
+  /// A fresh set of recovery codes replaced the old one.
+  USER_MFA_RECOVERY_REGENERATED: 'user.mfa_recovery_regenerated',
+  /// Too many wrong codes in a row: the account was locked and signed out.
+  USER_MFA_LOCKED: 'user.mfa_locked',
+  /// The person confirmed it was them again before a sensitive act.
+  USER_STEP_UP: 'user.step_up',
+  /// A sign-in from a device or network not seen recently; an alert was sent.
+  USER_NEW_DEVICE_SIGN_IN: 'user.new_device_sign_in',
   /// Where an admin session said it was opened from. Recorded separately from
   /// `user.login` because it arrives on a later request - the position is only
   /// asked for once the password has been accepted.
@@ -152,6 +163,11 @@ export const AuditAction = {
   OCCURRENCE_SKIPPED: 'occurrence.skipped',
   OCCURRENCE_CANCELLED: 'occurrence.cancelled',
   OCCURRENCE_HELD: 'occurrence.held',
+  OCCURRENCE_PRICE_CONFIRMED: 'occurrence.price_confirmed',
+  OCCURRENCE_PRICE_DECLINED: 'occurrence.price_declined',
+  BUYER_COMPANY_APPROVAL_POLICY_UPDATED: 'buyer_company.approval_policy_updated',
+  BUYER_COMPANY_ORDER_APPROVED: 'buyer_company.order_approved',
+  BUYER_COMPANY_ORDER_REJECTED: 'buyer_company.order_rejected',
   OCCURRENCE_COMPLETED: 'occurrence.completed',
 
   // ERP hand-off
@@ -195,6 +211,11 @@ export const AuditAction = {
   CONNECTOR_CREATED: 'connector.created',
   CONNECTOR_UPDATED: 'connector.updated',
   DATA_EXPORTED: 'data.exported',
+  /// A member of staff downloaded a copy of the audit trail itself. `after`
+  /// carries the filter, how many entries the file held and whether the row
+  /// cap cut it short - so "who took a copy of the evidence, and of what" is
+  /// answered from the trail like every other privileged act.
+  AUDIT_EXPORTED: 'audit.exported',
 
   // The ERP connection under Settings -> ERP
   //
@@ -332,6 +353,12 @@ export const AuditAction = {
   /// record of who made it stop and what they said about it.
   NOTIFICATION_RESOLVED: 'notification.resolved',
 
+  /// A member of staff sent a dead background job, or an undeliverable email,
+  /// round again from the dead-letter screens. One more attempt, never a reset
+  /// counter; audited because it makes something happen that had stopped.
+  JOB_RETRIED: 'job.retried',
+  NOTIFICATION_RETRIED: 'notification.retried',
+
   // The four delivery levels (L1-L4)
   //
   // Every change of mode, owner, carrier and price, with before and after.
@@ -352,6 +379,14 @@ export const AuditAction = {
   PLATFORM_FEE_POLICY_PUBLISHED: 'platform_fee_policy.published',
   PLATFORM_FEE_POLICY_RETIRED: 'platform_fee_policy.retired',
   PLATFORM_FEE_TAX_VERIFIED: 'platform_fee_policy.tax_verified',
+  PLATFORM_FEE_POLICY_SUBMITTED: 'platform_fee_policy.submitted',
+  PLATFORM_FEE_POLICY_REJECTED: 'platform_fee_policy.rejected',
+  PLATFORM_FEE_RULE_SAVED: 'platform_fee_rule.saved',
+  PLATFORM_FEE_RULE_SUBMITTED: 'platform_fee_rule.submitted',
+  PLATFORM_FEE_RULE_PUBLISHED: 'platform_fee_rule.published',
+  PLATFORM_FEE_RULE_REJECTED: 'platform_fee_rule.rejected',
+  PLATFORM_FEE_RULE_RETIRED: 'platform_fee_rule.retired',
+  SELLER_FEE_TIER_CHANGED: 'seller.fee_tier_changed',
   /// Bulk preorders. One action per decision, with the terms hash in `after`
   /// wherever terms were proposed or confirmed, so the trail names exactly
   /// what each party agreed to.
@@ -388,6 +423,10 @@ export const AuditAction = {
   PACKING_LIST_SUPERSEDED: 'packing_list.superseded',
   CONSIGNMENT_PACKED: 'consignment.packed',
   SELLER_DOCUMENT_DOWNLOADED: 'seller_document.downloaded',
+  /// A buyer downloaded the signature or photograph captured as proof of
+  /// delivery of their own consignment. Which image and which consignment -
+  /// never the recipient's name.
+  PROOF_OF_DELIVERY_DOWNLOADED: 'proof_of_delivery.downloaded',
   /// The operator's commission invoices to sellers, and their credit notes.
   /// Numbers, amounts, hashes and statuses - never a free-text body.
   COMMISSION_INVOICE_GENERATED: 'commission_invoice.generated',
@@ -399,6 +438,9 @@ export const AuditAction = {
   COMMISSION_INVOICE_COLLECTION_RECORDED: 'commission_invoice.collection_recorded',
   COMMISSION_CREDIT_NOTE_ISSUED: 'commission_credit_note.issued',
   COMMISSION_INVOICE_SETTINGS_SAVED: 'commission_invoice_settings.saved',
+  /// A buyer's payment or refund receipt: its number issued the first time it
+  /// was asked for. Number, kind, order and amount - nothing about the card.
+  PAYMENT_RECEIPT_ISSUED: 'payment_receipt.issued',
   /// Terms and Conditions and the other legal documents. Kind, version,
   /// language, dates and the content hash - never the body, which is kept on
   /// the document itself and never changes once published.
@@ -424,6 +466,26 @@ export const AuditAction = {
   /// its name or contents.
   SUPPORT_TICKET_ATTACHMENT_UPLOADED: 'support_ticket.attachment_uploaded',
   SUPPORT_TICKET_ATTACHMENT_DOWNLOADED: 'support_ticket.attachment_downloaded',
+  SUPPORT_TICKET_SLA_POLICY_SAVED: 'support_ticket.sla_policy_saved',
+  /// Disputes: claims and chargebacks. Who did what to which dispute - never
+  /// what anybody wrote in it, and a file by id, type and size only.
+  DISPUTE_CREATED: 'dispute.created',
+  DISPUTE_MESSAGE_ADDED: 'dispute.message_added',
+  DISPUTE_NOTE_ADDED: 'dispute.note_added',
+  DISPUTE_EVIDENCE_UPLOADED: 'dispute.evidence_uploaded',
+  DISPUTE_EVIDENCE_DOWNLOADED: 'dispute.evidence_downloaded',
+  DISPUTE_SELLER_RESPONDED: 'dispute.seller_responded',
+  DISPUTE_ESCALATED: 'dispute.escalated',
+  DISPUTE_WITHDRAWN: 'dispute.withdrawn',
+  DISPUTE_ASSIGNED: 'dispute.assigned',
+  DISPUTE_DECISION_PROPOSED: 'dispute.decision_proposed',
+  DISPUTE_DECISION_APPROVED: 'dispute.decision_approved',
+  DISPUTE_DECISION_REFUSED: 'dispute.decision_refused',
+  DISPUTE_DECIDED: 'dispute.decided',
+  DISPUTE_APPEALED: 'dispute.appealed',
+  DISPUTE_CHARGEBACK_UPDATED: 'dispute.chargeback_updated',
+  DISPUTE_CHARGEBACK_LOST_SETTLED: 'dispute.chargeback_lost_settled',
+  DISPUTE_SETTINGS_SAVED: 'dispute.settings_saved',
   PREORDER_CHAT_STARTED: 'preorder_chat.started',
   PREORDER_CHAT_VIEWED: 'preorder_chat.viewed',
   PREORDER_CHAT_ASSIGNED: 'preorder_chat.assigned',
@@ -447,6 +509,27 @@ export const AuditAction = {
   PREORDER_CHAT_EXPORTED: 'preorder_chat.exported',
   PREORDER_CHAT_ATTACHMENT_UPLOADED: 'preorder_chat.attachment_uploaded',
   PREORDER_CHAT_ATTACHMENT_DOWNLOADED: 'preorder_chat.attachment_downloaded',
+
+  // Pre-shipment inspection. Written with resourceType `order` and the buyer
+  // order's id, so an order's audit trail carries every inspection decision:
+  // what was required and why, bookings, the signed report, releases and who
+  // approved them. The inspection's own timeline (`inspection_events`) holds
+  // the detail.
+  INSPECTION_REQUIREMENT_DECIDED: 'inspection.requirement_decided',
+  INSPECTION_BOOKED: 'inspection.booked',
+  INSPECTION_JOB_STATUS_CHANGED: 'inspection.job_status_changed',
+  INSPECTION_REPORT_SIGNED: 'inspection.report_signed',
+  INSPECTION_DEFECT_RECLASSIFIED: 'inspection.defect_reclassified',
+  INSPECTION_CAPA_SUBMITTED: 'inspection.capa_submitted',
+  INSPECTION_RELEASE_REQUESTED: 'inspection.release_requested',
+  INSPECTION_RELEASE_APPROVED: 'inspection.release_approved',
+  INSPECTION_RELEASE_REJECTED: 'inspection.release_rejected',
+  INSPECTION_RELEASE_RECORDED: 'inspection.release_recorded',
+  INSPECTION_SCOPE_CHANGED: 'inspection.scope_changed',
+  INSPECTION_LOAD_RELEASED: 'inspection.load_released',
+  INSPECTION_POLICY_CHANGED: 'inspection.policy_changed',
+  INSPECTION_AGENCY_CHANGED: 'inspection.agency_changed',
+  INSPECTION_INVOICE_CHANGED: 'inspection.invoice_changed',
 
   // Buyer companies. The company's own timeline (`buyer_company_review_events`)
   // carries the detail a reviewer reads; these rows are the platform-wide
@@ -474,6 +557,22 @@ export const AuditAction = {
   // because it changes what every other buyer is shown.
   PRODUCT_REVIEW_HIDDEN: 'product_review.hidden',
   PRODUCT_REVIEW_PUBLISHED: 'product_review.published',
+
+  // Returns. Every step of one, by whoever took it: the buyer asking, the
+  // seller answering, staff deciding, receiving, inspecting and refunding. A
+  // file by id, type and size only - never its name.
+  RETURN_REQUESTED: 'return.requested',
+  RETURN_SELLER_RESPONDED: 'return.seller_responded',
+  RETURN_APPROVED: 'return.approved',
+  RETURN_REJECTED: 'return.rejected',
+  RETURN_INSTRUCTIONS_SET: 'return.instructions_set',
+  RETURN_RECEIVED: 'return.received',
+  RETURN_INSPECTED: 'return.inspected',
+  RETURN_REFUNDED: 'return.refunded',
+  RETURN_REPLACED: 'return.replaced',
+  RETURN_FILE_UPLOADED: 'return.file_uploaded',
+  RETURN_FILE_DOWNLOADED: 'return.file_downloaded',
+  RETURN_SETTINGS_CHANGED: 'return.settings_changed',
 } as const;
 
 export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];
@@ -496,6 +595,13 @@ export interface AuditEntry {
   actorType: AuditActorType;
   actorUserId?: string | null;
   actorEmail?: string | null;
+  /**
+   * The actor's role keys at the moment of the act. Leave it out and
+   * `recordAudit` looks them up for `actorUserId` itself, through the same
+   * client, so the entry records what the person held THEN - see
+   * `actorRolesAtWrite`.
+   */
+  actorRoles?: readonly string[] | null;
   before?: unknown;
   after?: unknown;
   ipAddress?: string | null;
@@ -583,7 +689,54 @@ function bounded(value: Prisma.InputJsonValue | null): Prisma.InputJsonValue | n
   return value;
 }
 
-type AuditClient = Pick<typeof prisma, 'auditLog'>;
+type AuditClient = Pick<typeof prisma, 'auditLog'> & Partial<Pick<typeof prisma, 'userRole'>>;
+
+/** `audit_logs.actorRoles` is VARCHAR(255). */
+const MAX_ACTOR_ROLES_LENGTH = 255;
+
+function joinRoles(keys: readonly string[]): string | null {
+  const joined = [...new Set(keys)].sort().join(',');
+  if (joined === '') return null;
+  // Six role keys fit many times over; a truncated list would still say
+  // something true, but cut on a comma so no key is half-written.
+  if (joined.length <= MAX_ACTOR_ROLES_LENGTH) return joined;
+  return joined.slice(0, MAX_ACTOR_ROLES_LENGTH).replace(/,[^,]*$/, '');
+}
+
+/**
+ * The role keys `actorUserId` holds right now - which, at write time, is the
+ * role they acted in.
+ *
+ * Read through the caller's transaction when there is one, so a role granted
+ * or revoked earlier in the same transaction is what the entry records. A
+ * failed lookup records no role rather than failing the action: the role is
+ * context for the reader, and an order must not be refused because of it.
+ * On MariaDB a failed SELECT does not abort the surrounding transaction.
+ */
+async function actorRolesAtWrite(
+  client: AuditClient,
+  entry: AuditEntry,
+): Promise<string | null> {
+  if (entry.actorRoles !== undefined) {
+    return entry.actorRoles === null ? null : joinRoles(entry.actorRoles);
+  }
+
+  const userId = entry.actorUserId ?? null;
+  if (userId === null) return null;
+
+  const reader = client.userRole ?? prisma.userRole;
+
+  try {
+    const rows = await reader.findMany({
+      where: { userId },
+      select: { role: { select: { key: true } } },
+    });
+    return joinRoles(rows.map((row) => row.role.key));
+  } catch (error) {
+    logger.warn({ err: error, action: entry.action }, 'could not read the actor role for an audit entry');
+    return null;
+  }
+}
 
 /**
  * Write an audit row.
@@ -594,6 +747,7 @@ type AuditClient = Pick<typeof prisma, 'auditLog'>;
  */
 export async function recordAudit(entry: AuditEntry, tx?: unknown): Promise<void> {
   const client = (tx as AuditClient | undefined) ?? prisma;
+  const requestContext = currentRequestContext();
 
   const data: Prisma.AuditLogUncheckedCreateInput = {
     id: newId(),
@@ -603,10 +757,15 @@ export async function recordAudit(entry: AuditEntry, tx?: unknown): Promise<void
     actorType: entry.actorType,
     actorUserId: entry.actorUserId ?? null,
     actorEmail: entry.actorEmail ?? null,
+    actorRoles: await actorRolesAtWrite(client, entry),
     beforeJson: bounded(redact(entry.before)) ?? Prisma.JsonNull,
     afterJson: bounded(redact(entry.after)) ?? Prisma.JsonNull,
-    ipAddress: entry.ipAddress ?? null,
-    userAgent: entry.userAgent?.slice(0, 512) ?? null,
+    // A caller's own value wins. Without one, the address and browser of the
+    // HTTP request this runs inside (infra/request-context.ts), so an edit
+    // made through any route is traceable to a device without every service
+    // passing it. A worker or script has no request, and records none.
+    ipAddress: entry.ipAddress ?? requestContext?.ipAddress ?? null,
+    userAgent: (entry.userAgent ?? requestContext?.userAgent)?.slice(0, 512) ?? null,
     correlationId: entry.correlationId ?? null,
   };
 

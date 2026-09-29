@@ -63,6 +63,12 @@ CREATE USER IF NOT EXISTS 'uboss_app'@'%' IDENTIFIED BY '${MARIADB_APP_PASSWORD}
 GRANT SELECT, INSERT, UPDATE, DELETE ON \`uboss\`.*      TO 'uboss_app'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON \`uboss_test\`.* TO 'uboss_app'@'%';
 
+-- The audit maintenance account (DATABASE_MAINTENANCE_URL). Created with no
+-- grants: post-migrate-grants.sql gives it SELECT, DELETE and
+-- UPDATE (actorEmail, ipAddress, updatedAt, userAgent) on audit_logs once the table
+-- exists, exactly as on the VPS.
+CREATE USER IF NOT EXISTS 'uboss_maintenance'@'%' IDENTIFIED BY '${MARIADB_MAINTENANCE_PASSWORD}';
+
 -- NOTE THE THING THAT IS NOT HERE: the REVOKE that makes \`audit_logs\`
 -- append-only. It cannot run at this point and this is where finding that out
 -- was cheap.

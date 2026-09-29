@@ -31,6 +31,7 @@ export type FeatureFlagMinAggregateOutputType = {
   description: string | null
   updatedAt: Date | null
   updatedById: string | null
+  createdAt: Date | null
 }
 
 export type FeatureFlagMaxAggregateOutputType = {
@@ -40,6 +41,7 @@ export type FeatureFlagMaxAggregateOutputType = {
   description: string | null
   updatedAt: Date | null
   updatedById: string | null
+  createdAt: Date | null
 }
 
 export type FeatureFlagCountAggregateOutputType = {
@@ -49,6 +51,7 @@ export type FeatureFlagCountAggregateOutputType = {
   description: number
   updatedAt: number
   updatedById: number
+  createdAt: number
   _all: number
 }
 
@@ -60,6 +63,7 @@ export type FeatureFlagMinAggregateInputType = {
   description?: true
   updatedAt?: true
   updatedById?: true
+  createdAt?: true
 }
 
 export type FeatureFlagMaxAggregateInputType = {
@@ -69,6 +73,7 @@ export type FeatureFlagMaxAggregateInputType = {
   description?: true
   updatedAt?: true
   updatedById?: true
+  createdAt?: true
 }
 
 export type FeatureFlagCountAggregateInputType = {
@@ -78,6 +83,7 @@ export type FeatureFlagCountAggregateInputType = {
   description?: true
   updatedAt?: true
   updatedById?: true
+  createdAt?: true
   _all?: true
 }
 
@@ -160,6 +166,7 @@ export type FeatureFlagGroupByOutputType = {
   description: string | null
   updatedAt: Date
   updatedById: string | null
+  createdAt: Date
   _count: FeatureFlagCountAggregateOutputType | null
   _min: FeatureFlagMinAggregateOutputType | null
   _max: FeatureFlagMaxAggregateOutputType | null
@@ -190,6 +197,7 @@ export type FeatureFlagWhereInput = {
   description?: Prisma.StringNullableFilter<"FeatureFlag"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"FeatureFlag"> | Date | string
   updatedById?: Prisma.StringNullableFilter<"FeatureFlag"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"FeatureFlag"> | Date | string
 }
 
 export type FeatureFlagOrderByWithRelationInput = {
@@ -199,6 +207,7 @@ export type FeatureFlagOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _relevance?: Prisma.FeatureFlagOrderByRelevanceInput
 }
 
@@ -212,6 +221,7 @@ export type FeatureFlagWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"FeatureFlag"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"FeatureFlag"> | Date | string
   updatedById?: Prisma.StringNullableFilter<"FeatureFlag"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"FeatureFlag"> | Date | string
 }, "id" | "key">
 
 export type FeatureFlagOrderByWithAggregationInput = {
@@ -221,6 +231,7 @@ export type FeatureFlagOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _count?: Prisma.FeatureFlagCountOrderByAggregateInput
   _max?: Prisma.FeatureFlagMaxOrderByAggregateInput
   _min?: Prisma.FeatureFlagMinOrderByAggregateInput
@@ -236,6 +247,7 @@ export type FeatureFlagScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"FeatureFlag"> | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FeatureFlag"> | Date | string
   updatedById?: Prisma.StringNullableWithAggregatesFilter<"FeatureFlag"> | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"FeatureFlag"> | Date | string
 }
 
 export type FeatureFlagCreateInput = {
@@ -245,6 +257,7 @@ export type FeatureFlagCreateInput = {
   description?: string | null
   updatedAt?: Date | string
   updatedById?: string | null
+  createdAt?: Date | string
 }
 
 export type FeatureFlagUncheckedCreateInput = {
@@ -254,6 +267,7 @@ export type FeatureFlagUncheckedCreateInput = {
   description?: string | null
   updatedAt?: Date | string
   updatedById?: string | null
+  createdAt?: Date | string
 }
 
 export type FeatureFlagUpdateInput = {
@@ -263,6 +277,7 @@ export type FeatureFlagUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FeatureFlagUncheckedUpdateInput = {
@@ -272,6 +287,7 @@ export type FeatureFlagUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FeatureFlagCreateManyInput = {
@@ -281,6 +297,7 @@ export type FeatureFlagCreateManyInput = {
   description?: string | null
   updatedAt?: Date | string
   updatedById?: string | null
+  createdAt?: Date | string
 }
 
 export type FeatureFlagUpdateManyMutationInput = {
@@ -290,6 +307,7 @@ export type FeatureFlagUpdateManyMutationInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FeatureFlagUncheckedUpdateManyInput = {
@@ -299,6 +317,7 @@ export type FeatureFlagUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FeatureFlagOrderByRelevanceInput = {
@@ -314,6 +333,7 @@ export type FeatureFlagCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type FeatureFlagMaxOrderByAggregateInput = {
@@ -323,6 +343,7 @@ export type FeatureFlagMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type FeatureFlagMinOrderByAggregateInput = {
@@ -332,6 +353,7 @@ export type FeatureFlagMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 
@@ -343,6 +365,7 @@ export type FeatureFlagSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   description?: boolean
   updatedAt?: boolean
   updatedById?: boolean
+  createdAt?: boolean
 }, ExtArgs["result"]["featureFlag"]>
 
 
@@ -354,9 +377,10 @@ export type FeatureFlagSelectScalar = {
   description?: boolean
   updatedAt?: boolean
   updatedById?: boolean
+  createdAt?: boolean
 }
 
-export type FeatureFlagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "enabled" | "description" | "updatedAt" | "updatedById", ExtArgs["result"]["featureFlag"]>
+export type FeatureFlagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "enabled" | "description" | "updatedAt" | "updatedById" | "createdAt", ExtArgs["result"]["featureFlag"]>
 
 export type $FeatureFlagPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FeatureFlag"
@@ -368,6 +392,7 @@ export type $FeatureFlagPayload<ExtArgs extends runtime.Types.Extensions.Interna
     description: string | null
     updatedAt: Date
     updatedById: string | null
+    createdAt: Date
   }, ExtArgs["result"]["featureFlag"]>
   composites: {}
 }
@@ -743,6 +768,7 @@ export interface FeatureFlagFieldRefs {
   readonly description: Prisma.FieldRef<"FeatureFlag", 'String'>
   readonly updatedAt: Prisma.FieldRef<"FeatureFlag", 'DateTime'>
   readonly updatedById: Prisma.FieldRef<"FeatureFlag", 'String'>
+  readonly createdAt: Prisma.FieldRef<"FeatureFlag", 'DateTime'>
 }
     
 

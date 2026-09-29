@@ -38,6 +38,8 @@ export type SellerErpMasterCacheMinAggregateOutputType = {
   tallyGuid: string | null
   parentName: string | null
   lastSeenAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerErpMasterCacheMaxAggregateOutputType = {
@@ -48,6 +50,8 @@ export type SellerErpMasterCacheMaxAggregateOutputType = {
   tallyGuid: string | null
   parentName: string | null
   lastSeenAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerErpMasterCacheCountAggregateOutputType = {
@@ -59,6 +63,8 @@ export type SellerErpMasterCacheCountAggregateOutputType = {
   parentName: number
   extraJson: number
   lastSeenAt: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -71,6 +77,8 @@ export type SellerErpMasterCacheMinAggregateInputType = {
   tallyGuid?: true
   parentName?: true
   lastSeenAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerErpMasterCacheMaxAggregateInputType = {
@@ -81,6 +89,8 @@ export type SellerErpMasterCacheMaxAggregateInputType = {
   tallyGuid?: true
   parentName?: true
   lastSeenAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerErpMasterCacheCountAggregateInputType = {
@@ -92,6 +102,8 @@ export type SellerErpMasterCacheCountAggregateInputType = {
   parentName?: true
   extraJson?: true
   lastSeenAt?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -176,6 +188,8 @@ export type SellerErpMasterCacheGroupByOutputType = {
   parentName: string | null
   extraJson: runtime.JsonValue | null
   lastSeenAt: Date
+  createdAt: Date
+  updatedAt: Date
   _count: SellerErpMasterCacheCountAggregateOutputType | null
   _min: SellerErpMasterCacheMinAggregateOutputType | null
   _max: SellerErpMasterCacheMaxAggregateOutputType | null
@@ -208,6 +222,8 @@ export type SellerErpMasterCacheWhereInput = {
   parentName?: Prisma.StringNullableFilter<"SellerErpMasterCache"> | string | null
   extraJson?: Prisma.JsonNullableFilter<"SellerErpMasterCache">
   lastSeenAt?: Prisma.DateTimeFilter<"SellerErpMasterCache"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"SellerErpMasterCache"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerErpMasterCache"> | Date | string
   connection?: Prisma.XOR<Prisma.SellerErpConnectionScalarRelationFilter, Prisma.SellerErpConnectionWhereInput>
 }
 
@@ -220,6 +236,8 @@ export type SellerErpMasterCacheOrderByWithRelationInput = {
   parentName?: Prisma.SortOrderInput | Prisma.SortOrder
   extraJson?: Prisma.SortOrderInput | Prisma.SortOrder
   lastSeenAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   connection?: Prisma.SellerErpConnectionOrderByWithRelationInput
   _relevance?: Prisma.SellerErpMasterCacheOrderByRelevanceInput
 }
@@ -237,6 +255,8 @@ export type SellerErpMasterCacheWhereUniqueInput = Prisma.AtLeast<{
   parentName?: Prisma.StringNullableFilter<"SellerErpMasterCache"> | string | null
   extraJson?: Prisma.JsonNullableFilter<"SellerErpMasterCache">
   lastSeenAt?: Prisma.DateTimeFilter<"SellerErpMasterCache"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"SellerErpMasterCache"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerErpMasterCache"> | Date | string
   connection?: Prisma.XOR<Prisma.SellerErpConnectionScalarRelationFilter, Prisma.SellerErpConnectionWhereInput>
 }, "id" | "connectionId_entity_tallyName">
 
@@ -249,6 +269,8 @@ export type SellerErpMasterCacheOrderByWithAggregationInput = {
   parentName?: Prisma.SortOrderInput | Prisma.SortOrder
   extraJson?: Prisma.SortOrderInput | Prisma.SortOrder
   lastSeenAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerErpMasterCacheCountOrderByAggregateInput
   _max?: Prisma.SellerErpMasterCacheMaxOrderByAggregateInput
   _min?: Prisma.SellerErpMasterCacheMinOrderByAggregateInput
@@ -266,6 +288,8 @@ export type SellerErpMasterCacheScalarWhereWithAggregatesInput = {
   parentName?: Prisma.StringNullableWithAggregatesFilter<"SellerErpMasterCache"> | string | null
   extraJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerErpMasterCache">
   lastSeenAt?: Prisma.DateTimeWithAggregatesFilter<"SellerErpMasterCache"> | Date | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerErpMasterCache"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerErpMasterCache"> | Date | string
 }
 
 export type SellerErpMasterCacheCreateInput = {
@@ -276,6 +300,8 @@ export type SellerErpMasterCacheCreateInput = {
   parentName?: string | null
   extraJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastSeenAt: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   connection: Prisma.SellerErpConnectionCreateNestedOneWithoutMastersInput
 }
 
@@ -288,6 +314,8 @@ export type SellerErpMasterCacheUncheckedCreateInput = {
   parentName?: string | null
   extraJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastSeenAt: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpMasterCacheUpdateInput = {
@@ -298,6 +326,8 @@ export type SellerErpMasterCacheUpdateInput = {
   parentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extraJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   connection?: Prisma.SellerErpConnectionUpdateOneRequiredWithoutMastersNestedInput
 }
 
@@ -310,6 +340,8 @@ export type SellerErpMasterCacheUncheckedUpdateInput = {
   parentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extraJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpMasterCacheCreateManyInput = {
@@ -321,6 +353,8 @@ export type SellerErpMasterCacheCreateManyInput = {
   parentName?: string | null
   extraJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastSeenAt: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpMasterCacheUpdateManyMutationInput = {
@@ -331,6 +365,8 @@ export type SellerErpMasterCacheUpdateManyMutationInput = {
   parentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extraJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpMasterCacheUncheckedUpdateManyInput = {
@@ -342,6 +378,8 @@ export type SellerErpMasterCacheUncheckedUpdateManyInput = {
   parentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extraJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpMasterCacheListRelationFilter = {
@@ -375,6 +413,8 @@ export type SellerErpMasterCacheCountOrderByAggregateInput = {
   parentName?: Prisma.SortOrder
   extraJson?: Prisma.SortOrder
   lastSeenAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerErpMasterCacheMaxOrderByAggregateInput = {
@@ -385,6 +425,8 @@ export type SellerErpMasterCacheMaxOrderByAggregateInput = {
   tallyGuid?: Prisma.SortOrder
   parentName?: Prisma.SortOrder
   lastSeenAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerErpMasterCacheMinOrderByAggregateInput = {
@@ -395,6 +437,8 @@ export type SellerErpMasterCacheMinOrderByAggregateInput = {
   tallyGuid?: Prisma.SortOrder
   parentName?: Prisma.SortOrder
   lastSeenAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerErpMasterCacheCreateNestedManyWithoutConnectionInput = {
@@ -451,6 +495,8 @@ export type SellerErpMasterCacheCreateWithoutConnectionInput = {
   parentName?: string | null
   extraJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastSeenAt: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpMasterCacheUncheckedCreateWithoutConnectionInput = {
@@ -461,6 +507,8 @@ export type SellerErpMasterCacheUncheckedCreateWithoutConnectionInput = {
   parentName?: string | null
   extraJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastSeenAt: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpMasterCacheCreateOrConnectWithoutConnectionInput = {
@@ -501,6 +549,8 @@ export type SellerErpMasterCacheScalarWhereInput = {
   parentName?: Prisma.StringNullableFilter<"SellerErpMasterCache"> | string | null
   extraJson?: Prisma.JsonNullableFilter<"SellerErpMasterCache">
   lastSeenAt?: Prisma.DateTimeFilter<"SellerErpMasterCache"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"SellerErpMasterCache"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerErpMasterCache"> | Date | string
 }
 
 export type SellerErpMasterCacheCreateManyConnectionInput = {
@@ -511,6 +561,8 @@ export type SellerErpMasterCacheCreateManyConnectionInput = {
   parentName?: string | null
   extraJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastSeenAt: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpMasterCacheUpdateWithoutConnectionInput = {
@@ -521,6 +573,8 @@ export type SellerErpMasterCacheUpdateWithoutConnectionInput = {
   parentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extraJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpMasterCacheUncheckedUpdateWithoutConnectionInput = {
@@ -531,6 +585,8 @@ export type SellerErpMasterCacheUncheckedUpdateWithoutConnectionInput = {
   parentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extraJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpMasterCacheUncheckedUpdateManyWithoutConnectionInput = {
@@ -541,6 +597,8 @@ export type SellerErpMasterCacheUncheckedUpdateManyWithoutConnectionInput = {
   parentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   extraJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -554,6 +612,8 @@ export type SellerErpMasterCacheSelect<ExtArgs extends runtime.Types.Extensions.
   parentName?: boolean
   extraJson?: boolean
   lastSeenAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   connection?: boolean | Prisma.SellerErpConnectionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerErpMasterCache"]>
 
@@ -568,9 +628,11 @@ export type SellerErpMasterCacheSelectScalar = {
   parentName?: boolean
   extraJson?: boolean
   lastSeenAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerErpMasterCacheOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "entity" | "tallyName" | "tallyGuid" | "parentName" | "extraJson" | "lastSeenAt", ExtArgs["result"]["sellerErpMasterCache"]>
+export type SellerErpMasterCacheOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "entity" | "tallyName" | "tallyGuid" | "parentName" | "extraJson" | "lastSeenAt" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerErpMasterCache"]>
 export type SellerErpMasterCacheInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   connection?: boolean | Prisma.SellerErpConnectionDefaultArgs<ExtArgs>
 }
@@ -597,6 +659,8 @@ export type $SellerErpMasterCachePayload<ExtArgs extends runtime.Types.Extension
      */
     extraJson: runtime.JsonValue | null
     lastSeenAt: Date
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerErpMasterCache"]>
   composites: {}
 }
@@ -975,6 +1039,8 @@ export interface SellerErpMasterCacheFieldRefs {
   readonly parentName: Prisma.FieldRef<"SellerErpMasterCache", 'String'>
   readonly extraJson: Prisma.FieldRef<"SellerErpMasterCache", 'Json'>
   readonly lastSeenAt: Prisma.FieldRef<"SellerErpMasterCache", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"SellerErpMasterCache", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerErpMasterCache", 'DateTime'>
 }
     
 

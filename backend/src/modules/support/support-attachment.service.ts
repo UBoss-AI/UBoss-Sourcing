@@ -95,6 +95,11 @@ export function supportAttachmentPolicy(): {
   };
 }
 
+/** Exported for dispute evidence, which is the same pipeline. */
+export function assertAttachmentsAvailable(): void {
+  assertAvailable();
+}
+
 function assertAvailable(): void {
   const availability = supportAttachmentAvailability();
   if (!availability.available) {
@@ -108,12 +113,12 @@ function assertAvailable(): void {
   }
 }
 
-function servable(scanState: 'CLEAN' | 'SCANNER_UNCONFIGURED'): boolean {
+export function servable(scanState: 'CLEAN' | 'SCANNER_UNCONFIGURED'): boolean {
   return scanState === 'CLEAN' || env.SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS;
 }
 
 /** The type, from the bytes. A video or an image first; otherwise a PDF. */
-function sniff(bytes: Buffer): {
+export function sniff(bytes: Buffer): {
   mimeType: string;
   extension: string;
   kind: 'IMAGE' | 'VIDEO' | 'DOCUMENT';
@@ -135,7 +140,7 @@ function sniff(bytes: Buffer): {
   }
 }
 
-async function scan(bytes: Buffer): Promise<'CLEAN' | 'SCANNER_UNCONFIGURED'> {
+export async function scan(bytes: Buffer): Promise<'CLEAN' | 'SCANNER_UNCONFIGURED'> {
   try {
     const result = await scanForMalware(bytes);
     return result.status === 'CLEAN' ? 'CLEAN' : 'SCANNER_UNCONFIGURED';
@@ -159,6 +164,8 @@ export interface SupportAttachmentView {
   kind: 'IMAGE' | 'VIDEO' | 'DOCUMENT';
   byteSize: number;
   createdAt: string;
+  /** Attached by the team rather than the sender. */
+  fromTeam: boolean;
 }
 
 const ATTACHMENT_SELECT = {
@@ -168,6 +175,7 @@ const ATTACHMENT_SELECT = {
   kind: true,
   byteSize: true,
   createdAt: true,
+  uploadedByStaff: true,
 } as const;
 
 export async function listTicketAttachments(ticketId: string): Promise<SupportAttachmentView[]> {
@@ -176,7 +184,11 @@ export async function listTicketAttachments(ticketId: string): Promise<SupportAt
     orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     select: ATTACHMENT_SELECT,
   });
-  return rows.map((row) => ({ ...row, createdAt: row.createdAt.toISOString() }));
+  return rows.map(({ uploadedByStaff, ...row }) => ({
+    ...row,
+    createdAt: row.createdAt.toISOString(),
+    fromTeam: uploadedByStaff,
+  }));
 }
 
 /**
@@ -193,6 +205,51 @@ export async function uploadRequesterAttachment(
 ): Promise<{ attachment: SupportAttachmentView }> {
   assertAvailable();
   const ticketId = await ownTicketId(requester, reference);
+  return storeTicketAttachment(ticketId, input, {
+    staff: false,
+    userId: requester.userId,
+    email: requester.email,
+    actorType: requester.source === 'LOGISTICS_PORTAL' ? 'LOGISTICS' : 'CUSTOMER',
+    ipAddress: requester.ipAddress ?? null,
+    correlationId: requester.correlationId ?? null,
+  });
+}
+
+/**
+ * A member of staff adds a file to a ticket - a returns label, a corrected
+ * invoice, a photograph from the warehouse. The sender sees it on their
+ * request, marked as from the team. Same rules as the sender's own files.
+ */
+export async function uploadStaffAttachment(
+  actor: { userId: string; email: string; ipAddress?: string | null; correlationId?: string | null },
+  ticketId: string,
+  input: { bytes: Buffer; fileName: string },
+): Promise<{ attachment: SupportAttachmentView }> {
+  assertAvailable();
+  const exists = await prisma.supportTicket.findUnique({ where: { id: ticketId }, select: { id: true } });
+  if (exists === null) throw notFound('Support request');
+  return storeTicketAttachment(ticketId, input, {
+    staff: true,
+    userId: actor.userId,
+    email: actor.email,
+    actorType: 'ADMIN',
+    ipAddress: actor.ipAddress ?? null,
+    correlationId: actor.correlationId ?? null,
+  });
+}
+
+async function storeTicketAttachment(
+  ticketId: string,
+  input: { bytes: Buffer; fileName: string },
+  uploader: {
+    staff: boolean;
+    userId: string;
+    email: string;
+    actorType: 'ADMIN' | 'CUSTOMER' | 'LOGISTICS';
+    ipAddress: string | null;
+    correlationId: string | null;
+  },
+): Promise<{ attachment: SupportAttachmentView }> {
 
   const ticket = await prisma.supportTicket.findUniqueOrThrow({
     where: { id: ticketId },
@@ -248,7 +305,8 @@ export async function uploadRequesterAttachment(
           byteSize: stored.sizeBytes,
           contentHash: createHash('sha256').update(input.bytes).digest('hex'),
           scanState,
-          uploadedByUserId: requester.userId,
+          uploadedByUserId: uploader.userId,
+          uploadedByStaff: uploader.staff,
         },
       });
       await tx.supportTicket.update({
@@ -260,17 +318,18 @@ export async function uploadRequesterAttachment(
           action: AuditAction.SUPPORT_TICKET_ATTACHMENT_UPLOADED,
           resourceType: 'support_ticket',
           resourceId: ticketId,
-          actorType: requester.source === 'LOGISTICS_PORTAL' ? 'LOGISTICS' : 'CUSTOMER',
-          actorUserId: requester.userId,
-          actorEmail: requester.email,
+          actorType: uploader.actorType,
+          actorUserId: uploader.userId,
+          actorEmail: uploader.email,
           after: {
             attachmentId: id,
             contentType: stored.mimeType,
             byteSize: stored.sizeBytes,
             scanState,
+            byStaff: uploader.staff,
           },
-          ipAddress: requester.ipAddress ?? null,
-          correlationId: requester.correlationId ?? null,
+          ipAddress: uploader.ipAddress,
+          correlationId: uploader.correlationId,
         },
         tx,
       );

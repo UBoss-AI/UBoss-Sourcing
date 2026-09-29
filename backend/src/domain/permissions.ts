@@ -123,6 +123,22 @@ export const Permission = {
   /// Give a request to somebody else, or take it off them.
   SUPPORT_TICKET_ASSIGN: 'support_ticket.assign',
 
+  // --- Disputes ---
+  //
+  // Buyer claims and payment chargebacks, in the console's dispute queue.
+  // Deciding a refund also needs `refund.create`, and a refund above the
+  // approval threshold needs a SECOND member of staff holding
+  // `dispute.approve` - never the one who proposed it.
+  /// Read the queue, every dispute in it, both sides' evidence and the notes.
+  DISPUTE_VIEW: 'dispute.view',
+  /// Write to the parties, add notes and evidence, take a dispute, and decide
+  /// one (a refund decision also needs refund.create, or goes for approval).
+  DISPUTE_MANAGE: 'dispute.manage',
+  /// Give a dispute to somebody else, or take it off them.
+  DISPUTE_ASSIGN: 'dispute.assign',
+  /// Approve or refuse a colleague's refund decision above the threshold.
+  DISPUTE_APPROVE: 'dispute.approve',
+
   // --- Orders ---
   ORDER_READ: 'order.read',
   ORDER_APPROVE: 'order.approve',
@@ -144,6 +160,18 @@ export const Permission = {
   // --- Integrations, reports, audit ---
   INTEGRATION_READ: 'integration.read',
   INTEGRATION_WRITE: 'integration.write',
+
+  // --- Pre-shipment inspection ---
+  /// Read inspection requirements, jobs, reports and releases on any order.
+  INSPECTION_READ: 'inspection.read',
+  /// Manage agencies and their people, the inspection rules, plans and policy,
+  /// supplier risk, bookings and cancellations. Everything that decides who
+  /// inspects and when an order must be inspected.
+  INSPECTION_MANAGE: 'inspection.manage',
+  /// Request, approve or reject a conditional release - letting goods leave
+  /// without a passed inspection. Two different holders are always needed:
+  /// one requests, another approves (domain/inspection-state.ts).
+  INSPECTION_RELEASE: 'inspection.release',
 
   // --- Logistics ---
   //
@@ -365,6 +393,11 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       // deployment grants it further - the same line preorder chats draw.
       Permission.SUPPORT_TICKET_VIEW,
       Permission.SUPPORT_TICKET_REPLY,
+      // A claim about an order is order work: this desk hears both sides and
+      // decides. It holds no refund.create, so a refund it decides goes to
+      // finance for approval.
+      Permission.DISPUTE_VIEW,
+      Permission.DISPUTE_MANAGE,
       // Reads a company application to answer a buyer asking where theirs is.
       // Does not decide one.
       Permission.BUYER_COMPANY_READ,
@@ -382,6 +415,9 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       // decision - nor LOGISTICS_INTEGRATION_WRITE, which holds a credential.
       Permission.LOGISTICS_READ,
       Permission.LOGISTICS_ASSIGN,
+      // Sees whether an order is held for inspection, and why. Cannot release
+      // it - that is a two-person decision above an order clerk.
+      Permission.INSPECTION_READ,
       Permission.PAYMENT_READ,
       // Reads an invoice to answer a customer asking for a copy; does not
       // raise one, the same split the SOP draws between fulfilling an order
@@ -409,9 +445,18 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       // Reads a payment question before deciding a refund on it. Does not
       // answer the sender; the order desk does.
       Permission.SUPPORT_TICKET_VIEW,
+      // Disputes move money, so finance decides them and is the second pair
+      // of eyes on a colleague's refund decision.
+      Permission.DISPUTE_VIEW,
+      Permission.DISPUTE_MANAGE,
+      Permission.DISPUTE_APPROVE,
       // Verifying a business before it buys on account is credit work.
       Permission.BUYER_COMPANY_READ,
       Permission.BUYER_COMPANY_REVIEW,
+      // A conditional release lets goods leave that did not pass inspection -
+      // a high-value approval, and one of the two people it needs.
+      Permission.INSPECTION_READ,
+      Permission.INSPECTION_RELEASE,
       Permission.ORDER_READ,
       Permission.ORDER_APPROVE,
       Permission.ORDER_CANCEL,

@@ -8,12 +8,20 @@
  * into sentences. A summary would have to interpret, and interpretation is
  * exactly what an audit trail must not do. Secrets are already redacted
  * server-side before the entry is written.
+ *
+ * The role shown is the one recorded on the entry when it was written, never
+ * the person's role today. Older entries recorded none, and say so.
+ *
+ * "Download CSV" takes the current filter, needs audit.read and
+ * export.create, and is itself written to this log by the server.
  */
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useSession } from '@/auth/session-context';
 import { DataTable, Pager } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
+import { useToast } from '@/components/toast-context';
 import {
   Badge,
   Button,
@@ -25,25 +33,11 @@ import {
   ToolbarActions,
   ToolbarField,
 } from '@/components/ui';
-import { api } from '@/lib/api';
-import { formatDateTime, humanise } from '@/lib/format';
-import type { Pagination } from '@/lib/types';
+import { ApiError } from '@/lib/api';
+import { AUDIT_EXPORT_MAX_ROWS, type AuditEntry, auditLogApi } from '@/lib/audit-log';
+import { formatDateTime, formatNumber, humanise } from '@/lib/format';
+import { Permission, roleLabel } from '@/lib/permissions';
 import { useI18n } from '@/i18n/i18n-context';
-
-interface AuditEntry {
-  id: string;
-  action: string;
-  resourceType: string;
-  resourceId: string | null;
-  actorType: string;
-  actorUserId: string | null;
-  actorEmail: string | null;
-  before: unknown;
-  after: unknown;
-  ipAddress: string | null;
-  correlationId: string | null;
-  createdAt: string;
-}
 
 const RESOURCE_TYPES = [
   'user',
@@ -55,6 +49,8 @@ const RESOURCE_TYPES = [
   'recurring_schedule',
   'payment_provider_connection',
   'import_job',
+  'export_job',
+  'audit_log',
 ] as const;
 
 function JsonBlock({ label, value }: { label: string; value: unknown }): React.JSX.Element {
@@ -102,6 +98,8 @@ function DetailToggle({ entry }: { entry: AuditEntry }): React.JSX.Element {
 
 export function AuditPage(): React.JSX.Element {
   const { t } = useI18n();
+  const { can } = useSession();
+  const toast = useToast();
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -111,19 +109,32 @@ export function AuditPage(): React.JSX.Element {
   const resourceType = searchParams.get('resourceType') ?? '';
 
   const hasFilters = action !== '' || actorEmail !== '' || resourceType !== '';
+  // The server checks both; hiding the button only spares a refusal.
+  const canExport = can(Permission.AUDIT_READ) && can(Permission.EXPORT_CREATE);
 
   const query = useQuery({
     queryKey: ['audit', { page, action, actorEmail, resourceType }],
-    queryFn: () =>
-      api.get<{ entries: AuditEntry[]; pagination: Pagination }>('/admin/audit-logs', {
-        query: {
-          page,
-          limit: 25,
-          action: action === '' ? undefined : action,
-          actorEmail: actorEmail === '' ? undefined : actorEmail,
-          resourceType: resourceType === '' ? undefined : resourceType,
-        },
-      }),
+    queryFn: () => auditLogApi.list({ page, limit: 25, action, actorEmail, resourceType }),
+  });
+
+  const download = useMutation({
+    mutationFn: () => auditLogApi.exportCsv({ action, actorEmail, resourceType }),
+    onSuccess: ({ rows, total }) => {
+      if (total > rows) {
+        toast.info(
+          t('audit.exportTruncated', { rows: formatNumber(rows), total: formatNumber(total) }),
+        );
+      } else {
+        toast.success(t('audit.exportDone', { rows: formatNumber(rows) }));
+      }
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof ApiError && error.status === 403
+          ? t('audit.exportNotAllowed')
+          : t('audit.exportFailed'),
+      );
+    },
   });
 
   const setParam = (key: string, value: string): void => {
@@ -134,6 +145,13 @@ export function AuditPage(): React.JSX.Element {
       next.delete('page');
       return next;
     });
+  };
+
+  const deviceText = (row: AuditEntry): string | null => {
+    if (row.device === null) return null;
+    const { browser, os } = row.device;
+    if (browser !== null && os !== null) return t('audit.browserOnOs', { browser, os });
+    return browser ?? os ?? t('audit.unknownDevice');
   };
 
   const columns: Column<AuditEntry>[] = [
@@ -160,8 +178,20 @@ export function AuditPage(): React.JSX.Element {
             {row.actorEmail ??
               (row.actorType === 'SYSTEM' ? t('audit.theSystem') : humanise(row.actorType))}
           </p>
-          {row.ipAddress !== null && (
-            <p className="font-mono text-xxs text-ink-subtle">{row.ipAddress}</p>
+          {row.actorRoles !== null && row.actorRoles.length > 0 ? (
+            <div
+              className="mt-1 flex flex-wrap gap-1"
+              title={t('audit.roleAtTheTime')}
+              aria-label={t('audit.roleAtTheTime')}
+            >
+              {row.actorRoles.map((role) => (
+                <Badge key={role}>{roleLabel(role)}</Badge>
+              ))}
+            </div>
+          ) : (
+            row.actorUserId !== null && (
+              <p className="text-xxs text-ink-subtle">{t('audit.roleNotRecorded')}</p>
+            )
           )}
         </div>
       ),
@@ -178,6 +208,41 @@ export function AuditPage(): React.JSX.Element {
           )}
         </div>
       ),
+    },
+    {
+      key: 'reason',
+      header: t('audit.reason'),
+      render: (row) =>
+        row.reason === null ? (
+          <span className="text-ink-subtle">—</span>
+        ) : (
+          <p className="max-w-56 break-words text-xs text-ink">{row.reason}</p>
+        ),
+    },
+    {
+      key: 'source',
+      header: t('audit.source'),
+      secondary: true,
+      render: (row) => {
+        const device = deviceText(row);
+        if (row.ipAddress === null && device === null) {
+          return <span className="text-ink-subtle">—</span>;
+        }
+        return (
+          <div className="min-w-32">
+            {row.ipAddress !== null && (
+              <p className="font-mono text-xxs text-ink">{row.ipAddress}</p>
+            )}
+            {device !== null && (
+              // The summary is an interpretation; the header it came from is
+              // one hover away, and in the CSV unchanged.
+              <p className="text-xxs text-ink-subtle" title={row.userAgent ?? undefined}>
+                {device}
+              </p>
+            )}
+          </div>
+        );
+      },
     },
     { key: 'detail', header: t('label.detail'), render: (row) => <DetailToggle entry={row} /> },
     {
@@ -198,7 +263,28 @@ export function AuditPage(): React.JSX.Element {
 
   return (
     <>
-      <PageHeader title={t('audit.auditLog')} description={t('audit.whoChangedWhatWhenAnd')} />
+      <PageHeader
+        title={t('audit.auditLog')}
+        description={t('audit.whoChangedWhatWhenAnd')}
+        actions={
+          canExport ? (
+            <Button
+              onClick={() => {
+                download.mutate();
+              }}
+              disabled={download.isPending}
+              aria-describedby="audit-export-hint"
+            >
+              {download.isPending ? t('audit.exporting') : t('audit.downloadCsv')}
+            </Button>
+          ) : undefined
+        }
+      />
+      {canExport && (
+        <p id="audit-export-hint" className="-mt-2 mb-3 text-xs text-ink-subtle">
+          {t('audit.exportHint', { max: formatNumber(AUDIT_EXPORT_MAX_ROWS) })}
+        </p>
+      )}
 
       <Card>
         <Toolbar>
@@ -277,7 +363,7 @@ export function AuditPage(): React.JSX.Element {
           isRefreshing={query.isFetching && !query.isPending}
           error={query.isError ? query.error : undefined}
           loadingLabel={t('audit.loadingTheAuditLog')}
-          minWidth="68rem"
+          minWidth="80rem"
           onRetry={() => {
             void query.refetch();
           }}

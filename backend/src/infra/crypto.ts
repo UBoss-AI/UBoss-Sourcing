@@ -28,7 +28,8 @@ import {
   verify as argon2Verify,
   type HashOptions,
 } from 'argon2';
-import { secretsEncryptionKey } from '../config/env.js';
+import { env } from '../config/env.js';
+import { fingerprint, loadKeyring, type Keyring } from './key-management.js';
 
 // --- Passwords -------------------------------------------------------------
 
@@ -171,6 +172,34 @@ export function safeCompare(a: string, b: string): boolean {
 
 // --- Reversible secrets (AES-256-GCM) --------------------------------------
 
+/**
+ * The vault's keys: one current, any number previous. Loaded once, at import,
+ * from whichever provider SECRETS_KEY_PROVIDER names - see key-management.ts.
+ * A provider that cannot produce a key stops the process here, before anything
+ * could write a credential nobody can read back.
+ */
+let keyring: Keyring = loadKeyring(env);
+
+/** Which provider supplied the keys, and how many previous ones are loaded. */
+export function keyringSummary(): { provider: string; previousKeys: number } {
+  return { provider: keyring.provider, previousKeys: keyring.previous.length };
+}
+
+/** A loggable label for the current vault key - never the key. */
+export function vaultKeyFingerprint(): string {
+  return fingerprint(keyring.current);
+}
+
+/** Fingerprints of the previous keys still loaded, oldest last. */
+export function previousKeyFingerprints(): string[] {
+  return keyring.previous.map((key) => fingerprint(key));
+}
+
+/** Replace the keyring. For the re-encryption CLI's tests and nothing else. */
+export function useKeyringForTests(next: Keyring): void {
+  keyring = next;
+}
+
 const GCM_IV_BYTES = 12;
 const GCM_TAG_BYTES = 16;
 const ENVELOPE_VERSION = 'v1';
@@ -186,7 +215,7 @@ const ENVELOPE_VERSION = 'v1';
  */
 export function encryptSecret(plaintext: string, aad?: string): string {
   const iv = randomBytes(GCM_IV_BYTES);
-  const cipher = createCipheriv('aes-256-gcm', secretsEncryptionKey, iv, {
+  const cipher = createCipheriv('aes-256-gcm', keyring.current, iv, {
     authTagLength: GCM_TAG_BYTES,
   });
 
@@ -221,13 +250,40 @@ export function decryptSecret(envelope: string, aad?: string): string {
     throw new SecretDecryptionError(`Unsupported secret envelope version: ${String(version)}`);
   }
 
+  // Current key first - it holds almost everything - then each previous key.
+  // A wrong key fails GCM's tag check, so trying one is safe.
+  for (const key of [keyring.current, ...keyring.previous]) {
+    const plaintext = openWith(key, ivPart, tagPart, ciphertextPart, aad);
+    if (plaintext !== null) return plaintext;
+  }
+
+  // The underlying message can hint at key state; keep it out of the throw.
+  throw new SecretDecryptionError(
+    'Secret could not be decrypted (wrong key, tampered ciphertext, or context mismatch)',
+  );
+}
+
+/**
+ * True when this envelope opens with the CURRENT key - false when only a
+ * previous key opens it (it still needs re-encrypting) or none does.
+ */
+export function isUnderCurrentKey(envelope: string, aad?: string): boolean {
+  const [version, ivPart, tagPart, ciphertextPart, extra] = envelope.split(':');
+  if (version !== ENVELOPE_VERSION || extra !== undefined) return false;
+  return openWith(keyring.current, ivPart, tagPart, ciphertextPart, aad) !== null;
+}
+
+function openWith(
+  key: Buffer,
+  ivPart: string | undefined,
+  tagPart: string | undefined,
+  ciphertextPart: string | undefined,
+  aad: string | undefined,
+): string | null {
   try {
-    const decipher = createDecipheriv(
-      'aes-256-gcm',
-      secretsEncryptionKey,
-      Buffer.from(ivPart ?? '', 'base64url'),
-      { authTagLength: GCM_TAG_BYTES },
-    );
+    const decipher = createDecipheriv('aes-256-gcm', key, Buffer.from(ivPart ?? '', 'base64url'), {
+      authTagLength: GCM_TAG_BYTES,
+    });
 
     decipher.setAuthTag(Buffer.from(tagPart ?? '', 'base64url'));
     if (aad !== undefined) decipher.setAAD(Buffer.from(aad, 'utf8'));
@@ -236,13 +292,8 @@ export function decryptSecret(envelope: string, aad?: string): string {
       decipher.update(Buffer.from(ciphertextPart ?? '', 'base64url')),
       decipher.final(),
     ]).toString('utf8');
-  } catch (error) {
-    // The underlying message can hint at key state; keep it out of the throw.
-    throw new SecretDecryptionError(
-      `Secret could not be decrypted (wrong key, tampered ciphertext, or context mismatch)${
-        error instanceof Error ? '' : ''
-      }`,
-    );
+  } catch {
+    return null;
   }
 }
 

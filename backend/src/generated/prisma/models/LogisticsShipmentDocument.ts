@@ -56,6 +56,7 @@ export type LogisticsShipmentDocumentMinAggregateOutputType = {
   uploadedBySource: $Enums.LogisticsEventSource | null
   createdAt: Date | null
   deletedAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsShipmentDocumentMaxAggregateOutputType = {
@@ -75,6 +76,7 @@ export type LogisticsShipmentDocumentMaxAggregateOutputType = {
   uploadedBySource: $Enums.LogisticsEventSource | null
   createdAt: Date | null
   deletedAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsShipmentDocumentCountAggregateOutputType = {
@@ -94,6 +96,7 @@ export type LogisticsShipmentDocumentCountAggregateOutputType = {
   uploadedBySource: number
   createdAt: number
   deletedAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -123,6 +126,7 @@ export type LogisticsShipmentDocumentMinAggregateInputType = {
   uploadedBySource?: true
   createdAt?: true
   deletedAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsShipmentDocumentMaxAggregateInputType = {
@@ -142,6 +146,7 @@ export type LogisticsShipmentDocumentMaxAggregateInputType = {
   uploadedBySource?: true
   createdAt?: true
   deletedAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsShipmentDocumentCountAggregateInputType = {
@@ -161,6 +166,7 @@ export type LogisticsShipmentDocumentCountAggregateInputType = {
   uploadedBySource?: true
   createdAt?: true
   deletedAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -267,6 +273,7 @@ export type LogisticsShipmentDocumentGroupByOutputType = {
   uploadedBySource: $Enums.LogisticsEventSource
   createdAt: Date
   deletedAt: Date | null
+  updatedAt: Date
   _count: LogisticsShipmentDocumentCountAggregateOutputType | null
   _avg: LogisticsShipmentDocumentAvgAggregateOutputType | null
   _sum: LogisticsShipmentDocumentSumAggregateOutputType | null
@@ -309,6 +316,7 @@ export type LogisticsShipmentDocumentWhereInput = {
   uploadedBySource?: Prisma.EnumLogisticsEventSourceFilter<"LogisticsShipmentDocument"> | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFilter<"LogisticsShipmentDocument"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"LogisticsShipmentDocument"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsShipmentDocument"> | Date | string
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentScalarRelationFilter, Prisma.LogisticsShipmentWhereInput>
 }
 
@@ -329,6 +337,7 @@ export type LogisticsShipmentDocumentOrderByWithRelationInput = {
   uploadedBySource?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   shipment?: Prisma.LogisticsShipmentOrderByWithRelationInput
   _relevance?: Prisma.LogisticsShipmentDocumentOrderByRelevanceInput
 }
@@ -353,6 +362,7 @@ export type LogisticsShipmentDocumentWhereUniqueInput = Prisma.AtLeast<{
   uploadedBySource?: Prisma.EnumLogisticsEventSourceFilter<"LogisticsShipmentDocument"> | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFilter<"LogisticsShipmentDocument"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"LogisticsShipmentDocument"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsShipmentDocument"> | Date | string
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentScalarRelationFilter, Prisma.LogisticsShipmentWhereInput>
 }, "id">
 
@@ -373,6 +383,7 @@ export type LogisticsShipmentDocumentOrderByWithAggregationInput = {
   uploadedBySource?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LogisticsShipmentDocumentCountOrderByAggregateInput
   _avg?: Prisma.LogisticsShipmentDocumentAvgOrderByAggregateInput
   _max?: Prisma.LogisticsShipmentDocumentMaxOrderByAggregateInput
@@ -400,6 +411,7 @@ export type LogisticsShipmentDocumentScalarWhereWithAggregatesInput = {
   uploadedBySource?: Prisma.EnumLogisticsEventSourceWithAggregatesFilter<"LogisticsShipmentDocument"> | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsShipmentDocument"> | Date | string
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsShipmentDocument"> | Date | string | null
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsShipmentDocument"> | Date | string
 }
 
 export type LogisticsShipmentDocumentCreateInput = {
@@ -418,6 +430,7 @@ export type LogisticsShipmentDocumentCreateInput = {
   uploadedBySource?: $Enums.LogisticsEventSource
   createdAt?: Date | string
   deletedAt?: Date | string | null
+  updatedAt?: Date | string
   shipment: Prisma.LogisticsShipmentCreateNestedOneWithoutDocumentsInput
 }
 
@@ -438,6 +451,7 @@ export type LogisticsShipmentDocumentUncheckedCreateInput = {
   uploadedBySource?: $Enums.LogisticsEventSource
   createdAt?: Date | string
   deletedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentDocumentUpdateInput = {
@@ -456,6 +470,7 @@ export type LogisticsShipmentDocumentUpdateInput = {
   uploadedBySource?: Prisma.EnumLogisticsEventSourceFieldUpdateOperationsInput | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shipment?: Prisma.LogisticsShipmentUpdateOneRequiredWithoutDocumentsNestedInput
 }
 
@@ -476,6 +491,7 @@ export type LogisticsShipmentDocumentUncheckedUpdateInput = {
   uploadedBySource?: Prisma.EnumLogisticsEventSourceFieldUpdateOperationsInput | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentDocumentCreateManyInput = {
@@ -495,6 +511,7 @@ export type LogisticsShipmentDocumentCreateManyInput = {
   uploadedBySource?: $Enums.LogisticsEventSource
   createdAt?: Date | string
   deletedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentDocumentUpdateManyMutationInput = {
@@ -513,6 +530,7 @@ export type LogisticsShipmentDocumentUpdateManyMutationInput = {
   uploadedBySource?: Prisma.EnumLogisticsEventSourceFieldUpdateOperationsInput | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentDocumentUncheckedUpdateManyInput = {
@@ -532,6 +550,7 @@ export type LogisticsShipmentDocumentUncheckedUpdateManyInput = {
   uploadedBySource?: Prisma.EnumLogisticsEventSourceFieldUpdateOperationsInput | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentDocumentListRelationFilter = {
@@ -567,6 +586,7 @@ export type LogisticsShipmentDocumentCountOrderByAggregateInput = {
   uploadedBySource?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsShipmentDocumentAvgOrderByAggregateInput = {
@@ -590,6 +610,7 @@ export type LogisticsShipmentDocumentMaxOrderByAggregateInput = {
   uploadedBySource?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsShipmentDocumentMinOrderByAggregateInput = {
@@ -609,6 +630,7 @@ export type LogisticsShipmentDocumentMinOrderByAggregateInput = {
   uploadedBySource?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsShipmentDocumentSumOrderByAggregateInput = {
@@ -681,6 +703,7 @@ export type LogisticsShipmentDocumentCreateWithoutShipmentInput = {
   uploadedBySource?: $Enums.LogisticsEventSource
   createdAt?: Date | string
   deletedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentDocumentUncheckedCreateWithoutShipmentInput = {
@@ -699,6 +722,7 @@ export type LogisticsShipmentDocumentUncheckedCreateWithoutShipmentInput = {
   uploadedBySource?: $Enums.LogisticsEventSource
   createdAt?: Date | string
   deletedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentDocumentCreateOrConnectWithoutShipmentInput = {
@@ -747,6 +771,7 @@ export type LogisticsShipmentDocumentScalarWhereInput = {
   uploadedBySource?: Prisma.EnumLogisticsEventSourceFilter<"LogisticsShipmentDocument"> | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFilter<"LogisticsShipmentDocument"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"LogisticsShipmentDocument"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsShipmentDocument"> | Date | string
 }
 
 export type LogisticsShipmentDocumentCreateManyShipmentInput = {
@@ -765,6 +790,7 @@ export type LogisticsShipmentDocumentCreateManyShipmentInput = {
   uploadedBySource?: $Enums.LogisticsEventSource
   createdAt?: Date | string
   deletedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentDocumentUpdateWithoutShipmentInput = {
@@ -783,6 +809,7 @@ export type LogisticsShipmentDocumentUpdateWithoutShipmentInput = {
   uploadedBySource?: Prisma.EnumLogisticsEventSourceFieldUpdateOperationsInput | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentDocumentUncheckedUpdateWithoutShipmentInput = {
@@ -801,6 +828,7 @@ export type LogisticsShipmentDocumentUncheckedUpdateWithoutShipmentInput = {
   uploadedBySource?: Prisma.EnumLogisticsEventSourceFieldUpdateOperationsInput | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentInput = {
@@ -819,6 +847,7 @@ export type LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentInput = {
   uploadedBySource?: Prisma.EnumLogisticsEventSourceFieldUpdateOperationsInput | $Enums.LogisticsEventSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -840,6 +869,7 @@ export type LogisticsShipmentDocumentSelect<ExtArgs extends runtime.Types.Extens
   uploadedBySource?: boolean
   createdAt?: boolean
   deletedAt?: boolean
+  updatedAt?: boolean
   shipment?: boolean | Prisma.LogisticsShipmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["logisticsShipmentDocument"]>
 
@@ -862,9 +892,10 @@ export type LogisticsShipmentDocumentSelectScalar = {
   uploadedBySource?: boolean
   createdAt?: boolean
   deletedAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LogisticsShipmentDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "shipmentId" | "kind" | "audience" | "fileName" | "contentType" | "sizeBytes" | "storageKey" | "contentHash" | "scanState" | "scannedAt" | "scanDetail" | "uploadedByUserId" | "uploadedBySource" | "createdAt" | "deletedAt", ExtArgs["result"]["logisticsShipmentDocument"]>
+export type LogisticsShipmentDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "shipmentId" | "kind" | "audience" | "fileName" | "contentType" | "sizeBytes" | "storageKey" | "contentHash" | "scanState" | "scannedAt" | "scanDetail" | "uploadedByUserId" | "uploadedBySource" | "createdAt" | "deletedAt" | "updatedAt", ExtArgs["result"]["logisticsShipmentDocument"]>
 export type LogisticsShipmentDocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   shipment?: boolean | Prisma.LogisticsShipmentDefaultArgs<ExtArgs>
 }
@@ -903,6 +934,7 @@ export type $LogisticsShipmentDocumentPayload<ExtArgs extends runtime.Types.Exte
      * that it once existed.
      */
     deletedAt: Date | null
+    updatedAt: Date
   }, ExtArgs["result"]["logisticsShipmentDocument"]>
   composites: {}
 }
@@ -1289,6 +1321,7 @@ export interface LogisticsShipmentDocumentFieldRefs {
   readonly uploadedBySource: Prisma.FieldRef<"LogisticsShipmentDocument", 'LogisticsEventSource'>
   readonly createdAt: Prisma.FieldRef<"LogisticsShipmentDocument", 'DateTime'>
   readonly deletedAt: Prisma.FieldRef<"LogisticsShipmentDocument", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LogisticsShipmentDocument", 'DateTime'>
 }
     
 

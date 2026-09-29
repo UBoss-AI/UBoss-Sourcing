@@ -63,7 +63,37 @@ export async function syncSettlementRefunds(orderId: string, tx: Tx): Promise<Se
   });
   const operatorLineCount = await tx.orderItem.count({ where: { orderId, sellerOfferId: null } });
 
+  // Refunds issued for a return of one seller's goods name that seller.
+  const returnRefundRows = await tx.returnRequest.findMany({
+    where: {
+      orderId,
+      sellerOrderGroupId: { not: null },
+      refund: { status: 'SUCCEEDED', currency: order.currency },
+    },
+    select: {
+      sellerOrderGroupId: true,
+      refund: { select: { amountMinor: true } },
+      sellerOrderGroup: {
+        select: { goodsTotalMinor: true, taxTotalMinor: true, shippingTotalMinor: true },
+      },
+    },
+  });
+  const returnRefundsByGroup = new Map<string, { amountMinor: bigint; groupTotalMinor: bigint }>();
+  for (const row of returnRefundRows) {
+    if (row.sellerOrderGroupId === null || row.refund === null || row.sellerOrderGroup === null) continue;
+    const entry = returnRefundsByGroup.get(row.sellerOrderGroupId) ?? {
+      amountMinor: 0n,
+      groupTotalMinor:
+        row.sellerOrderGroup.goodsTotalMinor +
+        row.sellerOrderGroup.taxTotalMinor +
+        row.sellerOrderGroup.shippingTotalMinor,
+    };
+    entry.amountMinor += row.refund.amountMinor;
+    returnRefundsByGroup.set(row.sellerOrderGroupId, entry);
+  }
+
   const attribution = attributeRefundsToSellers({
+    returnRefunds: [...returnRefundsByGroup].map(([groupId, entry]) => ({ groupId, ...entry })),
     succeededRefundsMinor: succeeded._sum.amountMinor ?? 0n,
     paidMinor: order.paidMinor,
     grandTotalMinor: order.grandTotalMinor,

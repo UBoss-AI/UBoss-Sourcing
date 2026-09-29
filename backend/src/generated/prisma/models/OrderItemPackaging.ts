@@ -102,6 +102,7 @@ export type OrderItemPackagingMinAggregateOutputType = {
   incotermSnapshot: string | null
   originPortLabelSnapshot: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type OrderItemPackagingMaxAggregateOutputType = {
@@ -135,6 +136,7 @@ export type OrderItemPackagingMaxAggregateOutputType = {
   incotermSnapshot: string | null
   originPortLabelSnapshot: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type OrderItemPackagingCountAggregateOutputType = {
@@ -168,6 +170,7 @@ export type OrderItemPackagingCountAggregateOutputType = {
   incotermSnapshot: number
   originPortLabelSnapshot: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -241,6 +244,7 @@ export type OrderItemPackagingMinAggregateInputType = {
   incotermSnapshot?: true
   originPortLabelSnapshot?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type OrderItemPackagingMaxAggregateInputType = {
@@ -274,6 +278,7 @@ export type OrderItemPackagingMaxAggregateInputType = {
   incotermSnapshot?: true
   originPortLabelSnapshot?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type OrderItemPackagingCountAggregateInputType = {
@@ -307,6 +312,7 @@ export type OrderItemPackagingCountAggregateInputType = {
   incotermSnapshot?: true
   originPortLabelSnapshot?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -427,6 +433,7 @@ export type OrderItemPackagingGroupByOutputType = {
   incotermSnapshot: string | null
   originPortLabelSnapshot: string | null
   createdAt: Date
+  updatedAt: Date
   _count: OrderItemPackagingCountAggregateOutputType | null
   _avg: OrderItemPackagingAvgAggregateOutputType | null
   _sum: OrderItemPackagingSumAggregateOutputType | null
@@ -483,6 +490,7 @@ export type OrderItemPackagingWhereInput = {
   incotermSnapshot?: Prisma.StringNullableFilter<"OrderItemPackaging"> | string | null
   originPortLabelSnapshot?: Prisma.StringNullableFilter<"OrderItemPackaging"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrderItemPackaging"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderItemPackaging"> | Date | string
   orderItem?: Prisma.XOR<Prisma.OrderItemScalarRelationFilter, Prisma.OrderItemWhereInput>
 }
 
@@ -517,6 +525,7 @@ export type OrderItemPackagingOrderByWithRelationInput = {
   incotermSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   originPortLabelSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   orderItem?: Prisma.OrderItemOrderByWithRelationInput
   _relevance?: Prisma.OrderItemPackagingOrderByRelevanceInput
 }
@@ -555,6 +564,7 @@ export type OrderItemPackagingWhereUniqueInput = Prisma.AtLeast<{
   incotermSnapshot?: Prisma.StringNullableFilter<"OrderItemPackaging"> | string | null
   originPortLabelSnapshot?: Prisma.StringNullableFilter<"OrderItemPackaging"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrderItemPackaging"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderItemPackaging"> | Date | string
   orderItem?: Prisma.XOR<Prisma.OrderItemScalarRelationFilter, Prisma.OrderItemWhereInput>
 }, "id" | "orderItemId">
 
@@ -589,6 +599,7 @@ export type OrderItemPackagingOrderByWithAggregationInput = {
   incotermSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   originPortLabelSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrderItemPackagingCountOrderByAggregateInput
   _avg?: Prisma.OrderItemPackagingAvgOrderByAggregateInput
   _max?: Prisma.OrderItemPackagingMaxOrderByAggregateInput
@@ -630,6 +641,7 @@ export type OrderItemPackagingScalarWhereWithAggregatesInput = {
   incotermSnapshot?: Prisma.StringNullableWithAggregatesFilter<"OrderItemPackaging"> | string | null
   originPortLabelSnapshot?: Prisma.StringNullableWithAggregatesFilter<"OrderItemPackaging"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OrderItemPackaging"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"OrderItemPackaging"> | Date | string
 }
 
 export type OrderItemPackagingCreateInput = {
@@ -662,6 +674,7 @@ export type OrderItemPackagingCreateInput = {
   incotermSnapshot?: string | null
   originPortLabelSnapshot?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   orderItem: Prisma.OrderItemCreateNestedOneWithoutPackagingInput
 }
 
@@ -696,6 +709,7 @@ export type OrderItemPackagingUncheckedCreateInput = {
   incotermSnapshot?: string | null
   originPortLabelSnapshot?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderItemPackagingUpdateInput = {
@@ -728,6 +742,7 @@ export type OrderItemPackagingUpdateInput = {
   incotermSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originPortLabelSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orderItem?: Prisma.OrderItemUpdateOneRequiredWithoutPackagingNestedInput
 }
 
@@ -762,6 +777,7 @@ export type OrderItemPackagingUncheckedUpdateInput = {
   incotermSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originPortLabelSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderItemPackagingCreateManyInput = {
@@ -795,6 +811,7 @@ export type OrderItemPackagingCreateManyInput = {
   incotermSnapshot?: string | null
   originPortLabelSnapshot?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderItemPackagingUpdateManyMutationInput = {
@@ -827,6 +844,7 @@ export type OrderItemPackagingUpdateManyMutationInput = {
   incotermSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originPortLabelSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderItemPackagingUncheckedUpdateManyInput = {
@@ -860,6 +878,7 @@ export type OrderItemPackagingUncheckedUpdateManyInput = {
   incotermSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originPortLabelSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderItemPackagingNullableScalarRelationFilter = {
@@ -904,6 +923,7 @@ export type OrderItemPackagingCountOrderByAggregateInput = {
   incotermSnapshot?: Prisma.SortOrder
   originPortLabelSnapshot?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderItemPackagingAvgOrderByAggregateInput = {
@@ -956,6 +976,7 @@ export type OrderItemPackagingMaxOrderByAggregateInput = {
   incotermSnapshot?: Prisma.SortOrder
   originPortLabelSnapshot?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderItemPackagingMinOrderByAggregateInput = {
@@ -989,6 +1010,7 @@ export type OrderItemPackagingMinOrderByAggregateInput = {
   incotermSnapshot?: Prisma.SortOrder
   originPortLabelSnapshot?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderItemPackagingSumOrderByAggregateInput = {
@@ -1072,6 +1094,7 @@ export type OrderItemPackagingCreateWithoutOrderItemInput = {
   incotermSnapshot?: string | null
   originPortLabelSnapshot?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderItemPackagingUncheckedCreateWithoutOrderItemInput = {
@@ -1104,6 +1127,7 @@ export type OrderItemPackagingUncheckedCreateWithoutOrderItemInput = {
   incotermSnapshot?: string | null
   originPortLabelSnapshot?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderItemPackagingCreateOrConnectWithoutOrderItemInput = {
@@ -1152,6 +1176,7 @@ export type OrderItemPackagingUpdateWithoutOrderItemInput = {
   incotermSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originPortLabelSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderItemPackagingUncheckedUpdateWithoutOrderItemInput = {
@@ -1184,6 +1209,7 @@ export type OrderItemPackagingUncheckedUpdateWithoutOrderItemInput = {
   incotermSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originPortLabelSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1219,6 +1245,7 @@ export type OrderItemPackagingSelect<ExtArgs extends runtime.Types.Extensions.In
   incotermSnapshot?: boolean
   originPortLabelSnapshot?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   orderItem?: boolean | Prisma.OrderItemDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["orderItemPackaging"]>
 
@@ -1255,9 +1282,10 @@ export type OrderItemPackagingSelectScalar = {
   incotermSnapshot?: boolean
   originPortLabelSnapshot?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type OrderItemPackagingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderItemId" | "packageType" | "palletStandard" | "containerType" | "containerLoadMode" | "containerLoadingMethod" | "packageQuantity" | "unitsPerPackage" | "totalBaseUnits" | "unitsPerCarton" | "cartonsPerPallet" | "palletsPerContainer" | "cartonsPerContainer" | "lengthMm" | "widthMm" | "heightMm" | "grossWeightGrams" | "cargoVolumeCm3" | "packagePriceMinor" | "unitPriceMinor" | "currency" | "appliedTierMinPackages" | "profileVersion" | "snapshotAt" | "requiresFreightQuote" | "packageSkuSnapshot" | "incotermSnapshot" | "originPortLabelSnapshot" | "createdAt", ExtArgs["result"]["orderItemPackaging"]>
+export type OrderItemPackagingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderItemId" | "packageType" | "palletStandard" | "containerType" | "containerLoadMode" | "containerLoadingMethod" | "packageQuantity" | "unitsPerPackage" | "totalBaseUnits" | "unitsPerCarton" | "cartonsPerPallet" | "palletsPerContainer" | "cartonsPerContainer" | "lengthMm" | "widthMm" | "heightMm" | "grossWeightGrams" | "cargoVolumeCm3" | "packagePriceMinor" | "unitPriceMinor" | "currency" | "appliedTierMinPackages" | "profileVersion" | "snapshotAt" | "requiresFreightQuote" | "packageSkuSnapshot" | "incotermSnapshot" | "originPortLabelSnapshot" | "createdAt" | "updatedAt", ExtArgs["result"]["orderItemPackaging"]>
 export type OrderItemPackagingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orderItem?: boolean | Prisma.OrderItemDefaultArgs<ExtArgs>
 }
@@ -1302,6 +1330,7 @@ export type $OrderItemPackagingPayload<ExtArgs extends runtime.Types.Extensions.
     incotermSnapshot: string | null
     originPortLabelSnapshot: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["orderItemPackaging"]>
   composites: {}
 }
@@ -1702,6 +1731,7 @@ export interface OrderItemPackagingFieldRefs {
   readonly incotermSnapshot: Prisma.FieldRef<"OrderItemPackaging", 'String'>
   readonly originPortLabelSnapshot: Prisma.FieldRef<"OrderItemPackaging", 'String'>
   readonly createdAt: Prisma.FieldRef<"OrderItemPackaging", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"OrderItemPackaging", 'DateTime'>
 }
     
 

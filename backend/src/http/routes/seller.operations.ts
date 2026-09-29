@@ -77,6 +77,8 @@ import {
   requestFreightQuote,
 } from '../../modules/seller/freight-quote.service.js';
 import { currentSeller, requireSeller, requireTradingSeller } from '../plugins/seller.js';
+import { currentUser } from '../plugins/auth.js';
+import { assertRecentStepUp } from '../../modules/identity/customer-mfa.service.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 
@@ -682,6 +684,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
           refreshUrl: z.string().trim().url().max(1024),
         })
         .parse(request.body);
+
+      // Connecting the account the business is paid into is exactly the act
+      // an intruder wants: confirm it is still the member at the keyboard.
+      assertRecentStepUp(currentUser(request));
 
       const link = await startPayoutOnboarding(
         currentSeller(request),

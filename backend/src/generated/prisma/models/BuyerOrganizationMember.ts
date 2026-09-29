@@ -38,6 +38,7 @@ export type BuyerOrganizationMemberMinAggregateOutputType = {
   invitedByProfileId: string | null
   joinedAt: Date | null
   updatedAt: Date | null
+  createdAt: Date | null
 }
 
 export type BuyerOrganizationMemberMaxAggregateOutputType = {
@@ -48,6 +49,7 @@ export type BuyerOrganizationMemberMaxAggregateOutputType = {
   invitedByProfileId: string | null
   joinedAt: Date | null
   updatedAt: Date | null
+  createdAt: Date | null
 }
 
 export type BuyerOrganizationMemberCountAggregateOutputType = {
@@ -58,6 +60,7 @@ export type BuyerOrganizationMemberCountAggregateOutputType = {
   invitedByProfileId: number
   joinedAt: number
   updatedAt: number
+  createdAt: number
   _all: number
 }
 
@@ -70,6 +73,7 @@ export type BuyerOrganizationMemberMinAggregateInputType = {
   invitedByProfileId?: true
   joinedAt?: true
   updatedAt?: true
+  createdAt?: true
 }
 
 export type BuyerOrganizationMemberMaxAggregateInputType = {
@@ -80,6 +84,7 @@ export type BuyerOrganizationMemberMaxAggregateInputType = {
   invitedByProfileId?: true
   joinedAt?: true
   updatedAt?: true
+  createdAt?: true
 }
 
 export type BuyerOrganizationMemberCountAggregateInputType = {
@@ -90,6 +95,7 @@ export type BuyerOrganizationMemberCountAggregateInputType = {
   invitedByProfileId?: true
   joinedAt?: true
   updatedAt?: true
+  createdAt?: true
   _all?: true
 }
 
@@ -173,6 +179,7 @@ export type BuyerOrganizationMemberGroupByOutputType = {
   invitedByProfileId: string | null
   joinedAt: Date
   updatedAt: Date
+  createdAt: Date
   _count: BuyerOrganizationMemberCountAggregateOutputType | null
   _min: BuyerOrganizationMemberMinAggregateOutputType | null
   _max: BuyerOrganizationMemberMaxAggregateOutputType | null
@@ -204,6 +211,7 @@ export type BuyerOrganizationMemberWhereInput = {
   invitedByProfileId?: Prisma.StringNullableFilter<"BuyerOrganizationMember"> | string | null
   joinedAt?: Prisma.DateTimeFilter<"BuyerOrganizationMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BuyerOrganizationMember"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"BuyerOrganizationMember"> | Date | string
   organization?: Prisma.XOR<Prisma.BuyerOrganizationScalarRelationFilter, Prisma.BuyerOrganizationWhereInput>
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
 }
@@ -216,6 +224,7 @@ export type BuyerOrganizationMemberOrderByWithRelationInput = {
   invitedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   organization?: Prisma.BuyerOrganizationOrderByWithRelationInput
   customerProfile?: Prisma.CustomerProfileOrderByWithRelationInput
   _relevance?: Prisma.BuyerOrganizationMemberOrderByRelevanceInput
@@ -232,6 +241,7 @@ export type BuyerOrganizationMemberWhereUniqueInput = Prisma.AtLeast<{
   invitedByProfileId?: Prisma.StringNullableFilter<"BuyerOrganizationMember"> | string | null
   joinedAt?: Prisma.DateTimeFilter<"BuyerOrganizationMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BuyerOrganizationMember"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"BuyerOrganizationMember"> | Date | string
   organization?: Prisma.XOR<Prisma.BuyerOrganizationScalarRelationFilter, Prisma.BuyerOrganizationWhereInput>
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
 }, "id" | "customerProfileId">
@@ -244,6 +254,7 @@ export type BuyerOrganizationMemberOrderByWithAggregationInput = {
   invitedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _count?: Prisma.BuyerOrganizationMemberCountOrderByAggregateInput
   _max?: Prisma.BuyerOrganizationMemberMaxOrderByAggregateInput
   _min?: Prisma.BuyerOrganizationMemberMinOrderByAggregateInput
@@ -260,6 +271,7 @@ export type BuyerOrganizationMemberScalarWhereWithAggregatesInput = {
   invitedByProfileId?: Prisma.StringNullableWithAggregatesFilter<"BuyerOrganizationMember"> | string | null
   joinedAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerOrganizationMember"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerOrganizationMember"> | Date | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerOrganizationMember"> | Date | string
 }
 
 export type BuyerOrganizationMemberCreateInput = {
@@ -268,6 +280,7 @@ export type BuyerOrganizationMemberCreateInput = {
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
+  createdAt?: Date | string
   organization: Prisma.BuyerOrganizationCreateNestedOneWithoutMembersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrganizationMembershipInput
 }
@@ -280,6 +293,7 @@ export type BuyerOrganizationMemberUncheckedCreateInput = {
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type BuyerOrganizationMemberUpdateInput = {
@@ -288,6 +302,7 @@ export type BuyerOrganizationMemberUpdateInput = {
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.BuyerOrganizationUpdateOneRequiredWithoutMembersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrganizationMembershipNestedInput
 }
@@ -300,6 +315,7 @@ export type BuyerOrganizationMemberUncheckedUpdateInput = {
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerOrganizationMemberCreateManyInput = {
@@ -310,6 +326,7 @@ export type BuyerOrganizationMemberCreateManyInput = {
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type BuyerOrganizationMemberUpdateManyMutationInput = {
@@ -318,6 +335,7 @@ export type BuyerOrganizationMemberUpdateManyMutationInput = {
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerOrganizationMemberUncheckedUpdateManyInput = {
@@ -328,6 +346,7 @@ export type BuyerOrganizationMemberUncheckedUpdateManyInput = {
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerOrganizationMemberNullableScalarRelationFilter = {
@@ -359,6 +378,7 @@ export type BuyerOrganizationMemberCountOrderByAggregateInput = {
   invitedByProfileId?: Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type BuyerOrganizationMemberMaxOrderByAggregateInput = {
@@ -369,6 +389,7 @@ export type BuyerOrganizationMemberMaxOrderByAggregateInput = {
   invitedByProfileId?: Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type BuyerOrganizationMemberMinOrderByAggregateInput = {
@@ -379,6 +400,7 @@ export type BuyerOrganizationMemberMinOrderByAggregateInput = {
   invitedByProfileId?: Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput = {
@@ -465,6 +487,7 @@ export type BuyerOrganizationMemberCreateWithoutCustomerProfileInput = {
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
+  createdAt?: Date | string
   organization: Prisma.BuyerOrganizationCreateNestedOneWithoutMembersInput
 }
 
@@ -475,6 +498,7 @@ export type BuyerOrganizationMemberUncheckedCreateWithoutCustomerProfileInput = 
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type BuyerOrganizationMemberCreateOrConnectWithoutCustomerProfileInput = {
@@ -499,6 +523,7 @@ export type BuyerOrganizationMemberUpdateWithoutCustomerProfileInput = {
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.BuyerOrganizationUpdateOneRequiredWithoutMembersNestedInput
 }
 
@@ -509,6 +534,7 @@ export type BuyerOrganizationMemberUncheckedUpdateWithoutCustomerProfileInput = 
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerOrganizationMemberCreateWithoutOrganizationInput = {
@@ -517,6 +543,7 @@ export type BuyerOrganizationMemberCreateWithoutOrganizationInput = {
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
+  createdAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrganizationMembershipInput
 }
 
@@ -527,6 +554,7 @@ export type BuyerOrganizationMemberUncheckedCreateWithoutOrganizationInput = {
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type BuyerOrganizationMemberCreateOrConnectWithoutOrganizationInput = {
@@ -566,6 +594,7 @@ export type BuyerOrganizationMemberScalarWhereInput = {
   invitedByProfileId?: Prisma.StringNullableFilter<"BuyerOrganizationMember"> | string | null
   joinedAt?: Prisma.DateTimeFilter<"BuyerOrganizationMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BuyerOrganizationMember"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"BuyerOrganizationMember"> | Date | string
 }
 
 export type BuyerOrganizationMemberCreateManyOrganizationInput = {
@@ -575,6 +604,7 @@ export type BuyerOrganizationMemberCreateManyOrganizationInput = {
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type BuyerOrganizationMemberUpdateWithoutOrganizationInput = {
@@ -583,6 +613,7 @@ export type BuyerOrganizationMemberUpdateWithoutOrganizationInput = {
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrganizationMembershipNestedInput
 }
 
@@ -593,6 +624,7 @@ export type BuyerOrganizationMemberUncheckedUpdateWithoutOrganizationInput = {
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerOrganizationMemberUncheckedUpdateManyWithoutOrganizationInput = {
@@ -602,6 +634,7 @@ export type BuyerOrganizationMemberUncheckedUpdateManyWithoutOrganizationInput =
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -614,6 +647,7 @@ export type BuyerOrganizationMemberSelect<ExtArgs extends runtime.Types.Extensio
   invitedByProfileId?: boolean
   joinedAt?: boolean
   updatedAt?: boolean
+  createdAt?: boolean
   organization?: boolean | Prisma.BuyerOrganizationDefaultArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["buyerOrganizationMember"]>
@@ -628,9 +662,10 @@ export type BuyerOrganizationMemberSelectScalar = {
   invitedByProfileId?: boolean
   joinedAt?: boolean
   updatedAt?: boolean
+  createdAt?: boolean
 }
 
-export type BuyerOrganizationMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "customerProfileId" | "role" | "invitedByProfileId" | "joinedAt" | "updatedAt", ExtArgs["result"]["buyerOrganizationMember"]>
+export type BuyerOrganizationMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "customerProfileId" | "role" | "invitedByProfileId" | "joinedAt" | "updatedAt" | "createdAt", ExtArgs["result"]["buyerOrganizationMember"]>
 export type BuyerOrganizationMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.BuyerOrganizationDefaultArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
@@ -653,6 +688,7 @@ export type $BuyerOrganizationMemberPayload<ExtArgs extends runtime.Types.Extens
     invitedByProfileId: string | null
     joinedAt: Date
     updatedAt: Date
+    createdAt: Date
   }, ExtArgs["result"]["buyerOrganizationMember"]>
   composites: {}
 }
@@ -1031,6 +1067,7 @@ export interface BuyerOrganizationMemberFieldRefs {
   readonly invitedByProfileId: Prisma.FieldRef<"BuyerOrganizationMember", 'String'>
   readonly joinedAt: Prisma.FieldRef<"BuyerOrganizationMember", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"BuyerOrganizationMember", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"BuyerOrganizationMember", 'DateTime'>
 }
     
 

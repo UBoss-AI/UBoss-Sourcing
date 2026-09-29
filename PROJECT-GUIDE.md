@@ -1034,7 +1034,7 @@ on the layout route rather than on each page:
 |---|---|---|
 | `/account` | Redirects to `/account/dashboard` | — |
 | `/account/dashboard` | The buyer's own orders as one ring, with the AI panel beside it | — |
-| `/account/orders` | Order history | Orders |
+| `/account/orders` | Order history, filterable by status (`?status=`, filtered by the API) | Orders |
 | `/account/orders/:id` | One order | Orders |
 | `/account/schedules` | Repeating orders | Orders |
 | `/account/schedules/:id` | One repeating order | Orders |
@@ -1142,7 +1142,10 @@ browsing departments, which is where a floor plan belongs.)
 
 What is left is deliberately not padded out to fill the space they left. The
 brand shrinks and the controls do not, so the gap between them is whatever is
-over. A `flex-1` element in the middle would be a named, measurable hole where
+over. **Below 360px the row tightens so the name still reads**: the earth mark
+drops from 40px to 32px, the account and cart controls lose some padding, and
+the gaps between controls halve. Without that, "Gloviaa" was cut to "G." at
+320px; with it the whole word shows at every width from 320px up. A `flex-1` element in the middle would be a named, measurable hole where
 a control used to be.
 
 **The appearance control is the fifth thing, and the quietest.** It is the
@@ -1360,6 +1363,22 @@ so the filters, facets, pagination and category structure that already exist
 are the ones the results arrive in. An empty box is the whole catalogue rather
 than a no-op. A second grid of search results on the front page would be a
 second definition of "a search result".
+
+**A press is heard once.** The Search button shows a spinner and is disabled
+from the first press until the catalogue arrives, and a second press or a
+second Enter in that time is dropped rather than queued: the catalogue is a
+lazy route, and on a slow connection somebody would otherwise press again.
+How long searches take is measured on the server, in the per-route
+`uboss_http_request_duration_seconds` histogram under
+`/api/v1/catalog/products` — the registered path, never the typed term
+(`tests/integration/search-latency-metrics.test.ts`).
+
+**Products keeps what is typed.** The Products item in the row above the bar
+links to `/products?q=…` whenever there are words in the box, the same page
+Search opens, so switching from Home to the catalogue never throws away what
+somebody typed. Below 360px the three items drop to 14px type with smaller
+gaps, which is what lets "Home", "AI Assistant" and "Products" all fit at
+320px in English.
 
 ### Every item is a link, and two of them used to be tabs
 
@@ -1730,8 +1749,8 @@ directions, and **four** capabilities riding those rings around it.
 |---|---|---|
 | AI Assistant | outer | Goes to `/ai` |
 | Scheduled Orders | inner | Goes to `/account/schedules` |
-| Autopay | inner | Goes to `/account/autopay` |
-| ERP Integration | outer | Explains that a connection is created in the admin panel |
+| Autopay | inner | Goes to `/account/autopay` — or, when Autopay is switched off, explains that it is not offered here |
+| ERP Integration | outer | Goes to `/account/integrations/erp` — or, when that is switched off, explains that it is not offered here |
 
 **Two nodes were removed and should not come back without a screen behind
 them.** *Warehouse Network* and *Inventory Sync* both described the operator's
@@ -1755,7 +1774,22 @@ are `<button>` depending on who is looking:
   is `ASSISTANT_ALLOW_GUESTS`, and with it off the page says so in its own words
   rather than the link refusing to be a link.
 - A capability this deployment has **switched off** (`recurringOrders`,
-  `assistant`) explains that instead of linking to a page that would 404.
+  `assistant`, `customerAutopay`, `customerErp`) explains that instead of
+  linking to a page that would 404. The off check comes **before** the session
+  check, so a guest and a customer read the same note — a guest told to sign in
+  for a feature this deployment does not offer would sign in to find nothing.
+- **Autopay and ERP used to break this rule.** Both used to be off by default
+  (`FEATURE_CUSTOMER_AUTOPAY`, `FEATURE_CUSTOMER_ERP`), yet their cards linked
+  to `/account/autopay` and `/account/integrations/erp` regardless, so a
+  customer pressing them hit a dead end. `GET /api/v1/config` now publishes
+  `features.customerAutopay` — true only when `FEATURE_CUSTOMER_AUTOPAY` **and**
+  `FEATURE_SUBSCRIPTION_AUTOPAY` are both on **and Stripe is connected**,
+  because the page cannot work without all three — and `features.customerErp`
+  (`FEATURE_CUSTOMER_ERP`). All three flags are on by default since 29 Sep 2026. When a
+  flag is off, the card shows a note ("Autopay is not offered on this
+  deployment…", "Connecting your own purchasing system is not offered on this
+  deployment…") in all eight languages. A config without the flags — an older
+  cached one — counts as off.
 - **ERP used to explain itself to everybody and no longer does.** It had no
   customer screen for a long time, because a connection is a URL plus a
   credential this server then calls. It has one now — a buyer connects their
@@ -1838,7 +1872,13 @@ the area it has on a desktop, at which point a lane is three pixels long.
 Nothing at all is the answer when the environment has no
 `WebGL2RenderingContext` (a blocklisted driver, a locked-down browser, jsdom in
 the test suite), when the device reports 4 GB of memory or fewer or four cores
-or fewer, or when the chunk never arrives. That last tier is a finished page
+or fewer, **when the visitor has turned on data saver or the browser measures
+the connection as 3G or slower** (`lib/light-media.ts`, from the Network
+Information API's `saveData` and `effectiveType`; the header's earth mark
+follows the same rule and keeps its letter plate), or when the chunk never
+arrives. On a production build throttled to about 500 kbit/s with 400 ms of
+latency, the search box and the Products link were usable after about 8.5
+seconds and not one byte of the globe was requested. That last tier is a finished page
 too, and it is a good one.
 
 Only when it has rendered a real frame does it call `onActive`, at which point
@@ -4275,7 +4315,7 @@ receives:
 - The business name, support email, support phone, logo, policy links
 - Which currencies and countries this deployment actually sells in
 - Which features are switched on (self-registration, repeating orders, the chat
-  assistant)
+  assistant, the customer's Autopay limits, their own ERP connection)
 - Whether AI Mode and image search should be offered, and which model answers
 
 **Nothing about the business is hard-coded in the frontend.** That is what
@@ -5719,13 +5759,54 @@ honest boundary.
    stock. The Payments screen was already behind the finance key; until the
    endpoint was too, the guard was a decoration a single `fetch` walked past.
 
-   **Nothing produces a statement yet.** Commission is computed and frozen onto
-   each `SellerOrderGroup` at confirmation, and `createPayout` is written and
-   idempotent — but no job rolls delivered groups into a `SellerSettlement`, so
-   the Payments screen shows "No statements yet" however much a seller has
+   **Statements are produced, but only when the operator turns them on.**
+   Until this was built nothing ever created a `SellerSettlement`, so the
+   Payments screen said "No statements yet" however much a seller had
    delivered. What a settlement period is, and when a delivered order becomes
    payable, are the operator's commercial policy rather than something this
-   software should decide on their behalf.
+   software should decide on their behalf, so all three are settings and the
+   feature is **off by default**:
+
+   | Setting | Default | What it decides |
+   |---|---|---|
+   | `FEATURE_SELLER_SETTLEMENT_STATEMENTS` | `false` | Whether statements are produced at all |
+   | `SELLER_SETTLEMENT_PERIOD` | `MONTHLY` | `MONTHLY`: the 1st 00:00 UTC to the next 1st. `WEEKLY`: Monday 00:00 UTC to the next Monday |
+   | `SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS` | **none** | The return window, 0–365 days. An order counts toward a period only if it was delivered at least this many days before the period ended. **With statements on and this unset, the service refuses to start** — it decides money, so it is never guessed |
+
+   With the flag on, a daily worker job (`seller_settlement.close`) closes the
+   last finished period into **one statement per seller and currency**, status
+   `PENDING_PAYOUT`, numbered `STL-YYYY-MM-NNNN` (the month the period
+   started). Orders delivered before the feature was switched on are caught up
+   on the first statement. Each order gets lines copied from its
+   `SellerOrderSettlement` — **never recalculated**:
+
+   | Line kind | Sign | What it is |
+   |---|---|---|
+   | `SALE` | + | The goods |
+   | `SHIPPING_CHARGE` | + | The seller's own delivery proceeds |
+   | `COMMISSION` | − | The platform fee |
+   | `COMMISSION` | − | Tax on the platform fee |
+   | `REFUND` | − | Refunds recorded before the statement |
+
+   Each order is **sold on exactly one statement**. A refund recorded after that
+   statement is carried on the next one as the difference only, so it is never
+   deducted twice and never lost; a refund later given back is added back, as an
+   adjustment. The header is gross (goods plus seller delivery), commission
+   (fee plus fee tax) and net (the sum of the lines), and the identity gross −
+   commission − processing fee − refunds + adjustments = net is checked before
+   anything is written. Closing is idempotent twice over: the unique index
+   `uq_seller_settlement_period_currency` (seller, period start, period end,
+   currency) and row locks on the orders mean a re-run, or two runs at once,
+   write nothing twice.
+
+   **A statement moves no money.** Payouts are still unconfigured (decision
+   D13), and paying a statement is still refused with
+   `SELLER_PAYOUT_PROVIDER_UNCONFIGURED`. The Payments screen shows the period
+   as the days it covers, in UTC ("1 October – 31 October", not "until 1
+   November"), and labels each line by its kind in the reader's language —
+   Sale, Marketplace commission, Your delivery charge, Refund — followed by the
+   seller order number, which is all the stored description holds. The code is
+   `backend/src/modules/seller/settlement-statement.service.ts`.
 2. **Bank verification.** There is no provider that could run the penny-transfer
    check the reference workflow shows, so no verification is claimed.
 3. **E-signature.** Consent is recorded; a verified signature is not claimed.
@@ -5752,6 +5833,7 @@ meantime.
 | Title generation | `backend/src/domain/listing-title.ts` |
 | The category field list | `backend/src/modules/seller/listing-schema.service.ts` |
 | Payout adapter boundary | `backend/src/modules/seller/payout.service.ts` |
+| Closing a period into settlement statements | `backend/src/modules/seller/settlement-statement.service.ts` |
 | Operator review | `backend/src/modules/seller/moderation.service.ts` |
 | The Hub's screens | `apps/customer-web/src/pages/seller/` |
 | Defaults for fields and country rules | `backend/src/seed/seller-hub.ts` |
@@ -5795,7 +5877,9 @@ meantime.
 | `/support/:id` | One ticket | Who raised it and for whom, the timeline with staff-only notes, the customer's documents (previewed or downloaded on the page), and the controls: status, priority, assignment, reply, internal note |
 | `/sellers` | Sellers | Businesses applying to sell on the marketplace |
 | `/sellers/:id` | Seller detail | One application: the business, its documents, its people, the decision |
-| `/audit` | Audit log | Who changed what, and when |
+| `/audit` | Audit log | Who changed what, in which role, why, when and from where, and **Download CSV** of the current filter (needs `export.create` as well) |
+| `/operations/dead-jobs` | Dead background jobs | Background jobs that ran out of attempts, and **Try again** for one more. The screen the dashboard's "dead background jobs" queue names; no menu entry |
+| `/operations/failed-notifications` | Undeliverable emails | Emails that could not be delivered, with masked recipients, and **Try again** for one more attempt. The screen the dashboard's "failed notifications" queue names; no menu entry |
 | `/integrations` | Integrations | Payment gateway credentials, connectors |
 | `/staff` | Staff | Staff accounts and their roles |
 | `/settings` | Settings | Business profile, policy links, tax, shipping, currencies, notifications |
@@ -5858,6 +5942,45 @@ opens the right queue" true by construction. Domains are never merged: choosing
 "payments" shows payment queues; it does not roll a failed schedule charge in
 with a rejected webhook and call the total "money problems", because they are
 fixed on different screens by different people.
+
+### Dead background jobs and undeliverable emails
+
+Two of the platform queues — **dead background jobs** and **failed
+notifications** — used to link to `/settings/jobs` and
+`/settings/notifications`, routes that did not exist, so following them landed
+on Not Found. Each now has its own screen: `/operations/dead-jobs` and
+`/operations/failed-notifications` in the admin panel, and the link the server
+sends with each queue points there. Each page links to the other; neither is in
+the navigation rail. Note that the dashboard ring itself no longer draws queue
+links (see above), so today these pages are opened by their address or from
+each other.
+
+| Screen | What each row shows | Never shown |
+|---|---|---|
+| Dead background jobs | The job type, attempts made out of attempts allowed, the last error, and when it stopped | The job's payload |
+| Undeliverable emails | The event key, the recipient **masked** (first letter and domain, e.g. `j•••••@hospital.example`), attempts, the last error with any address in it masked, and the last attempt | The body, the subject, the recipient's name or phone |
+
+Listing needs `settings.read` — the same grant that shows the dashboard queue —
+and retrying needs `settings.write`. Both lists are paged (`page`,
+`pageSize` up to 100). The endpoints are `GET /api/v1/admin/operations/dead-jobs`,
+`POST /api/v1/admin/operations/dead-jobs/:id/retry`,
+`GET /api/v1/admin/operations/failed-notifications` and
+`POST /api/v1/admin/operations/failed-notifications/:id/retry`.
+
+**Try again means exactly one more attempt.** The screen asks for
+confirmation first. The attempt counter is not reset — the number allowed is raised by one —
+so the history of how often it failed stays true. The update is guarded by the
+row's status, so a second press, or a second person, gets `409 CONFLICT` ("no
+longer waiting to be retried") rather than a second attempt. Retrying an email
+also re-arms its delivery job (unique key `notification:<id>`) in the same
+transaction; without that, resetting the email's row by hand silently did
+nothing. An email to an erased person (an address ending `@erased.invalid`)
+cannot be retried — it answers `409` and the row says "Recipient erased —
+cannot be sent". Each retry is audited as `job.retried` or
+`notification.retried`, with before and after.
+
+The code is `backend/src/modules/notifications/dead-letter.service.ts` and
+`apps/admin-web/src/pages/DeadLetterPage.tsx`.
 
 The window picker is now four tabs — today, 7 days, 30 days, custom — shared
 with the other two dashboards. The 90-day and 12-month presets went; that is
@@ -7217,7 +7340,7 @@ Shipments, Collections, Dispatch and Problems, all unchanged in the navigation.
 |---|---|
 | `/dashboard` | Fourteen counters, aggregated on the server, one bar showing where all the work sits, plus today's pickups, deliveries, exceptions and recent activity. |
 | `/shipments` | The list. Server-side paging, sorting, filtering, debounced search, saved filters, bulk actions and CSV export bound to the active filter and the reader's role. Filters by status, by service level, by **driver** and by whether there is an open problem — the driver filter absent for a driver, who holds no `driver.read` and whose own round is the whole of what they see. |
-| `/shipments/:id` | One consignment: route, timeline, packages, contacts, documents, the status form, and the driver — who has it, the chain of who has had it, and the controls to assign, move or take somebody off. |
+| `/shipments/:id` | One consignment: route, timeline, packages, contacts, documents, the status form (with **Complete the delivery**, which records the proof of delivery), and the driver — who has it, the chain of who has had it, and the controls to assign, move or take somebody off. |
 | `/pickups` | Collections to book and to confirm, in each warehouse's own timezone. |
 | `/dispatch` | Manifests, and handing one over. |
 | `/exceptions` | What has gone wrong, and recording what was done about it. |
@@ -7244,6 +7367,100 @@ alternative, and it is the primary thing rather than an afterthought.
 The status form offers only the transitions the state machine allows from
 where the consignment is now, and the server checks again, because a form is a
 convenience and never a control.
+
+### Completing a delivery: proof of delivery
+
+`DELIVERED` is reachable only with a proof of delivery, for **every**
+shipment — the state machine says so. Until this screen existed the portal had
+no way to capture one, so **no portal user could ever mark a shipment
+delivered**.
+
+Now, when **Delivered** is chosen on `/shipments/:id` and the person's role may
+complete deliveries (`logistics.pod.write`: partner owner, admin and driver —
+not dispatcher or operations agent), a **Complete the delivery** button opens a
+dialog. It asks for what the shipment's SLA policy requires — the recipient's
+name by default, and optionally their role, a signature image and a photograph
+— plus a company-stamp tick and a note. `GET /api/v1/logistics/shipments/:id`
+now returns `podRequirements` (`requiresRecipientName`, `requiresSignature`,
+`requiresPhoto`, `requiresOtp`, `requiresDesignation`) so the dialog marks
+the right fields.
+
+- Files are **images only, up to 10 MB**, uploaded first as the shipment's
+  documents. Then the proof is recorded, and **recording it moves the shipment
+  to `DELIVERED`** — there is no separate status step.
+- One idempotency key per opening of the dialog. A retry after a failed capture
+  does not upload the files again.
+- A field the server refuses shows its error on that field.
+- A person whose role cannot complete deliveries sees a note telling them to ask
+  their company administrator.
+
+**A bug fixed on the way, in `pod.service.ts`.** A repeat capture after a
+successful one — a phone retrying after a lost response — was refused with "no
+longer assigned to your company", because capturing completes the assignment
+and write access was checked before the duplicate check. The duplicate is now
+detected first (still scoped to the company, with read access) and answered as
+a duplicate.
+
+#### Delivery codes (OTP)
+
+Where the shipment's SLA policy sets `podRequiresOtp`, the delivery is
+completed only with a **six-digit code the buyer reads out at the door**.
+(Before this, nothing ever sent a code, so such a delivery could never be
+completed.)
+
+- **When it is sent.** Automatically, by email **to the buyer**, the moment the
+  shipment goes `OUT_FOR_DELIVERY` — `recordShipmentEvent` calls
+  `sendDeliveryCodeOnDispatch` after the status has committed, and never
+  throws. It can be **sent again** from the dialog (`POST
+  /api/v1/logistics/shipments/:id/delivery-code`, needs `logistics.pod.write`
+  and write access) while the shipment is `OUT_FOR_DELIVERY` or
+  `DELIVERY_ATTEMPTED`. A new code cancels the last one.
+- **Who sees it.** Only the buyer. The code is not in any API response, audit
+  row or log line. The table `logistics_delivery_codes` keeps an **HMAC** of it
+  (keyed with `SESSION_COOKIE_SECRET`), never the digits. The email is written in
+  the buyer's own language (`users.preferredLanguage`, eight languages, in
+  `modules/logistics/delivery-code-email.ts`) and framed by the outbox like the
+  buyer-company emails (`shipment.delivery_code`).
+- **Limits** (`modules/logistics/delivery-code.service.ts`): five wrong guesses
+  kill a code; at most five codes per shipment in 24 hours; one minute between
+  codes; a code lives 12 hours. These are constants in that file, not settings.
+- **Errors.** A wrong, missing, expired, killed or superseded code is
+  `SHIPMENT_OTP_INVALID` with `details[0] = { field: 'otp', code }`. A code
+  that cannot be sent at all is `SHIPMENT_OTP_UNAVAILABLE` (`NOT_REQUIRED`,
+  `NOT_OUT_FOR_DELIVERY`, `NO_RECIPIENT`). Too soon or too many is
+  `SHIPMENT_OTP_RESEND_LIMITED` (HTTP 429, `TOO_SOON` or
+  `DAILY_LIMIT_REACHED`).
+- **What the portal sees.** `GET /shipments/:id` adds `deliveryCode` —
+  `{ status, canBeSent, sentAt, expiresAt, attemptsLeft, nextSendAt,
+  sendsLeftToday }`, or `null` when the policy asks for no code. The dialog
+  shows whether a code is live, asks for it, and offers "Send the code" /
+  "Send a new code". Where there is **no buyer account to send it to**
+  (`canBeSent: false`) it says so and cannot complete the delivery — the
+  operator has to change the delivery's service level.
+- The code is checked **after** the other proof and the attached files, so a
+  refusal of those does not burn the code the buyer just read out.
+- Not covered: a seller's hand-booked outside carrier moves its own consignment
+  and never uses this dialog, so no code is sent for it.
+
+#### Drivers completing their own stops
+
+A **driver can open the shipment page for a stop on their own round** and
+complete it there. The DRIVER role still has no `logistics.shipment.read` and
+still cannot list the company's shipments. Three routes now accept
+`logistics.driver.task.read` **instead of** `logistics.shipment.read`, through a
+new guard `requireLogisticsAny` (at least one of the listed keys):
+`GET /shipments/:id`, `GET /shipments/:id/timeline` and
+`GET /shipments/:id/proof-of-delivery`. Capture and "send a new code" already
+used `logistics.pod.write`, which drivers hold.
+
+The narrowing is in `assertShipmentAccess`: **anybody without
+`logistics.shipment.read`** reaches only a stop assigned to their own driver
+profile — a live one for writing; a live or **completed** one for reading, so
+the page they just completed still opens and a retried capture is answered as a
+duplicate. A stop handed to a colleague, another driver's stop, another
+company's shipment, or a DRIVER-role member with no driver profile all answer
+**404**. Contact details on the detail page stay masked for a driver as for
+everybody; the unmasked number is still only on the driver's own task list.
 
 ## Drivers, and who is carrying what
 
@@ -8454,8 +8671,10 @@ only when asked and is limited to ten an hour.
 **Each failure is named, and never covered with a made-up answer.** The
 provider adapters sort a failed call into one of six kinds: `busy` (the
 provider is overloaded), `quota` (the key's allowance is spent), `timeout`
-(no answer within 30 seconds — both the Gemini and the Anthropic client have
-that deadline), `network` (the provider could not be reached), `credentials`
+(Gemini gives each attempt 30 seconds, streamed answer included; the Anthropic
+client gives the response 30 seconds to start and the whole exchange, every
+streamed word included, 60 seconds — so a provider that starts answering and
+then goes quiet is still cut off), `network` (the provider could not be reached), `credentials`
 (the key was refused) and `model` (the configured model does not exist for
 this key). The chat stream's `error` frame carries a `code` — `BUSY`,
 `QUOTA`, `TIMEOUT`, `UNAVAILABLE` or `REFUSED` (the model declined) — and a
@@ -8818,15 +9037,21 @@ picture. The photograph goes to the provider and is dropped when the request
 ends: a picture taken inside a hospital store room is not something this system
 should be holding.
 
-Two failures, two codes, because they need different words and different
-actions:
+Three failures, three codes, because each needs different words and a
+different action:
 
 | Code | Status | Means |
 |---|---|---|
-| `IMAGE_SEARCH_BUSY` | 503 | The provider is over quota or overloaded. Wait |
+| `IMAGE_SEARCH_BUSY` | 503 | The provider is over quota, overloaded, did not answer in time or could not be reached. Wait and try again. `details[0].code` says which: `BUSY`, `QUOTA`, `TIMEOUT` or `NETWORK` |
+| `IMAGE_SEARCH_UNAVAILABLE` | 503 | The deployment's key was refused or its model does not exist (`CREDENTIALS` / `MODEL`). A retry cannot fix it; search by name |
 | `IMAGE_SEARCH_UNREADABLE` | 502 | A reply came back that could not be used. Try a clearer photograph |
 
-Neither reuses `SERVICE_UNAVAILABLE`, which the storefront reads as "the whole
+The storefront words each code in the page's own language rather than showing
+the server's English sentence. Before these were mapped, a
+provider timeout, a network failure or a refused key reached the customer as a
+bare 500.
+
+None reuses `SERVICE_UNAVAILABLE`, which the storefront reads as "the whole
 store is down" and puts a site-wide maintenance banner behind. One camera
 button failing is not an outage.
 
@@ -11525,10 +11750,16 @@ Claiming uses a conditional `UPDATE` and an affected-rows check, not
 
 ## 9.5.1 Autopay: charging a card nobody is looking at
 
-Off by default (`FEATURE_SUBSCRIPTION_AUTOPAY`). Turning it on means this
-deployment takes money from people who are not present, which should be a
-decision somebody made rather than a behaviour inherited by installing the
-software.
+On by default since 29 Sep 2026 (`FEATURE_SUBSCRIPTION_AUTOPAY`, with the
+customer's own `FEATURE_CUSTOMER_AUTOPAY`), but **only offered once Stripe is
+actually connected** - in Settings > Payments or through the environment keys.
+Until then a card cannot be saved for off-session charging, the customer is not
+offered Autopay, and the home card says it is not offered yet. The store starts
+either way: this used to be a production start-up refusal when no Stripe
+secret key was set, which also ignored a gateway connected in Settings. See
+`isCardEnrolmentAvailable` / `isCustomerAutoPayAvailable` in
+`backend/src/modules/payments/payment.service.ts`. An operator who does not want
+to take money from people who are not present sets both flags to `false`.
 
 ### Enrolment
 
@@ -11591,6 +11822,26 @@ So the occurrence holds at `ACTION_REQUIRED`, the customer is emailed a link to
 confirm, the order stays payable, and **the next delivery is not held hostage to
 it**. If the window (72 hours) closes unauthenticated, that one cycle is
 skipped and the plan carries on.
+
+### The customer's own limits come first
+
+A card saved for a schedule is permission for that plan. A customer can also set **account-wide Autopay limits** at `/account/autopay` (`FEATURE_CUSTOMER_AUTOPAY`):
+
+- a maximum for any single charge
+- a threshold above which they want to be asked
+- a pause switch
+
+Before the worker charges a scheduled delivery, it checks those limits through `evaluateAutoPay` (the operator's ceiling `AUTOPAY_PLATFORM_MAX_MINOR` applies on top):
+
+| What the check says | What happens |
+|---|---|
+| **Refuse**: above their maximum, above the operator's ceiling, Autopay paused, or limits in another currency | Nothing is charged, and **no order is created**. The delivery is skipped with the reason code (for example `AUTOPAY_LIMIT_EXCEEDED`), the plan is **paused**, and the customer is emailed the reason. The same limit would refuse the next run too, so asking once beats refusing every cycle. |
+| **Ask**: above their approval threshold | The order is created but **not charged**. The delivery goes to `ACTION_REQUIRED` (`AUTOPAY_APPROVAL_REQUIRED`), and the customer is emailed a link to pay it themselves; paying it is their approval. The plan carries on. |
+| **Charge** | Charged as described above. |
+
+A customer with **no** account-wide Autopay setting, or one who switched it off, is governed only by the consent they gave the schedule, exactly as before. Every withheld charge is on the audit trail as `autopay.charge_withheld`.
+
+Until 29 September 2026 these limits were stored and shown back to the customer, but the worker never read them. It was found during the pre-go-live checklist verification (`Checklist.md`, SCREEN-085).
 
 ### A failed charge never cancels a subscription
 
@@ -13580,6 +13831,12 @@ Collection statuses:
 | `PAID` | Finance recorded the seller's payment reference |
 | `ADJUSTED_AGAINST_SETTLEMENT` | Only when a paid seller settlement carries a `COMMISSION` line for that seller order |
 
+Once settlement statements are switched on (`FEATURE_SELLER_SETTLEMENT_STATEMENTS`,
+section 4a), a commission invoice shows the reference of the statement that
+carries its `COMMISSION` line. Its collection changes to "taken from settlement"
+only when that statement is `PAID` — which cannot happen while payouts are
+unconfigured.
+
 ### Numbers
 
 `<prefix>/<financial year>/<zero-padded sequence>`, for example
@@ -14975,8 +15232,8 @@ screen-share.
 | Address safety | `backend/src/infra/outbound-http.ts` |
 | Routes | `backend/src/http/routes/customer-erp.*.ts` |
 
-Switched off by default. `FEATURE_CUSTOMER_ERP=true` turns it on; see SETUP.md
-for the rest of the settings and for registering a monday.com app.
+On by default since 29 Sep 2026. `FEATURE_CUSTOMER_ERP=false` switches it off;
+see SETUP.md for the rest of the settings and for registering a monday.com app.
 
 
 ## 9.6 A new member of staff
@@ -16942,6 +17199,47 @@ clearest case: the trail says who created, replied, noted, moved, assigned or
 opened a file on a ticket, and never holds the message text or a file name
 (9.13).
 
+**The role at the time.** Each row also records `actorRoles`: the role keys the
+actor held when the row was written. `recordAudit` reads them from
+`user_roles` itself, through the caller's transaction, so no service has to
+pass them. It is a copy on purpose. Joining today's roles on read would make a
+Finance Approver who was later promoted look as if they had approved a refund
+as the owner. Rows from before 14 Oct 2026 hold no role, and the screen says
+"Role not recorded" rather than guessing.
+
+**Reason and device.** There is no reason column. Services that take a reason
+put it in `after` (`reason`, `reasonCode`, `declineReason`,
+`rejectionReason`), and the API returns the first of those as `reason`. The
+device is the stored User-Agent plus a summary such as "Chrome on Windows"
+(`summariseUserAgent` in `modules/audit/audit-log.read.ts`). No service has to
+pass the address or the User-Agent: the first `onRequest` hook in `app.ts`
+opens a request context (`infra/request-context.ts`, an AsyncLocalStorage) and
+`recordAudit` falls back to it when the caller passes none. A caller's own
+value wins. The worker and scripts run outside any request, so their rows
+record neither — a background job must not borrow somebody's address. Rows
+written before 14 Oct 2026 by services that passed no User-Agent have no
+device. The extra addresses change nothing for privacy: erasure already blanks
+`ipAddress` and `userAgent` on every row naming the person, and the GDPR copy
+does not include the audit trail.
+
+**Taking a copy.** `/audit` has **Download CSV** for staff holding both
+`audit.read` and `export.create`. It sends the current filters to
+`POST /admin/audit-logs/export`, which answers a CSV of at most 10,000 entries,
+newest first, with the same fields as the screen. Both permissions, because the
+file shows nothing the reader could not already read, and taking records away
+is what `export.create` gates everywhere else. The server writes an
+`audit.exported` entry — the filter, how many rows the file holds, how many
+matched — in a transaction **before** it sends the file, so an export that
+cannot be recorded is never handed out. It is synchronous rather than one of
+the queued exports under Reports: those only carry a date range, and would
+leave a second copy of the trail in storage for six hours behind a link.
+
+**Why it cannot be edited.** In production the application's database account
+holds only `SELECT` and `INSERT` on `audit_logs`; see
+`deploy/mariadb/post-migrate-grants.sql`. The only changes ever made to a row
+— blanking `actorEmail`, `ipAddress` and `userAgent` on erasure, and the
+retention delete — run as the separate maintenance account.
+
 ## Telling somebody they found a hole
 
 [`SECURITY.md`](SECURITY.md) is the written policy: where to send a report,
@@ -17316,6 +17614,20 @@ Without the first, a saved form looks like a working integration. Without the
 second, somebody experimenting discovers they have been shipping live. Rotating
 a key drops the connection back behind both, because a rotated key that was
 typed wrongly must not inherit the previous key's green tick.
+
+### A carrier that does not answer
+
+Every DHL and FedEx call goes through `safeFetch` with **10 seconds** for the
+whole exchange — connect, headers and body together. A carrier that stays quiet
+longer is cut off. It surfaces as `CARRIER_REQUEST_FAILED`, the same code as a
+carrier's refusal, because to a seller both mean the same thing: nothing was
+booked, try again or book by hand. The detail code tells them apart —
+`CARRIER_TIMEOUT` (HTTP 504) when the carrier did not answer in time,
+`CARRIER_UNREACHABLE` (502) when it could not be reached, and
+`CARRIER_REFUSED` (502) when it answered and said no. Before this, the
+transport error escaped the route unmapped as a bare 500, and a connection test
+showed "The system did not respond in time", wording written for ERP
+connections.
 
 ### India Post is honest about having no API
 
@@ -18368,9 +18680,11 @@ the carrier portal does not sign a member of staff out of the console.
 | `FEATURE_RECURRING_ORDERS` | `true` | Subscribe & Reorder |
 | `FEATURE_SCHEDULED_ORDERS` | `true` | Buy Later — one delivery, on a chosen date |
 | `FEATURE_SCHEDULE_ANY_PRODUCT` | `true` | Every published product may be put on a repeat purchase. Off means only products an administrator ticked, which is how a store curates its repeatable range |
-| `FEATURE_SUBSCRIPTION_AUTOPAY` | `false` | Charging a saved card off-session. Needs Stripe |
+| `FEATURE_SUBSCRIPTION_AUTOPAY` | `true` | Charging a saved card off-session. Only offered once Stripe is connected; the store starts without it |
 | `FEATURE_ERP_INTEGRATION` | `false` | **Settings → ERP.** An ERP configured from a screen rather than from environment variables. Off means the screen says so, the routes refuse, no polling job runs and the webhook endpoint 404s |
-| `FEATURE_CUSTOMER_AUTOPAY` | `false` | A customer's standing authority to be charged, with their own limits. Needs Stripe **and** `FEATURE_SUBSCRIPTION_AUTOPAY`, which is what lets them save a card at all |
+| `FEATURE_CUSTOMER_AUTOPAY` | `true` | A customer's standing authority to be charged, with their own limits. Needs Stripe connected **and** `FEATURE_SUBSCRIPTION_AUTOPAY`, which is what lets them save a card at all. Published as `features.customerAutopay`, true only when both are on and Stripe is connected, so the home page's Autopay card never links to a page that cannot be used |
+| `FEATURE_CUSTOMER_ERP` | `true` | A buyer connects their own purchasing system (section 9.8.1). Published as `features.customerErp`, so the home page's ERP card explains instead of linking when it is off |
+| `FEATURE_SELLER_SETTLEMENT_STATEMENTS` | `false` | A daily job closes each finished period into one settlement statement per seller and currency (section 4a, "What cannot be finished here"). Needs `SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS` (0–365, the return window, **no default — the service refuses to start without it when this is on**); `SELLER_SETTLEMENT_PERIOD` is `MONTHLY` (default) or `WEEKLY`, in UTC. A statement moves no money |
 | `ALLOW_PRIVATE_ERP_TARGETS` | `false` | Lets a customer-supplied ERP address resolve to a private or loopback network. **Development only — `env.ts` refuses to start a production process with it on**, because it makes the cloud metadata endpoint reachable from a form field |
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `false` | Ask staff's browser for its location at sign-in only after a documented privacy and employment-law assessment |
 | `PAYMENT_MOCK_SUCCESS` | `false` | Settles any order awaiting payment on request, with no gateway and no webhook, through the same code a real capture runs. **Development only — `env.ts` refuses to start a production process with it on, and refuses to start at all beside a live payment key**, because it confirms orders nobody has paid for |
@@ -18674,6 +18988,16 @@ append-only audit trail the application can rewrite is not an audit trail. That
 user cannot run a migration, so `release.sh` uses a second one for that single
 command via `MIGRATE_DATABASE_URL`, which the running application never reads.
 See `backend/docs/RUNBOOK.md` §7.
+
+A third user, `uboss_maintenance` (`DATABASE_MAINTENANCE_URL`), exists for the
+only two changes the law requires to audit rows: GDPR erasure blanks an erased
+person's email, IP and user agent, and the retention sweep deletes rows older
+than `RETENTION_AUDIT_LOG_DAYS`. Its grant is **column-level**: it can update
+those three columns and delete rows, and it can do nothing else, so it cannot
+change what an audit row says happened. Production refuses to start without
+it. Until 29 September 2026 both jobs ran as the application user, which the
+database refuses, so every production erasure would have rolled back.
+`docs/DATABASE-PRODUCTION.md` §6 has the grant and the proof.
 
 ## Who the request says it came from
 

@@ -164,21 +164,35 @@ export async function assertShipmentAccess(
   const assignedDriverProfileId = shipment.driverAssignments[0]?.driverProfileId ?? null;
 
   /*
-   * A DRIVER may only reach their own stops.
+   * Anybody without SHIPMENT_READ may only reach their own stops.
    *
-   * Belt and braces - a driver holds no permission that can list shipments -
-   * and the braces are the point: this is the check that survives somebody
-   * later granting DRIVER a read permission "so they can see the job board".
+   * That is a DRIVER: they open a shipment page from their own round, through
+   * a route that accepts DRIVER_TASK_READ in place of SHIPMENT_READ, and this
+   * is what keeps that route from being a way to read the delivery address of
+   * every hospital their employer serves by guessing an id.
+   *
+   *   - WRITE needs a stop they are carrying now.
+   *   - READ also accepts a stop they COMPLETED. Capturing a proof of delivery
+   *     closes the driver's stop in the same breath, so without this the page
+   *     they just completed would answer 404 on its next refresh, and a phone
+   *     retrying a capture whose response was lost would be told the delivery
+   *     it had just made does not exist. A stop they were taken OFF - handed
+   *     to a colleague, never completed - grants nothing.
+   *   - No driver profile at all grants nothing. A member without
+   *     SHIPMENT_READ who is not a driver has no round to be narrowed to, and
+   *     letting them through would make "not a driver" the widest view in the
+   *     company.
    */
-  if (
-    membership.driverProfileId !== null &&
-    !membership.permissions.has(LogisticsPermission.SHIPMENT_READ)
-  ) {
+  if (!membership.permissions.has(LogisticsPermission.SHIPMENT_READ)) {
+    if (membership.driverProfileId === null) throw notFound('Shipment');
+
     const ownStop = await prisma.logisticsDriverAssignment.findFirst({
       where: {
         shipmentId,
         driverProfileId: membership.driverProfileId,
-        unassignedAt: null,
+        ...(mode === 'WRITE'
+          ? { unassignedAt: null }
+          : { OR: [{ unassignedAt: null }, { completedAt: { not: null } }] }),
       },
       select: { id: true },
     });

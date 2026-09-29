@@ -45,6 +45,7 @@ export type SellerLogisticsRelationshipEventMinAggregateOutputType = {
   actorPartnerUserId: string | null
   actorLabel: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerLogisticsRelationshipEventMaxAggregateOutputType = {
@@ -58,6 +59,7 @@ export type SellerLogisticsRelationshipEventMaxAggregateOutputType = {
   actorPartnerUserId: string | null
   actorLabel: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerLogisticsRelationshipEventCountAggregateOutputType = {
@@ -71,6 +73,7 @@ export type SellerLogisticsRelationshipEventCountAggregateOutputType = {
   actorPartnerUserId: number
   actorLabel: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -86,6 +89,7 @@ export type SellerLogisticsRelationshipEventMinAggregateInputType = {
   actorPartnerUserId?: true
   actorLabel?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerLogisticsRelationshipEventMaxAggregateInputType = {
@@ -99,6 +103,7 @@ export type SellerLogisticsRelationshipEventMaxAggregateInputType = {
   actorPartnerUserId?: true
   actorLabel?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerLogisticsRelationshipEventCountAggregateInputType = {
@@ -112,6 +117,7 @@ export type SellerLogisticsRelationshipEventCountAggregateInputType = {
   actorPartnerUserId?: true
   actorLabel?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -198,6 +204,7 @@ export type SellerLogisticsRelationshipEventGroupByOutputType = {
   actorPartnerUserId: string | null
   actorLabel: string | null
   createdAt: Date
+  updatedAt: Date
   _count: SellerLogisticsRelationshipEventCountAggregateOutputType | null
   _min: SellerLogisticsRelationshipEventMinAggregateOutputType | null
   _max: SellerLogisticsRelationshipEventMaxAggregateOutputType | null
@@ -232,6 +239,7 @@ export type SellerLogisticsRelationshipEventWhereInput = {
   actorPartnerUserId?: Prisma.StringNullableFilter<"SellerLogisticsRelationshipEvent"> | string | null
   actorLabel?: Prisma.StringNullableFilter<"SellerLogisticsRelationshipEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerLogisticsRelationshipEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerLogisticsRelationshipEvent"> | Date | string
   relationship?: Prisma.XOR<Prisma.SellerLogisticsPartnerScalarRelationFilter, Prisma.SellerLogisticsPartnerWhereInput>
 }
 
@@ -246,6 +254,7 @@ export type SellerLogisticsRelationshipEventOrderByWithRelationInput = {
   actorPartnerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   actorLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   relationship?: Prisma.SellerLogisticsPartnerOrderByWithRelationInput
   _relevance?: Prisma.SellerLogisticsRelationshipEventOrderByRelevanceInput
 }
@@ -264,6 +273,7 @@ export type SellerLogisticsRelationshipEventWhereUniqueInput = Prisma.AtLeast<{
   actorPartnerUserId?: Prisma.StringNullableFilter<"SellerLogisticsRelationshipEvent"> | string | null
   actorLabel?: Prisma.StringNullableFilter<"SellerLogisticsRelationshipEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerLogisticsRelationshipEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerLogisticsRelationshipEvent"> | Date | string
   relationship?: Prisma.XOR<Prisma.SellerLogisticsPartnerScalarRelationFilter, Prisma.SellerLogisticsPartnerWhereInput>
 }, "id">
 
@@ -278,6 +288,7 @@ export type SellerLogisticsRelationshipEventOrderByWithAggregationInput = {
   actorPartnerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   actorLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerLogisticsRelationshipEventCountOrderByAggregateInput
   _max?: Prisma.SellerLogisticsRelationshipEventMaxOrderByAggregateInput
   _min?: Prisma.SellerLogisticsRelationshipEventMinOrderByAggregateInput
@@ -297,6 +308,7 @@ export type SellerLogisticsRelationshipEventScalarWhereWithAggregatesInput = {
   actorPartnerUserId?: Prisma.StringNullableWithAggregatesFilter<"SellerLogisticsRelationshipEvent"> | string | null
   actorLabel?: Prisma.StringNullableWithAggregatesFilter<"SellerLogisticsRelationshipEvent"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerLogisticsRelationshipEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerLogisticsRelationshipEvent"> | Date | string
 }
 
 export type SellerLogisticsRelationshipEventCreateInput = {
@@ -309,6 +321,7 @@ export type SellerLogisticsRelationshipEventCreateInput = {
   actorPartnerUserId?: string | null
   actorLabel?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   relationship: Prisma.SellerLogisticsPartnerCreateNestedOneWithoutStatusEventsInput
 }
 
@@ -323,6 +336,7 @@ export type SellerLogisticsRelationshipEventUncheckedCreateInput = {
   actorPartnerUserId?: string | null
   actorLabel?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerLogisticsRelationshipEventUpdateInput = {
@@ -335,6 +349,7 @@ export type SellerLogisticsRelationshipEventUpdateInput = {
   actorPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   relationship?: Prisma.SellerLogisticsPartnerUpdateOneRequiredWithoutStatusEventsNestedInput
 }
 
@@ -349,6 +364,7 @@ export type SellerLogisticsRelationshipEventUncheckedUpdateInput = {
   actorPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerLogisticsRelationshipEventCreateManyInput = {
@@ -362,6 +378,7 @@ export type SellerLogisticsRelationshipEventCreateManyInput = {
   actorPartnerUserId?: string | null
   actorLabel?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerLogisticsRelationshipEventUpdateManyMutationInput = {
@@ -374,6 +391,7 @@ export type SellerLogisticsRelationshipEventUpdateManyMutationInput = {
   actorPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerLogisticsRelationshipEventUncheckedUpdateManyInput = {
@@ -387,6 +405,7 @@ export type SellerLogisticsRelationshipEventUncheckedUpdateManyInput = {
   actorPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerLogisticsRelationshipEventListRelationFilter = {
@@ -416,6 +435,7 @@ export type SellerLogisticsRelationshipEventCountOrderByAggregateInput = {
   actorPartnerUserId?: Prisma.SortOrder
   actorLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerLogisticsRelationshipEventMaxOrderByAggregateInput = {
@@ -429,6 +449,7 @@ export type SellerLogisticsRelationshipEventMaxOrderByAggregateInput = {
   actorPartnerUserId?: Prisma.SortOrder
   actorLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerLogisticsRelationshipEventMinOrderByAggregateInput = {
@@ -442,6 +463,7 @@ export type SellerLogisticsRelationshipEventMinOrderByAggregateInput = {
   actorPartnerUserId?: Prisma.SortOrder
   actorLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerLogisticsRelationshipEventCreateNestedManyWithoutRelationshipInput = {
@@ -500,6 +522,7 @@ export type SellerLogisticsRelationshipEventCreateWithoutRelationshipInput = {
   actorPartnerUserId?: string | null
   actorLabel?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerLogisticsRelationshipEventUncheckedCreateWithoutRelationshipInput = {
@@ -512,6 +535,7 @@ export type SellerLogisticsRelationshipEventUncheckedCreateWithoutRelationshipIn
   actorPartnerUserId?: string | null
   actorLabel?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerLogisticsRelationshipEventCreateOrConnectWithoutRelationshipInput = {
@@ -554,6 +578,7 @@ export type SellerLogisticsRelationshipEventScalarWhereInput = {
   actorPartnerUserId?: Prisma.StringNullableFilter<"SellerLogisticsRelationshipEvent"> | string | null
   actorLabel?: Prisma.StringNullableFilter<"SellerLogisticsRelationshipEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerLogisticsRelationshipEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerLogisticsRelationshipEvent"> | Date | string
 }
 
 export type SellerLogisticsRelationshipEventCreateManyRelationshipInput = {
@@ -566,6 +591,7 @@ export type SellerLogisticsRelationshipEventCreateManyRelationshipInput = {
   actorPartnerUserId?: string | null
   actorLabel?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerLogisticsRelationshipEventUpdateWithoutRelationshipInput = {
@@ -578,6 +604,7 @@ export type SellerLogisticsRelationshipEventUpdateWithoutRelationshipInput = {
   actorPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerLogisticsRelationshipEventUncheckedUpdateWithoutRelationshipInput = {
@@ -590,6 +617,7 @@ export type SellerLogisticsRelationshipEventUncheckedUpdateWithoutRelationshipIn
   actorPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerLogisticsRelationshipEventUncheckedUpdateManyWithoutRelationshipInput = {
@@ -602,6 +630,7 @@ export type SellerLogisticsRelationshipEventUncheckedUpdateManyWithoutRelationsh
   actorPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -617,6 +646,7 @@ export type SellerLogisticsRelationshipEventSelect<ExtArgs extends runtime.Types
   actorPartnerUserId?: boolean
   actorLabel?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   relationship?: boolean | Prisma.SellerLogisticsPartnerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerLogisticsRelationshipEvent"]>
 
@@ -633,9 +663,10 @@ export type SellerLogisticsRelationshipEventSelectScalar = {
   actorPartnerUserId?: boolean
   actorLabel?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerLogisticsRelationshipEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerLogisticsPartnerId" | "fromStatus" | "toStatus" | "reason" | "actorUserId" | "actorSellerMemberId" | "actorPartnerUserId" | "actorLabel" | "createdAt", ExtArgs["result"]["sellerLogisticsRelationshipEvent"]>
+export type SellerLogisticsRelationshipEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerLogisticsPartnerId" | "fromStatus" | "toStatus" | "reason" | "actorUserId" | "actorSellerMemberId" | "actorPartnerUserId" | "actorLabel" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerLogisticsRelationshipEvent"]>
 export type SellerLogisticsRelationshipEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   relationship?: boolean | Prisma.SellerLogisticsPartnerDefaultArgs<ExtArgs>
 }
@@ -669,6 +700,7 @@ export type $SellerLogisticsRelationshipEventPayload<ExtArgs extends runtime.Typ
      */
     actorLabel: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerLogisticsRelationshipEvent"]>
   composites: {}
 }
@@ -1049,6 +1081,7 @@ export interface SellerLogisticsRelationshipEventFieldRefs {
   readonly actorPartnerUserId: Prisma.FieldRef<"SellerLogisticsRelationshipEvent", 'String'>
   readonly actorLabel: Prisma.FieldRef<"SellerLogisticsRelationshipEvent", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerLogisticsRelationshipEvent", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerLogisticsRelationshipEvent", 'DateTime'>
 }
     
 

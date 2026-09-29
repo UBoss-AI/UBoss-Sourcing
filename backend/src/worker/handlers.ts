@@ -460,6 +460,15 @@ const preorderRiskSweep: JobHandler = async () => {
  */
 let chatBus: ChatBus | null = null;
 
+/** The dispute clock. See `sweepDisputeDeadlines`. */
+const disputeSlaSweep: JobHandler = async () => {
+  const { sweepDisputeDeadlines } = await import('../modules/disputes/dispute.service.js');
+  const result = await sweepDisputeDeadlines();
+  if (result.escalated + result.alerted > 0) {
+    logger.info(result, 'dispute deadlines');
+  }
+};
+
 const preorderChatSweep: JobHandler = async () => {
   const result = await runPreorderChatMaintenance();
   if (result.events.length > 0) {
@@ -729,6 +738,18 @@ const sellerErpReconcile: JobHandler = async () => {
 };
 
 /**
+ * Close the last finished seller settlement period into statements.
+ *
+ * A no-op unless the operator switched statements on. Safe to run any number
+ * of times: the statement's unique key and the row locks inside the service
+ * make a repeat write nothing.
+ */
+const sellerSettlementClose: JobHandler = async () => {
+  const { closeSettlementPeriod } = await import('../modules/seller/settlement-statement.service.js');
+  await closeSettlementPeriod();
+};
+
+/**
  * Run a scheduled connector sync.
  *
  * Always a real import, never a dry run: a scheduled sync exists to apply
@@ -924,6 +945,7 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.PREORDER_EXPIRE]: expirePreorders,
   [JobType.PREORDER_RISK_SWEEP]: preorderRiskSweep,
   [JobType.PREORDER_CHAT_SWEEP]: preorderChatSweep,
+  [JobType.DISPUTE_SLA_SWEEP]: disputeSlaSweep,
   [JobType.EXPORT_GENERATE]: generateExportJob,
   [JobType.INTEGRATION_SYNC]: integrationSync,
   [JobType.FX_RATE_REFRESH]: fxRateRefresh,
@@ -937,6 +959,7 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.SELLER_ERP_MAINTENANCE]: sellerErpMaintenance,
   [JobType.SELLER_ERP_DISPATCH]: sellerErpDispatch,
   [JobType.SELLER_ERP_RECONCILE]: sellerErpReconcile,
+  [JobType.SELLER_SETTLEMENT_CLOSE]: sellerSettlementClose,
   [JobType.BUYER_COMPANY_CHECKS]: buyerCompanyChecks,
 });
 

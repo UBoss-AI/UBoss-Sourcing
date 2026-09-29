@@ -12,7 +12,6 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { Permission, type PermissionKey } from '../../domain/permissions.js';
-import { prisma } from '../../infra/prisma.js';
 import {
   assignableRoles,
   createStaff,
@@ -22,10 +21,7 @@ import {
   setStaffStatus,
 } from '../../modules/identity/staff.service.js';
 import {
-  createReturnRequest,
   createShipment,
-  inspectReturn,
-  rejectReturn,
   shippableLines,
   updateShipmentStatus,
 } from '../../modules/fulfilment/fulfilment.service.js';
@@ -842,173 +838,7 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
-  // --- Returns --------------------------------------------------------------
-
-  /**
-   * Record a return request for some or all items on a shipped or delivered
-   * order, with a reason. Quantities may not exceed what was ordered. Writes
-   * an audit entry.
-   */
-  app.post(
-    '/orders/:id/returns',
-    { preHandler: requireAdmin(Permission.ORDER_RETURN) },
-    async (request, reply) => {
-      const { id } = idParam.parse(request.params);
-      const body = z
-        .object({
-          reason: z.string().trim().min(1).max(512),
-          items: z
-            .array(
-              z.object({
-                orderItemId: z.string().length(26),
-                quantity: z.number().int().min(1).max(1_000_000),
-              }),
-            )
-            .min(1)
-            .max(200),
-        })
-        .parse(request.body);
-
-      const auth = currentUser(request);
-
-      const result = await createReturnRequest(
-        { orderId: id, reason: body.reason, items: body.items, requestedById: auth.id },
-        {
-          userId: auth.id,
-          email: auth.email,
-          permissions: auth.permissions,
-          ipAddress: request.ip,
-          correlationId: request.correlationId,
-        },
-      );
-
-      return reply.status(201).send(result);
-    },
-  );
-
-  /**
-   * Record the inspection outcome.
-   *
-   * The sellable/damaged split is the whole point: only sellable quantity
-   * rejoins stock, and damaged units get their own quarantine movement so the
-   * ledger explains the difference.
-   */
-  app.post(
-    '/returns/:id/inspect',
-    { preHandler: requireAdmin(Permission.ORDER_RETURN) },
-    async (request, reply) => {
-      const { id } = idParam.parse(request.params);
-      const body = z
-        .object({
-          outcome: z
-            .array(
-              z.object({
-                orderItemId: z.string().length(26),
-                sellableQty: z.number().int().min(0).max(1_000_000),
-                damagedQty: z.number().int().min(0).max(1_000_000),
-              }),
-            )
-            .min(1)
-            .max(200),
-          decisionNote: z.string().max(512).nullable().optional(),
-        })
-        .parse(request.body);
-
-      const auth = currentUser(request);
-
-      const result = await inspectReturn(
-        { returnId: id, outcome: body.outcome, decisionNote: body.decisionNote ?? null },
-        {
-          userId: auth.id,
-          email: auth.email,
-          permissions: auth.permissions,
-          ipAddress: request.ip,
-          correlationId: request.correlationId,
-        },
-      );
-
-      return reply.status(200).send(result);
-    },
-  );
-
-  /**
-   * Refuse a return, with a note saying why. Refused if the return has
-   * already been decided. Writes an audit entry.
-   */
-  app.post(
-    '/returns/:id/reject',
-    { preHandler: requireAdmin(Permission.ORDER_RETURN) },
-    async (request, reply) => {
-      const { id } = idParam.parse(request.params);
-      const { note } = z.object({ note: z.string().trim().min(1).max(512) }).parse(request.body);
-
-      const auth = currentUser(request);
-
-      await rejectReturn(id, note, {
-        userId: auth.id,
-        email: auth.email,
-        permissions: auth.permissions,
-        ipAddress: request.ip,
-        correlationId: request.correlationId,
-      });
-
-      return reply.status(200).send({ status: 'REJECTED' });
-    },
-  );
-
-  /**
-   * List return requests, newest first, a page at a time, optionally filtered
-   * by status. Each shows its order, reason, items and any decision note.
-   */
-  app.get(
-    '/returns',
-    { preHandler: requireAdmin(Permission.ORDER_READ) },
-    async (request, reply) => {
-      const query = z
-        .object({
-          page: z.coerce.number().int().min(1).max(10_000).default(1),
-          limit: z.coerce.number().int().min(1).max(100).default(25),
-          status: z
-            .enum(['REQUESTED', 'APPROVED', 'REJECTED', 'RECEIVED', 'INSPECTED', 'COMPLETED'])
-            .optional(),
-        })
-        .parse(request.query);
-
-      const where = query.status !== undefined ? { status: query.status } : {};
-
-      const [rows, total] = await Promise.all([
-        prisma.returnRequest.findMany({
-          where,
-          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-          skip: (query.page - 1) * query.limit,
-          take: query.limit,
-          include: {
-            order: { select: { id: true, orderNumber: true, status: true } },
-          },
-        }),
-        prisma.returnRequest.count({ where }),
-      ]);
-
-      return reply.status(200).send({
-        returns: rows.map((row) => ({
-          id: row.id,
-          order: row.order,
-          status: row.status,
-          reason: row.reason,
-          items: row.itemsJson,
-          decisionNote: row.decisionNote,
-          createdAt: row.createdAt.toISOString(),
-          completedAt: row.completedAt?.toISOString() ?? null,
-        })),
-        pagination: {
-          page: query.page,
-          limit: query.limit,
-          total,
-          totalPages: Math.ceil(total / query.limit),
-        },
-      });
-    },
-  );
+  // Returns moved to routes/returns.admin.ts, with the buyer and seller sides.
 
   return Promise.resolve();
 }

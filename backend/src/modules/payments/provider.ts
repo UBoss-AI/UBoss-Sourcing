@@ -164,6 +164,8 @@ export interface VerifiedEvent {
     | 'SETUP_COMPLETED'
     | CheckoutEventIntent
     | 'DISPUTE_OPENED'
+    | 'DISPUTE_UPDATED'
+    | 'DISPUTE_CLOSED'
     | 'PAYMENT_METHOD_DETACHED'
     | 'UNKNOWN';
   providerOrderId: string | null;
@@ -189,6 +191,12 @@ export interface VerifiedEvent {
   internalReference?: string | null;
   /** Set on DISPUTE_OPENED: Stripe's reason word, e.g. 'fraudulent'. */
   disputeReason?: string | null;
+  /** Set on every DISPUTE_* event: the provider's own dispute id (dp_...). */
+  providerDisputeId?: string | null;
+  /** Set on every DISPUTE_* event: the provider's status word, e.g. 'needs_response', 'lost'. */
+  disputeStatus?: string | null;
+  /** Set on every DISPUTE_* event that carries one: when evidence is due by. */
+  disputeEvidenceDueBy?: Date | null;
   providerPaymentId: string | null;
   providerRefundId: string | null;
   /** Set on SETUP_COMPLETED. The SetupIntent this event is about. */

@@ -48,6 +48,8 @@ function makeConfig(features: Partial<StorefrontConfig['features']> = {}): Store
       ...FALLBACK_CONFIG.features,
       recurringOrders: true,
       assistant: true,
+      customerAutopay: true,
+      customerErp: true,
       ...features,
     },
   };
@@ -61,6 +63,8 @@ function makeAccess(overrides: Partial<OrchestrationAccess> = {}): Orchestration
     isSessionLoading: false,
     hasAssistant: true,
     hasRecurringOrders: true,
+    hasCustomerAutopay: true,
+    hasCustomerErp: true,
     ...overrides,
   };
 }
@@ -129,6 +133,31 @@ describe('what a node does', () => {
     expect(resolveNode('assistant', makeAccess({ hasAssistant: false }))).toEqual({
       kind: 'note',
       bodyKey: 'greeting.note.assistantOff',
+    });
+  });
+
+  it('explains Autopay and the ERP link when this deployment has them switched off', () => {
+    // Both are off by default. These two used to link regardless, so a
+    // customer pressing them landed on a page that could only say the feature
+    // was not available - the one thing this file exists to prevent.
+    expect(resolveNode('autopay', makeAccess({ hasCustomerAutopay: false }))).toEqual({
+      kind: 'note',
+      bodyKey: 'greeting.note.autopayOff',
+    });
+    expect(resolveNode('erp', makeAccess({ hasCustomerErp: false }))).toEqual({
+      kind: 'note',
+      bodyKey: 'greeting.note.erpOff',
+    });
+
+    // The same answer for a guest: signing in would not make it available.
+    const guest = { isCustomer: false, hasCustomerAutopay: false, hasCustomerErp: false };
+    expect(resolveNode('autopay', makeAccess(guest))).toEqual({
+      kind: 'note',
+      bodyKey: 'greeting.note.autopayOff',
+    });
+    expect(resolveNode('erp', makeAccess(guest))).toEqual({
+      kind: 'note',
+      bodyKey: 'greeting.note.erpOff',
     });
   });
 
@@ -328,6 +357,34 @@ describe('the sourcing hub', () => {
     const note = await screen.findByRole('status');
     expect(within(note).getByText(/Sign in to plan a delivery/)).toBeInTheDocument();
     expect(within(note).getByRole('link', { name: /Sign in/ })).toHaveAttribute('href', '/login');
+  });
+
+  it('does not link a customer to Autopay or their ERP when the deployment has them off', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<SourcingHub />, {
+      config: makeConfig({ customerAutopay: false, customerErp: false }),
+    });
+
+    // Buttons that explain, not links that lead nowhere.
+    expect(screen.queryByRole('link', { name: 'Autopay' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'ERP Integration' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Autopay' }));
+    const note = await screen.findByRole('status');
+    expect(within(note).getByText(/Autopay is not offered on this deployment/)).toBeInTheDocument();
+  });
+
+  it('treats a config without the two flags as switched off', () => {
+    // A config cached from before the flags existed must not resurrect the links.
+    const older: Partial<StorefrontConfig['features']> = { ...makeConfig().features };
+    delete older.customerAutopay;
+    delete older.customerErp;
+    renderWithProviders(<SourcingHub />, {
+      config: { ...makeConfig(), features: older as StorefrontConfig['features'] },
+    });
+
+    expect(screen.queryByRole('link', { name: 'Autopay' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'ERP Integration' })).not.toBeInTheDocument();
   });
 
   it('links a guest to AI Mode as well', () => {

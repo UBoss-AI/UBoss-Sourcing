@@ -29,7 +29,7 @@
  */
 import { env } from '../../config/env.js';
 import { logger } from '../../infra/logger.js';
-import { prisma } from '../../infra/prisma.js';
+import { auditMaintenancePrisma, prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 
 /** Rows one sweep may delete in a single pass. */
@@ -109,7 +109,11 @@ async function sweepAssistantConversations(days: number): Promise<number> {
  * personal data about staff.
  */
 async function sweepAuditLogs(days: number): Promise<number> {
-  const stale = await prisma.auditLog.findMany({
+  // The maintenance account: the application's own has no DELETE on
+  // audit_logs in production (see auditMaintenancePrisma).
+  const client = auditMaintenancePrisma();
+
+  const stale = await client.auditLog.findMany({
     where: { createdAt: { lt: cutoff(days) } },
     select: { id: true },
     take: BATCH,
@@ -117,7 +121,7 @@ async function sweepAuditLogs(days: number): Promise<number> {
 
   if (stale.length === 0) return 0;
 
-  const result = await prisma.auditLog.deleteMany({
+  const result = await client.auditLog.deleteMany({
     where: { id: { in: stale.map((entry) => entry.id) } },
   });
 

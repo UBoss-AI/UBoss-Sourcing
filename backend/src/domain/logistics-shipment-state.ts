@@ -34,6 +34,7 @@
  *     RETURN_REQUESTED stays open.
  */
 import { ErrorCode, conflict } from './errors.js';
+import { assertInspectionGateOpen, type InspectionGateVerdict } from './inspection-gate.js';
 import { LogisticsPermission, type LogisticsPermissionKey } from './logistics-permissions.js';
 
 /**
@@ -542,6 +543,29 @@ export const EXCEPTION_SHIPMENT_STATUSES: readonly ShipmentStatusName[] = Object
   'LOST',
 ]);
 
+/**
+ * Statuses the pre-shipment inspection gate guards: every one that means the
+ * goods have been collected or are moving towards the buyer.
+ *
+ * Reaching any of them needs an open verdict from `inspection-gate.ts`,
+ * whoever asks - partner, driver, carrier feed, seller or the marketplace
+ * itself. Exceptions that can happen before collection (DELAYED, ON_HOLD,
+ * ADDRESS_ISSUE) and the return path are deliberately outside it: reporting a
+ * delay is not letting goods go, and bringing goods back must never be
+ * blocked.
+ */
+export const INSPECTION_GATED_SHIPMENT_STATUSES: readonly ShipmentStatusName[] = Object.freeze([
+  'PICKED_UP',
+  'DISPATCHED',
+  'AT_ORIGIN_HUB',
+  'IN_TRANSIT',
+  'AT_DESTINATION_HUB',
+  'CUSTOMS_HOLD',
+  'OUT_FOR_DELIVERY',
+  'DELIVERY_ATTEMPTED',
+  'DELIVERED',
+]);
+
 /** Statuses after which nothing more will be heard from a carrier feed. */
 export const TRACKING_COMPLETE_STATUSES: readonly ShipmentStatusName[] = Object.freeze([
   'DELIVERED',
@@ -559,6 +583,12 @@ export interface ShipmentTransitionRequest {
   reason?: string;
   /** Whether a Proof of Delivery exists or accompanies this call. */
   hasProofOfDelivery?: boolean;
+  /**
+   * The pre-shipment inspection verdict for the goods on this consignment.
+   * Required for every status in INSPECTION_GATED_SHIPMENT_STATUSES; computed
+   * by `evaluateShipmentGate` in `modules/inspection/gate.service.ts`.
+   */
+  inspectionGate?: InspectionGateVerdict;
 }
 
 export interface AllowedShipmentTransition {
@@ -671,6 +701,11 @@ export function assertShipmentTransition(request: ShipmentTransitionRequest): vo
       'Proof of Delivery is required before a shipment can be marked delivered.',
       [{ code: 'POD_REQUIRED', meta: { from, to } }],
     );
+  }
+
+  // The dispatch gate, last, once the move is otherwise legal. Fail-closed.
+  if (INSPECTION_GATED_SHIPMENT_STATUSES.includes(to)) {
+    assertInspectionGateOpen(request.inspectionGate, 'SHIPMENT', { from, to });
   }
 }
 

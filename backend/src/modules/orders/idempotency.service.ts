@@ -37,6 +37,12 @@ export const IdempotencyScope = {
   SUPPORT_TICKET_CREATE: 'support_ticket.create',
   /** The sender writing again on a request. A retry posts one message. */
   SUPPORT_TICKET_MESSAGE: 'support_ticket.message',
+  /** A buyer asking to return items. A double-click or a retry opens one return. */
+  RETURN_REQUEST_CREATE: 'return_request.create',
+  /** A buyer raising a claim. A double-click raises one claim. */
+  DISPUTE_CREATE: 'dispute.create',
+  /** Writing on a dispute. A retry posts one message. */
+  DISPUTE_MESSAGE: 'dispute.message',
 } as const;
 
 export type IdempotencyScopeValue = (typeof IdempotencyScope)[keyof typeof IdempotencyScope];

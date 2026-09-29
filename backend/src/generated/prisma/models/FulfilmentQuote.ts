@@ -83,6 +83,7 @@ export type FulfilmentQuoteMinAggregateOutputType = {
   basketHash: string | null
   expiresAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type FulfilmentQuoteMaxAggregateOutputType = {
@@ -113,6 +114,7 @@ export type FulfilmentQuoteMaxAggregateOutputType = {
   basketHash: string | null
   expiresAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type FulfilmentQuoteCountAggregateOutputType = {
@@ -144,6 +146,7 @@ export type FulfilmentQuoteCountAggregateOutputType = {
   itemsJson: number
   expiresAt: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -200,6 +203,7 @@ export type FulfilmentQuoteMinAggregateInputType = {
   basketHash?: true
   expiresAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type FulfilmentQuoteMaxAggregateInputType = {
@@ -230,6 +234,7 @@ export type FulfilmentQuoteMaxAggregateInputType = {
   basketHash?: true
   expiresAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type FulfilmentQuoteCountAggregateInputType = {
@@ -261,6 +266,7 @@ export type FulfilmentQuoteCountAggregateInputType = {
   itemsJson?: true
   expiresAt?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -379,6 +385,7 @@ export type FulfilmentQuoteGroupByOutputType = {
   itemsJson: runtime.JsonValue
   expiresAt: Date
   createdAt: Date
+  updatedAt: Date
   _count: FulfilmentQuoteCountAggregateOutputType | null
   _avg: FulfilmentQuoteAvgAggregateOutputType | null
   _sum: FulfilmentQuoteSumAggregateOutputType | null
@@ -433,6 +440,7 @@ export type FulfilmentQuoteWhereInput = {
   itemsJson?: Prisma.JsonFilter<"FulfilmentQuote">
   expiresAt?: Prisma.DateTimeFilter<"FulfilmentQuote"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"FulfilmentQuote"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"FulfilmentQuote"> | Date | string
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   cart?: Prisma.XOR<Prisma.CartNullableScalarRelationFilter, Prisma.CartWhereInput> | null
   address?: Prisma.XOR<Prisma.AddressNullableScalarRelationFilter, Prisma.AddressWhereInput> | null
@@ -470,6 +478,7 @@ export type FulfilmentQuoteOrderByWithRelationInput = {
   itemsJson?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   customerProfile?: Prisma.CustomerProfileOrderByWithRelationInput
   cart?: Prisma.CartOrderByWithRelationInput
   address?: Prisma.AddressOrderByWithRelationInput
@@ -511,6 +520,7 @@ export type FulfilmentQuoteWhereUniqueInput = Prisma.AtLeast<{
   itemsJson?: Prisma.JsonFilter<"FulfilmentQuote">
   expiresAt?: Prisma.DateTimeFilter<"FulfilmentQuote"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"FulfilmentQuote"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"FulfilmentQuote"> | Date | string
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   cart?: Prisma.XOR<Prisma.CartNullableScalarRelationFilter, Prisma.CartWhereInput> | null
   address?: Prisma.XOR<Prisma.AddressNullableScalarRelationFilter, Prisma.AddressWhereInput> | null
@@ -548,6 +558,7 @@ export type FulfilmentQuoteOrderByWithAggregationInput = {
   itemsJson?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.FulfilmentQuoteCountOrderByAggregateInput
   _avg?: Prisma.FulfilmentQuoteAvgOrderByAggregateInput
   _max?: Prisma.FulfilmentQuoteMaxOrderByAggregateInput
@@ -587,6 +598,7 @@ export type FulfilmentQuoteScalarWhereWithAggregatesInput = {
   itemsJson?: Prisma.JsonWithAggregatesFilter<"FulfilmentQuote">
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"FulfilmentQuote"> | Date | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FulfilmentQuote"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FulfilmentQuote"> | Date | string
 }
 
 export type FulfilmentQuoteCreateInput = {
@@ -613,6 +625,7 @@ export type FulfilmentQuoteCreateInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutFulfilmentQuotesInput
   cart?: Prisma.CartCreateNestedOneWithoutFulfilmentQuotesInput
   address?: Prisma.AddressCreateNestedOneWithoutFulfilmentQuotesInput
@@ -650,6 +663,7 @@ export type FulfilmentQuoteUncheckedCreateInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentQuoteInput
 }
 
@@ -677,6 +691,7 @@ export type FulfilmentQuoteUpdateInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutFulfilmentQuotesNestedInput
   cart?: Prisma.CartUpdateOneWithoutFulfilmentQuotesNestedInput
   address?: Prisma.AddressUpdateOneWithoutFulfilmentQuotesNestedInput
@@ -714,6 +729,7 @@ export type FulfilmentQuoteUncheckedUpdateInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentQuoteNestedInput
 }
 
@@ -746,6 +762,7 @@ export type FulfilmentQuoteCreateManyInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type FulfilmentQuoteUpdateManyMutationInput = {
@@ -772,6 +789,7 @@ export type FulfilmentQuoteUpdateManyMutationInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FulfilmentQuoteUncheckedUpdateManyInput = {
@@ -803,6 +821,7 @@ export type FulfilmentQuoteUncheckedUpdateManyInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FulfilmentQuoteListRelationFilter = {
@@ -855,6 +874,7 @@ export type FulfilmentQuoteCountOrderByAggregateInput = {
   itemsJson?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type FulfilmentQuoteAvgOrderByAggregateInput = {
@@ -897,6 +917,7 @@ export type FulfilmentQuoteMaxOrderByAggregateInput = {
   basketHash?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type FulfilmentQuoteMinOrderByAggregateInput = {
@@ -927,6 +948,7 @@ export type FulfilmentQuoteMinOrderByAggregateInput = {
   basketHash?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type FulfilmentQuoteSumOrderByAggregateInput = {
@@ -1191,6 +1213,7 @@ export type FulfilmentQuoteCreateWithoutLocationInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutFulfilmentQuotesInput
   cart?: Prisma.CartCreateNestedOneWithoutFulfilmentQuotesInput
   address?: Prisma.AddressCreateNestedOneWithoutFulfilmentQuotesInput
@@ -1226,6 +1249,7 @@ export type FulfilmentQuoteUncheckedCreateWithoutLocationInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentQuoteInput
 }
 
@@ -1287,6 +1311,7 @@ export type FulfilmentQuoteScalarWhereInput = {
   itemsJson?: Prisma.JsonFilter<"FulfilmentQuote">
   expiresAt?: Prisma.DateTimeFilter<"FulfilmentQuote"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"FulfilmentQuote"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"FulfilmentQuote"> | Date | string
 }
 
 export type FulfilmentQuoteCreateWithoutZoneInput = {
@@ -1313,6 +1338,7 @@ export type FulfilmentQuoteCreateWithoutZoneInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutFulfilmentQuotesInput
   cart?: Prisma.CartCreateNestedOneWithoutFulfilmentQuotesInput
   address?: Prisma.AddressCreateNestedOneWithoutFulfilmentQuotesInput
@@ -1348,6 +1374,7 @@ export type FulfilmentQuoteUncheckedCreateWithoutZoneInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentQuoteInput
 }
 
@@ -1401,6 +1428,7 @@ export type FulfilmentQuoteCreateWithoutCustomerProfileInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   cart?: Prisma.CartCreateNestedOneWithoutFulfilmentQuotesInput
   address?: Prisma.AddressCreateNestedOneWithoutFulfilmentQuotesInput
   location: Prisma.InventoryLocationCreateNestedOneWithoutFulfilmentQuotesInput
@@ -1436,6 +1464,7 @@ export type FulfilmentQuoteUncheckedCreateWithoutCustomerProfileInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentQuoteInput
 }
 
@@ -1489,6 +1518,7 @@ export type FulfilmentQuoteCreateWithoutAddressInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutFulfilmentQuotesInput
   cart?: Prisma.CartCreateNestedOneWithoutFulfilmentQuotesInput
   location: Prisma.InventoryLocationCreateNestedOneWithoutFulfilmentQuotesInput
@@ -1524,6 +1554,7 @@ export type FulfilmentQuoteUncheckedCreateWithoutAddressInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentQuoteInput
 }
 
@@ -1577,6 +1608,7 @@ export type FulfilmentQuoteCreateWithoutCartInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutFulfilmentQuotesInput
   address?: Prisma.AddressCreateNestedOneWithoutFulfilmentQuotesInput
   location: Prisma.InventoryLocationCreateNestedOneWithoutFulfilmentQuotesInput
@@ -1612,6 +1644,7 @@ export type FulfilmentQuoteUncheckedCreateWithoutCartInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentQuoteInput
 }
 
@@ -1665,6 +1698,7 @@ export type FulfilmentQuoteCreateWithoutOrdersInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutFulfilmentQuotesInput
   cart?: Prisma.CartCreateNestedOneWithoutFulfilmentQuotesInput
   address?: Prisma.AddressCreateNestedOneWithoutFulfilmentQuotesInput
@@ -1701,6 +1735,7 @@ export type FulfilmentQuoteUncheckedCreateWithoutOrdersInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type FulfilmentQuoteCreateOrConnectWithoutOrdersInput = {
@@ -1743,6 +1778,7 @@ export type FulfilmentQuoteUpdateWithoutOrdersInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutFulfilmentQuotesNestedInput
   cart?: Prisma.CartUpdateOneWithoutFulfilmentQuotesNestedInput
   address?: Prisma.AddressUpdateOneWithoutFulfilmentQuotesNestedInput
@@ -1779,6 +1815,7 @@ export type FulfilmentQuoteUncheckedUpdateWithoutOrdersInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FulfilmentQuoteCreateManyLocationInput = {
@@ -1809,6 +1846,7 @@ export type FulfilmentQuoteCreateManyLocationInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type FulfilmentQuoteUpdateWithoutLocationInput = {
@@ -1835,6 +1873,7 @@ export type FulfilmentQuoteUpdateWithoutLocationInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutFulfilmentQuotesNestedInput
   cart?: Prisma.CartUpdateOneWithoutFulfilmentQuotesNestedInput
   address?: Prisma.AddressUpdateOneWithoutFulfilmentQuotesNestedInput
@@ -1870,6 +1909,7 @@ export type FulfilmentQuoteUncheckedUpdateWithoutLocationInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentQuoteNestedInput
 }
 
@@ -1901,6 +1941,7 @@ export type FulfilmentQuoteUncheckedUpdateManyWithoutLocationInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FulfilmentQuoteCreateManyZoneInput = {
@@ -1931,6 +1972,7 @@ export type FulfilmentQuoteCreateManyZoneInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type FulfilmentQuoteUpdateWithoutZoneInput = {
@@ -1957,6 +1999,7 @@ export type FulfilmentQuoteUpdateWithoutZoneInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutFulfilmentQuotesNestedInput
   cart?: Prisma.CartUpdateOneWithoutFulfilmentQuotesNestedInput
   address?: Prisma.AddressUpdateOneWithoutFulfilmentQuotesNestedInput
@@ -1992,6 +2035,7 @@ export type FulfilmentQuoteUncheckedUpdateWithoutZoneInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentQuoteNestedInput
 }
 
@@ -2023,6 +2067,7 @@ export type FulfilmentQuoteUncheckedUpdateManyWithoutZoneInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FulfilmentQuoteCreateManyCustomerProfileInput = {
@@ -2053,6 +2098,7 @@ export type FulfilmentQuoteCreateManyCustomerProfileInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type FulfilmentQuoteUpdateWithoutCustomerProfileInput = {
@@ -2079,6 +2125,7 @@ export type FulfilmentQuoteUpdateWithoutCustomerProfileInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cart?: Prisma.CartUpdateOneWithoutFulfilmentQuotesNestedInput
   address?: Prisma.AddressUpdateOneWithoutFulfilmentQuotesNestedInput
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutFulfilmentQuotesNestedInput
@@ -2114,6 +2161,7 @@ export type FulfilmentQuoteUncheckedUpdateWithoutCustomerProfileInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentQuoteNestedInput
 }
 
@@ -2145,6 +2193,7 @@ export type FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FulfilmentQuoteCreateManyAddressInput = {
@@ -2175,6 +2224,7 @@ export type FulfilmentQuoteCreateManyAddressInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type FulfilmentQuoteUpdateWithoutAddressInput = {
@@ -2201,6 +2251,7 @@ export type FulfilmentQuoteUpdateWithoutAddressInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutFulfilmentQuotesNestedInput
   cart?: Prisma.CartUpdateOneWithoutFulfilmentQuotesNestedInput
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutFulfilmentQuotesNestedInput
@@ -2236,6 +2287,7 @@ export type FulfilmentQuoteUncheckedUpdateWithoutAddressInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentQuoteNestedInput
 }
 
@@ -2267,6 +2319,7 @@ export type FulfilmentQuoteUncheckedUpdateManyWithoutAddressInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FulfilmentQuoteCreateManyCartInput = {
@@ -2297,6 +2350,7 @@ export type FulfilmentQuoteCreateManyCartInput = {
   itemsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type FulfilmentQuoteUpdateWithoutCartInput = {
@@ -2323,6 +2377,7 @@ export type FulfilmentQuoteUpdateWithoutCartInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutFulfilmentQuotesNestedInput
   address?: Prisma.AddressUpdateOneWithoutFulfilmentQuotesNestedInput
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutFulfilmentQuotesNestedInput
@@ -2358,6 +2413,7 @@ export type FulfilmentQuoteUncheckedUpdateWithoutCartInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentQuoteNestedInput
 }
 
@@ -2389,6 +2445,7 @@ export type FulfilmentQuoteUncheckedUpdateManyWithoutCartInput = {
   itemsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -2451,6 +2508,7 @@ export type FulfilmentQuoteSelect<ExtArgs extends runtime.Types.Extensions.Inter
   itemsJson?: boolean
   expiresAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   cart?: boolean | Prisma.FulfilmentQuote$cartArgs<ExtArgs>
   address?: boolean | Prisma.FulfilmentQuote$addressArgs<ExtArgs>
@@ -2491,9 +2549,10 @@ export type FulfilmentQuoteSelectScalar = {
   itemsJson?: boolean
   expiresAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type FulfilmentQuoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "cartId" | "addressId" | "locationId" | "zoneId" | "destinationCountry" | "destinationPostalCode" | "isEstimate" | "currency" | "subtotalMinor" | "discountMinor" | "taxMinor" | "shippingMinor" | "grandTotalMinor" | "dispatchDate" | "deliveryFromDate" | "deliveryToDate" | "transitMinDays" | "transitMaxDays" | "handlingDays" | "carrierName" | "serviceLevel" | "distanceKm" | "basketHash" | "itemsJson" | "expiresAt" | "createdAt", ExtArgs["result"]["fulfilmentQuote"]>
+export type FulfilmentQuoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "cartId" | "addressId" | "locationId" | "zoneId" | "destinationCountry" | "destinationPostalCode" | "isEstimate" | "currency" | "subtotalMinor" | "discountMinor" | "taxMinor" | "shippingMinor" | "grandTotalMinor" | "dispatchDate" | "deliveryFromDate" | "deliveryToDate" | "transitMinDays" | "transitMaxDays" | "handlingDays" | "carrierName" | "serviceLevel" | "distanceKm" | "basketHash" | "itemsJson" | "expiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["fulfilmentQuote"]>
 export type FulfilmentQuoteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   cart?: boolean | Prisma.FulfilmentQuote$cartArgs<ExtArgs>
@@ -2609,6 +2668,7 @@ export type $FulfilmentQuotePayload<ExtArgs extends runtime.Types.Extensions.Int
      */
     expiresAt: Date
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["fulfilmentQuote"]>
   composites: {}
 }
@@ -3012,6 +3072,7 @@ export interface FulfilmentQuoteFieldRefs {
   readonly itemsJson: Prisma.FieldRef<"FulfilmentQuote", 'Json'>
   readonly expiresAt: Prisma.FieldRef<"FulfilmentQuote", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"FulfilmentQuote", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"FulfilmentQuote", 'DateTime'>
 }
     
 

@@ -876,6 +876,17 @@ of staff can act on, the AI panel beside it, and nothing else. The month's
 figures it used to carry live on the screens that own them — Reports, Orders,
 Payments, Inventory, Recurring — all still in the navigation.
 
+**Dead background jobs** (`/operations/dead-jobs`) and **Undeliverable
+emails** (`/operations/failed-notifications`) are the screens behind two of
+the dashboard's platform queues. Each lists what stopped after its last attempt
+and why, and **Try again** gives exactly one more attempt, after a confirmation;
+the attempts already made are kept, and a second press or a second person is
+refused. A job's payload is never shown, and an email shows only its event and
+a masked recipient (`j•••••@hospital.example`) — never its subject, body,
+name or phone. An email to an erased person cannot be sent again. Reading
+needs `settings.read`, trying again `settings.write`, and every retry is on
+the audit log. Neither screen is in the navigation; each links to the other.
+
 **The navigation rail counts what is waiting.** Every row with a queue behind
 it carries a number when anything is in it — listings in review, brands asked
 for, orders held for an approver, sign-ups at the approval gate, data requests,
@@ -916,7 +927,16 @@ Published; bulk import can activate, never publish).
 Gated by `FEATURE_LOGISTICS_PORTAL`. A carrier company signs in on its own
 hostname and sees only its own work: consignments to accept or decline,
 collections, dispatch manifests, exceptions, its drivers and vehicles, and a
-driver's own round with proof-of-delivery capture. The dashboard is one ring
+driver's own round with proof-of-delivery capture. A delivery is completed on
+the shipment's page with **Complete the delivery**, which records the proof of
+delivery its service level asks for — who took it, and where required their
+role, a signature and a photo — and marks it delivered in the same step. The
+partner owner, admin and driver roles may do it; a driver opens the page from
+their own round and can reach only their own stops. Where the service level
+needs a delivery code, the buyer is emailed a six-digit code when the
+shipment goes out for delivery, the driver types the code the buyer reads out,
+and a new one can be sent from the dialog (one a minute, five a day). The code
+goes only to the buyer. The dashboard is one ring
 folding the twenty-seven consignment statuses into eight stages, with the AI
 panel beside it, so a dispatcher can see whether the day is still to collect or
 already out.
@@ -2412,6 +2432,27 @@ operator's own stock, the seller carries their proportional share (not the tax
 or the marketplace's delivery). A partial refund of an order shared between
 sellers is left for finance and changes no seller's settlement. The platform
 fee is not given back on a refund.
+
+### Settlement statements
+
+**Off by default, because what a settlement period is and when a delivered
+order becomes payable are the operator's commercial policy.** With
+`FEATURE_SELLER_SETTLEMENT_STATEMENTS=true`, a daily job closes the last
+finished period into one statement per seller and currency, shown on
+*Seller Hub → Payments* as *Awaiting payout*:
+
+| Variable | Default | What it does |
+|---|---|---|
+| `FEATURE_SELLER_SETTLEMENT_STATEMENTS` | `false` | Whether statements are produced at all |
+| `SELLER_SETTLEMENT_PERIOD` | `MONTHLY` | `MONTHLY` (the 1st to the next 1st) or `WEEKLY` (Monday to Monday), in UTC |
+| `SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS` | none | The return window, 0–365 days: an order counts only if it was delivered at least this long before the period ended. **Required when statements are on — the server refuses to start without it** |
+
+Each order's lines are copied from the figure worked out when it was
+confirmed — the sale, the seller's own delivery, the platform fee and its tax,
+and refunds — and each order is on exactly one statement; a refund recorded
+later goes on the next one as the difference. Running the close twice writes
+nothing twice. **A statement moves no money**: payouts are still not
+configured, and paying one is refused.
 
 ### Who manages it on the marketplace's side
 
@@ -4468,7 +4509,10 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   scanned with ClamAV before storage; production refuses to start without it,
   and failed or infected scans are refused rather than treated as clean.
 - **The audit log is append-only.** Every state change records who, when, from
-  where and why. No screen offers a way to edit or delete an entry.
+  where and why, and the role the person held at that moment (recorded on the
+  entry, never looked up later). No screen offers a way to edit or delete an
+  entry. A copy can be downloaded as a CSV (up to 10,000 entries, needs
+  `audit.read` and `export.create`), and every download is itself on the log.
 - **One order per checkout.** The idempotency key is generated once per attempt
   and reused across retries. A double-click, a timeout retry and two concurrent
   submissions all resolve to the same order.
@@ -4523,7 +4567,7 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 | `docs/reference/` | Every table, endpoint and error code. Generated from the code — run `cd scripts; npm run docs`, never edit by hand |
 | `backend/README.md` | Backend architecture, schema and migration notes |
 | `backend/docs/HANDOFF.md` | Environment details, the MariaDB constraints that shaped the schema, the full endpoint map, and what is deliberately not built |
-| **[`docs/DATABASE-PRODUCTION.md`](docs/DATABASE-PRODUCTION.md)** | Which MariaDB and why, how it is configured, its four accounts and why they are four, the connection budget, collation and time, and when one VPS stops being enough |
+| **[`docs/DATABASE-PRODUCTION.md`](docs/DATABASE-PRODUCTION.md)** | Which MariaDB and why, how it is configured, its five accounts and why they are five, the connection budget, collation and time, and when one VPS stops being enough |
 | **[`docs/DATABASE-MIGRATION.md`](docs/DATABASE-MIGRATION.md)** | Migrations and schema drift, getting data out of XAMPP safely, which data may reach production, the validation queries, and how to release a migration |
 | **[`docs/DATABASE-RECOVERY.md`](docs/DATABASE-RECOVERY.md)** | Backups, proving a backup restores, point-in-time recovery, and the runbook for a database that is unwell |
 | **[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)** | Putting it on a server: the VPS build, releases, rollback, backups, monitoring, the EU/Poland compliance matrix and what must be decided before going live |

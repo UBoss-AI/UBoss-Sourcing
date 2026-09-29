@@ -47,6 +47,7 @@ export type CustomerErpAuditLogMinAggregateOutputType = {
   userAgent: string | null
   correlationId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CustomerErpAuditLogMaxAggregateOutputType = {
@@ -62,6 +63,7 @@ export type CustomerErpAuditLogMaxAggregateOutputType = {
   userAgent: string | null
   correlationId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CustomerErpAuditLogCountAggregateOutputType = {
@@ -79,6 +81,7 @@ export type CustomerErpAuditLogCountAggregateOutputType = {
   userAgent: number
   correlationId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -96,6 +99,7 @@ export type CustomerErpAuditLogMinAggregateInputType = {
   userAgent?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type CustomerErpAuditLogMaxAggregateInputType = {
@@ -111,6 +115,7 @@ export type CustomerErpAuditLogMaxAggregateInputType = {
   userAgent?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type CustomerErpAuditLogCountAggregateInputType = {
@@ -128,6 +133,7 @@ export type CustomerErpAuditLogCountAggregateInputType = {
   userAgent?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -218,6 +224,7 @@ export type CustomerErpAuditLogGroupByOutputType = {
   userAgent: string | null
   correlationId: string | null
   createdAt: Date
+  updatedAt: Date
   _count: CustomerErpAuditLogCountAggregateOutputType | null
   _min: CustomerErpAuditLogMinAggregateOutputType | null
   _max: CustomerErpAuditLogMaxAggregateOutputType | null
@@ -256,6 +263,7 @@ export type CustomerErpAuditLogWhereInput = {
   userAgent?: Prisma.StringNullableFilter<"CustomerErpAuditLog"> | string | null
   correlationId?: Prisma.StringNullableFilter<"CustomerErpAuditLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CustomerErpAuditLog"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpAuditLog"> | Date | string
   organization?: Prisma.XOR<Prisma.BuyerOrganizationScalarRelationFilter, Prisma.BuyerOrganizationWhereInput>
 }
 
@@ -274,6 +282,7 @@ export type CustomerErpAuditLogOrderByWithRelationInput = {
   userAgent?: Prisma.SortOrderInput | Prisma.SortOrder
   correlationId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   organization?: Prisma.BuyerOrganizationOrderByWithRelationInput
   _relevance?: Prisma.CustomerErpAuditLogOrderByRelevanceInput
 }
@@ -296,6 +305,7 @@ export type CustomerErpAuditLogWhereUniqueInput = Prisma.AtLeast<{
   userAgent?: Prisma.StringNullableFilter<"CustomerErpAuditLog"> | string | null
   correlationId?: Prisma.StringNullableFilter<"CustomerErpAuditLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CustomerErpAuditLog"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpAuditLog"> | Date | string
   organization?: Prisma.XOR<Prisma.BuyerOrganizationScalarRelationFilter, Prisma.BuyerOrganizationWhereInput>
 }, "id">
 
@@ -314,6 +324,7 @@ export type CustomerErpAuditLogOrderByWithAggregationInput = {
   userAgent?: Prisma.SortOrderInput | Prisma.SortOrder
   correlationId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CustomerErpAuditLogCountOrderByAggregateInput
   _max?: Prisma.CustomerErpAuditLogMaxOrderByAggregateInput
   _min?: Prisma.CustomerErpAuditLogMinOrderByAggregateInput
@@ -337,6 +348,7 @@ export type CustomerErpAuditLogScalarWhereWithAggregatesInput = {
   userAgent?: Prisma.StringNullableWithAggregatesFilter<"CustomerErpAuditLog"> | string | null
   correlationId?: Prisma.StringNullableWithAggregatesFilter<"CustomerErpAuditLog"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerErpAuditLog"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerErpAuditLog"> | Date | string
 }
 
 export type CustomerErpAuditLogCreateInput = {
@@ -353,6 +365,7 @@ export type CustomerErpAuditLogCreateInput = {
   userAgent?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   organization: Prisma.BuyerOrganizationCreateNestedOneWithoutAuditLogsInput
 }
 
@@ -371,6 +384,7 @@ export type CustomerErpAuditLogUncheckedCreateInput = {
   userAgent?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpAuditLogUpdateInput = {
@@ -387,6 +401,7 @@ export type CustomerErpAuditLogUpdateInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.BuyerOrganizationUpdateOneRequiredWithoutAuditLogsNestedInput
 }
 
@@ -405,6 +420,7 @@ export type CustomerErpAuditLogUncheckedUpdateInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpAuditLogCreateManyInput = {
@@ -422,6 +438,7 @@ export type CustomerErpAuditLogCreateManyInput = {
   userAgent?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpAuditLogUpdateManyMutationInput = {
@@ -438,6 +455,7 @@ export type CustomerErpAuditLogUpdateManyMutationInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpAuditLogUncheckedUpdateManyInput = {
@@ -455,6 +473,7 @@ export type CustomerErpAuditLogUncheckedUpdateManyInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpAuditLogListRelationFilter = {
@@ -488,6 +507,7 @@ export type CustomerErpAuditLogCountOrderByAggregateInput = {
   userAgent?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpAuditLogMaxOrderByAggregateInput = {
@@ -503,6 +523,7 @@ export type CustomerErpAuditLogMaxOrderByAggregateInput = {
   userAgent?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpAuditLogMinOrderByAggregateInput = {
@@ -518,6 +539,7 @@ export type CustomerErpAuditLogMinOrderByAggregateInput = {
   userAgent?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpAuditLogCreateNestedManyWithoutOrganizationInput = {
@@ -576,6 +598,7 @@ export type CustomerErpAuditLogCreateWithoutOrganizationInput = {
   userAgent?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpAuditLogUncheckedCreateWithoutOrganizationInput = {
@@ -592,6 +615,7 @@ export type CustomerErpAuditLogUncheckedCreateWithoutOrganizationInput = {
   userAgent?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpAuditLogCreateOrConnectWithoutOrganizationInput = {
@@ -638,6 +662,7 @@ export type CustomerErpAuditLogScalarWhereInput = {
   userAgent?: Prisma.StringNullableFilter<"CustomerErpAuditLog"> | string | null
   correlationId?: Prisma.StringNullableFilter<"CustomerErpAuditLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CustomerErpAuditLog"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpAuditLog"> | Date | string
 }
 
 export type CustomerErpAuditLogCreateManyOrganizationInput = {
@@ -654,6 +679,7 @@ export type CustomerErpAuditLogCreateManyOrganizationInput = {
   userAgent?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpAuditLogUpdateWithoutOrganizationInput = {
@@ -670,6 +696,7 @@ export type CustomerErpAuditLogUpdateWithoutOrganizationInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpAuditLogUncheckedUpdateWithoutOrganizationInput = {
@@ -686,6 +713,7 @@ export type CustomerErpAuditLogUncheckedUpdateWithoutOrganizationInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpAuditLogUncheckedUpdateManyWithoutOrganizationInput = {
@@ -702,6 +730,7 @@ export type CustomerErpAuditLogUncheckedUpdateManyWithoutOrganizationInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -721,6 +750,7 @@ export type CustomerErpAuditLogSelect<ExtArgs extends runtime.Types.Extensions.I
   userAgent?: boolean
   correlationId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   organization?: boolean | Prisma.BuyerOrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerErpAuditLog"]>
 
@@ -741,9 +771,10 @@ export type CustomerErpAuditLogSelectScalar = {
   userAgent?: boolean
   correlationId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CustomerErpAuditLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "connectionId" | "action" | "actorProfileId" | "actorEmail" | "resourceType" | "resourceId" | "beforeJson" | "afterJson" | "ipAddress" | "userAgent" | "correlationId" | "createdAt", ExtArgs["result"]["customerErpAuditLog"]>
+export type CustomerErpAuditLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "connectionId" | "action" | "actorProfileId" | "actorEmail" | "resourceType" | "resourceId" | "beforeJson" | "afterJson" | "ipAddress" | "userAgent" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["customerErpAuditLog"]>
 export type CustomerErpAuditLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.BuyerOrganizationDefaultArgs<ExtArgs>
 }
@@ -779,6 +810,7 @@ export type $CustomerErpAuditLogPayload<ExtArgs extends runtime.Types.Extensions
     userAgent: string | null
     correlationId: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["customerErpAuditLog"]>
   composites: {}
 }
@@ -1163,6 +1195,7 @@ export interface CustomerErpAuditLogFieldRefs {
   readonly userAgent: Prisma.FieldRef<"CustomerErpAuditLog", 'String'>
   readonly correlationId: Prisma.FieldRef<"CustomerErpAuditLog", 'String'>
   readonly createdAt: Prisma.FieldRef<"CustomerErpAuditLog", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CustomerErpAuditLog", 'DateTime'>
 }
     
 

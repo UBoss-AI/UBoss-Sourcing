@@ -41,6 +41,7 @@ export type ExchangeRateMinAggregateOutputType = {
   quoteCurrency: string | null
   rate: runtime.Decimal | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ExchangeRateMaxAggregateOutputType = {
@@ -50,6 +51,7 @@ export type ExchangeRateMaxAggregateOutputType = {
   quoteCurrency: string | null
   rate: runtime.Decimal | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ExchangeRateCountAggregateOutputType = {
@@ -59,6 +61,7 @@ export type ExchangeRateCountAggregateOutputType = {
   quoteCurrency: number
   rate: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -78,6 +81,7 @@ export type ExchangeRateMinAggregateInputType = {
   quoteCurrency?: true
   rate?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type ExchangeRateMaxAggregateInputType = {
@@ -87,6 +91,7 @@ export type ExchangeRateMaxAggregateInputType = {
   quoteCurrency?: true
   rate?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type ExchangeRateCountAggregateInputType = {
@@ -96,6 +101,7 @@ export type ExchangeRateCountAggregateInputType = {
   quoteCurrency?: true
   rate?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -192,6 +198,7 @@ export type ExchangeRateGroupByOutputType = {
   quoteCurrency: string
   rate: runtime.Decimal
   createdAt: Date
+  updatedAt: Date
   _count: ExchangeRateCountAggregateOutputType | null
   _avg: ExchangeRateAvgAggregateOutputType | null
   _sum: ExchangeRateSumAggregateOutputType | null
@@ -224,6 +231,7 @@ export type ExchangeRateWhereInput = {
   quoteCurrency?: Prisma.StringFilter<"ExchangeRate"> | string
   rate?: Prisma.DecimalFilter<"ExchangeRate"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"ExchangeRate"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ExchangeRate"> | Date | string
   snapshot?: Prisma.XOR<Prisma.ExchangeRateSnapshotScalarRelationFilter, Prisma.ExchangeRateSnapshotWhereInput>
 }
 
@@ -234,6 +242,7 @@ export type ExchangeRateOrderByWithRelationInput = {
   quoteCurrency?: Prisma.SortOrder
   rate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   snapshot?: Prisma.ExchangeRateSnapshotOrderByWithRelationInput
   _relevance?: Prisma.ExchangeRateOrderByRelevanceInput
 }
@@ -249,6 +258,7 @@ export type ExchangeRateWhereUniqueInput = Prisma.AtLeast<{
   quoteCurrency?: Prisma.StringFilter<"ExchangeRate"> | string
   rate?: Prisma.DecimalFilter<"ExchangeRate"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"ExchangeRate"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ExchangeRate"> | Date | string
   snapshot?: Prisma.XOR<Prisma.ExchangeRateSnapshotScalarRelationFilter, Prisma.ExchangeRateSnapshotWhereInput>
 }, "id" | "snapshotId_quoteCurrency">
 
@@ -259,6 +269,7 @@ export type ExchangeRateOrderByWithAggregationInput = {
   quoteCurrency?: Prisma.SortOrder
   rate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ExchangeRateCountOrderByAggregateInput
   _avg?: Prisma.ExchangeRateAvgOrderByAggregateInput
   _max?: Prisma.ExchangeRateMaxOrderByAggregateInput
@@ -276,6 +287,7 @@ export type ExchangeRateScalarWhereWithAggregatesInput = {
   quoteCurrency?: Prisma.StringWithAggregatesFilter<"ExchangeRate"> | string
   rate?: Prisma.DecimalWithAggregatesFilter<"ExchangeRate"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ExchangeRate"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ExchangeRate"> | Date | string
 }
 
 export type ExchangeRateCreateInput = {
@@ -284,6 +296,7 @@ export type ExchangeRateCreateInput = {
   quoteCurrency: string
   rate: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   snapshot: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutRatesInput
 }
 
@@ -294,6 +307,7 @@ export type ExchangeRateUncheckedCreateInput = {
   quoteCurrency: string
   rate: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ExchangeRateUpdateInput = {
@@ -302,6 +316,7 @@ export type ExchangeRateUpdateInput = {
   quoteCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   snapshot?: Prisma.ExchangeRateSnapshotUpdateOneRequiredWithoutRatesNestedInput
 }
 
@@ -312,6 +327,7 @@ export type ExchangeRateUncheckedUpdateInput = {
   quoteCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ExchangeRateCreateManyInput = {
@@ -321,6 +337,7 @@ export type ExchangeRateCreateManyInput = {
   quoteCurrency: string
   rate: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ExchangeRateUpdateManyMutationInput = {
@@ -329,6 +346,7 @@ export type ExchangeRateUpdateManyMutationInput = {
   quoteCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ExchangeRateUncheckedUpdateManyInput = {
@@ -338,6 +356,7 @@ export type ExchangeRateUncheckedUpdateManyInput = {
   quoteCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ExchangeRateListRelationFilter = {
@@ -368,6 +387,7 @@ export type ExchangeRateCountOrderByAggregateInput = {
   quoteCurrency?: Prisma.SortOrder
   rate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ExchangeRateAvgOrderByAggregateInput = {
@@ -381,6 +401,7 @@ export type ExchangeRateMaxOrderByAggregateInput = {
   quoteCurrency?: Prisma.SortOrder
   rate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ExchangeRateMinOrderByAggregateInput = {
@@ -390,6 +411,7 @@ export type ExchangeRateMinOrderByAggregateInput = {
   quoteCurrency?: Prisma.SortOrder
   rate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ExchangeRateSumOrderByAggregateInput = {
@@ -444,6 +466,7 @@ export type ExchangeRateCreateWithoutSnapshotInput = {
   quoteCurrency: string
   rate: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ExchangeRateUncheckedCreateWithoutSnapshotInput = {
@@ -452,6 +475,7 @@ export type ExchangeRateUncheckedCreateWithoutSnapshotInput = {
   quoteCurrency: string
   rate: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ExchangeRateCreateOrConnectWithoutSnapshotInput = {
@@ -490,6 +514,7 @@ export type ExchangeRateScalarWhereInput = {
   quoteCurrency?: Prisma.StringFilter<"ExchangeRate"> | string
   rate?: Prisma.DecimalFilter<"ExchangeRate"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"ExchangeRate"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ExchangeRate"> | Date | string
 }
 
 export type ExchangeRateCreateManySnapshotInput = {
@@ -498,6 +523,7 @@ export type ExchangeRateCreateManySnapshotInput = {
   quoteCurrency: string
   rate: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ExchangeRateUpdateWithoutSnapshotInput = {
@@ -506,6 +532,7 @@ export type ExchangeRateUpdateWithoutSnapshotInput = {
   quoteCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ExchangeRateUncheckedUpdateWithoutSnapshotInput = {
@@ -514,6 +541,7 @@ export type ExchangeRateUncheckedUpdateWithoutSnapshotInput = {
   quoteCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ExchangeRateUncheckedUpdateManyWithoutSnapshotInput = {
@@ -522,6 +550,7 @@ export type ExchangeRateUncheckedUpdateManyWithoutSnapshotInput = {
   quoteCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -533,6 +562,7 @@ export type ExchangeRateSelect<ExtArgs extends runtime.Types.Extensions.Internal
   quoteCurrency?: boolean
   rate?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   snapshot?: boolean | Prisma.ExchangeRateSnapshotDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["exchangeRate"]>
 
@@ -545,9 +575,10 @@ export type ExchangeRateSelectScalar = {
   quoteCurrency?: boolean
   rate?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ExchangeRateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "snapshotId" | "baseCurrency" | "quoteCurrency" | "rate" | "createdAt", ExtArgs["result"]["exchangeRate"]>
+export type ExchangeRateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "snapshotId" | "baseCurrency" | "quoteCurrency" | "rate" | "createdAt" | "updatedAt", ExtArgs["result"]["exchangeRate"]>
 export type ExchangeRateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   snapshot?: boolean | Prisma.ExchangeRateSnapshotDefaultArgs<ExtArgs>
 }
@@ -576,6 +607,7 @@ export type $ExchangeRatePayload<ExtArgs extends runtime.Types.Extensions.Intern
      */
     rate: runtime.Decimal
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["exchangeRate"]>
   composites: {}
 }
@@ -952,6 +984,7 @@ export interface ExchangeRateFieldRefs {
   readonly quoteCurrency: Prisma.FieldRef<"ExchangeRate", 'String'>
   readonly rate: Prisma.FieldRef<"ExchangeRate", 'Decimal'>
   readonly createdAt: Prisma.FieldRef<"ExchangeRate", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ExchangeRate", 'DateTime'>
 }
     
 

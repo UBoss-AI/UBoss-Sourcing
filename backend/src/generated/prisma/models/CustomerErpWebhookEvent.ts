@@ -46,6 +46,8 @@ export type CustomerErpWebhookEventMinAggregateOutputType = {
   processedAt: Date | null
   syncEventId: string | null
   correlationId: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CustomerErpWebhookEventMaxAggregateOutputType = {
@@ -61,6 +63,8 @@ export type CustomerErpWebhookEventMaxAggregateOutputType = {
   processedAt: Date | null
   syncEventId: string | null
   correlationId: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CustomerErpWebhookEventCountAggregateOutputType = {
@@ -77,6 +81,8 @@ export type CustomerErpWebhookEventCountAggregateOutputType = {
   syncEventId: number
   payloadJson: number
   correlationId: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -94,6 +100,8 @@ export type CustomerErpWebhookEventMinAggregateInputType = {
   processedAt?: true
   syncEventId?: true
   correlationId?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CustomerErpWebhookEventMaxAggregateInputType = {
@@ -109,6 +117,8 @@ export type CustomerErpWebhookEventMaxAggregateInputType = {
   processedAt?: true
   syncEventId?: true
   correlationId?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CustomerErpWebhookEventCountAggregateInputType = {
@@ -125,6 +135,8 @@ export type CustomerErpWebhookEventCountAggregateInputType = {
   syncEventId?: true
   payloadJson?: true
   correlationId?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -214,6 +226,8 @@ export type CustomerErpWebhookEventGroupByOutputType = {
   syncEventId: string | null
   payloadJson: runtime.JsonValue | null
   correlationId: string
+  createdAt: Date
+  updatedAt: Date
   _count: CustomerErpWebhookEventCountAggregateOutputType | null
   _min: CustomerErpWebhookEventMinAggregateOutputType | null
   _max: CustomerErpWebhookEventMaxAggregateOutputType | null
@@ -251,6 +265,8 @@ export type CustomerErpWebhookEventWhereInput = {
   syncEventId?: Prisma.StringNullableFilter<"CustomerErpWebhookEvent"> | string | null
   payloadJson?: Prisma.JsonNullableFilter<"CustomerErpWebhookEvent">
   correlationId?: Prisma.StringFilter<"CustomerErpWebhookEvent"> | string
+  createdAt?: Prisma.DateTimeFilter<"CustomerErpWebhookEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpWebhookEvent"> | Date | string
   connection?: Prisma.XOR<Prisma.CustomerErpConnectionScalarRelationFilter, Prisma.CustomerErpConnectionWhereInput>
 }
 
@@ -268,6 +284,8 @@ export type CustomerErpWebhookEventOrderByWithRelationInput = {
   syncEventId?: Prisma.SortOrderInput | Prisma.SortOrder
   payloadJson?: Prisma.SortOrderInput | Prisma.SortOrder
   correlationId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   connection?: Prisma.CustomerErpConnectionOrderByWithRelationInput
   _relevance?: Prisma.CustomerErpWebhookEventOrderByRelevanceInput
 }
@@ -290,6 +308,8 @@ export type CustomerErpWebhookEventWhereUniqueInput = Prisma.AtLeast<{
   syncEventId?: Prisma.StringNullableFilter<"CustomerErpWebhookEvent"> | string | null
   payloadJson?: Prisma.JsonNullableFilter<"CustomerErpWebhookEvent">
   correlationId?: Prisma.StringFilter<"CustomerErpWebhookEvent"> | string
+  createdAt?: Prisma.DateTimeFilter<"CustomerErpWebhookEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpWebhookEvent"> | Date | string
   connection?: Prisma.XOR<Prisma.CustomerErpConnectionScalarRelationFilter, Prisma.CustomerErpConnectionWhereInput>
 }, "id" | "connectionId_externalEventId">
 
@@ -307,6 +327,8 @@ export type CustomerErpWebhookEventOrderByWithAggregationInput = {
   syncEventId?: Prisma.SortOrderInput | Prisma.SortOrder
   payloadJson?: Prisma.SortOrderInput | Prisma.SortOrder
   correlationId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CustomerErpWebhookEventCountOrderByAggregateInput
   _max?: Prisma.CustomerErpWebhookEventMaxOrderByAggregateInput
   _min?: Prisma.CustomerErpWebhookEventMinOrderByAggregateInput
@@ -329,6 +351,8 @@ export type CustomerErpWebhookEventScalarWhereWithAggregatesInput = {
   syncEventId?: Prisma.StringNullableWithAggregatesFilter<"CustomerErpWebhookEvent"> | string | null
   payloadJson?: Prisma.JsonNullableWithAggregatesFilter<"CustomerErpWebhookEvent">
   correlationId?: Prisma.StringWithAggregatesFilter<"CustomerErpWebhookEvent"> | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerErpWebhookEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerErpWebhookEvent"> | Date | string
 }
 
 export type CustomerErpWebhookEventCreateInput = {
@@ -344,6 +368,8 @@ export type CustomerErpWebhookEventCreateInput = {
   syncEventId?: string | null
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   connection: Prisma.CustomerErpConnectionCreateNestedOneWithoutWebhookEventsInput
 }
 
@@ -361,6 +387,8 @@ export type CustomerErpWebhookEventUncheckedCreateInput = {
   syncEventId?: string | null
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpWebhookEventUpdateInput = {
@@ -376,6 +404,8 @@ export type CustomerErpWebhookEventUpdateInput = {
   syncEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   connection?: Prisma.CustomerErpConnectionUpdateOneRequiredWithoutWebhookEventsNestedInput
 }
 
@@ -393,6 +423,8 @@ export type CustomerErpWebhookEventUncheckedUpdateInput = {
   syncEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpWebhookEventCreateManyInput = {
@@ -409,6 +441,8 @@ export type CustomerErpWebhookEventCreateManyInput = {
   syncEventId?: string | null
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpWebhookEventUpdateManyMutationInput = {
@@ -424,6 +458,8 @@ export type CustomerErpWebhookEventUpdateManyMutationInput = {
   syncEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpWebhookEventUncheckedUpdateManyInput = {
@@ -440,6 +476,8 @@ export type CustomerErpWebhookEventUncheckedUpdateManyInput = {
   syncEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpWebhookEventListRelationFilter = {
@@ -477,6 +515,8 @@ export type CustomerErpWebhookEventCountOrderByAggregateInput = {
   syncEventId?: Prisma.SortOrder
   payloadJson?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpWebhookEventMaxOrderByAggregateInput = {
@@ -492,6 +532,8 @@ export type CustomerErpWebhookEventMaxOrderByAggregateInput = {
   processedAt?: Prisma.SortOrder
   syncEventId?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpWebhookEventMinOrderByAggregateInput = {
@@ -507,6 +549,8 @@ export type CustomerErpWebhookEventMinOrderByAggregateInput = {
   processedAt?: Prisma.SortOrder
   syncEventId?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpWebhookEventCreateNestedManyWithoutConnectionInput = {
@@ -564,6 +608,8 @@ export type CustomerErpWebhookEventCreateWithoutConnectionInput = {
   syncEventId?: string | null
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpWebhookEventUncheckedCreateWithoutConnectionInput = {
@@ -579,6 +625,8 @@ export type CustomerErpWebhookEventUncheckedCreateWithoutConnectionInput = {
   syncEventId?: string | null
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpWebhookEventCreateOrConnectWithoutConnectionInput = {
@@ -624,6 +672,8 @@ export type CustomerErpWebhookEventScalarWhereInput = {
   syncEventId?: Prisma.StringNullableFilter<"CustomerErpWebhookEvent"> | string | null
   payloadJson?: Prisma.JsonNullableFilter<"CustomerErpWebhookEvent">
   correlationId?: Prisma.StringFilter<"CustomerErpWebhookEvent"> | string
+  createdAt?: Prisma.DateTimeFilter<"CustomerErpWebhookEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpWebhookEvent"> | Date | string
 }
 
 export type CustomerErpWebhookEventCreateManyConnectionInput = {
@@ -639,6 +689,8 @@ export type CustomerErpWebhookEventCreateManyConnectionInput = {
   syncEventId?: string | null
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpWebhookEventUpdateWithoutConnectionInput = {
@@ -654,6 +706,8 @@ export type CustomerErpWebhookEventUpdateWithoutConnectionInput = {
   syncEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpWebhookEventUncheckedUpdateWithoutConnectionInput = {
@@ -669,6 +723,8 @@ export type CustomerErpWebhookEventUncheckedUpdateWithoutConnectionInput = {
   syncEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpWebhookEventUncheckedUpdateManyWithoutConnectionInput = {
@@ -684,6 +740,8 @@ export type CustomerErpWebhookEventUncheckedUpdateManyWithoutConnectionInput = {
   syncEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -702,6 +760,8 @@ export type CustomerErpWebhookEventSelect<ExtArgs extends runtime.Types.Extensio
   syncEventId?: boolean
   payloadJson?: boolean
   correlationId?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   connection?: boolean | Prisma.CustomerErpConnectionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerErpWebhookEvent"]>
 
@@ -721,9 +781,11 @@ export type CustomerErpWebhookEventSelectScalar = {
   syncEventId?: boolean
   payloadJson?: boolean
   correlationId?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CustomerErpWebhookEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "organizationId" | "externalEventId" | "externalEventType" | "verified" | "rejectionReason" | "signedAt" | "receivedAt" | "processedAt" | "syncEventId" | "payloadJson" | "correlationId", ExtArgs["result"]["customerErpWebhookEvent"]>
+export type CustomerErpWebhookEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "organizationId" | "externalEventId" | "externalEventType" | "verified" | "rejectionReason" | "signedAt" | "receivedAt" | "processedAt" | "syncEventId" | "payloadJson" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["customerErpWebhookEvent"]>
 export type CustomerErpWebhookEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   connection?: boolean | Prisma.CustomerErpConnectionDefaultArgs<ExtArgs>
 }
@@ -776,6 +838,8 @@ export type $CustomerErpWebhookEventPayload<ExtArgs extends runtime.Types.Extens
      */
     payloadJson: runtime.JsonValue | null
     correlationId: string
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["customerErpWebhookEvent"]>
   composites: {}
 }
@@ -1159,6 +1223,8 @@ export interface CustomerErpWebhookEventFieldRefs {
   readonly syncEventId: Prisma.FieldRef<"CustomerErpWebhookEvent", 'String'>
   readonly payloadJson: Prisma.FieldRef<"CustomerErpWebhookEvent", 'Json'>
   readonly correlationId: Prisma.FieldRef<"CustomerErpWebhookEvent", 'String'>
+  readonly createdAt: Prisma.FieldRef<"CustomerErpWebhookEvent", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CustomerErpWebhookEvent", 'DateTime'>
 }
     
 

@@ -41,6 +41,7 @@ export type SellerAuditLogMinAggregateOutputType = {
   summary: string | null
   correlationId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerAuditLogMaxAggregateOutputType = {
@@ -55,6 +56,7 @@ export type SellerAuditLogMaxAggregateOutputType = {
   summary: string | null
   correlationId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerAuditLogCountAggregateOutputType = {
@@ -71,6 +73,7 @@ export type SellerAuditLogCountAggregateOutputType = {
   summary: number
   correlationId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -87,6 +90,7 @@ export type SellerAuditLogMinAggregateInputType = {
   summary?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerAuditLogMaxAggregateInputType = {
@@ -101,6 +105,7 @@ export type SellerAuditLogMaxAggregateInputType = {
   summary?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerAuditLogCountAggregateInputType = {
@@ -117,6 +122,7 @@ export type SellerAuditLogCountAggregateInputType = {
   summary?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -206,6 +212,7 @@ export type SellerAuditLogGroupByOutputType = {
   summary: string | null
   correlationId: string | null
   createdAt: Date
+  updatedAt: Date
   _count: SellerAuditLogCountAggregateOutputType | null
   _min: SellerAuditLogMinAggregateOutputType | null
   _max: SellerAuditLogMaxAggregateOutputType | null
@@ -243,6 +250,7 @@ export type SellerAuditLogWhereInput = {
   summary?: Prisma.StringNullableFilter<"SellerAuditLog"> | string | null
   correlationId?: Prisma.StringNullableFilter<"SellerAuditLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerAuditLog"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerAuditLog"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
 }
 
@@ -260,6 +268,7 @@ export type SellerAuditLogOrderByWithRelationInput = {
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   correlationId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   _relevance?: Prisma.SellerAuditLogOrderByRelevanceInput
 }
@@ -281,6 +290,7 @@ export type SellerAuditLogWhereUniqueInput = Prisma.AtLeast<{
   summary?: Prisma.StringNullableFilter<"SellerAuditLog"> | string | null
   correlationId?: Prisma.StringNullableFilter<"SellerAuditLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerAuditLog"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerAuditLog"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
 }, "id">
 
@@ -298,6 +308,7 @@ export type SellerAuditLogOrderByWithAggregationInput = {
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   correlationId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerAuditLogCountOrderByAggregateInput
   _max?: Prisma.SellerAuditLogMaxOrderByAggregateInput
   _min?: Prisma.SellerAuditLogMinOrderByAggregateInput
@@ -320,6 +331,7 @@ export type SellerAuditLogScalarWhereWithAggregatesInput = {
   summary?: Prisma.StringNullableWithAggregatesFilter<"SellerAuditLog"> | string | null
   correlationId?: Prisma.StringNullableWithAggregatesFilter<"SellerAuditLog"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerAuditLog"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerAuditLog"> | Date | string
 }
 
 export type SellerAuditLogCreateInput = {
@@ -335,6 +347,7 @@ export type SellerAuditLogCreateInput = {
   summary?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutAuditLogsInput
 }
 
@@ -352,6 +365,7 @@ export type SellerAuditLogUncheckedCreateInput = {
   summary?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerAuditLogUpdateInput = {
@@ -367,6 +381,7 @@ export type SellerAuditLogUpdateInput = {
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutAuditLogsNestedInput
 }
 
@@ -384,6 +399,7 @@ export type SellerAuditLogUncheckedUpdateInput = {
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerAuditLogCreateManyInput = {
@@ -400,6 +416,7 @@ export type SellerAuditLogCreateManyInput = {
   summary?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerAuditLogUpdateManyMutationInput = {
@@ -415,6 +432,7 @@ export type SellerAuditLogUpdateManyMutationInput = {
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerAuditLogUncheckedUpdateManyInput = {
@@ -431,6 +449,7 @@ export type SellerAuditLogUncheckedUpdateManyInput = {
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerAuditLogListRelationFilter = {
@@ -463,6 +482,7 @@ export type SellerAuditLogCountOrderByAggregateInput = {
   summary?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerAuditLogMaxOrderByAggregateInput = {
@@ -477,6 +497,7 @@ export type SellerAuditLogMaxOrderByAggregateInput = {
   summary?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerAuditLogMinOrderByAggregateInput = {
@@ -491,6 +512,7 @@ export type SellerAuditLogMinOrderByAggregateInput = {
   summary?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerAuditLogCreateNestedManyWithoutSellerAccountInput = {
@@ -548,6 +570,7 @@ export type SellerAuditLogCreateWithoutSellerAccountInput = {
   summary?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerAuditLogUncheckedCreateWithoutSellerAccountInput = {
@@ -563,6 +586,7 @@ export type SellerAuditLogUncheckedCreateWithoutSellerAccountInput = {
   summary?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerAuditLogCreateOrConnectWithoutSellerAccountInput = {
@@ -608,6 +632,7 @@ export type SellerAuditLogScalarWhereInput = {
   summary?: Prisma.StringNullableFilter<"SellerAuditLog"> | string | null
   correlationId?: Prisma.StringNullableFilter<"SellerAuditLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerAuditLog"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerAuditLog"> | Date | string
 }
 
 export type SellerAuditLogCreateManySellerAccountInput = {
@@ -623,6 +648,7 @@ export type SellerAuditLogCreateManySellerAccountInput = {
   summary?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerAuditLogUpdateWithoutSellerAccountInput = {
@@ -638,6 +664,7 @@ export type SellerAuditLogUpdateWithoutSellerAccountInput = {
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerAuditLogUncheckedUpdateWithoutSellerAccountInput = {
@@ -653,6 +680,7 @@ export type SellerAuditLogUncheckedUpdateWithoutSellerAccountInput = {
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerAuditLogUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -668,6 +696,7 @@ export type SellerAuditLogUncheckedUpdateManyWithoutSellerAccountInput = {
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -686,6 +715,7 @@ export type SellerAuditLogSelect<ExtArgs extends runtime.Types.Extensions.Intern
   summary?: boolean
   correlationId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerAuditLog"]>
 
@@ -705,9 +735,10 @@ export type SellerAuditLogSelectScalar = {
   summary?: boolean
   correlationId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerAuditLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "action" | "actorType" | "actorUserId" | "actorLabel" | "resourceType" | "resourceId" | "beforeJson" | "afterJson" | "summary" | "correlationId" | "createdAt", ExtArgs["result"]["sellerAuditLog"]>
+export type SellerAuditLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "action" | "actorType" | "actorUserId" | "actorLabel" | "resourceType" | "resourceId" | "beforeJson" | "afterJson" | "summary" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerAuditLog"]>
 export type SellerAuditLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }
@@ -746,6 +777,7 @@ export type $SellerAuditLogPayload<ExtArgs extends runtime.Types.Extensions.Inte
     summary: string | null
     correlationId: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerAuditLog"]>
   composites: {}
 }
@@ -1129,6 +1161,7 @@ export interface SellerAuditLogFieldRefs {
   readonly summary: Prisma.FieldRef<"SellerAuditLog", 'String'>
   readonly correlationId: Prisma.FieldRef<"SellerAuditLog", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerAuditLog", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerAuditLog", 'DateTime'>
 }
     
 

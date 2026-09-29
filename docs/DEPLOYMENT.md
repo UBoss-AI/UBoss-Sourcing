@@ -40,7 +40,7 @@ this document points at it rather than repeating it.
 | For | Read |
 |---|---|
 | **What is actually built, capability by capability, against the product description** — and what is missing | `docs/PRODUCT-READINESS.md` |
-| **Which MariaDB and why, its configuration, its four accounts, the connection budget, collation and time** | `docs/DATABASE-PRODUCTION.md` |
+| **Which MariaDB and why, its configuration, its five accounts, the connection budget, collation and time** | `docs/DATABASE-PRODUCTION.md` |
 | **Migrations, schema drift, getting data out of XAMPP, what data may travel, validation** | `docs/DATABASE-MIGRATION.md` |
 | **Backups, restore rehearsals, point-in-time recovery, the database runbook** | `docs/DATABASE-RECOVERY.md` |
 | **Serving the three front ends from a static host instead of nginx on this box** — and the two processes that cannot go there | `docs/NETLIFY.md` |
@@ -708,7 +708,7 @@ Retention values marked *(env)* are enforced by `RETENTION_SWEEP` in the worker
 | **AI prompts** | Answer buyer questions | Art. 6(1)(f), or (a) if presented as consent | Controller; **provider is processor** | Visitor free text | MariaDB, **and sent to Anthropic/Google in the US** | US | TLS | Support roles | `RETENTION_ASSISTANT_CONVERSATION_DAYS` *(env)* | Sweep | Dump | Anthropic, Google | **SCCs + model-training opt-out + DPA** |
 | **Search images** | Image product search | Art. 6(1)(f) | Controller | Upload | Sent to the AI provider | US | TLS | — | not persisted as a product asset | — | — | Anthropic/Google | Same |
 | **Support / enquiry transcripts** | Respond to prospects | Art. 6(1)(f) or (a) | Controller | Storefront form | MariaDB | VPS region | — | Support | `RETENTION_ASSISTANT_CONVERSATION_DAYS` | Sweep | Dump | — | LIA if (f) |
-| **Audit logs** | Accountability | Art. 6(1)(c)+(f) | Controller | System | MariaDB `audit_logs` | VPS region | **Append-only by DB grant: `REVOKE UPDATE, DELETE`** **[VR]** | Admin read | `RETENTION_AUDIT_LOG_DAYS` *(env)* | Sweep | Dump | — | Retention vs. minimisation |
+| **Audit logs** | Accountability | Art. 6(1)(c)+(f) | Controller | System | MariaDB `audit_logs` | VPS region | **Append-only for the application by DB grant [VR]**; only `uboss_maintenance` may blank actor email/IP/user agent (erasure) or delete (retention) **[tested 2026-09-29]** | Admin read | `RETENTION_AUDIT_LOG_DAYS` *(env)* | Sweep (as `uboss_maintenance`) | Dump | — | Retention vs. minimisation |
 | **Server / app logs** | Operations | Art. 6(1)(f) | Controller | journald | Local disk | VPS region | pino redaction of 40+ paths **[VR]** | root/ops | **journald default — `<DECIDE>` and cap it (§10)** | rotation | **Not backed up** | — | Log retention policy |
 | **Backups** | Recovery | Art. 6(1)(c)+(f) | Controller | `backup.sh` | Local **and** the configured off-site remote | VPS region + remote region | **Dump, media archive and `.env` are all AES-256 encrypted, each with a SHA-256 beside it** | root | `KEEP_DAYS` | `find -mtime -delete` | — | Off-site vendor | **Erasure vs. backups: document that restores re-apply erasure** |
 
@@ -1495,11 +1495,13 @@ before exiting** **[VR]**. Read the failure; do not work around it.
 | `STORAGE_DRIVER` | API, worker | Media storage | yes | no | **`s3`** | `local` | n/a | production guard; `s3` requires bucket + both keys | `local` **refuses to start** in production — a VPS disk is one disk |
 | `ALLOW_PRIVATE_ERP_TARGETS` | API, worker | SSRF escape hatch | no | no | unset / `false` | `true` for a mock ERP | n/a | production guard | **Refuses to start** if `true` — it makes the cloud metadata endpoint reachable from a form field |
 | `DATABASE_URL` | API, worker | Runtime database | yes | **yes** | `mysql://uboss_app:...@127.0.0.1:3306/uboss` | local | Quarterly | parsed at boot | No start |
+| `DATABASE_MAINTENANCE_URL` | API, worker (erasure and audit retention only) | The one account that may blank an erased person's email/IP/user agent on audit rows and delete rows past retention | yes | **yes** | `mysql://uboss_maintenance:...@127.0.0.1:3306/uboss` | unset (main connection) | Quarterly | **refused if unset or equal to `DATABASE_URL`** | No start |
 | `MIGRATE_DATABASE_URL` | `release.sh` only | Schema-owning user | yes | **yes** | `mysql://uboss_migrate:...@127.0.0.1:3306/uboss` | unset | Quarterly | warned if unset | Migrations run with the runtime user's rights |
 | `DB_POOL_SIZE` | API, worker | Pool ceiling **per process** | yes | no | `12` | `10` | n/a | 1–100 | 4 processes x pool must stay under `max_connections = 200` |
 | `DEFAULT_CURRENCY` | API | Fallback currency | yes | no | **`PLN`** | `INR` | n/a | 3 chars | **The default is `INR`** — wrong for Poland |
 | `DEFAULT_TIMEZONE` | API | Application wall-clock | yes | no | **`Europe/Warsaw`** | `Asia/Kolkata` | n/a | — | **The default is `Asia/Kolkata`** — schedules fire at the wrong hour |
 | `FEATURE_ADMIN_LOGIN_LOCATION` | API | Staff sign-in geolocation | no | no | **`false` in the EU** | `false` | n/a | — | **Privacy-preserving default.** Enable only after the assessment in `DATA-PROTECTION.md` §2.1 |
+| `FEATURE_SELLER_SETTLEMENT_STATEMENTS` / `SELLER_SETTLEMENT_PERIOD` / `SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS` | worker (the daily close), API (boot check) | Seller settlement statements: one per seller and currency per closed period | no | no | Off unless you have decided your settlement policy. When on: `MONTHLY` or `WEEKLY`, and the return window in days (0–365) | `false` / `MONTHLY` / unset | n/a | `env.ts`: the days are **required when the flag is on — there is no default** | **Refuses to start** when statements are on and the days are unset. A statement moves no money: payouts stay unconfigured |
 
 ### 12.2 Payments
 
@@ -1533,6 +1535,7 @@ before exiting** **[VR]**. Read the failure; do not work around it.
 | **Queue / cache** | `QUEUE_DRIVER=database`, `CACHE_DRIVER=memory`, `REDIS_URL` | no | Leave as defaults. `redis` throws "not implemented"; `CACHE_DRIVER` is read nowhere **[VR]** |
 | **Backups** | `UBOSS_BACKUP_PASSPHRASE`, `UBOSS_OFFSITE_REMOTE`, `UBOSS_OFFSITE_OPTOUT` | passphrase | Read from `/etc/uboss/backup.env` (root, 0600) by `uboss-backup.service`, **not** from `shared/.env`. **Store the passphrase off this machine — it is deliberately not in the backups** |
 | **Logging** | `LOG_LEVEL` | no | `info` in production. `debug` is a privacy risk as well as a disk one |
+| **Seller statements** | `FEATURE_SELLER_SETTLEMENT_STATEMENTS`, `SELLER_SETTLEMENT_PERIOD`, `SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS` | no | Off by default. Commercial policy: what a period is and how long the return window is. See §12.1 |
 | **Schedules** | `SCHEDULE_*` (cutoff, notice days, materialise-ahead, reminder lead, price tolerance, max attempts) | no | Business rules. Review with the owner |
 | **Frontend (build-time)** | `VITE_API_BASE_URL` | no | **Baked into the bundle at build time. See B3 and §14** |
 
@@ -3216,7 +3219,7 @@ operations manual, and where the two touch, the runbook wins.
 
 | For | Read |
 |---|---|
-| Which MariaDB and why, its configuration, its four accounts, the connection budget | `docs/DATABASE-PRODUCTION.md` |
+| Which MariaDB and why, its configuration, its five accounts, the connection budget | `docs/DATABASE-PRODUCTION.md` |
 | Migrations, schema drift, the XAMPP export, what data may travel, validation | `docs/DATABASE-MIGRATION.md` |
 | Backups, restore rehearsals, point-in-time recovery, the database runbook | `docs/DATABASE-RECOVERY.md` |
 | Backup policy, restore procedure, migrations, payment reconciliation, incident response, the production hardening checklist | `backend/docs/RUNBOOK.md` |

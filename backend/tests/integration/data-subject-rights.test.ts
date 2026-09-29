@@ -17,7 +17,7 @@
  *   - **Erasure defers when it must.** Money still owed is "not yet", not
  *     "no", and the subject has to be told which.
  */
-import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { isAppError } from '../../src/domain/errors.js';
 import { hashPassword } from '../../src/infra/crypto.js';
 import { newId } from '../../src/infra/ids.js';
@@ -490,6 +490,59 @@ describe('Art. 17 erasure', () => {
     });
     expect(proof).not.toBeNull();
     expect(describeKept(result)).toContain('Art. 17(3)(b)');
+  });
+
+  it('does not report success when the audit trail could not be pseudonymised, and a rerun finishes it', async () => {
+    // In production this step runs as the separate maintenance account; the
+    // application account is refused UPDATE on audit_logs. Before that split
+    // it ran inside the erasure transaction and every erasure rolled back.
+    const subject = await makeSubject();
+
+    await prisma.auditLog.create({
+      data: {
+        id: newId(),
+        action: 'user.login',
+        resourceType: 'user',
+        resourceId: subject.userId,
+        actorType: 'CUSTOMER',
+        actorUserId: subject.userId,
+        actorEmail: subject.email,
+        ipAddress: '203.0.113.7',
+      },
+    });
+
+    const refused = vi
+      .spyOn(prisma.auditLog, 'updateMany')
+      .mockRejectedValueOnce(new Error('UPDATE command denied to user for table audit_logs'));
+
+    await expect(
+      executeErasure({ userId: subject.userId, actorUserId: null, actorEmail: null, dataRequestId: newId() }),
+    ).rejects.toThrow('UPDATE command denied');
+    refused.mockRestore();
+
+    // The account itself is erased - that transaction committed ...
+    const user = await prisma.user.findUniqueOrThrow({ where: { id: subject.userId } });
+    expect(user.erasedAt).not.toBeNull();
+    // ... but the audit row still names the person, which is why it failed loudly.
+    const before = await prisma.auditLog.findFirstOrThrow({
+      where: { actorUserId: subject.userId, action: 'user.login' },
+    });
+    expect(before.actorEmail).toBe(subject.email);
+
+    // Running the erasure again completes the one step that was left.
+    const rerun = await executeErasure({
+      userId: subject.userId,
+      actorUserId: null,
+      actorEmail: null,
+      dataRequestId: newId(),
+    });
+    expect(rerun.pseudonymised.auditLogs).toBeGreaterThan(0);
+
+    const after = await prisma.auditLog.findFirstOrThrow({
+      where: { actorUserId: subject.userId, action: 'user.login' },
+    });
+    expect(after.actorEmail).toBe(user.email);
+    expect(after.ipAddress).toBeNull();
   });
 });
 

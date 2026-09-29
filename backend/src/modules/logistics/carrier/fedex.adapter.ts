@@ -25,7 +25,6 @@
  *     hammer FedEx until they rate-limit the seller's account.
  */
 import type { CarrierProviderName } from '../../../domain/carrier-status-map.js';
-import { safeFetch } from '../../../infra/outbound-http.js';
 import { safeCarrierMessage } from '../../seller/carrier-credential.service.js';
 import {
   unsupported,
@@ -41,7 +40,7 @@ import {
   type TrackingEvent,
   type TrackingResult,
 } from './adapter.js';
-import { carrierRefused } from './registry.js';
+import { carrierFetch, carrierRefused } from './registry.js';
 
 const BASE_URL: Readonly<Record<'SANDBOX' | 'PRODUCTION', string>> = Object.freeze({
   SANDBOX: 'https://apis-sandbox.fedex.com',
@@ -99,7 +98,7 @@ export class FedExApiAdapter implements CarrierAdapter {
       return this.token.value;
     }
 
-    const result = await safeFetch(`${this.baseUrl}/oauth/token`, {
+    const result = await carrierFetch('FEDEX', `${this.baseUrl}/oauth/token`, {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded', accept: 'application/json' },
       body: new URLSearchParams({
@@ -149,7 +148,7 @@ export class FedExApiAdapter implements CarrierAdapter {
   private async call(path: string, body: unknown, attempt = 0): Promise<unknown> {
     const token = await this.accessToken(attempt > 0);
 
-    const result = await safeFetch(`${this.baseUrl}${path}`, {
+    const result = await carrierFetch('FEDEX', `${this.baseUrl}${path}`, {
       method: 'POST',
       headers: {
         authorization: `Bearer ${token}`,

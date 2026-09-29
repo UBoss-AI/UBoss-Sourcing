@@ -39,6 +39,7 @@ function client(input: { negotiatedBp: number | null; policies: unknown[] }) {
     sellerAccount: { findUnique: () => Promise.resolve({ commissionBasisPoints: input.negotiatedBp }) },
     businessProfile: { findFirst: () => Promise.resolve({ sellerCommissionBasisPoints: 0 }) },
     platformFeePolicy: { findMany: () => Promise.resolve(input.policies) },
+    platformFeeRule: { findMany: () => Promise.resolve([]) },
   } as never;
 }
 

@@ -49,6 +49,7 @@ export type SellerNotificationMinAggregateOutputType = {
   dedupeKey: string | null
   createdAt: Date | null
   expiresAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerNotificationMaxAggregateOutputType = {
@@ -70,6 +71,7 @@ export type SellerNotificationMaxAggregateOutputType = {
   dedupeKey: string | null
   createdAt: Date | null
   expiresAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerNotificationCountAggregateOutputType = {
@@ -92,6 +94,7 @@ export type SellerNotificationCountAggregateOutputType = {
   dedupeKey: number
   createdAt: number
   expiresAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -115,6 +118,7 @@ export type SellerNotificationMinAggregateInputType = {
   dedupeKey?: true
   createdAt?: true
   expiresAt?: true
+  updatedAt?: true
 }
 
 export type SellerNotificationMaxAggregateInputType = {
@@ -136,6 +140,7 @@ export type SellerNotificationMaxAggregateInputType = {
   dedupeKey?: true
   createdAt?: true
   expiresAt?: true
+  updatedAt?: true
 }
 
 export type SellerNotificationCountAggregateInputType = {
@@ -158,6 +163,7 @@ export type SellerNotificationCountAggregateInputType = {
   dedupeKey?: true
   createdAt?: true
   expiresAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -253,6 +259,7 @@ export type SellerNotificationGroupByOutputType = {
   dedupeKey: string
   createdAt: Date
   expiresAt: Date | null
+  updatedAt: Date
   _count: SellerNotificationCountAggregateOutputType | null
   _min: SellerNotificationMinAggregateOutputType | null
   _max: SellerNotificationMaxAggregateOutputType | null
@@ -296,6 +303,7 @@ export type SellerNotificationWhereInput = {
   dedupeKey?: Prisma.StringFilter<"SellerNotification"> | string
   createdAt?: Prisma.DateTimeFilter<"SellerNotification"> | Date | string
   expiresAt?: Prisma.DateTimeNullableFilter<"SellerNotification"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"SellerNotification"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
 }
 
@@ -319,6 +327,7 @@ export type SellerNotificationOrderByWithRelationInput = {
   dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   _relevance?: Prisma.SellerNotificationOrderByRelevanceInput
 }
@@ -347,6 +356,7 @@ export type SellerNotificationWhereUniqueInput = Prisma.AtLeast<{
   dedupeKey?: Prisma.StringFilter<"SellerNotification"> | string
   createdAt?: Prisma.DateTimeFilter<"SellerNotification"> | Date | string
   expiresAt?: Prisma.DateTimeNullableFilter<"SellerNotification"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"SellerNotification"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
 }, "id" | "sellerAccountId_kind_dedupeKey">
 
@@ -370,6 +380,7 @@ export type SellerNotificationOrderByWithAggregationInput = {
   dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerNotificationCountOrderByAggregateInput
   _max?: Prisma.SellerNotificationMaxOrderByAggregateInput
   _min?: Prisma.SellerNotificationMinOrderByAggregateInput
@@ -398,6 +409,7 @@ export type SellerNotificationScalarWhereWithAggregatesInput = {
   dedupeKey?: Prisma.StringWithAggregatesFilter<"SellerNotification"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerNotification"> | Date | string
   expiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerNotification"> | Date | string | null
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerNotification"> | Date | string
 }
 
 export type SellerNotificationCreateInput = {
@@ -419,6 +431,7 @@ export type SellerNotificationCreateInput = {
   dedupeKey: string
   createdAt?: Date | string
   expiresAt?: Date | string | null
+  updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutNotificationsInput
 }
 
@@ -442,6 +455,7 @@ export type SellerNotificationUncheckedCreateInput = {
   dedupeKey: string
   createdAt?: Date | string
   expiresAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type SellerNotificationUpdateInput = {
@@ -463,6 +477,7 @@ export type SellerNotificationUpdateInput = {
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutNotificationsNestedInput
 }
 
@@ -486,6 +501,7 @@ export type SellerNotificationUncheckedUpdateInput = {
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerNotificationCreateManyInput = {
@@ -508,6 +524,7 @@ export type SellerNotificationCreateManyInput = {
   dedupeKey: string
   createdAt?: Date | string
   expiresAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type SellerNotificationUpdateManyMutationInput = {
@@ -529,6 +546,7 @@ export type SellerNotificationUpdateManyMutationInput = {
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerNotificationUncheckedUpdateManyInput = {
@@ -551,6 +569,7 @@ export type SellerNotificationUncheckedUpdateManyInput = {
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerNotificationListRelationFilter = {
@@ -595,6 +614,7 @@ export type SellerNotificationCountOrderByAggregateInput = {
   dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerNotificationMaxOrderByAggregateInput = {
@@ -616,6 +636,7 @@ export type SellerNotificationMaxOrderByAggregateInput = {
   dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerNotificationMinOrderByAggregateInput = {
@@ -637,6 +658,7 @@ export type SellerNotificationMinOrderByAggregateInput = {
   dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerNotificationCreateNestedManyWithoutSellerAccountInput = {
@@ -704,6 +726,7 @@ export type SellerNotificationCreateWithoutSellerAccountInput = {
   dedupeKey: string
   createdAt?: Date | string
   expiresAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type SellerNotificationUncheckedCreateWithoutSellerAccountInput = {
@@ -725,6 +748,7 @@ export type SellerNotificationUncheckedCreateWithoutSellerAccountInput = {
   dedupeKey: string
   createdAt?: Date | string
   expiresAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type SellerNotificationCreateOrConnectWithoutSellerAccountInput = {
@@ -776,6 +800,7 @@ export type SellerNotificationScalarWhereInput = {
   dedupeKey?: Prisma.StringFilter<"SellerNotification"> | string
   createdAt?: Prisma.DateTimeFilter<"SellerNotification"> | Date | string
   expiresAt?: Prisma.DateTimeNullableFilter<"SellerNotification"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"SellerNotification"> | Date | string
 }
 
 export type SellerNotificationCreateManySellerAccountInput = {
@@ -797,6 +822,7 @@ export type SellerNotificationCreateManySellerAccountInput = {
   dedupeKey: string
   createdAt?: Date | string
   expiresAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type SellerNotificationUpdateWithoutSellerAccountInput = {
@@ -818,6 +844,7 @@ export type SellerNotificationUpdateWithoutSellerAccountInput = {
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerNotificationUncheckedUpdateWithoutSellerAccountInput = {
@@ -839,6 +866,7 @@ export type SellerNotificationUncheckedUpdateWithoutSellerAccountInput = {
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerNotificationUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -860,6 +888,7 @@ export type SellerNotificationUncheckedUpdateManyWithoutSellerAccountInput = {
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -884,6 +913,7 @@ export type SellerNotificationSelect<ExtArgs extends runtime.Types.Extensions.In
   dedupeKey?: boolean
   createdAt?: boolean
   expiresAt?: boolean
+  updatedAt?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerNotification"]>
 
@@ -909,9 +939,10 @@ export type SellerNotificationSelectScalar = {
   dedupeKey?: boolean
   createdAt?: boolean
   expiresAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "kind" | "title" | "body" | "linkPath" | "subjectType" | "subjectId" | "severity" | "readByJson" | "class" | "status" | "resolutionKey" | "resolvedAt" | "resolutionSource" | "resolutionNote" | "dedupeKey" | "createdAt" | "expiresAt", ExtArgs["result"]["sellerNotification"]>
+export type SellerNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "kind" | "title" | "body" | "linkPath" | "subjectType" | "subjectId" | "severity" | "readByJson" | "class" | "status" | "resolutionKey" | "resolvedAt" | "resolutionSource" | "resolutionNote" | "dedupeKey" | "createdAt" | "expiresAt" | "updatedAt", ExtArgs["result"]["sellerNotification"]>
 export type SellerNotificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }
@@ -982,6 +1013,7 @@ export type $SellerNotificationPayload<ExtArgs extends runtime.Types.Extensions.
      * Swept after this. Notifications are not a record; the audit log is.
      */
     expiresAt: Date | null
+    updatedAt: Date
   }, ExtArgs["result"]["sellerNotification"]>
   composites: {}
 }
@@ -1371,6 +1403,7 @@ export interface SellerNotificationFieldRefs {
   readonly dedupeKey: Prisma.FieldRef<"SellerNotification", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerNotification", 'DateTime'>
   readonly expiresAt: Prisma.FieldRef<"SellerNotification", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerNotification", 'DateTime'>
 }
     
 

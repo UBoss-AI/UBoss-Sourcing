@@ -37,6 +37,8 @@ export type BuyerCompanyCheckMinAggregateOutputType = {
   sourceUrl: string | null
   checkedAt: Date | null
   triggeredByUserId: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerCompanyCheckMaxAggregateOutputType = {
@@ -51,6 +53,8 @@ export type BuyerCompanyCheckMaxAggregateOutputType = {
   sourceUrl: string | null
   checkedAt: Date | null
   triggeredByUserId: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerCompanyCheckCountAggregateOutputType = {
@@ -67,6 +71,8 @@ export type BuyerCompanyCheckCountAggregateOutputType = {
   sourceUrl: number
   checkedAt: number
   triggeredByUserId: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -83,6 +89,8 @@ export type BuyerCompanyCheckMinAggregateInputType = {
   sourceUrl?: true
   checkedAt?: true
   triggeredByUserId?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type BuyerCompanyCheckMaxAggregateInputType = {
@@ -97,6 +105,8 @@ export type BuyerCompanyCheckMaxAggregateInputType = {
   sourceUrl?: true
   checkedAt?: true
   triggeredByUserId?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type BuyerCompanyCheckCountAggregateInputType = {
@@ -113,6 +123,8 @@ export type BuyerCompanyCheckCountAggregateInputType = {
   sourceUrl?: true
   checkedAt?: true
   triggeredByUserId?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -202,6 +214,8 @@ export type BuyerCompanyCheckGroupByOutputType = {
   sourceUrl: string | null
   checkedAt: Date
   triggeredByUserId: string | null
+  createdAt: Date
+  updatedAt: Date
   _count: BuyerCompanyCheckCountAggregateOutputType | null
   _min: BuyerCompanyCheckMinAggregateOutputType | null
   _max: BuyerCompanyCheckMaxAggregateOutputType | null
@@ -239,6 +253,8 @@ export type BuyerCompanyCheckWhereInput = {
   sourceUrl?: Prisma.StringNullableFilter<"BuyerCompanyCheck"> | string | null
   checkedAt?: Prisma.DateTimeFilter<"BuyerCompanyCheck"> | Date | string
   triggeredByUserId?: Prisma.StringNullableFilter<"BuyerCompanyCheck"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"BuyerCompanyCheck"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyCheck"> | Date | string
   company?: Prisma.XOR<Prisma.BuyerCompanyScalarRelationFilter, Prisma.BuyerCompanyWhereInput>
   case?: Prisma.XOR<Prisma.BuyerCompanyVerificationCaseNullableScalarRelationFilter, Prisma.BuyerCompanyVerificationCaseWhereInput> | null
 }
@@ -257,6 +273,8 @@ export type BuyerCompanyCheckOrderByWithRelationInput = {
   sourceUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   checkedAt?: Prisma.SortOrder
   triggeredByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   company?: Prisma.BuyerCompanyOrderByWithRelationInput
   case?: Prisma.BuyerCompanyVerificationCaseOrderByWithRelationInput
   _relevance?: Prisma.BuyerCompanyCheckOrderByRelevanceInput
@@ -279,6 +297,8 @@ export type BuyerCompanyCheckWhereUniqueInput = Prisma.AtLeast<{
   sourceUrl?: Prisma.StringNullableFilter<"BuyerCompanyCheck"> | string | null
   checkedAt?: Prisma.DateTimeFilter<"BuyerCompanyCheck"> | Date | string
   triggeredByUserId?: Prisma.StringNullableFilter<"BuyerCompanyCheck"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"BuyerCompanyCheck"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyCheck"> | Date | string
   company?: Prisma.XOR<Prisma.BuyerCompanyScalarRelationFilter, Prisma.BuyerCompanyWhereInput>
   case?: Prisma.XOR<Prisma.BuyerCompanyVerificationCaseNullableScalarRelationFilter, Prisma.BuyerCompanyVerificationCaseWhereInput> | null
 }, "id">
@@ -297,6 +317,8 @@ export type BuyerCompanyCheckOrderByWithAggregationInput = {
   sourceUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   checkedAt?: Prisma.SortOrder
   triggeredByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.BuyerCompanyCheckCountOrderByAggregateInput
   _max?: Prisma.BuyerCompanyCheckMaxOrderByAggregateInput
   _min?: Prisma.BuyerCompanyCheckMinOrderByAggregateInput
@@ -319,6 +341,8 @@ export type BuyerCompanyCheckScalarWhereWithAggregatesInput = {
   sourceUrl?: Prisma.StringNullableWithAggregatesFilter<"BuyerCompanyCheck"> | string | null
   checkedAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyCheck"> | Date | string
   triggeredByUserId?: Prisma.StringNullableWithAggregatesFilter<"BuyerCompanyCheck"> | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyCheck"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyCheck"> | Date | string
 }
 
 export type BuyerCompanyCheckCreateInput = {
@@ -333,6 +357,8 @@ export type BuyerCompanyCheckCreateInput = {
   sourceUrl?: string | null
   checkedAt?: Date | string
   triggeredByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   company: Prisma.BuyerCompanyCreateNestedOneWithoutChecksInput
   case?: Prisma.BuyerCompanyVerificationCaseCreateNestedOneWithoutChecksInput
 }
@@ -351,6 +377,8 @@ export type BuyerCompanyCheckUncheckedCreateInput = {
   sourceUrl?: string | null
   checkedAt?: Date | string
   triggeredByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyCheckUpdateInput = {
@@ -365,6 +393,8 @@ export type BuyerCompanyCheckUpdateInput = {
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   triggeredByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneRequiredWithoutChecksNestedInput
   case?: Prisma.BuyerCompanyVerificationCaseUpdateOneWithoutChecksNestedInput
 }
@@ -383,6 +413,8 @@ export type BuyerCompanyCheckUncheckedUpdateInput = {
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   triggeredByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyCheckCreateManyInput = {
@@ -399,6 +431,8 @@ export type BuyerCompanyCheckCreateManyInput = {
   sourceUrl?: string | null
   checkedAt?: Date | string
   triggeredByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyCheckUpdateManyMutationInput = {
@@ -413,6 +447,8 @@ export type BuyerCompanyCheckUpdateManyMutationInput = {
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   triggeredByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyCheckUncheckedUpdateManyInput = {
@@ -429,6 +465,8 @@ export type BuyerCompanyCheckUncheckedUpdateManyInput = {
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   triggeredByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyCheckListRelationFilter = {
@@ -461,6 +499,8 @@ export type BuyerCompanyCheckCountOrderByAggregateInput = {
   sourceUrl?: Prisma.SortOrder
   checkedAt?: Prisma.SortOrder
   triggeredByUserId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyCheckMaxOrderByAggregateInput = {
@@ -475,6 +515,8 @@ export type BuyerCompanyCheckMaxOrderByAggregateInput = {
   sourceUrl?: Prisma.SortOrder
   checkedAt?: Prisma.SortOrder
   triggeredByUserId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyCheckMinOrderByAggregateInput = {
@@ -489,6 +531,8 @@ export type BuyerCompanyCheckMinOrderByAggregateInput = {
   sourceUrl?: Prisma.SortOrder
   checkedAt?: Prisma.SortOrder
   triggeredByUserId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyCheckCreateNestedManyWithoutCompanyInput = {
@@ -591,6 +635,8 @@ export type BuyerCompanyCheckCreateWithoutCompanyInput = {
   sourceUrl?: string | null
   checkedAt?: Date | string
   triggeredByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   case?: Prisma.BuyerCompanyVerificationCaseCreateNestedOneWithoutChecksInput
 }
 
@@ -607,6 +653,8 @@ export type BuyerCompanyCheckUncheckedCreateWithoutCompanyInput = {
   sourceUrl?: string | null
   checkedAt?: Date | string
   triggeredByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyCheckCreateOrConnectWithoutCompanyInput = {
@@ -652,6 +700,8 @@ export type BuyerCompanyCheckScalarWhereInput = {
   sourceUrl?: Prisma.StringNullableFilter<"BuyerCompanyCheck"> | string | null
   checkedAt?: Prisma.DateTimeFilter<"BuyerCompanyCheck"> | Date | string
   triggeredByUserId?: Prisma.StringNullableFilter<"BuyerCompanyCheck"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"BuyerCompanyCheck"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyCheck"> | Date | string
 }
 
 export type BuyerCompanyCheckCreateWithoutCaseInput = {
@@ -666,6 +716,8 @@ export type BuyerCompanyCheckCreateWithoutCaseInput = {
   sourceUrl?: string | null
   checkedAt?: Date | string
   triggeredByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   company: Prisma.BuyerCompanyCreateNestedOneWithoutChecksInput
 }
 
@@ -682,6 +734,8 @@ export type BuyerCompanyCheckUncheckedCreateWithoutCaseInput = {
   sourceUrl?: string | null
   checkedAt?: Date | string
   triggeredByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyCheckCreateOrConnectWithoutCaseInput = {
@@ -723,6 +777,8 @@ export type BuyerCompanyCheckCreateManyCompanyInput = {
   sourceUrl?: string | null
   checkedAt?: Date | string
   triggeredByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyCheckUpdateWithoutCompanyInput = {
@@ -737,6 +793,8 @@ export type BuyerCompanyCheckUpdateWithoutCompanyInput = {
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   triggeredByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.BuyerCompanyVerificationCaseUpdateOneWithoutChecksNestedInput
 }
 
@@ -753,6 +811,8 @@ export type BuyerCompanyCheckUncheckedUpdateWithoutCompanyInput = {
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   triggeredByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyInput = {
@@ -768,6 +828,8 @@ export type BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyInput = {
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   triggeredByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyCheckCreateManyCaseInput = {
@@ -783,6 +845,8 @@ export type BuyerCompanyCheckCreateManyCaseInput = {
   sourceUrl?: string | null
   checkedAt?: Date | string
   triggeredByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyCheckUpdateWithoutCaseInput = {
@@ -797,6 +861,8 @@ export type BuyerCompanyCheckUpdateWithoutCaseInput = {
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   triggeredByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneRequiredWithoutChecksNestedInput
 }
 
@@ -813,6 +879,8 @@ export type BuyerCompanyCheckUncheckedUpdateWithoutCaseInput = {
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   triggeredByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyCheckUncheckedUpdateManyWithoutCaseInput = {
@@ -828,6 +896,8 @@ export type BuyerCompanyCheckUncheckedUpdateManyWithoutCaseInput = {
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   triggeredByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -846,6 +916,8 @@ export type BuyerCompanyCheckSelect<ExtArgs extends runtime.Types.Extensions.Int
   sourceUrl?: boolean
   checkedAt?: boolean
   triggeredByUserId?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   company?: boolean | Prisma.BuyerCompanyDefaultArgs<ExtArgs>
   case?: boolean | Prisma.BuyerCompanyCheck$caseArgs<ExtArgs>
 }, ExtArgs["result"]["buyerCompanyCheck"]>
@@ -866,9 +938,11 @@ export type BuyerCompanyCheckSelectScalar = {
   sourceUrl?: boolean
   checkedAt?: boolean
   triggeredByUserId?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type BuyerCompanyCheckOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "caseId" | "provider" | "subject" | "outcome" | "summary" | "requestJson" | "resultJson" | "sourceReference" | "sourceUrl" | "checkedAt" | "triggeredByUserId", ExtArgs["result"]["buyerCompanyCheck"]>
+export type BuyerCompanyCheckOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "caseId" | "provider" | "subject" | "outcome" | "summary" | "requestJson" | "resultJson" | "sourceReference" | "sourceUrl" | "checkedAt" | "triggeredByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["buyerCompanyCheck"]>
 export type BuyerCompanyCheckInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.BuyerCompanyDefaultArgs<ExtArgs>
   case?: boolean | Prisma.BuyerCompanyCheck$caseArgs<ExtArgs>
@@ -918,6 +992,8 @@ export type $BuyerCompanyCheckPayload<ExtArgs extends runtime.Types.Extensions.I
     sourceUrl: string | null
     checkedAt: Date
     triggeredByUserId: string | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["buyerCompanyCheck"]>
   composites: {}
 }
@@ -1302,6 +1378,8 @@ export interface BuyerCompanyCheckFieldRefs {
   readonly sourceUrl: Prisma.FieldRef<"BuyerCompanyCheck", 'String'>
   readonly checkedAt: Prisma.FieldRef<"BuyerCompanyCheck", 'DateTime'>
   readonly triggeredByUserId: Prisma.FieldRef<"BuyerCompanyCheck", 'String'>
+  readonly createdAt: Prisma.FieldRef<"BuyerCompanyCheck", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"BuyerCompanyCheck", 'DateTime'>
 }
     
 

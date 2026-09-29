@@ -45,6 +45,7 @@ export type IdempotencyRecordMinAggregateOutputType = {
   createdAt: Date | null
   completedAt: Date | null
   expiresAt: Date | null
+  updatedAt: Date | null
 }
 
 export type IdempotencyRecordMaxAggregateOutputType = {
@@ -58,6 +59,7 @@ export type IdempotencyRecordMaxAggregateOutputType = {
   createdAt: Date | null
   completedAt: Date | null
   expiresAt: Date | null
+  updatedAt: Date | null
 }
 
 export type IdempotencyRecordCountAggregateOutputType = {
@@ -72,6 +74,7 @@ export type IdempotencyRecordCountAggregateOutputType = {
   createdAt: number
   completedAt: number
   expiresAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -95,6 +98,7 @@ export type IdempotencyRecordMinAggregateInputType = {
   createdAt?: true
   completedAt?: true
   expiresAt?: true
+  updatedAt?: true
 }
 
 export type IdempotencyRecordMaxAggregateInputType = {
@@ -108,6 +112,7 @@ export type IdempotencyRecordMaxAggregateInputType = {
   createdAt?: true
   completedAt?: true
   expiresAt?: true
+  updatedAt?: true
 }
 
 export type IdempotencyRecordCountAggregateInputType = {
@@ -122,6 +127,7 @@ export type IdempotencyRecordCountAggregateInputType = {
   createdAt?: true
   completedAt?: true
   expiresAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -223,6 +229,7 @@ export type IdempotencyRecordGroupByOutputType = {
   createdAt: Date
   completedAt: Date | null
   expiresAt: Date
+  updatedAt: Date
   _count: IdempotencyRecordCountAggregateOutputType | null
   _avg: IdempotencyRecordAvgAggregateOutputType | null
   _sum: IdempotencyRecordSumAggregateOutputType | null
@@ -260,6 +267,7 @@ export type IdempotencyRecordWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"IdempotencyRecord"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"IdempotencyRecord"> | Date | string | null
   expiresAt?: Prisma.DateTimeFilter<"IdempotencyRecord"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"IdempotencyRecord"> | Date | string
 }
 
 export type IdempotencyRecordOrderByWithRelationInput = {
@@ -274,6 +282,7 @@ export type IdempotencyRecordOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _relevance?: Prisma.IdempotencyRecordOrderByRelevanceInput
 }
 
@@ -293,6 +302,7 @@ export type IdempotencyRecordWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"IdempotencyRecord"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"IdempotencyRecord"> | Date | string | null
   expiresAt?: Prisma.DateTimeFilter<"IdempotencyRecord"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"IdempotencyRecord"> | Date | string
 }, "id" | "scope_key">
 
 export type IdempotencyRecordOrderByWithAggregationInput = {
@@ -307,6 +317,7 @@ export type IdempotencyRecordOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.IdempotencyRecordCountOrderByAggregateInput
   _avg?: Prisma.IdempotencyRecordAvgOrderByAggregateInput
   _max?: Prisma.IdempotencyRecordMaxOrderByAggregateInput
@@ -329,6 +340,7 @@ export type IdempotencyRecordScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"IdempotencyRecord"> | Date | string
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"IdempotencyRecord"> | Date | string | null
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"IdempotencyRecord"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"IdempotencyRecord"> | Date | string
 }
 
 export type IdempotencyRecordCreateInput = {
@@ -343,6 +355,7 @@ export type IdempotencyRecordCreateInput = {
   createdAt?: Date | string
   completedAt?: Date | string | null
   expiresAt: Date | string
+  updatedAt?: Date | string
 }
 
 export type IdempotencyRecordUncheckedCreateInput = {
@@ -357,6 +370,7 @@ export type IdempotencyRecordUncheckedCreateInput = {
   createdAt?: Date | string
   completedAt?: Date | string | null
   expiresAt: Date | string
+  updatedAt?: Date | string
 }
 
 export type IdempotencyRecordUpdateInput = {
@@ -371,6 +385,7 @@ export type IdempotencyRecordUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type IdempotencyRecordUncheckedUpdateInput = {
@@ -385,6 +400,7 @@ export type IdempotencyRecordUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type IdempotencyRecordCreateManyInput = {
@@ -399,6 +415,7 @@ export type IdempotencyRecordCreateManyInput = {
   createdAt?: Date | string
   completedAt?: Date | string | null
   expiresAt: Date | string
+  updatedAt?: Date | string
 }
 
 export type IdempotencyRecordUpdateManyMutationInput = {
@@ -413,6 +430,7 @@ export type IdempotencyRecordUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type IdempotencyRecordUncheckedUpdateManyInput = {
@@ -427,6 +445,7 @@ export type IdempotencyRecordUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type IdempotencyRecordOrderByRelevanceInput = {
@@ -452,6 +471,7 @@ export type IdempotencyRecordCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type IdempotencyRecordAvgOrderByAggregateInput = {
@@ -469,6 +489,7 @@ export type IdempotencyRecordMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type IdempotencyRecordMinOrderByAggregateInput = {
@@ -482,6 +503,7 @@ export type IdempotencyRecordMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type IdempotencyRecordSumOrderByAggregateInput = {
@@ -502,6 +524,7 @@ export type IdempotencyRecordSelect<ExtArgs extends runtime.Types.Extensions.Int
   createdAt?: boolean
   completedAt?: boolean
   expiresAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["idempotencyRecord"]>
 
 
@@ -518,9 +541,10 @@ export type IdempotencyRecordSelectScalar = {
   createdAt?: boolean
   completedAt?: boolean
   expiresAt?: boolean
+  updatedAt?: boolean
 }
 
-export type IdempotencyRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scope" | "key" | "requestHash" | "status" | "responseJson" | "httpStatus" | "ownerId" | "createdAt" | "completedAt" | "expiresAt", ExtArgs["result"]["idempotencyRecord"]>
+export type IdempotencyRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scope" | "key" | "requestHash" | "status" | "responseJson" | "httpStatus" | "ownerId" | "createdAt" | "completedAt" | "expiresAt" | "updatedAt", ExtArgs["result"]["idempotencyRecord"]>
 
 export type $IdempotencyRecordPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "IdempotencyRecord"
@@ -550,6 +574,7 @@ export type $IdempotencyRecordPayload<ExtArgs extends runtime.Types.Extensions.I
     createdAt: Date
     completedAt: Date | null
     expiresAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["idempotencyRecord"]>
   composites: {}
 }
@@ -930,6 +955,7 @@ export interface IdempotencyRecordFieldRefs {
   readonly createdAt: Prisma.FieldRef<"IdempotencyRecord", 'DateTime'>
   readonly completedAt: Prisma.FieldRef<"IdempotencyRecord", 'DateTime'>
   readonly expiresAt: Prisma.FieldRef<"IdempotencyRecord", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"IdempotencyRecord", 'DateTime'>
 }
     
 

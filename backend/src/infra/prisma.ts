@@ -15,12 +15,12 @@ function connectionUrl(): string {
   return env.DATABASE_URL;
 }
 
-function createAdapter(): PrismaMariaDb {
+function createAdapter(url = connectionUrl(), poolSize = env.DB_POOL_SIZE): PrismaMariaDb {
   return new PrismaMariaDb({
     // mariadb's own pool. `connectionLimit` is the ceiling per process, so the
     // API and the worker together must stay under the server's max_connections
     // (151 on this XAMPP install).
-    connectionLimit: env.DB_POOL_SIZE,
+    connectionLimit: poolSize,
     connectTimeout: env.DB_CONNECT_TIMEOUT_MS,
     acquireTimeout: env.DB_CONNECT_TIMEOUT_MS,
     // MariaDB returns BIGINT as JS BigInt with this on, which is exactly what
@@ -30,7 +30,7 @@ function createAdapter(): PrismaMariaDb {
     // Asia/Calcutta, so pinning the session zone stops the driver applying a
     // local-time offset on the way in or out.
     timezone: 'Z',
-    ...parseConnectionUrl(connectionUrl()),
+    ...parseConnectionUrl(url),
   });
 }
 
@@ -107,8 +107,41 @@ export async function checkDatabase(): Promise<{ ok: boolean; latencyMs: number;
   }
 }
 
+let maintenanceClient: PrismaClient | null = null;
+
+/**
+ * The client for the only two changes ever made to audit rows after they are
+ * written: pseudonymising the actor on a GDPR erasure, and deleting rows past
+ * their retention period.
+ *
+ * In production the application's account cannot UPDATE or DELETE
+ * `audit_logs` at all - that is what makes the trail worth trusting - so these
+ * go through a second account whose grant is limited to exactly them (UPDATE
+ * of actorEmail, ipAddress, userAgent and the updatedAt Prisma stamps, and
+ * DELETE). Nothing else may use
+ * this client. Created on first use with a pool of two: it runs a handful of
+ * statements a day.
+ *
+ * Without DATABASE_MAINTENANCE_URL (development and tests, where one account
+ * holds every grant) and in tests it is the ordinary client. Production refuses to start
+ * without it (config/env.ts).
+ */
+export function auditMaintenancePrisma(): PrismaClient {
+  // Never in tests: the suite runs against TEST_DATABASE_URL, and a maintenance
+  // URL left in a developer's .env points at the development database.
+  if (isTest || env.DATABASE_MAINTENANCE_URL === undefined) return prisma;
+
+  maintenanceClient ??= new PrismaClient({
+    adapter: createAdapter(env.DATABASE_MAINTENANCE_URL, 2),
+    log: [{ emit: 'event', level: 'error' }],
+  });
+
+  return maintenanceClient;
+}
+
 export async function disconnectPrisma(): Promise<void> {
   await prisma.$disconnect();
+  if (maintenanceClient !== null) await maintenanceClient.$disconnect();
 }
 
 export type PrismaClientType = typeof prisma;

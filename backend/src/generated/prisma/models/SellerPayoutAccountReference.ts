@@ -49,6 +49,10 @@ export type SellerPayoutAccountReferenceMinAggregateOutputType = {
   payoutsHeldByOperator: boolean | null
   payoutHoldReason: string | null
   lastSyncedAt: Date | null
+  bankAccountStatus: string | null
+  detailsSubmitted: boolean | null
+  lastBankPayoutStatus: string | null
+  lastBankPayoutAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -67,6 +71,10 @@ export type SellerPayoutAccountReferenceMaxAggregateOutputType = {
   payoutsHeldByOperator: boolean | null
   payoutHoldReason: string | null
   lastSyncedAt: Date | null
+  bankAccountStatus: string | null
+  detailsSubmitted: boolean | null
+  lastBankPayoutStatus: string | null
+  lastBankPayoutAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -86,6 +94,10 @@ export type SellerPayoutAccountReferenceCountAggregateOutputType = {
   payoutsHeldByOperator: number
   payoutHoldReason: number
   lastSyncedAt: number
+  bankAccountStatus: number
+  detailsSubmitted: number
+  lastBankPayoutStatus: number
+  lastBankPayoutAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -106,6 +118,10 @@ export type SellerPayoutAccountReferenceMinAggregateInputType = {
   payoutsHeldByOperator?: true
   payoutHoldReason?: true
   lastSyncedAt?: true
+  bankAccountStatus?: true
+  detailsSubmitted?: true
+  lastBankPayoutStatus?: true
+  lastBankPayoutAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -124,6 +140,10 @@ export type SellerPayoutAccountReferenceMaxAggregateInputType = {
   payoutsHeldByOperator?: true
   payoutHoldReason?: true
   lastSyncedAt?: true
+  bankAccountStatus?: true
+  detailsSubmitted?: true
+  lastBankPayoutStatus?: true
+  lastBankPayoutAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -143,6 +163,10 @@ export type SellerPayoutAccountReferenceCountAggregateInputType = {
   payoutsHeldByOperator?: true
   payoutHoldReason?: true
   lastSyncedAt?: true
+  bankAccountStatus?: true
+  detailsSubmitted?: true
+  lastBankPayoutStatus?: true
+  lastBankPayoutAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -235,6 +259,10 @@ export type SellerPayoutAccountReferenceGroupByOutputType = {
   payoutsHeldByOperator: boolean
   payoutHoldReason: string | null
   lastSyncedAt: Date | null
+  bankAccountStatus: string | null
+  detailsSubmitted: boolean
+  lastBankPayoutStatus: string | null
+  lastBankPayoutAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: SellerPayoutAccountReferenceCountAggregateOutputType | null
@@ -275,6 +303,10 @@ export type SellerPayoutAccountReferenceWhereInput = {
   payoutsHeldByOperator?: Prisma.BoolFilter<"SellerPayoutAccountReference"> | boolean
   payoutHoldReason?: Prisma.StringNullableFilter<"SellerPayoutAccountReference"> | string | null
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"SellerPayoutAccountReference"> | Date | string | null
+  bankAccountStatus?: Prisma.StringNullableFilter<"SellerPayoutAccountReference"> | string | null
+  detailsSubmitted?: Prisma.BoolFilter<"SellerPayoutAccountReference"> | boolean
+  lastBankPayoutStatus?: Prisma.StringNullableFilter<"SellerPayoutAccountReference"> | string | null
+  lastBankPayoutAt?: Prisma.DateTimeNullableFilter<"SellerPayoutAccountReference"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerPayoutAccountReference"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerPayoutAccountReference"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
@@ -295,6 +327,10 @@ export type SellerPayoutAccountReferenceOrderByWithRelationInput = {
   payoutsHeldByOperator?: Prisma.SortOrder
   payoutHoldReason?: Prisma.SortOrderInput | Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankAccountStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  detailsSubmitted?: Prisma.SortOrder
+  lastBankPayoutStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastBankPayoutAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
@@ -319,6 +355,10 @@ export type SellerPayoutAccountReferenceWhereUniqueInput = Prisma.AtLeast<{
   payoutsHeldByOperator?: Prisma.BoolFilter<"SellerPayoutAccountReference"> | boolean
   payoutHoldReason?: Prisma.StringNullableFilter<"SellerPayoutAccountReference"> | string | null
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"SellerPayoutAccountReference"> | Date | string | null
+  bankAccountStatus?: Prisma.StringNullableFilter<"SellerPayoutAccountReference"> | string | null
+  detailsSubmitted?: Prisma.BoolFilter<"SellerPayoutAccountReference"> | boolean
+  lastBankPayoutStatus?: Prisma.StringNullableFilter<"SellerPayoutAccountReference"> | string | null
+  lastBankPayoutAt?: Prisma.DateTimeNullableFilter<"SellerPayoutAccountReference"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerPayoutAccountReference"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerPayoutAccountReference"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
@@ -339,6 +379,10 @@ export type SellerPayoutAccountReferenceOrderByWithAggregationInput = {
   payoutsHeldByOperator?: Prisma.SortOrder
   payoutHoldReason?: Prisma.SortOrderInput | Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankAccountStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  detailsSubmitted?: Prisma.SortOrder
+  lastBankPayoutStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastBankPayoutAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerPayoutAccountReferenceCountOrderByAggregateInput
@@ -364,6 +408,10 @@ export type SellerPayoutAccountReferenceScalarWhereWithAggregatesInput = {
   payoutsHeldByOperator?: Prisma.BoolWithAggregatesFilter<"SellerPayoutAccountReference"> | boolean
   payoutHoldReason?: Prisma.StringNullableWithAggregatesFilter<"SellerPayoutAccountReference"> | string | null
   lastSyncedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerPayoutAccountReference"> | Date | string | null
+  bankAccountStatus?: Prisma.StringNullableWithAggregatesFilter<"SellerPayoutAccountReference"> | string | null
+  detailsSubmitted?: Prisma.BoolWithAggregatesFilter<"SellerPayoutAccountReference"> | boolean
+  lastBankPayoutStatus?: Prisma.StringNullableWithAggregatesFilter<"SellerPayoutAccountReference"> | string | null
+  lastBankPayoutAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerPayoutAccountReference"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerPayoutAccountReference"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerPayoutAccountReference"> | Date | string
 }
@@ -382,6 +430,10 @@ export type SellerPayoutAccountReferenceCreateInput = {
   payoutsHeldByOperator?: boolean
   payoutHoldReason?: string | null
   lastSyncedAt?: Date | string | null
+  bankAccountStatus?: string | null
+  detailsSubmitted?: boolean
+  lastBankPayoutStatus?: string | null
+  lastBankPayoutAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutPayoutAccountInput
@@ -402,6 +454,10 @@ export type SellerPayoutAccountReferenceUncheckedCreateInput = {
   payoutsHeldByOperator?: boolean
   payoutHoldReason?: string | null
   lastSyncedAt?: Date | string | null
+  bankAccountStatus?: string | null
+  detailsSubmitted?: boolean
+  lastBankPayoutStatus?: string | null
+  lastBankPayoutAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -420,6 +476,10 @@ export type SellerPayoutAccountReferenceUpdateInput = {
   payoutsHeldByOperator?: Prisma.BoolFieldUpdateOperationsInput | boolean
   payoutHoldReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankAccountStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailsSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastBankPayoutStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastBankPayoutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutPayoutAccountNestedInput
@@ -440,6 +500,10 @@ export type SellerPayoutAccountReferenceUncheckedUpdateInput = {
   payoutsHeldByOperator?: Prisma.BoolFieldUpdateOperationsInput | boolean
   payoutHoldReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankAccountStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailsSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastBankPayoutStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastBankPayoutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -459,6 +523,10 @@ export type SellerPayoutAccountReferenceCreateManyInput = {
   payoutsHeldByOperator?: boolean
   payoutHoldReason?: string | null
   lastSyncedAt?: Date | string | null
+  bankAccountStatus?: string | null
+  detailsSubmitted?: boolean
+  lastBankPayoutStatus?: string | null
+  lastBankPayoutAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -477,6 +545,10 @@ export type SellerPayoutAccountReferenceUpdateManyMutationInput = {
   payoutsHeldByOperator?: Prisma.BoolFieldUpdateOperationsInput | boolean
   payoutHoldReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankAccountStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailsSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastBankPayoutStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastBankPayoutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -496,6 +568,10 @@ export type SellerPayoutAccountReferenceUncheckedUpdateManyInput = {
   payoutsHeldByOperator?: Prisma.BoolFieldUpdateOperationsInput | boolean
   payoutHoldReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankAccountStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailsSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastBankPayoutStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastBankPayoutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -526,6 +602,10 @@ export type SellerPayoutAccountReferenceCountOrderByAggregateInput = {
   payoutsHeldByOperator?: Prisma.SortOrder
   payoutHoldReason?: Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrder
+  bankAccountStatus?: Prisma.SortOrder
+  detailsSubmitted?: Prisma.SortOrder
+  lastBankPayoutStatus?: Prisma.SortOrder
+  lastBankPayoutAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -544,6 +624,10 @@ export type SellerPayoutAccountReferenceMaxOrderByAggregateInput = {
   payoutsHeldByOperator?: Prisma.SortOrder
   payoutHoldReason?: Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrder
+  bankAccountStatus?: Prisma.SortOrder
+  detailsSubmitted?: Prisma.SortOrder
+  lastBankPayoutStatus?: Prisma.SortOrder
+  lastBankPayoutAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -562,6 +646,10 @@ export type SellerPayoutAccountReferenceMinOrderByAggregateInput = {
   payoutsHeldByOperator?: Prisma.SortOrder
   payoutHoldReason?: Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrder
+  bankAccountStatus?: Prisma.SortOrder
+  detailsSubmitted?: Prisma.SortOrder
+  lastBankPayoutStatus?: Prisma.SortOrder
+  lastBankPayoutAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -616,6 +704,10 @@ export type SellerPayoutAccountReferenceCreateWithoutSellerAccountInput = {
   payoutsHeldByOperator?: boolean
   payoutHoldReason?: string | null
   lastSyncedAt?: Date | string | null
+  bankAccountStatus?: string | null
+  detailsSubmitted?: boolean
+  lastBankPayoutStatus?: string | null
+  lastBankPayoutAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -634,6 +726,10 @@ export type SellerPayoutAccountReferenceUncheckedCreateWithoutSellerAccountInput
   payoutsHeldByOperator?: boolean
   payoutHoldReason?: string | null
   lastSyncedAt?: Date | string | null
+  bankAccountStatus?: string | null
+  detailsSubmitted?: boolean
+  lastBankPayoutStatus?: string | null
+  lastBankPayoutAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -668,6 +764,10 @@ export type SellerPayoutAccountReferenceUpdateWithoutSellerAccountInput = {
   payoutsHeldByOperator?: Prisma.BoolFieldUpdateOperationsInput | boolean
   payoutHoldReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankAccountStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailsSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastBankPayoutStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastBankPayoutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -686,6 +786,10 @@ export type SellerPayoutAccountReferenceUncheckedUpdateWithoutSellerAccountInput
   payoutsHeldByOperator?: Prisma.BoolFieldUpdateOperationsInput | boolean
   payoutHoldReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankAccountStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailsSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastBankPayoutStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastBankPayoutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -707,6 +811,10 @@ export type SellerPayoutAccountReferenceSelect<ExtArgs extends runtime.Types.Ext
   payoutsHeldByOperator?: boolean
   payoutHoldReason?: boolean
   lastSyncedAt?: boolean
+  bankAccountStatus?: boolean
+  detailsSubmitted?: boolean
+  lastBankPayoutStatus?: boolean
+  lastBankPayoutAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
@@ -729,11 +837,15 @@ export type SellerPayoutAccountReferenceSelectScalar = {
   payoutsHeldByOperator?: boolean
   payoutHoldReason?: boolean
   lastSyncedAt?: boolean
+  bankAccountStatus?: boolean
+  detailsSubmitted?: boolean
+  lastBankPayoutStatus?: boolean
+  lastBankPayoutAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SellerPayoutAccountReferenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "provider" | "providerAccountId" | "state" | "pendingRequirementsJson" | "bankName" | "accountLast4" | "payoutCurrency" | "payoutCountry" | "payoutsEnabled" | "payoutsHeldByOperator" | "payoutHoldReason" | "lastSyncedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerPayoutAccountReference"]>
+export type SellerPayoutAccountReferenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "provider" | "providerAccountId" | "state" | "pendingRequirementsJson" | "bankName" | "accountLast4" | "payoutCurrency" | "payoutCountry" | "payoutsEnabled" | "payoutsHeldByOperator" | "payoutHoldReason" | "lastSyncedAt" | "bankAccountStatus" | "detailsSubmitted" | "lastBankPayoutStatus" | "lastBankPayoutAt" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerPayoutAccountReference"]>
 export type SellerPayoutAccountReferenceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }
@@ -782,6 +894,20 @@ export type $SellerPayoutAccountReferencePayload<ExtArgs extends runtime.Types.E
     payoutsHeldByOperator: boolean
     payoutHoldReason: string | null
     lastSyncedAt: Date | null
+    /**
+     * The bank account's status at the provider (new, validated, verified,
+     * verification_failed, errored): the bank validation the seller sees.
+     */
+    bankAccountStatus: string | null
+    /**
+     * The seller finished the provider's onboarding form.
+     */
+    detailsSubmitted: boolean
+    /**
+     * The connected account's last payout to the bank, as the provider said.
+     */
+    lastBankPayoutStatus: string | null
+    lastBankPayoutAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["sellerPayoutAccountReference"]>
@@ -1168,6 +1294,10 @@ export interface SellerPayoutAccountReferenceFieldRefs {
   readonly payoutsHeldByOperator: Prisma.FieldRef<"SellerPayoutAccountReference", 'Boolean'>
   readonly payoutHoldReason: Prisma.FieldRef<"SellerPayoutAccountReference", 'String'>
   readonly lastSyncedAt: Prisma.FieldRef<"SellerPayoutAccountReference", 'DateTime'>
+  readonly bankAccountStatus: Prisma.FieldRef<"SellerPayoutAccountReference", 'String'>
+  readonly detailsSubmitted: Prisma.FieldRef<"SellerPayoutAccountReference", 'Boolean'>
+  readonly lastBankPayoutStatus: Prisma.FieldRef<"SellerPayoutAccountReference", 'String'>
+  readonly lastBankPayoutAt: Prisma.FieldRef<"SellerPayoutAccountReference", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"SellerPayoutAccountReference", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SellerPayoutAccountReference", 'DateTime'>
 }

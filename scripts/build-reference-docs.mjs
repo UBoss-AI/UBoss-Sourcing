@@ -543,7 +543,7 @@ function precedingComment(source, index) {
 }
 
 const GUARD_RE =
-  /\b(requireAdmin|requireSeller|requireSellerBeforeLock|requireTradingSeller|requireLogistics|requireLogisticsSession|requireCustomer|requireAuthenticated|optionalCustomer|requireFeature)\b(\(([^)]*)\))?/g;
+  /\b(requireAdmin|requireSeller|requireSellerBeforeLock|requireTradingSeller|requireLogistics|requireLogisticsAny|requireLogisticsSession|requireCustomer|requireAuthenticated|optionalCustomer|requireFeature)\b(\(([^)]*)\))?/g;
 
 function guardsIn(text) {
   const found = [];

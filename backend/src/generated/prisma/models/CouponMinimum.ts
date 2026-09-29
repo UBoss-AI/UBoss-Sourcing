@@ -38,18 +38,24 @@ export type CouponMinimumMinAggregateOutputType = {
   couponId: string | null
   currencyCode: string | null
   minOrderMinor: bigint | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CouponMinimumMaxAggregateOutputType = {
   couponId: string | null
   currencyCode: string | null
   minOrderMinor: bigint | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CouponMinimumCountAggregateOutputType = {
   couponId: number
   currencyCode: number
   minOrderMinor: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -66,18 +72,24 @@ export type CouponMinimumMinAggregateInputType = {
   couponId?: true
   currencyCode?: true
   minOrderMinor?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CouponMinimumMaxAggregateInputType = {
   couponId?: true
   currencyCode?: true
   minOrderMinor?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CouponMinimumCountAggregateInputType = {
   couponId?: true
   currencyCode?: true
   minOrderMinor?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -171,6 +183,8 @@ export type CouponMinimumGroupByOutputType = {
   couponId: string
   currencyCode: string
   minOrderMinor: bigint
+  createdAt: Date
+  updatedAt: Date
   _count: CouponMinimumCountAggregateOutputType | null
   _avg: CouponMinimumAvgAggregateOutputType | null
   _sum: CouponMinimumSumAggregateOutputType | null
@@ -200,6 +214,8 @@ export type CouponMinimumWhereInput = {
   couponId?: Prisma.StringFilter<"CouponMinimum"> | string
   currencyCode?: Prisma.StringFilter<"CouponMinimum"> | string
   minOrderMinor?: Prisma.BigIntFilter<"CouponMinimum"> | bigint | number
+  createdAt?: Prisma.DateTimeFilter<"CouponMinimum"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CouponMinimum"> | Date | string
   coupon?: Prisma.XOR<Prisma.CouponScalarRelationFilter, Prisma.CouponWhereInput>
   currency?: Prisma.XOR<Prisma.CurrencyScalarRelationFilter, Prisma.CurrencyWhereInput>
 }
@@ -208,6 +224,8 @@ export type CouponMinimumOrderByWithRelationInput = {
   couponId?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
   minOrderMinor?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   coupon?: Prisma.CouponOrderByWithRelationInput
   currency?: Prisma.CurrencyOrderByWithRelationInput
   _relevance?: Prisma.CouponMinimumOrderByRelevanceInput
@@ -221,6 +239,8 @@ export type CouponMinimumWhereUniqueInput = Prisma.AtLeast<{
   couponId?: Prisma.StringFilter<"CouponMinimum"> | string
   currencyCode?: Prisma.StringFilter<"CouponMinimum"> | string
   minOrderMinor?: Prisma.BigIntFilter<"CouponMinimum"> | bigint | number
+  createdAt?: Prisma.DateTimeFilter<"CouponMinimum"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CouponMinimum"> | Date | string
   coupon?: Prisma.XOR<Prisma.CouponScalarRelationFilter, Prisma.CouponWhereInput>
   currency?: Prisma.XOR<Prisma.CurrencyScalarRelationFilter, Prisma.CurrencyWhereInput>
 }, "couponId_currencyCode">
@@ -229,6 +249,8 @@ export type CouponMinimumOrderByWithAggregationInput = {
   couponId?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
   minOrderMinor?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CouponMinimumCountOrderByAggregateInput
   _avg?: Prisma.CouponMinimumAvgOrderByAggregateInput
   _max?: Prisma.CouponMinimumMaxOrderByAggregateInput
@@ -243,10 +265,14 @@ export type CouponMinimumScalarWhereWithAggregatesInput = {
   couponId?: Prisma.StringWithAggregatesFilter<"CouponMinimum"> | string
   currencyCode?: Prisma.StringWithAggregatesFilter<"CouponMinimum"> | string
   minOrderMinor?: Prisma.BigIntWithAggregatesFilter<"CouponMinimum"> | bigint | number
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"CouponMinimum"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CouponMinimum"> | Date | string
 }
 
 export type CouponMinimumCreateInput = {
   minOrderMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
   coupon: Prisma.CouponCreateNestedOneWithoutMinimumsInput
   currency: Prisma.CurrencyCreateNestedOneWithoutCouponMinimumsInput
 }
@@ -255,10 +281,14 @@ export type CouponMinimumUncheckedCreateInput = {
   couponId: string
   currencyCode: string
   minOrderMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CouponMinimumUpdateInput = {
   minOrderMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coupon?: Prisma.CouponUpdateOneRequiredWithoutMinimumsNestedInput
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutCouponMinimumsNestedInput
 }
@@ -267,22 +297,30 @@ export type CouponMinimumUncheckedUpdateInput = {
   couponId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
   minOrderMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CouponMinimumCreateManyInput = {
   couponId: string
   currencyCode: string
   minOrderMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CouponMinimumUpdateManyMutationInput = {
   minOrderMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CouponMinimumUncheckedUpdateManyInput = {
   couponId?: Prisma.StringFieldUpdateOperationsInput | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
   minOrderMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CouponMinimumListRelationFilter = {
@@ -310,6 +348,8 @@ export type CouponMinimumCountOrderByAggregateInput = {
   couponId?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
   minOrderMinor?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CouponMinimumAvgOrderByAggregateInput = {
@@ -320,12 +360,16 @@ export type CouponMinimumMaxOrderByAggregateInput = {
   couponId?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
   minOrderMinor?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CouponMinimumMinOrderByAggregateInput = {
   couponId?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
   minOrderMinor?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CouponMinimumSumOrderByAggregateInput = {
@@ -418,12 +462,16 @@ export type CouponMinimumUncheckedUpdateManyWithoutCouponNestedInput = {
 
 export type CouponMinimumCreateWithoutCurrencyInput = {
   minOrderMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
   coupon: Prisma.CouponCreateNestedOneWithoutMinimumsInput
 }
 
 export type CouponMinimumUncheckedCreateWithoutCurrencyInput = {
   couponId: string
   minOrderMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CouponMinimumCreateOrConnectWithoutCurrencyInput = {
@@ -459,16 +507,22 @@ export type CouponMinimumScalarWhereInput = {
   couponId?: Prisma.StringFilter<"CouponMinimum"> | string
   currencyCode?: Prisma.StringFilter<"CouponMinimum"> | string
   minOrderMinor?: Prisma.BigIntFilter<"CouponMinimum"> | bigint | number
+  createdAt?: Prisma.DateTimeFilter<"CouponMinimum"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CouponMinimum"> | Date | string
 }
 
 export type CouponMinimumCreateWithoutCouponInput = {
   minOrderMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
   currency: Prisma.CurrencyCreateNestedOneWithoutCouponMinimumsInput
 }
 
 export type CouponMinimumUncheckedCreateWithoutCouponInput = {
   currencyCode: string
   minOrderMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CouponMinimumCreateOrConnectWithoutCouponInput = {
@@ -500,41 +554,57 @@ export type CouponMinimumUpdateManyWithWhereWithoutCouponInput = {
 export type CouponMinimumCreateManyCurrencyInput = {
   couponId: string
   minOrderMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CouponMinimumUpdateWithoutCurrencyInput = {
   minOrderMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coupon?: Prisma.CouponUpdateOneRequiredWithoutMinimumsNestedInput
 }
 
 export type CouponMinimumUncheckedUpdateWithoutCurrencyInput = {
   couponId?: Prisma.StringFieldUpdateOperationsInput | string
   minOrderMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CouponMinimumUncheckedUpdateManyWithoutCurrencyInput = {
   couponId?: Prisma.StringFieldUpdateOperationsInput | string
   minOrderMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CouponMinimumCreateManyCouponInput = {
   currencyCode: string
   minOrderMinor?: bigint | number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CouponMinimumUpdateWithoutCouponInput = {
   minOrderMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutCouponMinimumsNestedInput
 }
 
 export type CouponMinimumUncheckedUpdateWithoutCouponInput = {
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
   minOrderMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CouponMinimumUncheckedUpdateManyWithoutCouponInput = {
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
   minOrderMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -543,6 +613,8 @@ export type CouponMinimumSelect<ExtArgs extends runtime.Types.Extensions.Interna
   couponId?: boolean
   currencyCode?: boolean
   minOrderMinor?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   coupon?: boolean | Prisma.CouponDefaultArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["couponMinimum"]>
@@ -553,9 +625,11 @@ export type CouponMinimumSelectScalar = {
   couponId?: boolean
   currencyCode?: boolean
   minOrderMinor?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CouponMinimumOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"couponId" | "currencyCode" | "minOrderMinor", ExtArgs["result"]["couponMinimum"]>
+export type CouponMinimumOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"couponId" | "currencyCode" | "minOrderMinor" | "createdAt" | "updatedAt", ExtArgs["result"]["couponMinimum"]>
 export type CouponMinimumInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   coupon?: boolean | Prisma.CouponDefaultArgs<ExtArgs>
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
@@ -575,6 +649,8 @@ export type $CouponMinimumPayload<ExtArgs extends runtime.Types.Extensions.Inter
      * coupon applies. Zero means no threshold in this currency.
      */
     minOrderMinor: bigint
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["couponMinimum"]>
   composites: {}
 }
@@ -949,6 +1025,8 @@ export interface CouponMinimumFieldRefs {
   readonly couponId: Prisma.FieldRef<"CouponMinimum", 'String'>
   readonly currencyCode: Prisma.FieldRef<"CouponMinimum", 'String'>
   readonly minOrderMinor: Prisma.FieldRef<"CouponMinimum", 'BigInt'>
+  readonly createdAt: Prisma.FieldRef<"CouponMinimum", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CouponMinimum", 'DateTime'>
 }
     
 

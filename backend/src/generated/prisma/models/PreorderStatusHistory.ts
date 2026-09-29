@@ -34,6 +34,7 @@ export type PreorderStatusHistoryMinAggregateOutputType = {
   actorLabel: string | null
   reason: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PreorderStatusHistoryMaxAggregateOutputType = {
@@ -46,6 +47,7 @@ export type PreorderStatusHistoryMaxAggregateOutputType = {
   actorLabel: string | null
   reason: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PreorderStatusHistoryCountAggregateOutputType = {
@@ -59,6 +61,7 @@ export type PreorderStatusHistoryCountAggregateOutputType = {
   reason: number
   metaJson: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -73,6 +76,7 @@ export type PreorderStatusHistoryMinAggregateInputType = {
   actorLabel?: true
   reason?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PreorderStatusHistoryMaxAggregateInputType = {
@@ -85,6 +89,7 @@ export type PreorderStatusHistoryMaxAggregateInputType = {
   actorLabel?: true
   reason?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PreorderStatusHistoryCountAggregateInputType = {
@@ -98,6 +103,7 @@ export type PreorderStatusHistoryCountAggregateInputType = {
   reason?: true
   metaJson?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -184,6 +190,7 @@ export type PreorderStatusHistoryGroupByOutputType = {
   reason: string | null
   metaJson: runtime.JsonValue | null
   createdAt: Date
+  updatedAt: Date
   _count: PreorderStatusHistoryCountAggregateOutputType | null
   _min: PreorderStatusHistoryMinAggregateOutputType | null
   _max: PreorderStatusHistoryMaxAggregateOutputType | null
@@ -218,6 +225,7 @@ export type PreorderStatusHistoryWhereInput = {
   reason?: Prisma.StringNullableFilter<"PreorderStatusHistory"> | string | null
   metaJson?: Prisma.JsonNullableFilter<"PreorderStatusHistory">
   createdAt?: Prisma.DateTimeFilter<"PreorderStatusHistory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PreorderStatusHistory"> | Date | string
   request?: Prisma.XOR<Prisma.PreorderRequestScalarRelationFilter, Prisma.PreorderRequestWhereInput>
 }
 
@@ -232,6 +240,7 @@ export type PreorderStatusHistoryOrderByWithRelationInput = {
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
   metaJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   request?: Prisma.PreorderRequestOrderByWithRelationInput
   _relevance?: Prisma.PreorderStatusHistoryOrderByRelevanceInput
 }
@@ -250,6 +259,7 @@ export type PreorderStatusHistoryWhereUniqueInput = Prisma.AtLeast<{
   reason?: Prisma.StringNullableFilter<"PreorderStatusHistory"> | string | null
   metaJson?: Prisma.JsonNullableFilter<"PreorderStatusHistory">
   createdAt?: Prisma.DateTimeFilter<"PreorderStatusHistory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PreorderStatusHistory"> | Date | string
   request?: Prisma.XOR<Prisma.PreorderRequestScalarRelationFilter, Prisma.PreorderRequestWhereInput>
 }, "id">
 
@@ -264,6 +274,7 @@ export type PreorderStatusHistoryOrderByWithAggregationInput = {
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
   metaJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PreorderStatusHistoryCountOrderByAggregateInput
   _max?: Prisma.PreorderStatusHistoryMaxOrderByAggregateInput
   _min?: Prisma.PreorderStatusHistoryMinOrderByAggregateInput
@@ -283,6 +294,7 @@ export type PreorderStatusHistoryScalarWhereWithAggregatesInput = {
   reason?: Prisma.StringNullableWithAggregatesFilter<"PreorderStatusHistory"> | string | null
   metaJson?: Prisma.JsonNullableWithAggregatesFilter<"PreorderStatusHistory">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderStatusHistory"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderStatusHistory"> | Date | string
 }
 
 export type PreorderStatusHistoryCreateInput = {
@@ -295,6 +307,7 @@ export type PreorderStatusHistoryCreateInput = {
   reason?: string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
   request: Prisma.PreorderRequestCreateNestedOneWithoutHistoryInput
 }
 
@@ -309,6 +322,7 @@ export type PreorderStatusHistoryUncheckedCreateInput = {
   reason?: string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderStatusHistoryUpdateInput = {
@@ -321,6 +335,7 @@ export type PreorderStatusHistoryUpdateInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   request?: Prisma.PreorderRequestUpdateOneRequiredWithoutHistoryNestedInput
 }
 
@@ -335,6 +350,7 @@ export type PreorderStatusHistoryUncheckedUpdateInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderStatusHistoryCreateManyInput = {
@@ -348,6 +364,7 @@ export type PreorderStatusHistoryCreateManyInput = {
   reason?: string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderStatusHistoryUpdateManyMutationInput = {
@@ -360,6 +377,7 @@ export type PreorderStatusHistoryUpdateManyMutationInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderStatusHistoryUncheckedUpdateManyInput = {
@@ -373,6 +391,7 @@ export type PreorderStatusHistoryUncheckedUpdateManyInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderStatusHistoryListRelationFilter = {
@@ -402,6 +421,7 @@ export type PreorderStatusHistoryCountOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   metaJson?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderStatusHistoryMaxOrderByAggregateInput = {
@@ -414,6 +434,7 @@ export type PreorderStatusHistoryMaxOrderByAggregateInput = {
   actorLabel?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderStatusHistoryMinOrderByAggregateInput = {
@@ -426,6 +447,7 @@ export type PreorderStatusHistoryMinOrderByAggregateInput = {
   actorLabel?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderStatusHistoryCreateNestedManyWithoutRequestInput = {
@@ -484,6 +506,7 @@ export type PreorderStatusHistoryCreateWithoutRequestInput = {
   reason?: string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderStatusHistoryUncheckedCreateWithoutRequestInput = {
@@ -496,6 +519,7 @@ export type PreorderStatusHistoryUncheckedCreateWithoutRequestInput = {
   reason?: string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderStatusHistoryCreateOrConnectWithoutRequestInput = {
@@ -538,6 +562,7 @@ export type PreorderStatusHistoryScalarWhereInput = {
   reason?: Prisma.StringNullableFilter<"PreorderStatusHistory"> | string | null
   metaJson?: Prisma.JsonNullableFilter<"PreorderStatusHistory">
   createdAt?: Prisma.DateTimeFilter<"PreorderStatusHistory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PreorderStatusHistory"> | Date | string
 }
 
 export type PreorderStatusHistoryCreateManyRequestInput = {
@@ -550,6 +575,7 @@ export type PreorderStatusHistoryCreateManyRequestInput = {
   reason?: string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderStatusHistoryUpdateWithoutRequestInput = {
@@ -562,6 +588,7 @@ export type PreorderStatusHistoryUpdateWithoutRequestInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderStatusHistoryUncheckedUpdateWithoutRequestInput = {
@@ -574,6 +601,7 @@ export type PreorderStatusHistoryUncheckedUpdateWithoutRequestInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderStatusHistoryUncheckedUpdateManyWithoutRequestInput = {
@@ -586,6 +614,7 @@ export type PreorderStatusHistoryUncheckedUpdateManyWithoutRequestInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -601,6 +630,7 @@ export type PreorderStatusHistorySelect<ExtArgs extends runtime.Types.Extensions
   reason?: boolean
   metaJson?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   request?: boolean | Prisma.PreorderRequestDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["preorderStatusHistory"]>
 
@@ -617,9 +647,10 @@ export type PreorderStatusHistorySelectScalar = {
   reason?: boolean
   metaJson?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PreorderStatusHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "requestId" | "fromStatus" | "toStatus" | "actorType" | "actorUserId" | "actorLabel" | "reason" | "metaJson" | "createdAt", ExtArgs["result"]["preorderStatusHistory"]>
+export type PreorderStatusHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "requestId" | "fromStatus" | "toStatus" | "actorType" | "actorUserId" | "actorLabel" | "reason" | "metaJson" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderStatusHistory"]>
 export type PreorderStatusHistoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   request?: boolean | Prisma.PreorderRequestDefaultArgs<ExtArgs>
 }
@@ -640,6 +671,7 @@ export type $PreorderStatusHistoryPayload<ExtArgs extends runtime.Types.Extensio
     reason: string | null
     metaJson: runtime.JsonValue | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["preorderStatusHistory"]>
   composites: {}
 }
@@ -1020,6 +1052,7 @@ export interface PreorderStatusHistoryFieldRefs {
   readonly reason: Prisma.FieldRef<"PreorderStatusHistory", 'String'>
   readonly metaJson: Prisma.FieldRef<"PreorderStatusHistory", 'Json'>
   readonly createdAt: Prisma.FieldRef<"PreorderStatusHistory", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"PreorderStatusHistory", 'DateTime'>
 }
     
 

@@ -399,6 +399,7 @@ export type SellerSettlementOrderByWithRelationInput = {
 export type SellerSettlementWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   reference?: string
+  sellerAccountId_periodStart_periodEnd_currency?: Prisma.SellerSettlementSellerAccountIdPeriodStartPeriodEndCurrencyCompoundUniqueInput
   AND?: Prisma.SellerSettlementWhereInput | Prisma.SellerSettlementWhereInput[]
   OR?: Prisma.SellerSettlementWhereInput[]
   NOT?: Prisma.SellerSettlementWhereInput | Prisma.SellerSettlementWhereInput[]
@@ -423,7 +424,7 @@ export type SellerSettlementWhereUniqueInput = Prisma.AtLeast<{
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   lines?: Prisma.SellerSettlementLineListRelationFilter
   payouts?: Prisma.SellerPayoutListRelationFilter
-}, "id" | "reference">
+}, "id" | "reference" | "sellerAccountId_periodStart_periodEnd_currency">
 
 export type SellerSettlementOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -661,6 +662,13 @@ export type SellerSettlementOrderByRelevanceInput = {
   fields: Prisma.SellerSettlementOrderByRelevanceFieldEnum | Prisma.SellerSettlementOrderByRelevanceFieldEnum[]
   sort: Prisma.SortOrder
   search: string
+}
+
+export type SellerSettlementSellerAccountIdPeriodStartPeriodEndCurrencyCompoundUniqueInput = {
+  sellerAccountId: string
+  periodStart: Date | string
+  periodEnd: Date | string
+  currency: string
 }
 
 export type SellerSettlementCountOrderByAggregateInput = {

@@ -406,8 +406,14 @@ function SettlementPanel({ settlement }: { settlement: SettlementRow }): React.J
           <p className="text-sm font-semibold text-ink">{settlement.reference}</p>
           <p className="mt-0.5 text-xxs text-ink-subtle">
             {t('seller.payments.period', {
-              from: new Date(settlement.periodStart).toLocaleDateString(),
-              to: new Date(settlement.periodEnd).toLocaleDateString(),
+              // Periods are whole UTC days and the end is exclusive (October
+              // ends at 1 November 00:00), so show the last day it includes,
+              // in UTC - in the viewer's own zone October would start on
+              // 30 September anywhere west of Greenwich.
+              from: new Date(settlement.periodStart).toLocaleDateString(undefined, { timeZone: 'UTC' }),
+              to: new Date(Date.parse(settlement.periodEnd) - 1).toLocaleDateString(undefined, {
+                timeZone: 'UTC',
+              }),
             })}
           </p>
         </div>
@@ -518,7 +524,11 @@ function SettlementLines({ settlement }: { settlement: SettlementRow }): React.J
                 <li key={line.id} className="flex items-baseline justify-between gap-3 px-3 py-2">
                   <div className="min-w-0">
                     <p className="truncate text-xs text-ink">
-                      {line.description ?? line.kind.toLowerCase().replace(/_/g, ' ')}
+                      {/* The kind, translated, then what it is about. The stored
+                          description is the seller order number, which reads
+                          the same in every language. */}
+                      {t(`seller.payments.lineKind.${line.kind}` as never)}
+                      {line.description === null ? '' : ` · ${line.description}`}
                     </p>
                     <p className="text-xxs text-ink-subtle">
                       {new Date(line.occurredAt).toLocaleDateString()}

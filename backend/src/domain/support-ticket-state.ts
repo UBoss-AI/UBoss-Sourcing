@@ -139,6 +139,36 @@ export function onStaffReply(status: SupportTicketStatusName): SupportTicketStat
   return status === 'OPEN' ? 'IN_PROGRESS' : null;
 }
 
+/** How a request ended. Staff choose one when they resolve or close it. */
+export const SupportResolutionCodeValues = [
+  'ANSWERED',
+  'FIXED',
+  'REFUNDED',
+  'REPLACED',
+  'REFERRED',
+  'DUPLICATE',
+  'NO_RESPONSE',
+  'NO_ACTION',
+] as const;
+export type SupportResolutionCodeName = (typeof SupportResolutionCodeValues)[number];
+
+/**
+ * Whether moving to `to` needs a resolution code. Resolving or closing a
+ * request says how it ended; a request that already carries a code (resolved,
+ * then closed) keeps it.
+ */
+export function requiresResolutionCode(
+  to: SupportTicketStatusName,
+  current: SupportResolutionCodeName | null,
+): boolean {
+  return (to === 'RESOLVED' || to === 'CLOSED') && current === null;
+}
+
+/** A request moved back into work no longer has an outcome. */
+export function clearsResolutionCode(to: SupportTicketStatusName): boolean {
+  return to === 'IN_PROGRESS' || to === 'WAITING_FOR_CUSTOMER';
+}
+
 /**
  * The timestamps a status carries. RESOLVED stamps `resolvedAt`, CLOSED
  * stamps `closedAt`, and leaving RESOLVED clears `resolvedAt` so a reopened

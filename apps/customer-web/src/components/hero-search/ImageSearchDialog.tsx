@@ -34,7 +34,12 @@ import { CameraIcon, CloseIcon, PlusIcon, SearchIcon } from '@/components/icons'
 import { useLocale } from '@/app/locale-context';
 import { ApiError, NetworkError } from '@/lib/api';
 import { useCamera } from '@/lib/camera';
-import { IMAGE_ACCEPT_ATTRIBUTE, rejectImage, searchByImage } from '@/lib/image-search';
+import {
+  IMAGE_ACCEPT_ATTRIBUTE,
+  imageSearchErrorKey,
+  rejectImage,
+  searchByImage,
+} from '@/lib/image-search';
 import type { ImageSearchResult } from '@/lib/image-search';
 import { useI18n } from '@/i18n/i18n-context';
 
@@ -197,16 +202,21 @@ export function ImageSearchDialog({
       if (abort.signal.aborted) return;
 
       /*
-       * The server's own message is used where there is one, because these are
-       * the two cases where it says something specific and actionable — the
-       * provider is over quota, or the photograph could not be read. Falling
-       * back to a generic line here would throw away the only sentence that
-       * tells the customer whether to wait or to try a clearer picture.
+       * Worded from the code, in the page's language: the provider is busy or
+       * slow (wait and retry), unavailable (search by name), or the photograph
+       * could not be read (try a clearer one). Each tells the customer what to
+       * do next, which a generic line would throw away. The server's own
+       * sentence - English - is the fallback for any other code.
        */
       if (caught instanceof ApiError) {
+        const key = imageSearchErrorKey(caught.code);
         setPhase({
           kind: 'failed',
-          message: caught.isAuthError ? t('imageSearch.error.signedOut') : caught.message,
+          message: caught.isAuthError
+            ? t('imageSearch.error.signedOut')
+            : key === null
+              ? caught.message
+              : t(key),
         });
         return;
       }

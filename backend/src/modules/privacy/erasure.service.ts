@@ -42,7 +42,7 @@ import { Prisma } from '../../generated/prisma/client.js';
 import { ErrorCode, conflict, notFound } from '../../domain/errors.js';
 import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
-import { prisma } from '../../infra/prisma.js';
+import { auditMaintenancePrisma, prisma } from '../../infra/prisma.js';
 import { storage } from '../../infra/storage/index.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 
@@ -194,9 +194,13 @@ export async function executeErasure(input: {
 
   if (existing.erasedAt !== null) {
     logger.info({ userId: input.userId }, 'erasure skipped: account already erased');
+    // The one step that can be left behind by an earlier run: if pseudonymising
+    // the audit trail failed after that run committed, this finishes it. It is
+    // idempotent, so on a complete erasure it changes nothing.
+    const auditLogs = await pseudonymiseAuditTrail(input.userId, existing.email);
     return {
       deleted: {},
-      pseudonymised: {},
+      pseudonymised: auditLogs > 0 ? { auditLogs } : {},
       retained: [],
       pseudonym: existing.email,
     };
@@ -263,6 +267,27 @@ export async function executeErasure(input: {
     deleted.supportTickets = (
       await tx.supportTicket.deleteMany({ where: { requesterUserId: input.userId } })
     ).count;
+    /*
+     * Returns stay with the order they belong to - a refund has to remain
+     * explainable - but the photographs they took and the words they wrote
+     * about the problem go. Erasure is refused while a return is still open,
+     * so none of this is still needed.
+     */
+    const returnFiles = await tx.returnRequestFile.findMany({
+      where: { uploadedById: input.userId, uploaderType: 'CUSTOMER' },
+      select: { id: true, storageKey: true },
+    });
+    chatFiles.push(...returnFiles.map((file) => file.storageKey));
+    deleted.returnEvidenceFiles = (
+      await tx.returnRequestFile.deleteMany({ where: { id: { in: returnFiles.map((file) => file.id) } } })
+    ).count;
+    if (profile !== null) {
+      await tx.returnRequest.updateMany({
+        where: { order: { customerProfileId: profile.id } },
+        data: { reason: '' },
+      });
+    }
+
     // Which versions of the bulk preorder note they read. Nothing requires
     // keeping it once the account is gone, and every row names them.
     deleted.acknowledgements = (
@@ -776,17 +801,8 @@ export async function executeErasure(input: {
       })
     ).count;
 
-    // The audit trail keeps its rows - it is the evidence that this erasure
-    // itself happened - but stops carrying the address that names the person.
-    // The actor id remains as a pseudonymous key pointing at the rewritten
-    // user row, which is what makes this pseudonymisation rather than a
-    // pretence at deletion.
-    pseudonymised.auditLogs = (
-      await tx.auditLog.updateMany({
-        where: { actorUserId: input.userId },
-        data: { actorEmail: pseudonym, ipAddress: null, userAgent: null },
-      })
-    ).count;
+    // The audit trail is pseudonymised just after this transaction commits,
+    // not inside it - see pseudonymiseAuditTrail for why.
 
     // Earlier data requests from this same person, including the one being
     // actioned. The record that a request was made and honoured must survive
@@ -818,15 +834,6 @@ export async function executeErasure(input: {
 
     pseudonymised.users = 1;
 
-    retained.push({
-      table: 'audit_logs',
-      count: pseudonymised.auditLogs ?? 0,
-      basis:
-        'GDPR Art. 17(3)(b) and Art. 5(2): the record that administrative actions - including ' +
-        'this erasure - took place. Retained in pseudonymised form and deleted on the ' +
-        'ordinary audit retention schedule.',
-    });
-
     await recordAudit(
       {
         action: AuditAction.DATA_ERASURE_EXECUTED,
@@ -842,6 +849,22 @@ export async function executeErasure(input: {
     );
 
     return { deleted, pseudonymised, retained, pseudonym };
+  });
+
+  // --- The audit trail, straight after the commit -------------------------
+  //
+  // Not best effort, unlike the provider calls below: an audit row that still
+  // names the person is personal data this erasure promised to remove. If it
+  // fails, the erasure throws, the request stays open, and running it again
+  // finishes the job (the already-erased branch above pseudonymises too).
+  result.pseudonymised.auditLogs = await pseudonymiseAuditTrail(input.userId, pseudonym);
+  result.retained.push({
+    table: 'audit_logs',
+    count: result.pseudonymised.auditLogs,
+    basis:
+      'GDPR Art. 17(3)(b) and Art. 5(2): the record that administrative actions - including ' +
+      'this erasure - took place. Retained in pseudonymised form and deleted on the ' +
+      'ordinary audit retention schedule.',
   });
 
   // --- Tell the provider, after the erasure has committed ----------------
@@ -877,6 +900,37 @@ export async function executeErasure(input: {
   );
 
   return result;
+}
+
+/**
+ * Stop the audit trail naming an erased person.
+ *
+ * The rows stay - they are the evidence of what was done, this erasure
+ * included - but lose the email, IP address and user agent. The actor id
+ * remains as a pseudonymous key to the rewritten user row, which is what makes
+ * this pseudonymisation rather than a pretence at deletion.
+ *
+ * Outside the erasure transaction because it cannot be inside it: in
+ * production the application's account has no UPDATE on `audit_logs`, so this
+ * runs as the maintenance account, on its own connection, whose grant covers
+ * these three columns and nothing else (deploy/mariadb/post-migrate-grants.sql).
+ * Before 29 Sep 2026 it ran inside the transaction as the application, which
+ * the database refuses - every production erasure would have rolled back.
+ */
+async function pseudonymiseAuditTrail(userId: string, pseudonym: string): Promise<number> {
+  try {
+    const updated = await auditMaintenancePrisma().auditLog.updateMany({
+      where: { actorUserId: userId },
+      data: { actorEmail: pseudonym, ipAddress: null, userAgent: null },
+    });
+    return updated.count;
+  } catch (error) {
+    logger.error(
+      { err: error, userId },
+      'erasure committed but the audit trail could not be pseudonymised; run the erasure again',
+    );
+    throw error;
+  }
 }
 
 /**

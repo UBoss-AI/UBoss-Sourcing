@@ -31,6 +31,7 @@ export type ScheduleOccurrenceAvgAggregateOutputType = {
   paymentAttemptCount: number | null
   quotedTotalMinor: number | null
   actualTotalMinor: number | null
+  confirmedTotalMinor: number | null
 }
 
 export type ScheduleOccurrenceSumAggregateOutputType = {
@@ -38,6 +39,7 @@ export type ScheduleOccurrenceSumAggregateOutputType = {
   paymentAttemptCount: number | null
   quotedTotalMinor: bigint | null
   actualTotalMinor: bigint | null
+  confirmedTotalMinor: bigint | null
 }
 
 export type ScheduleOccurrenceMinAggregateOutputType = {
@@ -61,9 +63,14 @@ export type ScheduleOccurrenceMinAggregateOutputType = {
   failureMessage: string | null
   skipReason: string | null
   actionRequiredAt: Date | null
+  confirmationDueAt: Date | null
+  confirmedTotalMinor: bigint | null
+  confirmedAt: Date | null
+  confirmedByUserId: string | null
   reminderSentAt: Date | null
   createdAt: Date | null
   completedAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ScheduleOccurrenceMaxAggregateOutputType = {
@@ -87,9 +94,14 @@ export type ScheduleOccurrenceMaxAggregateOutputType = {
   failureMessage: string | null
   skipReason: string | null
   actionRequiredAt: Date | null
+  confirmationDueAt: Date | null
+  confirmedTotalMinor: bigint | null
+  confirmedAt: Date | null
+  confirmedByUserId: string | null
   reminderSentAt: Date | null
   createdAt: Date | null
   completedAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ScheduleOccurrenceCountAggregateOutputType = {
@@ -114,9 +126,14 @@ export type ScheduleOccurrenceCountAggregateOutputType = {
   failureMessage: number
   skipReason: number
   actionRequiredAt: number
+  confirmationDueAt: number
+  confirmedTotalMinor: number
+  confirmedAt: number
+  confirmedByUserId: number
   reminderSentAt: number
   createdAt: number
   completedAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -126,6 +143,7 @@ export type ScheduleOccurrenceAvgAggregateInputType = {
   paymentAttemptCount?: true
   quotedTotalMinor?: true
   actualTotalMinor?: true
+  confirmedTotalMinor?: true
 }
 
 export type ScheduleOccurrenceSumAggregateInputType = {
@@ -133,6 +151,7 @@ export type ScheduleOccurrenceSumAggregateInputType = {
   paymentAttemptCount?: true
   quotedTotalMinor?: true
   actualTotalMinor?: true
+  confirmedTotalMinor?: true
 }
 
 export type ScheduleOccurrenceMinAggregateInputType = {
@@ -156,9 +175,14 @@ export type ScheduleOccurrenceMinAggregateInputType = {
   failureMessage?: true
   skipReason?: true
   actionRequiredAt?: true
+  confirmationDueAt?: true
+  confirmedTotalMinor?: true
+  confirmedAt?: true
+  confirmedByUserId?: true
   reminderSentAt?: true
   createdAt?: true
   completedAt?: true
+  updatedAt?: true
 }
 
 export type ScheduleOccurrenceMaxAggregateInputType = {
@@ -182,9 +206,14 @@ export type ScheduleOccurrenceMaxAggregateInputType = {
   failureMessage?: true
   skipReason?: true
   actionRequiredAt?: true
+  confirmationDueAt?: true
+  confirmedTotalMinor?: true
+  confirmedAt?: true
+  confirmedByUserId?: true
   reminderSentAt?: true
   createdAt?: true
   completedAt?: true
+  updatedAt?: true
 }
 
 export type ScheduleOccurrenceCountAggregateInputType = {
@@ -209,9 +238,14 @@ export type ScheduleOccurrenceCountAggregateInputType = {
   failureMessage?: true
   skipReason?: true
   actionRequiredAt?: true
+  confirmationDueAt?: true
+  confirmedTotalMinor?: true
+  confirmedAt?: true
+  confirmedByUserId?: true
   reminderSentAt?: true
   createdAt?: true
   completedAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -323,9 +357,14 @@ export type ScheduleOccurrenceGroupByOutputType = {
   failureMessage: string | null
   skipReason: string | null
   actionRequiredAt: Date | null
+  confirmationDueAt: Date | null
+  confirmedTotalMinor: bigint | null
+  confirmedAt: Date | null
+  confirmedByUserId: string | null
   reminderSentAt: Date | null
   createdAt: Date
   completedAt: Date | null
+  updatedAt: Date
   _count: ScheduleOccurrenceCountAggregateOutputType | null
   _avg: ScheduleOccurrenceAvgAggregateOutputType | null
   _sum: ScheduleOccurrenceSumAggregateOutputType | null
@@ -373,9 +412,14 @@ export type ScheduleOccurrenceWhereInput = {
   failureMessage?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   skipReason?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   actionRequiredAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  confirmationDueAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  confirmedTotalMinor?: Prisma.BigIntNullableFilter<"ScheduleOccurrence"> | bigint | number | null
+  confirmedAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  confirmedByUserId?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   reminderSentAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ScheduleOccurrence"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"ScheduleOccurrence"> | Date | string
   schedule?: Prisma.XOR<Prisma.RecurringScheduleScalarRelationFilter, Prisma.RecurringScheduleWhereInput>
   order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
   erpPush?: Prisma.XOR<Prisma.ErpOrderPushNullableScalarRelationFilter, Prisma.ErpOrderPushWhereInput> | null
@@ -403,9 +447,14 @@ export type ScheduleOccurrenceOrderByWithRelationInput = {
   failureMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   skipReason?: Prisma.SortOrderInput | Prisma.SortOrder
   actionRequiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  confirmationDueAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  confirmedTotalMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  confirmedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  confirmedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   schedule?: Prisma.RecurringScheduleOrderByWithRelationInput
   order?: Prisma.OrderOrderByWithRelationInput
   erpPush?: Prisma.ErpOrderPushOrderByWithRelationInput
@@ -438,9 +487,14 @@ export type ScheduleOccurrenceWhereUniqueInput = Prisma.AtLeast<{
   failureMessage?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   skipReason?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   actionRequiredAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  confirmationDueAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  confirmedTotalMinor?: Prisma.BigIntNullableFilter<"ScheduleOccurrence"> | bigint | number | null
+  confirmedAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  confirmedByUserId?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   reminderSentAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ScheduleOccurrence"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"ScheduleOccurrence"> | Date | string
   schedule?: Prisma.XOR<Prisma.RecurringScheduleScalarRelationFilter, Prisma.RecurringScheduleWhereInput>
   order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
   erpPush?: Prisma.XOR<Prisma.ErpOrderPushNullableScalarRelationFilter, Prisma.ErpOrderPushWhereInput> | null
@@ -468,9 +522,14 @@ export type ScheduleOccurrenceOrderByWithAggregationInput = {
   failureMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   skipReason?: Prisma.SortOrderInput | Prisma.SortOrder
   actionRequiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  confirmationDueAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  confirmedTotalMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  confirmedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  confirmedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ScheduleOccurrenceCountOrderByAggregateInput
   _avg?: Prisma.ScheduleOccurrenceAvgOrderByAggregateInput
   _max?: Prisma.ScheduleOccurrenceMaxOrderByAggregateInput
@@ -503,9 +562,14 @@ export type ScheduleOccurrenceScalarWhereWithAggregatesInput = {
   failureMessage?: Prisma.StringNullableWithAggregatesFilter<"ScheduleOccurrence"> | string | null
   skipReason?: Prisma.StringNullableWithAggregatesFilter<"ScheduleOccurrence"> | string | null
   actionRequiredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ScheduleOccurrence"> | Date | string | null
+  confirmationDueAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ScheduleOccurrence"> | Date | string | null
+  confirmedTotalMinor?: Prisma.BigIntNullableWithAggregatesFilter<"ScheduleOccurrence"> | bigint | number | null
+  confirmedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ScheduleOccurrence"> | Date | string | null
+  confirmedByUserId?: Prisma.StringNullableWithAggregatesFilter<"ScheduleOccurrence"> | string | null
   reminderSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ScheduleOccurrence"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ScheduleOccurrence"> | Date | string
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ScheduleOccurrence"> | Date | string | null
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ScheduleOccurrence"> | Date | string
 }
 
 export type ScheduleOccurrenceCreateInput = {
@@ -529,9 +593,14 @@ export type ScheduleOccurrenceCreateInput = {
   failureMessage?: string | null
   skipReason?: string | null
   actionRequiredAt?: Date | string | null
+  confirmationDueAt?: Date | string | null
+  confirmedTotalMinor?: bigint | number | null
+  confirmedAt?: Date | string | null
+  confirmedByUserId?: string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
+  updatedAt?: Date | string
   schedule: Prisma.RecurringScheduleCreateNestedOneWithoutOccurrencesInput
   order?: Prisma.OrderCreateNestedOneWithoutOccurrenceInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOccurrenceInput
@@ -559,9 +628,14 @@ export type ScheduleOccurrenceUncheckedCreateInput = {
   failureMessage?: string | null
   skipReason?: string | null
   actionRequiredAt?: Date | string | null
+  confirmationDueAt?: Date | string | null
+  confirmedTotalMinor?: bigint | number | null
+  confirmedAt?: Date | string | null
+  confirmedByUserId?: string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
+  updatedAt?: Date | string
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutOccurrenceInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOccurrenceInput
 }
@@ -587,9 +661,14 @@ export type ScheduleOccurrenceUpdateInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmationDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.RecurringScheduleUpdateOneRequiredWithoutOccurrencesNestedInput
   order?: Prisma.OrderUpdateOneWithoutOccurrenceNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOccurrenceNestedInput
@@ -617,9 +696,14 @@ export type ScheduleOccurrenceUncheckedUpdateInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmationDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUncheckedUpdateOneWithoutOccurrenceNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOccurrenceNestedInput
 }
@@ -646,9 +730,14 @@ export type ScheduleOccurrenceCreateManyInput = {
   failureMessage?: string | null
   skipReason?: string | null
   actionRequiredAt?: Date | string | null
+  confirmationDueAt?: Date | string | null
+  confirmedTotalMinor?: bigint | number | null
+  confirmedAt?: Date | string | null
+  confirmedByUserId?: string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type ScheduleOccurrenceUpdateManyMutationInput = {
@@ -672,9 +761,14 @@ export type ScheduleOccurrenceUpdateManyMutationInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmationDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ScheduleOccurrenceUncheckedUpdateManyInput = {
@@ -699,9 +793,14 @@ export type ScheduleOccurrenceUncheckedUpdateManyInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmationDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ScheduleOccurrenceNullableScalarRelationFilter = {
@@ -752,9 +851,14 @@ export type ScheduleOccurrenceCountOrderByAggregateInput = {
   failureMessage?: Prisma.SortOrder
   skipReason?: Prisma.SortOrder
   actionRequiredAt?: Prisma.SortOrder
+  confirmationDueAt?: Prisma.SortOrder
+  confirmedTotalMinor?: Prisma.SortOrder
+  confirmedAt?: Prisma.SortOrder
+  confirmedByUserId?: Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ScheduleOccurrenceAvgOrderByAggregateInput = {
@@ -762,6 +866,7 @@ export type ScheduleOccurrenceAvgOrderByAggregateInput = {
   paymentAttemptCount?: Prisma.SortOrder
   quotedTotalMinor?: Prisma.SortOrder
   actualTotalMinor?: Prisma.SortOrder
+  confirmedTotalMinor?: Prisma.SortOrder
 }
 
 export type ScheduleOccurrenceMaxOrderByAggregateInput = {
@@ -785,9 +890,14 @@ export type ScheduleOccurrenceMaxOrderByAggregateInput = {
   failureMessage?: Prisma.SortOrder
   skipReason?: Prisma.SortOrder
   actionRequiredAt?: Prisma.SortOrder
+  confirmationDueAt?: Prisma.SortOrder
+  confirmedTotalMinor?: Prisma.SortOrder
+  confirmedAt?: Prisma.SortOrder
+  confirmedByUserId?: Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ScheduleOccurrenceMinOrderByAggregateInput = {
@@ -811,9 +921,14 @@ export type ScheduleOccurrenceMinOrderByAggregateInput = {
   failureMessage?: Prisma.SortOrder
   skipReason?: Prisma.SortOrder
   actionRequiredAt?: Prisma.SortOrder
+  confirmationDueAt?: Prisma.SortOrder
+  confirmedTotalMinor?: Prisma.SortOrder
+  confirmedAt?: Prisma.SortOrder
+  confirmedByUserId?: Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ScheduleOccurrenceSumOrderByAggregateInput = {
@@ -821,6 +936,7 @@ export type ScheduleOccurrenceSumOrderByAggregateInput = {
   paymentAttemptCount?: Prisma.SortOrder
   quotedTotalMinor?: Prisma.SortOrder
   actualTotalMinor?: Prisma.SortOrder
+  confirmedTotalMinor?: Prisma.SortOrder
 }
 
 export type ScheduleOccurrenceCreateNestedOneWithoutOrderInput = {
@@ -926,9 +1042,14 @@ export type ScheduleOccurrenceCreateWithoutOrderInput = {
   failureMessage?: string | null
   skipReason?: string | null
   actionRequiredAt?: Date | string | null
+  confirmationDueAt?: Date | string | null
+  confirmedTotalMinor?: bigint | number | null
+  confirmedAt?: Date | string | null
+  confirmedByUserId?: string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
+  updatedAt?: Date | string
   schedule: Prisma.RecurringScheduleCreateNestedOneWithoutOccurrencesInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOccurrenceInput
 }
@@ -955,9 +1076,14 @@ export type ScheduleOccurrenceUncheckedCreateWithoutOrderInput = {
   failureMessage?: string | null
   skipReason?: string | null
   actionRequiredAt?: Date | string | null
+  confirmationDueAt?: Date | string | null
+  confirmedTotalMinor?: bigint | number | null
+  confirmedAt?: Date | string | null
+  confirmedByUserId?: string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
+  updatedAt?: Date | string
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOccurrenceInput
 }
 
@@ -998,9 +1124,14 @@ export type ScheduleOccurrenceUpdateWithoutOrderInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmationDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.RecurringScheduleUpdateOneRequiredWithoutOccurrencesNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOccurrenceNestedInput
 }
@@ -1027,9 +1158,14 @@ export type ScheduleOccurrenceUncheckedUpdateWithoutOrderInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmationDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOccurrenceNestedInput
 }
 
@@ -1054,9 +1190,14 @@ export type ScheduleOccurrenceCreateWithoutScheduleInput = {
   failureMessage?: string | null
   skipReason?: string | null
   actionRequiredAt?: Date | string | null
+  confirmationDueAt?: Date | string | null
+  confirmedTotalMinor?: bigint | number | null
+  confirmedAt?: Date | string | null
+  confirmedByUserId?: string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
+  updatedAt?: Date | string
   order?: Prisma.OrderCreateNestedOneWithoutOccurrenceInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOccurrenceInput
 }
@@ -1082,9 +1223,14 @@ export type ScheduleOccurrenceUncheckedCreateWithoutScheduleInput = {
   failureMessage?: string | null
   skipReason?: string | null
   actionRequiredAt?: Date | string | null
+  confirmationDueAt?: Date | string | null
+  confirmedTotalMinor?: bigint | number | null
+  confirmedAt?: Date | string | null
+  confirmedByUserId?: string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
+  updatedAt?: Date | string
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutOccurrenceInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOccurrenceInput
 }
@@ -1140,9 +1286,14 @@ export type ScheduleOccurrenceScalarWhereInput = {
   failureMessage?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   skipReason?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   actionRequiredAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  confirmationDueAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  confirmedTotalMinor?: Prisma.BigIntNullableFilter<"ScheduleOccurrence"> | bigint | number | null
+  confirmedAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  confirmedByUserId?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   reminderSentAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ScheduleOccurrence"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"ScheduleOccurrence"> | Date | string
 }
 
 export type ScheduleOccurrenceCreateWithoutErpPushInput = {
@@ -1166,9 +1317,14 @@ export type ScheduleOccurrenceCreateWithoutErpPushInput = {
   failureMessage?: string | null
   skipReason?: string | null
   actionRequiredAt?: Date | string | null
+  confirmationDueAt?: Date | string | null
+  confirmedTotalMinor?: bigint | number | null
+  confirmedAt?: Date | string | null
+  confirmedByUserId?: string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
+  updatedAt?: Date | string
   schedule: Prisma.RecurringScheduleCreateNestedOneWithoutOccurrencesInput
   order?: Prisma.OrderCreateNestedOneWithoutOccurrenceInput
 }
@@ -1195,9 +1351,14 @@ export type ScheduleOccurrenceUncheckedCreateWithoutErpPushInput = {
   failureMessage?: string | null
   skipReason?: string | null
   actionRequiredAt?: Date | string | null
+  confirmationDueAt?: Date | string | null
+  confirmedTotalMinor?: bigint | number | null
+  confirmedAt?: Date | string | null
+  confirmedByUserId?: string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
+  updatedAt?: Date | string
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutOccurrenceInput
 }
 
@@ -1238,9 +1399,14 @@ export type ScheduleOccurrenceUpdateWithoutErpPushInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmationDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.RecurringScheduleUpdateOneRequiredWithoutOccurrencesNestedInput
   order?: Prisma.OrderUpdateOneWithoutOccurrenceNestedInput
 }
@@ -1267,9 +1433,14 @@ export type ScheduleOccurrenceUncheckedUpdateWithoutErpPushInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmationDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUncheckedUpdateOneWithoutOccurrenceNestedInput
 }
 
@@ -1294,9 +1465,14 @@ export type ScheduleOccurrenceCreateManyScheduleInput = {
   failureMessage?: string | null
   skipReason?: string | null
   actionRequiredAt?: Date | string | null
+  confirmationDueAt?: Date | string | null
+  confirmedTotalMinor?: bigint | number | null
+  confirmedAt?: Date | string | null
+  confirmedByUserId?: string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type ScheduleOccurrenceUpdateWithoutScheduleInput = {
@@ -1320,9 +1496,14 @@ export type ScheduleOccurrenceUpdateWithoutScheduleInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmationDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneWithoutOccurrenceNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOccurrenceNestedInput
 }
@@ -1348,9 +1529,14 @@ export type ScheduleOccurrenceUncheckedUpdateWithoutScheduleInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmationDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUncheckedUpdateOneWithoutOccurrenceNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOccurrenceNestedInput
 }
@@ -1376,9 +1562,14 @@ export type ScheduleOccurrenceUncheckedUpdateManyWithoutScheduleInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmationDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1405,9 +1596,14 @@ export type ScheduleOccurrenceSelect<ExtArgs extends runtime.Types.Extensions.In
   failureMessage?: boolean
   skipReason?: boolean
   actionRequiredAt?: boolean
+  confirmationDueAt?: boolean
+  confirmedTotalMinor?: boolean
+  confirmedAt?: boolean
+  confirmedByUserId?: boolean
   reminderSentAt?: boolean
   createdAt?: boolean
   completedAt?: boolean
+  updatedAt?: boolean
   schedule?: boolean | Prisma.RecurringScheduleDefaultArgs<ExtArgs>
   order?: boolean | Prisma.ScheduleOccurrence$orderArgs<ExtArgs>
   erpPush?: boolean | Prisma.ScheduleOccurrence$erpPushArgs<ExtArgs>
@@ -1437,12 +1633,17 @@ export type ScheduleOccurrenceSelectScalar = {
   failureMessage?: boolean
   skipReason?: boolean
   actionRequiredAt?: boolean
+  confirmationDueAt?: boolean
+  confirmedTotalMinor?: boolean
+  confirmedAt?: boolean
+  confirmedByUserId?: boolean
   reminderSentAt?: boolean
   createdAt?: boolean
   completedAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ScheduleOccurrenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "plannedRunAt" | "timezone" | "status" | "attemptCount" | "lastAttemptAt" | "nextRetryAt" | "paymentAttemptCount" | "quotedTotalMinor" | "actualTotalMinor" | "paymentReference" | "erpOrderReference" | "erpPushStatus" | "idempotencyKey" | "cartSnapshotJson" | "skippedByUser" | "failureCode" | "failureMessage" | "skipReason" | "actionRequiredAt" | "reminderSentAt" | "createdAt" | "completedAt", ExtArgs["result"]["scheduleOccurrence"]>
+export type ScheduleOccurrenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "plannedRunAt" | "timezone" | "status" | "attemptCount" | "lastAttemptAt" | "nextRetryAt" | "paymentAttemptCount" | "quotedTotalMinor" | "actualTotalMinor" | "paymentReference" | "erpOrderReference" | "erpPushStatus" | "idempotencyKey" | "cartSnapshotJson" | "skippedByUser" | "failureCode" | "failureMessage" | "skipReason" | "actionRequiredAt" | "confirmationDueAt" | "confirmedTotalMinor" | "confirmedAt" | "confirmedByUserId" | "reminderSentAt" | "createdAt" | "completedAt" | "updatedAt", ExtArgs["result"]["scheduleOccurrence"]>
 export type ScheduleOccurrenceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.RecurringScheduleDefaultArgs<ExtArgs>
   order?: boolean | Prisma.ScheduleOccurrence$orderArgs<ExtArgs>
@@ -1544,9 +1745,22 @@ export type $ScheduleOccurrencePayload<ExtArgs extends runtime.Types.Extensions.
      * an ACTION_REQUIRED occurrence before its window closes.
      */
     actionRequiredAt: Date | null
+    /**
+     * --- Price reconfirmation (AWAITING_CONFIRMATION) ---
+     * The last moment the customer may accept the new price.
+     */
+    confirmationDueAt: Date | null
+    /**
+     * The total the customer accepted. The charge is made only if a fresh
+     * quote still comes to exactly this.
+     */
+    confirmedTotalMinor: bigint | null
+    confirmedAt: Date | null
+    confirmedByUserId: string | null
     reminderSentAt: Date | null
     createdAt: Date
     completedAt: Date | null
+    updatedAt: Date
   }, ExtArgs["result"]["scheduleOccurrence"]>
   composites: {}
 }
@@ -1940,9 +2154,14 @@ export interface ScheduleOccurrenceFieldRefs {
   readonly failureMessage: Prisma.FieldRef<"ScheduleOccurrence", 'String'>
   readonly skipReason: Prisma.FieldRef<"ScheduleOccurrence", 'String'>
   readonly actionRequiredAt: Prisma.FieldRef<"ScheduleOccurrence", 'DateTime'>
+  readonly confirmationDueAt: Prisma.FieldRef<"ScheduleOccurrence", 'DateTime'>
+  readonly confirmedTotalMinor: Prisma.FieldRef<"ScheduleOccurrence", 'BigInt'>
+  readonly confirmedAt: Prisma.FieldRef<"ScheduleOccurrence", 'DateTime'>
+  readonly confirmedByUserId: Prisma.FieldRef<"ScheduleOccurrence", 'String'>
   readonly reminderSentAt: Prisma.FieldRef<"ScheduleOccurrence", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"ScheduleOccurrence", 'DateTime'>
   readonly completedAt: Prisma.FieldRef<"ScheduleOccurrence", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ScheduleOccurrence", 'DateTime'>
 }
     
 

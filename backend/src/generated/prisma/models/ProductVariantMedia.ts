@@ -52,6 +52,7 @@ export type ProductVariantMediaMinAggregateOutputType = {
   sortOrder: number | null
   isPrimary: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ProductVariantMediaMaxAggregateOutputType = {
@@ -61,6 +62,7 @@ export type ProductVariantMediaMaxAggregateOutputType = {
   sortOrder: number | null
   isPrimary: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ProductVariantMediaCountAggregateOutputType = {
@@ -70,6 +72,7 @@ export type ProductVariantMediaCountAggregateOutputType = {
   sortOrder: number
   isPrimary: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -89,6 +92,7 @@ export type ProductVariantMediaMinAggregateInputType = {
   sortOrder?: true
   isPrimary?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type ProductVariantMediaMaxAggregateInputType = {
@@ -98,6 +102,7 @@ export type ProductVariantMediaMaxAggregateInputType = {
   sortOrder?: true
   isPrimary?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type ProductVariantMediaCountAggregateInputType = {
@@ -107,6 +112,7 @@ export type ProductVariantMediaCountAggregateInputType = {
   sortOrder?: true
   isPrimary?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -203,6 +209,7 @@ export type ProductVariantMediaGroupByOutputType = {
   sortOrder: number
   isPrimary: boolean
   createdAt: Date
+  updatedAt: Date
   _count: ProductVariantMediaCountAggregateOutputType | null
   _avg: ProductVariantMediaAvgAggregateOutputType | null
   _sum: ProductVariantMediaSumAggregateOutputType | null
@@ -235,6 +242,7 @@ export type ProductVariantMediaWhereInput = {
   sortOrder?: Prisma.IntFilter<"ProductVariantMedia"> | number
   isPrimary?: Prisma.BoolFilter<"ProductVariantMedia"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ProductVariantMedia"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ProductVariantMedia"> | Date | string
   variant?: Prisma.XOR<Prisma.ProductVariantScalarRelationFilter, Prisma.ProductVariantWhereInput>
   media?: Prisma.XOR<Prisma.MediaAssetScalarRelationFilter, Prisma.MediaAssetWhereInput>
 }
@@ -246,6 +254,7 @@ export type ProductVariantMediaOrderByWithRelationInput = {
   sortOrder?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   variant?: Prisma.ProductVariantOrderByWithRelationInput
   media?: Prisma.MediaAssetOrderByWithRelationInput
   _relevance?: Prisma.ProductVariantMediaOrderByRelevanceInput
@@ -262,6 +271,7 @@ export type ProductVariantMediaWhereUniqueInput = Prisma.AtLeast<{
   sortOrder?: Prisma.IntFilter<"ProductVariantMedia"> | number
   isPrimary?: Prisma.BoolFilter<"ProductVariantMedia"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ProductVariantMedia"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ProductVariantMedia"> | Date | string
   variant?: Prisma.XOR<Prisma.ProductVariantScalarRelationFilter, Prisma.ProductVariantWhereInput>
   media?: Prisma.XOR<Prisma.MediaAssetScalarRelationFilter, Prisma.MediaAssetWhereInput>
 }, "id" | "variantId_mediaId">
@@ -273,6 +283,7 @@ export type ProductVariantMediaOrderByWithAggregationInput = {
   sortOrder?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductVariantMediaCountOrderByAggregateInput
   _avg?: Prisma.ProductVariantMediaAvgOrderByAggregateInput
   _max?: Prisma.ProductVariantMediaMaxOrderByAggregateInput
@@ -290,6 +301,7 @@ export type ProductVariantMediaScalarWhereWithAggregatesInput = {
   sortOrder?: Prisma.IntWithAggregatesFilter<"ProductVariantMedia"> | number
   isPrimary?: Prisma.BoolWithAggregatesFilter<"ProductVariantMedia"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductVariantMedia"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductVariantMedia"> | Date | string
 }
 
 export type ProductVariantMediaCreateInput = {
@@ -297,6 +309,7 @@ export type ProductVariantMediaCreateInput = {
   sortOrder?: number
   isPrimary?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   variant: Prisma.ProductVariantCreateNestedOneWithoutMediaInput
   media: Prisma.MediaAssetCreateNestedOneWithoutVariantMediaInput
 }
@@ -308,6 +321,7 @@ export type ProductVariantMediaUncheckedCreateInput = {
   sortOrder?: number
   isPrimary?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductVariantMediaUpdateInput = {
@@ -315,6 +329,7 @@ export type ProductVariantMediaUpdateInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variant?: Prisma.ProductVariantUpdateOneRequiredWithoutMediaNestedInput
   media?: Prisma.MediaAssetUpdateOneRequiredWithoutVariantMediaNestedInput
 }
@@ -326,6 +341,7 @@ export type ProductVariantMediaUncheckedUpdateInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductVariantMediaCreateManyInput = {
@@ -335,6 +351,7 @@ export type ProductVariantMediaCreateManyInput = {
   sortOrder?: number
   isPrimary?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductVariantMediaUpdateManyMutationInput = {
@@ -342,6 +359,7 @@ export type ProductVariantMediaUpdateManyMutationInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductVariantMediaUncheckedUpdateManyInput = {
@@ -351,6 +369,7 @@ export type ProductVariantMediaUncheckedUpdateManyInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductVariantMediaListRelationFilter = {
@@ -381,6 +400,7 @@ export type ProductVariantMediaCountOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductVariantMediaAvgOrderByAggregateInput = {
@@ -394,6 +414,7 @@ export type ProductVariantMediaMaxOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductVariantMediaMinOrderByAggregateInput = {
@@ -403,6 +424,7 @@ export type ProductVariantMediaMinOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductVariantMediaSumOrderByAggregateInput = {
@@ -498,6 +520,7 @@ export type ProductVariantMediaCreateWithoutMediaInput = {
   sortOrder?: number
   isPrimary?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   variant: Prisma.ProductVariantCreateNestedOneWithoutMediaInput
 }
 
@@ -507,6 +530,7 @@ export type ProductVariantMediaUncheckedCreateWithoutMediaInput = {
   sortOrder?: number
   isPrimary?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductVariantMediaCreateOrConnectWithoutMediaInput = {
@@ -545,6 +569,7 @@ export type ProductVariantMediaScalarWhereInput = {
   sortOrder?: Prisma.IntFilter<"ProductVariantMedia"> | number
   isPrimary?: Prisma.BoolFilter<"ProductVariantMedia"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ProductVariantMedia"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ProductVariantMedia"> | Date | string
 }
 
 export type ProductVariantMediaCreateWithoutVariantInput = {
@@ -552,6 +577,7 @@ export type ProductVariantMediaCreateWithoutVariantInput = {
   sortOrder?: number
   isPrimary?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   media: Prisma.MediaAssetCreateNestedOneWithoutVariantMediaInput
 }
 
@@ -561,6 +587,7 @@ export type ProductVariantMediaUncheckedCreateWithoutVariantInput = {
   sortOrder?: number
   isPrimary?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductVariantMediaCreateOrConnectWithoutVariantInput = {
@@ -595,6 +622,7 @@ export type ProductVariantMediaCreateManyMediaInput = {
   sortOrder?: number
   isPrimary?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductVariantMediaUpdateWithoutMediaInput = {
@@ -602,6 +630,7 @@ export type ProductVariantMediaUpdateWithoutMediaInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variant?: Prisma.ProductVariantUpdateOneRequiredWithoutMediaNestedInput
 }
 
@@ -611,6 +640,7 @@ export type ProductVariantMediaUncheckedUpdateWithoutMediaInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductVariantMediaUncheckedUpdateManyWithoutMediaInput = {
@@ -619,6 +649,7 @@ export type ProductVariantMediaUncheckedUpdateManyWithoutMediaInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductVariantMediaCreateManyVariantInput = {
@@ -627,6 +658,7 @@ export type ProductVariantMediaCreateManyVariantInput = {
   sortOrder?: number
   isPrimary?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductVariantMediaUpdateWithoutVariantInput = {
@@ -634,6 +666,7 @@ export type ProductVariantMediaUpdateWithoutVariantInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   media?: Prisma.MediaAssetUpdateOneRequiredWithoutVariantMediaNestedInput
 }
 
@@ -643,6 +676,7 @@ export type ProductVariantMediaUncheckedUpdateWithoutVariantInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductVariantMediaUncheckedUpdateManyWithoutVariantInput = {
@@ -651,6 +685,7 @@ export type ProductVariantMediaUncheckedUpdateManyWithoutVariantInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -662,6 +697,7 @@ export type ProductVariantMediaSelect<ExtArgs extends runtime.Types.Extensions.I
   sortOrder?: boolean
   isPrimary?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
   media?: boolean | Prisma.MediaAssetDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productVariantMedia"]>
@@ -675,9 +711,10 @@ export type ProductVariantMediaSelectScalar = {
   sortOrder?: boolean
   isPrimary?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ProductVariantMediaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "variantId" | "mediaId" | "sortOrder" | "isPrimary" | "createdAt", ExtArgs["result"]["productVariantMedia"]>
+export type ProductVariantMediaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "variantId" | "mediaId" | "sortOrder" | "isPrimary" | "createdAt" | "updatedAt", ExtArgs["result"]["productVariantMedia"]>
 export type ProductVariantMediaInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
   media?: boolean | Prisma.MediaAssetDefaultArgs<ExtArgs>
@@ -696,6 +733,7 @@ export type $ProductVariantMediaPayload<ExtArgs extends runtime.Types.Extensions
     sortOrder: number
     isPrimary: boolean
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["productVariantMedia"]>
   composites: {}
 }
@@ -1073,6 +1111,7 @@ export interface ProductVariantMediaFieldRefs {
   readonly sortOrder: Prisma.FieldRef<"ProductVariantMedia", 'Int'>
   readonly isPrimary: Prisma.FieldRef<"ProductVariantMedia", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"ProductVariantMedia", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ProductVariantMedia", 'DateTime'>
 }
     
 

@@ -35,6 +35,7 @@ export type ErpSyncRecordErrorMinAggregateOutputType = {
   errorCode: string | null
   errorMessage: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ErpSyncRecordErrorMaxAggregateOutputType = {
@@ -45,6 +46,7 @@ export type ErpSyncRecordErrorMaxAggregateOutputType = {
   errorCode: string | null
   errorMessage: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ErpSyncRecordErrorCountAggregateOutputType = {
@@ -55,6 +57,7 @@ export type ErpSyncRecordErrorCountAggregateOutputType = {
   errorCode: number
   errorMessage: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -67,6 +70,7 @@ export type ErpSyncRecordErrorMinAggregateInputType = {
   errorCode?: true
   errorMessage?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type ErpSyncRecordErrorMaxAggregateInputType = {
@@ -77,6 +81,7 @@ export type ErpSyncRecordErrorMaxAggregateInputType = {
   errorCode?: true
   errorMessage?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type ErpSyncRecordErrorCountAggregateInputType = {
@@ -87,6 +92,7 @@ export type ErpSyncRecordErrorCountAggregateInputType = {
   errorCode?: true
   errorMessage?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -170,6 +176,7 @@ export type ErpSyncRecordErrorGroupByOutputType = {
   errorCode: string
   errorMessage: string
   createdAt: Date
+  updatedAt: Date
   _count: ErpSyncRecordErrorCountAggregateOutputType | null
   _min: ErpSyncRecordErrorMinAggregateOutputType | null
   _max: ErpSyncRecordErrorMaxAggregateOutputType | null
@@ -201,6 +208,7 @@ export type ErpSyncRecordErrorWhereInput = {
   errorCode?: Prisma.StringFilter<"ErpSyncRecordError"> | string
   errorMessage?: Prisma.StringFilter<"ErpSyncRecordError"> | string
   createdAt?: Prisma.DateTimeFilter<"ErpSyncRecordError"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ErpSyncRecordError"> | Date | string
   syncRun?: Prisma.XOR<Prisma.ErpInventorySyncRunScalarRelationFilter, Prisma.ErpInventorySyncRunWhereInput>
 }
 
@@ -212,6 +220,7 @@ export type ErpSyncRecordErrorOrderByWithRelationInput = {
   errorCode?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   syncRun?: Prisma.ErpInventorySyncRunOrderByWithRelationInput
   _relevance?: Prisma.ErpSyncRecordErrorOrderByRelevanceInput
 }
@@ -227,6 +236,7 @@ export type ErpSyncRecordErrorWhereUniqueInput = Prisma.AtLeast<{
   errorCode?: Prisma.StringFilter<"ErpSyncRecordError"> | string
   errorMessage?: Prisma.StringFilter<"ErpSyncRecordError"> | string
   createdAt?: Prisma.DateTimeFilter<"ErpSyncRecordError"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ErpSyncRecordError"> | Date | string
   syncRun?: Prisma.XOR<Prisma.ErpInventorySyncRunScalarRelationFilter, Prisma.ErpInventorySyncRunWhereInput>
 }, "id">
 
@@ -238,6 +248,7 @@ export type ErpSyncRecordErrorOrderByWithAggregationInput = {
   errorCode?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ErpSyncRecordErrorCountOrderByAggregateInput
   _max?: Prisma.ErpSyncRecordErrorMaxOrderByAggregateInput
   _min?: Prisma.ErpSyncRecordErrorMinOrderByAggregateInput
@@ -254,6 +265,7 @@ export type ErpSyncRecordErrorScalarWhereWithAggregatesInput = {
   errorCode?: Prisma.StringWithAggregatesFilter<"ErpSyncRecordError"> | string
   errorMessage?: Prisma.StringWithAggregatesFilter<"ErpSyncRecordError"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ErpSyncRecordError"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ErpSyncRecordError"> | Date | string
 }
 
 export type ErpSyncRecordErrorCreateInput = {
@@ -263,6 +275,7 @@ export type ErpSyncRecordErrorCreateInput = {
   errorCode: string
   errorMessage: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   syncRun: Prisma.ErpInventorySyncRunCreateNestedOneWithoutRecordsInput
 }
 
@@ -274,6 +287,7 @@ export type ErpSyncRecordErrorUncheckedCreateInput = {
   errorCode: string
   errorMessage: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ErpSyncRecordErrorUpdateInput = {
@@ -283,6 +297,7 @@ export type ErpSyncRecordErrorUpdateInput = {
   errorCode?: Prisma.StringFieldUpdateOperationsInput | string
   errorMessage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   syncRun?: Prisma.ErpInventorySyncRunUpdateOneRequiredWithoutRecordsNestedInput
 }
 
@@ -294,6 +309,7 @@ export type ErpSyncRecordErrorUncheckedUpdateInput = {
   errorCode?: Prisma.StringFieldUpdateOperationsInput | string
   errorMessage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ErpSyncRecordErrorCreateManyInput = {
@@ -304,6 +320,7 @@ export type ErpSyncRecordErrorCreateManyInput = {
   errorCode: string
   errorMessage: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ErpSyncRecordErrorUpdateManyMutationInput = {
@@ -313,6 +330,7 @@ export type ErpSyncRecordErrorUpdateManyMutationInput = {
   errorCode?: Prisma.StringFieldUpdateOperationsInput | string
   errorMessage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ErpSyncRecordErrorUncheckedUpdateManyInput = {
@@ -323,6 +341,7 @@ export type ErpSyncRecordErrorUncheckedUpdateManyInput = {
   errorCode?: Prisma.StringFieldUpdateOperationsInput | string
   errorMessage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ErpSyncRecordErrorListRelationFilter = {
@@ -349,6 +368,7 @@ export type ErpSyncRecordErrorCountOrderByAggregateInput = {
   errorCode?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ErpSyncRecordErrorMaxOrderByAggregateInput = {
@@ -359,6 +379,7 @@ export type ErpSyncRecordErrorMaxOrderByAggregateInput = {
   errorCode?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ErpSyncRecordErrorMinOrderByAggregateInput = {
@@ -369,6 +390,7 @@ export type ErpSyncRecordErrorMinOrderByAggregateInput = {
   errorCode?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ErpSyncRecordErrorCreateNestedManyWithoutSyncRunInput = {
@@ -420,6 +442,7 @@ export type ErpSyncRecordErrorCreateWithoutSyncRunInput = {
   errorCode: string
   errorMessage: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ErpSyncRecordErrorUncheckedCreateWithoutSyncRunInput = {
@@ -429,6 +452,7 @@ export type ErpSyncRecordErrorUncheckedCreateWithoutSyncRunInput = {
   errorCode: string
   errorMessage: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ErpSyncRecordErrorCreateOrConnectWithoutSyncRunInput = {
@@ -468,6 +492,7 @@ export type ErpSyncRecordErrorScalarWhereInput = {
   errorCode?: Prisma.StringFilter<"ErpSyncRecordError"> | string
   errorMessage?: Prisma.StringFilter<"ErpSyncRecordError"> | string
   createdAt?: Prisma.DateTimeFilter<"ErpSyncRecordError"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ErpSyncRecordError"> | Date | string
 }
 
 export type ErpSyncRecordErrorCreateManySyncRunInput = {
@@ -477,6 +502,7 @@ export type ErpSyncRecordErrorCreateManySyncRunInput = {
   errorCode: string
   errorMessage: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ErpSyncRecordErrorUpdateWithoutSyncRunInput = {
@@ -486,6 +512,7 @@ export type ErpSyncRecordErrorUpdateWithoutSyncRunInput = {
   errorCode?: Prisma.StringFieldUpdateOperationsInput | string
   errorMessage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ErpSyncRecordErrorUncheckedUpdateWithoutSyncRunInput = {
@@ -495,6 +522,7 @@ export type ErpSyncRecordErrorUncheckedUpdateWithoutSyncRunInput = {
   errorCode?: Prisma.StringFieldUpdateOperationsInput | string
   errorMessage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ErpSyncRecordErrorUncheckedUpdateManyWithoutSyncRunInput = {
@@ -504,6 +532,7 @@ export type ErpSyncRecordErrorUncheckedUpdateManyWithoutSyncRunInput = {
   errorCode?: Prisma.StringFieldUpdateOperationsInput | string
   errorMessage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -516,6 +545,7 @@ export type ErpSyncRecordErrorSelect<ExtArgs extends runtime.Types.Extensions.In
   errorCode?: boolean
   errorMessage?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   syncRun?: boolean | Prisma.ErpInventorySyncRunDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["erpSyncRecordError"]>
 
@@ -529,9 +559,10 @@ export type ErpSyncRecordErrorSelectScalar = {
   errorCode?: boolean
   errorMessage?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ErpSyncRecordErrorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "syncRunId" | "externalRef" | "field" | "errorCode" | "errorMessage" | "createdAt", ExtArgs["result"]["erpSyncRecordError"]>
+export type ErpSyncRecordErrorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "syncRunId" | "externalRef" | "field" | "errorCode" | "errorMessage" | "createdAt" | "updatedAt", ExtArgs["result"]["erpSyncRecordError"]>
 export type ErpSyncRecordErrorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   syncRun?: boolean | Prisma.ErpInventorySyncRunDefaultArgs<ExtArgs>
 }
@@ -557,6 +588,7 @@ export type $ErpSyncRecordErrorPayload<ExtArgs extends runtime.Types.Extensions.
      */
     errorMessage: string
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["erpSyncRecordError"]>
   composites: {}
 }
@@ -934,6 +966,7 @@ export interface ErpSyncRecordErrorFieldRefs {
   readonly errorCode: Prisma.FieldRef<"ErpSyncRecordError", 'String'>
   readonly errorMessage: Prisma.FieldRef<"ErpSyncRecordError", 'String'>
   readonly createdAt: Prisma.FieldRef<"ErpSyncRecordError", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ErpSyncRecordError", 'DateTime'>
 }
     
 

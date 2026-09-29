@@ -52,6 +52,7 @@ export type WarehouseCountryExclusionMinAggregateOutputType = {
   countryCode: string | null
   reason: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type WarehouseCountryExclusionMaxAggregateOutputType = {
@@ -60,6 +61,7 @@ export type WarehouseCountryExclusionMaxAggregateOutputType = {
   countryCode: string | null
   reason: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type WarehouseCountryExclusionCountAggregateOutputType = {
@@ -68,6 +70,7 @@ export type WarehouseCountryExclusionCountAggregateOutputType = {
   countryCode: number
   reason: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -78,6 +81,7 @@ export type WarehouseCountryExclusionMinAggregateInputType = {
   countryCode?: true
   reason?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type WarehouseCountryExclusionMaxAggregateInputType = {
@@ -86,6 +90,7 @@ export type WarehouseCountryExclusionMaxAggregateInputType = {
   countryCode?: true
   reason?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type WarehouseCountryExclusionCountAggregateInputType = {
@@ -94,6 +99,7 @@ export type WarehouseCountryExclusionCountAggregateInputType = {
   countryCode?: true
   reason?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -175,6 +181,7 @@ export type WarehouseCountryExclusionGroupByOutputType = {
   countryCode: string
   reason: string | null
   createdAt: Date
+  updatedAt: Date
   _count: WarehouseCountryExclusionCountAggregateOutputType | null
   _min: WarehouseCountryExclusionMinAggregateOutputType | null
   _max: WarehouseCountryExclusionMaxAggregateOutputType | null
@@ -204,6 +211,7 @@ export type WarehouseCountryExclusionWhereInput = {
   countryCode?: Prisma.StringFilter<"WarehouseCountryExclusion"> | string
   reason?: Prisma.StringNullableFilter<"WarehouseCountryExclusion"> | string | null
   createdAt?: Prisma.DateTimeFilter<"WarehouseCountryExclusion"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"WarehouseCountryExclusion"> | Date | string
   location?: Prisma.XOR<Prisma.InventoryLocationScalarRelationFilter, Prisma.InventoryLocationWhereInput>
 }
 
@@ -213,6 +221,7 @@ export type WarehouseCountryExclusionOrderByWithRelationInput = {
   countryCode?: Prisma.SortOrder
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   location?: Prisma.InventoryLocationOrderByWithRelationInput
   _relevance?: Prisma.WarehouseCountryExclusionOrderByRelevanceInput
 }
@@ -227,6 +236,7 @@ export type WarehouseCountryExclusionWhereUniqueInput = Prisma.AtLeast<{
   countryCode?: Prisma.StringFilter<"WarehouseCountryExclusion"> | string
   reason?: Prisma.StringNullableFilter<"WarehouseCountryExclusion"> | string | null
   createdAt?: Prisma.DateTimeFilter<"WarehouseCountryExclusion"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"WarehouseCountryExclusion"> | Date | string
   location?: Prisma.XOR<Prisma.InventoryLocationScalarRelationFilter, Prisma.InventoryLocationWhereInput>
 }, "id" | "locationId_countryCode">
 
@@ -236,6 +246,7 @@ export type WarehouseCountryExclusionOrderByWithAggregationInput = {
   countryCode?: Prisma.SortOrder
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.WarehouseCountryExclusionCountOrderByAggregateInput
   _max?: Prisma.WarehouseCountryExclusionMaxOrderByAggregateInput
   _min?: Prisma.WarehouseCountryExclusionMinOrderByAggregateInput
@@ -250,6 +261,7 @@ export type WarehouseCountryExclusionScalarWhereWithAggregatesInput = {
   countryCode?: Prisma.StringWithAggregatesFilter<"WarehouseCountryExclusion"> | string
   reason?: Prisma.StringNullableWithAggregatesFilter<"WarehouseCountryExclusion"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"WarehouseCountryExclusion"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"WarehouseCountryExclusion"> | Date | string
 }
 
 export type WarehouseCountryExclusionCreateInput = {
@@ -257,6 +269,7 @@ export type WarehouseCountryExclusionCreateInput = {
   countryCode: string
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   location: Prisma.InventoryLocationCreateNestedOneWithoutExclusionsInput
 }
 
@@ -266,6 +279,7 @@ export type WarehouseCountryExclusionUncheckedCreateInput = {
   countryCode: string
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WarehouseCountryExclusionUpdateInput = {
@@ -273,6 +287,7 @@ export type WarehouseCountryExclusionUpdateInput = {
   countryCode?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutExclusionsNestedInput
 }
 
@@ -282,6 +297,7 @@ export type WarehouseCountryExclusionUncheckedUpdateInput = {
   countryCode?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WarehouseCountryExclusionCreateManyInput = {
@@ -290,6 +306,7 @@ export type WarehouseCountryExclusionCreateManyInput = {
   countryCode: string
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WarehouseCountryExclusionUpdateManyMutationInput = {
@@ -297,6 +314,7 @@ export type WarehouseCountryExclusionUpdateManyMutationInput = {
   countryCode?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WarehouseCountryExclusionUncheckedUpdateManyInput = {
@@ -305,6 +323,7 @@ export type WarehouseCountryExclusionUncheckedUpdateManyInput = {
   countryCode?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WarehouseCountryExclusionListRelationFilter = {
@@ -334,6 +353,7 @@ export type WarehouseCountryExclusionCountOrderByAggregateInput = {
   countryCode?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type WarehouseCountryExclusionMaxOrderByAggregateInput = {
@@ -342,6 +362,7 @@ export type WarehouseCountryExclusionMaxOrderByAggregateInput = {
   countryCode?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type WarehouseCountryExclusionMinOrderByAggregateInput = {
@@ -350,6 +371,7 @@ export type WarehouseCountryExclusionMinOrderByAggregateInput = {
   countryCode?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type WarehouseCountryExclusionCreateNestedManyWithoutLocationInput = {
@@ -399,6 +421,7 @@ export type WarehouseCountryExclusionCreateWithoutLocationInput = {
   countryCode: string
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WarehouseCountryExclusionUncheckedCreateWithoutLocationInput = {
@@ -406,6 +429,7 @@ export type WarehouseCountryExclusionUncheckedCreateWithoutLocationInput = {
   countryCode: string
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WarehouseCountryExclusionCreateOrConnectWithoutLocationInput = {
@@ -443,6 +467,7 @@ export type WarehouseCountryExclusionScalarWhereInput = {
   countryCode?: Prisma.StringFilter<"WarehouseCountryExclusion"> | string
   reason?: Prisma.StringNullableFilter<"WarehouseCountryExclusion"> | string | null
   createdAt?: Prisma.DateTimeFilter<"WarehouseCountryExclusion"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"WarehouseCountryExclusion"> | Date | string
 }
 
 export type WarehouseCountryExclusionCreateManyLocationInput = {
@@ -450,6 +475,7 @@ export type WarehouseCountryExclusionCreateManyLocationInput = {
   countryCode: string
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WarehouseCountryExclusionUpdateWithoutLocationInput = {
@@ -457,6 +483,7 @@ export type WarehouseCountryExclusionUpdateWithoutLocationInput = {
   countryCode?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WarehouseCountryExclusionUncheckedUpdateWithoutLocationInput = {
@@ -464,6 +491,7 @@ export type WarehouseCountryExclusionUncheckedUpdateWithoutLocationInput = {
   countryCode?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WarehouseCountryExclusionUncheckedUpdateManyWithoutLocationInput = {
@@ -471,6 +499,7 @@ export type WarehouseCountryExclusionUncheckedUpdateManyWithoutLocationInput = {
   countryCode?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -481,6 +510,7 @@ export type WarehouseCountryExclusionSelect<ExtArgs extends runtime.Types.Extens
   countryCode?: boolean
   reason?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   location?: boolean | Prisma.InventoryLocationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["warehouseCountryExclusion"]>
 
@@ -492,9 +522,10 @@ export type WarehouseCountryExclusionSelectScalar = {
   countryCode?: boolean
   reason?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type WarehouseCountryExclusionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "locationId" | "countryCode" | "reason" | "createdAt", ExtArgs["result"]["warehouseCountryExclusion"]>
+export type WarehouseCountryExclusionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "locationId" | "countryCode" | "reason" | "createdAt" | "updatedAt", ExtArgs["result"]["warehouseCountryExclusion"]>
 export type WarehouseCountryExclusionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   location?: boolean | Prisma.InventoryLocationDefaultArgs<ExtArgs>
 }
@@ -531,6 +562,7 @@ export type $WarehouseCountryExclusionPayload<ExtArgs extends runtime.Types.Exte
      */
     reason: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["warehouseCountryExclusion"]>
   composites: {}
 }
@@ -906,6 +938,7 @@ export interface WarehouseCountryExclusionFieldRefs {
   readonly countryCode: Prisma.FieldRef<"WarehouseCountryExclusion", 'String'>
   readonly reason: Prisma.FieldRef<"WarehouseCountryExclusion", 'String'>
   readonly createdAt: Prisma.FieldRef<"WarehouseCountryExclusion", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"WarehouseCountryExclusion", 'DateTime'>
 }
     
 

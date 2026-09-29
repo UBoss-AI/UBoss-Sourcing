@@ -28,6 +28,7 @@ import type { Prisma } from '../../generated/prisma/client.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import {
+  SELLER_ORDER_GATED_STATUSES,
   SELLER_ORDER_STOCK_HELD,
   dispatchDeadline,
   allowedSellerOrderTransitions,
@@ -51,6 +52,14 @@ import {
   reserveStock,
 } from './inventory.service.js';
 import { syncOrderWithSellerGroups } from './order-split.service.js';
+import { assertInspectionGateOpen } from '../../domain/inspection-gate.js';
+import {
+  cardStatusesForGroups,
+  ensureRequirement,
+  evaluateSellerOrderGate,
+  peekGate,
+  recordGatePassage,
+} from '../inspection/gate.service.js';
 import { enqueueIfConnected } from '../seller-erp/job.service.js';
 
 export interface SellerOrderRow {
@@ -69,6 +78,8 @@ export interface SellerOrderRow {
   lineCount: number;
   itemCount: number;
   locationName: string | null;
+  /** The pre-shipment inspection badge, or null while nobody has decided it. */
+  inspectionStatus: string | null;
 }
 
 export interface SellerOrderQuery {
@@ -144,12 +155,15 @@ export async function listSellerOrders(
         });
 
   const locationName = new Map(locations.map((entry) => [entry.id, entry.name]));
+  // The order card's inspection badge (ENH-010). Absent until decided.
+  const inspection = await cardStatusesForGroups(rows.map((row) => row.id));
 
   return {
     rows: rows.map((row) => ({
       id: row.id,
       sellerOrderNumber: row.sellerOrderNumber,
       status: row.status,
+      inspectionStatus: inspection.get(row.id) ?? null,
       orderNumber: row.order.orderNumber,
       placedAt: row.order.placedAt?.toISOString() ?? null,
       dispatchDueAt: row.dispatchDueAt?.toISOString() ?? null,
@@ -234,6 +248,11 @@ export async function readSellerOrder(membership: SellerMembership, groupId: str
 
   if (group === null) throw notFound('Order');
   assertSellerOwnership(membership, group.sellerAccountId, 'Order');
+
+  const inspectionRequirement = await prisma.inspectionRequirement.findUnique({
+    where: { sellerOrderGroupId: group.id },
+    select: { id: true },
+  });
 
   /*
    * The buyers' instructions for these lines, and nothing else off their rows.
@@ -365,8 +384,15 @@ export async function readSellerOrder(membership: SellerMembership, groupId: str
       sellerResponse: entry.sellerResponse,
       createdAt: entry.createdAt.toISOString(),
     })),
-    /** What this member may do next. The panel renders exactly these buttons. */
-    allowedTransitions: allowedSellerOrderTransitions(group.status, 'SELLER'),
+    /**
+     * What this member may do next. The panel renders exactly these buttons,
+     * so a move the inspection gate would refuse is left out.
+     */
+    allowedTransitions: allowedSellerOrderTransitions(
+      group.status,
+      'SELLER',
+      inspectionRequirement === null ? undefined : await peekGate(inspectionRequirement.id),
+    ),
   };
 }
 
@@ -407,11 +433,18 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
 
     const from = group.status;
 
+    // The pre-shipment inspection gate, for the moves it guards. Evaluated in
+    // this transaction so a release and a dispatch cannot pass each other.
+    const inspectionGate = SELLER_ORDER_GATED_STATUSES.includes(input.to)
+      ? await evaluateSellerOrderGate(tx, group.id)
+      : undefined;
+
     assertSellerOrderTransition({
       from,
       to: input.to,
       actor: 'SELLER',
       reason: input.reason ?? null,
+      inspectionGate,
     });
 
     // Accepting is where a location is chosen, and it is required: a group with
@@ -575,6 +608,13 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
           : {}),
       },
     });
+
+    // Accepting is when the seller first learns whether the order must be
+    // inspected; shipping it is when the release is used.
+    if (input.to === 'ACCEPTED') await ensureRequirement(tx, group.id);
+    if (inspectionGate !== undefined && input.to === 'SHIPPED') {
+      await recordGatePassage(tx, inspectionGate, { what: `order ${group.sellerOrderNumber} marked shipped` });
+    }
 
     await recordSellerAudit({
       sellerAccountId: membership.sellerAccountId,
@@ -750,6 +790,12 @@ export async function recordShipment(input: ShipmentInput): Promise<{ shipmentId
     if (group === null) throw notFound('Order');
     assertSellerOwnership(membership, group.sellerAccountId, 'Order');
 
+    // Goods leaving - even part of the order - is what the inspection gate
+    // guards, so it is asked before anything is dispatched, not only when the
+    // last line goes and the group moves to SHIPPED.
+    const inspectionGate = await evaluateSellerOrderGate(tx, group.id);
+    assertInspectionGateOpen(inspectionGate, 'SELLER_ORDER', { from: group.status, to: 'SHIPPED' });
+
     const contents =
       input.contents ??
       group.lines
@@ -854,6 +900,7 @@ export async function recordShipment(input: ShipmentInput): Promise<{ shipmentId
         from: group.status,
         to: 'SHIPPED',
         actor: 'SELLER',
+        inspectionGate,
       });
 
       await tx.sellerOrderGroup.update({
@@ -861,6 +908,10 @@ export async function recordShipment(input: ShipmentInput): Promise<{ shipmentId
         data: { status: 'SHIPPED', dispatchedAt: new Date() },
       });
     }
+
+    await recordGatePassage(tx, inspectionGate, {
+      what: `dispatched with ${input.carrierName.trim()}, tracking ${input.trackingNumber.trim()}`,
+    });
 
     await recordSellerAudit({
       sellerAccountId: group.sellerAccountId,

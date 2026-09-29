@@ -63,6 +63,7 @@ export type LogisticsPartnerDocumentMinAggregateOutputType = {
   uploadedByLabel: string | null
   createdAt: Date | null
   supersededAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsPartnerDocumentMaxAggregateOutputType = {
@@ -84,6 +85,7 @@ export type LogisticsPartnerDocumentMaxAggregateOutputType = {
   uploadedByLabel: string | null
   createdAt: Date | null
   supersededAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsPartnerDocumentCountAggregateOutputType = {
@@ -105,6 +107,7 @@ export type LogisticsPartnerDocumentCountAggregateOutputType = {
   uploadedByLabel: number
   createdAt: number
   supersededAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -136,6 +139,7 @@ export type LogisticsPartnerDocumentMinAggregateInputType = {
   uploadedByLabel?: true
   createdAt?: true
   supersededAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsPartnerDocumentMaxAggregateInputType = {
@@ -157,6 +161,7 @@ export type LogisticsPartnerDocumentMaxAggregateInputType = {
   uploadedByLabel?: true
   createdAt?: true
   supersededAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsPartnerDocumentCountAggregateInputType = {
@@ -178,6 +183,7 @@ export type LogisticsPartnerDocumentCountAggregateInputType = {
   uploadedByLabel?: true
   createdAt?: true
   supersededAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -286,6 +292,7 @@ export type LogisticsPartnerDocumentGroupByOutputType = {
   uploadedByLabel: string
   createdAt: Date
   supersededAt: Date | null
+  updatedAt: Date
   _count: LogisticsPartnerDocumentCountAggregateOutputType | null
   _avg: LogisticsPartnerDocumentAvgAggregateOutputType | null
   _sum: LogisticsPartnerDocumentSumAggregateOutputType | null
@@ -330,6 +337,7 @@ export type LogisticsPartnerDocumentWhereInput = {
   uploadedByLabel?: Prisma.StringFilter<"LogisticsPartnerDocument"> | string
   createdAt?: Prisma.DateTimeFilter<"LogisticsPartnerDocument"> | Date | string
   supersededAt?: Prisma.DateTimeNullableFilter<"LogisticsPartnerDocument"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsPartnerDocument"> | Date | string
   partner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
 }
 
@@ -352,6 +360,7 @@ export type LogisticsPartnerDocumentOrderByWithRelationInput = {
   uploadedByLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   supersededAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   partner?: Prisma.LogisticsPartnerOrderByWithRelationInput
   _relevance?: Prisma.LogisticsPartnerDocumentOrderByRelevanceInput
 }
@@ -378,6 +387,7 @@ export type LogisticsPartnerDocumentWhereUniqueInput = Prisma.AtLeast<{
   uploadedByLabel?: Prisma.StringFilter<"LogisticsPartnerDocument"> | string
   createdAt?: Prisma.DateTimeFilter<"LogisticsPartnerDocument"> | Date | string
   supersededAt?: Prisma.DateTimeNullableFilter<"LogisticsPartnerDocument"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsPartnerDocument"> | Date | string
   partner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
 }, "id">
 
@@ -400,6 +410,7 @@ export type LogisticsPartnerDocumentOrderByWithAggregationInput = {
   uploadedByLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   supersededAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LogisticsPartnerDocumentCountOrderByAggregateInput
   _avg?: Prisma.LogisticsPartnerDocumentAvgOrderByAggregateInput
   _max?: Prisma.LogisticsPartnerDocumentMaxOrderByAggregateInput
@@ -429,6 +440,7 @@ export type LogisticsPartnerDocumentScalarWhereWithAggregatesInput = {
   uploadedByLabel?: Prisma.StringWithAggregatesFilter<"LogisticsPartnerDocument"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsPartnerDocument"> | Date | string
   supersededAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsPartnerDocument"> | Date | string | null
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsPartnerDocument"> | Date | string
 }
 
 export type LogisticsPartnerDocumentCreateInput = {
@@ -449,6 +461,7 @@ export type LogisticsPartnerDocumentCreateInput = {
   uploadedByLabel: string
   createdAt?: Date | string
   supersededAt?: Date | string | null
+  updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutComplianceDocumentsInput
 }
 
@@ -471,6 +484,7 @@ export type LogisticsPartnerDocumentUncheckedCreateInput = {
   uploadedByLabel: string
   createdAt?: Date | string
   supersededAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerDocumentUpdateInput = {
@@ -491,6 +505,7 @@ export type LogisticsPartnerDocumentUpdateInput = {
   uploadedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutComplianceDocumentsNestedInput
 }
 
@@ -513,6 +528,7 @@ export type LogisticsPartnerDocumentUncheckedUpdateInput = {
   uploadedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerDocumentCreateManyInput = {
@@ -534,6 +550,7 @@ export type LogisticsPartnerDocumentCreateManyInput = {
   uploadedByLabel: string
   createdAt?: Date | string
   supersededAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerDocumentUpdateManyMutationInput = {
@@ -554,6 +571,7 @@ export type LogisticsPartnerDocumentUpdateManyMutationInput = {
   uploadedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerDocumentUncheckedUpdateManyInput = {
@@ -575,6 +593,7 @@ export type LogisticsPartnerDocumentUncheckedUpdateManyInput = {
   uploadedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerDocumentListRelationFilter = {
@@ -612,6 +631,7 @@ export type LogisticsPartnerDocumentCountOrderByAggregateInput = {
   uploadedByLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   supersededAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsPartnerDocumentAvgOrderByAggregateInput = {
@@ -637,6 +657,7 @@ export type LogisticsPartnerDocumentMaxOrderByAggregateInput = {
   uploadedByLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   supersededAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsPartnerDocumentMinOrderByAggregateInput = {
@@ -658,6 +679,7 @@ export type LogisticsPartnerDocumentMinOrderByAggregateInput = {
   uploadedByLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   supersededAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsPartnerDocumentSumOrderByAggregateInput = {
@@ -736,6 +758,7 @@ export type LogisticsPartnerDocumentCreateWithoutPartnerInput = {
   uploadedByLabel: string
   createdAt?: Date | string
   supersededAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerDocumentUncheckedCreateWithoutPartnerInput = {
@@ -756,6 +779,7 @@ export type LogisticsPartnerDocumentUncheckedCreateWithoutPartnerInput = {
   uploadedByLabel: string
   createdAt?: Date | string
   supersededAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerDocumentCreateOrConnectWithoutPartnerInput = {
@@ -806,6 +830,7 @@ export type LogisticsPartnerDocumentScalarWhereInput = {
   uploadedByLabel?: Prisma.StringFilter<"LogisticsPartnerDocument"> | string
   createdAt?: Prisma.DateTimeFilter<"LogisticsPartnerDocument"> | Date | string
   supersededAt?: Prisma.DateTimeNullableFilter<"LogisticsPartnerDocument"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsPartnerDocument"> | Date | string
 }
 
 export type LogisticsPartnerDocumentCreateManyPartnerInput = {
@@ -826,6 +851,7 @@ export type LogisticsPartnerDocumentCreateManyPartnerInput = {
   uploadedByLabel: string
   createdAt?: Date | string
   supersededAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type LogisticsPartnerDocumentUpdateWithoutPartnerInput = {
@@ -846,6 +872,7 @@ export type LogisticsPartnerDocumentUpdateWithoutPartnerInput = {
   uploadedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerDocumentUncheckedUpdateWithoutPartnerInput = {
@@ -866,6 +893,7 @@ export type LogisticsPartnerDocumentUncheckedUpdateWithoutPartnerInput = {
   uploadedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsPartnerDocumentUncheckedUpdateManyWithoutPartnerInput = {
@@ -886,6 +914,7 @@ export type LogisticsPartnerDocumentUncheckedUpdateManyWithoutPartnerInput = {
   uploadedByLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -909,6 +938,7 @@ export type LogisticsPartnerDocumentSelect<ExtArgs extends runtime.Types.Extensi
   uploadedByLabel?: boolean
   createdAt?: boolean
   supersededAt?: boolean
+  updatedAt?: boolean
   partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["logisticsPartnerDocument"]>
 
@@ -933,9 +963,10 @@ export type LogisticsPartnerDocumentSelectScalar = {
   uploadedByLabel?: boolean
   createdAt?: boolean
   supersededAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LogisticsPartnerDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "kind" | "storageKey" | "originalFileName" | "contentType" | "byteSize" | "contentHash" | "scanState" | "expiresOn" | "reviewState" | "reviewedByUserId" | "reviewedAt" | "rejectionReason" | "uploadedByUserId" | "uploadedByLabel" | "createdAt" | "supersededAt", ExtArgs["result"]["logisticsPartnerDocument"]>
+export type LogisticsPartnerDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "kind" | "storageKey" | "originalFileName" | "contentType" | "byteSize" | "contentHash" | "scanState" | "expiresOn" | "reviewState" | "reviewedByUserId" | "reviewedAt" | "rejectionReason" | "uploadedByUserId" | "uploadedByLabel" | "createdAt" | "supersededAt" | "updatedAt", ExtArgs["result"]["logisticsPartnerDocument"]>
 export type LogisticsPartnerDocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
 }
@@ -986,6 +1017,7 @@ export type $LogisticsPartnerDocumentPayload<ExtArgs extends runtime.Types.Exten
     uploadedByLabel: string
     createdAt: Date
     supersededAt: Date | null
+    updatedAt: Date
   }, ExtArgs["result"]["logisticsPartnerDocument"]>
   composites: {}
 }
@@ -1374,6 +1406,7 @@ export interface LogisticsPartnerDocumentFieldRefs {
   readonly uploadedByLabel: Prisma.FieldRef<"LogisticsPartnerDocument", 'String'>
   readonly createdAt: Prisma.FieldRef<"LogisticsPartnerDocument", 'DateTime'>
   readonly supersededAt: Prisma.FieldRef<"LogisticsPartnerDocument", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LogisticsPartnerDocument", 'DateTime'>
 }
     
 

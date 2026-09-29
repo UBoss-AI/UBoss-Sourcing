@@ -226,6 +226,9 @@ interface StripeDispute {
   amount?: number;
   currency?: string;
   reason?: string | null;
+  /** needs_response, under_review, won, lost, or a warning_* inquiry status. */
+  status?: string | null;
+  evidence_details?: { due_by?: number | null } | null;
 }
 
 /**
@@ -471,6 +474,21 @@ export class StripeAdapter
           message: error?.message ?? `Stripe returned HTTP ${String(response.status)}`,
           providerCode: error?.decline_code ?? error?.code ?? error?.type ?? null,
           retryable,
+          httpStatus: response.status,
+        });
+      }
+
+      // A 2xx whose body is not a JSON object - an HTML page from a proxy or a
+      // CDN in front of the provider during an outage, or a reply cut short.
+      // Handing `null` back would surface as a TypeError several frames up and
+      // a generic 500; this says what happened, and is retryable because the
+      // provider may well have acted on the request.
+      if (parsed === null || typeof parsed !== 'object') {
+        logger.warn({ httpStatus: response.status, path }, 'stripe reply was not JSON');
+        throw new PaymentProviderError({
+          message: 'Stripe sent a reply that could not be read.',
+          providerCode: 'UNREADABLE_RESPONSE',
+          retryable: true,
           httpStatus: response.status,
         });
       }
@@ -1507,15 +1525,31 @@ export class StripeAdapter
       };
     }
 
-    // A chargeback. The money moved and has not moved back yet; the service
-    // records it and tells finance, and does not touch the payment's status.
-    if (eventType === 'charge.dispute.created') {
+    // A chargeback, and every later word about it. The money moved and has
+    // not moved back yet; the service records it, tells finance, and follows
+    // it to won or lost. It does not touch the payment's status.
+    if (
+      eventType === 'charge.dispute.created' ||
+      eventType === 'charge.dispute.updated' ||
+      eventType === 'charge.dispute.closed' ||
+      eventType === 'charge.dispute.funds_withdrawn' ||
+      eventType === 'charge.dispute.funds_reinstated'
+    ) {
       const dispute = object as unknown as StripeDispute;
+      const dueBy = dispute.evidence_details?.due_by;
 
       return {
         ...base,
         ...empty,
-        intent: 'DISPUTE_OPENED',
+        intent:
+          eventType === 'charge.dispute.created'
+            ? 'DISPUTE_OPENED'
+            : eventType === 'charge.dispute.closed'
+              ? 'DISPUTE_CLOSED'
+              : 'DISPUTE_UPDATED',
+        providerDisputeId: typeof dispute.id === 'string' ? dispute.id : null,
+        disputeStatus: dispute.status ?? null,
+        disputeEvidenceDueBy: typeof dueBy === 'number' ? new Date(dueBy * 1000) : null,
         providerOrderId: dispute.payment_intent ?? null,
         providerPaymentId: dispute.charge ?? null,
         amountMinor: typeof dispute.amount === 'number' ? BigInt(dispute.amount) : null,

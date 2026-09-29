@@ -26,6 +26,7 @@ import { Permission } from '../../domain/permissions.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import {
   SupportTicketCategoryValues,
+  SupportResolutionCodeValues,
   SupportTicketPriorityValues,
   SupportTicketStatusValues,
 } from '../../domain/support-ticket-state.js';
@@ -35,6 +36,7 @@ import {
   redeemSupportAttachmentLink,
   supportAttachmentPolicy,
   uploadRequesterAttachment,
+  uploadStaffAttachment,
   type AttachmentViewer,
 } from '../../modules/support/support-attachment.service.js';
 import { sendAttachment } from './preorder-chats.js';
@@ -56,6 +58,11 @@ import {
   type SupportRequester,
   type SupportStaffActor,
 } from '../../modules/support/support-ticket.service.js';
+import {
+  listSupportSlaPolicies,
+  saveSupportSlaPolicies,
+  slaPoliciesInput,
+} from '../../modules/support/support-sla.service.js';
 import {
   buyerContextOf,
   currentUser,
@@ -535,6 +542,8 @@ const adminListQuery = z.object({
   source: z.enum(['STOREFRONT', 'SELLER_HUB', 'LOGISTICS_PORTAL']).optional(),
   assignee: z.union([z.literal('me'), z.literal('unassigned'), z.string().length(26)]).optional(),
   search: z.string().trim().max(120).optional(),
+  /** `true`: only requests past a service-level deadline they still wait on. */
+  breached: z.enum(['true', 'false']).optional(),
   page: z.coerce.number().int().min(1).max(1000).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(25),
 });
@@ -542,16 +551,20 @@ const adminListQuery = z.object({
 const replyBody = z.object({
   body: z.string().max(SUPPORT_LIMITS.messageMax * 4),
   nextStatus: z.enum(SupportTicketStatusValues).nullable().optional(),
+  resolutionCode: z.enum(SupportResolutionCodeValues).nullable().optional(),
 });
 
 const updateBody = z
   .object({
     status: z.enum(SupportTicketStatusValues).optional(),
     priority: z.enum(SupportTicketPriorityValues).optional(),
+    resolutionCode: z.enum(SupportResolutionCodeValues).optional(),
   })
-  .refine((value) => value.status !== undefined || value.priority !== undefined, {
-    message: 'Send a status, a priority, or both.',
-  });
+  .refine(
+    (value) =>
+      value.status !== undefined || value.priority !== undefined || value.resolutionCode !== undefined,
+    { message: 'Send a status, a priority or a resolution code.' },
+  );
 
 const staffAttachmentParams = z.object({
   id: z.string().length(26),
@@ -576,8 +589,52 @@ export function registerAdminSupportRoutes(app: FastifyInstance): Promise<void> 
         source: query.source,
         assignee: query.assignee,
         search: query.search,
+        breached: query.breached === 'true',
       });
       return reply.header('Cache-Control', 'no-store').status(200).send(result);
+    },
+  );
+
+  // The first-response and resolution targets for every support category.
+  app.get(
+    '/support-tickets/sla-policies',
+    { preHandler: requireAdmin(Permission.SUPPORT_TICKET_VIEW) },
+    async (_request, reply) => {
+      return reply.status(200).send({ policies: await listSupportSlaPolicies() });
+    },
+  );
+
+  // Set the first-response and resolution targets for one or more categories.
+  app.put(
+    '/support-tickets/sla-policies',
+    { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
+    async (request, reply) => {
+      const input = slaPoliciesInput.parse(request.body);
+      const policies = await saveSupportSlaPolicies(staffActor(request), input);
+      return reply.status(200).send({ policies });
+    },
+  );
+
+  // Attach one image, video or PDF to a ticket as the team. The sender sees it.
+  app.post(
+    '/support-tickets/:id/attachments',
+    {
+      preHandler: requireAdmin(Permission.SUPPORT_TICKET_REPLY),
+      config: { rateLimit: { max: 30, timeWindow: '10 minutes' } },
+    },
+    async (request, reply) => {
+      const { id } = ticketIdParams.parse(request.params);
+      const upload = await request.file({
+        limits: { fileSize: env.SUPPORT_ATTACHMENT_MAX_BYTES, files: 1 },
+      });
+      if (upload === undefined) {
+        throw badRequest(ErrorCode.VALIDATION_FAILED, 'No file was attached.', [
+          { field: 'file', code: 'REQUIRED' },
+        ]);
+      }
+      const actor = staffActor(request);
+      await uploadStaffAttachment(actor, id, { bytes: await upload.toBuffer(), fileName: upload.filename });
+      return reply.status(201).send({ ticket: await readSupportTicketForAdmin(actor, id) });
     },
   );
 

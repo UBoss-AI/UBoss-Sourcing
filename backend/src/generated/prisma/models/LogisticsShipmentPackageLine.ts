@@ -46,6 +46,7 @@ export type LogisticsShipmentPackageLineMinAggregateOutputType = {
   batchNumber: string | null
   expiryDate: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsShipmentPackageLineMaxAggregateOutputType = {
@@ -57,6 +58,7 @@ export type LogisticsShipmentPackageLineMaxAggregateOutputType = {
   batchNumber: string | null
   expiryDate: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsShipmentPackageLineCountAggregateOutputType = {
@@ -69,6 +71,7 @@ export type LogisticsShipmentPackageLineCountAggregateOutputType = {
   expiryDate: number
   serialNumbersJson: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -90,6 +93,7 @@ export type LogisticsShipmentPackageLineMinAggregateInputType = {
   batchNumber?: true
   expiryDate?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsShipmentPackageLineMaxAggregateInputType = {
@@ -101,6 +105,7 @@ export type LogisticsShipmentPackageLineMaxAggregateInputType = {
   batchNumber?: true
   expiryDate?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsShipmentPackageLineCountAggregateInputType = {
@@ -113,6 +118,7 @@ export type LogisticsShipmentPackageLineCountAggregateInputType = {
   expiryDate?: true
   serialNumbersJson?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -212,6 +218,7 @@ export type LogisticsShipmentPackageLineGroupByOutputType = {
   expiryDate: Date | null
   serialNumbersJson: runtime.JsonValue | null
   createdAt: Date
+  updatedAt: Date
   _count: LogisticsShipmentPackageLineCountAggregateOutputType | null
   _avg: LogisticsShipmentPackageLineAvgAggregateOutputType | null
   _sum: LogisticsShipmentPackageLineSumAggregateOutputType | null
@@ -247,6 +254,7 @@ export type LogisticsShipmentPackageLineWhereInput = {
   expiryDate?: Prisma.DateTimeNullableFilter<"LogisticsShipmentPackageLine"> | Date | string | null
   serialNumbersJson?: Prisma.JsonNullableFilter<"LogisticsShipmentPackageLine">
   createdAt?: Prisma.DateTimeFilter<"LogisticsShipmentPackageLine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsShipmentPackageLine"> | Date | string
   package?: Prisma.XOR<Prisma.LogisticsShipmentPackageScalarRelationFilter, Prisma.LogisticsShipmentPackageWhereInput>
 }
 
@@ -260,6 +268,7 @@ export type LogisticsShipmentPackageLineOrderByWithRelationInput = {
   expiryDate?: Prisma.SortOrderInput | Prisma.SortOrder
   serialNumbersJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   package?: Prisma.LogisticsShipmentPackageOrderByWithRelationInput
   _relevance?: Prisma.LogisticsShipmentPackageLineOrderByRelevanceInput
 }
@@ -278,6 +287,7 @@ export type LogisticsShipmentPackageLineWhereUniqueInput = Prisma.AtLeast<{
   expiryDate?: Prisma.DateTimeNullableFilter<"LogisticsShipmentPackageLine"> | Date | string | null
   serialNumbersJson?: Prisma.JsonNullableFilter<"LogisticsShipmentPackageLine">
   createdAt?: Prisma.DateTimeFilter<"LogisticsShipmentPackageLine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsShipmentPackageLine"> | Date | string
   package?: Prisma.XOR<Prisma.LogisticsShipmentPackageScalarRelationFilter, Prisma.LogisticsShipmentPackageWhereInput>
 }, "id" | "packageId_orderItemId_batchNumber">
 
@@ -291,6 +301,7 @@ export type LogisticsShipmentPackageLineOrderByWithAggregationInput = {
   expiryDate?: Prisma.SortOrderInput | Prisma.SortOrder
   serialNumbersJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LogisticsShipmentPackageLineCountOrderByAggregateInput
   _avg?: Prisma.LogisticsShipmentPackageLineAvgOrderByAggregateInput
   _max?: Prisma.LogisticsShipmentPackageLineMaxOrderByAggregateInput
@@ -311,6 +322,7 @@ export type LogisticsShipmentPackageLineScalarWhereWithAggregatesInput = {
   expiryDate?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsShipmentPackageLine"> | Date | string | null
   serialNumbersJson?: Prisma.JsonNullableWithAggregatesFilter<"LogisticsShipmentPackageLine">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsShipmentPackageLine"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsShipmentPackageLine"> | Date | string
 }
 
 export type LogisticsShipmentPackageLineCreateInput = {
@@ -322,6 +334,7 @@ export type LogisticsShipmentPackageLineCreateInput = {
   expiryDate?: Date | string | null
   serialNumbersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
   package: Prisma.LogisticsShipmentPackageCreateNestedOneWithoutContentsInput
 }
 
@@ -335,6 +348,7 @@ export type LogisticsShipmentPackageLineUncheckedCreateInput = {
   expiryDate?: Date | string | null
   serialNumbersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentPackageLineUpdateInput = {
@@ -346,6 +360,7 @@ export type LogisticsShipmentPackageLineUpdateInput = {
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serialNumbersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   package?: Prisma.LogisticsShipmentPackageUpdateOneRequiredWithoutContentsNestedInput
 }
 
@@ -359,6 +374,7 @@ export type LogisticsShipmentPackageLineUncheckedUpdateInput = {
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serialNumbersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentPackageLineCreateManyInput = {
@@ -371,6 +387,7 @@ export type LogisticsShipmentPackageLineCreateManyInput = {
   expiryDate?: Date | string | null
   serialNumbersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentPackageLineUpdateManyMutationInput = {
@@ -382,6 +399,7 @@ export type LogisticsShipmentPackageLineUpdateManyMutationInput = {
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serialNumbersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentPackageLineUncheckedUpdateManyInput = {
@@ -394,6 +412,7 @@ export type LogisticsShipmentPackageLineUncheckedUpdateManyInput = {
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serialNumbersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentPackageLineListRelationFilter = {
@@ -428,6 +447,7 @@ export type LogisticsShipmentPackageLineCountOrderByAggregateInput = {
   expiryDate?: Prisma.SortOrder
   serialNumbersJson?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsShipmentPackageLineAvgOrderByAggregateInput = {
@@ -443,6 +463,7 @@ export type LogisticsShipmentPackageLineMaxOrderByAggregateInput = {
   batchNumber?: Prisma.SortOrder
   expiryDate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsShipmentPackageLineMinOrderByAggregateInput = {
@@ -454,6 +475,7 @@ export type LogisticsShipmentPackageLineMinOrderByAggregateInput = {
   batchNumber?: Prisma.SortOrder
   expiryDate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsShipmentPackageLineSumOrderByAggregateInput = {
@@ -511,6 +533,7 @@ export type LogisticsShipmentPackageLineCreateWithoutPackageInput = {
   expiryDate?: Date | string | null
   serialNumbersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentPackageLineUncheckedCreateWithoutPackageInput = {
@@ -522,6 +545,7 @@ export type LogisticsShipmentPackageLineUncheckedCreateWithoutPackageInput = {
   expiryDate?: Date | string | null
   serialNumbersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentPackageLineCreateOrConnectWithoutPackageInput = {
@@ -563,6 +587,7 @@ export type LogisticsShipmentPackageLineScalarWhereInput = {
   expiryDate?: Prisma.DateTimeNullableFilter<"LogisticsShipmentPackageLine"> | Date | string | null
   serialNumbersJson?: Prisma.JsonNullableFilter<"LogisticsShipmentPackageLine">
   createdAt?: Prisma.DateTimeFilter<"LogisticsShipmentPackageLine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsShipmentPackageLine"> | Date | string
 }
 
 export type LogisticsShipmentPackageLineCreateManyPackageInput = {
@@ -574,6 +599,7 @@ export type LogisticsShipmentPackageLineCreateManyPackageInput = {
   expiryDate?: Date | string | null
   serialNumbersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsShipmentPackageLineUpdateWithoutPackageInput = {
@@ -585,6 +611,7 @@ export type LogisticsShipmentPackageLineUpdateWithoutPackageInput = {
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serialNumbersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentPackageLineUncheckedUpdateWithoutPackageInput = {
@@ -596,6 +623,7 @@ export type LogisticsShipmentPackageLineUncheckedUpdateWithoutPackageInput = {
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serialNumbersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsShipmentPackageLineUncheckedUpdateManyWithoutPackageInput = {
@@ -607,6 +635,7 @@ export type LogisticsShipmentPackageLineUncheckedUpdateManyWithoutPackageInput =
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serialNumbersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -621,6 +650,7 @@ export type LogisticsShipmentPackageLineSelect<ExtArgs extends runtime.Types.Ext
   expiryDate?: boolean
   serialNumbersJson?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   package?: boolean | Prisma.LogisticsShipmentPackageDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["logisticsShipmentPackageLine"]>
 
@@ -636,9 +666,10 @@ export type LogisticsShipmentPackageLineSelectScalar = {
   expiryDate?: boolean
   serialNumbersJson?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LogisticsShipmentPackageLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "packageId" | "shipmentId" | "orderItemId" | "quantity" | "batchNumber" | "expiryDate" | "serialNumbersJson" | "createdAt", ExtArgs["result"]["logisticsShipmentPackageLine"]>
+export type LogisticsShipmentPackageLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "packageId" | "shipmentId" | "orderItemId" | "quantity" | "batchNumber" | "expiryDate" | "serialNumbersJson" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsShipmentPackageLine"]>
 export type LogisticsShipmentPackageLineInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   package?: boolean | Prisma.LogisticsShipmentPackageDefaultArgs<ExtArgs>
 }
@@ -666,6 +697,7 @@ export type $LogisticsShipmentPackageLinePayload<ExtArgs extends runtime.Types.E
      */
     serialNumbersJson: runtime.JsonValue | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["logisticsShipmentPackageLine"]>
   composites: {}
 }
@@ -1045,6 +1077,7 @@ export interface LogisticsShipmentPackageLineFieldRefs {
   readonly expiryDate: Prisma.FieldRef<"LogisticsShipmentPackageLine", 'DateTime'>
   readonly serialNumbersJson: Prisma.FieldRef<"LogisticsShipmentPackageLine", 'Json'>
   readonly createdAt: Prisma.FieldRef<"LogisticsShipmentPackageLine", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LogisticsShipmentPackageLine", 'DateTime'>
 }
     
 

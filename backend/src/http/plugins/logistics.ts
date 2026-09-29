@@ -93,31 +93,75 @@ export function requireLogistics(...permissions: LogisticsPermissionKey[]) {
     request: FastifyRequest,
     reply: FastifyReply,
   ): Promise<void> {
-    await requireLogisticsSession(request, reply);
-
-    const membership = currentLogistics(request);
-    const auth = currentUser(request);
-
-    const gate = await evaluateMfaGate(membership, auth.sessionMfaVerifiedAt);
-
-    if (gate.kind === 'SETUP_REQUIRED') {
-      throw forbidden(
-        ErrorCode.LOGISTICS_MFA_SETUP_REQUIRED,
-        'Set up two-step sign-in before using the portal. Your role can change who else has access.',
-      );
-    }
-
-    if (gate.kind === 'CHALLENGE_REQUIRED') {
-      throw forbidden(
-        ErrorCode.LOGISTICS_MFA_CHALLENGE_REQUIRED,
-        'Enter the code from your authenticator to continue.',
-      );
-    }
+    const membership = await authenticateWithSecondFactor(request, reply);
 
     for (const permission of permissions) {
       assertLogisticsPermission(membership, permission);
     }
   };
+}
+
+/**
+ * Guard for the few routes that answer two kinds of caller: at least ONE of
+ * the listed permissions is required, where `requireLogistics` requires all.
+ *
+ * It exists for the shipment page a DRIVER opens from their own round. Staff
+ * reach it with `SHIPMENT_READ`; a driver holds `DRIVER_TASK_READ` instead,
+ * and `assertShipmentAccess` then narrows them to the consignments on their
+ * own round. So this guard only ever opens a door that the service behind it
+ * narrows again - a route using it must call `assertShipmentAccess` (or a
+ * service that does) before reading anything, and every one that does so
+ * today says so in a comment above it.
+ *
+ * An empty list is refused, rather than meaning "any member": "any of
+ * nothing" is a route nobody meant to write.
+ */
+export function requireLogisticsAny(...permissions: LogisticsPermissionKey[]) {
+  if (permissions.length === 0) {
+    throw new Error('requireLogisticsAny needs at least one permission.');
+  }
+
+  return async function logisticsAnyGuard(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ): Promise<void> {
+    const membership = await authenticateWithSecondFactor(request, reply);
+
+    if (!permissions.some((permission) => membership.permissions.has(permission))) {
+      // The first key is the one named in the refusal: it is the staff key,
+      // and the one a person asking an administrator would be granted.
+      assertLogisticsPermission(membership, permissions[0] as LogisticsPermissionKey);
+    }
+  };
+}
+
+/** The session, the membership and the MFA gate: what every guard above does first. */
+async function authenticateWithSecondFactor(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<LogisticsMembership> {
+  await requireLogisticsSession(request, reply);
+
+  const membership = currentLogistics(request);
+  const auth = currentUser(request);
+
+  const gate = await evaluateMfaGate(membership, auth.sessionMfaVerifiedAt);
+
+  if (gate.kind === 'SETUP_REQUIRED') {
+    throw forbidden(
+      ErrorCode.LOGISTICS_MFA_SETUP_REQUIRED,
+      'Set up two-step sign-in before using the portal. Your role can change who else has access.',
+    );
+  }
+
+  if (gate.kind === 'CHALLENGE_REQUIRED') {
+    throw forbidden(
+      ErrorCode.LOGISTICS_MFA_CHALLENGE_REQUIRED,
+      'Enter the code from your authenticator to continue.',
+    );
+  }
+
+  return membership;
 }
 
 /**

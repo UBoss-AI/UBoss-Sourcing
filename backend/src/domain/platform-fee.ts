@@ -11,7 +11,7 @@
  * constant here - the 15% tax on the platform fee that this deployment was
  * asked for is a row in `platform_fee_policies`, not a number in code.
  */
-import { calculateTax, percentOf, sumMinor, type Minor } from './money.js';
+import { calculateTax, parseRateToScaled, percentOf, sumMinor, type Minor } from './money.js';
 
 export type PlatformFeeType = 'PERCENT' | 'FLAT' | 'PERCENT_PLUS_FLAT';
 export type PlatformFeeBasis = 'PRODUCT_SUBTOTAL' | 'PRODUCT_SUBTOTAL_PLUS_SELLER_DELIVERY';
@@ -145,4 +145,197 @@ export function trimRate(rate: string): string {
   if (!rate.includes('.')) return rate;
   const trimmed = rate.replace(/0+$/, '').replace(/\.$/, '');
   return trimmed === '' ? '0' : trimmed;
+}
+
+// ---------------------------------------------------------------------------
+// Fee rules: value bands, volume tiers, seller tiers and promotions
+// ---------------------------------------------------------------------------
+//
+// A rule never stands alone. It adjusts the fee the POLICY in force would
+// charge, so a deployment with no rules settles exactly as it did before they
+// existed. Two stages, always in this order:
+//
+//   1. RATE. Of the value-band, volume-tier and seller-tier rules that match,
+//      the one with the LOWEST percentage replaces the policy's percentage.
+//      Lowest, not "most specific", so a seller who qualifies twice is never
+//      charged the worse of two rates the operator published. The flat part,
+//      the minimum and the maximum remain the policy's. A FLAT policy has no
+//      percentage to replace and is left alone.
+//   2. PROMOTION. Of the promotions that match, the largest discount is taken
+//      off the fee from stage 1. Promotions do not stack.
+//
+// A rule matches when it is live at the order's confirmation instant
+// (effectiveFrom <= at < effectiveTo), its scope key is one of the order's
+// candidate keys, and its own condition holds. Value and volume amounts are in
+// the rule's currency; a rule in another currency never matches.
+
+export type FeeRuleKind = 'VALUE_BAND' | 'VOLUME_TIER' | 'SELLER_TIER' | 'PROMOTION';
+
+export interface FeeAdjustmentRule {
+  id: string;
+  kind: FeeRuleKind;
+  name: string;
+  scopeKey: string;
+  currency: string | null;
+  minValueMinor: Minor | null;
+  maxValueMinor: Minor | null;
+  volumeThresholdMinor: Minor | null;
+  volumeWindowDays: number | null;
+  sellerTier: string | null;
+  /** Exact decimal percent, or null. */
+  percentRate: string | null;
+  discountPercent: string | null;
+  effectiveFrom: Date;
+  effectiveTo: Date | null;
+}
+
+export interface FeeRuleContext {
+  /** Every candidate scope key the order's goods share (see `candidateScopeKeys`). */
+  scopeKeys: readonly string[];
+  currency: string;
+  /** The fee basis the policy charges on, for value bands. */
+  basisMinor: Minor;
+  /** The seller's goods sold over each window a live volume rule asks about. */
+  volumeByWindowDays: ReadonlyMap<number, Minor>;
+  sellerTier: string | null;
+  at: Date;
+}
+
+export interface AppliedFeeRule {
+  ruleId: string;
+  kind: FeeRuleKind;
+  name: string;
+  /** The rate set, or the discount taken, as an exact decimal string. */
+  percent: string;
+  /** Fee before this rule minus fee after it. Positive saves the seller money. */
+  effectMinor: Minor;
+}
+
+export interface FeeRuleOutcome {
+  rule: FeeRule;
+  feeMinor: Minor;
+  /** What the policy alone would have charged. */
+  baseFeeMinor: Minor;
+  applied: AppliedFeeRule[];
+}
+
+/** Normalised tier label: trimmed, upper case, or null. */
+export function normaliseTier(tier: string | null | undefined): string | null {
+  const trimmed = (tier ?? '').trim().toUpperCase();
+  return trimmed === '' ? null : trimmed;
+}
+
+/** Whether a rule is live and its condition holds for this order. */
+export function feeRuleMatches(rule: FeeAdjustmentRule, ctx: FeeRuleContext): boolean {
+  if (rule.effectiveFrom.getTime() > ctx.at.getTime()) return false;
+  if (rule.effectiveTo !== null && rule.effectiveTo.getTime() <= ctx.at.getTime()) return false;
+  if (!ctx.scopeKeys.includes(rule.scopeKey)) return false;
+
+  switch (rule.kind) {
+    case 'VALUE_BAND': {
+      if (rule.currency !== ctx.currency || rule.minValueMinor === null) return false;
+      if (ctx.basisMinor < rule.minValueMinor) return false;
+      return rule.maxValueMinor === null || ctx.basisMinor < rule.maxValueMinor;
+    }
+    case 'VOLUME_TIER': {
+      if (rule.currency !== ctx.currency || rule.volumeThresholdMinor === null || rule.volumeWindowDays === null) {
+        return false;
+      }
+      const volume = ctx.volumeByWindowDays.get(rule.volumeWindowDays);
+      return volume !== undefined && volume >= rule.volumeThresholdMinor;
+    }
+    case 'SELLER_TIER': {
+      const tier = normaliseTier(rule.sellerTier);
+      return tier !== null && tier === normaliseTier(ctx.sellerTier);
+    }
+    case 'PROMOTION':
+      return rule.discountPercent !== null;
+  }
+}
+
+function comparePercent(a: string, b: string): number {
+  const left = parseRateToScaled(a);
+  const right = parseRateToScaled(b);
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+/** A stable order for ties: earlier start first, then id. */
+function tieBreak(a: FeeAdjustmentRule, b: FeeAdjustmentRule): number {
+  const byStart = a.effectiveFrom.getTime() - b.effectiveFrom.getTime();
+  if (byStart !== 0) return byStart;
+  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+}
+
+/**
+ * The fee on a basis once the rules that match have been applied.
+ *
+ * Pure: the caller gathers the rules, the seller's tier and volume; this
+ * decides. Deterministic for the same inputs, which is what lets a stored
+ * settlement be recomputed by hand from its breakdown.
+ */
+export function applyFeeRules(
+  base: FeeRule,
+  rules: readonly FeeAdjustmentRule[],
+  ctx: FeeRuleContext,
+): FeeRuleOutcome {
+  const baseFeeMinor = platformFeeOn(base, ctx.basisMinor);
+  const matching = rules.filter((rule) => feeRuleMatches(rule, ctx));
+  const applied: AppliedFeeRule[] = [];
+
+  let rule = base;
+  let feeMinor = baseFeeMinor;
+
+  if (base.feeType !== 'FLAT') {
+    const chosen = matching
+      .filter((candidate) => candidate.kind !== 'PROMOTION' && candidate.percentRate !== null)
+      .sort((a, b) => comparePercent(a.percentRate ?? '0', b.percentRate ?? '0') || tieBreak(a, b))[0];
+    if (chosen !== undefined && chosen.percentRate !== null) {
+      rule = { ...base, percentRate: chosen.percentRate };
+      const adjusted = platformFeeOn(rule, ctx.basisMinor);
+      applied.push({
+        ruleId: chosen.id,
+        kind: chosen.kind,
+        name: chosen.name,
+        percent: chosen.percentRate,
+        effectMinor: feeMinor - adjusted,
+      });
+      feeMinor = adjusted;
+    }
+  }
+
+  const promotion = matching
+    .filter((candidate) => candidate.kind === 'PROMOTION' && candidate.discountPercent !== null)
+    .sort((a, b) => comparePercent(b.discountPercent ?? '0', a.discountPercent ?? '0') || tieBreak(a, b))[0];
+  if (promotion !== undefined && promotion.discountPercent !== null && feeMinor > 0n) {
+    const discount = percentOf(feeMinor, promotion.discountPercent);
+    applied.push({
+      ruleId: promotion.id,
+      kind: 'PROMOTION',
+      name: promotion.name,
+      percent: promotion.discountPercent,
+      effectMinor: discount,
+    });
+    feeMinor -= discount;
+  }
+
+  return { rule, feeMinor, baseFeeMinor, applied };
+}
+
+/**
+ * Maker-checker: may this person approve what these people made?
+ *
+ * The approver must be a named person, and none of the creator, the last
+ * editor and the submitter. "Named" matters: a system actor with no user id
+ * could otherwise approve anything, which is no second pair of eyes at all.
+ */
+export function isIndependentApprover(
+  approverUserId: string | null,
+  makers: { createdByUserId: string | null; lastEditedByUserId: string | null; submittedByUserId: string | null },
+): boolean {
+  if (approverUserId === null) return false;
+  return (
+    approverUserId !== makers.createdByUserId &&
+    approverUserId !== makers.lastEditedByUserId &&
+    approverUserId !== makers.submittedByUserId
+  );
 }

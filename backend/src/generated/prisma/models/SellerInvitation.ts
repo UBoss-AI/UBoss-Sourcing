@@ -40,6 +40,7 @@ export type SellerInvitationMinAggregateOutputType = {
   acceptedByProfileId: string | null
   revokedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerInvitationMaxAggregateOutputType = {
@@ -54,6 +55,7 @@ export type SellerInvitationMaxAggregateOutputType = {
   acceptedByProfileId: string | null
   revokedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerInvitationCountAggregateOutputType = {
@@ -68,6 +70,7 @@ export type SellerInvitationCountAggregateOutputType = {
   acceptedByProfileId: number
   revokedAt: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -84,6 +87,7 @@ export type SellerInvitationMinAggregateInputType = {
   acceptedByProfileId?: true
   revokedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerInvitationMaxAggregateInputType = {
@@ -98,6 +102,7 @@ export type SellerInvitationMaxAggregateInputType = {
   acceptedByProfileId?: true
   revokedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerInvitationCountAggregateInputType = {
@@ -112,6 +117,7 @@ export type SellerInvitationCountAggregateInputType = {
   acceptedByProfileId?: true
   revokedAt?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -199,6 +205,7 @@ export type SellerInvitationGroupByOutputType = {
   acceptedByProfileId: string | null
   revokedAt: Date | null
   createdAt: Date
+  updatedAt: Date
   _count: SellerInvitationCountAggregateOutputType | null
   _min: SellerInvitationMinAggregateOutputType | null
   _max: SellerInvitationMaxAggregateOutputType | null
@@ -234,6 +241,7 @@ export type SellerInvitationWhereInput = {
   acceptedByProfileId?: Prisma.StringNullableFilter<"SellerInvitation"> | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"SellerInvitation"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
 }
 
@@ -249,6 +257,7 @@ export type SellerInvitationOrderByWithRelationInput = {
   acceptedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   _relevance?: Prisma.SellerInvitationOrderByRelevanceInput
 }
@@ -268,6 +277,7 @@ export type SellerInvitationWhereUniqueInput = Prisma.AtLeast<{
   acceptedByProfileId?: Prisma.StringNullableFilter<"SellerInvitation"> | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"SellerInvitation"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
 }, "id" | "tokenHash">
 
@@ -283,6 +293,7 @@ export type SellerInvitationOrderByWithAggregationInput = {
   acceptedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerInvitationCountOrderByAggregateInput
   _max?: Prisma.SellerInvitationMaxOrderByAggregateInput
   _min?: Prisma.SellerInvitationMinOrderByAggregateInput
@@ -303,6 +314,7 @@ export type SellerInvitationScalarWhereWithAggregatesInput = {
   acceptedByProfileId?: Prisma.StringNullableWithAggregatesFilter<"SellerInvitation"> | string | null
   revokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerInvitation"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerInvitation"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerInvitation"> | Date | string
 }
 
 export type SellerInvitationCreateInput = {
@@ -316,6 +328,7 @@ export type SellerInvitationCreateInput = {
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutInvitationsInput
 }
 
@@ -331,6 +344,7 @@ export type SellerInvitationUncheckedCreateInput = {
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerInvitationUpdateInput = {
@@ -344,6 +358,7 @@ export type SellerInvitationUpdateInput = {
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutInvitationsNestedInput
 }
 
@@ -359,6 +374,7 @@ export type SellerInvitationUncheckedUpdateInput = {
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerInvitationCreateManyInput = {
@@ -373,6 +389,7 @@ export type SellerInvitationCreateManyInput = {
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerInvitationUpdateManyMutationInput = {
@@ -386,6 +403,7 @@ export type SellerInvitationUpdateManyMutationInput = {
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerInvitationUncheckedUpdateManyInput = {
@@ -400,6 +418,7 @@ export type SellerInvitationUncheckedUpdateManyInput = {
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerInvitationListRelationFilter = {
@@ -430,6 +449,7 @@ export type SellerInvitationCountOrderByAggregateInput = {
   acceptedByProfileId?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerInvitationMaxOrderByAggregateInput = {
@@ -444,6 +464,7 @@ export type SellerInvitationMaxOrderByAggregateInput = {
   acceptedByProfileId?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerInvitationMinOrderByAggregateInput = {
@@ -458,6 +479,7 @@ export type SellerInvitationMinOrderByAggregateInput = {
   acceptedByProfileId?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerInvitationCreateNestedManyWithoutSellerAccountInput = {
@@ -513,6 +535,7 @@ export type SellerInvitationCreateWithoutSellerAccountInput = {
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerInvitationUncheckedCreateWithoutSellerAccountInput = {
@@ -526,6 +549,7 @@ export type SellerInvitationUncheckedCreateWithoutSellerAccountInput = {
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerInvitationCreateOrConnectWithoutSellerAccountInput = {
@@ -569,6 +593,7 @@ export type SellerInvitationScalarWhereInput = {
   acceptedByProfileId?: Prisma.StringNullableFilter<"SellerInvitation"> | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"SellerInvitation"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
 }
 
 export type SellerInvitationCreateManySellerAccountInput = {
@@ -582,6 +607,7 @@ export type SellerInvitationCreateManySellerAccountInput = {
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerInvitationUpdateWithoutSellerAccountInput = {
@@ -595,6 +621,7 @@ export type SellerInvitationUpdateWithoutSellerAccountInput = {
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerInvitationUncheckedUpdateWithoutSellerAccountInput = {
@@ -608,6 +635,7 @@ export type SellerInvitationUncheckedUpdateWithoutSellerAccountInput = {
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerInvitationUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -621,6 +649,7 @@ export type SellerInvitationUncheckedUpdateManyWithoutSellerAccountInput = {
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -637,6 +666,7 @@ export type SellerInvitationSelect<ExtArgs extends runtime.Types.Extensions.Inte
   acceptedByProfileId?: boolean
   revokedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerInvitation"]>
 
@@ -654,9 +684,10 @@ export type SellerInvitationSelectScalar = {
   acceptedByProfileId?: boolean
   revokedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerInvitationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "emailNormalized" | "role" | "tokenHash" | "expiresAt" | "invitedByProfileId" | "acceptedAt" | "acceptedByProfileId" | "revokedAt" | "createdAt", ExtArgs["result"]["sellerInvitation"]>
+export type SellerInvitationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "emailNormalized" | "role" | "tokenHash" | "expiresAt" | "invitedByProfileId" | "acceptedAt" | "acceptedByProfileId" | "revokedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerInvitation"]>
 export type SellerInvitationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }
@@ -678,6 +709,7 @@ export type $SellerInvitationPayload<ExtArgs extends runtime.Types.Extensions.In
     acceptedByProfileId: string | null
     revokedAt: Date | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerInvitation"]>
   composites: {}
 }
@@ -1059,6 +1091,7 @@ export interface SellerInvitationFieldRefs {
   readonly acceptedByProfileId: Prisma.FieldRef<"SellerInvitation", 'String'>
   readonly revokedAt: Prisma.FieldRef<"SellerInvitation", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"SellerInvitation", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerInvitation", 'DateTime'>
 }
     
 

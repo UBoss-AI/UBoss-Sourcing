@@ -447,6 +447,14 @@ Five things left, and none of them can be guessed:
          CREATE USER 'uboss_app'@'localhost' IDENTIFIED BY '<long random>';
          GRANT SELECT, INSERT ON uboss.* TO 'uboss_app'@'localhost';
 
+         -- The ONLY account that may change an audit row after it is written,
+         -- and only two ways: blank an erased person's email, IP and user
+         -- agent (GDPR Art. 17), and delete rows past RETENTION_AUDIT_LOG_DAYS.
+         -- No grant here: apply-grants.sh gives it exactly SELECT, DELETE and
+         -- UPDATE (actorEmail, ipAddress, updatedAt, userAgent) on audit_logs, after the
+         -- table exists. Production refuses to start without it.
+         CREATE USER 'uboss_maintenance'@'localhost' IDENTIFIED BY '<a fifth long random>';
+
          -- What 'prisma migrate deploy' runs as, during a release only.
          CREATE USER 'uboss_migrate'@'localhost' IDENTIFIED BY '<different long random>';
          GRANT ALL PRIVILEGES ON uboss.* TO 'uboss_migrate'@'localhost';
@@ -467,6 +475,7 @@ Five things left, and none of them can be guessed:
 
      Then in shared/.env:
        DATABASE_URL=...uboss_app...              <- the application reads this
+       DATABASE_MAINTENANCE_URL=...uboss_maintenance...  <- erasure + audit retention only
        MIGRATE_DATABASE_URL=...uboss_migrate...  <- release.sh reads this
        UBOSS_BACKUP_DATABASE_URL=...uboss_backup...  <- backup.sh reads this
 

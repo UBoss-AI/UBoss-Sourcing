@@ -49,6 +49,8 @@ export type SellerLogisticsPolicyVersionMinAggregateOutputType = {
   publishedAt: Date | null
   publishedByUserId: string | null
   supersededAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerLogisticsPolicyVersionMaxAggregateOutputType = {
@@ -64,6 +66,8 @@ export type SellerLogisticsPolicyVersionMaxAggregateOutputType = {
   publishedAt: Date | null
   publishedByUserId: string | null
   supersededAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerLogisticsPolicyVersionCountAggregateOutputType = {
@@ -79,6 +83,8 @@ export type SellerLogisticsPolicyVersionCountAggregateOutputType = {
   publishedAt: number
   publishedByUserId: number
   supersededAt: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -104,6 +110,8 @@ export type SellerLogisticsPolicyVersionMinAggregateInputType = {
   publishedAt?: true
   publishedByUserId?: true
   supersededAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerLogisticsPolicyVersionMaxAggregateInputType = {
@@ -119,6 +127,8 @@ export type SellerLogisticsPolicyVersionMaxAggregateInputType = {
   publishedAt?: true
   publishedByUserId?: true
   supersededAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerLogisticsPolicyVersionCountAggregateInputType = {
@@ -134,6 +144,8 @@ export type SellerLogisticsPolicyVersionCountAggregateInputType = {
   publishedAt?: true
   publishedByUserId?: true
   supersededAt?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -236,6 +248,8 @@ export type SellerLogisticsPolicyVersionGroupByOutputType = {
   publishedAt: Date
   publishedByUserId: string | null
   supersededAt: Date | null
+  createdAt: Date
+  updatedAt: Date
   _count: SellerLogisticsPolicyVersionCountAggregateOutputType | null
   _avg: SellerLogisticsPolicyVersionAvgAggregateOutputType | null
   _sum: SellerLogisticsPolicyVersionSumAggregateOutputType | null
@@ -274,6 +288,8 @@ export type SellerLogisticsPolicyVersionWhereInput = {
   publishedAt?: Prisma.DateTimeFilter<"SellerLogisticsPolicyVersion"> | Date | string
   publishedByUserId?: Prisma.StringNullableFilter<"SellerLogisticsPolicyVersion"> | string | null
   supersededAt?: Prisma.DateTimeNullableFilter<"SellerLogisticsPolicyVersion"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"SellerLogisticsPolicyVersion"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerLogisticsPolicyVersion"> | Date | string
   policy?: Prisma.XOR<Prisma.SellerLogisticsPolicyScalarRelationFilter, Prisma.SellerLogisticsPolicyWhereInput>
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   activeFor?: Prisma.XOR<Prisma.SellerLogisticsPolicyNullableScalarRelationFilter, Prisma.SellerLogisticsPolicyWhereInput> | null
@@ -293,6 +309,8 @@ export type SellerLogisticsPolicyVersionOrderByWithRelationInput = {
   publishedAt?: Prisma.SortOrder
   publishedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   supersededAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   policy?: Prisma.SellerLogisticsPolicyOrderByWithRelationInput
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   activeFor?: Prisma.SellerLogisticsPolicyOrderByWithRelationInput
@@ -317,6 +335,8 @@ export type SellerLogisticsPolicyVersionWhereUniqueInput = Prisma.AtLeast<{
   publishedAt?: Prisma.DateTimeFilter<"SellerLogisticsPolicyVersion"> | Date | string
   publishedByUserId?: Prisma.StringNullableFilter<"SellerLogisticsPolicyVersion"> | string | null
   supersededAt?: Prisma.DateTimeNullableFilter<"SellerLogisticsPolicyVersion"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"SellerLogisticsPolicyVersion"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerLogisticsPolicyVersion"> | Date | string
   policy?: Prisma.XOR<Prisma.SellerLogisticsPolicyScalarRelationFilter, Prisma.SellerLogisticsPolicyWhereInput>
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   activeFor?: Prisma.XOR<Prisma.SellerLogisticsPolicyNullableScalarRelationFilter, Prisma.SellerLogisticsPolicyWhereInput> | null
@@ -336,6 +356,8 @@ export type SellerLogisticsPolicyVersionOrderByWithAggregationInput = {
   publishedAt?: Prisma.SortOrder
   publishedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   supersededAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerLogisticsPolicyVersionCountOrderByAggregateInput
   _avg?: Prisma.SellerLogisticsPolicyVersionAvgOrderByAggregateInput
   _max?: Prisma.SellerLogisticsPolicyVersionMaxOrderByAggregateInput
@@ -359,6 +381,8 @@ export type SellerLogisticsPolicyVersionScalarWhereWithAggregatesInput = {
   publishedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerLogisticsPolicyVersion"> | Date | string
   publishedByUserId?: Prisma.StringNullableWithAggregatesFilter<"SellerLogisticsPolicyVersion"> | string | null
   supersededAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerLogisticsPolicyVersion"> | Date | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerLogisticsPolicyVersion"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerLogisticsPolicyVersion"> | Date | string
 }
 
 export type SellerLogisticsPolicyVersionCreateInput = {
@@ -372,6 +396,8 @@ export type SellerLogisticsPolicyVersionCreateInput = {
   publishedAt?: Date | string
   publishedByUserId?: string | null
   supersededAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   policy: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutVersionsInput
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutLogisticsPolicyVersionsInput
   activeFor?: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutActiveVersionInput
@@ -391,6 +417,8 @@ export type SellerLogisticsPolicyVersionUncheckedCreateInput = {
   publishedAt?: Date | string
   publishedByUserId?: string | null
   supersededAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   activeFor?: Prisma.SellerLogisticsPolicyUncheckedCreateNestedOneWithoutActiveVersionInput
   legCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutPolicyVersionInput
 }
@@ -406,6 +434,8 @@ export type SellerLogisticsPolicyVersionUpdateInput = {
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   policy?: Prisma.SellerLogisticsPolicyUpdateOneRequiredWithoutVersionsNestedInput
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutLogisticsPolicyVersionsNestedInput
   activeFor?: Prisma.SellerLogisticsPolicyUpdateOneWithoutActiveVersionNestedInput
@@ -425,6 +455,8 @@ export type SellerLogisticsPolicyVersionUncheckedUpdateInput = {
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activeFor?: Prisma.SellerLogisticsPolicyUncheckedUpdateOneWithoutActiveVersionNestedInput
   legCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutPolicyVersionNestedInput
 }
@@ -442,6 +474,8 @@ export type SellerLogisticsPolicyVersionCreateManyInput = {
   publishedAt?: Date | string
   publishedByUserId?: string | null
   supersededAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerLogisticsPolicyVersionUpdateManyMutationInput = {
@@ -455,6 +489,8 @@ export type SellerLogisticsPolicyVersionUpdateManyMutationInput = {
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerLogisticsPolicyVersionUncheckedUpdateManyInput = {
@@ -470,6 +506,8 @@ export type SellerLogisticsPolicyVersionUncheckedUpdateManyInput = {
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerLogisticsPolicyVersionListRelationFilter = {
@@ -511,6 +549,8 @@ export type SellerLogisticsPolicyVersionCountOrderByAggregateInput = {
   publishedAt?: Prisma.SortOrder
   publishedByUserId?: Prisma.SortOrder
   supersededAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerLogisticsPolicyVersionAvgOrderByAggregateInput = {
@@ -530,6 +570,8 @@ export type SellerLogisticsPolicyVersionMaxOrderByAggregateInput = {
   publishedAt?: Prisma.SortOrder
   publishedByUserId?: Prisma.SortOrder
   supersededAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerLogisticsPolicyVersionMinOrderByAggregateInput = {
@@ -545,6 +587,8 @@ export type SellerLogisticsPolicyVersionMinOrderByAggregateInput = {
   publishedAt?: Prisma.SortOrder
   publishedByUserId?: Prisma.SortOrder
   supersededAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerLogisticsPolicyVersionSumOrderByAggregateInput = {
@@ -681,6 +725,8 @@ export type SellerLogisticsPolicyVersionCreateWithoutSellerAccountInput = {
   publishedAt?: Date | string
   publishedByUserId?: string | null
   supersededAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   policy: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutVersionsInput
   activeFor?: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutActiveVersionInput
   legCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutPolicyVersionInput
@@ -698,6 +744,8 @@ export type SellerLogisticsPolicyVersionUncheckedCreateWithoutSellerAccountInput
   publishedAt?: Date | string
   publishedByUserId?: string | null
   supersededAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   activeFor?: Prisma.SellerLogisticsPolicyUncheckedCreateNestedOneWithoutActiveVersionInput
   legCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutPolicyVersionInput
 }
@@ -744,6 +792,8 @@ export type SellerLogisticsPolicyVersionScalarWhereInput = {
   publishedAt?: Prisma.DateTimeFilter<"SellerLogisticsPolicyVersion"> | Date | string
   publishedByUserId?: Prisma.StringNullableFilter<"SellerLogisticsPolicyVersion"> | string | null
   supersededAt?: Prisma.DateTimeNullableFilter<"SellerLogisticsPolicyVersion"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"SellerLogisticsPolicyVersion"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerLogisticsPolicyVersion"> | Date | string
 }
 
 export type SellerLogisticsPolicyVersionCreateWithoutActiveForInput = {
@@ -757,6 +807,8 @@ export type SellerLogisticsPolicyVersionCreateWithoutActiveForInput = {
   publishedAt?: Date | string
   publishedByUserId?: string | null
   supersededAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   policy: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutVersionsInput
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutLogisticsPolicyVersionsInput
   legCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutPolicyVersionInput
@@ -775,6 +827,8 @@ export type SellerLogisticsPolicyVersionUncheckedCreateWithoutActiveForInput = {
   publishedAt?: Date | string
   publishedByUserId?: string | null
   supersededAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   legCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutPolicyVersionInput
 }
 
@@ -794,6 +848,8 @@ export type SellerLogisticsPolicyVersionCreateWithoutPolicyInput = {
   publishedAt?: Date | string
   publishedByUserId?: string | null
   supersededAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutLogisticsPolicyVersionsInput
   activeFor?: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutActiveVersionInput
   legCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutPolicyVersionInput
@@ -811,6 +867,8 @@ export type SellerLogisticsPolicyVersionUncheckedCreateWithoutPolicyInput = {
   publishedAt?: Date | string
   publishedByUserId?: string | null
   supersededAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   activeFor?: Prisma.SellerLogisticsPolicyUncheckedCreateNestedOneWithoutActiveVersionInput
   legCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutPolicyVersionInput
 }
@@ -847,6 +905,8 @@ export type SellerLogisticsPolicyVersionUpdateWithoutActiveForInput = {
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   policy?: Prisma.SellerLogisticsPolicyUpdateOneRequiredWithoutVersionsNestedInput
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutLogisticsPolicyVersionsNestedInput
   legCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutPolicyVersionNestedInput
@@ -865,6 +925,8 @@ export type SellerLogisticsPolicyVersionUncheckedUpdateWithoutActiveForInput = {
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   legCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutPolicyVersionNestedInput
 }
 
@@ -895,6 +957,8 @@ export type SellerLogisticsPolicyVersionCreateWithoutLegChargesInput = {
   publishedAt?: Date | string
   publishedByUserId?: string | null
   supersededAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   policy: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutVersionsInput
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutLogisticsPolicyVersionsInput
   activeFor?: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutActiveVersionInput
@@ -913,6 +977,8 @@ export type SellerLogisticsPolicyVersionUncheckedCreateWithoutLegChargesInput = 
   publishedAt?: Date | string
   publishedByUserId?: string | null
   supersededAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   activeFor?: Prisma.SellerLogisticsPolicyUncheckedCreateNestedOneWithoutActiveVersionInput
 }
 
@@ -943,6 +1009,8 @@ export type SellerLogisticsPolicyVersionUpdateWithoutLegChargesInput = {
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   policy?: Prisma.SellerLogisticsPolicyUpdateOneRequiredWithoutVersionsNestedInput
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutLogisticsPolicyVersionsNestedInput
   activeFor?: Prisma.SellerLogisticsPolicyUpdateOneWithoutActiveVersionNestedInput
@@ -961,6 +1029,8 @@ export type SellerLogisticsPolicyVersionUncheckedUpdateWithoutLegChargesInput = 
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activeFor?: Prisma.SellerLogisticsPolicyUncheckedUpdateOneWithoutActiveVersionNestedInput
 }
 
@@ -976,6 +1046,8 @@ export type SellerLogisticsPolicyVersionCreateManySellerAccountInput = {
   publishedAt?: Date | string
   publishedByUserId?: string | null
   supersededAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerLogisticsPolicyVersionUpdateWithoutSellerAccountInput = {
@@ -989,6 +1061,8 @@ export type SellerLogisticsPolicyVersionUpdateWithoutSellerAccountInput = {
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   policy?: Prisma.SellerLogisticsPolicyUpdateOneRequiredWithoutVersionsNestedInput
   activeFor?: Prisma.SellerLogisticsPolicyUpdateOneWithoutActiveVersionNestedInput
   legCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutPolicyVersionNestedInput
@@ -1006,6 +1080,8 @@ export type SellerLogisticsPolicyVersionUncheckedUpdateWithoutSellerAccountInput
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activeFor?: Prisma.SellerLogisticsPolicyUncheckedUpdateOneWithoutActiveVersionNestedInput
   legCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutPolicyVersionNestedInput
 }
@@ -1022,6 +1098,8 @@ export type SellerLogisticsPolicyVersionUncheckedUpdateManyWithoutSellerAccountI
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerLogisticsPolicyVersionCreateManyPolicyInput = {
@@ -1036,6 +1114,8 @@ export type SellerLogisticsPolicyVersionCreateManyPolicyInput = {
   publishedAt?: Date | string
   publishedByUserId?: string | null
   supersededAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerLogisticsPolicyVersionUpdateWithoutPolicyInput = {
@@ -1049,6 +1129,8 @@ export type SellerLogisticsPolicyVersionUpdateWithoutPolicyInput = {
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutLogisticsPolicyVersionsNestedInput
   activeFor?: Prisma.SellerLogisticsPolicyUpdateOneWithoutActiveVersionNestedInput
   legCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutPolicyVersionNestedInput
@@ -1066,6 +1148,8 @@ export type SellerLogisticsPolicyVersionUncheckedUpdateWithoutPolicyInput = {
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activeFor?: Prisma.SellerLogisticsPolicyUncheckedUpdateOneWithoutActiveVersionNestedInput
   legCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutPolicyVersionNestedInput
 }
@@ -1082,6 +1166,8 @@ export type SellerLogisticsPolicyVersionUncheckedUpdateManyWithoutPolicyInput = 
   publishedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1128,6 +1214,8 @@ export type SellerLogisticsPolicyVersionSelect<ExtArgs extends runtime.Types.Ext
   publishedAt?: boolean
   publishedByUserId?: boolean
   supersededAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   policy?: boolean | Prisma.SellerLogisticsPolicyDefaultArgs<ExtArgs>
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   activeFor?: boolean | Prisma.SellerLogisticsPolicyVersion$activeForArgs<ExtArgs>
@@ -1150,9 +1238,11 @@ export type SellerLogisticsPolicyVersionSelectScalar = {
   publishedAt?: boolean
   publishedByUserId?: boolean
   supersededAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerLogisticsPolicyVersionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "policyId" | "sellerAccountId" | "versionNumber" | "mode" | "l2Owner" | "l3Owner" | "l4Owner" | "changeNote" | "publishedAt" | "publishedByUserId" | "supersededAt", ExtArgs["result"]["sellerLogisticsPolicyVersion"]>
+export type SellerLogisticsPolicyVersionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "policyId" | "sellerAccountId" | "versionNumber" | "mode" | "l2Owner" | "l3Owner" | "l4Owner" | "changeNote" | "publishedAt" | "publishedByUserId" | "supersededAt" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerLogisticsPolicyVersion"]>
 export type SellerLogisticsPolicyVersionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   policy?: boolean | Prisma.SellerLogisticsPolicyDefaultArgs<ExtArgs>
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
@@ -1182,6 +1272,8 @@ export type $SellerLogisticsPolicyVersionPayload<ExtArgs extends runtime.Types.E
     publishedAt: Date
     publishedByUserId: string | null
     supersededAt: Date | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerLogisticsPolicyVersion"]>
   composites: {}
 }
@@ -1567,6 +1659,8 @@ export interface SellerLogisticsPolicyVersionFieldRefs {
   readonly publishedAt: Prisma.FieldRef<"SellerLogisticsPolicyVersion", 'DateTime'>
   readonly publishedByUserId: Prisma.FieldRef<"SellerLogisticsPolicyVersion", 'String'>
   readonly supersededAt: Prisma.FieldRef<"SellerLogisticsPolicyVersion", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"SellerLogisticsPolicyVersion", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerLogisticsPolicyVersion", 'DateTime'>
 }
     
 

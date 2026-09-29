@@ -76,6 +76,7 @@ export type SellerErpSyncAttemptMinAggregateOutputType = {
   responseHash: string | null
   correlationId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerErpSyncAttemptMaxAggregateOutputType = {
@@ -99,6 +100,7 @@ export type SellerErpSyncAttemptMaxAggregateOutputType = {
   responseHash: string | null
   correlationId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerErpSyncAttemptCountAggregateOutputType = {
@@ -123,6 +125,7 @@ export type SellerErpSyncAttemptCountAggregateOutputType = {
   responseHash: number
   correlationId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -172,6 +175,7 @@ export type SellerErpSyncAttemptMinAggregateInputType = {
   responseHash?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerErpSyncAttemptMaxAggregateInputType = {
@@ -195,6 +199,7 @@ export type SellerErpSyncAttemptMaxAggregateInputType = {
   responseHash?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerErpSyncAttemptCountAggregateInputType = {
@@ -219,6 +224,7 @@ export type SellerErpSyncAttemptCountAggregateInputType = {
   responseHash?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -330,6 +336,7 @@ export type SellerErpSyncAttemptGroupByOutputType = {
   responseHash: string | null
   correlationId: string | null
   createdAt: Date
+  updatedAt: Date
   _count: SellerErpSyncAttemptCountAggregateOutputType | null
   _avg: SellerErpSyncAttemptAvgAggregateOutputType | null
   _sum: SellerErpSyncAttemptSumAggregateOutputType | null
@@ -377,6 +384,7 @@ export type SellerErpSyncAttemptWhereInput = {
   responseHash?: Prisma.StringNullableFilter<"SellerErpSyncAttempt"> | string | null
   correlationId?: Prisma.StringNullableFilter<"SellerErpSyncAttempt"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerErpSyncAttempt"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerErpSyncAttempt"> | Date | string
   job?: Prisma.XOR<Prisma.SellerErpSyncJobScalarRelationFilter, Prisma.SellerErpSyncJobWhereInput>
 }
 
@@ -402,6 +410,7 @@ export type SellerErpSyncAttemptOrderByWithRelationInput = {
   responseHash?: Prisma.SortOrderInput | Prisma.SortOrder
   correlationId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   job?: Prisma.SellerErpSyncJobOrderByWithRelationInput
   _relevance?: Prisma.SellerErpSyncAttemptOrderByRelevanceInput
 }
@@ -432,6 +441,7 @@ export type SellerErpSyncAttemptWhereUniqueInput = Prisma.AtLeast<{
   responseHash?: Prisma.StringNullableFilter<"SellerErpSyncAttempt"> | string | null
   correlationId?: Prisma.StringNullableFilter<"SellerErpSyncAttempt"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerErpSyncAttempt"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerErpSyncAttempt"> | Date | string
   job?: Prisma.XOR<Prisma.SellerErpSyncJobScalarRelationFilter, Prisma.SellerErpSyncJobWhereInput>
 }, "id" | "jobId_attemptNumber">
 
@@ -457,6 +467,7 @@ export type SellerErpSyncAttemptOrderByWithAggregationInput = {
   responseHash?: Prisma.SortOrderInput | Prisma.SortOrder
   correlationId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerErpSyncAttemptCountOrderByAggregateInput
   _avg?: Prisma.SellerErpSyncAttemptAvgOrderByAggregateInput
   _max?: Prisma.SellerErpSyncAttemptMaxOrderByAggregateInput
@@ -489,6 +500,7 @@ export type SellerErpSyncAttemptScalarWhereWithAggregatesInput = {
   responseHash?: Prisma.StringNullableWithAggregatesFilter<"SellerErpSyncAttempt"> | string | null
   correlationId?: Prisma.StringNullableWithAggregatesFilter<"SellerErpSyncAttempt"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerErpSyncAttempt"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerErpSyncAttempt"> | Date | string
 }
 
 export type SellerErpSyncAttemptCreateInput = {
@@ -512,6 +524,7 @@ export type SellerErpSyncAttemptCreateInput = {
   responseHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   job: Prisma.SellerErpSyncJobCreateNestedOneWithoutAttemptsInput
 }
 
@@ -537,6 +550,7 @@ export type SellerErpSyncAttemptUncheckedCreateInput = {
   responseHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpSyncAttemptUpdateInput = {
@@ -560,6 +574,7 @@ export type SellerErpSyncAttemptUpdateInput = {
   responseHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   job?: Prisma.SellerErpSyncJobUpdateOneRequiredWithoutAttemptsNestedInput
 }
 
@@ -585,6 +600,7 @@ export type SellerErpSyncAttemptUncheckedUpdateInput = {
   responseHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpSyncAttemptCreateManyInput = {
@@ -609,6 +625,7 @@ export type SellerErpSyncAttemptCreateManyInput = {
   responseHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpSyncAttemptUpdateManyMutationInput = {
@@ -632,6 +649,7 @@ export type SellerErpSyncAttemptUpdateManyMutationInput = {
   responseHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpSyncAttemptUncheckedUpdateManyInput = {
@@ -656,6 +674,7 @@ export type SellerErpSyncAttemptUncheckedUpdateManyInput = {
   responseHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpSyncAttemptListRelationFilter = {
@@ -701,6 +720,7 @@ export type SellerErpSyncAttemptCountOrderByAggregateInput = {
   responseHash?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerErpSyncAttemptAvgOrderByAggregateInput = {
@@ -736,6 +756,7 @@ export type SellerErpSyncAttemptMaxOrderByAggregateInput = {
   responseHash?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerErpSyncAttemptMinOrderByAggregateInput = {
@@ -759,6 +780,7 @@ export type SellerErpSyncAttemptMinOrderByAggregateInput = {
   responseHash?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerErpSyncAttemptSumOrderByAggregateInput = {
@@ -836,6 +858,7 @@ export type SellerErpSyncAttemptCreateWithoutJobInput = {
   responseHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpSyncAttemptUncheckedCreateWithoutJobInput = {
@@ -859,6 +882,7 @@ export type SellerErpSyncAttemptUncheckedCreateWithoutJobInput = {
   responseHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpSyncAttemptCreateOrConnectWithoutJobInput = {
@@ -912,6 +936,7 @@ export type SellerErpSyncAttemptScalarWhereInput = {
   responseHash?: Prisma.StringNullableFilter<"SellerErpSyncAttempt"> | string | null
   correlationId?: Prisma.StringNullableFilter<"SellerErpSyncAttempt"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerErpSyncAttempt"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerErpSyncAttempt"> | Date | string
 }
 
 export type SellerErpSyncAttemptCreateManyJobInput = {
@@ -935,6 +960,7 @@ export type SellerErpSyncAttemptCreateManyJobInput = {
   responseHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpSyncAttemptUpdateWithoutJobInput = {
@@ -958,6 +984,7 @@ export type SellerErpSyncAttemptUpdateWithoutJobInput = {
   responseHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpSyncAttemptUncheckedUpdateWithoutJobInput = {
@@ -981,6 +1008,7 @@ export type SellerErpSyncAttemptUncheckedUpdateWithoutJobInput = {
   responseHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpSyncAttemptUncheckedUpdateManyWithoutJobInput = {
@@ -1004,6 +1032,7 @@ export type SellerErpSyncAttemptUncheckedUpdateManyWithoutJobInput = {
   responseHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1030,6 +1059,7 @@ export type SellerErpSyncAttemptSelect<ExtArgs extends runtime.Types.Extensions.
   responseHash?: boolean
   correlationId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   job?: boolean | Prisma.SellerErpSyncJobDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerErpSyncAttempt"]>
 
@@ -1057,9 +1087,10 @@ export type SellerErpSyncAttemptSelectScalar = {
   responseHash?: boolean
   correlationId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerErpSyncAttemptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobId" | "attemptNumber" | "startedAt" | "finishedAt" | "durationMs" | "outcome" | "httpStatus" | "tallyCreated" | "tallyAltered" | "tallyDeleted" | "tallyIgnored" | "tallyErrors" | "tallyExceptions" | "tallyLastVoucherId" | "lineErrorsJson" | "sanitizedError" | "requestHash" | "responseHash" | "correlationId" | "createdAt", ExtArgs["result"]["sellerErpSyncAttempt"]>
+export type SellerErpSyncAttemptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobId" | "attemptNumber" | "startedAt" | "finishedAt" | "durationMs" | "outcome" | "httpStatus" | "tallyCreated" | "tallyAltered" | "tallyDeleted" | "tallyIgnored" | "tallyErrors" | "tallyExceptions" | "tallyLastVoucherId" | "lineErrorsJson" | "sanitizedError" | "requestHash" | "responseHash" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerErpSyncAttempt"]>
 export type SellerErpSyncAttemptInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.SellerErpSyncJobDefaultArgs<ExtArgs>
 }
@@ -1108,6 +1139,7 @@ export type $SellerErpSyncAttemptPayload<ExtArgs extends runtime.Types.Extension
     responseHash: string | null
     correlationId: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerErpSyncAttempt"]>
   composites: {}
 }
@@ -1499,6 +1531,7 @@ export interface SellerErpSyncAttemptFieldRefs {
   readonly responseHash: Prisma.FieldRef<"SellerErpSyncAttempt", 'String'>
   readonly correlationId: Prisma.FieldRef<"SellerErpSyncAttempt", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerErpSyncAttempt", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerErpSyncAttempt", 'DateTime'>
 }
     
 

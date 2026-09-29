@@ -83,13 +83,23 @@ export function SessionProvider({ children }: { children: ReactNode }): React.JS
   );
 
   const login = useCallback(
-    async (email: string, password: string, buyerType?: BuyerType): Promise<{ next: SignInNext }> => {
+    async (
+      email: string,
+      password: string,
+      buyerType?: BuyerType,
+      captchaToken?: string | null,
+    ): Promise<{ next: SignInNext; mfaChallengeRequired: boolean }> => {
       const result = await api.post<{
         user: CustomerUser;
         buyerContext?: BuyerContext;
         companies?: CompanyContextOption[];
         next?: SignInNext;
-      }>('/auth/login', { email, password, ...(buyerType === undefined ? {} : { buyerType }) });
+      }>('/auth/login', {
+        email,
+        password,
+        ...(buyerType === undefined ? {} : { buyerType }),
+        ...(captchaToken === undefined || captchaToken === null ? {} : { captchaToken }),
+      });
       // A new session is a new buyer: nothing cached for the last one may be
       // shown to this one.
       queryClient.clear();
@@ -98,7 +108,10 @@ export function SessionProvider({ children }: { children: ReactNode }): React.JS
         buyerContext: result.buyerContext ?? INDIVIDUAL,
         companies: result.companies ?? [],
       });
-      return { next: result.next ?? 'READY' };
+      return {
+        next: result.next ?? 'READY',
+        mfaChallengeRequired: result.user.mfaChallengeRequired === true,
+      };
     },
     [],
   );
@@ -139,7 +152,13 @@ export function SessionProvider({ children }: { children: ReactNode }): React.JS
       isLoading,
       // An activated customer has a profile id. Without one the account exists
       // but has never accepted its invitation, and no cart call will succeed.
-      isCustomer: user !== null && user.type === 'CUSTOMER' && user.customerProfileId !== null,
+      // And one that still owes its two-step code is not signed in yet: the
+      // server refuses it everything but the challenge.
+      isCustomer:
+        user !== null &&
+        user.type === 'CUSTOMER' &&
+        user.customerProfileId !== null &&
+        user.mfaChallengeRequired !== true,
       login,
       logout,
       refreshUser: loadUser,

@@ -60,6 +60,7 @@ services:
       MARIADB_MIGRATE_PASSWORD: ${COMPAT_DB_MIGRATE_PASSWORD:?set COMPAT_DB_MIGRATE_PASSWORD in deploy/compat/.env}
       MARIADB_APP_PASSWORD: ${COMPAT_DB_APP_PASSWORD:?set COMPAT_DB_APP_PASSWORD in deploy/compat/.env}
       MARIADB_BACKUP_PASSWORD: ${COMPAT_DB_BACKUP_PASSWORD:?set COMPAT_DB_BACKUP_PASSWORD in deploy/compat/.env}
+      MARIADB_MAINTENANCE_PASSWORD: ${COMPAT_DB_MAINTENANCE_PASSWORD:?set COMPAT_DB_MAINTENANCE_PASSWORD in deploy/compat/.env}
       # The image reads these when it initialises an empty volume. The databases
       # and the three non-root users are created by initdb/01-databases.sql so
       # that the grants are the same ones bootstrap.sh issues in production.

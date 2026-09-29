@@ -308,6 +308,19 @@ export interface ShipmentDetail {
   hasProofOfDelivery: boolean;
 
   /**
+   * What a proof of delivery must include for this shipment, from its SLA
+   * policy. Optional so a response cached from before it existed reads as the
+   * server's own default - a recipient's name - rather than as nothing.
+   */
+  podRequirements?: PodRequirements;
+
+  /**
+   * Whether a delivery code is live, where the policy asks for one; null (or
+   * absent, from an older response) where it does not. Never the code.
+   */
+  deliveryCode?: DeliveryCodeState | null;
+
+  /**
    * NULL IS A REAL ANSWER and is rendered as "Live location unavailable".
    *
    * Nothing in this portal interpolates a position, animates between two
@@ -717,4 +730,31 @@ export interface LiveLocation {
   accuracyM: number | null;
   at: string;
   ageSeconds: number;
+}
+
+/** Which parts of a proof of delivery a shipment's SLA policy demands. */
+export interface PodRequirements {
+  requiresRecipientName: boolean;
+  requiresSignature: boolean;
+  requiresPhoto: boolean;
+  requiresOtp: boolean;
+  requiresDesignation: boolean;
+}
+
+/**
+ * The delivery code for a shipment, as far as the carrier may know it: whether
+ * one is live and when another may be sent. The code itself goes only to the
+ * person receiving the shipment, by email.
+ */
+export interface DeliveryCodeState {
+  /** EXPIRED and LOCKED (too many wrong codes) both mean: send a new one. */
+  status: 'NOT_SENT' | 'ACTIVE' | 'EXPIRED' | 'LOCKED' | 'USED';
+  /** False when there is nobody to send a code to. */
+  canBeSent: boolean;
+  sentAt: string | null;
+  expiresAt: string | null;
+  attemptsLeft: number | null;
+  /** The earliest another code may be sent; null when none may be sent today. */
+  nextSendAt: string | null;
+  sendsLeftToday: number;
 }

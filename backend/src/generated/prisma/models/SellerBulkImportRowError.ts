@@ -43,6 +43,7 @@ export type SellerBulkImportRowErrorMinAggregateOutputType = {
   message: string | null
   rawValue: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerBulkImportRowErrorMaxAggregateOutputType = {
@@ -54,6 +55,7 @@ export type SellerBulkImportRowErrorMaxAggregateOutputType = {
   message: string | null
   rawValue: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerBulkImportRowErrorCountAggregateOutputType = {
@@ -65,6 +67,7 @@ export type SellerBulkImportRowErrorCountAggregateOutputType = {
   message: number
   rawValue: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -86,6 +89,7 @@ export type SellerBulkImportRowErrorMinAggregateInputType = {
   message?: true
   rawValue?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerBulkImportRowErrorMaxAggregateInputType = {
@@ -97,6 +101,7 @@ export type SellerBulkImportRowErrorMaxAggregateInputType = {
   message?: true
   rawValue?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerBulkImportRowErrorCountAggregateInputType = {
@@ -108,6 +113,7 @@ export type SellerBulkImportRowErrorCountAggregateInputType = {
   message?: true
   rawValue?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -206,6 +212,7 @@ export type SellerBulkImportRowErrorGroupByOutputType = {
   message: string
   rawValue: string | null
   createdAt: Date
+  updatedAt: Date
   _count: SellerBulkImportRowErrorCountAggregateOutputType | null
   _avg: SellerBulkImportRowErrorAvgAggregateOutputType | null
   _sum: SellerBulkImportRowErrorSumAggregateOutputType | null
@@ -240,6 +247,7 @@ export type SellerBulkImportRowErrorWhereInput = {
   message?: Prisma.StringFilter<"SellerBulkImportRowError"> | string
   rawValue?: Prisma.StringNullableFilter<"SellerBulkImportRowError"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerBulkImportRowError"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerBulkImportRowError"> | Date | string
   job?: Prisma.XOR<Prisma.SellerBulkImportJobScalarRelationFilter, Prisma.SellerBulkImportJobWhereInput>
 }
 
@@ -252,6 +260,7 @@ export type SellerBulkImportRowErrorOrderByWithRelationInput = {
   message?: Prisma.SortOrder
   rawValue?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   job?: Prisma.SellerBulkImportJobOrderByWithRelationInput
   _relevance?: Prisma.SellerBulkImportRowErrorOrderByRelevanceInput
 }
@@ -268,6 +277,7 @@ export type SellerBulkImportRowErrorWhereUniqueInput = Prisma.AtLeast<{
   message?: Prisma.StringFilter<"SellerBulkImportRowError"> | string
   rawValue?: Prisma.StringNullableFilter<"SellerBulkImportRowError"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerBulkImportRowError"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerBulkImportRowError"> | Date | string
   job?: Prisma.XOR<Prisma.SellerBulkImportJobScalarRelationFilter, Prisma.SellerBulkImportJobWhereInput>
 }, "id">
 
@@ -280,6 +290,7 @@ export type SellerBulkImportRowErrorOrderByWithAggregationInput = {
   message?: Prisma.SortOrder
   rawValue?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerBulkImportRowErrorCountOrderByAggregateInput
   _avg?: Prisma.SellerBulkImportRowErrorAvgOrderByAggregateInput
   _max?: Prisma.SellerBulkImportRowErrorMaxOrderByAggregateInput
@@ -299,6 +310,7 @@ export type SellerBulkImportRowErrorScalarWhereWithAggregatesInput = {
   message?: Prisma.StringWithAggregatesFilter<"SellerBulkImportRowError"> | string
   rawValue?: Prisma.StringNullableWithAggregatesFilter<"SellerBulkImportRowError"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerBulkImportRowError"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerBulkImportRowError"> | Date | string
 }
 
 export type SellerBulkImportRowErrorCreateInput = {
@@ -309,6 +321,7 @@ export type SellerBulkImportRowErrorCreateInput = {
   message: string
   rawValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   job: Prisma.SellerBulkImportJobCreateNestedOneWithoutRowErrorsInput
 }
 
@@ -321,6 +334,7 @@ export type SellerBulkImportRowErrorUncheckedCreateInput = {
   message: string
   rawValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerBulkImportRowErrorUpdateInput = {
@@ -331,6 +345,7 @@ export type SellerBulkImportRowErrorUpdateInput = {
   message?: Prisma.StringFieldUpdateOperationsInput | string
   rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   job?: Prisma.SellerBulkImportJobUpdateOneRequiredWithoutRowErrorsNestedInput
 }
 
@@ -343,6 +358,7 @@ export type SellerBulkImportRowErrorUncheckedUpdateInput = {
   message?: Prisma.StringFieldUpdateOperationsInput | string
   rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerBulkImportRowErrorCreateManyInput = {
@@ -354,6 +370,7 @@ export type SellerBulkImportRowErrorCreateManyInput = {
   message: string
   rawValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerBulkImportRowErrorUpdateManyMutationInput = {
@@ -364,6 +381,7 @@ export type SellerBulkImportRowErrorUpdateManyMutationInput = {
   message?: Prisma.StringFieldUpdateOperationsInput | string
   rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerBulkImportRowErrorUncheckedUpdateManyInput = {
@@ -375,6 +393,7 @@ export type SellerBulkImportRowErrorUncheckedUpdateManyInput = {
   message?: Prisma.StringFieldUpdateOperationsInput | string
   rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerBulkImportRowErrorListRelationFilter = {
@@ -402,6 +421,7 @@ export type SellerBulkImportRowErrorCountOrderByAggregateInput = {
   message?: Prisma.SortOrder
   rawValue?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerBulkImportRowErrorAvgOrderByAggregateInput = {
@@ -417,6 +437,7 @@ export type SellerBulkImportRowErrorMaxOrderByAggregateInput = {
   message?: Prisma.SortOrder
   rawValue?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerBulkImportRowErrorMinOrderByAggregateInput = {
@@ -428,6 +449,7 @@ export type SellerBulkImportRowErrorMinOrderByAggregateInput = {
   message?: Prisma.SortOrder
   rawValue?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerBulkImportRowErrorSumOrderByAggregateInput = {
@@ -484,6 +506,7 @@ export type SellerBulkImportRowErrorCreateWithoutJobInput = {
   message: string
   rawValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerBulkImportRowErrorUncheckedCreateWithoutJobInput = {
@@ -494,6 +517,7 @@ export type SellerBulkImportRowErrorUncheckedCreateWithoutJobInput = {
   message: string
   rawValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerBulkImportRowErrorCreateOrConnectWithoutJobInput = {
@@ -534,6 +558,7 @@ export type SellerBulkImportRowErrorScalarWhereInput = {
   message?: Prisma.StringFilter<"SellerBulkImportRowError"> | string
   rawValue?: Prisma.StringNullableFilter<"SellerBulkImportRowError"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerBulkImportRowError"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerBulkImportRowError"> | Date | string
 }
 
 export type SellerBulkImportRowErrorCreateManyJobInput = {
@@ -544,6 +569,7 @@ export type SellerBulkImportRowErrorCreateManyJobInput = {
   message: string
   rawValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerBulkImportRowErrorUpdateWithoutJobInput = {
@@ -554,6 +580,7 @@ export type SellerBulkImportRowErrorUpdateWithoutJobInput = {
   message?: Prisma.StringFieldUpdateOperationsInput | string
   rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerBulkImportRowErrorUncheckedUpdateWithoutJobInput = {
@@ -564,6 +591,7 @@ export type SellerBulkImportRowErrorUncheckedUpdateWithoutJobInput = {
   message?: Prisma.StringFieldUpdateOperationsInput | string
   rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerBulkImportRowErrorUncheckedUpdateManyWithoutJobInput = {
@@ -574,6 +602,7 @@ export type SellerBulkImportRowErrorUncheckedUpdateManyWithoutJobInput = {
   message?: Prisma.StringFieldUpdateOperationsInput | string
   rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -587,6 +616,7 @@ export type SellerBulkImportRowErrorSelect<ExtArgs extends runtime.Types.Extensi
   message?: boolean
   rawValue?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   job?: boolean | Prisma.SellerBulkImportJobDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerBulkImportRowError"]>
 
@@ -601,9 +631,10 @@ export type SellerBulkImportRowErrorSelectScalar = {
   message?: boolean
   rawValue?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerBulkImportRowErrorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobId" | "rowNumber" | "columnName" | "code" | "message" | "rawValue" | "createdAt", ExtArgs["result"]["sellerBulkImportRowError"]>
+export type SellerBulkImportRowErrorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobId" | "rowNumber" | "columnName" | "code" | "message" | "rawValue" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerBulkImportRowError"]>
 export type SellerBulkImportRowErrorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.SellerBulkImportJobDefaultArgs<ExtArgs>
 }
@@ -630,6 +661,7 @@ export type $SellerBulkImportRowErrorPayload<ExtArgs extends runtime.Types.Exten
      */
     rawValue: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerBulkImportRowError"]>
   composites: {}
 }
@@ -1008,6 +1040,7 @@ export interface SellerBulkImportRowErrorFieldRefs {
   readonly message: Prisma.FieldRef<"SellerBulkImportRowError", 'String'>
   readonly rawValue: Prisma.FieldRef<"SellerBulkImportRowError", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerBulkImportRowError", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerBulkImportRowError", 'DateTime'>
 }
     
 

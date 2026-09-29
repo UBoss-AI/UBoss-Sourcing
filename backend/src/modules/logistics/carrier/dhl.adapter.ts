@@ -25,10 +25,11 @@
  * this is not the SSRF surface `outbound-http` was written for - but it is
  * also where the timeout, the response-size ceiling and the redirect
  * revalidation live, and a carrier call without those is a carrier call that
- * can hang a worker.
+ * can hang a worker. It is reached through `carrierFetch`, which turns a
+ * timeout or an unreachable host into CARRIER_REQUEST_FAILED rather than
+ * letting the transport error escape as a bare 500.
  */
 import type { CarrierProviderName } from '../../../domain/carrier-status-map.js';
-import { safeFetch } from '../../../infra/outbound-http.js';
 import { safeCarrierMessage } from '../../seller/carrier-credential.service.js';
 import {
   unsupported,
@@ -45,7 +46,7 @@ import {
   type TrackingEvent,
   type TrackingResult,
 } from './adapter.js';
-import { carrierRefused } from './registry.js';
+import { carrierFetch, carrierRefused } from './registry.js';
 
 /**
  * Where MyDHL lives.
@@ -131,7 +132,7 @@ export class DhlApiAdapter implements CarrierAdapter {
     const query =
       init.query === undefined ? '' : `?${new URLSearchParams(init.query).toString()}`;
 
-    const result = await safeFetch(`${this.baseUrl}${path}${query}`, {
+    const result = await carrierFetch('DHL', `${this.baseUrl}${path}${query}`, {
       method: init.method,
       headers: {
         authorization: this.authorization,

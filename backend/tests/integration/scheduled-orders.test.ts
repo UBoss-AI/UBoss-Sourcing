@@ -1682,3 +1682,163 @@ describe('the idempotency key', () => {
     expect(rows[0]?.k).toBe(occurrenceIdempotencyKey(scheduleId, slot));
   });
 });
+
+describe('the customer’s own auto-pay limits', () => {
+  // Account-wide limits bind every off-session charge, a schedule's included.
+  // Before this was wired in, evaluateAutoPay() had no caller at all: a limit
+  // the customer set was stored, shown back to them, and never applied.
+  const customerAutoPay = env.FEATURE_CUSTOMER_AUTOPAY;
+
+  beforeEach(() => {
+    Object.assign(env as unknown as { FEATURE_CUSTOMER_AUTOPAY: boolean }, {
+      FEATURE_CUSTOMER_AUTOPAY: true,
+    });
+  });
+
+  afterEach(() => {
+    Object.assign(env as unknown as { FEATURE_CUSTOMER_AUTOPAY: boolean }, {
+      FEATURE_CUSTOMER_AUTOPAY: customerAutoPay,
+    });
+  });
+
+  async function setLimits(limits: {
+    status?: 'ACTIVE' | 'PAUSED';
+    maxTransactionMinor?: bigint | null;
+    approvalThresholdMinor?: bigint | null;
+  }): Promise<void> {
+    await prisma.customerAutoPaySetting.create({
+      data: {
+        id: newId(),
+        customerProfileId,
+        status: limits.status ?? 'ACTIVE',
+        paymentMethodId,
+        maxTransactionMinor: limits.maxTransactionMinor ?? null,
+        approvalThresholdMinor: limits.approvalThresholdMinor ?? null,
+        limitCurrency: 'INR',
+        consentAcceptedAt: new Date(),
+        consentVersion: 'test',
+        enabledAt: new Date(),
+        ...(limits.status === 'PAUSED' ? { pausedAt: new Date() } : {}),
+      },
+    });
+  }
+
+  it('refuses a charge above the customer’s maximum, before any order exists', async () => {
+    await fillCart(10);
+    const scheduleId = await liveSchedule(subscriptionConfig());
+    // The basket costs 236,000; the customer said nothing above 100,000.
+    await setLimits({ maxTransactionMinor: 100_000n });
+
+    const slot = await makeDue(scheduleId);
+    const outcome = await runOccurrence(scheduleId, slot);
+
+    expect(outcome.result).toBe('SKIPPED');
+    expect(world.chargeCalls).toHaveLength(0);
+    expect(await prisma.order.count()).toBe(0);
+
+    const occurrence = await prisma.scheduleOccurrence.findFirstOrThrow({
+      where: { plannedRunAt: slot },
+    });
+    expect(occurrence.status).toBe('SKIPPED');
+    expect(occurrence.failureCode).toBe('AUTOPAY_LIMIT_EXCEEDED');
+
+    // A limit the customer set refuses the next run too, so the plan waits
+    // for them rather than failing quietly every cycle.
+    const plan = await prisma.recurringSchedule.findUniqueOrThrow({ where: { id: scheduleId } });
+    expect(plan.status).toBe('PAUSED');
+
+    const notice = await prisma.notificationOutbox.findFirstOrThrow({
+      where: { eventKey: 'schedule.paused' },
+    });
+    // The reason travels in the message variables; the test database seeds no
+    // template for this event, so the rendered body is the generic fallback.
+    expect(JSON.stringify(notice.payloadJson)).toContain('did not take payment');
+    expect(JSON.stringify(notice.payloadJson)).toContain('above the maximum you set');
+
+    const withheld = await prisma.auditLog.findFirstOrThrow({
+      where: { action: 'autopay.charge_withheld' },
+    });
+    expect(withheld.afterJson).toMatchObject({ outcome: 'REFUSE', code: 'AUTOPAY_LIMIT_EXCEEDED' });
+  });
+
+  it('asks the customer instead of charging above their approval threshold', async () => {
+    await fillCart(10);
+    const scheduleId = await liveSchedule(subscriptionConfig());
+    await setLimits({ maxTransactionMinor: 500_000n, approvalThresholdMinor: 200_000n });
+
+    const slot = await makeDue(scheduleId);
+    const outcome = await runOccurrence(scheduleId, slot);
+
+    expect(outcome.result).toBe('ACTION_REQUIRED');
+    // Asked, not charged.
+    expect(world.chargeCalls).toHaveLength(0);
+
+    const order = await prisma.order.findFirstOrThrow();
+    expect(order.status).toBe('PENDING_PAYMENT');
+    expect(order.paidMinor).toBe(0n);
+
+    const occurrence = await prisma.scheduleOccurrence.findFirstOrThrow({
+      where: { plannedRunAt: slot },
+    });
+    expect(occurrence.status).toBe('ACTION_REQUIRED');
+    expect(occurrence.failureCode).toBe('AUTOPAY_APPROVAL_REQUIRED');
+
+    // A one-off question about this delivery: the plan carries on.
+    const plan = await prisma.recurringSchedule.findUniqueOrThrow({ where: { id: scheduleId } });
+    expect(plan.status).toBe('ACTIVE');
+
+    const notice = await prisma.notificationOutbox.findFirstOrThrow({
+      where: { eventKey: 'schedule.payment_action_required' },
+    });
+    expect(notice.body).toContain(`/orders/${order.id}/pay`);
+
+    const withheld = await prisma.auditLog.findFirstOrThrow({
+      where: { action: 'autopay.charge_withheld', resourceId: order.id },
+    });
+    expect(withheld.afterJson).toMatchObject({ outcome: 'ASK_CUSTOMER' });
+  });
+
+  it('charges as normal when the amount is inside the customer’s limits', async () => {
+    await fillCart(10);
+    const scheduleId = await liveSchedule(subscriptionConfig());
+    await setLimits({ maxTransactionMinor: 500_000n, approvalThresholdMinor: 300_000n });
+
+    const slot = await makeDue(scheduleId);
+    currentAmountMinor = 236_000;
+    const outcome = await runOccurrence(scheduleId, slot);
+
+    expect(outcome.result).toBe('COMPLETED');
+    expect(world.chargeCalls).toHaveLength(1);
+    expect(await prisma.auditLog.count({ where: { action: 'autopay.charge_withheld' } })).toBe(0);
+  });
+
+  it('takes nothing while the customer has paused automatic payment', async () => {
+    await fillCart(10);
+    const scheduleId = await liveSchedule(subscriptionConfig());
+    await setLimits({ status: 'PAUSED' });
+
+    const slot = await makeDue(scheduleId);
+    const outcome = await runOccurrence(scheduleId, slot);
+
+    expect(outcome.result).toBe('SKIPPED');
+    expect(world.chargeCalls).toHaveLength(0);
+    expect(await prisma.order.count()).toBe(0);
+
+    const occurrence = await prisma.scheduleOccurrence.findFirstOrThrow({
+      where: { plannedRunAt: slot },
+    });
+    expect(occurrence.failureCode).toBe('AUTOPAY_NOT_ENABLED');
+  });
+
+  it('leaves a schedule with no account-wide limits governed by its own consent', async () => {
+    await fillCart(10);
+    const scheduleId = await liveSchedule(subscriptionConfig());
+
+    const slot = await makeDue(scheduleId);
+    currentAmountMinor = 236_000;
+    const outcome = await runOccurrence(scheduleId, slot);
+
+    expect(outcome.result).toBe('COMPLETED');
+    expect(world.chargeCalls).toHaveLength(1);
+  });
+});

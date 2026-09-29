@@ -32,6 +32,8 @@ export type ProductPackDimensionMinAggregateOutputType = {
   displayValue: string | null
   unit: string | null
   parseStatus: $Enums.DimensionParseStatus | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ProductPackDimensionMaxAggregateOutputType = {
@@ -42,6 +44,8 @@ export type ProductPackDimensionMaxAggregateOutputType = {
   displayValue: string | null
   unit: string | null
   parseStatus: $Enums.DimensionParseStatus | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ProductPackDimensionCountAggregateOutputType = {
@@ -52,6 +56,8 @@ export type ProductPackDimensionCountAggregateOutputType = {
   displayValue: number
   unit: number
   parseStatus: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -64,6 +70,8 @@ export type ProductPackDimensionMinAggregateInputType = {
   displayValue?: true
   unit?: true
   parseStatus?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ProductPackDimensionMaxAggregateInputType = {
@@ -74,6 +82,8 @@ export type ProductPackDimensionMaxAggregateInputType = {
   displayValue?: true
   unit?: true
   parseStatus?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ProductPackDimensionCountAggregateInputType = {
@@ -84,6 +94,8 @@ export type ProductPackDimensionCountAggregateInputType = {
   displayValue?: true
   unit?: true
   parseStatus?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -167,6 +179,8 @@ export type ProductPackDimensionGroupByOutputType = {
   displayValue: string | null
   unit: string | null
   parseStatus: $Enums.DimensionParseStatus
+  createdAt: Date
+  updatedAt: Date
   _count: ProductPackDimensionCountAggregateOutputType | null
   _min: ProductPackDimensionMinAggregateOutputType | null
   _max: ProductPackDimensionMaxAggregateOutputType | null
@@ -198,6 +212,8 @@ export type ProductPackDimensionWhereInput = {
   displayValue?: Prisma.StringNullableFilter<"ProductPackDimension"> | string | null
   unit?: Prisma.StringNullableFilter<"ProductPackDimension"> | string | null
   parseStatus?: Prisma.EnumDimensionParseStatusFilter<"ProductPackDimension"> | $Enums.DimensionParseStatus
+  createdAt?: Prisma.DateTimeFilter<"ProductPackDimension"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ProductPackDimension"> | Date | string
   packaging?: Prisma.XOR<Prisma.ProductPackagingScalarRelationFilter, Prisma.ProductPackagingWhereInput>
 }
 
@@ -209,6 +225,8 @@ export type ProductPackDimensionOrderByWithRelationInput = {
   displayValue?: Prisma.SortOrderInput | Prisma.SortOrder
   unit?: Prisma.SortOrderInput | Prisma.SortOrder
   parseStatus?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   packaging?: Prisma.ProductPackagingOrderByWithRelationInput
   _relevance?: Prisma.ProductPackDimensionOrderByRelevanceInput
 }
@@ -225,6 +243,8 @@ export type ProductPackDimensionWhereUniqueInput = Prisma.AtLeast<{
   displayValue?: Prisma.StringNullableFilter<"ProductPackDimension"> | string | null
   unit?: Prisma.StringNullableFilter<"ProductPackDimension"> | string | null
   parseStatus?: Prisma.EnumDimensionParseStatusFilter<"ProductPackDimension"> | $Enums.DimensionParseStatus
+  createdAt?: Prisma.DateTimeFilter<"ProductPackDimension"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ProductPackDimension"> | Date | string
   packaging?: Prisma.XOR<Prisma.ProductPackagingScalarRelationFilter, Prisma.ProductPackagingWhereInput>
 }, "id" | "packagingId_kind">
 
@@ -236,6 +256,8 @@ export type ProductPackDimensionOrderByWithAggregationInput = {
   displayValue?: Prisma.SortOrderInput | Prisma.SortOrder
   unit?: Prisma.SortOrderInput | Prisma.SortOrder
   parseStatus?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductPackDimensionCountOrderByAggregateInput
   _max?: Prisma.ProductPackDimensionMaxOrderByAggregateInput
   _min?: Prisma.ProductPackDimensionMinOrderByAggregateInput
@@ -252,6 +274,8 @@ export type ProductPackDimensionScalarWhereWithAggregatesInput = {
   displayValue?: Prisma.StringNullableWithAggregatesFilter<"ProductPackDimension"> | string | null
   unit?: Prisma.StringNullableWithAggregatesFilter<"ProductPackDimension"> | string | null
   parseStatus?: Prisma.EnumDimensionParseStatusWithAggregatesFilter<"ProductPackDimension"> | $Enums.DimensionParseStatus
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductPackDimension"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductPackDimension"> | Date | string
 }
 
 export type ProductPackDimensionCreateInput = {
@@ -261,6 +285,8 @@ export type ProductPackDimensionCreateInput = {
   displayValue?: string | null
   unit?: string | null
   parseStatus?: $Enums.DimensionParseStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
   packaging: Prisma.ProductPackagingCreateNestedOneWithoutDimensionsInput
 }
 
@@ -272,6 +298,8 @@ export type ProductPackDimensionUncheckedCreateInput = {
   displayValue?: string | null
   unit?: string | null
   parseStatus?: $Enums.DimensionParseStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductPackDimensionUpdateInput = {
@@ -281,6 +309,8 @@ export type ProductPackDimensionUpdateInput = {
   displayValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parseStatus?: Prisma.EnumDimensionParseStatusFieldUpdateOperationsInput | $Enums.DimensionParseStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   packaging?: Prisma.ProductPackagingUpdateOneRequiredWithoutDimensionsNestedInput
 }
 
@@ -292,6 +322,8 @@ export type ProductPackDimensionUncheckedUpdateInput = {
   displayValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parseStatus?: Prisma.EnumDimensionParseStatusFieldUpdateOperationsInput | $Enums.DimensionParseStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductPackDimensionCreateManyInput = {
@@ -302,6 +334,8 @@ export type ProductPackDimensionCreateManyInput = {
   displayValue?: string | null
   unit?: string | null
   parseStatus?: $Enums.DimensionParseStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductPackDimensionUpdateManyMutationInput = {
@@ -311,6 +345,8 @@ export type ProductPackDimensionUpdateManyMutationInput = {
   displayValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parseStatus?: Prisma.EnumDimensionParseStatusFieldUpdateOperationsInput | $Enums.DimensionParseStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductPackDimensionUncheckedUpdateManyInput = {
@@ -321,6 +357,8 @@ export type ProductPackDimensionUncheckedUpdateManyInput = {
   displayValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parseStatus?: Prisma.EnumDimensionParseStatusFieldUpdateOperationsInput | $Enums.DimensionParseStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductPackDimensionListRelationFilter = {
@@ -352,6 +390,8 @@ export type ProductPackDimensionCountOrderByAggregateInput = {
   displayValue?: Prisma.SortOrder
   unit?: Prisma.SortOrder
   parseStatus?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductPackDimensionMaxOrderByAggregateInput = {
@@ -362,6 +402,8 @@ export type ProductPackDimensionMaxOrderByAggregateInput = {
   displayValue?: Prisma.SortOrder
   unit?: Prisma.SortOrder
   parseStatus?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductPackDimensionMinOrderByAggregateInput = {
@@ -372,6 +414,8 @@ export type ProductPackDimensionMinOrderByAggregateInput = {
   displayValue?: Prisma.SortOrder
   unit?: Prisma.SortOrder
   parseStatus?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductPackDimensionCreateNestedManyWithoutPackagingInput = {
@@ -431,6 +475,8 @@ export type ProductPackDimensionCreateWithoutPackagingInput = {
   displayValue?: string | null
   unit?: string | null
   parseStatus?: $Enums.DimensionParseStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductPackDimensionUncheckedCreateWithoutPackagingInput = {
@@ -440,6 +486,8 @@ export type ProductPackDimensionUncheckedCreateWithoutPackagingInput = {
   displayValue?: string | null
   unit?: string | null
   parseStatus?: $Enums.DimensionParseStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductPackDimensionCreateOrConnectWithoutPackagingInput = {
@@ -479,6 +527,8 @@ export type ProductPackDimensionScalarWhereInput = {
   displayValue?: Prisma.StringNullableFilter<"ProductPackDimension"> | string | null
   unit?: Prisma.StringNullableFilter<"ProductPackDimension"> | string | null
   parseStatus?: Prisma.EnumDimensionParseStatusFilter<"ProductPackDimension"> | $Enums.DimensionParseStatus
+  createdAt?: Prisma.DateTimeFilter<"ProductPackDimension"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ProductPackDimension"> | Date | string
 }
 
 export type ProductPackDimensionCreateManyPackagingInput = {
@@ -488,6 +538,8 @@ export type ProductPackDimensionCreateManyPackagingInput = {
   displayValue?: string | null
   unit?: string | null
   parseStatus?: $Enums.DimensionParseStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductPackDimensionUpdateWithoutPackagingInput = {
@@ -497,6 +549,8 @@ export type ProductPackDimensionUpdateWithoutPackagingInput = {
   displayValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parseStatus?: Prisma.EnumDimensionParseStatusFieldUpdateOperationsInput | $Enums.DimensionParseStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductPackDimensionUncheckedUpdateWithoutPackagingInput = {
@@ -506,6 +560,8 @@ export type ProductPackDimensionUncheckedUpdateWithoutPackagingInput = {
   displayValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parseStatus?: Prisma.EnumDimensionParseStatusFieldUpdateOperationsInput | $Enums.DimensionParseStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductPackDimensionUncheckedUpdateManyWithoutPackagingInput = {
@@ -515,6 +571,8 @@ export type ProductPackDimensionUncheckedUpdateManyWithoutPackagingInput = {
   displayValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parseStatus?: Prisma.EnumDimensionParseStatusFieldUpdateOperationsInput | $Enums.DimensionParseStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -527,6 +585,8 @@ export type ProductPackDimensionSelect<ExtArgs extends runtime.Types.Extensions.
   displayValue?: boolean
   unit?: boolean
   parseStatus?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   packaging?: boolean | Prisma.ProductPackagingDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productPackDimension"]>
 
@@ -540,9 +600,11 @@ export type ProductPackDimensionSelectScalar = {
   displayValue?: boolean
   unit?: boolean
   parseStatus?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ProductPackDimensionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "packagingId" | "kind" | "rawText" | "displayValue" | "unit" | "parseStatus", ExtArgs["result"]["productPackDimension"]>
+export type ProductPackDimensionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "packagingId" | "kind" | "rawText" | "displayValue" | "unit" | "parseStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["productPackDimension"]>
 export type ProductPackDimensionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   packaging?: boolean | Prisma.ProductPackagingDefaultArgs<ExtArgs>
 }
@@ -573,6 +635,8 @@ export type $ProductPackDimensionPayload<ExtArgs extends runtime.Types.Extension
      */
     unit: string | null
     parseStatus: $Enums.DimensionParseStatus
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["productPackDimension"]>
   composites: {}
 }
@@ -950,6 +1014,8 @@ export interface ProductPackDimensionFieldRefs {
   readonly displayValue: Prisma.FieldRef<"ProductPackDimension", 'String'>
   readonly unit: Prisma.FieldRef<"ProductPackDimension", 'String'>
   readonly parseStatus: Prisma.FieldRef<"ProductPackDimension", 'DimensionParseStatus'>
+  readonly createdAt: Prisma.FieldRef<"ProductPackDimension", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ProductPackDimension", 'DateTime'>
 }
     
 

@@ -7,6 +7,7 @@
  * presence passes happily the day somebody adds `gstin` to the response.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { env } from '../../src/config/env.js';
 import { buildApp } from '../../src/http/app.js';
 import { prisma } from '../../src/infra/prisma.js';
 
@@ -116,6 +117,11 @@ describe('GET /api/v1/config', () => {
       // context switcher are offered. A boolean; which companies a person
       // belongs to is never public.
       'buyerCompanies',
+      // Whether /account/autopay can be used (both Autopay flags on) and
+      // whether /account/integrations/erp can. Booleans; the home hub uses them
+      // so its cards never lead to a feature this deployment switched off.
+      'customerAutopay',
+      'customerErp',
       // Whether the camera button on the search bar can do anything. Tracks
       // `assistant` today — image search is a vision call on the same provider
       // — but travels as its own field so the storefront never infers one
@@ -181,6 +187,71 @@ describe('GET /api/v1/config', () => {
     expect(typeof body.features.selfRegistration).toBe('boolean');
     expect(typeof body.features.selfRegistrationRequiresApproval).toBe('boolean');
     expect(typeof body.features.recurringOrders).toBe('boolean');
+  });
+
+  it('says whether customer Autopay and the buyer ERP can be used, so the home hub never links to a switched-off feature', async () => {
+    type Flags = {
+      FEATURE_CUSTOMER_AUTOPAY: boolean;
+      FEATURE_SUBSCRIPTION_AUTOPAY: boolean;
+      FEATURE_CUSTOMER_ERP: boolean;
+    };
+    const mutable = env as unknown as Flags;
+    const saved: Flags = {
+      FEATURE_CUSTOMER_AUTOPAY: mutable.FEATURE_CUSTOMER_AUTOPAY,
+      FEATURE_SUBSCRIPTION_AUTOPAY: mutable.FEATURE_SUBSCRIPTION_AUTOPAY,
+      FEATURE_CUSTOMER_ERP: mutable.FEATURE_CUSTOMER_ERP,
+    };
+    const read = async () =>
+      (await app.inject({ method: 'GET', url: '/api/v1/config' })).json<ConfigResponse>().features;
+
+    try {
+      Object.assign(mutable, { FEATURE_CUSTOMER_AUTOPAY: false, FEATURE_SUBSCRIPTION_AUTOPAY: false, FEATURE_CUSTOMER_ERP: false });
+      expect(await read()).toMatchObject({ customerAutopay: false, customerErp: false });
+
+      // Autopay needs the card enrolment its sibling flag gates, so one alone is off.
+      Object.assign(mutable, { FEATURE_CUSTOMER_AUTOPAY: true });
+      expect((await read()).customerAutopay).toBe(false);
+
+      Object.assign(mutable, { FEATURE_SUBSCRIPTION_AUTOPAY: true, FEATURE_CUSTOMER_ERP: true });
+      expect(await read()).toMatchObject({ customerAutopay: true, customerErp: true });
+    } finally {
+      Object.assign(mutable, saved);
+    }
+  });
+
+  it('offers Autopay only once Stripe is connected, although the flags are on by default', async () => {
+    // Automatic payment charges a saved card while the customer is away, which
+    // only Stripe does here. With no Stripe connected the store still starts
+    // (this used to be a start-up refusal), and customers are simply not
+    // offered it - rather than consenting to charges that could never be made.
+    type Keys = {
+      FEATURE_CUSTOMER_AUTOPAY: boolean;
+      FEATURE_SUBSCRIPTION_AUTOPAY: boolean;
+      STRIPE_SECRET_KEY: string;
+      STRIPE_PUBLISHABLE_KEY: string;
+    };
+    const mutable = env as unknown as Keys;
+    const saved: Keys = {
+      FEATURE_CUSTOMER_AUTOPAY: mutable.FEATURE_CUSTOMER_AUTOPAY,
+      FEATURE_SUBSCRIPTION_AUTOPAY: mutable.FEATURE_SUBSCRIPTION_AUTOPAY,
+      STRIPE_SECRET_KEY: mutable.STRIPE_SECRET_KEY,
+      STRIPE_PUBLISHABLE_KEY: mutable.STRIPE_PUBLISHABLE_KEY,
+    };
+    // The precondition the assertion depends on: no gateway saved in Settings > Payments.
+    expect(await prisma.paymentProviderConnection.count({ where: { isActive: true } })).toBe(0);
+
+    try {
+      Object.assign(mutable, { FEATURE_CUSTOMER_AUTOPAY: true, FEATURE_SUBSCRIPTION_AUTOPAY: true });
+      Object.assign(mutable, { STRIPE_SECRET_KEY: '', STRIPE_PUBLISHABLE_KEY: '' });
+      const withoutStripe = await app.inject({ method: 'GET', url: '/api/v1/config' });
+      expect(withoutStripe.json<ConfigResponse>().features.customerAutopay).toBe(false);
+
+      Object.assign(mutable, { STRIPE_SECRET_KEY: saved.STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY: saved.STRIPE_PUBLISHABLE_KEY });
+      const withStripe = await app.inject({ method: 'GET', url: '/api/v1/config' });
+      expect(withStripe.json<ConfigResponse>().features.customerAutopay).toBe(true);
+    } finally {
+      Object.assign(mutable, saved);
+    }
   });
 
   /*

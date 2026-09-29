@@ -42,6 +42,7 @@ export function orderStatusLabel(t: Translate, status: string): string {
     DELIVERED: 'orderStatus.delivered',
     CANCELLED: 'orderStatus.cancelled',
     RETURNED: 'orderStatus.returned',
+    REFUNDED: 'orderStatus.refunded',
     PAYMENT_FAILED: 'orderStatus.paymentFailed',
   };
 

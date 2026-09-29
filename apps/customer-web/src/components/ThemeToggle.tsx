@@ -142,7 +142,7 @@ export function ThemeToggle(): React.JSX.Element {
         onClick={() => {
           setPreference(NEXT[preference]);
         }}
-        className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink sm:hidden"
+        className="flex h-10 w-10 shrink-0 cursor-pointer max-[359px]:w-8 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink sm:hidden"
         aria-label={`${t('theme.label')}: ${t(current.labelKey)}. ${t('theme.pressToChange')}`}
         title={`${t('theme.label')}: ${t(current.labelKey)}`}
       >

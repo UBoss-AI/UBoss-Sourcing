@@ -610,6 +610,8 @@ export type ProductWhereInput = {
   instructions?: Prisma.ProductInstructionListRelationFilter
   reviews?: Prisma.ProductReviewListRelationFilter
   countryRestrictions?: Prisma.ProductCountryRestrictionListRelationFilter
+  marketRules?: Prisma.MarketRuleListRelationFilter
+  listingTrust?: Prisma.SellerListingTrustListRelationFilter
   packagings?: Prisma.ProductPackagingListRelationFilter
   importRecords?: Prisma.ProductImportRecordListRelationFilter
   sellerOffers?: Prisma.SellerOfferListRelationFilter
@@ -688,6 +690,8 @@ export type ProductOrderByWithRelationInput = {
   instructions?: Prisma.ProductInstructionOrderByRelationAggregateInput
   reviews?: Prisma.ProductReviewOrderByRelationAggregateInput
   countryRestrictions?: Prisma.ProductCountryRestrictionOrderByRelationAggregateInput
+  marketRules?: Prisma.MarketRuleOrderByRelationAggregateInput
+  listingTrust?: Prisma.SellerListingTrustOrderByRelationAggregateInput
   packagings?: Prisma.ProductPackagingOrderByRelationAggregateInput
   importRecords?: Prisma.ProductImportRecordOrderByRelationAggregateInput
   sellerOffers?: Prisma.SellerOfferOrderByRelationAggregateInput
@@ -770,6 +774,8 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   instructions?: Prisma.ProductInstructionListRelationFilter
   reviews?: Prisma.ProductReviewListRelationFilter
   countryRestrictions?: Prisma.ProductCountryRestrictionListRelationFilter
+  marketRules?: Prisma.MarketRuleListRelationFilter
+  listingTrust?: Prisma.SellerListingTrustListRelationFilter
   packagings?: Prisma.ProductPackagingListRelationFilter
   importRecords?: Prisma.ProductImportRecordListRelationFilter
   sellerOffers?: Prisma.SellerOfferListRelationFilter
@@ -953,6 +959,8 @@ export type ProductCreateInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -1027,6 +1035,8 @@ export type ProductUncheckedCreateInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -1099,6 +1109,8 @@ export type ProductUpdateInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -1173,6 +1185,8 @@ export type ProductUncheckedUpdateInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -2052,6 +2066,36 @@ export type ProductUpdateOneRequiredWithoutDemoEntryNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutDemoEntryInput, Prisma.ProductUpdateWithoutDemoEntryInput>, Prisma.ProductUncheckedUpdateWithoutDemoEntryInput>
 }
 
+export type ProductCreateNestedOneWithoutListingTrustInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutListingTrustInput, Prisma.ProductUncheckedCreateWithoutListingTrustInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutListingTrustInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneRequiredWithoutListingTrustNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutListingTrustInput, Prisma.ProductUncheckedCreateWithoutListingTrustInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutListingTrustInput
+  upsert?: Prisma.ProductUpsertWithoutListingTrustInput
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutListingTrustInput, Prisma.ProductUpdateWithoutListingTrustInput>, Prisma.ProductUncheckedUpdateWithoutListingTrustInput>
+}
+
+export type ProductCreateNestedOneWithoutMarketRulesInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutMarketRulesInput, Prisma.ProductUncheckedCreateWithoutMarketRulesInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutMarketRulesInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneWithoutMarketRulesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutMarketRulesInput, Prisma.ProductUncheckedCreateWithoutMarketRulesInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutMarketRulesInput
+  upsert?: Prisma.ProductUpsertWithoutMarketRulesInput
+  disconnect?: Prisma.ProductWhereInput | boolean
+  delete?: Prisma.ProductWhereInput | boolean
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutMarketRulesInput, Prisma.ProductUpdateWithoutMarketRulesInput>, Prisma.ProductUncheckedUpdateWithoutMarketRulesInput>
+}
+
 export type ProductCreateWithoutTaxClassInput = {
   id: string
   name: string
@@ -2117,6 +2161,8 @@ export type ProductCreateWithoutTaxClassInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -2190,6 +2236,8 @@ export type ProductUncheckedCreateWithoutTaxClassInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -2341,6 +2389,8 @@ export type ProductCreateWithoutCategoryInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -2414,6 +2464,8 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -2511,6 +2563,8 @@ export type ProductCreateWithoutVariantsInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -2584,6 +2638,8 @@ export type ProductUncheckedCreateWithoutVariantsInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -2671,6 +2727,8 @@ export type ProductUpdateWithoutVariantsInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -2744,6 +2802,8 @@ export type ProductUncheckedUpdateWithoutVariantsInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -2815,6 +2875,8 @@ export type ProductCreateWithoutMediaInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -2888,6 +2950,8 @@ export type ProductUncheckedCreateWithoutMediaInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -2975,6 +3039,8 @@ export type ProductUpdateWithoutMediaInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -3048,6 +3114,8 @@ export type ProductUncheckedUpdateWithoutMediaInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -3119,6 +3187,8 @@ export type ProductCreateWithoutAttributesInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -3192,6 +3262,8 @@ export type ProductUncheckedCreateWithoutAttributesInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -3279,6 +3351,8 @@ export type ProductUpdateWithoutAttributesInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -3352,6 +3426,8 @@ export type ProductUncheckedUpdateWithoutAttributesInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -3423,6 +3499,8 @@ export type ProductCreateWithoutDescriptionSectionsInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -3496,6 +3574,8 @@ export type ProductUncheckedCreateWithoutDescriptionSectionsInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -3583,6 +3663,8 @@ export type ProductUpdateWithoutDescriptionSectionsInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -3656,6 +3738,8 @@ export type ProductUncheckedUpdateWithoutDescriptionSectionsInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -3728,6 +3812,8 @@ export type ProductCreateWithoutPackagingsInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
@@ -3801,6 +3887,8 @@ export type ProductUncheckedCreateWithoutPackagingsInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
   demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
@@ -3888,6 +3976,8 @@ export type ProductUpdateWithoutPackagingsInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
@@ -3961,6 +4051,8 @@ export type ProductUncheckedUpdateWithoutPackagingsInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
   demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
@@ -4032,6 +4124,8 @@ export type ProductCreateWithoutImportRecordsInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
@@ -4105,6 +4199,8 @@ export type ProductUncheckedCreateWithoutImportRecordsInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
   demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
@@ -4192,6 +4288,8 @@ export type ProductUpdateWithoutImportRecordsInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
@@ -4265,6 +4363,8 @@ export type ProductUncheckedUpdateWithoutImportRecordsInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
   demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
@@ -4335,6 +4435,8 @@ export type ProductCreateWithoutInventoryBalancesInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -4408,6 +4510,8 @@ export type ProductUncheckedCreateWithoutInventoryBalancesInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -4495,6 +4599,8 @@ export type ProductUpdateWithoutInventoryBalancesInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -4568,6 +4674,8 @@ export type ProductUncheckedUpdateWithoutInventoryBalancesInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -4639,6 +4747,8 @@ export type ProductCreateWithoutInventoryMovementsInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -4712,6 +4822,8 @@ export type ProductUncheckedCreateWithoutInventoryMovementsInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -4799,6 +4911,8 @@ export type ProductUpdateWithoutInventoryMovementsInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -4872,6 +4986,8 @@ export type ProductUncheckedUpdateWithoutInventoryMovementsInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -4943,6 +5059,8 @@ export type ProductCreateWithoutStockReservationsInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -5016,6 +5134,8 @@ export type ProductUncheckedCreateWithoutStockReservationsInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -5103,6 +5223,8 @@ export type ProductUpdateWithoutStockReservationsInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -5176,6 +5298,8 @@ export type ProductUncheckedUpdateWithoutStockReservationsInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -5247,6 +5371,8 @@ export type ProductCreateWithoutCartItemsInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -5320,6 +5446,8 @@ export type ProductUncheckedCreateWithoutCartItemsInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -5407,6 +5535,8 @@ export type ProductUpdateWithoutCartItemsInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -5480,6 +5610,8 @@ export type ProductUncheckedUpdateWithoutCartItemsInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -5551,6 +5683,8 @@ export type ProductCreateWithoutOrderItemsInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -5624,6 +5758,8 @@ export type ProductUncheckedCreateWithoutOrderItemsInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -5711,6 +5847,8 @@ export type ProductUpdateWithoutOrderItemsInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -5784,6 +5922,8 @@ export type ProductUncheckedUpdateWithoutOrderItemsInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -5855,6 +5995,8 @@ export type ProductCreateWithoutScheduleItemsInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -5928,6 +6070,8 @@ export type ProductUncheckedCreateWithoutScheduleItemsInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -6004,6 +6148,8 @@ export type ProductCreateWithoutSubstituteForItemsInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -6077,6 +6223,8 @@ export type ProductUncheckedCreateWithoutSubstituteForItemsInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -6164,6 +6312,8 @@ export type ProductUpdateWithoutScheduleItemsInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -6237,6 +6387,8 @@ export type ProductUncheckedUpdateWithoutScheduleItemsInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -6319,6 +6471,8 @@ export type ProductUpdateWithoutSubstituteForItemsInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -6392,6 +6546,8 @@ export type ProductUncheckedUpdateWithoutSubstituteForItemsInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -6463,6 +6619,8 @@ export type ProductCreateWithoutPricesInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -6536,6 +6694,8 @@ export type ProductUncheckedCreateWithoutPricesInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -6623,6 +6783,8 @@ export type ProductUpdateWithoutPricesInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -6696,6 +6858,8 @@ export type ProductUncheckedUpdateWithoutPricesInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -6767,6 +6931,8 @@ export type ProductCreateWithoutTranslationsInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -6840,6 +7006,8 @@ export type ProductUncheckedCreateWithoutTranslationsInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -6927,6 +7095,8 @@ export type ProductUpdateWithoutTranslationsInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -7000,6 +7170,8 @@ export type ProductUncheckedUpdateWithoutTranslationsInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -7071,6 +7243,8 @@ export type ProductCreateWithoutManufacturerInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -7144,6 +7318,8 @@ export type ProductUncheckedCreateWithoutManufacturerInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -7225,6 +7401,8 @@ export type ProductCreateWithoutEuResponsibleInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -7298,6 +7476,8 @@ export type ProductUncheckedCreateWithoutEuResponsibleInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -7411,6 +7591,8 @@ export type ProductCreateWithoutDeviceInfoInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -7484,6 +7666,8 @@ export type ProductUncheckedCreateWithoutDeviceInfoInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -7571,6 +7755,8 @@ export type ProductUpdateWithoutDeviceInfoInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -7644,6 +7830,8 @@ export type ProductUncheckedUpdateWithoutDeviceInfoInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -7715,6 +7903,8 @@ export type ProductCreateWithoutCountryRestrictionsInput = {
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -7788,6 +7978,8 @@ export type ProductUncheckedCreateWithoutCountryRestrictionsInput = {
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -7875,6 +8067,8 @@ export type ProductUpdateWithoutCountryRestrictionsInput = {
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -7948,6 +8142,8 @@ export type ProductUncheckedUpdateWithoutCountryRestrictionsInput = {
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -8019,6 +8215,8 @@ export type ProductCreateWithoutWishlistItemsInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -8092,6 +8290,8 @@ export type ProductUncheckedCreateWithoutWishlistItemsInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -8179,6 +8379,8 @@ export type ProductUpdateWithoutWishlistItemsInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -8252,6 +8454,8 @@ export type ProductUncheckedUpdateWithoutWishlistItemsInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -8323,6 +8527,8 @@ export type ProductCreateWithoutInstructionsInput = {
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -8396,6 +8602,8 @@ export type ProductUncheckedCreateWithoutInstructionsInput = {
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -8483,6 +8691,8 @@ export type ProductUpdateWithoutInstructionsInput = {
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -8556,6 +8766,8 @@ export type ProductUncheckedUpdateWithoutInstructionsInput = {
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -8627,6 +8839,8 @@ export type ProductCreateWithoutReviewsInput = {
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -8700,6 +8914,8 @@ export type ProductUncheckedCreateWithoutReviewsInput = {
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -8787,6 +9003,8 @@ export type ProductUpdateWithoutReviewsInput = {
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -8860,6 +9078,8 @@ export type ProductUncheckedUpdateWithoutReviewsInput = {
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -8932,6 +9152,8 @@ export type ProductCreateWithoutCreatedBySellerAccountInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -9004,6 +9226,8 @@ export type ProductUncheckedCreateWithoutCreatedBySellerAccountInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -9102,6 +9326,8 @@ export type ProductCreateWithoutSellerOffersInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
@@ -9175,6 +9401,8 @@ export type ProductUncheckedCreateWithoutSellerOffersInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
@@ -9262,6 +9490,8 @@ export type ProductUpdateWithoutSellerOffersInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
@@ -9335,6 +9565,8 @@ export type ProductUncheckedUpdateWithoutSellerOffersInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
@@ -9406,6 +9638,8 @@ export type ProductCreateWithoutDemoEntryInput = {
   instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
@@ -9479,6 +9713,8 @@ export type ProductUncheckedCreateWithoutDemoEntryInput = {
   instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
   reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
@@ -9566,6 +9802,8 @@ export type ProductUpdateWithoutDemoEntryInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -9639,9 +9877,635 @@ export type ProductUncheckedUpdateWithoutDemoEntryInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutListingTrustInput = {
+  id: string
+  name: string
+  slug: string
+  sku: string
+  shortDescription?: string | null
+  description?: string | null
+  descriptionHtml?: string | null
+  status?: $Enums.CatalogStatus
+  isPublished?: boolean
+  publishedAt?: Date | string | null
+  publishFrom?: Date | string | null
+  basePriceMinor: bigint | number
+  currency: string
+  hasProvisionalPrice?: boolean
+  isPriceOnRequest?: boolean
+  compareAtPriceMinor?: bigint | number | null
+  isStockTracked?: boolean
+  reorderThreshold?: number
+  isOrderable?: boolean
+  unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
+  minOrderQty?: number
+  maxOrderQty?: number | null
+  qtyIncrement?: number
+  b2cMaxOrderQuantity?: number | null
+  isRecurringEligible?: boolean
+  hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isMarketplaceProduct?: boolean
+  requiresColdChain?: boolean
+  weightGrams?: number | null
+  metaTitle?: string | null
+  metaDescription?: string | null
+  importFingerprint?: string | null
+  gtin?: string | null
+  modelIdentifier?: string | null
+  safetyWarnings?: string | null
+  safetyInstructions?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  createdById?: string | null
+  updatedById?: string | null
+  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
+  taxClass: Prisma.TaxClassCreateNestedOneWithoutProductsInput
+  deviceInfo?: Prisma.ProductDeviceInfoCreateNestedOneWithoutProductInput
+  manufacturer?: Prisma.EconomicOperatorCreateNestedOneWithoutManufacturedProductsInput
+  euResponsible?: Prisma.EconomicOperatorCreateNestedOneWithoutRepresentedProductsInput
+  variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  media?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
+  attributes?: Prisma.ProductAttributeCreateNestedManyWithoutProductInput
+  descriptionSections?: Prisma.ProductDescriptionSectionCreateNestedManyWithoutProductInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutProductInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutProductInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutProductInput
+  cartItems?: Prisma.CartItemCreateNestedManyWithoutProductInput
+  orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
+  scheduleItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutProductInput
+  substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteProductInput
+  prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
+  reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutProductInput
+  packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
+  importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
+  sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
+  createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutListingTrustInput = {
+  id: string
+  categoryId: string
+  name: string
+  slug: string
+  sku: string
+  shortDescription?: string | null
+  description?: string | null
+  descriptionHtml?: string | null
+  status?: $Enums.CatalogStatus
+  isPublished?: boolean
+  publishedAt?: Date | string | null
+  publishFrom?: Date | string | null
+  taxClassId: string
+  basePriceMinor: bigint | number
+  currency: string
+  hasProvisionalPrice?: boolean
+  isPriceOnRequest?: boolean
+  compareAtPriceMinor?: bigint | number | null
+  isStockTracked?: boolean
+  reorderThreshold?: number
+  isOrderable?: boolean
+  unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
+  minOrderQty?: number
+  maxOrderQty?: number | null
+  qtyIncrement?: number
+  b2cMaxOrderQuantity?: number | null
+  isRecurringEligible?: boolean
+  hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isMarketplaceProduct?: boolean
+  createdBySellerAccountId?: string | null
+  requiresColdChain?: boolean
+  weightGrams?: number | null
+  metaTitle?: string | null
+  metaDescription?: string | null
+  importFingerprint?: string | null
+  manufacturerId?: string | null
+  euResponsibleId?: string | null
+  gtin?: string | null
+  modelIdentifier?: string | null
+  safetyWarnings?: string | null
+  safetyInstructions?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  createdById?: string | null
+  updatedById?: string | null
+  deviceInfo?: Prisma.ProductDeviceInfoUncheckedCreateNestedOneWithoutProductInput
+  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  media?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
+  attributes?: Prisma.ProductAttributeUncheckedCreateNestedManyWithoutProductInput
+  descriptionSections?: Prisma.ProductDescriptionSectionUncheckedCreateNestedManyWithoutProductInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutProductInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutProductInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutProductInput
+  cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutProductInput
+  orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
+  scheduleItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutProductInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteProductInput
+  prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
+  reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutProductInput
+  packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
+  importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
+  sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutListingTrustInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutListingTrustInput, Prisma.ProductUncheckedCreateWithoutListingTrustInput>
+}
+
+export type ProductUpsertWithoutListingTrustInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutListingTrustInput, Prisma.ProductUncheckedUpdateWithoutListingTrustInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutListingTrustInput, Prisma.ProductUncheckedCreateWithoutListingTrustInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutListingTrustInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutListingTrustInput, Prisma.ProductUncheckedUpdateWithoutListingTrustInput>
+}
+
+export type ProductUpdateWithoutListingTrustInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCatalogStatusFieldUpdateOperationsInput | $Enums.CatalogStatus
+  isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
+  isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
+  maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gtin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modelIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyWarnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
+  taxClass?: Prisma.TaxClassUpdateOneRequiredWithoutProductsNestedInput
+  deviceInfo?: Prisma.ProductDeviceInfoUpdateOneWithoutProductNestedInput
+  manufacturer?: Prisma.EconomicOperatorUpdateOneWithoutManufacturedProductsNestedInput
+  euResponsible?: Prisma.EconomicOperatorUpdateOneWithoutRepresentedProductsNestedInput
+  variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  media?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
+  attributes?: Prisma.ProductAttributeUpdateManyWithoutProductNestedInput
+  descriptionSections?: Prisma.ProductDescriptionSectionUpdateManyWithoutProductNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutProductNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutProductNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutProductNestedInput
+  cartItems?: Prisma.CartItemUpdateManyWithoutProductNestedInput
+  orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
+  scheduleItems?: Prisma.RecurringScheduleItemUpdateManyWithoutProductNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteProductNestedInput
+  prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
+  reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
+  importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
+  sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
+  createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutListingTrustInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCatalogStatusFieldUpdateOperationsInput | $Enums.CatalogStatus
+  isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
+  basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
+  isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
+  maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manufacturerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  euResponsibleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gtin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modelIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyWarnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deviceInfo?: Prisma.ProductDeviceInfoUncheckedUpdateOneWithoutProductNestedInput
+  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  media?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
+  attributes?: Prisma.ProductAttributeUncheckedUpdateManyWithoutProductNestedInput
+  descriptionSections?: Prisma.ProductDescriptionSectionUncheckedUpdateManyWithoutProductNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutProductNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutProductNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutProductNestedInput
+  cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutProductNestedInput
+  orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
+  scheduleItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutProductNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteProductNestedInput
+  prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
+  reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
+  importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
+  sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutMarketRulesInput = {
+  id: string
+  name: string
+  slug: string
+  sku: string
+  shortDescription?: string | null
+  description?: string | null
+  descriptionHtml?: string | null
+  status?: $Enums.CatalogStatus
+  isPublished?: boolean
+  publishedAt?: Date | string | null
+  publishFrom?: Date | string | null
+  basePriceMinor: bigint | number
+  currency: string
+  hasProvisionalPrice?: boolean
+  isPriceOnRequest?: boolean
+  compareAtPriceMinor?: bigint | number | null
+  isStockTracked?: boolean
+  reorderThreshold?: number
+  isOrderable?: boolean
+  unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
+  minOrderQty?: number
+  maxOrderQty?: number | null
+  qtyIncrement?: number
+  b2cMaxOrderQuantity?: number | null
+  isRecurringEligible?: boolean
+  hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isMarketplaceProduct?: boolean
+  requiresColdChain?: boolean
+  weightGrams?: number | null
+  metaTitle?: string | null
+  metaDescription?: string | null
+  importFingerprint?: string | null
+  gtin?: string | null
+  modelIdentifier?: string | null
+  safetyWarnings?: string | null
+  safetyInstructions?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  createdById?: string | null
+  updatedById?: string | null
+  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
+  taxClass: Prisma.TaxClassCreateNestedOneWithoutProductsInput
+  deviceInfo?: Prisma.ProductDeviceInfoCreateNestedOneWithoutProductInput
+  manufacturer?: Prisma.EconomicOperatorCreateNestedOneWithoutManufacturedProductsInput
+  euResponsible?: Prisma.EconomicOperatorCreateNestedOneWithoutRepresentedProductsInput
+  variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  media?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
+  attributes?: Prisma.ProductAttributeCreateNestedManyWithoutProductInput
+  descriptionSections?: Prisma.ProductDescriptionSectionCreateNestedManyWithoutProductInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutProductInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutProductInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutProductInput
+  cartItems?: Prisma.CartItemCreateNestedManyWithoutProductInput
+  orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
+  scheduleItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutProductInput
+  substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteProductInput
+  prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  instructions?: Prisma.ProductInstructionCreateNestedManyWithoutProductInput
+  reviews?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutProductInput
+  packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
+  importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
+  sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
+  createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutMarketRulesInput = {
+  id: string
+  categoryId: string
+  name: string
+  slug: string
+  sku: string
+  shortDescription?: string | null
+  description?: string | null
+  descriptionHtml?: string | null
+  status?: $Enums.CatalogStatus
+  isPublished?: boolean
+  publishedAt?: Date | string | null
+  publishFrom?: Date | string | null
+  taxClassId: string
+  basePriceMinor: bigint | number
+  currency: string
+  hasProvisionalPrice?: boolean
+  isPriceOnRequest?: boolean
+  compareAtPriceMinor?: bigint | number | null
+  isStockTracked?: boolean
+  reorderThreshold?: number
+  isOrderable?: boolean
+  unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
+  minOrderQty?: number
+  maxOrderQty?: number | null
+  qtyIncrement?: number
+  b2cMaxOrderQuantity?: number | null
+  isRecurringEligible?: boolean
+  hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isMarketplaceProduct?: boolean
+  createdBySellerAccountId?: string | null
+  requiresColdChain?: boolean
+  weightGrams?: number | null
+  metaTitle?: string | null
+  metaDescription?: string | null
+  importFingerprint?: string | null
+  manufacturerId?: string | null
+  euResponsibleId?: string | null
+  gtin?: string | null
+  modelIdentifier?: string | null
+  safetyWarnings?: string | null
+  safetyInstructions?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  createdById?: string | null
+  updatedById?: string | null
+  deviceInfo?: Prisma.ProductDeviceInfoUncheckedCreateNestedOneWithoutProductInput
+  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  media?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
+  attributes?: Prisma.ProductAttributeUncheckedCreateNestedManyWithoutProductInput
+  descriptionSections?: Prisma.ProductDescriptionSectionUncheckedCreateNestedManyWithoutProductInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutProductInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutProductInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutProductInput
+  cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutProductInput
+  orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
+  scheduleItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutProductInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteProductInput
+  prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  instructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutProductInput
+  reviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutProductInput
+  packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
+  importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
+  sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutMarketRulesInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutMarketRulesInput, Prisma.ProductUncheckedCreateWithoutMarketRulesInput>
+}
+
+export type ProductUpsertWithoutMarketRulesInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutMarketRulesInput, Prisma.ProductUncheckedUpdateWithoutMarketRulesInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutMarketRulesInput, Prisma.ProductUncheckedCreateWithoutMarketRulesInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutMarketRulesInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutMarketRulesInput, Prisma.ProductUncheckedUpdateWithoutMarketRulesInput>
+}
+
+export type ProductUpdateWithoutMarketRulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCatalogStatusFieldUpdateOperationsInput | $Enums.CatalogStatus
+  isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
+  isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
+  maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gtin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modelIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyWarnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
+  taxClass?: Prisma.TaxClassUpdateOneRequiredWithoutProductsNestedInput
+  deviceInfo?: Prisma.ProductDeviceInfoUpdateOneWithoutProductNestedInput
+  manufacturer?: Prisma.EconomicOperatorUpdateOneWithoutManufacturedProductsNestedInput
+  euResponsible?: Prisma.EconomicOperatorUpdateOneWithoutRepresentedProductsNestedInput
+  variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  media?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
+  attributes?: Prisma.ProductAttributeUpdateManyWithoutProductNestedInput
+  descriptionSections?: Prisma.ProductDescriptionSectionUpdateManyWithoutProductNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutProductNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutProductNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutProductNestedInput
+  cartItems?: Prisma.CartItemUpdateManyWithoutProductNestedInput
+  orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
+  scheduleItems?: Prisma.RecurringScheduleItemUpdateManyWithoutProductNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteProductNestedInput
+  prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
+  reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
+  packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
+  importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
+  sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
+  createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutMarketRulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCatalogStatusFieldUpdateOperationsInput | $Enums.CatalogStatus
+  isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
+  basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
+  isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
+  maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manufacturerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  euResponsibleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gtin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modelIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyWarnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deviceInfo?: Prisma.ProductDeviceInfoUncheckedUpdateOneWithoutProductNestedInput
+  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  media?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
+  attributes?: Prisma.ProductAttributeUncheckedUpdateManyWithoutProductNestedInput
+  descriptionSections?: Prisma.ProductDescriptionSectionUncheckedUpdateManyWithoutProductNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutProductNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutProductNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutProductNestedInput
+  cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutProductNestedInput
+  orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
+  scheduleItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutProductNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteProductNestedInput
+  prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
+  reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
+  packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
+  importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
+  sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateManyTaxClassInput = {
@@ -9759,6 +10623,8 @@ export type ProductUpdateWithoutTaxClassInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -9832,6 +10698,8 @@ export type ProductUncheckedUpdateWithoutTaxClassInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -10003,6 +10871,8 @@ export type ProductUpdateWithoutCategoryInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -10076,6 +10946,8 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -10297,6 +11169,8 @@ export type ProductUpdateWithoutManufacturerInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -10370,6 +11244,8 @@ export type ProductUncheckedUpdateWithoutManufacturerInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -10491,6 +11367,8 @@ export type ProductUpdateWithoutEuResponsibleInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -10564,6 +11442,8 @@ export type ProductUncheckedUpdateWithoutEuResponsibleInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -10736,6 +11616,8 @@ export type ProductUpdateWithoutCreatedBySellerAccountInput = {
   instructions?: Prisma.ProductInstructionUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
@@ -10808,6 +11690,8 @@ export type ProductUncheckedUpdateWithoutCreatedBySellerAccountInput = {
   instructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutProductNestedInput
   reviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutProductNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
@@ -10887,6 +11771,8 @@ export type ProductCountOutputType = {
   instructions: number
   reviews: number
   countryRestrictions: number
+  marketRules: number
+  listingTrust: number
   packagings: number
   importRecords: number
   sellerOffers: number
@@ -10910,6 +11796,8 @@ export type ProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   instructions?: boolean | ProductCountOutputTypeCountInstructionsArgs
   reviews?: boolean | ProductCountOutputTypeCountReviewsArgs
   countryRestrictions?: boolean | ProductCountOutputTypeCountCountryRestrictionsArgs
+  marketRules?: boolean | ProductCountOutputTypeCountMarketRulesArgs
+  listingTrust?: boolean | ProductCountOutputTypeCountListingTrustArgs
   packagings?: boolean | ProductCountOutputTypeCountPackagingsArgs
   importRecords?: boolean | ProductCountOutputTypeCountImportRecordsArgs
   sellerOffers?: boolean | ProductCountOutputTypeCountSellerOffersArgs
@@ -11047,6 +11935,20 @@ export type ProductCountOutputTypeCountCountryRestrictionsArgs<ExtArgs extends r
 /**
  * ProductCountOutputType without action
  */
+export type ProductCountOutputTypeCountMarketRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MarketRuleWhereInput
+}
+
+/**
+ * ProductCountOutputType without action
+ */
+export type ProductCountOutputTypeCountListingTrustArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SellerListingTrustWhereInput
+}
+
+/**
+ * ProductCountOutputType without action
+ */
 export type ProductCountOutputTypeCountPackagingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProductPackagingWhereInput
 }
@@ -11137,6 +12039,8 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   instructions?: boolean | Prisma.Product$instructionsArgs<ExtArgs>
   reviews?: boolean | Prisma.Product$reviewsArgs<ExtArgs>
   countryRestrictions?: boolean | Prisma.Product$countryRestrictionsArgs<ExtArgs>
+  marketRules?: boolean | Prisma.Product$marketRulesArgs<ExtArgs>
+  listingTrust?: boolean | Prisma.Product$listingTrustArgs<ExtArgs>
   packagings?: boolean | Prisma.Product$packagingsArgs<ExtArgs>
   importRecords?: boolean | Prisma.Product$importRecordsArgs<ExtArgs>
   sellerOffers?: boolean | Prisma.Product$sellerOffersArgs<ExtArgs>
@@ -11222,6 +12126,8 @@ export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   instructions?: boolean | Prisma.Product$instructionsArgs<ExtArgs>
   reviews?: boolean | Prisma.Product$reviewsArgs<ExtArgs>
   countryRestrictions?: boolean | Prisma.Product$countryRestrictionsArgs<ExtArgs>
+  marketRules?: boolean | Prisma.Product$marketRulesArgs<ExtArgs>
+  listingTrust?: boolean | Prisma.Product$listingTrustArgs<ExtArgs>
   packagings?: boolean | Prisma.Product$packagingsArgs<ExtArgs>
   importRecords?: boolean | Prisma.Product$importRecordsArgs<ExtArgs>
   sellerOffers?: boolean | Prisma.Product$sellerOffersArgs<ExtArgs>
@@ -11264,6 +12170,11 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     instructions: Prisma.$ProductInstructionPayload<ExtArgs>[]
     reviews: Prisma.$ProductReviewPayload<ExtArgs>[]
     countryRestrictions: Prisma.$ProductCountryRestrictionPayload<ExtArgs>[]
+    /**
+     * Destination rules and suppliers' sourcing terms. See SUPPLIER TRUST.
+     */
+    marketRules: Prisma.$MarketRulePayload<ExtArgs>[]
+    listingTrust: Prisma.$SellerListingTrustPayload<ExtArgs>[]
     packagings: Prisma.$ProductPackagingPayload<ExtArgs>[]
     importRecords: Prisma.$ProductImportRecordPayload<ExtArgs>[]
     /**
@@ -11881,6 +12792,8 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
   instructions<T extends Prisma.Product$instructionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$instructionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductInstructionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reviews<T extends Prisma.Product$reviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$reviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   countryRestrictions<T extends Prisma.Product$countryRestrictionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$countryRestrictionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductCountryRestrictionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  marketRules<T extends Prisma.Product$marketRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$marketRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MarketRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  listingTrust<T extends Prisma.Product$listingTrustArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$listingTrustArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerListingTrustPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   packagings<T extends Prisma.Product$packagingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$packagingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPackagingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   importRecords<T extends Prisma.Product$importRecordsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$importRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductImportRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sellerOffers<T extends Prisma.Product$sellerOffersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$sellerOffersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerOfferPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -12773,6 +13686,54 @@ export type Product$countryRestrictionsArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.ProductCountryRestrictionScalarFieldEnum | Prisma.ProductCountryRestrictionScalarFieldEnum[]
+}
+
+/**
+ * Product.marketRules
+ */
+export type Product$marketRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MarketRule
+   */
+  select?: Prisma.MarketRuleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MarketRule
+   */
+  omit?: Prisma.MarketRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MarketRuleInclude<ExtArgs> | null
+  where?: Prisma.MarketRuleWhereInput
+  orderBy?: Prisma.MarketRuleOrderByWithRelationInput | Prisma.MarketRuleOrderByWithRelationInput[]
+  cursor?: Prisma.MarketRuleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MarketRuleScalarFieldEnum | Prisma.MarketRuleScalarFieldEnum[]
+}
+
+/**
+ * Product.listingTrust
+ */
+export type Product$listingTrustArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerListingTrust
+   */
+  select?: Prisma.SellerListingTrustSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerListingTrust
+   */
+  omit?: Prisma.SellerListingTrustOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerListingTrustInclude<ExtArgs> | null
+  where?: Prisma.SellerListingTrustWhereInput
+  orderBy?: Prisma.SellerListingTrustOrderByWithRelationInput | Prisma.SellerListingTrustOrderByWithRelationInput[]
+  cursor?: Prisma.SellerListingTrustWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SellerListingTrustScalarFieldEnum | Prisma.SellerListingTrustScalarFieldEnum[]
 }
 
 /**

@@ -41,6 +41,7 @@ export type SellerErpAuditEventMinAggregateOutputType = {
   ipHash: string | null
   correlationId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerErpAuditEventMaxAggregateOutputType = {
@@ -55,6 +56,7 @@ export type SellerErpAuditEventMaxAggregateOutputType = {
   ipHash: string | null
   correlationId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerErpAuditEventCountAggregateOutputType = {
@@ -70,6 +72,7 @@ export type SellerErpAuditEventCountAggregateOutputType = {
   ipHash: number
   correlationId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -86,6 +89,7 @@ export type SellerErpAuditEventMinAggregateInputType = {
   ipHash?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerErpAuditEventMaxAggregateInputType = {
@@ -100,6 +104,7 @@ export type SellerErpAuditEventMaxAggregateInputType = {
   ipHash?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerErpAuditEventCountAggregateInputType = {
@@ -115,6 +120,7 @@ export type SellerErpAuditEventCountAggregateInputType = {
   ipHash?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -203,6 +209,7 @@ export type SellerErpAuditEventGroupByOutputType = {
   ipHash: string | null
   correlationId: string | null
   createdAt: Date
+  updatedAt: Date
   _count: SellerErpAuditEventCountAggregateOutputType | null
   _min: SellerErpAuditEventMinAggregateOutputType | null
   _max: SellerErpAuditEventMaxAggregateOutputType | null
@@ -239,6 +246,7 @@ export type SellerErpAuditEventWhereInput = {
   ipHash?: Prisma.StringNullableFilter<"SellerErpAuditEvent"> | string | null
   correlationId?: Prisma.StringNullableFilter<"SellerErpAuditEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerErpAuditEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerErpAuditEvent"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   connection?: Prisma.XOR<Prisma.SellerErpConnectionNullableScalarRelationFilter, Prisma.SellerErpConnectionWhereInput> | null
 }
@@ -256,6 +264,7 @@ export type SellerErpAuditEventOrderByWithRelationInput = {
   ipHash?: Prisma.SortOrderInput | Prisma.SortOrder
   correlationId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   connection?: Prisma.SellerErpConnectionOrderByWithRelationInput
   _relevance?: Prisma.SellerErpAuditEventOrderByRelevanceInput
@@ -277,6 +286,7 @@ export type SellerErpAuditEventWhereUniqueInput = Prisma.AtLeast<{
   ipHash?: Prisma.StringNullableFilter<"SellerErpAuditEvent"> | string | null
   correlationId?: Prisma.StringNullableFilter<"SellerErpAuditEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerErpAuditEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerErpAuditEvent"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   connection?: Prisma.XOR<Prisma.SellerErpConnectionNullableScalarRelationFilter, Prisma.SellerErpConnectionWhereInput> | null
 }, "id">
@@ -294,6 +304,7 @@ export type SellerErpAuditEventOrderByWithAggregationInput = {
   ipHash?: Prisma.SortOrderInput | Prisma.SortOrder
   correlationId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerErpAuditEventCountOrderByAggregateInput
   _max?: Prisma.SellerErpAuditEventMaxOrderByAggregateInput
   _min?: Prisma.SellerErpAuditEventMinOrderByAggregateInput
@@ -315,6 +326,7 @@ export type SellerErpAuditEventScalarWhereWithAggregatesInput = {
   ipHash?: Prisma.StringNullableWithAggregatesFilter<"SellerErpAuditEvent"> | string | null
   correlationId?: Prisma.StringNullableWithAggregatesFilter<"SellerErpAuditEvent"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerErpAuditEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerErpAuditEvent"> | Date | string
 }
 
 export type SellerErpAuditEventCreateInput = {
@@ -328,6 +340,7 @@ export type SellerErpAuditEventCreateInput = {
   ipHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutErpAuditEventsInput
   connection?: Prisma.SellerErpConnectionCreateNestedOneWithoutAuditEventsInput
 }
@@ -345,6 +358,7 @@ export type SellerErpAuditEventUncheckedCreateInput = {
   ipHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpAuditEventUpdateInput = {
@@ -358,6 +372,7 @@ export type SellerErpAuditEventUpdateInput = {
   ipHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutErpAuditEventsNestedInput
   connection?: Prisma.SellerErpConnectionUpdateOneWithoutAuditEventsNestedInput
 }
@@ -375,6 +390,7 @@ export type SellerErpAuditEventUncheckedUpdateInput = {
   ipHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpAuditEventCreateManyInput = {
@@ -390,6 +406,7 @@ export type SellerErpAuditEventCreateManyInput = {
   ipHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpAuditEventUpdateManyMutationInput = {
@@ -403,6 +420,7 @@ export type SellerErpAuditEventUpdateManyMutationInput = {
   ipHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpAuditEventUncheckedUpdateManyInput = {
@@ -418,6 +436,7 @@ export type SellerErpAuditEventUncheckedUpdateManyInput = {
   ipHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpAuditEventListRelationFilter = {
@@ -449,6 +468,7 @@ export type SellerErpAuditEventCountOrderByAggregateInput = {
   ipHash?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerErpAuditEventMaxOrderByAggregateInput = {
@@ -463,6 +483,7 @@ export type SellerErpAuditEventMaxOrderByAggregateInput = {
   ipHash?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerErpAuditEventMinOrderByAggregateInput = {
@@ -477,6 +498,7 @@ export type SellerErpAuditEventMinOrderByAggregateInput = {
   ipHash?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerErpAuditEventCreateNestedManyWithoutSellerAccountInput = {
@@ -574,6 +596,7 @@ export type SellerErpAuditEventCreateWithoutSellerAccountInput = {
   ipHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   connection?: Prisma.SellerErpConnectionCreateNestedOneWithoutAuditEventsInput
 }
 
@@ -589,6 +612,7 @@ export type SellerErpAuditEventUncheckedCreateWithoutSellerAccountInput = {
   ipHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpAuditEventCreateOrConnectWithoutSellerAccountInput = {
@@ -633,6 +657,7 @@ export type SellerErpAuditEventScalarWhereInput = {
   ipHash?: Prisma.StringNullableFilter<"SellerErpAuditEvent"> | string | null
   correlationId?: Prisma.StringNullableFilter<"SellerErpAuditEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerErpAuditEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerErpAuditEvent"> | Date | string
 }
 
 export type SellerErpAuditEventCreateWithoutConnectionInput = {
@@ -646,6 +671,7 @@ export type SellerErpAuditEventCreateWithoutConnectionInput = {
   ipHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutErpAuditEventsInput
 }
 
@@ -661,6 +687,7 @@ export type SellerErpAuditEventUncheckedCreateWithoutConnectionInput = {
   ipHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpAuditEventCreateOrConnectWithoutConnectionInput = {
@@ -701,6 +728,7 @@ export type SellerErpAuditEventCreateManySellerAccountInput = {
   ipHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpAuditEventUpdateWithoutSellerAccountInput = {
@@ -714,6 +742,7 @@ export type SellerErpAuditEventUpdateWithoutSellerAccountInput = {
   ipHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   connection?: Prisma.SellerErpConnectionUpdateOneWithoutAuditEventsNestedInput
 }
 
@@ -729,6 +758,7 @@ export type SellerErpAuditEventUncheckedUpdateWithoutSellerAccountInput = {
   ipHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpAuditEventUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -743,6 +773,7 @@ export type SellerErpAuditEventUncheckedUpdateManyWithoutSellerAccountInput = {
   ipHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpAuditEventCreateManyConnectionInput = {
@@ -757,6 +788,7 @@ export type SellerErpAuditEventCreateManyConnectionInput = {
   ipHash?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpAuditEventUpdateWithoutConnectionInput = {
@@ -770,6 +802,7 @@ export type SellerErpAuditEventUpdateWithoutConnectionInput = {
   ipHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutErpAuditEventsNestedInput
 }
 
@@ -785,6 +818,7 @@ export type SellerErpAuditEventUncheckedUpdateWithoutConnectionInput = {
   ipHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpAuditEventUncheckedUpdateManyWithoutConnectionInput = {
@@ -799,6 +833,7 @@ export type SellerErpAuditEventUncheckedUpdateManyWithoutConnectionInput = {
   ipHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -816,6 +851,7 @@ export type SellerErpAuditEventSelect<ExtArgs extends runtime.Types.Extensions.I
   ipHash?: boolean
   correlationId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   connection?: boolean | Prisma.SellerErpAuditEvent$connectionArgs<ExtArgs>
 }, ExtArgs["result"]["sellerErpAuditEvent"]>
@@ -835,9 +871,10 @@ export type SellerErpAuditEventSelectScalar = {
   ipHash?: boolean
   correlationId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerErpAuditEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "connectionId" | "action" | "actorType" | "actorUserId" | "actorLabel" | "summary" | "metaJson" | "ipHash" | "correlationId" | "createdAt", ExtArgs["result"]["sellerErpAuditEvent"]>
+export type SellerErpAuditEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "connectionId" | "action" | "actorType" | "actorUserId" | "actorLabel" | "summary" | "metaJson" | "ipHash" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerErpAuditEvent"]>
 export type SellerErpAuditEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   connection?: boolean | Prisma.SellerErpAuditEvent$connectionArgs<ExtArgs>
@@ -875,6 +912,7 @@ export type $SellerErpAuditEventPayload<ExtArgs extends runtime.Types.Extensions
     ipHash: string | null
     correlationId: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerErpAuditEvent"]>
   composites: {}
 }
@@ -1258,6 +1296,7 @@ export interface SellerErpAuditEventFieldRefs {
   readonly ipHash: Prisma.FieldRef<"SellerErpAuditEvent", 'String'>
   readonly correlationId: Prisma.FieldRef<"SellerErpAuditEvent", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerErpAuditEvent", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerErpAuditEvent", 'DateTime'>
 }
     
 

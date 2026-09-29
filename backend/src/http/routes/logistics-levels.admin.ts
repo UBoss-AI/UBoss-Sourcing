@@ -354,7 +354,7 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
    * published or retired ones, with how many seller orders each has settled.
    */
   app.get('/platform-fees', { preHandler: requireAdmin(Permission.FINANCE_POLICY_READ) }, async (request, reply) => {
-    const query = z.object({ status: z.enum(['DRAFT', 'PUBLISHED', 'RETIRED']).optional() }).parse(request.query);
+    const query = z.object({ status: z.enum(['DRAFT', 'PENDING_APPROVAL', 'PUBLISHED', 'RETIRED']).optional() }).parse(request.query);
     return reply.status(200).send({ policies: await listPolicies({ status: query.status ?? null }) });
   });
 
@@ -388,9 +388,10 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
   );
 
   /**
-   * Make a draft platform fee policy the live one for its scope, retiring the
-   * version it replaces. Writes an audit entry, and alerts finance staff when
-   * the policy charges tax whose rule nobody has verified yet.
+   * Approve a submitted platform fee policy, making it the live one for its
+   * scope and retiring the version it replaces. Refused for whoever created,
+   * edited or submitted it (maker-checker). Writes an audit entry, and alerts
+   * finance staff when the policy charges tax whose rule nobody has verified.
    */
   app.post(
     '/platform-fees/:id/publish',

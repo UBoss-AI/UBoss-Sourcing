@@ -42,6 +42,7 @@ export type NumberSequenceMinAggregateOutputType = {
   prefix: string | null
   padding: number | null
   updatedAt: Date | null
+  createdAt: Date | null
 }
 
 export type NumberSequenceMaxAggregateOutputType = {
@@ -50,6 +51,7 @@ export type NumberSequenceMaxAggregateOutputType = {
   prefix: string | null
   padding: number | null
   updatedAt: Date | null
+  createdAt: Date | null
 }
 
 export type NumberSequenceCountAggregateOutputType = {
@@ -58,6 +60,7 @@ export type NumberSequenceCountAggregateOutputType = {
   prefix: number
   padding: number
   updatedAt: number
+  createdAt: number
   _all: number
 }
 
@@ -78,6 +81,7 @@ export type NumberSequenceMinAggregateInputType = {
   prefix?: true
   padding?: true
   updatedAt?: true
+  createdAt?: true
 }
 
 export type NumberSequenceMaxAggregateInputType = {
@@ -86,6 +90,7 @@ export type NumberSequenceMaxAggregateInputType = {
   prefix?: true
   padding?: true
   updatedAt?: true
+  createdAt?: true
 }
 
 export type NumberSequenceCountAggregateInputType = {
@@ -94,6 +99,7 @@ export type NumberSequenceCountAggregateInputType = {
   prefix?: true
   padding?: true
   updatedAt?: true
+  createdAt?: true
   _all?: true
 }
 
@@ -189,6 +195,7 @@ export type NumberSequenceGroupByOutputType = {
   prefix: string
   padding: number
   updatedAt: Date
+  createdAt: Date
   _count: NumberSequenceCountAggregateOutputType | null
   _avg: NumberSequenceAvgAggregateOutputType | null
   _sum: NumberSequenceSumAggregateOutputType | null
@@ -220,6 +227,7 @@ export type NumberSequenceWhereInput = {
   prefix?: Prisma.StringFilter<"NumberSequence"> | string
   padding?: Prisma.IntFilter<"NumberSequence"> | number
   updatedAt?: Prisma.DateTimeFilter<"NumberSequence"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"NumberSequence"> | Date | string
 }
 
 export type NumberSequenceOrderByWithRelationInput = {
@@ -228,6 +236,7 @@ export type NumberSequenceOrderByWithRelationInput = {
   prefix?: Prisma.SortOrder
   padding?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _relevance?: Prisma.NumberSequenceOrderByRelevanceInput
 }
 
@@ -240,6 +249,7 @@ export type NumberSequenceWhereUniqueInput = Prisma.AtLeast<{
   prefix?: Prisma.StringFilter<"NumberSequence"> | string
   padding?: Prisma.IntFilter<"NumberSequence"> | number
   updatedAt?: Prisma.DateTimeFilter<"NumberSequence"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"NumberSequence"> | Date | string
 }, "key">
 
 export type NumberSequenceOrderByWithAggregationInput = {
@@ -248,6 +258,7 @@ export type NumberSequenceOrderByWithAggregationInput = {
   prefix?: Prisma.SortOrder
   padding?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _count?: Prisma.NumberSequenceCountOrderByAggregateInput
   _avg?: Prisma.NumberSequenceAvgOrderByAggregateInput
   _max?: Prisma.NumberSequenceMaxOrderByAggregateInput
@@ -264,6 +275,7 @@ export type NumberSequenceScalarWhereWithAggregatesInput = {
   prefix?: Prisma.StringWithAggregatesFilter<"NumberSequence"> | string
   padding?: Prisma.IntWithAggregatesFilter<"NumberSequence"> | number
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"NumberSequence"> | Date | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"NumberSequence"> | Date | string
 }
 
 export type NumberSequenceCreateInput = {
@@ -272,6 +284,7 @@ export type NumberSequenceCreateInput = {
   prefix: string
   padding?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type NumberSequenceUncheckedCreateInput = {
@@ -280,6 +293,7 @@ export type NumberSequenceUncheckedCreateInput = {
   prefix: string
   padding?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type NumberSequenceUpdateInput = {
@@ -288,6 +302,7 @@ export type NumberSequenceUpdateInput = {
   prefix?: Prisma.StringFieldUpdateOperationsInput | string
   padding?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type NumberSequenceUncheckedUpdateInput = {
@@ -296,6 +311,7 @@ export type NumberSequenceUncheckedUpdateInput = {
   prefix?: Prisma.StringFieldUpdateOperationsInput | string
   padding?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type NumberSequenceCreateManyInput = {
@@ -304,6 +320,7 @@ export type NumberSequenceCreateManyInput = {
   prefix: string
   padding?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type NumberSequenceUpdateManyMutationInput = {
@@ -312,6 +329,7 @@ export type NumberSequenceUpdateManyMutationInput = {
   prefix?: Prisma.StringFieldUpdateOperationsInput | string
   padding?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type NumberSequenceUncheckedUpdateManyInput = {
@@ -320,6 +338,7 @@ export type NumberSequenceUncheckedUpdateManyInput = {
   prefix?: Prisma.StringFieldUpdateOperationsInput | string
   padding?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type NumberSequenceOrderByRelevanceInput = {
@@ -334,6 +353,7 @@ export type NumberSequenceCountOrderByAggregateInput = {
   prefix?: Prisma.SortOrder
   padding?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type NumberSequenceAvgOrderByAggregateInput = {
@@ -347,6 +367,7 @@ export type NumberSequenceMaxOrderByAggregateInput = {
   prefix?: Prisma.SortOrder
   padding?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type NumberSequenceMinOrderByAggregateInput = {
@@ -355,6 +376,7 @@ export type NumberSequenceMinOrderByAggregateInput = {
   prefix?: Prisma.SortOrder
   padding?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type NumberSequenceSumOrderByAggregateInput = {
@@ -370,6 +392,7 @@ export type NumberSequenceSelect<ExtArgs extends runtime.Types.Extensions.Intern
   prefix?: boolean
   padding?: boolean
   updatedAt?: boolean
+  createdAt?: boolean
 }, ExtArgs["result"]["numberSequence"]>
 
 
@@ -380,9 +403,10 @@ export type NumberSequenceSelectScalar = {
   prefix?: boolean
   padding?: boolean
   updatedAt?: boolean
+  createdAt?: boolean
 }
 
-export type NumberSequenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "value" | "prefix" | "padding" | "updatedAt", ExtArgs["result"]["numberSequence"]>
+export type NumberSequenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "value" | "prefix" | "padding" | "updatedAt" | "createdAt", ExtArgs["result"]["numberSequence"]>
 
 export type $NumberSequencePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "NumberSequence"
@@ -399,6 +423,7 @@ export type $NumberSequencePayload<ExtArgs extends runtime.Types.Extensions.Inte
      */
     padding: number
     updatedAt: Date
+    createdAt: Date
   }, ExtArgs["result"]["numberSequence"]>
   composites: {}
 }
@@ -773,6 +798,7 @@ export interface NumberSequenceFieldRefs {
   readonly prefix: Prisma.FieldRef<"NumberSequence", 'String'>
   readonly padding: Prisma.FieldRef<"NumberSequence", 'Int'>
   readonly updatedAt: Prisma.FieldRef<"NumberSequence", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"NumberSequence", 'DateTime'>
 }
     
 

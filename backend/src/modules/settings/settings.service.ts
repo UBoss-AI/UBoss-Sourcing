@@ -16,6 +16,7 @@ import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.j
 import { parseRateToScaled } from '../../domain/money.js';
 import { newId } from '../../infra/ids.js';
 import { env } from '../../config/env.js';
+import { isCustomerAutoPayAvailable } from '../payments/payment.service.js';
 import { assistantDisclosure, isAssistantConfigured } from '../assistant/assistant.service.js';
 import { prisma } from '../../infra/prisma.js';
 import { stripHtml } from '../../infra/sanitize.js';
@@ -23,6 +24,7 @@ import { isValidTimeZone } from '../../domain/recurrence.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { listActiveCountries, listActiveCurrencies } from './currency.service.js';
 import { marketplaceNameFrom } from './marketplace-name.js';
+import { publicCaptchaConfig } from '../identity/captcha.service.js';
 
 export interface SettingsActor {
   userId: string;
@@ -910,7 +912,30 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
        * either way, so a stale page cannot send one.
        */
       supportTickets: env.FEATURE_SUPPORT_TICKETS,
+      /**
+       * Whether a customer can set up Autopay at `/account/autopay`. Both
+       * flags, because the standing authority needs the card enrolment that
+       * FEATURE_SUBSCRIPTION_AUTOPAY gates (config/env.ts refuses one without
+       * the other). The home hub reads this so its Autopay card never leads to
+       * a page that can only say "not available here".
+       */
+      customerAutopay: await isCustomerAutoPayAvailable(),
+      /**
+       * Whether a customer can connect their own ERP at
+       * `/account/integrations/erp`. Read by the home hub for the same reason.
+       */
+      customerErp: env.FEATURE_CUSTOMER_ERP,
+      /** Whether buyers and sellers are offered two-step sign-in. */
+      customerMfa: env.FEATURE_CUSTOMER_MFA,
     },
+
+    /**
+     * The storefront's bot check on sign-in, sign-up and "forgot password".
+     * `provider` is `off` unless the deployment configured one; the site key
+     * is public by design (the widget needs it), the secret never leaves the
+     * server.
+     */
+    captcha: publicCaptchaConfig(),
 
     /**
      * The rules the storefront has to draw a calendar and a warehouse list

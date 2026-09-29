@@ -92,6 +92,15 @@ const envSchema = z
     // --- Database ---
     DATABASE_URL: z.string().min(1),
     TEST_DATABASE_URL: z.string().min(1).optional(),
+    /// The one account allowed to touch `audit_logs` after the fact, and only
+    /// in two ways: blank the actor's email, IP and user agent on a GDPR
+    /// erasure, and delete rows past RETENTION_AUDIT_LOG_DAYS. The
+    /// application's own account cannot update or delete audit rows at all
+    /// (deploy/mariadb/post-migrate-grants.sql), which is the point of an audit
+    /// trail - so without this, erasure and the audit retention sweep would be
+    /// refused by the database. Unset in development and tests, where one
+    /// account holds every grant and the main connection is used instead.
+    DATABASE_MAINTENANCE_URL: z.string().min(1).optional(),
     DB_POOL_SIZE: intFromString(1, 100).default(10),
     DB_CONNECT_TIMEOUT_MS: intFromString(1000, 60_000).default(10_000),
 
@@ -164,12 +173,76 @@ const envSchema = z
     SELLER_HUB_IDLE_TIMEOUT_SECONDS: intFromString(300, 86_400).default(3600),
     /** How long before that the Hub warns, in seconds. Five minutes by default. */
     SELLER_HUB_IDLE_WARNING_SECONDS: intFromString(30, 3600).default(300),
+
+    // --- Seller settlement statements ---
+    //
+    // What a settlement period is, and when a delivered order becomes payable
+    // to its seller, are the operator's commercial policy - so all three are
+    // settings, the feature is off until an operator turns it on, and the one
+    // that decides money (the delay after delivery, which is the return
+    // window) has NO default: switching statements on without choosing it
+    // refuses to start. A statement is arithmetic over a period; it moves no
+    // money (payouts are a separate, unconfigured decision - D13).
+    FEATURE_SELLER_SETTLEMENT_STATEMENTS: booleanFromString.default(false),
+    /// Calendar periods, in UTC: MONTHLY (1st to 1st) or WEEKLY (Monday to Monday).
+    SELLER_SETTLEMENT_PERIOD: z.enum(['WEEKLY', 'MONTHLY']).default('MONTHLY'),
+    /// Days after delivery before a seller order counts toward a statement.
+    SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS: intFromString(0, 365).optional(),
     COOKIE_DOMAIN: z.string().default(''),
     COOKIE_SECURE: booleanFromString.default(false),
     COOKIE_SAME_SITE: z.enum(['lax', 'strict', 'none']).default('lax'),
 
     // --- Encryption at rest ---
-    SECRETS_ENCRYPTION_KEY: z.string().min(1),
+    /**
+     * Where the credential vault's AES-256 key comes from. See
+     * `infra/key-management.ts`.
+     *
+     *   env      SECRETS_ENCRYPTION_KEY holds it (the default).
+     *   file     SECRETS_ENCRYPTION_KEY_FILE names a file holding it - what a
+     *            secret manager's agent, systemd-creds or a mounted Kubernetes
+     *            secret writes.
+     *   command  SECRETS_ENCRYPTION_KEY_COMMAND is run once at start-up and
+     *            prints it - envelope encryption with a KMS: the command
+     *            unwraps a stored data key (`aws kms decrypt`, `gcloud kms
+     *            decrypt`, `vault ...`) and only the unwrapped key is in memory.
+     */
+    SECRETS_KEY_PROVIDER: z.enum(['env', 'file', 'command']).default('env'),
+    SECRETS_ENCRYPTION_KEY: z.string().default(''),
+    SECRETS_ENCRYPTION_KEY_FILE: z.string().default(''),
+    /** A JSON array of the program and its arguments. Never run through a shell. */
+    SECRETS_ENCRYPTION_KEY_COMMAND: z.string().default(''),
+    /**
+     * Keys that USED to be current, comma-separated base64. Read-only: every
+     * new secret is written under the current key, and `npm run
+     * secrets:reencrypt` moves the old rows across. Remove a key from here only
+     * once that has reported nothing left under it.
+     */
+    SECRETS_ENCRYPTION_KEY_PREVIOUS: z.string().default(''),
+    /**
+     * The previous value of a signing secret, accepted for verification while
+     * sessions signed with it expire. Rotation without signing everybody out:
+     * see docs/DEPLOYMENT.md "Rotating secrets".
+     */
+    SESSION_COOKIE_SECRET_PREVIOUS: z.string().default(''),
+    ACCESS_TOKEN_SECRET_PREVIOUS: z.string().default(''),
+    /**
+     * Warn (log + `uboss_secret_age_seconds` metric) when a secret has been in
+     * use for longer than this. 0 switches the warning off.
+     */
+    SECRET_MAX_AGE_DAYS: intFromString(0, 3650).default(365),
+    /**
+     * How the database's own files are encrypted at rest.
+     *
+     *   unchecked         nothing is checked - development only.
+     *   innodb            MariaDB data-at-rest encryption (deploy/mariadb/
+     *                     uboss-encryption.cnf). Checked at start-up: the API
+     *                     refuses to start if the server says it is off.
+     *   provider-managed  a managed database whose storage the provider
+     *                     encrypts (RDS, Cloud SQL, ...); stated, not checkable.
+     */
+    DATABASE_ENCRYPTION_AT_REST: z
+      .enum(['unchecked', 'innodb', 'provider-managed'])
+      .default('unchecked'),
 
     // --- Queue / cache ---
     QUEUE_DRIVER: z.enum(['database', 'redis']).default('database'),
@@ -274,6 +347,18 @@ const envSchema = z
     S3_ACCESS_KEY_ID: z.string().default(''),
     S3_SECRET_ACCESS_KEY: z.string().default(''),
     S3_FORCE_PATH_STYLE: booleanFromString.default(true),
+    /**
+     * Server-side encryption asked for on every object written.
+     *
+     *   AES256            SSE-S3 - the provider's own keys.
+     *   aws:kms           SSE-KMS - S3_SSE_KMS_KEY_ID names the key.
+     *   provider-managed  send nothing: the provider encrypts every object
+     *                     anyway (Cloudflare R2; AWS S3 since January 2023;
+     *                     a bucket with default encryption switched on).
+     *   (empty)           development only - production refuses it.
+     */
+    S3_SSE: z.enum(['', 'AES256', 'aws:kms', 'provider-managed']).default(''),
+    S3_SSE_KMS_KEY_ID: z.string().default(''),
     UPLOAD_MAX_BYTES: intFromString(1024, 104_857_600).default(5_242_880),
     /**
      * The ceiling for a VIDEO, separate from the one for a photograph.
@@ -292,6 +377,12 @@ const envSchema = z
      */
     MALWARE_SCANNER_DRIVER: z.enum(['disabled', 'clamav']).default('disabled'),
     MALWARE_SCANNER_SOCKET: z.string().min(1).default('/run/clamav/clamd.ctl'),
+    /**
+     * clamd over TCP instead of the Unix socket - a scanner in its own
+     * container, or on another host. Empty means use the socket.
+     */
+    MALWARE_SCANNER_HOST: z.string().default(''),
+    MALWARE_SCANNER_PORT: intFromString(1, 65_535).default(3310),
     MALWARE_SCANNER_TIMEOUT_MS: intFromString(1000, 120_000).default(30_000),
 
     // --- Email ---
@@ -384,7 +475,7 @@ const envSchema = z
     /// inherited by installing the software. It also needs Stripe connected -
     /// the enrolment path refuses without it, rather than storing a card it
     /// could never charge.
-    FEATURE_SUBSCRIPTION_AUTOPAY: booleanFromString.default(false),
+    FEATURE_SUBSCRIPTION_AUTOPAY: booleanFromString.default(true),
 
     // --- Scheduled and recurring orders ---
     //
@@ -422,6 +513,11 @@ const envSchema = z
     /// a signal about the card, so a held occurrence must not spend the card's
     /// budget. Three is Stripe's own guidance for off-session retries.
     SCHEDULE_MAX_PAYMENT_ATTEMPTS: intFromString(1, 10).default(3),
+    /// How long a customer has to confirm a new total for one scheduled
+    /// delivery whose price moved beyond the tolerance they approved. After
+    /// it the delivery is skipped (nothing was charged) and the plan carries
+    /// on. The operator's commercial choice, so a setting.
+    SCHEDULE_PRICE_CONFIRMATION_HOURS: intFromString(1, 720).default(48),
     /// How much notice the first delivery of a plan needs, in CALENDAR days.
     ///
     /// Seven, and seven is a business decision rather than a fact about
@@ -764,7 +860,7 @@ const envSchema = z
     // 404s. Opt-in, because an installation that has not thought about its
     // customers pointing this server at addresses of their own choosing should
     // not discover the feature by finding it already on.
-    FEATURE_CUSTOMER_ERP: booleanFromString.default(false),
+    FEATURE_CUSTOMER_ERP: booleanFromString.default(true),
 
     /// How many connections one buyer organisation may hold.
     ///
@@ -990,7 +1086,7 @@ const envSchema = z
     //
     // A deployment may reasonably want saved cards for schedules and no
     // standing authority beyond them, which is why the two are not one flag.
-    FEATURE_CUSTOMER_AUTOPAY: booleanFromString.default(false),
+    FEATURE_CUSTOMER_AUTOPAY: booleanFromString.default(true),
     /// The consent text version a customer's stored acceptance is recorded
     /// against.
     ///
@@ -1012,6 +1108,44 @@ const envSchema = z
     // only so integration tests that are about unrelated business flows do not
     // all have to manufacture a fresh TOTP code for each session.
     FEATURE_ADMIN_MFA: booleanFromString.default(true),
+
+    // --- Buyer and seller second factor, step-up, alerts and bot checks ---
+    //
+    // Two-step sign-in (TOTP) for storefront accounts. OPTIONAL for every buyer
+    // and seller: an account that switches it on is asked for a code at every
+    // sign-in. The same primitives as the console's (`infra/totp.ts`,
+    // `identity/mfa-core.ts`).
+    FEATURE_CUSTOMER_MFA: booleanFromString.default(true),
+    // MANDATORY for a seller's owner and for anybody holding payout or finance
+    // permissions: the Seller Hub shows the setup screen until it is done. On by
+    // default and refused off in production; the switch exists for the same
+    // reason FEATURE_ADMIN_MFA has one - unrelated integration suites.
+    SELLER_MFA_REQUIRED: booleanFromString.default(true),
+    // Re-authentication before a sensitive act: changing the email or password,
+    // connecting payouts, changing team roles, switching on or changing
+    // AutoPay, changing two-step sign-in. Refused off in production.
+    FEATURE_STEP_UP: booleanFromString.default(true),
+    // How long one confirmation lasts before the next sensitive act asks again.
+    STEP_UP_WINDOW_SECONDS: intFromString(60, 3600).default(600),
+    // Standing payment authority is the one buyer act that needs a real second
+    // factor, not just the password again. With this on, switching on or
+    // changing AutoPay asks the buyer to set up two-step sign-in first.
+    AUTOPAY_REQUIRES_MFA: booleanFromString.default(true),
+    // Email the account holder when a sign-in comes from a device and network
+    // not seen in the last LOGIN_ALERT_LOOKBACK_DAYS of sign-ins.
+    FEATURE_LOGIN_ALERTS: booleanFromString.default(true),
+    LOGIN_ALERT_LOOKBACK_DAYS: intFromString(1, 365).default(90),
+    // A bot check on the storefront's sign-in, sign-up and forgotten-password
+    // forms. `off` (the default, and right for a laptop) relies on the rate
+    // limits alone. `turnstile` or `hcaptcha` need both keys from that
+    // provider's dashboard. CAPTCHA_VERIFY_URL overrides the provider's own
+    // verification address - for a proxy, or a test stub - and is empty
+    // otherwise. A check that cannot be completed refuses the form.
+    CAPTCHA_PROVIDER: z.enum(['off', 'turnstile', 'hcaptcha']).default('off'),
+    CAPTCHA_SITE_KEY: z.string().trim().default(''),
+    CAPTCHA_SECRET_KEY: z.string().trim().default(''),
+    CAPTCHA_VERIFY_URL: z.string().trim().default(''),
+    CAPTCHA_TIMEOUT_MS: intFromString(500, 30_000).default(5000),
     //
     // Off by default: precise employee location is not necessary for ordinary
     // authentication and enabling it can trigger a DPIA, employment-law
@@ -1601,6 +1735,20 @@ const envSchema = z
     /// here rather than storing something nobody may ever open.
     SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS: booleanFromString.default(false),
 
+    // --- Returns ---
+    //
+    // The return window, reason codes and replacements are business settings
+    // kept in the database (Returns -> Policy in the console). These two are
+    // about files only.
+
+    /// Largest single photograph, video or label on a return, in bytes. 25 MB
+    /// by default - a short phone video of the damage.
+    RETURN_FILE_MAX_BYTES: intFromString(1024, 104_857_600).default(26_214_400),
+    /// Accept return files no malware scanner has looked at. Development only;
+    /// refused in production. With no scanner and this false, returns work
+    /// without files and reasons that need a photograph do not ask for one.
+    RETURN_ALLOW_UNSCANNED_FILES: booleanFromString.default(false),
+
     // --- Buyer companies ---
     //
     // A registered business buying here, verified by staff before it may
@@ -1661,9 +1809,55 @@ const envSchema = z
     LOGIN_LOCKOUT_MINUTES: intFromString(1, 1440).default(15),
   })
   .superRefine((value, ctx) => {
-    // AES-256-GCM needs exactly 32 bytes of key material.
+    // AES-256-GCM needs exactly 32 bytes of key material. Checked here for the
+    // env provider; the file and command providers are checked as they load.
     const keyBytes = Buffer.from(value.SECRETS_ENCRYPTION_KEY, 'base64');
-    if (keyBytes.length !== 32) {
+    if (value.SECRETS_KEY_PROVIDER === 'file' && value.SECRETS_ENCRYPTION_KEY_FILE === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['SECRETS_ENCRYPTION_KEY_FILE'],
+        message: 'required when SECRETS_KEY_PROVIDER=file',
+      });
+    }
+    if (value.SECRETS_KEY_PROVIDER === 'command') {
+      let argv: unknown;
+      try {
+        argv = JSON.parse(value.SECRETS_ENCRYPTION_KEY_COMMAND);
+      } catch {
+        argv = null;
+      }
+      if (
+        !Array.isArray(argv) ||
+        argv.length === 0 ||
+        !argv.every((part) => typeof part === 'string' && part.length > 0)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['SECRETS_ENCRYPTION_KEY_COMMAND'],
+          message:
+            'required when SECRETS_KEY_PROVIDER=command: a JSON array of the program and its ' +
+            'arguments, e.g. ["/usr/local/bin/uboss-unwrap-key"]',
+        });
+      }
+    }
+    for (const previous of value.SECRETS_ENCRYPTION_KEY_PREVIOUS.split(',')) {
+      if (previous.trim() === '') continue;
+      if (Buffer.from(previous.trim(), 'base64').length !== 32) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['SECRETS_ENCRYPTION_KEY_PREVIOUS'],
+          message: 'every entry must be 32 bytes base64-encoded, like SECRETS_ENCRYPTION_KEY',
+        });
+      }
+    }
+    if (value.S3_SSE === 'aws:kms' && value.S3_SSE_KMS_KEY_ID === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['S3_SSE_KMS_KEY_ID'],
+        message: 'required when S3_SSE=aws:kms',
+      });
+    }
+    if (value.SECRETS_KEY_PROVIDER === 'env' && keyBytes.length !== 32) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['SECRETS_ENCRYPTION_KEY'],
@@ -1690,6 +1884,27 @@ const envSchema = z
           'The first is the ceiling on a whole sign-in; the second is how long one refresh ' +
           'token lives. A ceiling below it ends every session early and makes the refresh ' +
           'setting meaningless.',
+      });
+    }
+
+    // A requirement nobody can satisfy is a lock-out, not a control.
+    if (!value.FEATURE_CUSTOMER_MFA && (value.SELLER_MFA_REQUIRED || value.AUTOPAY_REQUIRES_MFA)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['FEATURE_CUSTOMER_MFA'],
+        message:
+          'must be true while SELLER_MFA_REQUIRED or AUTOPAY_REQUIRES_MFA is true - otherwise ' +
+          'the people it applies to are told to set up two-step sign-in and have nowhere to do it.',
+      });
+    }
+    if (
+      value.CAPTCHA_PROVIDER !== 'off' &&
+      (value.CAPTCHA_SITE_KEY.length === 0 || value.CAPTCHA_SECRET_KEY.length === 0)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['CAPTCHA_SECRET_KEY'],
+        message: `CAPTCHA_PROVIDER=${value.CAPTCHA_PROVIDER} needs both CAPTCHA_SITE_KEY and CAPTCHA_SECRET_KEY.`,
       });
     }
 
@@ -1843,22 +2058,14 @@ const envSchema = z
       });
     }
 
-    // Auto-pay charges people who are not present. Without Stripe there is no
-    // path that can do it, and a plan enrolled against nothing would sit ACTIVE
-    // and never deliver.
-    if (
-      value.FEATURE_SUBSCRIPTION_AUTOPAY &&
-      value.STRIPE_SECRET_KEY.length === 0 &&
-      value.NODE_ENV === 'production'
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['FEATURE_SUBSCRIPTION_AUTOPAY'],
-        message:
-          'FEATURE_SUBSCRIPTION_AUTOPAY is on but no Stripe secret key is configured. ' +
-          'Subscriptions would be created and then never charge. Connect Stripe, or turn the flag off.',
-      });
-    }
+    // Auto-pay charges people who are not present, and without Stripe nothing
+    // can. Both auto-pay flags default to ON, so this is no longer a start-up
+    // refusal - a store that has not connected Stripe must still start. It is
+    // answered at runtime instead: a card cannot be saved for off-session
+    // charging, and customers are not offered auto-pay, until Stripe is
+    // actually connected (isCardEnrolmentAvailable / isCustomerAutoPayAvailable
+    // in payments/payment.service.ts, which also count a gateway connected in
+    // Settings > Payments - this check only ever saw the environment key).
 
     // Verifying stock against an ERP that was never named cannot be done, and
     // silently not doing it would mean charging for stock nobody confirmed.
@@ -1937,27 +2144,26 @@ const envSchema = z
       });
     }
 
-    // Auto-pay with nothing that can charge. A customer would tick the consent
-    // box, agree to a ceiling, and then have every scheduled delivery fail at
-    // the moment of payment - having been told the opposite.
-    if (
-      value.FEATURE_CUSTOMER_AUTOPAY &&
-      value.STRIPE_SECRET_KEY.length === 0 &&
-      value.NODE_ENV === 'production'
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['FEATURE_CUSTOMER_AUTOPAY'],
-        message:
-          'FEATURE_CUSTOMER_AUTOPAY is on but no Stripe secret key is configured. Customers ' +
-          'would be asked to consent to charges that could never be made. Connect Stripe, or ' +
-          'turn the flag off.',
-      });
-    }
 
     // Auto-pay stores a card and charges it off-session, which needs the
     // SetupIntent path that FEATURE_SUBSCRIPTION_AUTOPAY gates. On without it,
     // a customer can consent to auto-pay and then find no way to add a card.
+    // A statement that includes an order is a statement that says "this is
+    // yours". When that becomes true is the operator's decision, never a
+    // default this software picked for them.
+    if (
+      value.FEATURE_SELLER_SETTLEMENT_STATEMENTS &&
+      value.SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS === undefined
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS'],
+        message:
+          'must be set when FEATURE_SELLER_SETTLEMENT_STATEMENTS is on: how many days after delivery ' +
+          'an order counts toward a seller statement (your return window). There is no default.',
+      });
+    }
+
     if (value.FEATURE_CUSTOMER_AUTOPAY && !value.FEATURE_SUBSCRIPTION_AUTOPAY) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -2117,11 +2323,43 @@ const envSchema = z
     // Production-only guards. These are the settings that look harmless in dev
     // and are outright dangerous once real customers and money are involved.
     if (value.NODE_ENV === 'production') {
+      if (value.DATABASE_MAINTENANCE_URL === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['DATABASE_MAINTENANCE_URL'],
+          message:
+            'must be set in production. The application account cannot change audit_logs, so ' +
+            'GDPR erasure and the audit retention sweep need the separate maintenance account ' +
+            '(deploy/scripts/apply-grants.sh).',
+        });
+      } else if (value.DATABASE_MAINTENANCE_URL === value.DATABASE_URL) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['DATABASE_MAINTENANCE_URL'],
+          message:
+            'must be a different account from DATABASE_URL. One account able to rewrite the ' +
+            'audit trail is exactly what the separate grants exist to prevent.',
+        });
+      }
       if (!value.FEATURE_ADMIN_MFA) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['FEATURE_ADMIN_MFA'],
           message: 'must be true in production for every privileged staff session',
+        });
+      }
+      if (!value.SELLER_MFA_REQUIRED) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['SELLER_MFA_REQUIRED'],
+          message: 'must be true in production: seller owners and finance roles need two-step sign-in',
+        });
+      }
+      if (!value.FEATURE_STEP_UP) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['FEATURE_STEP_UP'],
+          message: 'must be true in production: sensitive account changes need a fresh confirmation',
         });
       }
       if (!value.COOKIE_SECURE) {
@@ -2152,11 +2390,37 @@ const envSchema = z
           message: 'must be clamav in production so uploaded documents are scanned before storage',
         });
       }
+      // Encryption at rest is configuration, so it is checked like the rest.
+      if (value.STORAGE_DRIVER === 's3' && value.S3_SSE === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['S3_SSE'],
+          message:
+            'objects must be encrypted at rest in production: set AES256, aws:kms (with ' +
+            'S3_SSE_KMS_KEY_ID), or provider-managed when the provider encrypts every object',
+        });
+      }
+      if (value.DATABASE_ENCRYPTION_AT_REST === 'unchecked') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['DATABASE_ENCRYPTION_AT_REST'],
+          message:
+            'the database must be encrypted at rest in production: set innodb (MariaDB ' +
+            'data-at-rest encryption, checked at start-up) or provider-managed',
+        });
+      }
       if (value.SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS'],
           message: 'unscanned support ticket attachments cannot be accepted in production',
+        });
+      }
+      if (value.RETURN_ALLOW_UNSCANNED_FILES) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['RETURN_ALLOW_UNSCANNED_FILES'],
+          message: 'unscanned return files cannot be accepted in production',
         });
       }
       if (value.PREORDER_CHAT_ALLOW_UNSCANNED_ATTACHMENTS) {
@@ -2320,5 +2584,6 @@ export const allowedOrigins: readonly string[] = Object.freeze([
   ...env.LOGISTICS_WEB_ORIGIN,
 ]);
 
-/** Decoded AES-256-GCM key. Validated to 32 bytes above. */
-export const secretsEncryptionKey: Buffer = Buffer.from(env.SECRETS_ENCRYPTION_KEY, 'base64');
+// The AES-256-GCM key is no longer decoded here: it can come from a file or a
+// KMS unwrap as well as this environment, so `infra/key-management.ts` loads
+// it (with any previous keys) for `infra/crypto.ts`.

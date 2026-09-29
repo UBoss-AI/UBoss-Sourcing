@@ -60,6 +60,7 @@ export type ImportJobMinAggregateOutputType = {
   createdAt: Date | null
   startedAt: Date | null
   completedAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ImportJobMaxAggregateOutputType = {
@@ -80,6 +81,7 @@ export type ImportJobMaxAggregateOutputType = {
   createdAt: Date | null
   startedAt: Date | null
   completedAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ImportJobCountAggregateOutputType = {
@@ -101,6 +103,7 @@ export type ImportJobCountAggregateOutputType = {
   createdAt: number
   startedAt: number
   completedAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -139,6 +142,7 @@ export type ImportJobMinAggregateInputType = {
   createdAt?: true
   startedAt?: true
   completedAt?: true
+  updatedAt?: true
 }
 
 export type ImportJobMaxAggregateInputType = {
@@ -159,6 +163,7 @@ export type ImportJobMaxAggregateInputType = {
   createdAt?: true
   startedAt?: true
   completedAt?: true
+  updatedAt?: true
 }
 
 export type ImportJobCountAggregateInputType = {
@@ -180,6 +185,7 @@ export type ImportJobCountAggregateInputType = {
   createdAt?: true
   startedAt?: true
   completedAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -288,6 +294,7 @@ export type ImportJobGroupByOutputType = {
   createdAt: Date
   startedAt: Date | null
   completedAt: Date | null
+  updatedAt: Date
   _count: ImportJobCountAggregateOutputType | null
   _avg: ImportJobAvgAggregateOutputType | null
   _sum: ImportJobSumAggregateOutputType | null
@@ -332,6 +339,7 @@ export type ImportJobWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ImportJob"> | Date | string
   startedAt?: Prisma.DateTimeNullableFilter<"ImportJob"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"ImportJob"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"ImportJob"> | Date | string
   rowErrors?: Prisma.ImportRowErrorListRelationFilter
 }
 
@@ -354,6 +362,7 @@ export type ImportJobOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   rowErrors?: Prisma.ImportRowErrorOrderByRelationAggregateInput
   _relevance?: Prisma.ImportJobOrderByRelevanceInput
 }
@@ -380,6 +389,7 @@ export type ImportJobWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"ImportJob"> | Date | string
   startedAt?: Prisma.DateTimeNullableFilter<"ImportJob"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"ImportJob"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"ImportJob"> | Date | string
   rowErrors?: Prisma.ImportRowErrorListRelationFilter
 }, "id">
 
@@ -402,6 +412,7 @@ export type ImportJobOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ImportJobCountOrderByAggregateInput
   _avg?: Prisma.ImportJobAvgOrderByAggregateInput
   _max?: Prisma.ImportJobMaxOrderByAggregateInput
@@ -431,6 +442,7 @@ export type ImportJobScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ImportJob"> | Date | string
   startedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ImportJob"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ImportJob"> | Date | string | null
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ImportJob"> | Date | string
 }
 
 export type ImportJobCreateInput = {
@@ -452,6 +464,7 @@ export type ImportJobCreateInput = {
   createdAt?: Date | string
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  updatedAt?: Date | string
   rowErrors?: Prisma.ImportRowErrorCreateNestedManyWithoutImportJobInput
 }
 
@@ -474,6 +487,7 @@ export type ImportJobUncheckedCreateInput = {
   createdAt?: Date | string
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  updatedAt?: Date | string
   rowErrors?: Prisma.ImportRowErrorUncheckedCreateNestedManyWithoutImportJobInput
 }
 
@@ -496,6 +510,7 @@ export type ImportJobUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rowErrors?: Prisma.ImportRowErrorUpdateManyWithoutImportJobNestedInput
 }
 
@@ -518,6 +533,7 @@ export type ImportJobUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rowErrors?: Prisma.ImportRowErrorUncheckedUpdateManyWithoutImportJobNestedInput
 }
 
@@ -540,6 +556,7 @@ export type ImportJobCreateManyInput = {
   createdAt?: Date | string
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type ImportJobUpdateManyMutationInput = {
@@ -561,6 +578,7 @@ export type ImportJobUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ImportJobUncheckedUpdateManyInput = {
@@ -582,6 +600,7 @@ export type ImportJobUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ImportJobOrderByRelevanceInput = {
@@ -609,6 +628,7 @@ export type ImportJobCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ImportJobAvgOrderByAggregateInput = {
@@ -637,6 +657,7 @@ export type ImportJobMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ImportJobMinOrderByAggregateInput = {
@@ -657,6 +678,7 @@ export type ImportJobMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ImportJobSumOrderByAggregateInput = {
@@ -709,6 +731,7 @@ export type ImportJobCreateWithoutRowErrorsInput = {
   createdAt?: Date | string
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type ImportJobUncheckedCreateWithoutRowErrorsInput = {
@@ -730,6 +753,7 @@ export type ImportJobUncheckedCreateWithoutRowErrorsInput = {
   createdAt?: Date | string
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type ImportJobCreateOrConnectWithoutRowErrorsInput = {
@@ -767,6 +791,7 @@ export type ImportJobUpdateWithoutRowErrorsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ImportJobUncheckedUpdateWithoutRowErrorsInput = {
@@ -788,6 +813,7 @@ export type ImportJobUncheckedUpdateWithoutRowErrorsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -840,6 +866,7 @@ export type ImportJobSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   createdAt?: boolean
   startedAt?: boolean
   completedAt?: boolean
+  updatedAt?: boolean
   rowErrors?: boolean | Prisma.ImportJob$rowErrorsArgs<ExtArgs>
   _count?: boolean | Prisma.ImportJobCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["importJob"]>
@@ -865,9 +892,10 @@ export type ImportJobSelectScalar = {
   createdAt?: boolean
   startedAt?: boolean
   completedAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ImportJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "fileKey" | "fileName" | "isDryRun" | "status" | "totalRows" | "validRows" | "errorRows" | "createdRows" | "updatedRows" | "resultJson" | "errorMessage" | "confirmedFromJobId" | "createdById" | "createdAt" | "startedAt" | "completedAt", ExtArgs["result"]["importJob"]>
+export type ImportJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "fileKey" | "fileName" | "isDryRun" | "status" | "totalRows" | "validRows" | "errorRows" | "createdRows" | "updatedRows" | "resultJson" | "errorMessage" | "confirmedFromJobId" | "createdById" | "createdAt" | "startedAt" | "completedAt" | "updatedAt", ExtArgs["result"]["importJob"]>
 export type ImportJobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rowErrors?: boolean | Prisma.ImportJob$rowErrorsArgs<ExtArgs>
   _count?: boolean | Prisma.ImportJobCountOutputTypeDefaultArgs<ExtArgs>
@@ -909,6 +937,7 @@ export type $ImportJobPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     createdAt: Date
     startedAt: Date | null
     completedAt: Date | null
+    updatedAt: Date
   }, ExtArgs["result"]["importJob"]>
   composites: {}
 }
@@ -1297,6 +1326,7 @@ export interface ImportJobFieldRefs {
   readonly createdAt: Prisma.FieldRef<"ImportJob", 'DateTime'>
   readonly startedAt: Prisma.FieldRef<"ImportJob", 'DateTime'>
   readonly completedAt: Prisma.FieldRef<"ImportJob", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ImportJob", 'DateTime'>
 }
     
 

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
 import { SessionProvider } from '@/auth/SessionProvider';
+import { StepUpProvider } from '@/auth/StepUpProvider';
 import { StorefrontProvider } from '@/app/StorefrontProvider';
 import { ThemeProvider } from '@/app/ThemeProvider';
 import { LocaleProvider } from '@/app/LocaleProvider';
@@ -43,7 +44,11 @@ createRoot(container).render(
                   {/* Inside the session: the shopper's saved market is read from
                       their profile, and adopted from localStorage on sign-in. */}
                   <LocaleProvider>
-                    <RouterProvider router={router} />
+                    {/* "Confirm it is you" before a sensitive act - a dialog
+                        any request can raise, so no screen has to know. */}
+                    <StepUpProvider>
+                      <RouterProvider router={router} />
+                    </StepUpProvider>
                   </LocaleProvider>
                 </I18nProvider>
               </SessionProvider>

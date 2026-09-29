@@ -44,6 +44,7 @@ export type OrderApprovalMinAggregateOutputType = {
   decidedAt: Date | null
   comment: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type OrderApprovalMaxAggregateOutputType = {
@@ -56,6 +57,7 @@ export type OrderApprovalMaxAggregateOutputType = {
   decidedAt: Date | null
   comment: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type OrderApprovalCountAggregateOutputType = {
@@ -68,6 +70,7 @@ export type OrderApprovalCountAggregateOutputType = {
   decidedAt: number
   comment: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -90,6 +93,7 @@ export type OrderApprovalMinAggregateInputType = {
   decidedAt?: true
   comment?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type OrderApprovalMaxAggregateInputType = {
@@ -102,6 +106,7 @@ export type OrderApprovalMaxAggregateInputType = {
   decidedAt?: true
   comment?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type OrderApprovalCountAggregateInputType = {
@@ -114,6 +119,7 @@ export type OrderApprovalCountAggregateInputType = {
   decidedAt?: true
   comment?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -213,6 +219,7 @@ export type OrderApprovalGroupByOutputType = {
   decidedAt: Date | null
   comment: string | null
   createdAt: Date
+  updatedAt: Date
   _count: OrderApprovalCountAggregateOutputType | null
   _avg: OrderApprovalAvgAggregateOutputType | null
   _sum: OrderApprovalSumAggregateOutputType | null
@@ -248,6 +255,7 @@ export type OrderApprovalWhereInput = {
   decidedAt?: Prisma.DateTimeNullableFilter<"OrderApproval"> | Date | string | null
   comment?: Prisma.StringNullableFilter<"OrderApproval"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrderApproval"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderApproval"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
 }
 
@@ -261,6 +269,7 @@ export type OrderApprovalOrderByWithRelationInput = {
   decidedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   comment?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   order?: Prisma.OrderOrderByWithRelationInput
   _relevance?: Prisma.OrderApprovalOrderByRelevanceInput
 }
@@ -278,6 +287,7 @@ export type OrderApprovalWhereUniqueInput = Prisma.AtLeast<{
   decidedAt?: Prisma.DateTimeNullableFilter<"OrderApproval"> | Date | string | null
   comment?: Prisma.StringNullableFilter<"OrderApproval"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrderApproval"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderApproval"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
 }, "id">
 
@@ -291,6 +301,7 @@ export type OrderApprovalOrderByWithAggregationInput = {
   decidedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   comment?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrderApprovalCountOrderByAggregateInput
   _avg?: Prisma.OrderApprovalAvgOrderByAggregateInput
   _max?: Prisma.OrderApprovalMaxOrderByAggregateInput
@@ -311,6 +322,7 @@ export type OrderApprovalScalarWhereWithAggregatesInput = {
   decidedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"OrderApproval"> | Date | string | null
   comment?: Prisma.StringNullableWithAggregatesFilter<"OrderApproval"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OrderApproval"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"OrderApproval"> | Date | string
 }
 
 export type OrderApprovalCreateInput = {
@@ -322,6 +334,7 @@ export type OrderApprovalCreateInput = {
   decidedAt?: Date | string | null
   comment?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutApprovalsInput
 }
 
@@ -335,6 +348,7 @@ export type OrderApprovalUncheckedCreateInput = {
   decidedAt?: Date | string | null
   comment?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderApprovalUpdateInput = {
@@ -346,6 +360,7 @@ export type OrderApprovalUpdateInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutApprovalsNestedInput
 }
 
@@ -359,6 +374,7 @@ export type OrderApprovalUncheckedUpdateInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderApprovalCreateManyInput = {
@@ -371,6 +387,7 @@ export type OrderApprovalCreateManyInput = {
   decidedAt?: Date | string | null
   comment?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderApprovalUpdateManyMutationInput = {
@@ -382,6 +399,7 @@ export type OrderApprovalUpdateManyMutationInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderApprovalUncheckedUpdateManyInput = {
@@ -394,6 +412,7 @@ export type OrderApprovalUncheckedUpdateManyInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderApprovalListRelationFilter = {
@@ -422,6 +441,7 @@ export type OrderApprovalCountOrderByAggregateInput = {
   decidedAt?: Prisma.SortOrder
   comment?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderApprovalAvgOrderByAggregateInput = {
@@ -438,6 +458,7 @@ export type OrderApprovalMaxOrderByAggregateInput = {
   decidedAt?: Prisma.SortOrder
   comment?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderApprovalMinOrderByAggregateInput = {
@@ -450,6 +471,7 @@ export type OrderApprovalMinOrderByAggregateInput = {
   decidedAt?: Prisma.SortOrder
   comment?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderApprovalSumOrderByAggregateInput = {
@@ -511,6 +533,7 @@ export type OrderApprovalCreateWithoutOrderInput = {
   decidedAt?: Date | string | null
   comment?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderApprovalUncheckedCreateWithoutOrderInput = {
@@ -522,6 +545,7 @@ export type OrderApprovalUncheckedCreateWithoutOrderInput = {
   decidedAt?: Date | string | null
   comment?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderApprovalCreateOrConnectWithoutOrderInput = {
@@ -563,6 +587,7 @@ export type OrderApprovalScalarWhereInput = {
   decidedAt?: Prisma.DateTimeNullableFilter<"OrderApproval"> | Date | string | null
   comment?: Prisma.StringNullableFilter<"OrderApproval"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrderApproval"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderApproval"> | Date | string
 }
 
 export type OrderApprovalCreateManyOrderInput = {
@@ -574,6 +599,7 @@ export type OrderApprovalCreateManyOrderInput = {
   decidedAt?: Date | string | null
   comment?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderApprovalUpdateWithoutOrderInput = {
@@ -585,6 +611,7 @@ export type OrderApprovalUpdateWithoutOrderInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderApprovalUncheckedUpdateWithoutOrderInput = {
@@ -596,6 +623,7 @@ export type OrderApprovalUncheckedUpdateWithoutOrderInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderApprovalUncheckedUpdateManyWithoutOrderInput = {
@@ -607,6 +635,7 @@ export type OrderApprovalUncheckedUpdateManyWithoutOrderInput = {
   decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -621,6 +650,7 @@ export type OrderApprovalSelect<ExtArgs extends runtime.Types.Extensions.Interna
   decidedAt?: boolean
   comment?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["orderApproval"]>
 
@@ -636,9 +666,10 @@ export type OrderApprovalSelectScalar = {
   decidedAt?: boolean
   comment?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type OrderApprovalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "status" | "requiredReason" | "thresholdMinor" | "decidedById" | "decidedAt" | "comment" | "createdAt", ExtArgs["result"]["orderApproval"]>
+export type OrderApprovalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "status" | "requiredReason" | "thresholdMinor" | "decidedById" | "decidedAt" | "comment" | "createdAt" | "updatedAt", ExtArgs["result"]["orderApproval"]>
 export type OrderApprovalInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
 }
@@ -658,6 +689,7 @@ export type $OrderApprovalPayload<ExtArgs extends runtime.Types.Extensions.Inter
     decidedAt: Date | null
     comment: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["orderApproval"]>
   composites: {}
 }
@@ -1037,6 +1069,7 @@ export interface OrderApprovalFieldRefs {
   readonly decidedAt: Prisma.FieldRef<"OrderApproval", 'DateTime'>
   readonly comment: Prisma.FieldRef<"OrderApproval", 'String'>
   readonly createdAt: Prisma.FieldRef<"OrderApproval", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"OrderApproval", 'DateTime'>
 }
     
 

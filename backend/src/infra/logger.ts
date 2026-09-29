@@ -14,7 +14,7 @@ import { env, isDevelopment, isTest } from '../config/env.js';
  * serialised. Covers credentials, session material, payment secrets and the
  * personal data we have no operational reason to keep in logs.
  */
-const REDACTED_PATHS = [
+export const REDACTED_PATHS = [
   // Credentials and session material
   'password',
   '*.password',
@@ -86,6 +86,28 @@ const REDACTED_PATHS = [
   '*.card',
   'cvv',
   'cardNumber',
+  '*.cardNumber',
+  'pan',
+  'cvc',
+  'iban',
+  '*.iban',
+  'accountNumber',
+  '*.accountNumber',
+  'clientSecret',
+  '*.clientSecret',
+  '*.keySecret',
+  '*.apiSecret',
+  '*.webhookSecret',
+  'privateKey',
+  '*.privateKey',
+
+  // Every other envelope column. Ciphertext is not a secret on its own, but
+  // it has no business in a log and "which rows hold a credential" is a map.
+  'payloadEnc',
+  'codeVerifier',
+  'codeVerifierEnc',
+  'oauthTokenEnc',
+  'apiKeyEncrypted',
 
   // Personal data with no operational value in a log line
   'req.body.email',
@@ -94,13 +116,64 @@ const REDACTED_PATHS = [
   'shippingAddressJson',
 ] as const;
 
-const baseOptions: LoggerOptions = {
+/**
+ * A card number that slipped into free text - an error message quoting a
+ * provider's response, a note somebody pasted - is masked to its last four
+ * digits. 13 to 19 digits, optionally grouped by spaces or dashes, and only
+ * when the Luhn check passes, so order numbers and timestamps are left alone.
+ */
+const PAN_CANDIDATE = /\b\d(?:[ -]?\d){12,18}\b/g;
+
+function luhnValid(digits: string): boolean {
+  let sum = 0;
+  let double = false;
+  for (let index = digits.length - 1; index >= 0; index -= 1) {
+    let digit = digits.charCodeAt(index) - 48;
+    if (double) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+    sum += digit;
+    double = !double;
+  }
+  return sum % 10 === 0;
+}
+
+export function maskCardNumbers(text: string): string {
+  return text.replace(PAN_CANDIDATE, (match) => {
+    const digits = match.replace(/[ -]/g, '');
+    return luhnValid(digits) ? `[CARD ****${digits.slice(-4)}]` : match;
+  });
+}
+
+function maskStrings(record: Record<string, unknown>): Record<string, unknown> {
+  const masked: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(record)) {
+    masked[key] = typeof value === 'string' ? maskCardNumbers(value) : value;
+  }
+  return masked;
+}
+
+export const loggerOptions: LoggerOptions = {
   level: isTest ? (process.env.TEST_LOG_LEVEL ?? 'silent') : env.LOG_LEVEL,
   redact: { paths: [...REDACTED_PATHS], censor: '[REDACTED]' },
   base: { service: 'uboss-api', env: env.NODE_ENV },
   timestamp: pino.stdTimeFunctions.isoTime,
   formatters: {
     level: (label) => ({ level: label }),
+    // Top-level string fields: `reason`, `providerMessage`, and so on.
+    log: (record) => maskStrings(record),
+  },
+  hooks: {
+    // The message itself, and any interpolation arguments.
+    logMethod(args, method) {
+      method.apply(
+        this,
+        args.map((arg) => (typeof arg === 'string' ? maskCardNumbers(arg) : arg)) as Parameters<
+          typeof method
+        >,
+      );
+    },
   },
   serializers: {
     // Deliberately narrow: log the shape of a request, never its contents.
@@ -110,20 +183,29 @@ const baseOptions: LoggerOptions = {
     res(reply: { statusCode?: number }) {
       return { statusCode: reply.statusCode };
     },
-    err: pino.stdSerializers.err,
+    err(error: Error) {
+      const serialised = pino.stdSerializers.err(error);
+      return {
+        ...serialised,
+        message: maskCardNumbers(serialised.message),
+        ...(typeof serialised.stack === 'string'
+          ? { stack: maskCardNumbers(serialised.stack) }
+          : {}),
+      };
+    },
   },
 };
 
 export const logger: Logger = pino(
   isDevelopment
     ? {
-        ...baseOptions,
+        ...loggerOptions,
         transport: {
           target: 'pino-pretty',
           options: { colorize: true, translateTime: 'HH:MM:ss.l', ignore: 'pid,hostname,service,env' },
         },
       }
-    : baseOptions,
+    : loggerOptions,
 );
 
 /**

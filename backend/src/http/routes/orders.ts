@@ -352,6 +352,9 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
           select: {
             id: true,
             sellerOrderGroupId: true,
+            // Which of the shop's own despatch notes this consignment is, so
+            // the tracking panel can hang its timeline off the right line.
+            operatorShipmentId: true,
             trackingNumber: true,
             // The carrier's OWN waybill number, which is what the buyer types
             // into DHL's site. Present only when a carrier API returned it or
@@ -421,6 +424,23 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
     const groupShipmentCounts = new Map(
       order.sellerOrderGroups.map((group) => [group.id, group.shipments.length]),
     );
+    /*
+     * Which consignments each line of the tracking list stands for.
+     *
+     * A despatch note and the consignment behind it are one parcel (see the
+     * merge below), so the note's line carries the consignment's id and the
+     * tracking panel (`GET /orders/:id/tracking`) hangs the carrier timeline,
+     * the ETA and the proof of delivery off it. The group's consignments go on
+     * its FIRST note only, so a seller who typed two notes does not show the
+     * same timeline twice.
+     */
+    const consignmentIdsByGroup = new Map<string, string[]>();
+    for (const consignment of order.logisticsShipments) {
+      if (consignment.sellerOrderGroupId === null) continue;
+      const list = consignmentIdsByGroup.get(consignment.sellerOrderGroupId) ?? [];
+      list.push(consignment.id);
+      consignmentIdsByGroup.set(consignment.sellerOrderGroupId, list);
+    }
 
     return reply.status(200).send({
       order: {
@@ -517,9 +537,13 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
             // This shop's own box. Null rather than the shop's name: a buyer
             // on a shop's own site does not need telling who the shop is.
             sentBy: null,
+            consignmentIds: order.logisticsShipments
+              .filter((consignment) => consignment.operatorShipmentId === shipment.id)
+              .map((consignment) => consignment.id),
           })),
           ...order.sellerOrderGroups.flatMap((group) =>
-            group.shipments.map((shipment) => ({
+            group.shipments.map((shipment, noteIndex) => ({
+              consignmentIds: noteIndex === 0 ? (consignmentIdsByGroup.get(group.id) ?? []) : [],
               carrier: shipment.carrierName,
               trackingNumber: shipment.trackingNumber,
               trackingUrl: shipment.trackingUrl,
@@ -546,6 +570,7 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
                 : (groupShipmentCounts.get(consignment.sellerOrderGroupId) ?? 0) === 0,
             )
             .map((consignment) => ({
+              consignmentIds: [consignment.id],
               /*
                * The carrier actually holding it, or the seller's approved
                * public name for how they deliver.

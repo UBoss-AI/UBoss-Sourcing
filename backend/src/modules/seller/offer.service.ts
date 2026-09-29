@@ -25,7 +25,8 @@ import {
   type SellerMembership,
 } from './account.service.js';
 
-export type OfferStatusName = 'INACTIVE' | 'ACTIVE' | 'PAUSED' | 'NEEDS_CHANGES' | 'ARCHIVED';
+/** BLOCKED is set by the marketplace, never by the seller. */
+export type OfferStatusName = 'INACTIVE' | 'ACTIVE' | 'PAUSED' | 'NEEDS_CHANGES' | 'ARCHIVED' | 'BLOCKED';
 
 export interface OfferListQuery {
   status?: OfferStatusName | null;

@@ -20,6 +20,7 @@
  * button that works.
  */
 import { ErrorCode, conflict } from './errors.js';
+import { assertInspectionGateOpen, type InspectionGateVerdict } from './inspection-gate.js';
 import { zonedCalendarDate, zonedTimeToUtc } from './recurrence.js';
 
 // ---------------------------------------------------------------------------
@@ -476,6 +477,19 @@ const ORDER_GROUP_TRANSITIONS: Readonly<
   REFUNDED: [],
 });
 
+/**
+ * The moves the pre-shipment inspection gate guards.
+ *
+ * READY_FOR_DISPATCH is "approved for dispatch" and SHIPPED is the goods
+ * leaving. When the order needs inspecting, neither is legal until the gate in
+ * `inspection-gate.ts` is open, and a request for either that arrives without
+ * a verdict at all is refused - see `assertSellerOrderTransition`.
+ */
+export const SELLER_ORDER_GATED_STATUSES: readonly SellerOrderGroupStatusName[] = Object.freeze([
+  'READY_FOR_DISPATCH',
+  'SHIPPED',
+]);
+
 /** Statuses in which the seller's stock is committed to this order. */
 export const SELLER_ORDER_STOCK_HELD: readonly SellerOrderGroupStatusName[] = Object.freeze([
   'NEW',
@@ -487,9 +501,17 @@ export const SELLER_ORDER_STOCK_HELD: readonly SellerOrderGroupStatusName[] = Ob
 export function allowedSellerOrderTransitions(
   from: SellerOrderGroupStatusName,
   actor: SellerActor,
+  /** When given and shut, the gated moves are left out - the button would not work. */
+  inspectionGate?: InspectionGateVerdict,
 ): { to: SellerOrderGroupStatusName; requiresReason: boolean }[] {
   return (ORDER_GROUP_TRANSITIONS[from] ?? [])
     .filter((rule) => rule.actors.includes(actor))
+    .filter(
+      (rule) =>
+        inspectionGate === undefined ||
+        inspectionGate.open ||
+        !SELLER_ORDER_GATED_STATUSES.includes(rule.to),
+    )
     .map((rule) => ({ to: rule.to, requiresReason: rule.requiresReason === true }));
 }
 
@@ -498,6 +520,12 @@ export interface SellerOrderTransitionRequest {
   to: SellerOrderGroupStatusName;
   actor: SellerActor;
   reason?: string | null;
+  /**
+   * The pre-shipment inspection verdict for this seller order. Required for
+   * READY_FOR_DISPATCH and SHIPPED - computed by `evaluateSellerOrderGate`
+   * in `modules/inspection/gate.service.ts` inside the same transaction.
+   */
+  inspectionGate?: InspectionGateVerdict;
 }
 
 /** Throws unless the seller order transition is legal. */
@@ -537,6 +565,12 @@ export function assertSellerOrderTransition(request: SellerOrderTransitionReques
       `Moving a seller order to ${to} needs a reason.`,
       [{ field: 'reason', code: 'REASON_REQUIRED', meta: { from, to } }],
     );
+  }
+
+  // Last, once the move is otherwise legal: the dispatch gate. Fail-closed -
+  // a guarded move with no verdict is refused, not waved through.
+  if (SELLER_ORDER_GATED_STATUSES.includes(to)) {
+    assertInspectionGateOpen(request.inspectionGate, 'SELLER_ORDER', { from, to });
   }
 }
 

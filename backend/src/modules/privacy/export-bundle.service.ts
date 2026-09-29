@@ -515,6 +515,25 @@ export async function buildCustomerBundle(
           cancelledAt: true,
           cancelReason: true,
           createdAt: true,
+          // Their returns: the reason they gave in their own words, what they
+          // asked for, and what was decided. The seller's view of it is the
+          // seller's, and is not theirs to receive.
+          returnRequests: {
+            orderBy: { createdAt: 'asc' },
+            select: {
+              id: true,
+              status: true,
+              reasonCode: true,
+              reason: true,
+              preferredResolution: true,
+              decisionNote: true,
+              returnInstructions: true,
+              createdAt: true,
+              completedAt: true,
+              lines: { select: { orderItemId: true, quantity: true } },
+              files: { select: { kind: true, contentType: true, byteSize: true, createdAt: true } },
+            },
+          },
           items: {
             select: {
               nameSnapshot: true,
@@ -831,6 +850,12 @@ export async function buildCustomerBundle(
       confirmedAt: iso(order.confirmedAt),
       cancelledAt: iso(order.cancelledAt),
       createdAt: iso(order.createdAt),
+      returnRequests: order.returnRequests.map((entry) => ({
+        ...entry,
+        createdAt: iso(entry.createdAt),
+        completedAt: iso(entry.completedAt),
+        files: entry.files.map((file) => ({ ...file, createdAt: iso(file.createdAt) })),
+      })),
       items: order.items.map((item) => ({
         ...item,
         unitPriceMinor: money(item.unitPriceMinor),
@@ -969,6 +994,7 @@ export async function buildCustomerBundle(
         retryPreference: settings.retryPreference,
         notifyOnCharge: settings.notifyOnCharge,
         notifyOnFailure: settings.notifyOnFailure,
+        authorityExpiresAt: iso(settings.authorityExpiresAt),
         consentAcceptedAt: iso(settings.consentAcceptedAt),
         consentVersion: settings.consentVersion,
         consentWithdrawnAt: iso(settings.consentWithdrawnAt),

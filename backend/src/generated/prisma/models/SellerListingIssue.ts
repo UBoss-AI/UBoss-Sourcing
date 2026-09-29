@@ -41,6 +41,7 @@ export type SellerListingIssueMinAggregateOutputType = {
   isFromModerator: boolean | null
   resolvedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerListingIssueMaxAggregateOutputType = {
@@ -54,6 +55,7 @@ export type SellerListingIssueMaxAggregateOutputType = {
   isFromModerator: boolean | null
   resolvedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerListingIssueCountAggregateOutputType = {
@@ -67,6 +69,7 @@ export type SellerListingIssueCountAggregateOutputType = {
   isFromModerator: number
   resolvedAt: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -82,6 +85,7 @@ export type SellerListingIssueMinAggregateInputType = {
   isFromModerator?: true
   resolvedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerListingIssueMaxAggregateInputType = {
@@ -95,6 +99,7 @@ export type SellerListingIssueMaxAggregateInputType = {
   isFromModerator?: true
   resolvedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerListingIssueCountAggregateInputType = {
@@ -108,6 +113,7 @@ export type SellerListingIssueCountAggregateInputType = {
   isFromModerator?: true
   resolvedAt?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -194,6 +200,7 @@ export type SellerListingIssueGroupByOutputType = {
   isFromModerator: boolean
   resolvedAt: Date | null
   createdAt: Date
+  updatedAt: Date
   _count: SellerListingIssueCountAggregateOutputType | null
   _min: SellerListingIssueMinAggregateOutputType | null
   _max: SellerListingIssueMaxAggregateOutputType | null
@@ -228,6 +235,7 @@ export type SellerListingIssueWhereInput = {
   isFromModerator?: Prisma.BoolFilter<"SellerListingIssue"> | boolean
   resolvedAt?: Prisma.DateTimeNullableFilter<"SellerListingIssue"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerListingIssue"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerListingIssue"> | Date | string
   draft?: Prisma.XOR<Prisma.SellerListingDraftScalarRelationFilter, Prisma.SellerListingDraftWhereInput>
 }
 
@@ -242,6 +250,7 @@ export type SellerListingIssueOrderByWithRelationInput = {
   isFromModerator?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   draft?: Prisma.SellerListingDraftOrderByWithRelationInput
   _relevance?: Prisma.SellerListingIssueOrderByRelevanceInput
 }
@@ -260,6 +269,7 @@ export type SellerListingIssueWhereUniqueInput = Prisma.AtLeast<{
   isFromModerator?: Prisma.BoolFilter<"SellerListingIssue"> | boolean
   resolvedAt?: Prisma.DateTimeNullableFilter<"SellerListingIssue"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerListingIssue"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerListingIssue"> | Date | string
   draft?: Prisma.XOR<Prisma.SellerListingDraftScalarRelationFilter, Prisma.SellerListingDraftWhereInput>
 }, "id">
 
@@ -274,6 +284,7 @@ export type SellerListingIssueOrderByWithAggregationInput = {
   isFromModerator?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerListingIssueCountOrderByAggregateInput
   _max?: Prisma.SellerListingIssueMaxOrderByAggregateInput
   _min?: Prisma.SellerListingIssueMinOrderByAggregateInput
@@ -293,6 +304,7 @@ export type SellerListingIssueScalarWhereWithAggregatesInput = {
   isFromModerator?: Prisma.BoolWithAggregatesFilter<"SellerListingIssue"> | boolean
   resolvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerListingIssue"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerListingIssue"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerListingIssue"> | Date | string
 }
 
 export type SellerListingIssueCreateInput = {
@@ -305,6 +317,7 @@ export type SellerListingIssueCreateInput = {
   isFromModerator?: boolean
   resolvedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   draft: Prisma.SellerListingDraftCreateNestedOneWithoutIssuesInput
 }
 
@@ -319,6 +332,7 @@ export type SellerListingIssueUncheckedCreateInput = {
   isFromModerator?: boolean
   resolvedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerListingIssueUpdateInput = {
@@ -331,6 +345,7 @@ export type SellerListingIssueUpdateInput = {
   isFromModerator?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   draft?: Prisma.SellerListingDraftUpdateOneRequiredWithoutIssuesNestedInput
 }
 
@@ -345,6 +360,7 @@ export type SellerListingIssueUncheckedUpdateInput = {
   isFromModerator?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerListingIssueCreateManyInput = {
@@ -358,6 +374,7 @@ export type SellerListingIssueCreateManyInput = {
   isFromModerator?: boolean
   resolvedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerListingIssueUpdateManyMutationInput = {
@@ -370,6 +387,7 @@ export type SellerListingIssueUpdateManyMutationInput = {
   isFromModerator?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerListingIssueUncheckedUpdateManyInput = {
@@ -383,6 +401,7 @@ export type SellerListingIssueUncheckedUpdateManyInput = {
   isFromModerator?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerListingIssueListRelationFilter = {
@@ -412,6 +431,7 @@ export type SellerListingIssueCountOrderByAggregateInput = {
   isFromModerator?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerListingIssueMaxOrderByAggregateInput = {
@@ -425,6 +445,7 @@ export type SellerListingIssueMaxOrderByAggregateInput = {
   isFromModerator?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerListingIssueMinOrderByAggregateInput = {
@@ -438,6 +459,7 @@ export type SellerListingIssueMinOrderByAggregateInput = {
   isFromModerator?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerListingIssueCreateNestedManyWithoutDraftInput = {
@@ -500,6 +522,7 @@ export type SellerListingIssueCreateWithoutDraftInput = {
   isFromModerator?: boolean
   resolvedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerListingIssueUncheckedCreateWithoutDraftInput = {
@@ -512,6 +535,7 @@ export type SellerListingIssueUncheckedCreateWithoutDraftInput = {
   isFromModerator?: boolean
   resolvedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerListingIssueCreateOrConnectWithoutDraftInput = {
@@ -554,6 +578,7 @@ export type SellerListingIssueScalarWhereInput = {
   isFromModerator?: Prisma.BoolFilter<"SellerListingIssue"> | boolean
   resolvedAt?: Prisma.DateTimeNullableFilter<"SellerListingIssue"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerListingIssue"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerListingIssue"> | Date | string
 }
 
 export type SellerListingIssueCreateManyDraftInput = {
@@ -566,6 +591,7 @@ export type SellerListingIssueCreateManyDraftInput = {
   isFromModerator?: boolean
   resolvedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerListingIssueUpdateWithoutDraftInput = {
@@ -578,6 +604,7 @@ export type SellerListingIssueUpdateWithoutDraftInput = {
   isFromModerator?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerListingIssueUncheckedUpdateWithoutDraftInput = {
@@ -590,6 +617,7 @@ export type SellerListingIssueUncheckedUpdateWithoutDraftInput = {
   isFromModerator?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerListingIssueUncheckedUpdateManyWithoutDraftInput = {
@@ -602,6 +630,7 @@ export type SellerListingIssueUncheckedUpdateManyWithoutDraftInput = {
   isFromModerator?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -617,6 +646,7 @@ export type SellerListingIssueSelect<ExtArgs extends runtime.Types.Extensions.In
   isFromModerator?: boolean
   resolvedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   draft?: boolean | Prisma.SellerListingDraftDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerListingIssue"]>
 
@@ -633,9 +663,10 @@ export type SellerListingIssueSelectScalar = {
   isFromModerator?: boolean
   resolvedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerListingIssueOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "draftId" | "severity" | "code" | "section" | "attributeKey" | "message" | "isFromModerator" | "resolvedAt" | "createdAt", ExtArgs["result"]["sellerListingIssue"]>
+export type SellerListingIssueOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "draftId" | "severity" | "code" | "section" | "attributeKey" | "message" | "isFromModerator" | "resolvedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerListingIssue"]>
 export type SellerListingIssueInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   draft?: boolean | Prisma.SellerListingDraftDefaultArgs<ExtArgs>
 }
@@ -665,6 +696,7 @@ export type $SellerListingIssuePayload<ExtArgs extends runtime.Types.Extensions.
     isFromModerator: boolean
     resolvedAt: Date | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerListingIssue"]>
   composites: {}
 }
@@ -1045,6 +1077,7 @@ export interface SellerListingIssueFieldRefs {
   readonly isFromModerator: Prisma.FieldRef<"SellerListingIssue", 'Boolean'>
   readonly resolvedAt: Prisma.FieldRef<"SellerListingIssue", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"SellerListingIssue", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerListingIssue", 'DateTime'>
 }
     
 

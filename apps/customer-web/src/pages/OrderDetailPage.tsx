@@ -34,6 +34,8 @@ import { Modal } from '@/components/Modal';
 import { GrandTotalRow, TotalRow } from '@/components/Totals';
 import { OrderDeliveryLevels } from '@/components/OrderDeliveryLevels';
 import { OrderSellerInvoices } from '@/components/OrderSellerInvoices';
+import { OrderPaymentReceipts } from '@/components/OrderPaymentReceipts';
+import { OrderTracking } from '@/components/order-tracking/OrderTracking';
 import { CheckIcon, DotIcon, HeadsetIcon, RepeatIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { cx } from '@/lib/cx';
@@ -553,88 +555,8 @@ export function OrderDetailPage(): React.JSX.Element {
               </p>
             )}
 
-            {order.shipments.length > 0 && (
-              <div className="mt-4 border-t border-border pt-4">
-                <h3 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                  {t('orderDetail.tracking')}
-                </h3>
-                <ul className="mt-2 space-y-2 text-sm">
-                  {order.shipments.map((shipment, index) => (
-                    <li key={`${shipment.trackingNumber ?? ''}:${String(index)}`}>
-                      <span className="text-ink">{shipment.carrier ?? t('orderDetail.courier')}</span>
-                      {shipment.deliveryStage !== undefined && (
-                        <span className="ml-2 inline-flex rounded-full bg-brand-soft px-2 py-0.5 text-xxs font-medium text-brand">
-                          {t(`orderDetail.stage.${shipment.deliveryStage}`)}
-                        </span>
-                      )}
-                      {shipment.sentBy !== null && (
-                        <span className="ml-2 text-xs text-ink-muted">
-                          {t('orderDetail.sentBy', { seller: shipment.sentBy })}
-                        </span>
-                      )}
-                      {shipment.trackingNumber !== null && (
-                        <span className="ml-2 font-mono text-xs text-ink-muted">
-                          {shipment.trackingNumber}
-                        </span>
-                      )}
-                      {shipment.carrierTrackingNumber !== undefined &&
-                        shipment.carrierTrackingNumber !== null && (
-                          <span className="ml-2 text-xs text-ink-muted">
-                            {t('orderDetail.carrierTrackingNumber', {
-                              number: shipment.carrierTrackingNumber,
-                            })}
-                          </span>
-                        )}
-                      {shipment.trackingUrl !== null && (
-                        <a
-                          href={shipment.trackingUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="ml-2 font-medium text-brand hover:underline"
-                        >
-                          {t('orderDetail.trackIt')}
-                        </a>
-                      )}
-                      {shipment.dispatchedAt !== null && (
-                        <span className="ml-2 text-xs text-ink-subtle">
-                          Dispatched {formatDateTime(shipment.dispatchedAt)}
-                        </span>
-                      )}
-
-                      {/*
-                        Said plainly where updates will NOT appear here on
-                        their own - the India Post case, and any carrier
-                        followed by hand.
-
-                        A buyer who is not told refreshes this page waiting for
-                        movement that was never going to show up on it, and
-                        then telephones somebody. One line is cheaper for
-                        everybody than that call.
-                      */}
-                      {shipment.trackingIsAutomatic === false && (
-                        <p className="mt-1 text-xs leading-relaxed text-ink-muted">
-                          {t('orderDetail.trackingByHand')}
-                        </p>
-                      )}
-
-                      {/* The consignment's own journey, in the words written for the buyer. */}
-                      {shipment.events !== undefined && shipment.events.length > 0 && (
-                        <ol className="mt-2 space-y-1 border-l border-border pl-3">
-                          {shipment.events
-                            .filter((event) => event.description !== null)
-                            .map((event, eventIndex) => (
-                              <li key={`${event.occurredAt}:${String(eventIndex)}`} className="text-xs text-ink-muted">
-                                <span className="text-ink-subtle">{formatDateTime(event.occurredAt)}</span>{' '}
-                                {event.description}
-                              </li>
-                            ))}
-                        </ol>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            {/* Tracking, ETA and proof of delivery: its own component, see the file. */}
+            <OrderTracking orderId={order.id} shipments={order.shipments} />
 
             {order.customerNote !== null && (
               <div className="mt-4 border-t border-border pt-4">
@@ -651,6 +573,8 @@ export function OrderDetailPage(): React.JSX.Element {
         <aside className="space-y-4 lg:sticky lg:top-28 lg:self-start">
           {/* The sellers' tax invoices, once issued. Renders nothing before. */}
           <OrderSellerInvoices orderId={order.id} />
+          {/* A receipt per captured payment and confirmed refund. Nothing before payment. */}
+          <OrderPaymentReceipts orderId={order.id} />
           <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
             <h2 className="text-title-sm text-ink">{t('orderDetail.needSomething')}</h2>
 

@@ -44,6 +44,8 @@ export type ProductVariantAttributeMinAggregateOutputType = {
   unit: string | null
   groupKey: string | null
   sortOrder: number | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ProductVariantAttributeMaxAggregateOutputType = {
@@ -54,6 +56,8 @@ export type ProductVariantAttributeMaxAggregateOutputType = {
   unit: string | null
   groupKey: string | null
   sortOrder: number | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ProductVariantAttributeCountAggregateOutputType = {
@@ -64,6 +68,8 @@ export type ProductVariantAttributeCountAggregateOutputType = {
   unit: number
   groupKey: number
   sortOrder: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -84,6 +90,8 @@ export type ProductVariantAttributeMinAggregateInputType = {
   unit?: true
   groupKey?: true
   sortOrder?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ProductVariantAttributeMaxAggregateInputType = {
@@ -94,6 +102,8 @@ export type ProductVariantAttributeMaxAggregateInputType = {
   unit?: true
   groupKey?: true
   sortOrder?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ProductVariantAttributeCountAggregateInputType = {
@@ -104,6 +114,8 @@ export type ProductVariantAttributeCountAggregateInputType = {
   unit?: true
   groupKey?: true
   sortOrder?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -201,6 +213,8 @@ export type ProductVariantAttributeGroupByOutputType = {
   unit: string | null
   groupKey: string | null
   sortOrder: number
+  createdAt: Date
+  updatedAt: Date
   _count: ProductVariantAttributeCountAggregateOutputType | null
   _avg: ProductVariantAttributeAvgAggregateOutputType | null
   _sum: ProductVariantAttributeSumAggregateOutputType | null
@@ -234,6 +248,8 @@ export type ProductVariantAttributeWhereInput = {
   unit?: Prisma.StringNullableFilter<"ProductVariantAttribute"> | string | null
   groupKey?: Prisma.StringNullableFilter<"ProductVariantAttribute"> | string | null
   sortOrder?: Prisma.IntFilter<"ProductVariantAttribute"> | number
+  createdAt?: Prisma.DateTimeFilter<"ProductVariantAttribute"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ProductVariantAttribute"> | Date | string
   variant?: Prisma.XOR<Prisma.ProductVariantScalarRelationFilter, Prisma.ProductVariantWhereInput>
 }
 
@@ -245,6 +261,8 @@ export type ProductVariantAttributeOrderByWithRelationInput = {
   unit?: Prisma.SortOrderInput | Prisma.SortOrder
   groupKey?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   variant?: Prisma.ProductVariantOrderByWithRelationInput
   _relevance?: Prisma.ProductVariantAttributeOrderByRelevanceInput
 }
@@ -261,6 +279,8 @@ export type ProductVariantAttributeWhereUniqueInput = Prisma.AtLeast<{
   unit?: Prisma.StringNullableFilter<"ProductVariantAttribute"> | string | null
   groupKey?: Prisma.StringNullableFilter<"ProductVariantAttribute"> | string | null
   sortOrder?: Prisma.IntFilter<"ProductVariantAttribute"> | number
+  createdAt?: Prisma.DateTimeFilter<"ProductVariantAttribute"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ProductVariantAttribute"> | Date | string
   variant?: Prisma.XOR<Prisma.ProductVariantScalarRelationFilter, Prisma.ProductVariantWhereInput>
 }, "id" | "variantId_name">
 
@@ -272,6 +292,8 @@ export type ProductVariantAttributeOrderByWithAggregationInput = {
   unit?: Prisma.SortOrderInput | Prisma.SortOrder
   groupKey?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductVariantAttributeCountOrderByAggregateInput
   _avg?: Prisma.ProductVariantAttributeAvgOrderByAggregateInput
   _max?: Prisma.ProductVariantAttributeMaxOrderByAggregateInput
@@ -290,6 +312,8 @@ export type ProductVariantAttributeScalarWhereWithAggregatesInput = {
   unit?: Prisma.StringNullableWithAggregatesFilter<"ProductVariantAttribute"> | string | null
   groupKey?: Prisma.StringNullableWithAggregatesFilter<"ProductVariantAttribute"> | string | null
   sortOrder?: Prisma.IntWithAggregatesFilter<"ProductVariantAttribute"> | number
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductVariantAttribute"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductVariantAttribute"> | Date | string
 }
 
 export type ProductVariantAttributeCreateInput = {
@@ -299,6 +323,8 @@ export type ProductVariantAttributeCreateInput = {
   unit?: string | null
   groupKey?: string | null
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
   variant: Prisma.ProductVariantCreateNestedOneWithoutAttributesInput
 }
 
@@ -310,6 +336,8 @@ export type ProductVariantAttributeUncheckedCreateInput = {
   unit?: string | null
   groupKey?: string | null
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductVariantAttributeUpdateInput = {
@@ -319,6 +347,8 @@ export type ProductVariantAttributeUpdateInput = {
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variant?: Prisma.ProductVariantUpdateOneRequiredWithoutAttributesNestedInput
 }
 
@@ -330,6 +360,8 @@ export type ProductVariantAttributeUncheckedUpdateInput = {
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductVariantAttributeCreateManyInput = {
@@ -340,6 +372,8 @@ export type ProductVariantAttributeCreateManyInput = {
   unit?: string | null
   groupKey?: string | null
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductVariantAttributeUpdateManyMutationInput = {
@@ -349,6 +383,8 @@ export type ProductVariantAttributeUpdateManyMutationInput = {
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductVariantAttributeUncheckedUpdateManyInput = {
@@ -359,6 +395,8 @@ export type ProductVariantAttributeUncheckedUpdateManyInput = {
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductVariantAttributeListRelationFilter = {
@@ -390,6 +428,8 @@ export type ProductVariantAttributeCountOrderByAggregateInput = {
   unit?: Prisma.SortOrder
   groupKey?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductVariantAttributeAvgOrderByAggregateInput = {
@@ -404,6 +444,8 @@ export type ProductVariantAttributeMaxOrderByAggregateInput = {
   unit?: Prisma.SortOrder
   groupKey?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductVariantAttributeMinOrderByAggregateInput = {
@@ -414,6 +456,8 @@ export type ProductVariantAttributeMinOrderByAggregateInput = {
   unit?: Prisma.SortOrder
   groupKey?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductVariantAttributeSumOrderByAggregateInput = {
@@ -469,6 +513,8 @@ export type ProductVariantAttributeCreateWithoutVariantInput = {
   unit?: string | null
   groupKey?: string | null
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductVariantAttributeUncheckedCreateWithoutVariantInput = {
@@ -478,6 +524,8 @@ export type ProductVariantAttributeUncheckedCreateWithoutVariantInput = {
   unit?: string | null
   groupKey?: string | null
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductVariantAttributeCreateOrConnectWithoutVariantInput = {
@@ -517,6 +565,8 @@ export type ProductVariantAttributeScalarWhereInput = {
   unit?: Prisma.StringNullableFilter<"ProductVariantAttribute"> | string | null
   groupKey?: Prisma.StringNullableFilter<"ProductVariantAttribute"> | string | null
   sortOrder?: Prisma.IntFilter<"ProductVariantAttribute"> | number
+  createdAt?: Prisma.DateTimeFilter<"ProductVariantAttribute"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ProductVariantAttribute"> | Date | string
 }
 
 export type ProductVariantAttributeCreateManyVariantInput = {
@@ -526,6 +576,8 @@ export type ProductVariantAttributeCreateManyVariantInput = {
   unit?: string | null
   groupKey?: string | null
   sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductVariantAttributeUpdateWithoutVariantInput = {
@@ -535,6 +587,8 @@ export type ProductVariantAttributeUpdateWithoutVariantInput = {
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductVariantAttributeUncheckedUpdateWithoutVariantInput = {
@@ -544,6 +598,8 @@ export type ProductVariantAttributeUncheckedUpdateWithoutVariantInput = {
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductVariantAttributeUncheckedUpdateManyWithoutVariantInput = {
@@ -553,6 +609,8 @@ export type ProductVariantAttributeUncheckedUpdateManyWithoutVariantInput = {
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -565,6 +623,8 @@ export type ProductVariantAttributeSelect<ExtArgs extends runtime.Types.Extensio
   unit?: boolean
   groupKey?: boolean
   sortOrder?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productVariantAttribute"]>
 
@@ -578,9 +638,11 @@ export type ProductVariantAttributeSelectScalar = {
   unit?: boolean
   groupKey?: boolean
   sortOrder?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ProductVariantAttributeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "variantId" | "name" | "value" | "unit" | "groupKey" | "sortOrder", ExtArgs["result"]["productVariantAttribute"]>
+export type ProductVariantAttributeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "variantId" | "name" | "value" | "unit" | "groupKey" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["productVariantAttribute"]>
 export type ProductVariantAttributeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
 }
@@ -601,6 +663,8 @@ export type $ProductVariantAttributePayload<ExtArgs extends runtime.Types.Extens
      */
     groupKey: string | null
     sortOrder: number
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["productVariantAttribute"]>
   composites: {}
 }
@@ -978,6 +1042,8 @@ export interface ProductVariantAttributeFieldRefs {
   readonly unit: Prisma.FieldRef<"ProductVariantAttribute", 'String'>
   readonly groupKey: Prisma.FieldRef<"ProductVariantAttribute", 'String'>
   readonly sortOrder: Prisma.FieldRef<"ProductVariantAttribute", 'Int'>
+  readonly createdAt: Prisma.FieldRef<"ProductVariantAttribute", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ProductVariantAttribute", 'DateTime'>
 }
     
 

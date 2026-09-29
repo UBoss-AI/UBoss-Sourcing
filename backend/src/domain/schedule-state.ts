@@ -213,6 +213,7 @@ export const OccurrenceStatusValues = [
   'SKIPPED',
   'CANCELLED',
   'FAILED',
+  'AWAITING_CONFIRMATION',
 ] as const;
 
 export type OccurrenceStatusName = (typeof OccurrenceStatusValues)[number];
@@ -258,8 +259,11 @@ const OCCURRENCE_TRANSITIONS: Readonly<
   AWAITING_VALIDATION: [
     // Revalidated; a charge is being started.
     { to: 'PAYMENT_PENDING', actors: ['SYSTEM'] },
-    // Held: stock short, product withdrawn, price moved beyond tolerance.
+    // Held: stock short, product withdrawn.
     { to: 'SKIPPED', actors: ['SYSTEM', 'ADMIN'] },
+    // The price moved beyond the approved tolerance: the customer is asked to
+    // confirm the new total. Nothing has been charged.
+    { to: 'AWAITING_CONFIRMATION', actors: ['SYSTEM'] },
     { to: 'CANCELLED', actors: ['CUSTOMER', 'ADMIN', 'SYSTEM'] },
     { to: 'FAILED', actors: ['SYSTEM'] },
   ],
@@ -293,6 +297,17 @@ const OCCURRENCE_TRANSITIONS: Readonly<
   PAID_ERP_PENDING: [
     // The ERP finally took it. The only forward exit.
     { to: 'COMPLETED', actors: ['SYSTEM'] },
+  ],
+
+  AWAITING_CONFIRMATION: [
+    // The customer accepted the new total. Back to validation, which prices
+    // the basket again with `quoteSchedule` and charges only if the total is
+    // still exactly the one they accepted. Safe: no money has moved. CUSTOMER
+    // only - the whole point is that a person agreed to the new price.
+    { to: 'AWAITING_VALIDATION', actors: ['CUSTOMER'] },
+    // Declined by the customer, or the deadline passed with no answer.
+    { to: 'SKIPPED', actors: ['CUSTOMER', 'SYSTEM'] },
+    { to: 'CANCELLED', actors: ['CUSTOMER', 'ADMIN', 'SYSTEM'] },
   ],
 
   COMPLETED: [],

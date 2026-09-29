@@ -206,6 +206,10 @@ export interface OrchestrationAccess {
   hasAssistant: boolean;
   /** `features.recurringOrders` — whether repeat purchases are switched on. */
   hasRecurringOrders: boolean;
+  /** `features.customerAutopay` — whether `/account/autopay` can be used. */
+  hasCustomerAutopay: boolean;
+  /** `features.customerErp` — whether `/account/integrations/erp` can be used. */
+  hasCustomerErp: boolean;
 }
 
 /**
@@ -227,7 +231,8 @@ function signIn(bodyKey: TranslationKey): NodeOutcome {
 }
 
 export function resolveNode(id: OrchestrationNodeId, access: OrchestrationAccess): NodeOutcome {
-  const { isCustomer, isSessionLoading, hasAssistant, hasRecurringOrders } = access;
+  const { isCustomer, isSessionLoading, hasAssistant, hasRecurringOrders, hasCustomerAutopay, hasCustomerErp } =
+    access;
 
   switch (id) {
     /*
@@ -254,12 +259,18 @@ export function resolveNode(id: OrchestrationNodeId, access: OrchestrationAccess
       if (!isCustomer) return signIn('greeting.note.schedulesGuest');
       return { kind: 'link', to: '/account/schedules' };
 
+    // Both are off by default (FEATURE_CUSTOMER_AUTOPAY, FEATURE_CUSTOMER_ERP).
+    // Checked before the session, like the two above: the answer is the same
+    // for everybody, and a guest told to sign in for a feature this deployment
+    // does not offer would sign in to find nothing.
     case 'autopay':
+      if (!hasCustomerAutopay) return { kind: 'note', bodyKey: 'greeting.note.autopayOff' };
       if (isSessionLoading) return { kind: 'pending' };
       if (!isCustomer) return signIn('greeting.note.autopayGuest');
       return { kind: 'link', to: '/account/autopay' };
 
     case 'erp':
+      if (!hasCustomerErp) return { kind: 'note', bodyKey: 'greeting.note.erpOff' };
       if (isSessionLoading) return { kind: 'pending' };
       if (!isCustomer) return signIn('greeting.note.erpGuest');
       return { kind: 'link', to: '/account/integrations/erp' };

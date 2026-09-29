@@ -46,6 +46,8 @@ export type SellerOfferAvgAggregateOutputType = {
   reservedQuantity: number | null
   qualityScore: number | null
   version: number | null
+  capacityUnitsPerWeek: number | null
+  capacityLeadTimeDays: number | null
 }
 
 export type SellerOfferSumAggregateOutputType = {
@@ -62,6 +64,8 @@ export type SellerOfferSumAggregateOutputType = {
   reservedQuantity: number | null
   qualityScore: number | null
   version: number | null
+  capacityUnitsPerWeek: number | null
+  capacityLeadTimeDays: number | null
 }
 
 export type SellerOfferMinAggregateOutputType = {
@@ -99,6 +103,17 @@ export type SellerOfferMinAggregateOutputType = {
   archivedAt: Date | null
   hsnCode: string | null
   countryOfOrigin: string | null
+  hsVerificationState: $Enums.HsVerificationState | null
+  hsVerifiedCode: string | null
+  hsVerificationNote: string | null
+  hsVerifiedAt: Date | null
+  hsVerifiedByUserId: string | null
+  blockedReason: string | null
+  blockedAt: Date | null
+  blockedByUserId: string | null
+  statusBeforeBlock: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek: number | null
+  capacityLeadTimeDays: number | null
 }
 
 export type SellerOfferMaxAggregateOutputType = {
@@ -136,6 +151,17 @@ export type SellerOfferMaxAggregateOutputType = {
   archivedAt: Date | null
   hsnCode: string | null
   countryOfOrigin: string | null
+  hsVerificationState: $Enums.HsVerificationState | null
+  hsVerifiedCode: string | null
+  hsVerificationNote: string | null
+  hsVerifiedAt: Date | null
+  hsVerifiedByUserId: string | null
+  blockedReason: string | null
+  blockedAt: Date | null
+  blockedByUserId: string | null
+  statusBeforeBlock: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek: number | null
+  capacityLeadTimeDays: number | null
 }
 
 export type SellerOfferCountAggregateOutputType = {
@@ -174,6 +200,17 @@ export type SellerOfferCountAggregateOutputType = {
   archivedAt: number
   hsnCode: number
   countryOfOrigin: number
+  hsVerificationState: number
+  hsVerifiedCode: number
+  hsVerificationNote: number
+  hsVerifiedAt: number
+  hsVerifiedByUserId: number
+  blockedReason: number
+  blockedAt: number
+  blockedByUserId: number
+  statusBeforeBlock: number
+  capacityUnitsPerWeek: number
+  capacityLeadTimeDays: number
   _all: number
 }
 
@@ -192,6 +229,8 @@ export type SellerOfferAvgAggregateInputType = {
   reservedQuantity?: true
   qualityScore?: true
   version?: true
+  capacityUnitsPerWeek?: true
+  capacityLeadTimeDays?: true
 }
 
 export type SellerOfferSumAggregateInputType = {
@@ -208,6 +247,8 @@ export type SellerOfferSumAggregateInputType = {
   reservedQuantity?: true
   qualityScore?: true
   version?: true
+  capacityUnitsPerWeek?: true
+  capacityLeadTimeDays?: true
 }
 
 export type SellerOfferMinAggregateInputType = {
@@ -245,6 +286,17 @@ export type SellerOfferMinAggregateInputType = {
   archivedAt?: true
   hsnCode?: true
   countryOfOrigin?: true
+  hsVerificationState?: true
+  hsVerifiedCode?: true
+  hsVerificationNote?: true
+  hsVerifiedAt?: true
+  hsVerifiedByUserId?: true
+  blockedReason?: true
+  blockedAt?: true
+  blockedByUserId?: true
+  statusBeforeBlock?: true
+  capacityUnitsPerWeek?: true
+  capacityLeadTimeDays?: true
 }
 
 export type SellerOfferMaxAggregateInputType = {
@@ -282,6 +334,17 @@ export type SellerOfferMaxAggregateInputType = {
   archivedAt?: true
   hsnCode?: true
   countryOfOrigin?: true
+  hsVerificationState?: true
+  hsVerifiedCode?: true
+  hsVerificationNote?: true
+  hsVerifiedAt?: true
+  hsVerifiedByUserId?: true
+  blockedReason?: true
+  blockedAt?: true
+  blockedByUserId?: true
+  statusBeforeBlock?: true
+  capacityUnitsPerWeek?: true
+  capacityLeadTimeDays?: true
 }
 
 export type SellerOfferCountAggregateInputType = {
@@ -320,6 +383,17 @@ export type SellerOfferCountAggregateInputType = {
   archivedAt?: true
   hsnCode?: true
   countryOfOrigin?: true
+  hsVerificationState?: true
+  hsVerifiedCode?: true
+  hsVerificationNote?: true
+  hsVerifiedAt?: true
+  hsVerifiedByUserId?: true
+  blockedReason?: true
+  blockedAt?: true
+  blockedByUserId?: true
+  statusBeforeBlock?: true
+  capacityUnitsPerWeek?: true
+  capacityLeadTimeDays?: true
   _all?: true
 }
 
@@ -445,6 +519,17 @@ export type SellerOfferGroupByOutputType = {
   archivedAt: Date | null
   hsnCode: string | null
   countryOfOrigin: string | null
+  hsVerificationState: $Enums.HsVerificationState
+  hsVerifiedCode: string | null
+  hsVerificationNote: string | null
+  hsVerifiedAt: Date | null
+  hsVerifiedByUserId: string | null
+  blockedReason: string | null
+  blockedAt: Date | null
+  blockedByUserId: string | null
+  statusBeforeBlock: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek: number | null
+  capacityLeadTimeDays: number | null
   _count: SellerOfferCountAggregateOutputType | null
   _avg: SellerOfferAvgAggregateOutputType | null
   _sum: SellerOfferSumAggregateOutputType | null
@@ -506,6 +591,17 @@ export type SellerOfferWhereInput = {
   archivedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
   hsnCode?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
   countryOfOrigin?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFilter<"SellerOffer"> | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  hsVerificationNote?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  hsVerifiedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
+  hsVerifiedByUserId?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  blockedReason?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  blockedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
+  blockedByUserId?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  statusBeforeBlock?: Prisma.EnumSellerOfferStatusNullableFilter<"SellerOffer"> | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
+  capacityLeadTimeDays?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   fulfilmentRules?: Prisma.SellerFulfilmentRuleListRelationFilter
@@ -519,6 +615,7 @@ export type SellerOfferWhereInput = {
   cartItems?: Prisma.CartItemListRelationFilter
   orderItems?: Prisma.OrderItemListRelationFilter
   preorderRequests?: Prisma.PreorderRequestListRelationFilter
+  complianceHolds?: Prisma.SellerOfferComplianceHoldListRelationFilter
 }
 
 export type SellerOfferOrderByWithRelationInput = {
@@ -557,6 +654,17 @@ export type SellerOfferOrderByWithRelationInput = {
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   hsnCode?: Prisma.SortOrderInput | Prisma.SortOrder
   countryOfOrigin?: Prisma.SortOrderInput | Prisma.SortOrder
+  hsVerificationState?: Prisma.SortOrder
+  hsVerifiedCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  hsVerificationNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  hsVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  hsVerifiedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  blockedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  blockedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  blockedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  statusBeforeBlock?: Prisma.SortOrderInput | Prisma.SortOrder
+  capacityUnitsPerWeek?: Prisma.SortOrderInput | Prisma.SortOrder
+  capacityLeadTimeDays?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   product?: Prisma.ProductOrderByWithRelationInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleOrderByRelationAggregateInput
@@ -570,6 +678,7 @@ export type SellerOfferOrderByWithRelationInput = {
   cartItems?: Prisma.CartItemOrderByRelationAggregateInput
   orderItems?: Prisma.OrderItemOrderByRelationAggregateInput
   preorderRequests?: Prisma.PreorderRequestOrderByRelationAggregateInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldOrderByRelationAggregateInput
   _relevance?: Prisma.SellerOfferOrderByRelevanceInput
 }
 
@@ -614,6 +723,17 @@ export type SellerOfferWhereUniqueInput = Prisma.AtLeast<{
   archivedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
   hsnCode?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
   countryOfOrigin?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFilter<"SellerOffer"> | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  hsVerificationNote?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  hsVerifiedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
+  hsVerifiedByUserId?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  blockedReason?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  blockedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
+  blockedByUserId?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  statusBeforeBlock?: Prisma.EnumSellerOfferStatusNullableFilter<"SellerOffer"> | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
+  capacityLeadTimeDays?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   fulfilmentRules?: Prisma.SellerFulfilmentRuleListRelationFilter
@@ -627,6 +747,7 @@ export type SellerOfferWhereUniqueInput = Prisma.AtLeast<{
   cartItems?: Prisma.CartItemListRelationFilter
   orderItems?: Prisma.OrderItemListRelationFilter
   preorderRequests?: Prisma.PreorderRequestListRelationFilter
+  complianceHolds?: Prisma.SellerOfferComplianceHoldListRelationFilter
 }, "id" | "sellerAccountId_productId_variantKey" | "sellerAccountId_sellerSku">
 
 export type SellerOfferOrderByWithAggregationInput = {
@@ -665,6 +786,17 @@ export type SellerOfferOrderByWithAggregationInput = {
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   hsnCode?: Prisma.SortOrderInput | Prisma.SortOrder
   countryOfOrigin?: Prisma.SortOrderInput | Prisma.SortOrder
+  hsVerificationState?: Prisma.SortOrder
+  hsVerifiedCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  hsVerificationNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  hsVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  hsVerifiedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  blockedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  blockedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  blockedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  statusBeforeBlock?: Prisma.SortOrderInput | Prisma.SortOrder
+  capacityUnitsPerWeek?: Prisma.SortOrderInput | Prisma.SortOrder
+  capacityLeadTimeDays?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SellerOfferCountOrderByAggregateInput
   _avg?: Prisma.SellerOfferAvgOrderByAggregateInput
   _max?: Prisma.SellerOfferMaxOrderByAggregateInput
@@ -711,6 +843,17 @@ export type SellerOfferScalarWhereWithAggregatesInput = {
   archivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerOffer"> | Date | string | null
   hsnCode?: Prisma.StringNullableWithAggregatesFilter<"SellerOffer"> | string | null
   countryOfOrigin?: Prisma.StringNullableWithAggregatesFilter<"SellerOffer"> | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateWithAggregatesFilter<"SellerOffer"> | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.StringNullableWithAggregatesFilter<"SellerOffer"> | string | null
+  hsVerificationNote?: Prisma.StringNullableWithAggregatesFilter<"SellerOffer"> | string | null
+  hsVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerOffer"> | Date | string | null
+  hsVerifiedByUserId?: Prisma.StringNullableWithAggregatesFilter<"SellerOffer"> | string | null
+  blockedReason?: Prisma.StringNullableWithAggregatesFilter<"SellerOffer"> | string | null
+  blockedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerOffer"> | Date | string | null
+  blockedByUserId?: Prisma.StringNullableWithAggregatesFilter<"SellerOffer"> | string | null
+  statusBeforeBlock?: Prisma.EnumSellerOfferStatusNullableWithAggregatesFilter<"SellerOffer"> | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.IntNullableWithAggregatesFilter<"SellerOffer"> | number | null
+  capacityLeadTimeDays?: Prisma.IntNullableWithAggregatesFilter<"SellerOffer"> | number | null
 }
 
 export type SellerOfferCreateInput = {
@@ -745,6 +888,17 @@ export type SellerOfferCreateInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -758,6 +912,7 @@ export type SellerOfferCreateInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateInput = {
@@ -796,6 +951,17 @@ export type SellerOfferUncheckedCreateInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -805,6 +971,7 @@ export type SellerOfferUncheckedCreateInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUpdateInput = {
@@ -839,6 +1006,17 @@ export type SellerOfferUpdateInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -852,6 +1030,7 @@ export type SellerOfferUpdateInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateInput = {
@@ -890,6 +1069,17 @@ export type SellerOfferUncheckedUpdateInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -899,6 +1089,7 @@ export type SellerOfferUncheckedUpdateInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateManyInput = {
@@ -937,6 +1128,17 @@ export type SellerOfferCreateManyInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
 }
 
 export type SellerOfferUpdateManyMutationInput = {
@@ -971,6 +1173,17 @@ export type SellerOfferUpdateManyMutationInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type SellerOfferUncheckedUpdateManyInput = {
@@ -1009,6 +1222,17 @@ export type SellerOfferUncheckedUpdateManyInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type SellerOfferListRelationFilter = {
@@ -1079,6 +1303,17 @@ export type SellerOfferCountOrderByAggregateInput = {
   archivedAt?: Prisma.SortOrder
   hsnCode?: Prisma.SortOrder
   countryOfOrigin?: Prisma.SortOrder
+  hsVerificationState?: Prisma.SortOrder
+  hsVerifiedCode?: Prisma.SortOrder
+  hsVerificationNote?: Prisma.SortOrder
+  hsVerifiedAt?: Prisma.SortOrder
+  hsVerifiedByUserId?: Prisma.SortOrder
+  blockedReason?: Prisma.SortOrder
+  blockedAt?: Prisma.SortOrder
+  blockedByUserId?: Prisma.SortOrder
+  statusBeforeBlock?: Prisma.SortOrder
+  capacityUnitsPerWeek?: Prisma.SortOrder
+  capacityLeadTimeDays?: Prisma.SortOrder
 }
 
 export type SellerOfferAvgOrderByAggregateInput = {
@@ -1095,6 +1330,8 @@ export type SellerOfferAvgOrderByAggregateInput = {
   reservedQuantity?: Prisma.SortOrder
   qualityScore?: Prisma.SortOrder
   version?: Prisma.SortOrder
+  capacityUnitsPerWeek?: Prisma.SortOrder
+  capacityLeadTimeDays?: Prisma.SortOrder
 }
 
 export type SellerOfferMaxOrderByAggregateInput = {
@@ -1132,6 +1369,17 @@ export type SellerOfferMaxOrderByAggregateInput = {
   archivedAt?: Prisma.SortOrder
   hsnCode?: Prisma.SortOrder
   countryOfOrigin?: Prisma.SortOrder
+  hsVerificationState?: Prisma.SortOrder
+  hsVerifiedCode?: Prisma.SortOrder
+  hsVerificationNote?: Prisma.SortOrder
+  hsVerifiedAt?: Prisma.SortOrder
+  hsVerifiedByUserId?: Prisma.SortOrder
+  blockedReason?: Prisma.SortOrder
+  blockedAt?: Prisma.SortOrder
+  blockedByUserId?: Prisma.SortOrder
+  statusBeforeBlock?: Prisma.SortOrder
+  capacityUnitsPerWeek?: Prisma.SortOrder
+  capacityLeadTimeDays?: Prisma.SortOrder
 }
 
 export type SellerOfferMinOrderByAggregateInput = {
@@ -1169,6 +1417,17 @@ export type SellerOfferMinOrderByAggregateInput = {
   archivedAt?: Prisma.SortOrder
   hsnCode?: Prisma.SortOrder
   countryOfOrigin?: Prisma.SortOrder
+  hsVerificationState?: Prisma.SortOrder
+  hsVerifiedCode?: Prisma.SortOrder
+  hsVerificationNote?: Prisma.SortOrder
+  hsVerifiedAt?: Prisma.SortOrder
+  hsVerifiedByUserId?: Prisma.SortOrder
+  blockedReason?: Prisma.SortOrder
+  blockedAt?: Prisma.SortOrder
+  blockedByUserId?: Prisma.SortOrder
+  statusBeforeBlock?: Prisma.SortOrder
+  capacityUnitsPerWeek?: Prisma.SortOrder
+  capacityLeadTimeDays?: Prisma.SortOrder
 }
 
 export type SellerOfferSumOrderByAggregateInput = {
@@ -1185,6 +1444,8 @@ export type SellerOfferSumOrderByAggregateInput = {
   reservedQuantity?: Prisma.SortOrder
   qualityScore?: Prisma.SortOrder
   version?: Prisma.SortOrder
+  capacityUnitsPerWeek?: Prisma.SortOrder
+  capacityLeadTimeDays?: Prisma.SortOrder
 }
 
 export type SellerOfferScalarRelationFilter = {
@@ -1396,6 +1657,14 @@ export type EnumSellerOfferStatusFieldUpdateOperationsInput = {
   set?: $Enums.SellerOfferStatus
 }
 
+export type EnumHsVerificationStateFieldUpdateOperationsInput = {
+  set?: $Enums.HsVerificationState
+}
+
+export type NullableEnumSellerOfferStatusFieldUpdateOperationsInput = {
+  set?: $Enums.SellerOfferStatus | null
+}
+
 export type SellerOfferCreateNestedOneWithoutPriceTiersInput = {
   create?: Prisma.XOR<Prisma.SellerOfferCreateWithoutPriceTiersInput, Prisma.SellerOfferUncheckedCreateWithoutPriceTiersInput>
   connectOrCreate?: Prisma.SellerOfferCreateOrConnectWithoutPriceTiersInput
@@ -1498,6 +1767,20 @@ export type SellerOfferUpdateOneWithoutPreorderRequestsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SellerOfferUpdateToOneWithWhereWithoutPreorderRequestsInput, Prisma.SellerOfferUpdateWithoutPreorderRequestsInput>, Prisma.SellerOfferUncheckedUpdateWithoutPreorderRequestsInput>
 }
 
+export type SellerOfferCreateNestedOneWithoutComplianceHoldsInput = {
+  create?: Prisma.XOR<Prisma.SellerOfferCreateWithoutComplianceHoldsInput, Prisma.SellerOfferUncheckedCreateWithoutComplianceHoldsInput>
+  connectOrCreate?: Prisma.SellerOfferCreateOrConnectWithoutComplianceHoldsInput
+  connect?: Prisma.SellerOfferWhereUniqueInput
+}
+
+export type SellerOfferUpdateOneRequiredWithoutComplianceHoldsNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerOfferCreateWithoutComplianceHoldsInput, Prisma.SellerOfferUncheckedCreateWithoutComplianceHoldsInput>
+  connectOrCreate?: Prisma.SellerOfferCreateOrConnectWithoutComplianceHoldsInput
+  upsert?: Prisma.SellerOfferUpsertWithoutComplianceHoldsInput
+  connect?: Prisma.SellerOfferWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerOfferUpdateToOneWithWhereWithoutComplianceHoldsInput, Prisma.SellerOfferUpdateWithoutComplianceHoldsInput>, Prisma.SellerOfferUncheckedUpdateWithoutComplianceHoldsInput>
+}
+
 export type SellerOfferCreateWithoutProductInput = {
   id: string
   variantKey?: string
@@ -1530,6 +1813,17 @@ export type SellerOfferCreateWithoutProductInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutSellerOffersInput
@@ -1542,6 +1836,7 @@ export type SellerOfferCreateWithoutProductInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutProductInput = {
@@ -1579,6 +1874,17 @@ export type SellerOfferUncheckedCreateWithoutProductInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -1588,6 +1894,7 @@ export type SellerOfferUncheckedCreateWithoutProductInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutProductInput = {
@@ -1655,6 +1962,17 @@ export type SellerOfferScalarWhereInput = {
   archivedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
   hsnCode?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
   countryOfOrigin?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFilter<"SellerOffer"> | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  hsVerificationNote?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  hsVerifiedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
+  hsVerifiedByUserId?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  blockedReason?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  blockedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
+  blockedByUserId?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  statusBeforeBlock?: Prisma.EnumSellerOfferStatusNullableFilter<"SellerOffer"> | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
+  capacityLeadTimeDays?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
 }
 
 export type SellerOfferCreateWithoutVariantInput = {
@@ -1689,6 +2007,17 @@ export type SellerOfferCreateWithoutVariantInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -1701,6 +2030,7 @@ export type SellerOfferCreateWithoutVariantInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutVariantInput = {
@@ -1738,6 +2068,17 @@ export type SellerOfferUncheckedCreateWithoutVariantInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -1747,6 +2088,7 @@ export type SellerOfferUncheckedCreateWithoutVariantInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutVariantInput = {
@@ -1807,6 +2149,17 @@ export type SellerOfferCreateWithoutCartItemsInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -1819,6 +2172,7 @@ export type SellerOfferCreateWithoutCartItemsInput = {
   containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutCartItemsInput = {
@@ -1857,6 +2211,17 @@ export type SellerOfferUncheckedCreateWithoutCartItemsInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -1865,6 +2230,7 @@ export type SellerOfferUncheckedCreateWithoutCartItemsInput = {
   containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutCartItemsInput = {
@@ -1915,6 +2281,17 @@ export type SellerOfferUpdateWithoutCartItemsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -1927,6 +2304,7 @@ export type SellerOfferUpdateWithoutCartItemsInput = {
   containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutCartItemsInput = {
@@ -1965,6 +2343,17 @@ export type SellerOfferUncheckedUpdateWithoutCartItemsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -1973,6 +2362,7 @@ export type SellerOfferUncheckedUpdateWithoutCartItemsInput = {
   containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateWithoutOrderItemsInput = {
@@ -2007,6 +2397,17 @@ export type SellerOfferCreateWithoutOrderItemsInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -2019,6 +2420,7 @@ export type SellerOfferCreateWithoutOrderItemsInput = {
   containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutOrderItemsInput = {
@@ -2057,6 +2459,17 @@ export type SellerOfferUncheckedCreateWithoutOrderItemsInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -2065,6 +2478,7 @@ export type SellerOfferUncheckedCreateWithoutOrderItemsInput = {
   containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutOrderItemsInput = {
@@ -2115,6 +2529,17 @@ export type SellerOfferUpdateWithoutOrderItemsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -2127,6 +2552,7 @@ export type SellerOfferUpdateWithoutOrderItemsInput = {
   containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutOrderItemsInput = {
@@ -2165,6 +2591,17 @@ export type SellerOfferUncheckedUpdateWithoutOrderItemsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -2173,6 +2610,7 @@ export type SellerOfferUncheckedUpdateWithoutOrderItemsInput = {
   containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateWithoutSellerAccountInput = {
@@ -2207,6 +2645,17 @@ export type SellerOfferCreateWithoutSellerAccountInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutSellerOffersInput
@@ -2219,6 +2668,7 @@ export type SellerOfferCreateWithoutSellerAccountInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutSellerAccountInput = {
@@ -2256,6 +2706,17 @@ export type SellerOfferUncheckedCreateWithoutSellerAccountInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -2265,6 +2726,7 @@ export type SellerOfferUncheckedCreateWithoutSellerAccountInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutSellerAccountInput = {
@@ -2325,6 +2787,17 @@ export type SellerOfferCreateWithoutBrandInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -2337,6 +2810,7 @@ export type SellerOfferCreateWithoutBrandInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutBrandInput = {
@@ -2374,6 +2848,17 @@ export type SellerOfferUncheckedCreateWithoutBrandInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -2383,6 +2868,7 @@ export type SellerOfferUncheckedCreateWithoutBrandInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutBrandInput = {
@@ -2443,6 +2929,17 @@ export type SellerOfferCreateWithoutPriceTiersInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -2455,6 +2952,7 @@ export type SellerOfferCreateWithoutPriceTiersInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutPriceTiersInput = {
@@ -2493,6 +2991,17 @@ export type SellerOfferUncheckedCreateWithoutPriceTiersInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
@@ -2501,6 +3010,7 @@ export type SellerOfferUncheckedCreateWithoutPriceTiersInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutPriceTiersInput = {
@@ -2551,6 +3061,17 @@ export type SellerOfferUpdateWithoutPriceTiersInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -2563,6 +3084,7 @@ export type SellerOfferUpdateWithoutPriceTiersInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutPriceTiersInput = {
@@ -2601,6 +3123,17 @@ export type SellerOfferUncheckedUpdateWithoutPriceTiersInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
@@ -2609,6 +3142,7 @@ export type SellerOfferUncheckedUpdateWithoutPriceTiersInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateWithoutInventoryInput = {
@@ -2643,6 +3177,17 @@ export type SellerOfferCreateWithoutInventoryInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -2655,6 +3200,7 @@ export type SellerOfferCreateWithoutInventoryInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutInventoryInput = {
@@ -2693,6 +3239,17 @@ export type SellerOfferUncheckedCreateWithoutInventoryInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
@@ -2701,6 +3258,7 @@ export type SellerOfferUncheckedCreateWithoutInventoryInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutInventoryInput = {
@@ -2751,6 +3309,17 @@ export type SellerOfferUpdateWithoutInventoryInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -2763,6 +3332,7 @@ export type SellerOfferUpdateWithoutInventoryInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutInventoryInput = {
@@ -2801,6 +3371,17 @@ export type SellerOfferUncheckedUpdateWithoutInventoryInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
@@ -2809,6 +3390,7 @@ export type SellerOfferUncheckedUpdateWithoutInventoryInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateWithoutOrderLinesInput = {
@@ -2843,6 +3425,17 @@ export type SellerOfferCreateWithoutOrderLinesInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -2855,6 +3448,7 @@ export type SellerOfferCreateWithoutOrderLinesInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutOrderLinesInput = {
@@ -2893,6 +3487,17 @@ export type SellerOfferUncheckedCreateWithoutOrderLinesInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -2901,6 +3506,7 @@ export type SellerOfferUncheckedCreateWithoutOrderLinesInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutOrderLinesInput = {
@@ -2951,6 +3557,17 @@ export type SellerOfferUpdateWithoutOrderLinesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -2963,6 +3580,7 @@ export type SellerOfferUpdateWithoutOrderLinesInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutOrderLinesInput = {
@@ -3001,6 +3619,17 @@ export type SellerOfferUncheckedUpdateWithoutOrderLinesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -3009,6 +3638,7 @@ export type SellerOfferUncheckedUpdateWithoutOrderLinesInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateWithoutFulfilmentRulesInput = {
@@ -3043,6 +3673,17 @@ export type SellerOfferCreateWithoutFulfilmentRulesInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutSellerOffersInput
@@ -3055,6 +3696,7 @@ export type SellerOfferCreateWithoutFulfilmentRulesInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutFulfilmentRulesInput = {
@@ -3093,6 +3735,17 @@ export type SellerOfferUncheckedCreateWithoutFulfilmentRulesInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
@@ -3101,6 +3754,7 @@ export type SellerOfferUncheckedCreateWithoutFulfilmentRulesInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutFulfilmentRulesInput = {
@@ -3151,6 +3805,17 @@ export type SellerOfferUpdateWithoutFulfilmentRulesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutSellerOffersNestedInput
@@ -3163,6 +3828,7 @@ export type SellerOfferUpdateWithoutFulfilmentRulesInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutFulfilmentRulesInput = {
@@ -3201,6 +3867,17 @@ export type SellerOfferUncheckedUpdateWithoutFulfilmentRulesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
@@ -3209,6 +3886,7 @@ export type SellerOfferUncheckedUpdateWithoutFulfilmentRulesInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateWithoutPackagingProfileInput = {
@@ -3243,6 +3921,17 @@ export type SellerOfferCreateWithoutPackagingProfileInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -3255,6 +3944,7 @@ export type SellerOfferCreateWithoutPackagingProfileInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutPackagingProfileInput = {
@@ -3293,6 +3983,17 @@ export type SellerOfferUncheckedCreateWithoutPackagingProfileInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -3301,6 +4002,7 @@ export type SellerOfferUncheckedCreateWithoutPackagingProfileInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutPackagingProfileInput = {
@@ -3351,6 +4053,17 @@ export type SellerOfferUpdateWithoutPackagingProfileInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -3363,6 +4076,7 @@ export type SellerOfferUpdateWithoutPackagingProfileInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutPackagingProfileInput = {
@@ -3401,6 +4115,17 @@ export type SellerOfferUncheckedUpdateWithoutPackagingProfileInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -3409,6 +4134,7 @@ export type SellerOfferUncheckedUpdateWithoutPackagingProfileInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateWithoutContainerLoadingInput = {
@@ -3443,6 +4169,17 @@ export type SellerOfferCreateWithoutContainerLoadingInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -3455,6 +4192,7 @@ export type SellerOfferCreateWithoutContainerLoadingInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutContainerLoadingInput = {
@@ -3493,6 +4231,17 @@ export type SellerOfferUncheckedCreateWithoutContainerLoadingInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -3501,6 +4250,7 @@ export type SellerOfferUncheckedCreateWithoutContainerLoadingInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutContainerLoadingInput = {
@@ -3551,6 +4301,17 @@ export type SellerOfferUpdateWithoutContainerLoadingInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -3563,6 +4324,7 @@ export type SellerOfferUpdateWithoutContainerLoadingInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutContainerLoadingInput = {
@@ -3601,6 +4363,17 @@ export type SellerOfferUncheckedUpdateWithoutContainerLoadingInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -3609,6 +4382,7 @@ export type SellerOfferUncheckedUpdateWithoutContainerLoadingInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateWithoutPreorderRequestsInput = {
@@ -3643,6 +4417,17 @@ export type SellerOfferCreateWithoutPreorderRequestsInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -3655,6 +4440,7 @@ export type SellerOfferCreateWithoutPreorderRequestsInput = {
   containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutPreorderRequestsInput = {
@@ -3693,6 +4479,17 @@ export type SellerOfferUncheckedCreateWithoutPreorderRequestsInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -3701,6 +4498,7 @@ export type SellerOfferUncheckedCreateWithoutPreorderRequestsInput = {
   containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutPreorderRequestsInput = {
@@ -3751,6 +4549,17 @@ export type SellerOfferUpdateWithoutPreorderRequestsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -3763,6 +4572,7 @@ export type SellerOfferUpdateWithoutPreorderRequestsInput = {
   containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutPreorderRequestsInput = {
@@ -3801,6 +4611,17 @@ export type SellerOfferUncheckedUpdateWithoutPreorderRequestsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -3809,6 +4630,255 @@ export type SellerOfferUncheckedUpdateWithoutPreorderRequestsInput = {
   containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferNestedInput
+}
+
+export type SellerOfferCreateWithoutComplianceHoldsInput = {
+  id: string
+  variantKey?: string
+  sellerSku: string
+  status?: $Enums.SellerOfferStatus
+  priceMinor: bigint | number
+  currency: string
+  compareAtPriceMinor?: bigint | number | null
+  taxClassId?: string | null
+  orderingUnit?: $Enums.OrderingUnit
+  minimumOrderQuantity?: number
+  orderIncrement?: number
+  maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
+  handlingTimeDays?: number | null
+  guaranteedShelfLifeMonths?: number | null
+  warrantyMonths?: number | null
+  sellingRegionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  availableQuantity?: number
+  reservedQuantity?: number
+  qualityScore?: number | null
+  statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
+  sourceDraftId?: string | null
+  publishedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
+  sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
+  product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
+  variant?: Prisma.ProductVariantCreateNestedOneWithoutSellerOffersInput
+  brand?: Prisma.BrandCreateNestedOneWithoutOffersInput
+  priceTiers?: Prisma.SellerPriceTierCreateNestedManyWithoutOfferInput
+  inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
+  orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
+  packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
+  cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
+  orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+}
+
+export type SellerOfferUncheckedCreateWithoutComplianceHoldsInput = {
+  id: string
+  sellerAccountId: string
+  productId: string
+  variantId?: string | null
+  variantKey?: string
+  sellerSku: string
+  brandId?: string | null
+  status?: $Enums.SellerOfferStatus
+  priceMinor: bigint | number
+  currency: string
+  compareAtPriceMinor?: bigint | number | null
+  taxClassId?: string | null
+  orderingUnit?: $Enums.OrderingUnit
+  minimumOrderQuantity?: number
+  orderIncrement?: number
+  maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
+  handlingTimeDays?: number | null
+  guaranteedShelfLifeMonths?: number | null
+  warrantyMonths?: number | null
+  sellingRegionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  availableQuantity?: number
+  reservedQuantity?: number
+  qualityScore?: number | null
+  statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
+  sourceDraftId?: string | null
+  publishedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
+  priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
+  inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
+  orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
+  packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
+  cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+}
+
+export type SellerOfferCreateOrConnectWithoutComplianceHoldsInput = {
+  where: Prisma.SellerOfferWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerOfferCreateWithoutComplianceHoldsInput, Prisma.SellerOfferUncheckedCreateWithoutComplianceHoldsInput>
+}
+
+export type SellerOfferUpsertWithoutComplianceHoldsInput = {
+  update: Prisma.XOR<Prisma.SellerOfferUpdateWithoutComplianceHoldsInput, Prisma.SellerOfferUncheckedUpdateWithoutComplianceHoldsInput>
+  create: Prisma.XOR<Prisma.SellerOfferCreateWithoutComplianceHoldsInput, Prisma.SellerOfferUncheckedCreateWithoutComplianceHoldsInput>
+  where?: Prisma.SellerOfferWhereInput
+}
+
+export type SellerOfferUpdateToOneWithWhereWithoutComplianceHoldsInput = {
+  where?: Prisma.SellerOfferWhereInput
+  data: Prisma.XOR<Prisma.SellerOfferUpdateWithoutComplianceHoldsInput, Prisma.SellerOfferUncheckedUpdateWithoutComplianceHoldsInput>
+}
+
+export type SellerOfferUpdateWithoutComplianceHoldsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerSku?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
+  priceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  taxClassId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
+  maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sellingRegionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  availableQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
+  product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
+  variant?: Prisma.ProductVariantUpdateOneWithoutSellerOffersNestedInput
+  brand?: Prisma.BrandUpdateOneWithoutOffersNestedInput
+  priceTiers?: Prisma.SellerPriceTierUpdateManyWithoutOfferNestedInput
+  inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
+  orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
+  packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
+  cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
+  orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+}
+
+export type SellerOfferUncheckedUpdateWithoutComplianceHoldsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerSku?: Prisma.StringFieldUpdateOperationsInput | string
+  brandId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
+  priceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  taxClassId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
+  maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sellingRegionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  availableQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
+  priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
+  inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
+  orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
+  packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
+  cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateManyProductInput = {
@@ -3846,6 +4916,17 @@ export type SellerOfferCreateManyProductInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
 }
 
 export type SellerOfferUpdateWithoutProductInput = {
@@ -3880,6 +4961,17 @@ export type SellerOfferUpdateWithoutProductInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutSellerOffersNestedInput
@@ -3892,6 +4984,7 @@ export type SellerOfferUpdateWithoutProductInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutProductInput = {
@@ -3929,6 +5022,17 @@ export type SellerOfferUncheckedUpdateWithoutProductInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -3938,6 +5042,7 @@ export type SellerOfferUncheckedUpdateWithoutProductInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateManyWithoutProductInput = {
@@ -3975,6 +5080,17 @@ export type SellerOfferUncheckedUpdateManyWithoutProductInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type SellerOfferCreateManyVariantInput = {
@@ -4012,6 +5128,17 @@ export type SellerOfferCreateManyVariantInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
 }
 
 export type SellerOfferUpdateWithoutVariantInput = {
@@ -4046,6 +5173,17 @@ export type SellerOfferUpdateWithoutVariantInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -4058,6 +5196,7 @@ export type SellerOfferUpdateWithoutVariantInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutVariantInput = {
@@ -4095,6 +5234,17 @@ export type SellerOfferUncheckedUpdateWithoutVariantInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -4104,6 +5254,7 @@ export type SellerOfferUncheckedUpdateWithoutVariantInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateManyWithoutVariantInput = {
@@ -4141,6 +5292,17 @@ export type SellerOfferUncheckedUpdateManyWithoutVariantInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type SellerOfferCreateManySellerAccountInput = {
@@ -4178,6 +5340,17 @@ export type SellerOfferCreateManySellerAccountInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
 }
 
 export type SellerOfferUpdateWithoutSellerAccountInput = {
@@ -4212,6 +5385,17 @@ export type SellerOfferUpdateWithoutSellerAccountInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutSellerOffersNestedInput
@@ -4224,6 +5408,7 @@ export type SellerOfferUpdateWithoutSellerAccountInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutSellerAccountInput = {
@@ -4261,6 +5446,17 @@ export type SellerOfferUncheckedUpdateWithoutSellerAccountInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -4270,6 +5466,7 @@ export type SellerOfferUncheckedUpdateWithoutSellerAccountInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -4307,6 +5504,17 @@ export type SellerOfferUncheckedUpdateManyWithoutSellerAccountInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type SellerOfferCreateManyBrandInput = {
@@ -4344,6 +5552,17 @@ export type SellerOfferCreateManyBrandInput = {
   archivedAt?: Date | string | null
   hsnCode?: string | null
   countryOfOrigin?: string | null
+  hsVerificationState?: $Enums.HsVerificationState
+  hsVerifiedCode?: string | null
+  hsVerificationNote?: string | null
+  hsVerifiedAt?: Date | string | null
+  hsVerifiedByUserId?: string | null
+  blockedReason?: string | null
+  blockedAt?: Date | string | null
+  blockedByUserId?: string | null
+  statusBeforeBlock?: $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: number | null
+  capacityLeadTimeDays?: number | null
 }
 
 export type SellerOfferUpdateWithoutBrandInput = {
@@ -4378,6 +5597,17 @@ export type SellerOfferUpdateWithoutBrandInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -4390,6 +5620,7 @@ export type SellerOfferUpdateWithoutBrandInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutBrandInput = {
@@ -4427,6 +5658,17 @@ export type SellerOfferUncheckedUpdateWithoutBrandInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -4436,6 +5678,7 @@ export type SellerOfferUncheckedUpdateWithoutBrandInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+  complianceHolds?: Prisma.SellerOfferComplianceHoldUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateManyWithoutBrandInput = {
@@ -4473,6 +5716,17 @@ export type SellerOfferUncheckedUpdateManyWithoutBrandInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationState?: Prisma.EnumHsVerificationStateFieldUpdateOperationsInput | $Enums.HsVerificationState
+  hsVerifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerificationNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  blockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBeforeBlock?: Prisma.NullableEnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus | null
+  capacityUnitsPerWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  capacityLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 
@@ -4488,6 +5742,7 @@ export type SellerOfferCountOutputType = {
   cartItems: number
   orderItems: number
   preorderRequests: number
+  complianceHolds: number
 }
 
 export type SellerOfferCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4498,6 +5753,7 @@ export type SellerOfferCountOutputTypeSelect<ExtArgs extends runtime.Types.Exten
   cartItems?: boolean | SellerOfferCountOutputTypeCountCartItemsArgs
   orderItems?: boolean | SellerOfferCountOutputTypeCountOrderItemsArgs
   preorderRequests?: boolean | SellerOfferCountOutputTypeCountPreorderRequestsArgs
+  complianceHolds?: boolean | SellerOfferCountOutputTypeCountComplianceHoldsArgs
 }
 
 /**
@@ -4559,6 +5815,13 @@ export type SellerOfferCountOutputTypeCountPreorderRequestsArgs<ExtArgs extends 
   where?: Prisma.PreorderRequestWhereInput
 }
 
+/**
+ * SellerOfferCountOutputType without action
+ */
+export type SellerOfferCountOutputTypeCountComplianceHoldsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SellerOfferComplianceHoldWhereInput
+}
+
 
 export type SellerOfferSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -4596,6 +5859,17 @@ export type SellerOfferSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   archivedAt?: boolean
   hsnCode?: boolean
   countryOfOrigin?: boolean
+  hsVerificationState?: boolean
+  hsVerifiedCode?: boolean
+  hsVerificationNote?: boolean
+  hsVerifiedAt?: boolean
+  hsVerifiedByUserId?: boolean
+  blockedReason?: boolean
+  blockedAt?: boolean
+  blockedByUserId?: boolean
+  statusBeforeBlock?: boolean
+  capacityUnitsPerWeek?: boolean
+  capacityLeadTimeDays?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   fulfilmentRules?: boolean | Prisma.SellerOffer$fulfilmentRulesArgs<ExtArgs>
@@ -4609,6 +5883,7 @@ export type SellerOfferSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   cartItems?: boolean | Prisma.SellerOffer$cartItemsArgs<ExtArgs>
   orderItems?: boolean | Prisma.SellerOffer$orderItemsArgs<ExtArgs>
   preorderRequests?: boolean | Prisma.SellerOffer$preorderRequestsArgs<ExtArgs>
+  complianceHolds?: boolean | Prisma.SellerOffer$complianceHoldsArgs<ExtArgs>
   _count?: boolean | Prisma.SellerOfferCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerOffer"]>
 
@@ -4650,9 +5925,20 @@ export type SellerOfferSelectScalar = {
   archivedAt?: boolean
   hsnCode?: boolean
   countryOfOrigin?: boolean
+  hsVerificationState?: boolean
+  hsVerifiedCode?: boolean
+  hsVerificationNote?: boolean
+  hsVerifiedAt?: boolean
+  hsVerifiedByUserId?: boolean
+  blockedReason?: boolean
+  blockedAt?: boolean
+  blockedByUserId?: boolean
+  statusBeforeBlock?: boolean
+  capacityUnitsPerWeek?: boolean
+  capacityLeadTimeDays?: boolean
 }
 
-export type SellerOfferOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "productId" | "variantId" | "variantKey" | "sellerSku" | "brandId" | "status" | "priceMinor" | "currency" | "compareAtPriceMinor" | "taxClassId" | "orderingUnit" | "minimumOrderQuantity" | "orderIncrement" | "maximumOrderQuantity" | "b2cMaxOrderQuantity" | "handlingTimeDays" | "guaranteedShelfLifeMonths" | "warrantyMonths" | "sellingRegionsJson" | "availableQuantity" | "reservedQuantity" | "qualityScore" | "statusReason" | "pausedAt" | "pausedByProfileId" | "sourceDraftId" | "publishedAt" | "version" | "createdAt" | "updatedAt" | "archivedAt" | "hsnCode" | "countryOfOrigin", ExtArgs["result"]["sellerOffer"]>
+export type SellerOfferOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "productId" | "variantId" | "variantKey" | "sellerSku" | "brandId" | "status" | "priceMinor" | "currency" | "compareAtPriceMinor" | "taxClassId" | "orderingUnit" | "minimumOrderQuantity" | "orderIncrement" | "maximumOrderQuantity" | "b2cMaxOrderQuantity" | "handlingTimeDays" | "guaranteedShelfLifeMonths" | "warrantyMonths" | "sellingRegionsJson" | "availableQuantity" | "reservedQuantity" | "qualityScore" | "statusReason" | "pausedAt" | "pausedByProfileId" | "sourceDraftId" | "publishedAt" | "version" | "createdAt" | "updatedAt" | "archivedAt" | "hsnCode" | "countryOfOrigin" | "hsVerificationState" | "hsVerifiedCode" | "hsVerificationNote" | "hsVerifiedAt" | "hsVerifiedByUserId" | "blockedReason" | "blockedAt" | "blockedByUserId" | "statusBeforeBlock" | "capacityUnitsPerWeek" | "capacityLeadTimeDays", ExtArgs["result"]["sellerOffer"]>
 export type SellerOfferInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -4667,6 +5953,7 @@ export type SellerOfferInclude<ExtArgs extends runtime.Types.Extensions.Internal
   cartItems?: boolean | Prisma.SellerOffer$cartItemsArgs<ExtArgs>
   orderItems?: boolean | Prisma.SellerOffer$orderItemsArgs<ExtArgs>
   preorderRequests?: boolean | Prisma.SellerOffer$preorderRequestsArgs<ExtArgs>
+  complianceHolds?: boolean | Prisma.SellerOffer$complianceHoldsArgs<ExtArgs>
   _count?: boolean | Prisma.SellerOfferCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -4704,6 +5991,10 @@ export type $SellerOfferPayload<ExtArgs extends runtime.Types.Extensions.Interna
      * lines above: a request is evidence of what was negotiated.
      */
     preorderRequests: Prisma.$PreorderRequestPayload<ExtArgs>[]
+    /**
+     * Pauses caused by an expired certificate. See SUPPLIER TRUST.
+     */
+    complianceHolds: Prisma.$SellerOfferComplianceHoldPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -4836,6 +6127,38 @@ export type $SellerOfferPayload<ExtArgs extends runtime.Types.Extensions.Interna
      * ISO-3166 alpha-2. Printed on an export invoice and a packing list.
      */
     countryOfOrigin: string | null
+    /**
+     * Where the marketplace's review of `hsnCode` stands. DECLARED is the
+     * seller's word; VERIFIED means staff (or a customs broker working for the
+     * operator) confirmed it, possibly correcting it to `hsVerifiedCode`;
+     * REJECTED means it is wrong and the seller must change it. Changing the
+     * declared code sends it back to DECLARED. `modules/seller/trade-compliance
+     * .service.ts` owns every write.
+     */
+    hsVerificationState: $Enums.HsVerificationState
+    hsVerifiedCode: string | null
+    hsVerificationNote: string | null
+    hsVerifiedAt: Date | null
+    hsVerifiedByUserId: string | null
+    /**
+     * Why the marketplace BLOCKED it, who did, and when. Seller-visible.
+     */
+    blockedReason: string | null
+    blockedAt: Date | null
+    blockedByUserId: string | null
+    /**
+     * The status it had before it was blocked, so lifting the block returns it
+     * there (never straight to ACTIVE without the resume checks).
+     */
+    statusBeforeBlock: $Enums.SellerOfferStatus | null
+    /**
+     * What the seller can make, beyond what is on the shelf: pieces per week
+     * and how many days before the first of them are ready. Null where the
+     * seller only sells from stock. A preorder or bulk request for more than
+     * stock plus capacity over the lead time is flagged, not silently accepted.
+     */
+    capacityUnitsPerWeek: number | null
+    capacityLeadTimeDays: number | null
   }, ExtArgs["result"]["sellerOffer"]>
   composites: {}
 }
@@ -5189,6 +6512,7 @@ export interface Prisma__SellerOfferClient<T, Null = never, ExtArgs extends runt
   cartItems<T extends Prisma.SellerOffer$cartItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$cartItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orderItems<T extends Prisma.SellerOffer$orderItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$orderItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   preorderRequests<T extends Prisma.SellerOffer$preorderRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$preorderRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PreorderRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  complianceHolds<T extends Prisma.SellerOffer$complianceHoldsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$complianceHoldsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerOfferComplianceHoldPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5253,6 +6577,17 @@ export interface SellerOfferFieldRefs {
   readonly archivedAt: Prisma.FieldRef<"SellerOffer", 'DateTime'>
   readonly hsnCode: Prisma.FieldRef<"SellerOffer", 'String'>
   readonly countryOfOrigin: Prisma.FieldRef<"SellerOffer", 'String'>
+  readonly hsVerificationState: Prisma.FieldRef<"SellerOffer", 'HsVerificationState'>
+  readonly hsVerifiedCode: Prisma.FieldRef<"SellerOffer", 'String'>
+  readonly hsVerificationNote: Prisma.FieldRef<"SellerOffer", 'String'>
+  readonly hsVerifiedAt: Prisma.FieldRef<"SellerOffer", 'DateTime'>
+  readonly hsVerifiedByUserId: Prisma.FieldRef<"SellerOffer", 'String'>
+  readonly blockedReason: Prisma.FieldRef<"SellerOffer", 'String'>
+  readonly blockedAt: Prisma.FieldRef<"SellerOffer", 'DateTime'>
+  readonly blockedByUserId: Prisma.FieldRef<"SellerOffer", 'String'>
+  readonly statusBeforeBlock: Prisma.FieldRef<"SellerOffer", 'SellerOfferStatus'>
+  readonly capacityUnitsPerWeek: Prisma.FieldRef<"SellerOffer", 'Int'>
+  readonly capacityLeadTimeDays: Prisma.FieldRef<"SellerOffer", 'Int'>
 }
     
 
@@ -5842,6 +7177,30 @@ export type SellerOffer$preorderRequestsArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.PreorderRequestScalarFieldEnum | Prisma.PreorderRequestScalarFieldEnum[]
+}
+
+/**
+ * SellerOffer.complianceHolds
+ */
+export type SellerOffer$complianceHoldsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerOfferComplianceHold
+   */
+  select?: Prisma.SellerOfferComplianceHoldSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerOfferComplianceHold
+   */
+  omit?: Prisma.SellerOfferComplianceHoldOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerOfferComplianceHoldInclude<ExtArgs> | null
+  where?: Prisma.SellerOfferComplianceHoldWhereInput
+  orderBy?: Prisma.SellerOfferComplianceHoldOrderByWithRelationInput | Prisma.SellerOfferComplianceHoldOrderByWithRelationInput[]
+  cursor?: Prisma.SellerOfferComplianceHoldWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SellerOfferComplianceHoldScalarFieldEnum | Prisma.SellerOfferComplianceHoldScalarFieldEnum[]
 }
 
 /**

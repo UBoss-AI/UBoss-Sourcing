@@ -37,6 +37,8 @@ export type ShipmentLegEventMinAggregateOutputType = {
   note: string | null
   occurredAt: Date | null
   idempotencyKey: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ShipmentLegEventMaxAggregateOutputType = {
@@ -50,6 +52,8 @@ export type ShipmentLegEventMaxAggregateOutputType = {
   note: string | null
   occurredAt: Date | null
   idempotencyKey: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ShipmentLegEventCountAggregateOutputType = {
@@ -63,6 +67,8 @@ export type ShipmentLegEventCountAggregateOutputType = {
   note: number
   occurredAt: number
   idempotencyKey: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -78,6 +84,8 @@ export type ShipmentLegEventMinAggregateInputType = {
   note?: true
   occurredAt?: true
   idempotencyKey?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ShipmentLegEventMaxAggregateInputType = {
@@ -91,6 +99,8 @@ export type ShipmentLegEventMaxAggregateInputType = {
   note?: true
   occurredAt?: true
   idempotencyKey?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ShipmentLegEventCountAggregateInputType = {
@@ -104,6 +114,8 @@ export type ShipmentLegEventCountAggregateInputType = {
   note?: true
   occurredAt?: true
   idempotencyKey?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -190,6 +202,8 @@ export type ShipmentLegEventGroupByOutputType = {
   note: string | null
   occurredAt: Date
   idempotencyKey: string | null
+  createdAt: Date
+  updatedAt: Date
   _count: ShipmentLegEventCountAggregateOutputType | null
   _min: ShipmentLegEventMinAggregateOutputType | null
   _max: ShipmentLegEventMaxAggregateOutputType | null
@@ -224,6 +238,8 @@ export type ShipmentLegEventWhereInput = {
   note?: Prisma.StringNullableFilter<"ShipmentLegEvent"> | string | null
   occurredAt?: Prisma.DateTimeFilter<"ShipmentLegEvent"> | Date | string
   idempotencyKey?: Prisma.StringNullableFilter<"ShipmentLegEvent"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"ShipmentLegEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ShipmentLegEvent"> | Date | string
   leg?: Prisma.XOR<Prisma.ShipmentLegScalarRelationFilter, Prisma.ShipmentLegWhereInput>
 }
 
@@ -238,6 +254,8 @@ export type ShipmentLegEventOrderByWithRelationInput = {
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   occurredAt?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   leg?: Prisma.ShipmentLegOrderByWithRelationInput
   _relevance?: Prisma.ShipmentLegEventOrderByRelevanceInput
 }
@@ -256,6 +274,8 @@ export type ShipmentLegEventWhereUniqueInput = Prisma.AtLeast<{
   performedByUserId?: Prisma.StringNullableFilter<"ShipmentLegEvent"> | string | null
   note?: Prisma.StringNullableFilter<"ShipmentLegEvent"> | string | null
   occurredAt?: Prisma.DateTimeFilter<"ShipmentLegEvent"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"ShipmentLegEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ShipmentLegEvent"> | Date | string
   leg?: Prisma.XOR<Prisma.ShipmentLegScalarRelationFilter, Prisma.ShipmentLegWhereInput>
 }, "id" | "idempotencyKey">
 
@@ -270,6 +290,8 @@ export type ShipmentLegEventOrderByWithAggregationInput = {
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   occurredAt?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ShipmentLegEventCountOrderByAggregateInput
   _max?: Prisma.ShipmentLegEventMaxOrderByAggregateInput
   _min?: Prisma.ShipmentLegEventMinOrderByAggregateInput
@@ -289,6 +311,8 @@ export type ShipmentLegEventScalarWhereWithAggregatesInput = {
   note?: Prisma.StringNullableWithAggregatesFilter<"ShipmentLegEvent"> | string | null
   occurredAt?: Prisma.DateTimeWithAggregatesFilter<"ShipmentLegEvent"> | Date | string
   idempotencyKey?: Prisma.StringNullableWithAggregatesFilter<"ShipmentLegEvent"> | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ShipmentLegEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ShipmentLegEvent"> | Date | string
 }
 
 export type ShipmentLegEventCreateInput = {
@@ -301,6 +325,8 @@ export type ShipmentLegEventCreateInput = {
   note?: string | null
   occurredAt?: Date | string
   idempotencyKey?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   leg: Prisma.ShipmentLegCreateNestedOneWithoutEventsInput
 }
 
@@ -315,6 +341,8 @@ export type ShipmentLegEventUncheckedCreateInput = {
   note?: string | null
   occurredAt?: Date | string
   idempotencyKey?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ShipmentLegEventUpdateInput = {
@@ -327,6 +355,8 @@ export type ShipmentLegEventUpdateInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leg?: Prisma.ShipmentLegUpdateOneRequiredWithoutEventsNestedInput
 }
 
@@ -341,6 +371,8 @@ export type ShipmentLegEventUncheckedUpdateInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShipmentLegEventCreateManyInput = {
@@ -354,6 +386,8 @@ export type ShipmentLegEventCreateManyInput = {
   note?: string | null
   occurredAt?: Date | string
   idempotencyKey?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ShipmentLegEventUpdateManyMutationInput = {
@@ -366,6 +400,8 @@ export type ShipmentLegEventUpdateManyMutationInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShipmentLegEventUncheckedUpdateManyInput = {
@@ -379,6 +415,8 @@ export type ShipmentLegEventUncheckedUpdateManyInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShipmentLegEventListRelationFilter = {
@@ -408,6 +446,8 @@ export type ShipmentLegEventCountOrderByAggregateInput = {
   note?: Prisma.SortOrder
   occurredAt?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ShipmentLegEventMaxOrderByAggregateInput = {
@@ -421,6 +461,8 @@ export type ShipmentLegEventMaxOrderByAggregateInput = {
   note?: Prisma.SortOrder
   occurredAt?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ShipmentLegEventMinOrderByAggregateInput = {
@@ -434,6 +476,8 @@ export type ShipmentLegEventMinOrderByAggregateInput = {
   note?: Prisma.SortOrder
   occurredAt?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ShipmentLegEventCreateNestedManyWithoutLegInput = {
@@ -492,6 +536,8 @@ export type ShipmentLegEventCreateWithoutLegInput = {
   note?: string | null
   occurredAt?: Date | string
   idempotencyKey?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ShipmentLegEventUncheckedCreateWithoutLegInput = {
@@ -504,6 +550,8 @@ export type ShipmentLegEventUncheckedCreateWithoutLegInput = {
   note?: string | null
   occurredAt?: Date | string
   idempotencyKey?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ShipmentLegEventCreateOrConnectWithoutLegInput = {
@@ -546,6 +594,8 @@ export type ShipmentLegEventScalarWhereInput = {
   note?: Prisma.StringNullableFilter<"ShipmentLegEvent"> | string | null
   occurredAt?: Prisma.DateTimeFilter<"ShipmentLegEvent"> | Date | string
   idempotencyKey?: Prisma.StringNullableFilter<"ShipmentLegEvent"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"ShipmentLegEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ShipmentLegEvent"> | Date | string
 }
 
 export type ShipmentLegEventCreateManyLegInput = {
@@ -558,6 +608,8 @@ export type ShipmentLegEventCreateManyLegInput = {
   note?: string | null
   occurredAt?: Date | string
   idempotencyKey?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ShipmentLegEventUpdateWithoutLegInput = {
@@ -570,6 +622,8 @@ export type ShipmentLegEventUpdateWithoutLegInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShipmentLegEventUncheckedUpdateWithoutLegInput = {
@@ -582,6 +636,8 @@ export type ShipmentLegEventUncheckedUpdateWithoutLegInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShipmentLegEventUncheckedUpdateManyWithoutLegInput = {
@@ -594,6 +650,8 @@ export type ShipmentLegEventUncheckedUpdateManyWithoutLegInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -609,6 +667,8 @@ export type ShipmentLegEventSelect<ExtArgs extends runtime.Types.Extensions.Inte
   note?: boolean
   occurredAt?: boolean
   idempotencyKey?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   leg?: boolean | Prisma.ShipmentLegDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shipmentLegEvent"]>
 
@@ -625,9 +685,11 @@ export type ShipmentLegEventSelectScalar = {
   note?: boolean
   occurredAt?: boolean
   idempotencyKey?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ShipmentLegEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "legId" | "kind" | "fromStatus" | "toStatus" | "actorRole" | "performedByUserId" | "note" | "occurredAt" | "idempotencyKey", ExtArgs["result"]["shipmentLegEvent"]>
+export type ShipmentLegEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "legId" | "kind" | "fromStatus" | "toStatus" | "actorRole" | "performedByUserId" | "note" | "occurredAt" | "idempotencyKey" | "createdAt" | "updatedAt", ExtArgs["result"]["shipmentLegEvent"]>
 export type ShipmentLegEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   leg?: boolean | Prisma.ShipmentLegDefaultArgs<ExtArgs>
 }
@@ -654,6 +716,8 @@ export type $ShipmentLegEventPayload<ExtArgs extends runtime.Types.Extensions.In
      * A retried request collides here rather than recording a handover twice.
      */
     idempotencyKey: string | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["shipmentLegEvent"]>
   composites: {}
 }
@@ -1034,6 +1098,8 @@ export interface ShipmentLegEventFieldRefs {
   readonly note: Prisma.FieldRef<"ShipmentLegEvent", 'String'>
   readonly occurredAt: Prisma.FieldRef<"ShipmentLegEvent", 'DateTime'>
   readonly idempotencyKey: Prisma.FieldRef<"ShipmentLegEvent", 'String'>
+  readonly createdAt: Prisma.FieldRef<"ShipmentLegEvent", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ShipmentLegEvent", 'DateTime'>
 }
     
 

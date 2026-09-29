@@ -45,6 +45,7 @@ export type CustomerErpOAuthStateMinAggregateOutputType = {
   expiresAt: Date | null
   consumedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CustomerErpOAuthStateMaxAggregateOutputType = {
@@ -57,6 +58,7 @@ export type CustomerErpOAuthStateMaxAggregateOutputType = {
   expiresAt: Date | null
   consumedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CustomerErpOAuthStateCountAggregateOutputType = {
@@ -69,6 +71,7 @@ export type CustomerErpOAuthStateCountAggregateOutputType = {
   expiresAt: number
   consumedAt: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -83,6 +86,7 @@ export type CustomerErpOAuthStateMinAggregateInputType = {
   expiresAt?: true
   consumedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type CustomerErpOAuthStateMaxAggregateInputType = {
@@ -95,6 +99,7 @@ export type CustomerErpOAuthStateMaxAggregateInputType = {
   expiresAt?: true
   consumedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type CustomerErpOAuthStateCountAggregateInputType = {
@@ -107,6 +112,7 @@ export type CustomerErpOAuthStateCountAggregateInputType = {
   expiresAt?: true
   consumedAt?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -192,6 +198,7 @@ export type CustomerErpOAuthStateGroupByOutputType = {
   expiresAt: Date
   consumedAt: Date | null
   createdAt: Date
+  updatedAt: Date
   _count: CustomerErpOAuthStateCountAggregateOutputType | null
   _min: CustomerErpOAuthStateMinAggregateOutputType | null
   _max: CustomerErpOAuthStateMaxAggregateOutputType | null
@@ -225,6 +232,7 @@ export type CustomerErpOAuthStateWhereInput = {
   expiresAt?: Prisma.DateTimeFilter<"CustomerErpOAuthState"> | Date | string
   consumedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOAuthState"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"CustomerErpOAuthState"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpOAuthState"> | Date | string
   connection?: Prisma.XOR<Prisma.CustomerErpConnectionScalarRelationFilter, Prisma.CustomerErpConnectionWhereInput>
 }
 
@@ -238,6 +246,7 @@ export type CustomerErpOAuthStateOrderByWithRelationInput = {
   expiresAt?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   connection?: Prisma.CustomerErpConnectionOrderByWithRelationInput
   _relevance?: Prisma.CustomerErpOAuthStateOrderByRelevanceInput
 }
@@ -255,6 +264,7 @@ export type CustomerErpOAuthStateWhereUniqueInput = Prisma.AtLeast<{
   expiresAt?: Prisma.DateTimeFilter<"CustomerErpOAuthState"> | Date | string
   consumedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOAuthState"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"CustomerErpOAuthState"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpOAuthState"> | Date | string
   connection?: Prisma.XOR<Prisma.CustomerErpConnectionScalarRelationFilter, Prisma.CustomerErpConnectionWhereInput>
 }, "id" | "stateToken">
 
@@ -268,6 +278,7 @@ export type CustomerErpOAuthStateOrderByWithAggregationInput = {
   expiresAt?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CustomerErpOAuthStateCountOrderByAggregateInput
   _max?: Prisma.CustomerErpOAuthStateMaxOrderByAggregateInput
   _min?: Prisma.CustomerErpOAuthStateMinOrderByAggregateInput
@@ -286,6 +297,7 @@ export type CustomerErpOAuthStateScalarWhereWithAggregatesInput = {
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerErpOAuthState"> | Date | string
   consumedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerErpOAuthState"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerErpOAuthState"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerErpOAuthState"> | Date | string
 }
 
 export type CustomerErpOAuthStateCreateInput = {
@@ -297,6 +309,7 @@ export type CustomerErpOAuthStateCreateInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   connection: Prisma.CustomerErpConnectionCreateNestedOneWithoutOauthStatesInput
 }
 
@@ -310,6 +323,7 @@ export type CustomerErpOAuthStateUncheckedCreateInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpOAuthStateUpdateInput = {
@@ -321,6 +335,7 @@ export type CustomerErpOAuthStateUpdateInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   connection?: Prisma.CustomerErpConnectionUpdateOneRequiredWithoutOauthStatesNestedInput
 }
 
@@ -334,6 +349,7 @@ export type CustomerErpOAuthStateUncheckedUpdateInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpOAuthStateCreateManyInput = {
@@ -346,6 +362,7 @@ export type CustomerErpOAuthStateCreateManyInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpOAuthStateUpdateManyMutationInput = {
@@ -357,6 +374,7 @@ export type CustomerErpOAuthStateUpdateManyMutationInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpOAuthStateUncheckedUpdateManyInput = {
@@ -369,6 +387,7 @@ export type CustomerErpOAuthStateUncheckedUpdateManyInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpOAuthStateListRelationFilter = {
@@ -397,6 +416,7 @@ export type CustomerErpOAuthStateCountOrderByAggregateInput = {
   expiresAt?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpOAuthStateMaxOrderByAggregateInput = {
@@ -409,6 +429,7 @@ export type CustomerErpOAuthStateMaxOrderByAggregateInput = {
   expiresAt?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpOAuthStateMinOrderByAggregateInput = {
@@ -421,6 +442,7 @@ export type CustomerErpOAuthStateMinOrderByAggregateInput = {
   expiresAt?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput = {
@@ -474,6 +496,7 @@ export type CustomerErpOAuthStateCreateWithoutConnectionInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpOAuthStateUncheckedCreateWithoutConnectionInput = {
@@ -485,6 +508,7 @@ export type CustomerErpOAuthStateUncheckedCreateWithoutConnectionInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpOAuthStateCreateOrConnectWithoutConnectionInput = {
@@ -526,6 +550,7 @@ export type CustomerErpOAuthStateScalarWhereInput = {
   expiresAt?: Prisma.DateTimeFilter<"CustomerErpOAuthState"> | Date | string
   consumedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOAuthState"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"CustomerErpOAuthState"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpOAuthState"> | Date | string
 }
 
 export type CustomerErpOAuthStateCreateManyConnectionInput = {
@@ -537,6 +562,7 @@ export type CustomerErpOAuthStateCreateManyConnectionInput = {
   expiresAt: Date | string
   consumedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpOAuthStateUpdateWithoutConnectionInput = {
@@ -548,6 +574,7 @@ export type CustomerErpOAuthStateUpdateWithoutConnectionInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpOAuthStateUncheckedUpdateWithoutConnectionInput = {
@@ -559,6 +586,7 @@ export type CustomerErpOAuthStateUncheckedUpdateWithoutConnectionInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionInput = {
@@ -570,6 +598,7 @@ export type CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -584,6 +613,7 @@ export type CustomerErpOAuthStateSelect<ExtArgs extends runtime.Types.Extensions
   expiresAt?: boolean
   consumedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   connection?: boolean | Prisma.CustomerErpConnectionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerErpOAuthState"]>
 
@@ -599,9 +629,10 @@ export type CustomerErpOAuthStateSelectScalar = {
   expiresAt?: boolean
   consumedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CustomerErpOAuthStateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "stateToken" | "codeVerifierEnc" | "redirectUri" | "startedByProfileId" | "expiresAt" | "consumedAt" | "createdAt", ExtArgs["result"]["customerErpOAuthState"]>
+export type CustomerErpOAuthStateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "stateToken" | "codeVerifierEnc" | "redirectUri" | "startedByProfileId" | "expiresAt" | "consumedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customerErpOAuthState"]>
 export type CustomerErpOAuthStateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   connection?: boolean | Prisma.CustomerErpConnectionDefaultArgs<ExtArgs>
 }
@@ -636,6 +667,7 @@ export type $CustomerErpOAuthStatePayload<ExtArgs extends runtime.Types.Extensio
     expiresAt: Date
     consumedAt: Date | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["customerErpOAuthState"]>
   composites: {}
 }
@@ -1015,6 +1047,7 @@ export interface CustomerErpOAuthStateFieldRefs {
   readonly expiresAt: Prisma.FieldRef<"CustomerErpOAuthState", 'DateTime'>
   readonly consumedAt: Prisma.FieldRef<"CustomerErpOAuthState", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"CustomerErpOAuthState", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CustomerErpOAuthState", 'DateTime'>
 }
     
 

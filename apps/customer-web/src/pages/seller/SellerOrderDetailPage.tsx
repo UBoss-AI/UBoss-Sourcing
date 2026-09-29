@@ -20,6 +20,7 @@
 import { OrderedProductInfo } from './OrderedProductInfo';
 import { useState } from 'react';
 import { ConsignmentLogisticsPanel } from './ConsignmentLogisticsPanel';
+import { SellerConsignmentTracking } from './SellerConsignmentTracking';
 import { SellerOrderLegsPanel } from './SellerOrderLegsPanel';
 import { raiseConsignment } from '@/lib/consignment-logistics';
 import { ConsignmentCarrierPurchasePanel } from './ConsignmentCarrierPurchasePanel';
@@ -339,6 +340,9 @@ function Consignments({ order }: { order: SellerOrderDetail }): React.JSX.Elemen
             ) : (
               <p className="text-sm text-ink-muted">{consignment.reference}</p>
             )}
+
+            {/* Where it is now: the buyer's milestones, ETA and proof of delivery. */}
+            <SellerConsignmentTracking shipmentId={consignment.id} reference={consignment.reference} />
 
             {/*
               The other route out of the warehouse.

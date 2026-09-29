@@ -37,6 +37,7 @@ export type BuyerCompanyReviewEventMinAggregateOutputType = {
   actorUserId: string | null
   message: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerCompanyReviewEventMaxAggregateOutputType = {
@@ -49,6 +50,7 @@ export type BuyerCompanyReviewEventMaxAggregateOutputType = {
   actorUserId: string | null
   message: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BuyerCompanyReviewEventCountAggregateOutputType = {
@@ -62,6 +64,7 @@ export type BuyerCompanyReviewEventCountAggregateOutputType = {
   message: number
   dataJson: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -76,6 +79,7 @@ export type BuyerCompanyReviewEventMinAggregateInputType = {
   actorUserId?: true
   message?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type BuyerCompanyReviewEventMaxAggregateInputType = {
@@ -88,6 +92,7 @@ export type BuyerCompanyReviewEventMaxAggregateInputType = {
   actorUserId?: true
   message?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type BuyerCompanyReviewEventCountAggregateInputType = {
@@ -101,6 +106,7 @@ export type BuyerCompanyReviewEventCountAggregateInputType = {
   message?: true
   dataJson?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -187,6 +193,7 @@ export type BuyerCompanyReviewEventGroupByOutputType = {
   message: string | null
   dataJson: runtime.JsonValue | null
   createdAt: Date
+  updatedAt: Date
   _count: BuyerCompanyReviewEventCountAggregateOutputType | null
   _min: BuyerCompanyReviewEventMinAggregateOutputType | null
   _max: BuyerCompanyReviewEventMaxAggregateOutputType | null
@@ -221,6 +228,7 @@ export type BuyerCompanyReviewEventWhereInput = {
   message?: Prisma.StringNullableFilter<"BuyerCompanyReviewEvent"> | string | null
   dataJson?: Prisma.JsonNullableFilter<"BuyerCompanyReviewEvent">
   createdAt?: Prisma.DateTimeFilter<"BuyerCompanyReviewEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyReviewEvent"> | Date | string
   company?: Prisma.XOR<Prisma.BuyerCompanyScalarRelationFilter, Prisma.BuyerCompanyWhereInput>
 }
 
@@ -235,6 +243,7 @@ export type BuyerCompanyReviewEventOrderByWithRelationInput = {
   message?: Prisma.SortOrderInput | Prisma.SortOrder
   dataJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   company?: Prisma.BuyerCompanyOrderByWithRelationInput
   _relevance?: Prisma.BuyerCompanyReviewEventOrderByRelevanceInput
 }
@@ -253,6 +262,7 @@ export type BuyerCompanyReviewEventWhereUniqueInput = Prisma.AtLeast<{
   message?: Prisma.StringNullableFilter<"BuyerCompanyReviewEvent"> | string | null
   dataJson?: Prisma.JsonNullableFilter<"BuyerCompanyReviewEvent">
   createdAt?: Prisma.DateTimeFilter<"BuyerCompanyReviewEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyReviewEvent"> | Date | string
   company?: Prisma.XOR<Prisma.BuyerCompanyScalarRelationFilter, Prisma.BuyerCompanyWhereInput>
 }, "id">
 
@@ -267,6 +277,7 @@ export type BuyerCompanyReviewEventOrderByWithAggregationInput = {
   message?: Prisma.SortOrderInput | Prisma.SortOrder
   dataJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.BuyerCompanyReviewEventCountOrderByAggregateInput
   _max?: Prisma.BuyerCompanyReviewEventMaxOrderByAggregateInput
   _min?: Prisma.BuyerCompanyReviewEventMinOrderByAggregateInput
@@ -286,6 +297,7 @@ export type BuyerCompanyReviewEventScalarWhereWithAggregatesInput = {
   message?: Prisma.StringNullableWithAggregatesFilter<"BuyerCompanyReviewEvent"> | string | null
   dataJson?: Prisma.JsonNullableWithAggregatesFilter<"BuyerCompanyReviewEvent">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyReviewEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BuyerCompanyReviewEvent"> | Date | string
 }
 
 export type BuyerCompanyReviewEventCreateInput = {
@@ -298,6 +310,7 @@ export type BuyerCompanyReviewEventCreateInput = {
   message?: string | null
   dataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
   company: Prisma.BuyerCompanyCreateNestedOneWithoutReviewEventsInput
 }
 
@@ -312,6 +325,7 @@ export type BuyerCompanyReviewEventUncheckedCreateInput = {
   message?: string | null
   dataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyReviewEventUpdateInput = {
@@ -324,6 +338,7 @@ export type BuyerCompanyReviewEventUpdateInput = {
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.BuyerCompanyUpdateOneRequiredWithoutReviewEventsNestedInput
 }
 
@@ -338,6 +353,7 @@ export type BuyerCompanyReviewEventUncheckedUpdateInput = {
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyReviewEventCreateManyInput = {
@@ -351,6 +367,7 @@ export type BuyerCompanyReviewEventCreateManyInput = {
   message?: string | null
   dataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyReviewEventUpdateManyMutationInput = {
@@ -363,6 +380,7 @@ export type BuyerCompanyReviewEventUpdateManyMutationInput = {
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyReviewEventUncheckedUpdateManyInput = {
@@ -376,6 +394,7 @@ export type BuyerCompanyReviewEventUncheckedUpdateManyInput = {
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyReviewEventListRelationFilter = {
@@ -405,6 +424,7 @@ export type BuyerCompanyReviewEventCountOrderByAggregateInput = {
   message?: Prisma.SortOrder
   dataJson?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyReviewEventMaxOrderByAggregateInput = {
@@ -417,6 +437,7 @@ export type BuyerCompanyReviewEventMaxOrderByAggregateInput = {
   actorUserId?: Prisma.SortOrder
   message?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyReviewEventMinOrderByAggregateInput = {
@@ -429,6 +450,7 @@ export type BuyerCompanyReviewEventMinOrderByAggregateInput = {
   actorUserId?: Prisma.SortOrder
   message?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BuyerCompanyReviewEventCreateNestedManyWithoutCompanyInput = {
@@ -487,6 +509,7 @@ export type BuyerCompanyReviewEventCreateWithoutCompanyInput = {
   message?: string | null
   dataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyReviewEventUncheckedCreateWithoutCompanyInput = {
@@ -499,6 +522,7 @@ export type BuyerCompanyReviewEventUncheckedCreateWithoutCompanyInput = {
   message?: string | null
   dataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyReviewEventCreateOrConnectWithoutCompanyInput = {
@@ -541,6 +565,7 @@ export type BuyerCompanyReviewEventScalarWhereInput = {
   message?: Prisma.StringNullableFilter<"BuyerCompanyReviewEvent"> | string | null
   dataJson?: Prisma.JsonNullableFilter<"BuyerCompanyReviewEvent">
   createdAt?: Prisma.DateTimeFilter<"BuyerCompanyReviewEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BuyerCompanyReviewEvent"> | Date | string
 }
 
 export type BuyerCompanyReviewEventCreateManyCompanyInput = {
@@ -553,6 +578,7 @@ export type BuyerCompanyReviewEventCreateManyCompanyInput = {
   message?: string | null
   dataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BuyerCompanyReviewEventUpdateWithoutCompanyInput = {
@@ -565,6 +591,7 @@ export type BuyerCompanyReviewEventUpdateWithoutCompanyInput = {
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyReviewEventUncheckedUpdateWithoutCompanyInput = {
@@ -577,6 +604,7 @@ export type BuyerCompanyReviewEventUncheckedUpdateWithoutCompanyInput = {
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BuyerCompanyReviewEventUncheckedUpdateManyWithoutCompanyInput = {
@@ -589,6 +617,7 @@ export type BuyerCompanyReviewEventUncheckedUpdateManyWithoutCompanyInput = {
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -604,6 +633,7 @@ export type BuyerCompanyReviewEventSelect<ExtArgs extends runtime.Types.Extensio
   message?: boolean
   dataJson?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   company?: boolean | Prisma.BuyerCompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["buyerCompanyReviewEvent"]>
 
@@ -620,9 +650,10 @@ export type BuyerCompanyReviewEventSelectScalar = {
   message?: boolean
   dataJson?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type BuyerCompanyReviewEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "caseId" | "kind" | "visibility" | "actorType" | "actorUserId" | "message" | "dataJson" | "createdAt", ExtArgs["result"]["buyerCompanyReviewEvent"]>
+export type BuyerCompanyReviewEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "caseId" | "kind" | "visibility" | "actorType" | "actorUserId" | "message" | "dataJson" | "createdAt" | "updatedAt", ExtArgs["result"]["buyerCompanyReviewEvent"]>
 export type BuyerCompanyReviewEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.BuyerCompanyDefaultArgs<ExtArgs>
 }
@@ -646,6 +677,7 @@ export type $BuyerCompanyReviewEventPayload<ExtArgs extends runtime.Types.Extens
     message: string | null
     dataJson: runtime.JsonValue | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["buyerCompanyReviewEvent"]>
   composites: {}
 }
@@ -1026,6 +1058,7 @@ export interface BuyerCompanyReviewEventFieldRefs {
   readonly message: Prisma.FieldRef<"BuyerCompanyReviewEvent", 'String'>
   readonly dataJson: Prisma.FieldRef<"BuyerCompanyReviewEvent", 'Json'>
   readonly createdAt: Prisma.FieldRef<"BuyerCompanyReviewEvent", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"BuyerCompanyReviewEvent", 'DateTime'>
 }
     
 

@@ -54,7 +54,9 @@ export type SupportTicketAttachmentMinAggregateOutputType = {
   contentHash: string | null
   scanState: $Enums.SupportAttachmentScanState | null
   uploadedByUserId: string | null
+  uploadedByStaff: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SupportTicketAttachmentMaxAggregateOutputType = {
@@ -68,7 +70,9 @@ export type SupportTicketAttachmentMaxAggregateOutputType = {
   contentHash: string | null
   scanState: $Enums.SupportAttachmentScanState | null
   uploadedByUserId: string | null
+  uploadedByStaff: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SupportTicketAttachmentCountAggregateOutputType = {
@@ -82,7 +86,9 @@ export type SupportTicketAttachmentCountAggregateOutputType = {
   contentHash: number
   scanState: number
   uploadedByUserId: number
+  uploadedByStaff: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -106,7 +112,9 @@ export type SupportTicketAttachmentMinAggregateInputType = {
   contentHash?: true
   scanState?: true
   uploadedByUserId?: true
+  uploadedByStaff?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SupportTicketAttachmentMaxAggregateInputType = {
@@ -120,7 +128,9 @@ export type SupportTicketAttachmentMaxAggregateInputType = {
   contentHash?: true
   scanState?: true
   uploadedByUserId?: true
+  uploadedByStaff?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SupportTicketAttachmentCountAggregateInputType = {
@@ -134,7 +144,9 @@ export type SupportTicketAttachmentCountAggregateInputType = {
   contentHash?: true
   scanState?: true
   uploadedByUserId?: true
+  uploadedByStaff?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -235,7 +247,9 @@ export type SupportTicketAttachmentGroupByOutputType = {
   contentHash: string
   scanState: $Enums.SupportAttachmentScanState
   uploadedByUserId: string | null
+  uploadedByStaff: boolean
   createdAt: Date
+  updatedAt: Date
   _count: SupportTicketAttachmentCountAggregateOutputType | null
   _avg: SupportTicketAttachmentAvgAggregateOutputType | null
   _sum: SupportTicketAttachmentSumAggregateOutputType | null
@@ -272,7 +286,9 @@ export type SupportTicketAttachmentWhereInput = {
   contentHash?: Prisma.StringFilter<"SupportTicketAttachment"> | string
   scanState?: Prisma.EnumSupportAttachmentScanStateFilter<"SupportTicketAttachment"> | $Enums.SupportAttachmentScanState
   uploadedByUserId?: Prisma.StringNullableFilter<"SupportTicketAttachment"> | string | null
+  uploadedByStaff?: Prisma.BoolFilter<"SupportTicketAttachment"> | boolean
   createdAt?: Prisma.DateTimeFilter<"SupportTicketAttachment"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SupportTicketAttachment"> | Date | string
   ticket?: Prisma.XOR<Prisma.SupportTicketScalarRelationFilter, Prisma.SupportTicketWhereInput>
   uploadedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
@@ -288,7 +304,9 @@ export type SupportTicketAttachmentOrderByWithRelationInput = {
   contentHash?: Prisma.SortOrder
   scanState?: Prisma.SortOrder
   uploadedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  uploadedByStaff?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   ticket?: Prisma.SupportTicketOrderByWithRelationInput
   uploadedBy?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.SupportTicketAttachmentOrderByRelevanceInput
@@ -308,7 +326,9 @@ export type SupportTicketAttachmentWhereUniqueInput = Prisma.AtLeast<{
   contentHash?: Prisma.StringFilter<"SupportTicketAttachment"> | string
   scanState?: Prisma.EnumSupportAttachmentScanStateFilter<"SupportTicketAttachment"> | $Enums.SupportAttachmentScanState
   uploadedByUserId?: Prisma.StringNullableFilter<"SupportTicketAttachment"> | string | null
+  uploadedByStaff?: Prisma.BoolFilter<"SupportTicketAttachment"> | boolean
   createdAt?: Prisma.DateTimeFilter<"SupportTicketAttachment"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SupportTicketAttachment"> | Date | string
   ticket?: Prisma.XOR<Prisma.SupportTicketScalarRelationFilter, Prisma.SupportTicketWhereInput>
   uploadedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id">
@@ -324,7 +344,9 @@ export type SupportTicketAttachmentOrderByWithAggregationInput = {
   contentHash?: Prisma.SortOrder
   scanState?: Prisma.SortOrder
   uploadedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  uploadedByStaff?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SupportTicketAttachmentCountOrderByAggregateInput
   _avg?: Prisma.SupportTicketAttachmentAvgOrderByAggregateInput
   _max?: Prisma.SupportTicketAttachmentMaxOrderByAggregateInput
@@ -346,7 +368,9 @@ export type SupportTicketAttachmentScalarWhereWithAggregatesInput = {
   contentHash?: Prisma.StringWithAggregatesFilter<"SupportTicketAttachment"> | string
   scanState?: Prisma.EnumSupportAttachmentScanStateWithAggregatesFilter<"SupportTicketAttachment"> | $Enums.SupportAttachmentScanState
   uploadedByUserId?: Prisma.StringNullableWithAggregatesFilter<"SupportTicketAttachment"> | string | null
+  uploadedByStaff?: Prisma.BoolWithAggregatesFilter<"SupportTicketAttachment"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SupportTicketAttachment"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SupportTicketAttachment"> | Date | string
 }
 
 export type SupportTicketAttachmentCreateInput = {
@@ -358,7 +382,9 @@ export type SupportTicketAttachmentCreateInput = {
   byteSize: number
   contentHash: string
   scanState: $Enums.SupportAttachmentScanState
+  uploadedByStaff?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   ticket: Prisma.SupportTicketCreateNestedOneWithoutAttachmentsInput
   uploadedBy?: Prisma.UserCreateNestedOneWithoutSupportTicketAttachmentsInput
 }
@@ -374,7 +400,9 @@ export type SupportTicketAttachmentUncheckedCreateInput = {
   contentHash: string
   scanState: $Enums.SupportAttachmentScanState
   uploadedByUserId?: string | null
+  uploadedByStaff?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SupportTicketAttachmentUpdateInput = {
@@ -386,7 +414,9 @@ export type SupportTicketAttachmentUpdateInput = {
   byteSize?: Prisma.IntFieldUpdateOperationsInput | number
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.EnumSupportAttachmentScanStateFieldUpdateOperationsInput | $Enums.SupportAttachmentScanState
+  uploadedByStaff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ticket?: Prisma.SupportTicketUpdateOneRequiredWithoutAttachmentsNestedInput
   uploadedBy?: Prisma.UserUpdateOneWithoutSupportTicketAttachmentsNestedInput
 }
@@ -402,7 +432,9 @@ export type SupportTicketAttachmentUncheckedUpdateInput = {
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.EnumSupportAttachmentScanStateFieldUpdateOperationsInput | $Enums.SupportAttachmentScanState
   uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByStaff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SupportTicketAttachmentCreateManyInput = {
@@ -416,7 +448,9 @@ export type SupportTicketAttachmentCreateManyInput = {
   contentHash: string
   scanState: $Enums.SupportAttachmentScanState
   uploadedByUserId?: string | null
+  uploadedByStaff?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SupportTicketAttachmentUpdateManyMutationInput = {
@@ -428,7 +462,9 @@ export type SupportTicketAttachmentUpdateManyMutationInput = {
   byteSize?: Prisma.IntFieldUpdateOperationsInput | number
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.EnumSupportAttachmentScanStateFieldUpdateOperationsInput | $Enums.SupportAttachmentScanState
+  uploadedByStaff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SupportTicketAttachmentUncheckedUpdateManyInput = {
@@ -442,7 +478,9 @@ export type SupportTicketAttachmentUncheckedUpdateManyInput = {
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.EnumSupportAttachmentScanStateFieldUpdateOperationsInput | $Enums.SupportAttachmentScanState
   uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByStaff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SupportTicketAttachmentListRelationFilter = {
@@ -472,7 +510,9 @@ export type SupportTicketAttachmentCountOrderByAggregateInput = {
   contentHash?: Prisma.SortOrder
   scanState?: Prisma.SortOrder
   uploadedByUserId?: Prisma.SortOrder
+  uploadedByStaff?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SupportTicketAttachmentAvgOrderByAggregateInput = {
@@ -490,7 +530,9 @@ export type SupportTicketAttachmentMaxOrderByAggregateInput = {
   contentHash?: Prisma.SortOrder
   scanState?: Prisma.SortOrder
   uploadedByUserId?: Prisma.SortOrder
+  uploadedByStaff?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SupportTicketAttachmentMinOrderByAggregateInput = {
@@ -504,7 +546,9 @@ export type SupportTicketAttachmentMinOrderByAggregateInput = {
   contentHash?: Prisma.SortOrder
   scanState?: Prisma.SortOrder
   uploadedByUserId?: Prisma.SortOrder
+  uploadedByStaff?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SupportTicketAttachmentSumOrderByAggregateInput = {
@@ -595,14 +639,6 @@ export type SupportTicketAttachmentUncheckedUpdateManyWithoutTicketNestedInput =
   deleteMany?: Prisma.SupportTicketAttachmentScalarWhereInput | Prisma.SupportTicketAttachmentScalarWhereInput[]
 }
 
-export type EnumSupportAttachmentKindFieldUpdateOperationsInput = {
-  set?: $Enums.SupportAttachmentKind
-}
-
-export type EnumSupportAttachmentScanStateFieldUpdateOperationsInput = {
-  set?: $Enums.SupportAttachmentScanState
-}
-
 export type SupportTicketAttachmentCreateWithoutUploadedByInput = {
   id: string
   storageKey: string
@@ -612,7 +648,9 @@ export type SupportTicketAttachmentCreateWithoutUploadedByInput = {
   byteSize: number
   contentHash: string
   scanState: $Enums.SupportAttachmentScanState
+  uploadedByStaff?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   ticket: Prisma.SupportTicketCreateNestedOneWithoutAttachmentsInput
 }
 
@@ -626,7 +664,9 @@ export type SupportTicketAttachmentUncheckedCreateWithoutUploadedByInput = {
   byteSize: number
   contentHash: string
   scanState: $Enums.SupportAttachmentScanState
+  uploadedByStaff?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SupportTicketAttachmentCreateOrConnectWithoutUploadedByInput = {
@@ -669,7 +709,9 @@ export type SupportTicketAttachmentScalarWhereInput = {
   contentHash?: Prisma.StringFilter<"SupportTicketAttachment"> | string
   scanState?: Prisma.EnumSupportAttachmentScanStateFilter<"SupportTicketAttachment"> | $Enums.SupportAttachmentScanState
   uploadedByUserId?: Prisma.StringNullableFilter<"SupportTicketAttachment"> | string | null
+  uploadedByStaff?: Prisma.BoolFilter<"SupportTicketAttachment"> | boolean
   createdAt?: Prisma.DateTimeFilter<"SupportTicketAttachment"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SupportTicketAttachment"> | Date | string
 }
 
 export type SupportTicketAttachmentCreateWithoutTicketInput = {
@@ -681,7 +723,9 @@ export type SupportTicketAttachmentCreateWithoutTicketInput = {
   byteSize: number
   contentHash: string
   scanState: $Enums.SupportAttachmentScanState
+  uploadedByStaff?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   uploadedBy?: Prisma.UserCreateNestedOneWithoutSupportTicketAttachmentsInput
 }
 
@@ -695,7 +739,9 @@ export type SupportTicketAttachmentUncheckedCreateWithoutTicketInput = {
   contentHash: string
   scanState: $Enums.SupportAttachmentScanState
   uploadedByUserId?: string | null
+  uploadedByStaff?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SupportTicketAttachmentCreateOrConnectWithoutTicketInput = {
@@ -734,7 +780,9 @@ export type SupportTicketAttachmentCreateManyUploadedByInput = {
   byteSize: number
   contentHash: string
   scanState: $Enums.SupportAttachmentScanState
+  uploadedByStaff?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SupportTicketAttachmentUpdateWithoutUploadedByInput = {
@@ -746,7 +794,9 @@ export type SupportTicketAttachmentUpdateWithoutUploadedByInput = {
   byteSize?: Prisma.IntFieldUpdateOperationsInput | number
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.EnumSupportAttachmentScanStateFieldUpdateOperationsInput | $Enums.SupportAttachmentScanState
+  uploadedByStaff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ticket?: Prisma.SupportTicketUpdateOneRequiredWithoutAttachmentsNestedInput
 }
 
@@ -760,7 +810,9 @@ export type SupportTicketAttachmentUncheckedUpdateWithoutUploadedByInput = {
   byteSize?: Prisma.IntFieldUpdateOperationsInput | number
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.EnumSupportAttachmentScanStateFieldUpdateOperationsInput | $Enums.SupportAttachmentScanState
+  uploadedByStaff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SupportTicketAttachmentUncheckedUpdateManyWithoutUploadedByInput = {
@@ -773,7 +825,9 @@ export type SupportTicketAttachmentUncheckedUpdateManyWithoutUploadedByInput = {
   byteSize?: Prisma.IntFieldUpdateOperationsInput | number
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.EnumSupportAttachmentScanStateFieldUpdateOperationsInput | $Enums.SupportAttachmentScanState
+  uploadedByStaff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SupportTicketAttachmentCreateManyTicketInput = {
@@ -786,7 +840,9 @@ export type SupportTicketAttachmentCreateManyTicketInput = {
   contentHash: string
   scanState: $Enums.SupportAttachmentScanState
   uploadedByUserId?: string | null
+  uploadedByStaff?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SupportTicketAttachmentUpdateWithoutTicketInput = {
@@ -798,7 +854,9 @@ export type SupportTicketAttachmentUpdateWithoutTicketInput = {
   byteSize?: Prisma.IntFieldUpdateOperationsInput | number
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.EnumSupportAttachmentScanStateFieldUpdateOperationsInput | $Enums.SupportAttachmentScanState
+  uploadedByStaff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   uploadedBy?: Prisma.UserUpdateOneWithoutSupportTicketAttachmentsNestedInput
 }
 
@@ -812,7 +870,9 @@ export type SupportTicketAttachmentUncheckedUpdateWithoutTicketInput = {
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.EnumSupportAttachmentScanStateFieldUpdateOperationsInput | $Enums.SupportAttachmentScanState
   uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByStaff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SupportTicketAttachmentUncheckedUpdateManyWithoutTicketInput = {
@@ -825,7 +885,9 @@ export type SupportTicketAttachmentUncheckedUpdateManyWithoutTicketInput = {
   contentHash?: Prisma.StringFieldUpdateOperationsInput | string
   scanState?: Prisma.EnumSupportAttachmentScanStateFieldUpdateOperationsInput | $Enums.SupportAttachmentScanState
   uploadedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedByStaff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -841,7 +903,9 @@ export type SupportTicketAttachmentSelect<ExtArgs extends runtime.Types.Extensio
   contentHash?: boolean
   scanState?: boolean
   uploadedByUserId?: boolean
+  uploadedByStaff?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   ticket?: boolean | Prisma.SupportTicketDefaultArgs<ExtArgs>
   uploadedBy?: boolean | Prisma.SupportTicketAttachment$uploadedByArgs<ExtArgs>
 }, ExtArgs["result"]["supportTicketAttachment"]>
@@ -859,10 +923,12 @@ export type SupportTicketAttachmentSelectScalar = {
   contentHash?: boolean
   scanState?: boolean
   uploadedByUserId?: boolean
+  uploadedByStaff?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SupportTicketAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ticketId" | "storageKey" | "fileName" | "contentType" | "kind" | "byteSize" | "contentHash" | "scanState" | "uploadedByUserId" | "createdAt", ExtArgs["result"]["supportTicketAttachment"]>
+export type SupportTicketAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ticketId" | "storageKey" | "fileName" | "contentType" | "kind" | "byteSize" | "contentHash" | "scanState" | "uploadedByUserId" | "uploadedByStaff" | "createdAt" | "updatedAt", ExtArgs["result"]["supportTicketAttachment"]>
 export type SupportTicketAttachmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ticket?: boolean | Prisma.SupportTicketDefaultArgs<ExtArgs>
   uploadedBy?: boolean | Prisma.SupportTicketAttachment$uploadedByArgs<ExtArgs>
@@ -888,7 +954,12 @@ export type $SupportTicketAttachmentPayload<ExtArgs extends runtime.Types.Extens
      * Who attached it. Null once that account is gone.
      */
     uploadedByUserId: string | null
+    /**
+     * Attached by a member of staff rather than the sender. Both see it.
+     */
+    uploadedByStaff: boolean
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["supportTicketAttachment"]>
   composites: {}
 }
@@ -1270,7 +1341,9 @@ export interface SupportTicketAttachmentFieldRefs {
   readonly contentHash: Prisma.FieldRef<"SupportTicketAttachment", 'String'>
   readonly scanState: Prisma.FieldRef<"SupportTicketAttachment", 'SupportAttachmentScanState'>
   readonly uploadedByUserId: Prisma.FieldRef<"SupportTicketAttachment", 'String'>
+  readonly uploadedByStaff: Prisma.FieldRef<"SupportTicketAttachment", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"SupportTicketAttachment", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SupportTicketAttachment", 'DateTime'>
 }
     
 

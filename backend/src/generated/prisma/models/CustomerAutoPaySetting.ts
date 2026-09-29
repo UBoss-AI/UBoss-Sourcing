@@ -43,11 +43,13 @@ export type AggregateCustomerAutoPaySetting = {
 export type CustomerAutoPaySettingAvgAggregateOutputType = {
   maxTransactionMinor: number | null
   approvalThresholdMinor: number | null
+  periodCapMinor: number | null
 }
 
 export type CustomerAutoPaySettingSumAggregateOutputType = {
   maxTransactionMinor: bigint | null
   approvalThresholdMinor: bigint | null
+  periodCapMinor: bigint | null
 }
 
 export type CustomerAutoPaySettingMinAggregateOutputType = {
@@ -59,6 +61,10 @@ export type CustomerAutoPaySettingMinAggregateOutputType = {
   approvalThresholdMinor: bigint | null
   limitCurrency: string | null
   retryPreference: $Enums.AutoPayRetryPreference | null
+  authorityExpiresAt: Date | null
+  authorityStartsAt: Date | null
+  periodCapMinor: bigint | null
+  capPeriod: $Enums.AutoPayCapPeriod | null
   notifyOnCharge: boolean | null
   notifyOnFailure: boolean | null
   consentAcceptedAt: Date | null
@@ -81,6 +87,10 @@ export type CustomerAutoPaySettingMaxAggregateOutputType = {
   approvalThresholdMinor: bigint | null
   limitCurrency: string | null
   retryPreference: $Enums.AutoPayRetryPreference | null
+  authorityExpiresAt: Date | null
+  authorityStartsAt: Date | null
+  periodCapMinor: bigint | null
+  capPeriod: $Enums.AutoPayCapPeriod | null
   notifyOnCharge: boolean | null
   notifyOnFailure: boolean | null
   consentAcceptedAt: Date | null
@@ -103,6 +113,12 @@ export type CustomerAutoPaySettingCountAggregateOutputType = {
   approvalThresholdMinor: number
   limitCurrency: number
   retryPreference: number
+  authorityExpiresAt: number
+  authorityStartsAt: number
+  periodCapMinor: number
+  capPeriod: number
+  scopeSellerKeysJson: number
+  scopeCategoryIdsJson: number
   notifyOnCharge: number
   notifyOnFailure: number
   consentAcceptedAt: number
@@ -121,11 +137,13 @@ export type CustomerAutoPaySettingCountAggregateOutputType = {
 export type CustomerAutoPaySettingAvgAggregateInputType = {
   maxTransactionMinor?: true
   approvalThresholdMinor?: true
+  periodCapMinor?: true
 }
 
 export type CustomerAutoPaySettingSumAggregateInputType = {
   maxTransactionMinor?: true
   approvalThresholdMinor?: true
+  periodCapMinor?: true
 }
 
 export type CustomerAutoPaySettingMinAggregateInputType = {
@@ -137,6 +155,10 @@ export type CustomerAutoPaySettingMinAggregateInputType = {
   approvalThresholdMinor?: true
   limitCurrency?: true
   retryPreference?: true
+  authorityExpiresAt?: true
+  authorityStartsAt?: true
+  periodCapMinor?: true
+  capPeriod?: true
   notifyOnCharge?: true
   notifyOnFailure?: true
   consentAcceptedAt?: true
@@ -159,6 +181,10 @@ export type CustomerAutoPaySettingMaxAggregateInputType = {
   approvalThresholdMinor?: true
   limitCurrency?: true
   retryPreference?: true
+  authorityExpiresAt?: true
+  authorityStartsAt?: true
+  periodCapMinor?: true
+  capPeriod?: true
   notifyOnCharge?: true
   notifyOnFailure?: true
   consentAcceptedAt?: true
@@ -181,6 +207,12 @@ export type CustomerAutoPaySettingCountAggregateInputType = {
   approvalThresholdMinor?: true
   limitCurrency?: true
   retryPreference?: true
+  authorityExpiresAt?: true
+  authorityStartsAt?: true
+  periodCapMinor?: true
+  capPeriod?: true
+  scopeSellerKeysJson?: true
+  scopeCategoryIdsJson?: true
   notifyOnCharge?: true
   notifyOnFailure?: true
   consentAcceptedAt?: true
@@ -290,6 +322,12 @@ export type CustomerAutoPaySettingGroupByOutputType = {
   approvalThresholdMinor: bigint | null
   limitCurrency: string | null
   retryPreference: $Enums.AutoPayRetryPreference
+  authorityExpiresAt: Date | null
+  authorityStartsAt: Date | null
+  periodCapMinor: bigint | null
+  capPeriod: $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson: runtime.JsonValue | null
+  scopeCategoryIdsJson: runtime.JsonValue | null
   notifyOnCharge: boolean
   notifyOnFailure: boolean
   consentAcceptedAt: Date | null
@@ -335,6 +373,12 @@ export type CustomerAutoPaySettingWhereInput = {
   approvalThresholdMinor?: Prisma.BigIntNullableFilter<"CustomerAutoPaySetting"> | bigint | number | null
   limitCurrency?: Prisma.StringNullableFilter<"CustomerAutoPaySetting"> | string | null
   retryPreference?: Prisma.EnumAutoPayRetryPreferenceFilter<"CustomerAutoPaySetting"> | $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Prisma.DateTimeNullableFilter<"CustomerAutoPaySetting"> | Date | string | null
+  authorityStartsAt?: Prisma.DateTimeNullableFilter<"CustomerAutoPaySetting"> | Date | string | null
+  periodCapMinor?: Prisma.BigIntNullableFilter<"CustomerAutoPaySetting"> | bigint | number | null
+  capPeriod?: Prisma.EnumAutoPayCapPeriodNullableFilter<"CustomerAutoPaySetting"> | $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.JsonNullableFilter<"CustomerAutoPaySetting">
+  scopeCategoryIdsJson?: Prisma.JsonNullableFilter<"CustomerAutoPaySetting">
   notifyOnCharge?: Prisma.BoolFilter<"CustomerAutoPaySetting"> | boolean
   notifyOnFailure?: Prisma.BoolFilter<"CustomerAutoPaySetting"> | boolean
   consentAcceptedAt?: Prisma.DateTimeNullableFilter<"CustomerAutoPaySetting"> | Date | string | null
@@ -359,6 +403,12 @@ export type CustomerAutoPaySettingOrderByWithRelationInput = {
   approvalThresholdMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   limitCurrency?: Prisma.SortOrderInput | Prisma.SortOrder
   retryPreference?: Prisma.SortOrder
+  authorityExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  authorityStartsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  periodCapMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  capPeriod?: Prisma.SortOrderInput | Prisma.SortOrder
+  scopeSellerKeysJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  scopeCategoryIdsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   notifyOnCharge?: Prisma.SortOrder
   notifyOnFailure?: Prisma.SortOrder
   consentAcceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -387,6 +437,12 @@ export type CustomerAutoPaySettingWhereUniqueInput = Prisma.AtLeast<{
   approvalThresholdMinor?: Prisma.BigIntNullableFilter<"CustomerAutoPaySetting"> | bigint | number | null
   limitCurrency?: Prisma.StringNullableFilter<"CustomerAutoPaySetting"> | string | null
   retryPreference?: Prisma.EnumAutoPayRetryPreferenceFilter<"CustomerAutoPaySetting"> | $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Prisma.DateTimeNullableFilter<"CustomerAutoPaySetting"> | Date | string | null
+  authorityStartsAt?: Prisma.DateTimeNullableFilter<"CustomerAutoPaySetting"> | Date | string | null
+  periodCapMinor?: Prisma.BigIntNullableFilter<"CustomerAutoPaySetting"> | bigint | number | null
+  capPeriod?: Prisma.EnumAutoPayCapPeriodNullableFilter<"CustomerAutoPaySetting"> | $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.JsonNullableFilter<"CustomerAutoPaySetting">
+  scopeCategoryIdsJson?: Prisma.JsonNullableFilter<"CustomerAutoPaySetting">
   notifyOnCharge?: Prisma.BoolFilter<"CustomerAutoPaySetting"> | boolean
   notifyOnFailure?: Prisma.BoolFilter<"CustomerAutoPaySetting"> | boolean
   consentAcceptedAt?: Prisma.DateTimeNullableFilter<"CustomerAutoPaySetting"> | Date | string | null
@@ -411,6 +467,12 @@ export type CustomerAutoPaySettingOrderByWithAggregationInput = {
   approvalThresholdMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   limitCurrency?: Prisma.SortOrderInput | Prisma.SortOrder
   retryPreference?: Prisma.SortOrder
+  authorityExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  authorityStartsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  periodCapMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  capPeriod?: Prisma.SortOrderInput | Prisma.SortOrder
+  scopeSellerKeysJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  scopeCategoryIdsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   notifyOnCharge?: Prisma.SortOrder
   notifyOnFailure?: Prisma.SortOrder
   consentAcceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -441,6 +503,12 @@ export type CustomerAutoPaySettingScalarWhereWithAggregatesInput = {
   approvalThresholdMinor?: Prisma.BigIntNullableWithAggregatesFilter<"CustomerAutoPaySetting"> | bigint | number | null
   limitCurrency?: Prisma.StringNullableWithAggregatesFilter<"CustomerAutoPaySetting"> | string | null
   retryPreference?: Prisma.EnumAutoPayRetryPreferenceWithAggregatesFilter<"CustomerAutoPaySetting"> | $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerAutoPaySetting"> | Date | string | null
+  authorityStartsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerAutoPaySetting"> | Date | string | null
+  periodCapMinor?: Prisma.BigIntNullableWithAggregatesFilter<"CustomerAutoPaySetting"> | bigint | number | null
+  capPeriod?: Prisma.EnumAutoPayCapPeriodNullableWithAggregatesFilter<"CustomerAutoPaySetting"> | $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.JsonNullableWithAggregatesFilter<"CustomerAutoPaySetting">
+  scopeCategoryIdsJson?: Prisma.JsonNullableWithAggregatesFilter<"CustomerAutoPaySetting">
   notifyOnCharge?: Prisma.BoolWithAggregatesFilter<"CustomerAutoPaySetting"> | boolean
   notifyOnFailure?: Prisma.BoolWithAggregatesFilter<"CustomerAutoPaySetting"> | boolean
   consentAcceptedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerAutoPaySetting"> | Date | string | null
@@ -461,6 +529,12 @@ export type CustomerAutoPaySettingCreateInput = {
   approvalThresholdMinor?: bigint | number | null
   limitCurrency?: string | null
   retryPreference?: $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Date | string | null
+  authorityStartsAt?: Date | string | null
+  periodCapMinor?: bigint | number | null
+  capPeriod?: $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: boolean
   notifyOnFailure?: boolean
   consentAcceptedAt?: Date | string | null
@@ -485,6 +559,12 @@ export type CustomerAutoPaySettingUncheckedCreateInput = {
   approvalThresholdMinor?: bigint | number | null
   limitCurrency?: string | null
   retryPreference?: $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Date | string | null
+  authorityStartsAt?: Date | string | null
+  periodCapMinor?: bigint | number | null
+  capPeriod?: $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: boolean
   notifyOnFailure?: boolean
   consentAcceptedAt?: Date | string | null
@@ -505,6 +585,12 @@ export type CustomerAutoPaySettingUpdateInput = {
   approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   limitCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryPreference?: Prisma.EnumAutoPayRetryPreferenceFieldUpdateOperationsInput | $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  authorityStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  capPeriod?: Prisma.NullableEnumAutoPayCapPeriodFieldUpdateOperationsInput | $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyOnFailure?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -529,6 +615,12 @@ export type CustomerAutoPaySettingUncheckedUpdateInput = {
   approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   limitCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryPreference?: Prisma.EnumAutoPayRetryPreferenceFieldUpdateOperationsInput | $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  authorityStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  capPeriod?: Prisma.NullableEnumAutoPayCapPeriodFieldUpdateOperationsInput | $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyOnFailure?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -551,6 +643,12 @@ export type CustomerAutoPaySettingCreateManyInput = {
   approvalThresholdMinor?: bigint | number | null
   limitCurrency?: string | null
   retryPreference?: $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Date | string | null
+  authorityStartsAt?: Date | string | null
+  periodCapMinor?: bigint | number | null
+  capPeriod?: $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: boolean
   notifyOnFailure?: boolean
   consentAcceptedAt?: Date | string | null
@@ -571,6 +669,12 @@ export type CustomerAutoPaySettingUpdateManyMutationInput = {
   approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   limitCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryPreference?: Prisma.EnumAutoPayRetryPreferenceFieldUpdateOperationsInput | $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  authorityStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  capPeriod?: Prisma.NullableEnumAutoPayCapPeriodFieldUpdateOperationsInput | $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyOnFailure?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -593,6 +697,12 @@ export type CustomerAutoPaySettingUncheckedUpdateManyInput = {
   approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   limitCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryPreference?: Prisma.EnumAutoPayRetryPreferenceFieldUpdateOperationsInput | $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  authorityStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  capPeriod?: Prisma.NullableEnumAutoPayCapPeriodFieldUpdateOperationsInput | $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyOnFailure?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -636,6 +746,12 @@ export type CustomerAutoPaySettingCountOrderByAggregateInput = {
   approvalThresholdMinor?: Prisma.SortOrder
   limitCurrency?: Prisma.SortOrder
   retryPreference?: Prisma.SortOrder
+  authorityExpiresAt?: Prisma.SortOrder
+  authorityStartsAt?: Prisma.SortOrder
+  periodCapMinor?: Prisma.SortOrder
+  capPeriod?: Prisma.SortOrder
+  scopeSellerKeysJson?: Prisma.SortOrder
+  scopeCategoryIdsJson?: Prisma.SortOrder
   notifyOnCharge?: Prisma.SortOrder
   notifyOnFailure?: Prisma.SortOrder
   consentAcceptedAt?: Prisma.SortOrder
@@ -652,6 +768,7 @@ export type CustomerAutoPaySettingCountOrderByAggregateInput = {
 export type CustomerAutoPaySettingAvgOrderByAggregateInput = {
   maxTransactionMinor?: Prisma.SortOrder
   approvalThresholdMinor?: Prisma.SortOrder
+  periodCapMinor?: Prisma.SortOrder
 }
 
 export type CustomerAutoPaySettingMaxOrderByAggregateInput = {
@@ -663,6 +780,10 @@ export type CustomerAutoPaySettingMaxOrderByAggregateInput = {
   approvalThresholdMinor?: Prisma.SortOrder
   limitCurrency?: Prisma.SortOrder
   retryPreference?: Prisma.SortOrder
+  authorityExpiresAt?: Prisma.SortOrder
+  authorityStartsAt?: Prisma.SortOrder
+  periodCapMinor?: Prisma.SortOrder
+  capPeriod?: Prisma.SortOrder
   notifyOnCharge?: Prisma.SortOrder
   notifyOnFailure?: Prisma.SortOrder
   consentAcceptedAt?: Prisma.SortOrder
@@ -685,6 +806,10 @@ export type CustomerAutoPaySettingMinOrderByAggregateInput = {
   approvalThresholdMinor?: Prisma.SortOrder
   limitCurrency?: Prisma.SortOrder
   retryPreference?: Prisma.SortOrder
+  authorityExpiresAt?: Prisma.SortOrder
+  authorityStartsAt?: Prisma.SortOrder
+  periodCapMinor?: Prisma.SortOrder
+  capPeriod?: Prisma.SortOrder
   notifyOnCharge?: Prisma.SortOrder
   notifyOnFailure?: Prisma.SortOrder
   consentAcceptedAt?: Prisma.SortOrder
@@ -701,6 +826,7 @@ export type CustomerAutoPaySettingMinOrderByAggregateInput = {
 export type CustomerAutoPaySettingSumOrderByAggregateInput = {
   maxTransactionMinor?: Prisma.SortOrder
   approvalThresholdMinor?: Prisma.SortOrder
+  periodCapMinor?: Prisma.SortOrder
 }
 
 export type CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput = {
@@ -785,6 +911,10 @@ export type EnumAutoPayRetryPreferenceFieldUpdateOperationsInput = {
   set?: $Enums.AutoPayRetryPreference
 }
 
+export type NullableEnumAutoPayCapPeriodFieldUpdateOperationsInput = {
+  set?: $Enums.AutoPayCapPeriod | null
+}
+
 export type CustomerAutoPaySettingCreateWithoutCustomerProfileInput = {
   id: string
   status?: $Enums.AutoPayStatus
@@ -792,6 +922,12 @@ export type CustomerAutoPaySettingCreateWithoutCustomerProfileInput = {
   approvalThresholdMinor?: bigint | number | null
   limitCurrency?: string | null
   retryPreference?: $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Date | string | null
+  authorityStartsAt?: Date | string | null
+  periodCapMinor?: bigint | number | null
+  capPeriod?: $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: boolean
   notifyOnFailure?: boolean
   consentAcceptedAt?: Date | string | null
@@ -814,6 +950,12 @@ export type CustomerAutoPaySettingUncheckedCreateWithoutCustomerProfileInput = {
   approvalThresholdMinor?: bigint | number | null
   limitCurrency?: string | null
   retryPreference?: $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Date | string | null
+  authorityStartsAt?: Date | string | null
+  periodCapMinor?: bigint | number | null
+  capPeriod?: $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: boolean
   notifyOnFailure?: boolean
   consentAcceptedAt?: Date | string | null
@@ -850,6 +992,12 @@ export type CustomerAutoPaySettingUpdateWithoutCustomerProfileInput = {
   approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   limitCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryPreference?: Prisma.EnumAutoPayRetryPreferenceFieldUpdateOperationsInput | $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  authorityStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  capPeriod?: Prisma.NullableEnumAutoPayCapPeriodFieldUpdateOperationsInput | $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyOnFailure?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -872,6 +1020,12 @@ export type CustomerAutoPaySettingUncheckedUpdateWithoutCustomerProfileInput = {
   approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   limitCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryPreference?: Prisma.EnumAutoPayRetryPreferenceFieldUpdateOperationsInput | $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  authorityStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  capPeriod?: Prisma.NullableEnumAutoPayCapPeriodFieldUpdateOperationsInput | $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyOnFailure?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -892,6 +1046,12 @@ export type CustomerAutoPaySettingCreateWithoutPaymentMethodInput = {
   approvalThresholdMinor?: bigint | number | null
   limitCurrency?: string | null
   retryPreference?: $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Date | string | null
+  authorityStartsAt?: Date | string | null
+  periodCapMinor?: bigint | number | null
+  capPeriod?: $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: boolean
   notifyOnFailure?: boolean
   consentAcceptedAt?: Date | string | null
@@ -914,6 +1074,12 @@ export type CustomerAutoPaySettingUncheckedCreateWithoutPaymentMethodInput = {
   approvalThresholdMinor?: bigint | number | null
   limitCurrency?: string | null
   retryPreference?: $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Date | string | null
+  authorityStartsAt?: Date | string | null
+  periodCapMinor?: bigint | number | null
+  capPeriod?: $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: boolean
   notifyOnFailure?: boolean
   consentAcceptedAt?: Date | string | null
@@ -965,6 +1131,12 @@ export type CustomerAutoPaySettingScalarWhereInput = {
   approvalThresholdMinor?: Prisma.BigIntNullableFilter<"CustomerAutoPaySetting"> | bigint | number | null
   limitCurrency?: Prisma.StringNullableFilter<"CustomerAutoPaySetting"> | string | null
   retryPreference?: Prisma.EnumAutoPayRetryPreferenceFilter<"CustomerAutoPaySetting"> | $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Prisma.DateTimeNullableFilter<"CustomerAutoPaySetting"> | Date | string | null
+  authorityStartsAt?: Prisma.DateTimeNullableFilter<"CustomerAutoPaySetting"> | Date | string | null
+  periodCapMinor?: Prisma.BigIntNullableFilter<"CustomerAutoPaySetting"> | bigint | number | null
+  capPeriod?: Prisma.EnumAutoPayCapPeriodNullableFilter<"CustomerAutoPaySetting"> | $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.JsonNullableFilter<"CustomerAutoPaySetting">
+  scopeCategoryIdsJson?: Prisma.JsonNullableFilter<"CustomerAutoPaySetting">
   notifyOnCharge?: Prisma.BoolFilter<"CustomerAutoPaySetting"> | boolean
   notifyOnFailure?: Prisma.BoolFilter<"CustomerAutoPaySetting"> | boolean
   consentAcceptedAt?: Prisma.DateTimeNullableFilter<"CustomerAutoPaySetting"> | Date | string | null
@@ -986,6 +1158,12 @@ export type CustomerAutoPaySettingCreateManyPaymentMethodInput = {
   approvalThresholdMinor?: bigint | number | null
   limitCurrency?: string | null
   retryPreference?: $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Date | string | null
+  authorityStartsAt?: Date | string | null
+  periodCapMinor?: bigint | number | null
+  capPeriod?: $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: boolean
   notifyOnFailure?: boolean
   consentAcceptedAt?: Date | string | null
@@ -1006,6 +1184,12 @@ export type CustomerAutoPaySettingUpdateWithoutPaymentMethodInput = {
   approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   limitCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryPreference?: Prisma.EnumAutoPayRetryPreferenceFieldUpdateOperationsInput | $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  authorityStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  capPeriod?: Prisma.NullableEnumAutoPayCapPeriodFieldUpdateOperationsInput | $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyOnFailure?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1028,6 +1212,12 @@ export type CustomerAutoPaySettingUncheckedUpdateWithoutPaymentMethodInput = {
   approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   limitCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryPreference?: Prisma.EnumAutoPayRetryPreferenceFieldUpdateOperationsInput | $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  authorityStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  capPeriod?: Prisma.NullableEnumAutoPayCapPeriodFieldUpdateOperationsInput | $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyOnFailure?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1049,6 +1239,12 @@ export type CustomerAutoPaySettingUncheckedUpdateManyWithoutPaymentMethodInput =
   approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   limitCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryPreference?: Prisma.EnumAutoPayRetryPreferenceFieldUpdateOperationsInput | $Enums.AutoPayRetryPreference
+  authorityExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  authorityStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  capPeriod?: Prisma.NullableEnumAutoPayCapPeriodFieldUpdateOperationsInput | $Enums.AutoPayCapPeriod | null
+  scopeSellerKeysJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  scopeCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   notifyOnCharge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyOnFailure?: Prisma.BoolFieldUpdateOperationsInput | boolean
   consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1073,6 +1269,12 @@ export type CustomerAutoPaySettingSelect<ExtArgs extends runtime.Types.Extension
   approvalThresholdMinor?: boolean
   limitCurrency?: boolean
   retryPreference?: boolean
+  authorityExpiresAt?: boolean
+  authorityStartsAt?: boolean
+  periodCapMinor?: boolean
+  capPeriod?: boolean
+  scopeSellerKeysJson?: boolean
+  scopeCategoryIdsJson?: boolean
   notifyOnCharge?: boolean
   notifyOnFailure?: boolean
   consentAcceptedAt?: boolean
@@ -1099,6 +1301,12 @@ export type CustomerAutoPaySettingSelectScalar = {
   approvalThresholdMinor?: boolean
   limitCurrency?: boolean
   retryPreference?: boolean
+  authorityExpiresAt?: boolean
+  authorityStartsAt?: boolean
+  periodCapMinor?: boolean
+  capPeriod?: boolean
+  scopeSellerKeysJson?: boolean
+  scopeCategoryIdsJson?: boolean
   notifyOnCharge?: boolean
   notifyOnFailure?: boolean
   consentAcceptedAt?: boolean
@@ -1112,7 +1320,7 @@ export type CustomerAutoPaySettingSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CustomerAutoPaySettingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "status" | "paymentMethodId" | "maxTransactionMinor" | "approvalThresholdMinor" | "limitCurrency" | "retryPreference" | "notifyOnCharge" | "notifyOnFailure" | "consentAcceptedAt" | "consentVersion" | "consentIpHash" | "consentUserAgent" | "consentWithdrawnAt" | "enabledAt" | "pausedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customerAutoPaySetting"]>
+export type CustomerAutoPaySettingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "status" | "paymentMethodId" | "maxTransactionMinor" | "approvalThresholdMinor" | "limitCurrency" | "retryPreference" | "authorityExpiresAt" | "authorityStartsAt" | "periodCapMinor" | "capPeriod" | "scopeSellerKeysJson" | "scopeCategoryIdsJson" | "notifyOnCharge" | "notifyOnFailure" | "consentAcceptedAt" | "consentVersion" | "consentIpHash" | "consentUserAgent" | "consentWithdrawnAt" | "enabledAt" | "pausedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customerAutoPaySetting"]>
 export type CustomerAutoPaySettingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   paymentMethod?: boolean | Prisma.CustomerAutoPaySetting$paymentMethodArgs<ExtArgs>
@@ -1152,6 +1360,36 @@ export type $CustomerAutoPaySettingPayload<ExtArgs extends runtime.Types.Extensi
      */
     limitCurrency: string | null
     retryPreference: $Enums.AutoPayRetryPreference
+    /**
+     * The last moment this standing authority may be used, chosen by the
+     * customer. NULL means until they switch it off. After it, every charge is
+     * refused with AUTOPAY_AUTHORITY_EXPIRED and nothing is taken.
+     */
+    authorityExpiresAt: Date | null
+    /**
+     * The first moment this standing authority may be used. NULL means from
+     * the moment it is switched on. Before it, every charge is refused with
+     * AUTOPAY_AUTHORITY_NOT_STARTED.
+     */
+    authorityStartsAt: Date | null
+    /**
+     * The most that may be charged automatically across one calendar period
+     * (`capPeriod`, UTC), in `limitCurrency`. NULL means no period cap. A
+     * charge that would take the period's total above it is not made: the
+     * order waits for the customer to pay it themselves, which is their
+     * explicit approval. `chk_autopay_period_cap` keeps the three together.
+     */
+    periodCapMinor: bigint | null
+    capPeriod: $Enums.AutoPayCapPeriod | null
+    /**
+     * Which suppliers this authority covers: seller account ids, and
+     * `MARKETPLACE` for the operator's own stock. NULL means every supplier.
+     */
+    scopeSellerKeysJson: runtime.JsonValue | null
+    /**
+     * Which catalogue categories it covers. NULL means every category.
+     */
+    scopeCategoryIdsJson: runtime.JsonValue | null
     notifyOnCharge: boolean
     notifyOnFailure: boolean
     /**
@@ -1548,6 +1786,12 @@ export interface CustomerAutoPaySettingFieldRefs {
   readonly approvalThresholdMinor: Prisma.FieldRef<"CustomerAutoPaySetting", 'BigInt'>
   readonly limitCurrency: Prisma.FieldRef<"CustomerAutoPaySetting", 'String'>
   readonly retryPreference: Prisma.FieldRef<"CustomerAutoPaySetting", 'AutoPayRetryPreference'>
+  readonly authorityExpiresAt: Prisma.FieldRef<"CustomerAutoPaySetting", 'DateTime'>
+  readonly authorityStartsAt: Prisma.FieldRef<"CustomerAutoPaySetting", 'DateTime'>
+  readonly periodCapMinor: Prisma.FieldRef<"CustomerAutoPaySetting", 'BigInt'>
+  readonly capPeriod: Prisma.FieldRef<"CustomerAutoPaySetting", 'AutoPayCapPeriod'>
+  readonly scopeSellerKeysJson: Prisma.FieldRef<"CustomerAutoPaySetting", 'Json'>
+  readonly scopeCategoryIdsJson: Prisma.FieldRef<"CustomerAutoPaySetting", 'Json'>
   readonly notifyOnCharge: Prisma.FieldRef<"CustomerAutoPaySetting", 'Boolean'>
   readonly notifyOnFailure: Prisma.FieldRef<"CustomerAutoPaySetting", 'Boolean'>
   readonly consentAcceptedAt: Prisma.FieldRef<"CustomerAutoPaySetting", 'DateTime'>

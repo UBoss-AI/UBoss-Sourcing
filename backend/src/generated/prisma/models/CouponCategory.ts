@@ -28,18 +28,24 @@ export type CouponCategoryMinAggregateOutputType = {
   couponId: string | null
   categoryId: string | null
   includeDescendants: boolean | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CouponCategoryMaxAggregateOutputType = {
   couponId: string | null
   categoryId: string | null
   includeDescendants: boolean | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CouponCategoryCountAggregateOutputType = {
   couponId: number
   categoryId: number
   includeDescendants: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -48,18 +54,24 @@ export type CouponCategoryMinAggregateInputType = {
   couponId?: true
   categoryId?: true
   includeDescendants?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CouponCategoryMaxAggregateInputType = {
   couponId?: true
   categoryId?: true
   includeDescendants?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CouponCategoryCountAggregateInputType = {
   couponId?: true
   categoryId?: true
   includeDescendants?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -139,6 +151,8 @@ export type CouponCategoryGroupByOutputType = {
   couponId: string
   categoryId: string
   includeDescendants: boolean
+  createdAt: Date
+  updatedAt: Date
   _count: CouponCategoryCountAggregateOutputType | null
   _min: CouponCategoryMinAggregateOutputType | null
   _max: CouponCategoryMaxAggregateOutputType | null
@@ -166,6 +180,8 @@ export type CouponCategoryWhereInput = {
   couponId?: Prisma.StringFilter<"CouponCategory"> | string
   categoryId?: Prisma.StringFilter<"CouponCategory"> | string
   includeDescendants?: Prisma.BoolFilter<"CouponCategory"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"CouponCategory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CouponCategory"> | Date | string
   coupon?: Prisma.XOR<Prisma.CouponScalarRelationFilter, Prisma.CouponWhereInput>
   category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
 }
@@ -174,6 +190,8 @@ export type CouponCategoryOrderByWithRelationInput = {
   couponId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   includeDescendants?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   coupon?: Prisma.CouponOrderByWithRelationInput
   category?: Prisma.CategoryOrderByWithRelationInput
   _relevance?: Prisma.CouponCategoryOrderByRelevanceInput
@@ -187,6 +205,8 @@ export type CouponCategoryWhereUniqueInput = Prisma.AtLeast<{
   couponId?: Prisma.StringFilter<"CouponCategory"> | string
   categoryId?: Prisma.StringFilter<"CouponCategory"> | string
   includeDescendants?: Prisma.BoolFilter<"CouponCategory"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"CouponCategory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CouponCategory"> | Date | string
   coupon?: Prisma.XOR<Prisma.CouponScalarRelationFilter, Prisma.CouponWhereInput>
   category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
 }, "couponId_categoryId">
@@ -195,6 +215,8 @@ export type CouponCategoryOrderByWithAggregationInput = {
   couponId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   includeDescendants?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CouponCategoryCountOrderByAggregateInput
   _max?: Prisma.CouponCategoryMaxOrderByAggregateInput
   _min?: Prisma.CouponCategoryMinOrderByAggregateInput
@@ -207,10 +229,14 @@ export type CouponCategoryScalarWhereWithAggregatesInput = {
   couponId?: Prisma.StringWithAggregatesFilter<"CouponCategory"> | string
   categoryId?: Prisma.StringWithAggregatesFilter<"CouponCategory"> | string
   includeDescendants?: Prisma.BoolWithAggregatesFilter<"CouponCategory"> | boolean
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"CouponCategory"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CouponCategory"> | Date | string
 }
 
 export type CouponCategoryCreateInput = {
   includeDescendants?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
   coupon: Prisma.CouponCreateNestedOneWithoutCategoriesInput
   category: Prisma.CategoryCreateNestedOneWithoutCouponCategoriesInput
 }
@@ -219,10 +245,14 @@ export type CouponCategoryUncheckedCreateInput = {
   couponId: string
   categoryId: string
   includeDescendants?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CouponCategoryUpdateInput = {
   includeDescendants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coupon?: Prisma.CouponUpdateOneRequiredWithoutCategoriesNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutCouponCategoriesNestedInput
 }
@@ -231,22 +261,30 @@ export type CouponCategoryUncheckedUpdateInput = {
   couponId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   includeDescendants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CouponCategoryCreateManyInput = {
   couponId: string
   categoryId: string
   includeDescendants?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CouponCategoryUpdateManyMutationInput = {
   includeDescendants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CouponCategoryUncheckedUpdateManyInput = {
   couponId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   includeDescendants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CouponCategoryListRelationFilter = {
@@ -274,18 +312,24 @@ export type CouponCategoryCountOrderByAggregateInput = {
   couponId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   includeDescendants?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CouponCategoryMaxOrderByAggregateInput = {
   couponId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   includeDescendants?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CouponCategoryMinOrderByAggregateInput = {
   couponId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   includeDescendants?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CouponCategoryCreateNestedManyWithoutCategoryInput = {
@@ -374,12 +418,16 @@ export type CouponCategoryUncheckedUpdateManyWithoutCouponNestedInput = {
 
 export type CouponCategoryCreateWithoutCategoryInput = {
   includeDescendants?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
   coupon: Prisma.CouponCreateNestedOneWithoutCategoriesInput
 }
 
 export type CouponCategoryUncheckedCreateWithoutCategoryInput = {
   couponId: string
   includeDescendants?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CouponCategoryCreateOrConnectWithoutCategoryInput = {
@@ -415,16 +463,22 @@ export type CouponCategoryScalarWhereInput = {
   couponId?: Prisma.StringFilter<"CouponCategory"> | string
   categoryId?: Prisma.StringFilter<"CouponCategory"> | string
   includeDescendants?: Prisma.BoolFilter<"CouponCategory"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"CouponCategory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CouponCategory"> | Date | string
 }
 
 export type CouponCategoryCreateWithoutCouponInput = {
   includeDescendants?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutCouponCategoriesInput
 }
 
 export type CouponCategoryUncheckedCreateWithoutCouponInput = {
   categoryId: string
   includeDescendants?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CouponCategoryCreateOrConnectWithoutCouponInput = {
@@ -456,41 +510,57 @@ export type CouponCategoryUpdateManyWithWhereWithoutCouponInput = {
 export type CouponCategoryCreateManyCategoryInput = {
   couponId: string
   includeDescendants?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CouponCategoryUpdateWithoutCategoryInput = {
   includeDescendants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coupon?: Prisma.CouponUpdateOneRequiredWithoutCategoriesNestedInput
 }
 
 export type CouponCategoryUncheckedUpdateWithoutCategoryInput = {
   couponId?: Prisma.StringFieldUpdateOperationsInput | string
   includeDescendants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CouponCategoryUncheckedUpdateManyWithoutCategoryInput = {
   couponId?: Prisma.StringFieldUpdateOperationsInput | string
   includeDescendants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CouponCategoryCreateManyCouponInput = {
   categoryId: string
   includeDescendants?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CouponCategoryUpdateWithoutCouponInput = {
   includeDescendants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutCouponCategoriesNestedInput
 }
 
 export type CouponCategoryUncheckedUpdateWithoutCouponInput = {
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   includeDescendants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CouponCategoryUncheckedUpdateManyWithoutCouponInput = {
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   includeDescendants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -499,6 +569,8 @@ export type CouponCategorySelect<ExtArgs extends runtime.Types.Extensions.Intern
   couponId?: boolean
   categoryId?: boolean
   includeDescendants?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   coupon?: boolean | Prisma.CouponDefaultArgs<ExtArgs>
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["couponCategory"]>
@@ -509,9 +581,11 @@ export type CouponCategorySelectScalar = {
   couponId?: boolean
   categoryId?: boolean
   includeDescendants?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CouponCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"couponId" | "categoryId" | "includeDescendants", ExtArgs["result"]["couponCategory"]>
+export type CouponCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"couponId" | "categoryId" | "includeDescendants" | "createdAt" | "updatedAt", ExtArgs["result"]["couponCategory"]>
 export type CouponCategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   coupon?: boolean | Prisma.CouponDefaultArgs<ExtArgs>
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
@@ -531,6 +605,8 @@ export type $CouponCategoryPayload<ExtArgs extends runtime.Types.Extensions.Inte
      * almost always means the whole branch.
      */
     includeDescendants: boolean
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["couponCategory"]>
   composites: {}
 }
@@ -905,6 +981,8 @@ export interface CouponCategoryFieldRefs {
   readonly couponId: Prisma.FieldRef<"CouponCategory", 'String'>
   readonly categoryId: Prisma.FieldRef<"CouponCategory", 'String'>
   readonly includeDescendants: Prisma.FieldRef<"CouponCategory", 'Boolean'>
+  readonly createdAt: Prisma.FieldRef<"CouponCategory", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CouponCategory", 'DateTime'>
 }
     
 

@@ -112,7 +112,7 @@ export function AccountMenu(): React.JSX.Element {
     return (
       <Link
         to="/login"
-        className="inline-flex h-10 shrink-0 items-center gap-2 rounded-md border border-border-strong bg-surface px-3 text-sm font-medium text-ink shadow-card transition-colors hover:border-border-hover hover:bg-surface-hover sm:px-4"
+        className="inline-flex h-10 shrink-0 items-center gap-2 rounded-md border border-border-strong bg-surface px-3 text-sm font-medium text-ink shadow-card transition-colors hover:border-border-hover hover:bg-surface-hover max-[359px]:px-2 sm:px-4"
       >
         <UserIcon className="h-[1.15rem] w-[1.15rem] text-ink-muted" />
         {/* The icon alone under `sm`, where the word cost the wordmark beside
@@ -154,7 +154,7 @@ export function AccountMenu(): React.JSX.Element {
             ? t('account.group.yourAccount')
             : t('header.accountFor', { name: identity.shortName })
         }
-        className="flex h-10 max-w-[12rem] items-center gap-2 rounded-md px-2 text-sm font-medium text-ink transition-colors hover:bg-surface-hover sm:px-2.5"
+        className="flex h-10 max-w-[12rem] items-center gap-2 rounded-md px-2 text-sm font-medium text-ink transition-colors hover:bg-surface-hover max-[359px]:px-1 sm:px-2.5"
       >
         <UserIcon aria-hidden="true" className="h-5 w-5 shrink-0 text-ink-muted" />
 

@@ -331,6 +331,7 @@ export type CategoryWhereInput = {
   translations?: Prisma.CategoryTranslationListRelationFilter
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionListRelationFilter
   listingDrafts?: Prisma.SellerListingDraftListRelationFilter
+  marketRules?: Prisma.MarketRuleListRelationFilter
   imageMedia?: Prisma.XOR<Prisma.MediaAssetNullableScalarRelationFilter, Prisma.MediaAssetWhereInput> | null
   bannerMedia?: Prisma.XOR<Prisma.MediaAssetNullableScalarRelationFilter, Prisma.MediaAssetWhereInput> | null
 }
@@ -361,6 +362,7 @@ export type CategoryOrderByWithRelationInput = {
   translations?: Prisma.CategoryTranslationOrderByRelationAggregateInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionOrderByRelationAggregateInput
   listingDrafts?: Prisma.SellerListingDraftOrderByRelationAggregateInput
+  marketRules?: Prisma.MarketRuleOrderByRelationAggregateInput
   imageMedia?: Prisma.MediaAssetOrderByWithRelationInput
   bannerMedia?: Prisma.MediaAssetOrderByWithRelationInput
   _relevance?: Prisma.CategoryOrderByRelevanceInput
@@ -395,6 +397,7 @@ export type CategoryWhereUniqueInput = Prisma.AtLeast<{
   translations?: Prisma.CategoryTranslationListRelationFilter
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionListRelationFilter
   listingDrafts?: Prisma.SellerListingDraftListRelationFilter
+  marketRules?: Prisma.MarketRuleListRelationFilter
   imageMedia?: Prisma.XOR<Prisma.MediaAssetNullableScalarRelationFilter, Prisma.MediaAssetWhereInput> | null
   bannerMedia?: Prisma.XOR<Prisma.MediaAssetNullableScalarRelationFilter, Prisma.MediaAssetWhereInput> | null
 }, "id" | "slug">
@@ -472,6 +475,7 @@ export type CategoryCreateInput = {
   translations?: Prisma.CategoryTranslationCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutCategoryInput
   imageMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryImagesInput
   bannerMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryBannersInput
 }
@@ -501,6 +505,7 @@ export type CategoryUncheckedCreateInput = {
   translations?: Prisma.CategoryTranslationUncheckedCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryUpdateInput = {
@@ -526,6 +531,7 @@ export type CategoryUpdateInput = {
   translations?: Prisma.CategoryTranslationUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutCategoryNestedInput
   imageMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryImagesNestedInput
   bannerMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryBannersNestedInput
 }
@@ -555,6 +561,7 @@ export type CategoryUncheckedUpdateInput = {
   translations?: Prisma.CategoryTranslationUncheckedUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryCreateManyInput = {
@@ -932,6 +939,22 @@ export type CategoryUpdateOneWithoutListingDraftsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CategoryUpdateToOneWithWhereWithoutListingDraftsInput, Prisma.CategoryUpdateWithoutListingDraftsInput>, Prisma.CategoryUncheckedUpdateWithoutListingDraftsInput>
 }
 
+export type CategoryCreateNestedOneWithoutMarketRulesInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutMarketRulesInput, Prisma.CategoryUncheckedCreateWithoutMarketRulesInput>
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutMarketRulesInput
+  connect?: Prisma.CategoryWhereUniqueInput
+}
+
+export type CategoryUpdateOneWithoutMarketRulesNestedInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutMarketRulesInput, Prisma.CategoryUncheckedCreateWithoutMarketRulesInput>
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutMarketRulesInput
+  upsert?: Prisma.CategoryUpsertWithoutMarketRulesInput
+  disconnect?: Prisma.CategoryWhereInput | boolean
+  delete?: Prisma.CategoryWhereInput | boolean
+  connect?: Prisma.CategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CategoryUpdateToOneWithWhereWithoutMarketRulesInput, Prisma.CategoryUpdateWithoutMarketRulesInput>, Prisma.CategoryUncheckedUpdateWithoutMarketRulesInput>
+}
+
 export type CategoryCreateWithoutImageMediaInput = {
   id: string
   name: string
@@ -955,6 +978,7 @@ export type CategoryCreateWithoutImageMediaInput = {
   translations?: Prisma.CategoryTranslationCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutCategoryInput
   bannerMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryBannersInput
 }
 
@@ -982,6 +1006,7 @@ export type CategoryUncheckedCreateWithoutImageMediaInput = {
   translations?: Prisma.CategoryTranslationUncheckedCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutImageMediaInput = {
@@ -1017,6 +1042,7 @@ export type CategoryCreateWithoutBannerMediaInput = {
   translations?: Prisma.CategoryTranslationCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutCategoryInput
   imageMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryImagesInput
 }
 
@@ -1044,6 +1070,7 @@ export type CategoryUncheckedCreateWithoutBannerMediaInput = {
   translations?: Prisma.CategoryTranslationUncheckedCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutBannerMediaInput = {
@@ -1134,6 +1161,7 @@ export type CategoryCreateWithoutChildrenInput = {
   translations?: Prisma.CategoryTranslationCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutCategoryInput
   imageMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryImagesInput
   bannerMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryBannersInput
 }
@@ -1162,6 +1190,7 @@ export type CategoryUncheckedCreateWithoutChildrenInput = {
   translations?: Prisma.CategoryTranslationUncheckedCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutChildrenInput = {
@@ -1191,6 +1220,7 @@ export type CategoryCreateWithoutParentInput = {
   translations?: Prisma.CategoryTranslationCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutCategoryInput
   imageMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryImagesInput
   bannerMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryBannersInput
 }
@@ -1219,6 +1249,7 @@ export type CategoryUncheckedCreateWithoutParentInput = {
   translations?: Prisma.CategoryTranslationUncheckedCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutParentInput = {
@@ -1264,6 +1295,7 @@ export type CategoryUpdateWithoutChildrenInput = {
   translations?: Prisma.CategoryTranslationUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutCategoryNestedInput
   imageMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryImagesNestedInput
   bannerMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryBannersNestedInput
 }
@@ -1292,6 +1324,7 @@ export type CategoryUncheckedUpdateWithoutChildrenInput = {
   translations?: Prisma.CategoryTranslationUncheckedUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUpsertWithWhereUniqueWithoutParentInput = {
@@ -1332,6 +1365,7 @@ export type CategoryCreateWithoutProductsInput = {
   translations?: Prisma.CategoryTranslationCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutCategoryInput
   imageMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryImagesInput
   bannerMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryBannersInput
 }
@@ -1360,6 +1394,7 @@ export type CategoryUncheckedCreateWithoutProductsInput = {
   translations?: Prisma.CategoryTranslationUncheckedCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutProductsInput = {
@@ -1400,6 +1435,7 @@ export type CategoryUpdateWithoutProductsInput = {
   translations?: Prisma.CategoryTranslationUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutCategoryNestedInput
   imageMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryImagesNestedInput
   bannerMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryBannersNestedInput
 }
@@ -1428,6 +1464,7 @@ export type CategoryUncheckedUpdateWithoutProductsInput = {
   translations?: Prisma.CategoryTranslationUncheckedUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryCreateWithoutCouponCategoriesInput = {
@@ -1452,6 +1489,7 @@ export type CategoryCreateWithoutCouponCategoriesInput = {
   translations?: Prisma.CategoryTranslationCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutCategoryInput
   imageMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryImagesInput
   bannerMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryBannersInput
 }
@@ -1480,6 +1518,7 @@ export type CategoryUncheckedCreateWithoutCouponCategoriesInput = {
   translations?: Prisma.CategoryTranslationUncheckedCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutCouponCategoriesInput = {
@@ -1520,6 +1559,7 @@ export type CategoryUpdateWithoutCouponCategoriesInput = {
   translations?: Prisma.CategoryTranslationUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutCategoryNestedInput
   imageMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryImagesNestedInput
   bannerMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryBannersNestedInput
 }
@@ -1548,6 +1588,7 @@ export type CategoryUncheckedUpdateWithoutCouponCategoriesInput = {
   translations?: Prisma.CategoryTranslationUncheckedUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryCreateWithoutTranslationsInput = {
@@ -1572,6 +1613,7 @@ export type CategoryCreateWithoutTranslationsInput = {
   couponCategories?: Prisma.CouponCategoryCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutCategoryInput
   imageMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryImagesInput
   bannerMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryBannersInput
 }
@@ -1600,6 +1642,7 @@ export type CategoryUncheckedCreateWithoutTranslationsInput = {
   couponCategories?: Prisma.CouponCategoryUncheckedCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutTranslationsInput = {
@@ -1640,6 +1683,7 @@ export type CategoryUpdateWithoutTranslationsInput = {
   couponCategories?: Prisma.CouponCategoryUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutCategoryNestedInput
   imageMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryImagesNestedInput
   bannerMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryBannersNestedInput
 }
@@ -1668,6 +1712,7 @@ export type CategoryUncheckedUpdateWithoutTranslationsInput = {
   couponCategories?: Prisma.CouponCategoryUncheckedUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryCreateWithoutAttributeDefinitionsInput = {
@@ -1692,6 +1737,7 @@ export type CategoryCreateWithoutAttributeDefinitionsInput = {
   couponCategories?: Prisma.CouponCategoryCreateNestedManyWithoutCategoryInput
   translations?: Prisma.CategoryTranslationCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutCategoryInput
   imageMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryImagesInput
   bannerMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryBannersInput
 }
@@ -1720,6 +1766,7 @@ export type CategoryUncheckedCreateWithoutAttributeDefinitionsInput = {
   couponCategories?: Prisma.CouponCategoryUncheckedCreateNestedManyWithoutCategoryInput
   translations?: Prisma.CategoryTranslationUncheckedCreateNestedManyWithoutCategoryInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutAttributeDefinitionsInput = {
@@ -1760,6 +1807,7 @@ export type CategoryUpdateWithoutAttributeDefinitionsInput = {
   couponCategories?: Prisma.CouponCategoryUpdateManyWithoutCategoryNestedInput
   translations?: Prisma.CategoryTranslationUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutCategoryNestedInput
   imageMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryImagesNestedInput
   bannerMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryBannersNestedInput
 }
@@ -1788,6 +1836,7 @@ export type CategoryUncheckedUpdateWithoutAttributeDefinitionsInput = {
   couponCategories?: Prisma.CouponCategoryUncheckedUpdateManyWithoutCategoryNestedInput
   translations?: Prisma.CategoryTranslationUncheckedUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryCreateWithoutListingDraftsInput = {
@@ -1812,6 +1861,7 @@ export type CategoryCreateWithoutListingDraftsInput = {
   couponCategories?: Prisma.CouponCategoryCreateNestedManyWithoutCategoryInput
   translations?: Prisma.CategoryTranslationCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleCreateNestedManyWithoutCategoryInput
   imageMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryImagesInput
   bannerMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryBannersInput
 }
@@ -1840,6 +1890,7 @@ export type CategoryUncheckedCreateWithoutListingDraftsInput = {
   couponCategories?: Prisma.CouponCategoryUncheckedCreateNestedManyWithoutCategoryInput
   translations?: Prisma.CategoryTranslationUncheckedCreateNestedManyWithoutCategoryInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedCreateNestedManyWithoutCategoryInput
+  marketRules?: Prisma.MarketRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutListingDraftsInput = {
@@ -1880,6 +1931,7 @@ export type CategoryUpdateWithoutListingDraftsInput = {
   couponCategories?: Prisma.CouponCategoryUpdateManyWithoutCategoryNestedInput
   translations?: Prisma.CategoryTranslationUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutCategoryNestedInput
   imageMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryImagesNestedInput
   bannerMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryBannersNestedInput
 }
@@ -1908,6 +1960,131 @@ export type CategoryUncheckedUpdateWithoutListingDraftsInput = {
   couponCategories?: Prisma.CouponCategoryUncheckedUpdateManyWithoutCategoryNestedInput
   translations?: Prisma.CategoryTranslationUncheckedUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutCategoryNestedInput
+}
+
+export type CategoryCreateWithoutMarketRulesInput = {
+  id: string
+  name: string
+  slug: string
+  description?: string | null
+  path?: string
+  depth?: number
+  sortOrder?: number
+  isActive?: boolean
+  metaTitle?: string | null
+  metaDescription?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  createdById?: string | null
+  updatedById?: string | null
+  parent?: Prisma.CategoryCreateNestedOneWithoutChildrenInput
+  children?: Prisma.CategoryCreateNestedManyWithoutParentInput
+  products?: Prisma.ProductCreateNestedManyWithoutCategoryInput
+  couponCategories?: Prisma.CouponCategoryCreateNestedManyWithoutCategoryInput
+  translations?: Prisma.CategoryTranslationCreateNestedManyWithoutCategoryInput
+  attributeDefinitions?: Prisma.CategoryAttributeDefinitionCreateNestedManyWithoutCategoryInput
+  listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutCategoryInput
+  imageMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryImagesInput
+  bannerMedia?: Prisma.MediaAssetCreateNestedOneWithoutCategoryBannersInput
+}
+
+export type CategoryUncheckedCreateWithoutMarketRulesInput = {
+  id: string
+  parentId?: string | null
+  name: string
+  slug: string
+  description?: string | null
+  imageMediaId?: string | null
+  bannerMediaId?: string | null
+  path?: string
+  depth?: number
+  sortOrder?: number
+  isActive?: boolean
+  metaTitle?: string | null
+  metaDescription?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  createdById?: string | null
+  updatedById?: string | null
+  children?: Prisma.CategoryUncheckedCreateNestedManyWithoutParentInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCategoryInput
+  couponCategories?: Prisma.CouponCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  translations?: Prisma.CategoryTranslationUncheckedCreateNestedManyWithoutCategoryInput
+  attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedCreateNestedManyWithoutCategoryInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutCategoryInput
+}
+
+export type CategoryCreateOrConnectWithoutMarketRulesInput = {
+  where: Prisma.CategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.CategoryCreateWithoutMarketRulesInput, Prisma.CategoryUncheckedCreateWithoutMarketRulesInput>
+}
+
+export type CategoryUpsertWithoutMarketRulesInput = {
+  update: Prisma.XOR<Prisma.CategoryUpdateWithoutMarketRulesInput, Prisma.CategoryUncheckedUpdateWithoutMarketRulesInput>
+  create: Prisma.XOR<Prisma.CategoryCreateWithoutMarketRulesInput, Prisma.CategoryUncheckedCreateWithoutMarketRulesInput>
+  where?: Prisma.CategoryWhereInput
+}
+
+export type CategoryUpdateToOneWithWhereWithoutMarketRulesInput = {
+  where?: Prisma.CategoryWhereInput
+  data: Prisma.XOR<Prisma.CategoryUpdateWithoutMarketRulesInput, Prisma.CategoryUncheckedUpdateWithoutMarketRulesInput>
+}
+
+export type CategoryUpdateWithoutMarketRulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.StringFieldUpdateOperationsInput | string
+  depth?: Prisma.IntFieldUpdateOperationsInput | number
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parent?: Prisma.CategoryUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.CategoryUpdateManyWithoutParentNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCategoryNestedInput
+  couponCategories?: Prisma.CouponCategoryUpdateManyWithoutCategoryNestedInput
+  translations?: Prisma.CategoryTranslationUpdateManyWithoutCategoryNestedInput
+  attributeDefinitions?: Prisma.CategoryAttributeDefinitionUpdateManyWithoutCategoryNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutCategoryNestedInput
+  imageMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryImagesNestedInput
+  bannerMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryBannersNestedInput
+}
+
+export type CategoryUncheckedUpdateWithoutMarketRulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageMediaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerMediaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.StringFieldUpdateOperationsInput | string
+  depth?: Prisma.IntFieldUpdateOperationsInput | number
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  children?: Prisma.CategoryUncheckedUpdateManyWithoutParentNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCategoryNestedInput
+  couponCategories?: Prisma.CouponCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  translations?: Prisma.CategoryTranslationUncheckedUpdateManyWithoutCategoryNestedInput
+  attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedUpdateManyWithoutCategoryNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryCreateManyImageMediaInput = {
@@ -1973,6 +2150,7 @@ export type CategoryUpdateWithoutImageMediaInput = {
   translations?: Prisma.CategoryTranslationUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutCategoryNestedInput
   bannerMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryBannersNestedInput
 }
 
@@ -2000,6 +2178,7 @@ export type CategoryUncheckedUpdateWithoutImageMediaInput = {
   translations?: Prisma.CategoryTranslationUncheckedUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateManyWithoutImageMediaInput = {
@@ -2045,6 +2224,7 @@ export type CategoryUpdateWithoutBannerMediaInput = {
   translations?: Prisma.CategoryTranslationUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutCategoryNestedInput
   imageMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryImagesNestedInput
 }
 
@@ -2072,6 +2252,7 @@ export type CategoryUncheckedUpdateWithoutBannerMediaInput = {
   translations?: Prisma.CategoryTranslationUncheckedUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateManyWithoutBannerMediaInput = {
@@ -2136,6 +2317,7 @@ export type CategoryUpdateWithoutParentInput = {
   translations?: Prisma.CategoryTranslationUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUpdateManyWithoutCategoryNestedInput
   imageMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryImagesNestedInput
   bannerMedia?: Prisma.MediaAssetUpdateOneWithoutCategoryBannersNestedInput
 }
@@ -2164,6 +2346,7 @@ export type CategoryUncheckedUpdateWithoutParentInput = {
   translations?: Prisma.CategoryTranslationUncheckedUpdateManyWithoutCategoryNestedInput
   attributeDefinitions?: Prisma.CategoryAttributeDefinitionUncheckedUpdateManyWithoutCategoryNestedInput
   listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutCategoryNestedInput
+  marketRules?: Prisma.MarketRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateManyWithoutParentInput = {
@@ -2198,6 +2381,7 @@ export type CategoryCountOutputType = {
   translations: number
   attributeDefinitions: number
   listingDrafts: number
+  marketRules: number
 }
 
 export type CategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2207,6 +2391,7 @@ export type CategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   translations?: boolean | CategoryCountOutputTypeCountTranslationsArgs
   attributeDefinitions?: boolean | CategoryCountOutputTypeCountAttributeDefinitionsArgs
   listingDrafts?: boolean | CategoryCountOutputTypeCountListingDraftsArgs
+  marketRules?: boolean | CategoryCountOutputTypeCountMarketRulesArgs
 }
 
 /**
@@ -2261,6 +2446,13 @@ export type CategoryCountOutputTypeCountListingDraftsArgs<ExtArgs extends runtim
   where?: Prisma.SellerListingDraftWhereInput
 }
 
+/**
+ * CategoryCountOutputType without action
+ */
+export type CategoryCountOutputTypeCountMarketRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MarketRuleWhereInput
+}
+
 
 export type CategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2288,6 +2480,7 @@ export type CategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   translations?: boolean | Prisma.Category$translationsArgs<ExtArgs>
   attributeDefinitions?: boolean | Prisma.Category$attributeDefinitionsArgs<ExtArgs>
   listingDrafts?: boolean | Prisma.Category$listingDraftsArgs<ExtArgs>
+  marketRules?: boolean | Prisma.Category$marketRulesArgs<ExtArgs>
   imageMedia?: boolean | Prisma.Category$imageMediaArgs<ExtArgs>
   bannerMedia?: boolean | Prisma.Category$bannerMediaArgs<ExtArgs>
   _count?: boolean | Prisma.CategoryCountOutputTypeDefaultArgs<ExtArgs>
@@ -2325,6 +2518,7 @@ export type CategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   translations?: boolean | Prisma.Category$translationsArgs<ExtArgs>
   attributeDefinitions?: boolean | Prisma.Category$attributeDefinitionsArgs<ExtArgs>
   listingDrafts?: boolean | Prisma.Category$listingDraftsArgs<ExtArgs>
+  marketRules?: boolean | Prisma.Category$marketRulesArgs<ExtArgs>
   imageMedia?: boolean | Prisma.Category$imageMediaArgs<ExtArgs>
   bannerMedia?: boolean | Prisma.Category$bannerMediaArgs<ExtArgs>
   _count?: boolean | Prisma.CategoryCountOutputTypeDefaultArgs<ExtArgs>
@@ -2345,6 +2539,10 @@ export type $CategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
      */
     attributeDefinitions: Prisma.$CategoryAttributeDefinitionPayload<ExtArgs>[]
     listingDrafts: Prisma.$SellerListingDraftPayload<ExtArgs>[]
+    /**
+     * Destination rules that apply to this category and everything under it.
+     */
+    marketRules: Prisma.$MarketRulePayload<ExtArgs>[]
     imageMedia: Prisma.$MediaAssetPayload<ExtArgs> | null
     bannerMedia: Prisma.$MediaAssetPayload<ExtArgs> | null
   }
@@ -2719,6 +2917,7 @@ export interface Prisma__CategoryClient<T, Null = never, ExtArgs extends runtime
   translations<T extends Prisma.Category$translationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$translationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryTranslationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   attributeDefinitions<T extends Prisma.Category$attributeDefinitionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$attributeDefinitionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryAttributeDefinitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   listingDrafts<T extends Prisma.Category$listingDraftsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$listingDraftsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerListingDraftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  marketRules<T extends Prisma.Category$marketRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$marketRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MarketRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   imageMedia<T extends Prisma.Category$imageMediaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$imageMediaArgs<ExtArgs>>): Prisma.Prisma__MediaAssetClient<runtime.Types.Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   bannerMedia<T extends Prisma.Category$bannerMediaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$bannerMediaArgs<ExtArgs>>): Prisma.Prisma__MediaAssetClient<runtime.Types.Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
@@ -3276,6 +3475,30 @@ export type Category$listingDraftsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.SellerListingDraftScalarFieldEnum | Prisma.SellerListingDraftScalarFieldEnum[]
+}
+
+/**
+ * Category.marketRules
+ */
+export type Category$marketRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MarketRule
+   */
+  select?: Prisma.MarketRuleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MarketRule
+   */
+  omit?: Prisma.MarketRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MarketRuleInclude<ExtArgs> | null
+  where?: Prisma.MarketRuleWhereInput
+  orderBy?: Prisma.MarketRuleOrderByWithRelationInput | Prisma.MarketRuleOrderByWithRelationInput[]
+  cursor?: Prisma.MarketRuleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MarketRuleScalarFieldEnum | Prisma.MarketRuleScalarFieldEnum[]
 }
 
 /**

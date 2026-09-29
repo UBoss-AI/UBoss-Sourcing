@@ -18,7 +18,7 @@
  */
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { env } from '../../config/env.js';
+import { isCardEnrolmentAvailable } from '../../modules/payments/payment.service.js';
 import { ErrorCode, forbidden } from '../../domain/errors.js';
 import {
   beginPaymentMethodEnrolment,
@@ -52,8 +52,8 @@ export function registerCustomerPaymentMethodRoutes(app: FastifyInstance): Promi
    * so at its own definition rather than here, because a blanket hook is
    * exactly how the previous over-reach happened.
    */
-  const assertEnrolmentEnabled = (): void => {
-    if (!env.FEATURE_SUBSCRIPTION_AUTOPAY) {
+  const assertEnrolmentEnabled = async (): Promise<void> => {
+    if (!(await isCardEnrolmentAvailable())) {
       throw forbidden(
         ErrorCode.FEATURE_DISABLED,
         'Saving a card for automatic payments is not enabled for this store.',
@@ -84,7 +84,7 @@ export function registerCustomerPaymentMethodRoutes(app: FastifyInstance): Promi
     '/setup-intent',
     { config: { rateLimit: { max: 10, timeWindow: '15 minutes' } } },
     async (request, reply) => {
-      assertEnrolmentEnabled();
+      await assertEnrolmentEnabled();
 
       const auth = currentUser(request);
 
@@ -109,7 +109,7 @@ export function registerCustomerPaymentMethodRoutes(app: FastifyInstance): Promi
     '/',
     { config: { rateLimit: { max: 20, timeWindow: '15 minutes' } } },
     async (request, reply) => {
-      assertEnrolmentEnabled();
+      await assertEnrolmentEnabled();
 
       const auth = currentUser(request);
 

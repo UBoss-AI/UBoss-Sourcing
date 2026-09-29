@@ -51,6 +51,8 @@ export type SellerPayoutMinAggregateOutputType = {
   scheduledFor: Date | null
   paidAt: Date | null
   idempotencyKey: string | null
+  deadLetteredAt: Date | null
+  lastAttemptError: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -72,6 +74,8 @@ export type SellerPayoutMaxAggregateOutputType = {
   scheduledFor: Date | null
   paidAt: Date | null
   idempotencyKey: string | null
+  deadLetteredAt: Date | null
+  lastAttemptError: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -93,6 +97,8 @@ export type SellerPayoutCountAggregateOutputType = {
   scheduledFor: number
   paidAt: number
   idempotencyKey: number
+  deadLetteredAt: number
+  lastAttemptError: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -124,6 +130,8 @@ export type SellerPayoutMinAggregateInputType = {
   scheduledFor?: true
   paidAt?: true
   idempotencyKey?: true
+  deadLetteredAt?: true
+  lastAttemptError?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -145,6 +153,8 @@ export type SellerPayoutMaxAggregateInputType = {
   scheduledFor?: true
   paidAt?: true
   idempotencyKey?: true
+  deadLetteredAt?: true
+  lastAttemptError?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -166,6 +176,8 @@ export type SellerPayoutCountAggregateInputType = {
   scheduledFor?: true
   paidAt?: true
   idempotencyKey?: true
+  deadLetteredAt?: true
+  lastAttemptError?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -274,6 +286,8 @@ export type SellerPayoutGroupByOutputType = {
   scheduledFor: Date | null
   paidAt: Date | null
   idempotencyKey: string | null
+  deadLetteredAt: Date | null
+  lastAttemptError: string | null
   createdAt: Date
   updatedAt: Date
   _count: SellerPayoutCountAggregateOutputType | null
@@ -318,6 +332,8 @@ export type SellerPayoutWhereInput = {
   scheduledFor?: Prisma.DateTimeNullableFilter<"SellerPayout"> | Date | string | null
   paidAt?: Prisma.DateTimeNullableFilter<"SellerPayout"> | Date | string | null
   idempotencyKey?: Prisma.StringNullableFilter<"SellerPayout"> | string | null
+  deadLetteredAt?: Prisma.DateTimeNullableFilter<"SellerPayout"> | Date | string | null
+  lastAttemptError?: Prisma.StringNullableFilter<"SellerPayout"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerPayout"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerPayout"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
@@ -341,6 +357,8 @@ export type SellerPayoutOrderByWithRelationInput = {
   scheduledFor?: Prisma.SortOrderInput | Prisma.SortOrder
   paidAt?: Prisma.SortOrderInput | Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  deadLetteredAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastAttemptError?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
@@ -369,6 +387,8 @@ export type SellerPayoutWhereUniqueInput = Prisma.AtLeast<{
   scheduledFor?: Prisma.DateTimeNullableFilter<"SellerPayout"> | Date | string | null
   paidAt?: Prisma.DateTimeNullableFilter<"SellerPayout"> | Date | string | null
   idempotencyKey?: Prisma.StringNullableFilter<"SellerPayout"> | string | null
+  deadLetteredAt?: Prisma.DateTimeNullableFilter<"SellerPayout"> | Date | string | null
+  lastAttemptError?: Prisma.StringNullableFilter<"SellerPayout"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerPayout"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerPayout"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
@@ -392,6 +412,8 @@ export type SellerPayoutOrderByWithAggregationInput = {
   scheduledFor?: Prisma.SortOrderInput | Prisma.SortOrder
   paidAt?: Prisma.SortOrderInput | Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  deadLetteredAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastAttemptError?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerPayoutCountOrderByAggregateInput
@@ -421,6 +443,8 @@ export type SellerPayoutScalarWhereWithAggregatesInput = {
   scheduledFor?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerPayout"> | Date | string | null
   paidAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerPayout"> | Date | string | null
   idempotencyKey?: Prisma.StringNullableWithAggregatesFilter<"SellerPayout"> | string | null
+  deadLetteredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerPayout"> | Date | string | null
+  lastAttemptError?: Prisma.StringNullableWithAggregatesFilter<"SellerPayout"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerPayout"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerPayout"> | Date | string
 }
@@ -440,6 +464,8 @@ export type SellerPayoutCreateInput = {
   scheduledFor?: Date | string | null
   paidAt?: Date | string | null
   idempotencyKey?: string | null
+  deadLetteredAt?: Date | string | null
+  lastAttemptError?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutPayoutsInput
@@ -463,6 +489,8 @@ export type SellerPayoutUncheckedCreateInput = {
   scheduledFor?: Date | string | null
   paidAt?: Date | string | null
   idempotencyKey?: string | null
+  deadLetteredAt?: Date | string | null
+  lastAttemptError?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -482,6 +510,8 @@ export type SellerPayoutUpdateInput = {
   scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastAttemptError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutPayoutsNestedInput
@@ -505,6 +535,8 @@ export type SellerPayoutUncheckedUpdateInput = {
   scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastAttemptError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -526,6 +558,8 @@ export type SellerPayoutCreateManyInput = {
   scheduledFor?: Date | string | null
   paidAt?: Date | string | null
   idempotencyKey?: string | null
+  deadLetteredAt?: Date | string | null
+  lastAttemptError?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -545,6 +579,8 @@ export type SellerPayoutUpdateManyMutationInput = {
   scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastAttemptError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -566,6 +602,8 @@ export type SellerPayoutUncheckedUpdateManyInput = {
   scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastAttemptError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -608,6 +646,8 @@ export type SellerPayoutCountOrderByAggregateInput = {
   scheduledFor?: Prisma.SortOrder
   paidAt?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  deadLetteredAt?: Prisma.SortOrder
+  lastAttemptError?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -633,6 +673,8 @@ export type SellerPayoutMaxOrderByAggregateInput = {
   scheduledFor?: Prisma.SortOrder
   paidAt?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  deadLetteredAt?: Prisma.SortOrder
+  lastAttemptError?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -654,6 +696,8 @@ export type SellerPayoutMinOrderByAggregateInput = {
   scheduledFor?: Prisma.SortOrder
   paidAt?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  deadLetteredAt?: Prisma.SortOrder
+  lastAttemptError?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -765,6 +809,8 @@ export type SellerPayoutCreateWithoutSellerAccountInput = {
   scheduledFor?: Date | string | null
   paidAt?: Date | string | null
   idempotencyKey?: string | null
+  deadLetteredAt?: Date | string | null
+  lastAttemptError?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   settlement?: Prisma.SellerSettlementCreateNestedOneWithoutPayoutsInput
@@ -786,6 +832,8 @@ export type SellerPayoutUncheckedCreateWithoutSellerAccountInput = {
   scheduledFor?: Date | string | null
   paidAt?: Date | string | null
   idempotencyKey?: string | null
+  deadLetteredAt?: Date | string | null
+  lastAttemptError?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -836,6 +884,8 @@ export type SellerPayoutScalarWhereInput = {
   scheduledFor?: Prisma.DateTimeNullableFilter<"SellerPayout"> | Date | string | null
   paidAt?: Prisma.DateTimeNullableFilter<"SellerPayout"> | Date | string | null
   idempotencyKey?: Prisma.StringNullableFilter<"SellerPayout"> | string | null
+  deadLetteredAt?: Prisma.DateTimeNullableFilter<"SellerPayout"> | Date | string | null
+  lastAttemptError?: Prisma.StringNullableFilter<"SellerPayout"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerPayout"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerPayout"> | Date | string
 }
@@ -855,6 +905,8 @@ export type SellerPayoutCreateWithoutSettlementInput = {
   scheduledFor?: Date | string | null
   paidAt?: Date | string | null
   idempotencyKey?: string | null
+  deadLetteredAt?: Date | string | null
+  lastAttemptError?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutPayoutsInput
@@ -876,6 +928,8 @@ export type SellerPayoutUncheckedCreateWithoutSettlementInput = {
   scheduledFor?: Date | string | null
   paidAt?: Date | string | null
   idempotencyKey?: string | null
+  deadLetteredAt?: Date | string | null
+  lastAttemptError?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -922,6 +976,8 @@ export type SellerPayoutCreateManySellerAccountInput = {
   scheduledFor?: Date | string | null
   paidAt?: Date | string | null
   idempotencyKey?: string | null
+  deadLetteredAt?: Date | string | null
+  lastAttemptError?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -941,6 +997,8 @@ export type SellerPayoutUpdateWithoutSellerAccountInput = {
   scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastAttemptError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   settlement?: Prisma.SellerSettlementUpdateOneWithoutPayoutsNestedInput
@@ -962,6 +1020,8 @@ export type SellerPayoutUncheckedUpdateWithoutSellerAccountInput = {
   scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastAttemptError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -982,6 +1042,8 @@ export type SellerPayoutUncheckedUpdateManyWithoutSellerAccountInput = {
   scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastAttemptError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1002,6 +1064,8 @@ export type SellerPayoutCreateManySettlementInput = {
   scheduledFor?: Date | string | null
   paidAt?: Date | string | null
   idempotencyKey?: string | null
+  deadLetteredAt?: Date | string | null
+  lastAttemptError?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1021,6 +1085,8 @@ export type SellerPayoutUpdateWithoutSettlementInput = {
   scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastAttemptError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutPayoutsNestedInput
@@ -1042,6 +1108,8 @@ export type SellerPayoutUncheckedUpdateWithoutSettlementInput = {
   scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastAttemptError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1062,6 +1130,8 @@ export type SellerPayoutUncheckedUpdateManyWithoutSettlementInput = {
   scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deadLetteredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastAttemptError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1085,6 +1155,8 @@ export type SellerPayoutSelect<ExtArgs extends runtime.Types.Extensions.Internal
   scheduledFor?: boolean
   paidAt?: boolean
   idempotencyKey?: boolean
+  deadLetteredAt?: boolean
+  lastAttemptError?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
@@ -1110,11 +1182,13 @@ export type SellerPayoutSelectScalar = {
   scheduledFor?: boolean
   paidAt?: boolean
   idempotencyKey?: boolean
+  deadLetteredAt?: boolean
+  lastAttemptError?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SellerPayoutOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "settlementId" | "reference" | "status" | "amountMinor" | "currency" | "provider" | "providerPayoutId" | "providerStatusRaw" | "failureCode" | "failureReason" | "remediationHint" | "scheduledFor" | "paidAt" | "idempotencyKey" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerPayout"]>
+export type SellerPayoutOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "settlementId" | "reference" | "status" | "amountMinor" | "currency" | "provider" | "providerPayoutId" | "providerStatusRaw" | "failureCode" | "failureReason" | "remediationHint" | "scheduledFor" | "paidAt" | "idempotencyKey" | "deadLetteredAt" | "lastAttemptError" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerPayout"]>
 export type SellerPayoutInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   settlement?: boolean | Prisma.SellerPayout$settlementArgs<ExtArgs>
@@ -1159,6 +1233,12 @@ export type $SellerPayoutPayload<ExtArgs extends runtime.Types.Extensions.Intern
      * here: a retry must never pay a seller twice.
      */
     idempotencyKey: string | null
+    /**
+     * When the send job ran out of retries (dead-lettered). The payout stays
+     * PENDING, its money in transit, until finance retries it.
+     */
+    deadLetteredAt: Date | null
+    lastAttemptError: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["sellerPayout"]>
@@ -1548,6 +1628,8 @@ export interface SellerPayoutFieldRefs {
   readonly scheduledFor: Prisma.FieldRef<"SellerPayout", 'DateTime'>
   readonly paidAt: Prisma.FieldRef<"SellerPayout", 'DateTime'>
   readonly idempotencyKey: Prisma.FieldRef<"SellerPayout", 'String'>
+  readonly deadLetteredAt: Prisma.FieldRef<"SellerPayout", 'DateTime'>
+  readonly lastAttemptError: Prisma.FieldRef<"SellerPayout", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerPayout", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SellerPayout", 'DateTime'>
 }

@@ -363,6 +363,26 @@ export type PaymentLink = Prisma.PaymentLinkModel
  */
 export type Refund = Prisma.RefundModel
 /**
+ * Model PaymentReceipt
+ * The receipt number issued for one captured payment or one succeeded refund.
+ * 
+ * Issued the first time anybody downloads the receipt, never before: a
+ * payment nobody asks a receipt for costs no number, and the number a buyer
+ * is given is the one they keep. `receiptNumber` comes from `NumberSequence`
+ * inside the same transaction as this insert, so a second download of the
+ * same payment - or two at once - collides on `uq_payment_receipt_source`,
+ * rolls its increment back and reads this row. That is what keeps the
+ * sequence gapless.
+ * 
+ * The facts printed on the receipt are frozen in `snapshotJson` when it is
+ * issued (amount, method, card brand and last four, provider reference, the
+ * marketplace's name and support contact at that moment), so a reprint next
+ * year says what the first copy said. The payer's NAME is deliberately not in
+ * the snapshot: it is read from the order at download time, so an erased
+ * account is not kept alive in here.
+ */
+export type PaymentReceipt = Prisma.PaymentReceiptModel
+/**
  * Model RecurringSchedule
  * 
  */
@@ -447,9 +467,47 @@ export type FulfilmentQuote = Prisma.FulfilmentQuoteModel
 export type Shipment = Prisma.ShipmentModel
 /**
  * Model ReturnRequest
+ * A buyer's request to send goods back, and everything that happens to it.
  * 
+ * ONE return concerns ONE fulfiller: a single seller's part of the order
+ * (`sellerOrderGroupId`) or the operator's own lines (null). The seller who
+ * must answer, the address the goods go back to and the settlement the refund
+ * comes out of are all per fulfiller, so a return spanning two is two returns.
+ * 
+ * Status moves only through `domain/return-state.ts`. The refund is issued by
+ * the ordinary refund path (`createRefund`) and linked by `refundId`; there is
+ * no second way of paying a buyer back.
  */
 export type ReturnRequest = Prisma.ReturnRequestModel
+/**
+ * Model ReturnRequestLine
+ * One order line on a return: how many were asked for, and after inspection
+ * how many are sellable again and how many are damaged.
+ * 
+ * The sum of `quantity` over the non-rejected returns of one order item may
+ * never exceed what was ordered. Checked in the service under a lock on the
+ * order row, because two returns submitted at once must not both fit.
+ */
+export type ReturnRequestLine = Prisma.ReturnRequestLineModel
+/**
+ * Model ReturnRequestEvent
+ * The timeline of a return, one row per step. `visibleToBuyer` is false only
+ * for the seller's own response, which is between the seller and the operator.
+ */
+export type ReturnRequestEvent = Prisma.ReturnRequestEventModel
+/**
+ * Model ReturnRequestFile
+ * A file on a return. Same pipeline as support attachments: the bytes decide
+ * the type, it is scanned before it is stored, it sits in private storage and
+ * leaves only through a single-use link.
+ */
+export type ReturnRequestFile = Prisma.ReturnRequestFileModel
+/**
+ * Model ReturnSettings
+ * The operator's return policy. A single row, created with the defaults the
+ * first time it is read, and changed under Returns in the console.
+ */
+export type ReturnSettings = Prisma.ReturnSettingsModel
 /**
  * Model IntegrationConnection
  * 
@@ -941,6 +999,76 @@ export type SupportTicketEvent = Prisma.SupportTicketEventModel
  *  * rather than pinned to one message: each is its own upload.
  */
 export type SupportTicketAttachment = Prisma.SupportTicketAttachmentModel
+/**
+ * Model SupportSlaPolicy
+ * *
+ *  * How quickly staff promise to answer and to resolve, per support category.
+ *  *
+ *  * One row per category an operator has set; a category with no row uses the
+ *  * defaults in `modules/support/support-sla.service.ts`. A ticket copies its
+ *  * two deadlines when it is sent, so changing a target later moves no promise
+ *  * already made.
+ */
+export type SupportSlaPolicy = Prisma.SupportSlaPolicyModel
+/**
+ * Model Dispute
+ * *
+ *  * A dispute: a buyer's claim on an order, or a chargeback on its payment.
+ *  *
+ *  * **Tenant columns are access.** `customerProfileId` is the buyer who may read
+ *  * it; `sellerAccountId` is the one seller who may answer it. A claim on a line
+ *  * belongs to that line's seller; a claim on a whole order has a seller only
+ *  * when the order has exactly one. Every read a party makes is filtered on
+ *  * these, and a dispute that is not theirs answers "not found".
+ *  *
+ *  * **Deadlines are copied, not computed.** `sellerResponseDueAt` and
+ *  * `decisionDueAt` are set from the settings when the dispute opens, so a
+ *  * changed setting moves no promise already made. A deadline that passes is a
+ *  * breach, shown in the console; nothing is decided automatically.
+ *  *
+ *  * **Money** is BigInt minor units in the order's currency. A refund decided
+ *  * here is a `Refund` row made by the ordinary refund path, linked by
+ *  * `refundId`, so it can never exceed what was paid (the service, the
+ *  * `chk_order_refund_within_paid` constraint and the provider all refuse).
+ */
+export type Dispute = Prisma.DisputeModel
+/**
+ * Model DisputeEvent
+ * *
+ *  * One thing that happened to a dispute: a message, a note, evidence, a move.
+ *  *
+ *  * **Visibility is decided once, when the row is written.** `visibleToBuyer`
+ *  * and `visibleToSeller` are set by `dispute.service.ts` - an INTERNAL_NOTE or
+ *  * EVIDENCE_NOTE is neither, a staff message may go to one party or both - and
+ *  * every read a party makes filters on its own column, so no screen has to
+ *  * remember which kinds are private.
+ */
+export type DisputeEvent = Prisma.DisputeEventModel
+/**
+ * Model DisputeAttachment
+ * *
+ *  * Evidence on a dispute: a photograph of the damage, a delivery note, an
+ *  * inspection report.
+ *  *
+ *  * The support ticket's four rules, because it is the same pipeline: the bytes
+ *  * decide the type, scanned before stored, private at a random key, out only
+ *  * through a five-minute single-use link. Evidence is seen by both parties and
+ *  * staff - a seller cannot answer a photograph they cannot see - and `party`
+ *  * says whose it is.
+ */
+export type DisputeAttachment = Prisma.DisputeAttachmentModel
+/**
+ * Model DisputeSettings
+ * *
+ *  * The operator's dispute rules. One row; absent means the defaults in
+ *  * `modules/disputes/dispute-settings.service.ts`.
+ *  *
+ *  * Every window and threshold a buyer, a seller or staff are held to lives
+ *  * here, because this is a product other businesses run: none of them is a
+ *  * constant in code. A save is versioned, so two people editing at once collide
+ *  * instead of one silently overwriting the other.
+ */
+export type DisputeSettings = Prisma.DisputeSettingsModel
 /**
  * Model BuyerOrganization
  * A buyer business, as a tenant.
@@ -1941,6 +2069,26 @@ export type LogisticsShipmentDocument = Prisma.LogisticsShipmentDocumentModel
  */
 export type LogisticsProofOfDelivery = Prisma.LogisticsProofOfDeliveryModel
 /**
+ * Model LogisticsDeliveryCode
+ * A delivery code: six digits emailed to the BUYER, read out at the door.
+ * 
+ * Only used where the consignment's SLA policy sets `podRequiresOtp`. One row
+ * per code sent; the live one is the newest with neither `consumedAt` nor
+ * `supersededAt`. Sending a new code supersedes the old one, so a code read
+ * from yesterday's email cannot complete today's delivery.
+ * 
+ * The code itself is never stored and never reaches the carrier. `codeHash`
+ * is an HMAC keyed with a server secret, so a copied table of six-digit codes
+ * cannot be guessed offline. `attempts` counts wrong guesses against THIS
+ * code; at the limit the code is dead and a new one has to be sent, and the
+ * number of codes a consignment may be sent in a day is capped too - see
+ * `modules/logistics/delivery-code.service.ts`.
+ * 
+ * No person's id on the row. Who the code went to is the consignment's buyer,
+ * and who asked for a resend is in the carrier's audit trail.
+ */
+export type LogisticsDeliveryCode = Prisma.LogisticsDeliveryCodeModel
+/**
  * Model LogisticsPickupRequest
  * A request for a carrier to collect from a warehouse.
  * 
@@ -2389,6 +2537,26 @@ export type ShipmentLegEvent = Prisma.ShipmentLegEventModel
  */
 export type PlatformFeePolicy = Prisma.PlatformFeePolicyModel
 /**
+ * Model PlatformFeeRule
+ * A commercial rule on top of the fee policy: a value band, a volume tier, a
+ * seller tier or a promotion. Many may be live at once for one scope.
+ * 
+ * Same life as a policy: DRAFT -> PENDING_APPROVAL -> PUBLISHED -> RETIRED,
+ * maker-checker on approval, and a published rule is never edited - a change
+ * is a new draft that `supersedesRuleId` the old one, and approving it
+ * retires the old one in the same transaction. A rule only ever applies to an
+ * order confirmed inside [effectiveFrom, effectiveTo), and the approval moves
+ * a past effectiveFrom up to the approval instant, so nothing reaches back
+ * over an order that was already settled.
+ */
+export type PlatformFeeRule = Prisma.PlatformFeeRuleModel
+/**
+ * Model PlatformFeeRuleApplication
+ * Which fee rule changed which seller order's fee, and by how much. Written
+ * once, with the settlement, so "which rule applied" is a query, not a guess.
+ */
+export type PlatformFeeRuleApplication = Prisma.PlatformFeeRuleApplicationModel
+/**
  * Model SellerOrderSettlement
  * What one seller is owed for one order, and how that was worked out.
  * 
@@ -2638,6 +2806,30 @@ export type BuyerCompanyLocation = Prisma.BuyerCompanyLocationModel
  */
 export type BuyerCompanyMember = Prisma.BuyerCompanyMemberModel
 /**
+ * Model BuyerCompanyApprovalPolicy
+ * A buyer company's own rule for who must sign an order off before it can be
+ * paid: requestor -> approver -> finance.
+ * 
+ * The company's rule, set by its OWNER or COMPANY_ADMIN - not the operator's
+ * account-level approval (`order_approvals`), which is a different control
+ * for a different party. Off until `enabled`. Amounts are in `currency`; an
+ * order in another currency is treated as needing every stage, because a
+ * threshold cannot be compared across currencies without deciding an
+ * exchange rate on the company's behalf.
+ */
+export type BuyerCompanyApprovalPolicy = Prisma.BuyerCompanyApprovalPolicyModel
+/**
+ * Model BuyerCompanyOrderApproval
+ * One sign-off an order needs from inside the buyer company.
+ * 
+ * One row per stage, created together when the order is placed. The order
+ * stays PENDING_APPROVAL - and so cannot be paid - until every stage is
+ * APPROVED. A rejection needs a reason and cancels the order. Nobody may
+ * decide a stage on an order they placed, and the finance stage may not be
+ * decided by whoever approved the first one.
+ */
+export type BuyerCompanyOrderApproval = Prisma.BuyerCompanyOrderApprovalModel
+/**
  * Model BuyerCompanyVerificationCase
  * One round of review: the first submission, a resubmission after a
  * rejection, or a re-verification. Holds who is looking at it.
@@ -2745,3 +2937,317 @@ export type CommissionDocument = Prisma.CommissionDocumentModel
  * history without searching the whole trail. Never updated.
  */
 export type CommissionInvoiceEvent = Prisma.CommissionInvoiceEventModel
+/**
+ * Model InspectionPolicy
+ * The operator's inspection settings. One row, id `default`.
+ */
+export type InspectionPolicy = Prisma.InspectionPolicyModel
+/**
+ * Model InspectionPlan
+ * A category's inspection plan: sampling and checklist, versioned.
+ */
+export type InspectionPlan = Prisma.InspectionPlanModel
+/**
+ * Model InspectionRule
+ * When an order must be inspected. Every condition set on a rule must match.
+ */
+export type InspectionRule = Prisma.InspectionRuleModel
+/**
+ * Model InspectionSupplierRisk
+ * The operator's view of how risky a supplier is.
+ */
+export type InspectionSupplierRisk = Prisma.InspectionSupplierRiskModel
+/**
+ * Model InspectionAgency
+ * An independent inspection company. Never the seller.
+ */
+export type InspectionAgency = Prisma.InspectionAgencyModel
+/**
+ * Model InspectionAgencyMember
+ * A person working for an agency. Their login is an ordinary storefront
+ * account; this row is what gives it the agency surface.
+ */
+export type InspectionAgencyMember = Prisma.InspectionAgencyMemberModel
+/**
+ * Model InspectionRequirement
+ * One seller order's inspection: whether it is needed, and why.
+ */
+export type InspectionRequirement = Prisma.InspectionRequirementModel
+/**
+ * Model InspectionJob
+ * A booked inspection, and the agency's work on it.
+ */
+export type InspectionJob = Prisma.InspectionJobModel
+/**
+ * Model InspectionConflictDeclaration
+ * An inspector's own conflict-of-interest declaration for one job.
+ */
+export type InspectionConflictDeclaration = Prisma.InspectionConflictDeclarationModel
+/**
+ * Model InspectionCheckResult
+ * One checklist line's result.
+ */
+export type InspectionCheckResult = Prisma.InspectionCheckResultModel
+/**
+ * Model InspectionDefect
+ * A defect found, and the non-conformance report (NCR) it becomes.
+ */
+export type InspectionDefect = Prisma.InspectionDefectModel
+/**
+ * Model InspectionEvidence
+ * A photo, video or document, held as evidence. Never deleted.
+ */
+export type InspectionEvidence = Prisma.InspectionEvidenceModel
+/**
+ * Model InspectionReport
+ * A report revision. SIGNED is final; a returned revision is kept.
+ */
+export type InspectionReport = Prisma.InspectionReportModel
+/**
+ * Model InspectionRelease
+ * A decision that the goods may leave, and what it was bound to.
+ */
+export type InspectionRelease = Prisma.InspectionReleaseModel
+/**
+ * Model InspectionShipmentBinding
+ * Inspected goods tied to a container and seal, witnessed at loading.
+ */
+export type InspectionShipmentBinding = Prisma.InspectionShipmentBindingModel
+/**
+ * Model InspectionAgencyInvoice
+ * The agency's invoice for a job. Paying it changes nothing about the result.
+ */
+export type InspectionAgencyInvoice = Prisma.InspectionAgencyInvoiceModel
+/**
+ * Model InspectionEvent
+ * The inspection timeline. Append-only.
+ */
+export type InspectionEvent = Prisma.InspectionEventModel
+/**
+ * Model TrustSettings
+ * Single row, id 'default'. Every threshold here is the operator's setting.
+ */
+export type TrustSettings = Prisma.TrustSettingsModel
+/**
+ * Model SellerTrustProfile
+ * What a supplier says about itself beyond the application, one row per
+ * seller. Verified-field edits after approval go through
+ * `SellerProfileChangeRequest`; the rest apply at once.
+ */
+export type SellerTrustProfile = Prisma.SellerTrustProfileModel
+/**
+ * Model SellerBeneficialOwner
+ * A natural person who ultimately owns or controls the supplier. Personal
+ * data of a third party: shown to the operator's reviewers only, never on a
+ * public page.
+ */
+export type SellerBeneficialOwner = Prisma.SellerBeneficialOwnerModel
+/**
+ * Model SellerFactory
+ * One plant the supplier manufactures in.
+ */
+export type SellerFactory = Prisma.SellerFactoryModel
+/**
+ * Model SellerFactoryMachine
+ * 
+ */
+export type SellerFactoryMachine = Prisma.SellerFactoryMachineModel
+/**
+ * Model SellerFactoryEvidence
+ * A document (a `SellerDocument`, through the existing upload pipeline)
+ * offered as proof of a factory: a photograph, an audit report, a lease.
+ */
+export type SellerFactoryEvidence = Prisma.SellerFactoryEvidenceModel
+/**
+ * Model SellerCertification
+ * A certificate the supplier holds, with its evidence and its own decision.
+ */
+export type SellerCertification = Prisma.SellerCertificationModel
+/**
+ * Model SellerTrustCheck
+ * One decision about one aspect of a supplier. Rows accumulate; `isCurrent`
+ * marks the newest per (seller, kind, subject).
+ */
+export type SellerTrustCheck = Prisma.SellerTrustCheckModel
+/**
+ * Model SellerScreeningCheck
+ * One screening of one subject. `automated` is false for the manual-review
+ * driver, and the interface says so.
+ */
+export type SellerScreeningCheck = Prisma.SellerScreeningCheckModel
+/**
+ * Model SellerProfileChangeRequest
+ * A change to a verified field, waiting for the operator. The live value is
+ * untouched until it is approved.
+ */
+export type SellerProfileChangeRequest = Prisma.SellerProfileChangeRequestModel
+/**
+ * Model SellerListingTrust
+ * Sourcing terms one supplier offers on one product.
+ */
+export type SellerListingTrust = Prisma.SellerListingTrustModel
+/**
+ * Model SellerListingCertification
+ * 
+ */
+export type SellerListingCertification = Prisma.SellerListingCertificationModel
+/**
+ * Model SellerOfferComplianceHold
+ * An offer paused because a certificate it relies on expired. Released -
+ * and the offer restored to `previousStatus` - when a renewal is verified.
+ */
+export type SellerOfferComplianceHold = Prisma.SellerOfferComplianceHoldModel
+/**
+ * Model MarketRule
+ * A destination rule for a product or a whole category (and its
+ * sub-categories). Every rule names its source, version and owner.
+ */
+export type MarketRule = Prisma.MarketRuleModel
+/**
+ * Model MarketLandedCostRate
+ * The configurable rate table behind the landed-cost ESTIMATE. `hsPrefix`
+ * '' is the destination's fallback row; a longer prefix wins.
+ */
+export type MarketLandedCostRate = Prisma.MarketLandedCostRateModel
+/**
+ * Model MarketProfile
+ * Operator-written content for one destination's landing page.
+ */
+export type MarketProfile = Prisma.MarketProfileModel
+/**
+ * Model SearchSynonym
+ * "cannula" also finds "IV catheter". Maintained by the operator.
+ */
+export type SearchSynonym = Prisma.SearchSynonymModel
+/**
+ * Model SearchQueryLog
+ * One search, anonymously. No user, no session, no address - the analytics
+ * only need what was asked and whether anything came back.
+ */
+export type SearchQueryLog = Prisma.SearchQueryLogModel
+/**
+ * Model SellerProductionMilestone
+ * One milestone of one seller order group. Written only by
+ * `modules/seller/production.service.ts`, whose moves are decided by
+ * `domain/production-milestones.ts`: in order, never skipped, never after the
+ * goods have left.
+ */
+export type SellerProductionMilestone = Prisma.SellerProductionMilestoneModel
+/**
+ * Model SellerProductionDelay
+ * A production delay or exception, raised and later resolved. Kept for ever:
+ * "how often is this supplier late, and why" is asked of this table.
+ */
+export type SellerProductionDelay = Prisma.SellerProductionDelayModel
+/**
+ * Model SellerOrderBuyerUpdate
+ * What a buyer is told about a seller's part of their order, as it happens.
+ * 
+ * Append-only and STRUCTURED: a kind, a stage, a reason code, a date and at
+ * most one sentence the seller chose to share. It is the buyer's copy, built
+ * from the milestone or delay at the moment it changed, so nothing the seller
+ * writes for themselves can reach the buyer by a later join.
+ */
+export type SellerOrderBuyerUpdate = Prisma.SellerOrderBuyerUpdateModel
+/**
+ * Model OrderTradeDocument
+ * One document slot of one seller order group: "the certificate of origin
+ * for consignment X". The content lives in its versions.
+ */
+export type OrderTradeDocument = Prisma.OrderTradeDocumentModel
+/**
+ * Model OrderTradeDocumentVersion
+ * One version of a trade document. Never edited: a correction is a new
+ * version, and the one it replaces keeps its bytes and gets `supersededAt`.
+ */
+export type OrderTradeDocumentVersion = Prisma.OrderTradeDocumentVersionModel
+/**
+ * Model OrderTradeDocumentEvent
+ * Everything that happened to a trade document, for its audit history.
+ */
+export type OrderTradeDocumentEvent = Prisma.OrderTradeDocumentEventModel
+/**
+ * Model TradeComplianceRule
+ * One of the operator's destination and category rules.
+ * 
+ * Matching is by destination (or '' for every destination), category (or
+ * none) and HS prefix (or ''). A matching rule can require a document, mark
+ * the goods restricted or prohibited, and require the HS code to be verified.
+ * Staff edit these; nothing in the code knows any country's law.
+ */
+export type TradeComplianceRule = Prisma.TradeComplianceRuleModel
+/**
+ * Model ConsignmentBookingTerms
+ * The commercial terms a seller stated when booking a consignment.
+ */
+export type ConsignmentBookingTerms = Prisma.ConsignmentBookingTermsModel
+/**
+ * Model LogisticsTradeSettings
+ * The operator's booking settings. One row, id 'default'.
+ */
+export type LogisticsTradeSettings = Prisma.LogisticsTradeSettingsModel
+/**
+ * Model LogisticsLane
+ * One of the operator's own lanes: origin to destination by one mode with
+ * one carrier, and what it costs by weight. Used to price a consignment when
+ * the seller has no rate card of their own for it.
+ */
+export type LogisticsLane = Prisma.LogisticsLaneModel
+/**
+ * Model LogisticsLaneBand
+ * One weight break of a lane: from `minWeightGrams` (inclusive) to
+ * `maxWeightGrams` (inclusive, null = and above), a fixed amount plus an
+ * amount per started kilogram.
+ */
+export type LogisticsLaneBand = Prisma.LogisticsLaneBandModel
+/**
+ * Model LedgerAccount
+ * One account in the ledger, per owner and currency.
+ */
+export type LedgerAccount = Prisma.LedgerAccountModel
+/**
+ * Model LedgerEntry
+ * One journal entry: a balanced set of lines, written once.
+ */
+export type LedgerEntry = Prisma.LedgerEntryModel
+/**
+ * Model LedgerLine
+ * One side of an entry. Signed minor units: a debit is positive, a credit
+ * negative, and zero is refused by `chk_ledger_line_nonzero`.
+ */
+export type LedgerLine = Prisma.LedgerLineModel
+/**
+ * Model SellerFundHold
+ * The protected-collection record for one seller order: its disclosed
+ * release terms, whether they are met, and when the money was released.
+ */
+export type SellerFundHold = Prisma.SellerFundHoldModel
+/**
+ * Model SellerFundReleaseRequest
+ * A manual, early release of held funds: asked for by one member of staff
+ * with a reason, approved by a different one.
+ */
+export type SellerFundReleaseRequest = Prisma.SellerFundReleaseRequestModel
+/**
+ * Model PayoutProviderEvent
+ * A signed event from the payout provider, recorded once.
+ */
+export type PayoutProviderEvent = Prisma.PayoutProviderEventModel
+/**
+ * Model LedgerReconciliationRun
+ * One comparison of the ledger with the provider's balance transactions.
+ */
+export type LedgerReconciliationRun = Prisma.LedgerReconciliationRunModel
+/**
+ * Model LedgerReconciliationItem
+ * One finding of a run: a match, or a difference finance must look at.
+ */
+export type LedgerReconciliationItem = Prisma.LedgerReconciliationItemModel
+/**
+ * Model SecretFingerprint
+ * When each application secret was first seen in use - the source of
+ * `uboss_secret_age_seconds` and the start-up warning when a secret is older
+ * than SECRET_MAX_AGE_DAYS. The fingerprint is a truncated, domain-separated
+ * SHA-256 (infra/key-management.ts), never the secret. See infra/secret-age.ts.
+ */
+export type SecretFingerprint = Prisma.SecretFingerprintModel

@@ -21,6 +21,7 @@ import { env } from '../../config/env.js';
 import { ErrorCode, unauthorized } from '../../domain/errors.js';
 import { generateToken, safeCompare, sha256Hex } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
+import { accessTokenSecrets } from '../../infra/signing-secrets.js';
 import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 // The label a position is read as. Shared with the notification the sign-in
@@ -97,8 +98,12 @@ export function verifyAccessToken(token: string): AccessTokenClaims | null {
   const [payload, signature] = parts;
   if (payload === undefined || signature === undefined) return null;
 
-  const expected = createHmac('sha256', env.ACCESS_TOKEN_SECRET).update(payload).digest('base64url');
-  if (!safeCompare(signature, expected)) return null;
+  // The current secret, or a previous one during a rotation - see
+  // infra/signing-secrets.ts. Every token is SIGNED with the current one.
+  const signedByUs = accessTokenSecrets().some((secret) =>
+    safeCompare(signature, createHmac('sha256', secret).update(payload).digest('base64url')),
+  );
+  if (!signedByUs) return null;
 
   try {
     const claims = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as unknown;
@@ -164,6 +169,12 @@ interface SessionCarriedColumns {
    * the family, and a new family starts with this null.
    */
   mfaVerifiedAt: Date | null;
+  /**
+   * When this session last confirmed it was the holder, for a sensitive act.
+   * Carried for the same reason as the factor above; STEP_UP_WINDOW_SECONDS,
+   * not the rotation, is what ends it.
+   */
+  reauthenticatedAt: Date | null;
   locationLatitude: Prisma.Decimal | null;
   locationLongitude: Prisma.Decimal | null;
   locationAccuracyM: number | null;
@@ -433,6 +444,7 @@ export async function rotateSession(
         context,
         {
           mfaVerifiedAt: session.mfaVerifiedAt,
+          reauthenticatedAt: session.reauthenticatedAt,
           locationLatitude: session.locationLatitude,
           locationLongitude: session.locationLongitude,
           locationAccuracyM: session.locationAccuracyM,
@@ -492,6 +504,8 @@ export interface SessionAuthState {
    * leave every later sign-in single-factor.
    */
   mfaVerifiedAt: Date | null;
+  /** When this session last confirmed it was the holder (step-up), or null. */
+  reauthenticatedAt: Date | null;
   /**
    * The country it happened in, when a geocoder named one.
    *
@@ -546,6 +560,7 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
       locationCapturedAt: true,
       locationCountry: true,
       mfaVerifiedAt: true,
+      reauthenticatedAt: true,
       sellerUnlockedAt: true,
       sellerUnlockedForId: true,
       sellerLastActivityAt: true,
@@ -564,6 +579,7 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
       isActive: false,
       hasLocation: false,
       mfaVerifiedAt: null,
+      reauthenticatedAt: null,
       country: null,
       place: null,
       sellerUnlockedAt: null,
@@ -578,6 +594,7 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
     isActive: true,
     hasLocation: session.locationCapturedAt !== null,
     mfaVerifiedAt: session.mfaVerifiedAt,
+    reauthenticatedAt: session.reauthenticatedAt,
     country: session.locationCountry,
     place: sessionPlace(session),
     sellerUnlockedAt: session.sellerUnlockedAt,

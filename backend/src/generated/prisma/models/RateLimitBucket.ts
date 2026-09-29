@@ -40,6 +40,7 @@ export type RateLimitBucketMinAggregateOutputType = {
   windowStart: Date | null
   expiresAt: Date | null
   updatedAt: Date | null
+  createdAt: Date | null
 }
 
 export type RateLimitBucketMaxAggregateOutputType = {
@@ -48,6 +49,7 @@ export type RateLimitBucketMaxAggregateOutputType = {
   windowStart: Date | null
   expiresAt: Date | null
   updatedAt: Date | null
+  createdAt: Date | null
 }
 
 export type RateLimitBucketCountAggregateOutputType = {
@@ -56,6 +58,7 @@ export type RateLimitBucketCountAggregateOutputType = {
   windowStart: number
   expiresAt: number
   updatedAt: number
+  createdAt: number
   _all: number
 }
 
@@ -74,6 +77,7 @@ export type RateLimitBucketMinAggregateInputType = {
   windowStart?: true
   expiresAt?: true
   updatedAt?: true
+  createdAt?: true
 }
 
 export type RateLimitBucketMaxAggregateInputType = {
@@ -82,6 +86,7 @@ export type RateLimitBucketMaxAggregateInputType = {
   windowStart?: true
   expiresAt?: true
   updatedAt?: true
+  createdAt?: true
 }
 
 export type RateLimitBucketCountAggregateInputType = {
@@ -90,6 +95,7 @@ export type RateLimitBucketCountAggregateInputType = {
   windowStart?: true
   expiresAt?: true
   updatedAt?: true
+  createdAt?: true
   _all?: true
 }
 
@@ -185,6 +191,7 @@ export type RateLimitBucketGroupByOutputType = {
   windowStart: Date
   expiresAt: Date
   updatedAt: Date
+  createdAt: Date
   _count: RateLimitBucketCountAggregateOutputType | null
   _avg: RateLimitBucketAvgAggregateOutputType | null
   _sum: RateLimitBucketSumAggregateOutputType | null
@@ -216,6 +223,7 @@ export type RateLimitBucketWhereInput = {
   windowStart?: Prisma.DateTimeFilter<"RateLimitBucket"> | Date | string
   expiresAt?: Prisma.DateTimeFilter<"RateLimitBucket"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RateLimitBucket"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"RateLimitBucket"> | Date | string
 }
 
 export type RateLimitBucketOrderByWithRelationInput = {
@@ -224,6 +232,7 @@ export type RateLimitBucketOrderByWithRelationInput = {
   windowStart?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _relevance?: Prisma.RateLimitBucketOrderByRelevanceInput
 }
 
@@ -236,6 +245,7 @@ export type RateLimitBucketWhereUniqueInput = Prisma.AtLeast<{
   windowStart?: Prisma.DateTimeFilter<"RateLimitBucket"> | Date | string
   expiresAt?: Prisma.DateTimeFilter<"RateLimitBucket"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RateLimitBucket"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"RateLimitBucket"> | Date | string
 }, "bucketKey">
 
 export type RateLimitBucketOrderByWithAggregationInput = {
@@ -244,6 +254,7 @@ export type RateLimitBucketOrderByWithAggregationInput = {
   windowStart?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _count?: Prisma.RateLimitBucketCountOrderByAggregateInput
   _avg?: Prisma.RateLimitBucketAvgOrderByAggregateInput
   _max?: Prisma.RateLimitBucketMaxOrderByAggregateInput
@@ -260,6 +271,7 @@ export type RateLimitBucketScalarWhereWithAggregatesInput = {
   windowStart?: Prisma.DateTimeWithAggregatesFilter<"RateLimitBucket"> | Date | string
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"RateLimitBucket"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"RateLimitBucket"> | Date | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"RateLimitBucket"> | Date | string
 }
 
 export type RateLimitBucketCreateInput = {
@@ -268,6 +280,7 @@ export type RateLimitBucketCreateInput = {
   windowStart: Date | string
   expiresAt: Date | string
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type RateLimitBucketUncheckedCreateInput = {
@@ -276,6 +289,7 @@ export type RateLimitBucketUncheckedCreateInput = {
   windowStart: Date | string
   expiresAt: Date | string
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type RateLimitBucketUpdateInput = {
@@ -284,6 +298,7 @@ export type RateLimitBucketUpdateInput = {
   windowStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RateLimitBucketUncheckedUpdateInput = {
@@ -292,6 +307,7 @@ export type RateLimitBucketUncheckedUpdateInput = {
   windowStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RateLimitBucketCreateManyInput = {
@@ -300,6 +316,7 @@ export type RateLimitBucketCreateManyInput = {
   windowStart: Date | string
   expiresAt: Date | string
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type RateLimitBucketUpdateManyMutationInput = {
@@ -308,6 +325,7 @@ export type RateLimitBucketUpdateManyMutationInput = {
   windowStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RateLimitBucketUncheckedUpdateManyInput = {
@@ -316,6 +334,7 @@ export type RateLimitBucketUncheckedUpdateManyInput = {
   windowStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RateLimitBucketOrderByRelevanceInput = {
@@ -330,6 +349,7 @@ export type RateLimitBucketCountOrderByAggregateInput = {
   windowStart?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type RateLimitBucketAvgOrderByAggregateInput = {
@@ -342,6 +362,7 @@ export type RateLimitBucketMaxOrderByAggregateInput = {
   windowStart?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type RateLimitBucketMinOrderByAggregateInput = {
@@ -350,6 +371,7 @@ export type RateLimitBucketMinOrderByAggregateInput = {
   windowStart?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type RateLimitBucketSumOrderByAggregateInput = {
@@ -364,6 +386,7 @@ export type RateLimitBucketSelect<ExtArgs extends runtime.Types.Extensions.Inter
   windowStart?: boolean
   expiresAt?: boolean
   updatedAt?: boolean
+  createdAt?: boolean
 }, ExtArgs["result"]["rateLimitBucket"]>
 
 
@@ -374,9 +397,10 @@ export type RateLimitBucketSelectScalar = {
   windowStart?: boolean
   expiresAt?: boolean
   updatedAt?: boolean
+  createdAt?: boolean
 }
 
-export type RateLimitBucketOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"bucketKey" | "counter" | "windowStart" | "expiresAt" | "updatedAt", ExtArgs["result"]["rateLimitBucket"]>
+export type RateLimitBucketOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"bucketKey" | "counter" | "windowStart" | "expiresAt" | "updatedAt" | "createdAt", ExtArgs["result"]["rateLimitBucket"]>
 
 export type $RateLimitBucketPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "RateLimitBucket"
@@ -390,6 +414,7 @@ export type $RateLimitBucketPayload<ExtArgs extends runtime.Types.Extensions.Int
     windowStart: Date
     expiresAt: Date
     updatedAt: Date
+    createdAt: Date
   }, ExtArgs["result"]["rateLimitBucket"]>
   composites: {}
 }
@@ -764,6 +789,7 @@ export interface RateLimitBucketFieldRefs {
   readonly windowStart: Prisma.FieldRef<"RateLimitBucket", 'DateTime'>
   readonly expiresAt: Prisma.FieldRef<"RateLimitBucket", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"RateLimitBucket", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"RateLimitBucket", 'DateTime'>
 }
     
 

@@ -18,6 +18,7 @@ import { api } from './api';
 import type {
   Dashboard,
   CompanyRow,
+  DeliveryCodeState,
   DocumentRow,
   DriverAssignmentEntry,
   DriverRow,
@@ -292,6 +293,18 @@ export function captureProofOfDelivery(
   return api.post(`/logistics/shipments/${shipmentId}/proof-of-delivery`, input, {
     idempotencyKey,
   });
+}
+
+/**
+ * Email the person receiving the shipment a new delivery code.
+ *
+ * The code goes to THEM and never comes back here: the response says when it
+ * was sent and when it stops working, and nothing else.
+ */
+export function requestDeliveryCode(
+  shipmentId: string,
+): Promise<{ sentAt: string; expiresAt: string; deliveryCode: DeliveryCodeState }> {
+  return api.post(`/logistics/shipments/${shipmentId}/delivery-code`, {});
 }
 
 // ---------------------------------------------------------------------------

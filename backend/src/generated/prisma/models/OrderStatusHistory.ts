@@ -34,6 +34,7 @@ export type OrderStatusHistoryMinAggregateOutputType = {
   reason: string | null
   correlationId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type OrderStatusHistoryMaxAggregateOutputType = {
@@ -46,6 +47,7 @@ export type OrderStatusHistoryMaxAggregateOutputType = {
   reason: string | null
   correlationId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type OrderStatusHistoryCountAggregateOutputType = {
@@ -59,6 +61,7 @@ export type OrderStatusHistoryCountAggregateOutputType = {
   metaJson: number
   correlationId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -73,6 +76,7 @@ export type OrderStatusHistoryMinAggregateInputType = {
   reason?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type OrderStatusHistoryMaxAggregateInputType = {
@@ -85,6 +89,7 @@ export type OrderStatusHistoryMaxAggregateInputType = {
   reason?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type OrderStatusHistoryCountAggregateInputType = {
@@ -98,6 +103,7 @@ export type OrderStatusHistoryCountAggregateInputType = {
   metaJson?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -184,6 +190,7 @@ export type OrderStatusHistoryGroupByOutputType = {
   metaJson: runtime.JsonValue | null
   correlationId: string | null
   createdAt: Date
+  updatedAt: Date
   _count: OrderStatusHistoryCountAggregateOutputType | null
   _min: OrderStatusHistoryMinAggregateOutputType | null
   _max: OrderStatusHistoryMaxAggregateOutputType | null
@@ -218,6 +225,7 @@ export type OrderStatusHistoryWhereInput = {
   metaJson?: Prisma.JsonNullableFilter<"OrderStatusHistory">
   correlationId?: Prisma.StringNullableFilter<"OrderStatusHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrderStatusHistory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderStatusHistory"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
 }
 
@@ -232,6 +240,7 @@ export type OrderStatusHistoryOrderByWithRelationInput = {
   metaJson?: Prisma.SortOrderInput | Prisma.SortOrder
   correlationId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   order?: Prisma.OrderOrderByWithRelationInput
   _relevance?: Prisma.OrderStatusHistoryOrderByRelevanceInput
 }
@@ -250,6 +259,7 @@ export type OrderStatusHistoryWhereUniqueInput = Prisma.AtLeast<{
   metaJson?: Prisma.JsonNullableFilter<"OrderStatusHistory">
   correlationId?: Prisma.StringNullableFilter<"OrderStatusHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrderStatusHistory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderStatusHistory"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
 }, "id">
 
@@ -264,6 +274,7 @@ export type OrderStatusHistoryOrderByWithAggregationInput = {
   metaJson?: Prisma.SortOrderInput | Prisma.SortOrder
   correlationId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrderStatusHistoryCountOrderByAggregateInput
   _max?: Prisma.OrderStatusHistoryMaxOrderByAggregateInput
   _min?: Prisma.OrderStatusHistoryMinOrderByAggregateInput
@@ -283,6 +294,7 @@ export type OrderStatusHistoryScalarWhereWithAggregatesInput = {
   metaJson?: Prisma.JsonNullableWithAggregatesFilter<"OrderStatusHistory">
   correlationId?: Prisma.StringNullableWithAggregatesFilter<"OrderStatusHistory"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OrderStatusHistory"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"OrderStatusHistory"> | Date | string
 }
 
 export type OrderStatusHistoryCreateInput = {
@@ -295,6 +307,7 @@ export type OrderStatusHistoryCreateInput = {
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutStatusHistoryInput
 }
 
@@ -309,6 +322,7 @@ export type OrderStatusHistoryUncheckedCreateInput = {
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderStatusHistoryUpdateInput = {
@@ -321,6 +335,7 @@ export type OrderStatusHistoryUpdateInput = {
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutStatusHistoryNestedInput
 }
 
@@ -335,6 +350,7 @@ export type OrderStatusHistoryUncheckedUpdateInput = {
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderStatusHistoryCreateManyInput = {
@@ -348,6 +364,7 @@ export type OrderStatusHistoryCreateManyInput = {
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderStatusHistoryUpdateManyMutationInput = {
@@ -360,6 +377,7 @@ export type OrderStatusHistoryUpdateManyMutationInput = {
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderStatusHistoryUncheckedUpdateManyInput = {
@@ -373,6 +391,7 @@ export type OrderStatusHistoryUncheckedUpdateManyInput = {
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderStatusHistoryListRelationFilter = {
@@ -402,6 +421,7 @@ export type OrderStatusHistoryCountOrderByAggregateInput = {
   metaJson?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderStatusHistoryMaxOrderByAggregateInput = {
@@ -414,6 +434,7 @@ export type OrderStatusHistoryMaxOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderStatusHistoryMinOrderByAggregateInput = {
@@ -426,6 +447,7 @@ export type OrderStatusHistoryMinOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderStatusHistoryCreateNestedManyWithoutOrderInput = {
@@ -484,6 +506,7 @@ export type OrderStatusHistoryCreateWithoutOrderInput = {
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderStatusHistoryUncheckedCreateWithoutOrderInput = {
@@ -496,6 +519,7 @@ export type OrderStatusHistoryUncheckedCreateWithoutOrderInput = {
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderStatusHistoryCreateOrConnectWithoutOrderInput = {
@@ -538,6 +562,7 @@ export type OrderStatusHistoryScalarWhereInput = {
   metaJson?: Prisma.JsonNullableFilter<"OrderStatusHistory">
   correlationId?: Prisma.StringNullableFilter<"OrderStatusHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrderStatusHistory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderStatusHistory"> | Date | string
 }
 
 export type OrderStatusHistoryCreateManyOrderInput = {
@@ -550,6 +575,7 @@ export type OrderStatusHistoryCreateManyOrderInput = {
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderStatusHistoryUpdateWithoutOrderInput = {
@@ -562,6 +588,7 @@ export type OrderStatusHistoryUpdateWithoutOrderInput = {
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderStatusHistoryUncheckedUpdateWithoutOrderInput = {
@@ -574,6 +601,7 @@ export type OrderStatusHistoryUncheckedUpdateWithoutOrderInput = {
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderStatusHistoryUncheckedUpdateManyWithoutOrderInput = {
@@ -586,6 +614,7 @@ export type OrderStatusHistoryUncheckedUpdateManyWithoutOrderInput = {
   metaJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -601,6 +630,7 @@ export type OrderStatusHistorySelect<ExtArgs extends runtime.Types.Extensions.In
   metaJson?: boolean
   correlationId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["orderStatusHistory"]>
 
@@ -617,9 +647,10 @@ export type OrderStatusHistorySelectScalar = {
   metaJson?: boolean
   correlationId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type OrderStatusHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "fromStatus" | "toStatus" | "actorType" | "actorUserId" | "reason" | "metaJson" | "correlationId" | "createdAt", ExtArgs["result"]["orderStatusHistory"]>
+export type OrderStatusHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "fromStatus" | "toStatus" | "actorType" | "actorUserId" | "reason" | "metaJson" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["orderStatusHistory"]>
 export type OrderStatusHistoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
 }
@@ -640,6 +671,7 @@ export type $OrderStatusHistoryPayload<ExtArgs extends runtime.Types.Extensions.
     metaJson: runtime.JsonValue | null
     correlationId: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["orderStatusHistory"]>
   composites: {}
 }
@@ -1020,6 +1052,7 @@ export interface OrderStatusHistoryFieldRefs {
   readonly metaJson: Prisma.FieldRef<"OrderStatusHistory", 'Json'>
   readonly correlationId: Prisma.FieldRef<"OrderStatusHistory", 'String'>
   readonly createdAt: Prisma.FieldRef<"OrderStatusHistory", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"OrderStatusHistory", 'DateTime'>
 }
     
 

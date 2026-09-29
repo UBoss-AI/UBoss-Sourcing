@@ -48,6 +48,7 @@ export type InventoryBalanceMinAggregateOutputType = {
   reservedQty: number | null
   version: number | null
   updatedAt: Date | null
+  createdAt: Date | null
 }
 
 export type InventoryBalanceMaxAggregateOutputType = {
@@ -60,6 +61,7 @@ export type InventoryBalanceMaxAggregateOutputType = {
   reservedQty: number | null
   version: number | null
   updatedAt: Date | null
+  createdAt: Date | null
 }
 
 export type InventoryBalanceCountAggregateOutputType = {
@@ -72,6 +74,7 @@ export type InventoryBalanceCountAggregateOutputType = {
   reservedQty: number
   version: number
   updatedAt: number
+  createdAt: number
   _all: number
 }
 
@@ -98,6 +101,7 @@ export type InventoryBalanceMinAggregateInputType = {
   reservedQty?: true
   version?: true
   updatedAt?: true
+  createdAt?: true
 }
 
 export type InventoryBalanceMaxAggregateInputType = {
@@ -110,6 +114,7 @@ export type InventoryBalanceMaxAggregateInputType = {
   reservedQty?: true
   version?: true
   updatedAt?: true
+  createdAt?: true
 }
 
 export type InventoryBalanceCountAggregateInputType = {
@@ -122,6 +127,7 @@ export type InventoryBalanceCountAggregateInputType = {
   reservedQty?: true
   version?: true
   updatedAt?: true
+  createdAt?: true
   _all?: true
 }
 
@@ -221,6 +227,7 @@ export type InventoryBalanceGroupByOutputType = {
   reservedQty: number
   version: number
   updatedAt: Date
+  createdAt: Date
   _count: InventoryBalanceCountAggregateOutputType | null
   _avg: InventoryBalanceAvgAggregateOutputType | null
   _sum: InventoryBalanceSumAggregateOutputType | null
@@ -256,6 +263,7 @@ export type InventoryBalanceWhereInput = {
   reservedQty?: Prisma.IntFilter<"InventoryBalance"> | number
   version?: Prisma.IntFilter<"InventoryBalance"> | number
   updatedAt?: Prisma.DateTimeFilter<"InventoryBalance"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"InventoryBalance"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   variant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
   location?: Prisma.XOR<Prisma.InventoryLocationScalarRelationFilter, Prisma.InventoryLocationWhereInput>
@@ -271,6 +279,7 @@ export type InventoryBalanceOrderByWithRelationInput = {
   reservedQty?: Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   product?: Prisma.ProductOrderByWithRelationInput
   variant?: Prisma.ProductVariantOrderByWithRelationInput
   location?: Prisma.InventoryLocationOrderByWithRelationInput
@@ -291,6 +300,7 @@ export type InventoryBalanceWhereUniqueInput = Prisma.AtLeast<{
   reservedQty?: Prisma.IntFilter<"InventoryBalance"> | number
   version?: Prisma.IntFilter<"InventoryBalance"> | number
   updatedAt?: Prisma.DateTimeFilter<"InventoryBalance"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"InventoryBalance"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   variant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
   location?: Prisma.XOR<Prisma.InventoryLocationScalarRelationFilter, Prisma.InventoryLocationWhereInput>
@@ -306,6 +316,7 @@ export type InventoryBalanceOrderByWithAggregationInput = {
   reservedQty?: Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _count?: Prisma.InventoryBalanceCountOrderByAggregateInput
   _avg?: Prisma.InventoryBalanceAvgOrderByAggregateInput
   _max?: Prisma.InventoryBalanceMaxOrderByAggregateInput
@@ -326,6 +337,7 @@ export type InventoryBalanceScalarWhereWithAggregatesInput = {
   reservedQty?: Prisma.IntWithAggregatesFilter<"InventoryBalance"> | number
   version?: Prisma.IntWithAggregatesFilter<"InventoryBalance"> | number
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"InventoryBalance"> | Date | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"InventoryBalance"> | Date | string
 }
 
 export type InventoryBalanceCreateInput = {
@@ -335,6 +347,7 @@ export type InventoryBalanceCreateInput = {
   reservedQty?: number
   version?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutInventoryBalancesInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutInventoryBalancesInput
   location: Prisma.InventoryLocationCreateNestedOneWithoutBalancesInput
@@ -350,6 +363,7 @@ export type InventoryBalanceUncheckedCreateInput = {
   reservedQty?: number
   version?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type InventoryBalanceUpdateInput = {
@@ -359,6 +373,7 @@ export type InventoryBalanceUpdateInput = {
   reservedQty?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutInventoryBalancesNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutInventoryBalancesNestedInput
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutBalancesNestedInput
@@ -374,6 +389,7 @@ export type InventoryBalanceUncheckedUpdateInput = {
   reservedQty?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryBalanceCreateManyInput = {
@@ -386,6 +402,7 @@ export type InventoryBalanceCreateManyInput = {
   reservedQty?: number
   version?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type InventoryBalanceUpdateManyMutationInput = {
@@ -395,6 +412,7 @@ export type InventoryBalanceUpdateManyMutationInput = {
   reservedQty?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryBalanceUncheckedUpdateManyInput = {
@@ -407,6 +425,7 @@ export type InventoryBalanceUncheckedUpdateManyInput = {
   reservedQty?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryBalanceListRelationFilter = {
@@ -441,6 +460,7 @@ export type InventoryBalanceCountOrderByAggregateInput = {
   reservedQty?: Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type InventoryBalanceAvgOrderByAggregateInput = {
@@ -459,6 +479,7 @@ export type InventoryBalanceMaxOrderByAggregateInput = {
   reservedQty?: Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type InventoryBalanceMinOrderByAggregateInput = {
@@ -471,6 +492,7 @@ export type InventoryBalanceMinOrderByAggregateInput = {
   reservedQty?: Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type InventoryBalanceSumOrderByAggregateInput = {
@@ -612,6 +634,7 @@ export type InventoryBalanceCreateWithoutProductInput = {
   reservedQty?: number
   version?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
   variant?: Prisma.ProductVariantCreateNestedOneWithoutInventoryBalancesInput
   location: Prisma.InventoryLocationCreateNestedOneWithoutBalancesInput
 }
@@ -625,6 +648,7 @@ export type InventoryBalanceUncheckedCreateWithoutProductInput = {
   reservedQty?: number
   version?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type InventoryBalanceCreateOrConnectWithoutProductInput = {
@@ -666,6 +690,7 @@ export type InventoryBalanceScalarWhereInput = {
   reservedQty?: Prisma.IntFilter<"InventoryBalance"> | number
   version?: Prisma.IntFilter<"InventoryBalance"> | number
   updatedAt?: Prisma.DateTimeFilter<"InventoryBalance"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"InventoryBalance"> | Date | string
 }
 
 export type InventoryBalanceCreateWithoutVariantInput = {
@@ -675,6 +700,7 @@ export type InventoryBalanceCreateWithoutVariantInput = {
   reservedQty?: number
   version?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutInventoryBalancesInput
   location: Prisma.InventoryLocationCreateNestedOneWithoutBalancesInput
 }
@@ -688,6 +714,7 @@ export type InventoryBalanceUncheckedCreateWithoutVariantInput = {
   reservedQty?: number
   version?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type InventoryBalanceCreateOrConnectWithoutVariantInput = {
@@ -723,6 +750,7 @@ export type InventoryBalanceCreateWithoutLocationInput = {
   reservedQty?: number
   version?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutInventoryBalancesInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutInventoryBalancesInput
 }
@@ -736,6 +764,7 @@ export type InventoryBalanceUncheckedCreateWithoutLocationInput = {
   reservedQty?: number
   version?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type InventoryBalanceCreateOrConnectWithoutLocationInput = {
@@ -773,6 +802,7 @@ export type InventoryBalanceCreateManyProductInput = {
   reservedQty?: number
   version?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type InventoryBalanceUpdateWithoutProductInput = {
@@ -782,6 +812,7 @@ export type InventoryBalanceUpdateWithoutProductInput = {
   reservedQty?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variant?: Prisma.ProductVariantUpdateOneWithoutInventoryBalancesNestedInput
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutBalancesNestedInput
 }
@@ -795,6 +826,7 @@ export type InventoryBalanceUncheckedUpdateWithoutProductInput = {
   reservedQty?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryBalanceUncheckedUpdateManyWithoutProductInput = {
@@ -806,6 +838,7 @@ export type InventoryBalanceUncheckedUpdateManyWithoutProductInput = {
   reservedQty?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryBalanceCreateManyVariantInput = {
@@ -817,6 +850,7 @@ export type InventoryBalanceCreateManyVariantInput = {
   reservedQty?: number
   version?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type InventoryBalanceUpdateWithoutVariantInput = {
@@ -826,6 +860,7 @@ export type InventoryBalanceUpdateWithoutVariantInput = {
   reservedQty?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutInventoryBalancesNestedInput
   location?: Prisma.InventoryLocationUpdateOneRequiredWithoutBalancesNestedInput
 }
@@ -839,6 +874,7 @@ export type InventoryBalanceUncheckedUpdateWithoutVariantInput = {
   reservedQty?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryBalanceUncheckedUpdateManyWithoutVariantInput = {
@@ -850,6 +886,7 @@ export type InventoryBalanceUncheckedUpdateManyWithoutVariantInput = {
   reservedQty?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryBalanceCreateManyLocationInput = {
@@ -861,6 +898,7 @@ export type InventoryBalanceCreateManyLocationInput = {
   reservedQty?: number
   version?: number
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type InventoryBalanceUpdateWithoutLocationInput = {
@@ -870,6 +908,7 @@ export type InventoryBalanceUpdateWithoutLocationInput = {
   reservedQty?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutInventoryBalancesNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutInventoryBalancesNestedInput
 }
@@ -883,6 +922,7 @@ export type InventoryBalanceUncheckedUpdateWithoutLocationInput = {
   reservedQty?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InventoryBalanceUncheckedUpdateManyWithoutLocationInput = {
@@ -894,6 +934,7 @@ export type InventoryBalanceUncheckedUpdateManyWithoutLocationInput = {
   reservedQty?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -908,6 +949,7 @@ export type InventoryBalanceSelect<ExtArgs extends runtime.Types.Extensions.Inte
   reservedQty?: boolean
   version?: boolean
   updatedAt?: boolean
+  createdAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.InventoryBalance$variantArgs<ExtArgs>
   location?: boolean | Prisma.InventoryLocationDefaultArgs<ExtArgs>
@@ -925,9 +967,10 @@ export type InventoryBalanceSelectScalar = {
   reservedQty?: boolean
   version?: boolean
   updatedAt?: boolean
+  createdAt?: boolean
 }
 
-export type InventoryBalanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "variantId" | "variantKey" | "locationId" | "onHandQty" | "reservedQty" | "version" | "updatedAt", ExtArgs["result"]["inventoryBalance"]>
+export type InventoryBalanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "variantId" | "variantKey" | "locationId" | "onHandQty" | "reservedQty" | "version" | "updatedAt" | "createdAt", ExtArgs["result"]["inventoryBalance"]>
 export type InventoryBalanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.InventoryBalance$variantArgs<ExtArgs>
@@ -959,6 +1002,7 @@ export type $InventoryBalancePayload<ExtArgs extends runtime.Types.Extensions.In
      */
     version: number
     updatedAt: Date
+    createdAt: Date
   }, ExtArgs["result"]["inventoryBalance"]>
   composites: {}
 }
@@ -1340,6 +1384,7 @@ export interface InventoryBalanceFieldRefs {
   readonly reservedQty: Prisma.FieldRef<"InventoryBalance", 'Int'>
   readonly version: Prisma.FieldRef<"InventoryBalance", 'Int'>
   readonly updatedAt: Prisma.FieldRef<"InventoryBalance", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"InventoryBalance", 'DateTime'>
 }
     
 

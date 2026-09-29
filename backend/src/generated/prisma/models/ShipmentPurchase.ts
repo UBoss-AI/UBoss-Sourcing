@@ -51,6 +51,7 @@ export type ShipmentPurchaseMinAggregateOutputType = {
   createdAt: Date | null
   completedAt: Date | null
   purchasedShipmentId: string | null
+  updatedAt: Date | null
 }
 
 export type ShipmentPurchaseMaxAggregateOutputType = {
@@ -69,6 +70,7 @@ export type ShipmentPurchaseMaxAggregateOutputType = {
   createdAt: Date | null
   completedAt: Date | null
   purchasedShipmentId: string | null
+  updatedAt: Date | null
 }
 
 export type ShipmentPurchaseCountAggregateOutputType = {
@@ -87,6 +89,7 @@ export type ShipmentPurchaseCountAggregateOutputType = {
   createdAt: number
   completedAt: number
   purchasedShipmentId: number
+  updatedAt: number
   _all: number
 }
 
@@ -107,6 +110,7 @@ export type ShipmentPurchaseMinAggregateInputType = {
   createdAt?: true
   completedAt?: true
   purchasedShipmentId?: true
+  updatedAt?: true
 }
 
 export type ShipmentPurchaseMaxAggregateInputType = {
@@ -125,6 +129,7 @@ export type ShipmentPurchaseMaxAggregateInputType = {
   createdAt?: true
   completedAt?: true
   purchasedShipmentId?: true
+  updatedAt?: true
 }
 
 export type ShipmentPurchaseCountAggregateInputType = {
@@ -143,6 +148,7 @@ export type ShipmentPurchaseCountAggregateInputType = {
   createdAt?: true
   completedAt?: true
   purchasedShipmentId?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -234,6 +240,7 @@ export type ShipmentPurchaseGroupByOutputType = {
   createdAt: Date
   completedAt: Date | null
   purchasedShipmentId: string | null
+  updatedAt: Date
   _count: ShipmentPurchaseCountAggregateOutputType | null
   _min: ShipmentPurchaseMinAggregateOutputType | null
   _max: ShipmentPurchaseMaxAggregateOutputType | null
@@ -273,6 +280,7 @@ export type ShipmentPurchaseWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ShipmentPurchase"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"ShipmentPurchase"> | Date | string | null
   purchasedShipmentId?: Prisma.StringNullableFilter<"ShipmentPurchase"> | string | null
+  updatedAt?: Prisma.DateTimeFilter<"ShipmentPurchase"> | Date | string
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentScalarRelationFilter, Prisma.LogisticsShipmentWhereInput>
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
 }
@@ -293,6 +301,7 @@ export type ShipmentPurchaseOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   purchasedShipmentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   shipment?: Prisma.LogisticsShipmentOrderByWithRelationInput
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   _relevance?: Prisma.ShipmentPurchaseOrderByRelevanceInput
@@ -317,6 +326,7 @@ export type ShipmentPurchaseWhereUniqueInput = Prisma.AtLeast<{
   createdBySellerMemberId?: Prisma.StringNullableFilter<"ShipmentPurchase"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ShipmentPurchase"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"ShipmentPurchase"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"ShipmentPurchase"> | Date | string
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentScalarRelationFilter, Prisma.LogisticsShipmentWhereInput>
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
 }, "id" | "idempotencyKey" | "purchasedShipmentId">
@@ -337,6 +347,7 @@ export type ShipmentPurchaseOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   purchasedShipmentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ShipmentPurchaseCountOrderByAggregateInput
   _max?: Prisma.ShipmentPurchaseMaxOrderByAggregateInput
   _min?: Prisma.ShipmentPurchaseMinOrderByAggregateInput
@@ -361,6 +372,7 @@ export type ShipmentPurchaseScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ShipmentPurchase"> | Date | string
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ShipmentPurchase"> | Date | string | null
   purchasedShipmentId?: Prisma.StringNullableWithAggregatesFilter<"ShipmentPurchase"> | string | null
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ShipmentPurchase"> | Date | string
 }
 
 export type ShipmentPurchaseCreateInput = {
@@ -377,6 +389,7 @@ export type ShipmentPurchaseCreateInput = {
   createdAt?: Date | string
   completedAt?: Date | string | null
   purchasedShipmentId?: string | null
+  updatedAt?: Date | string
   shipment: Prisma.LogisticsShipmentCreateNestedOneWithoutPurchasesInput
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutShipmentPurchasesInput
 }
@@ -397,6 +410,7 @@ export type ShipmentPurchaseUncheckedCreateInput = {
   createdAt?: Date | string
   completedAt?: Date | string | null
   purchasedShipmentId?: string | null
+  updatedAt?: Date | string
 }
 
 export type ShipmentPurchaseUpdateInput = {
@@ -413,6 +427,7 @@ export type ShipmentPurchaseUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purchasedShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shipment?: Prisma.LogisticsShipmentUpdateOneRequiredWithoutPurchasesNestedInput
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutShipmentPurchasesNestedInput
 }
@@ -433,6 +448,7 @@ export type ShipmentPurchaseUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purchasedShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShipmentPurchaseCreateManyInput = {
@@ -451,6 +467,7 @@ export type ShipmentPurchaseCreateManyInput = {
   createdAt?: Date | string
   completedAt?: Date | string | null
   purchasedShipmentId?: string | null
+  updatedAt?: Date | string
 }
 
 export type ShipmentPurchaseUpdateManyMutationInput = {
@@ -467,6 +484,7 @@ export type ShipmentPurchaseUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purchasedShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShipmentPurchaseUncheckedUpdateManyInput = {
@@ -485,6 +503,7 @@ export type ShipmentPurchaseUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purchasedShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShipmentPurchaseListRelationFilter = {
@@ -519,6 +538,7 @@ export type ShipmentPurchaseCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   purchasedShipmentId?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ShipmentPurchaseMaxOrderByAggregateInput = {
@@ -537,6 +557,7 @@ export type ShipmentPurchaseMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   purchasedShipmentId?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ShipmentPurchaseMinOrderByAggregateInput = {
@@ -555,6 +576,7 @@ export type ShipmentPurchaseMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   purchasedShipmentId?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ShipmentPurchaseCreateNestedManyWithoutSellerAccountInput = {
@@ -655,6 +677,7 @@ export type ShipmentPurchaseCreateWithoutSellerAccountInput = {
   createdAt?: Date | string
   completedAt?: Date | string | null
   purchasedShipmentId?: string | null
+  updatedAt?: Date | string
   shipment: Prisma.LogisticsShipmentCreateNestedOneWithoutPurchasesInput
 }
 
@@ -673,6 +696,7 @@ export type ShipmentPurchaseUncheckedCreateWithoutSellerAccountInput = {
   createdAt?: Date | string
   completedAt?: Date | string | null
   purchasedShipmentId?: string | null
+  updatedAt?: Date | string
 }
 
 export type ShipmentPurchaseCreateOrConnectWithoutSellerAccountInput = {
@@ -720,6 +744,7 @@ export type ShipmentPurchaseScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ShipmentPurchase"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"ShipmentPurchase"> | Date | string | null
   purchasedShipmentId?: Prisma.StringNullableFilter<"ShipmentPurchase"> | string | null
+  updatedAt?: Prisma.DateTimeFilter<"ShipmentPurchase"> | Date | string
 }
 
 export type ShipmentPurchaseCreateWithoutShipmentInput = {
@@ -736,6 +761,7 @@ export type ShipmentPurchaseCreateWithoutShipmentInput = {
   createdAt?: Date | string
   completedAt?: Date | string | null
   purchasedShipmentId?: string | null
+  updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutShipmentPurchasesInput
 }
 
@@ -754,6 +780,7 @@ export type ShipmentPurchaseUncheckedCreateWithoutShipmentInput = {
   createdAt?: Date | string
   completedAt?: Date | string | null
   purchasedShipmentId?: string | null
+  updatedAt?: Date | string
 }
 
 export type ShipmentPurchaseCreateOrConnectWithoutShipmentInput = {
@@ -797,6 +824,7 @@ export type ShipmentPurchaseCreateManySellerAccountInput = {
   createdAt?: Date | string
   completedAt?: Date | string | null
   purchasedShipmentId?: string | null
+  updatedAt?: Date | string
 }
 
 export type ShipmentPurchaseUpdateWithoutSellerAccountInput = {
@@ -813,6 +841,7 @@ export type ShipmentPurchaseUpdateWithoutSellerAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purchasedShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shipment?: Prisma.LogisticsShipmentUpdateOneRequiredWithoutPurchasesNestedInput
 }
 
@@ -831,6 +860,7 @@ export type ShipmentPurchaseUncheckedUpdateWithoutSellerAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purchasedShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShipmentPurchaseUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -848,6 +878,7 @@ export type ShipmentPurchaseUncheckedUpdateManyWithoutSellerAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purchasedShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShipmentPurchaseCreateManyShipmentInput = {
@@ -865,6 +896,7 @@ export type ShipmentPurchaseCreateManyShipmentInput = {
   createdAt?: Date | string
   completedAt?: Date | string | null
   purchasedShipmentId?: string | null
+  updatedAt?: Date | string
 }
 
 export type ShipmentPurchaseUpdateWithoutShipmentInput = {
@@ -881,6 +913,7 @@ export type ShipmentPurchaseUpdateWithoutShipmentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purchasedShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutShipmentPurchasesNestedInput
 }
 
@@ -899,6 +932,7 @@ export type ShipmentPurchaseUncheckedUpdateWithoutShipmentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purchasedShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShipmentPurchaseUncheckedUpdateManyWithoutShipmentInput = {
@@ -916,6 +950,7 @@ export type ShipmentPurchaseUncheckedUpdateManyWithoutShipmentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purchasedShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -936,6 +971,7 @@ export type ShipmentPurchaseSelect<ExtArgs extends runtime.Types.Extensions.Inte
   createdAt?: boolean
   completedAt?: boolean
   purchasedShipmentId?: boolean
+  updatedAt?: boolean
   shipment?: boolean | Prisma.LogisticsShipmentDefaultArgs<ExtArgs>
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shipmentPurchase"]>
@@ -958,9 +994,10 @@ export type ShipmentPurchaseSelectScalar = {
   createdAt?: boolean
   completedAt?: boolean
   purchasedShipmentId?: boolean
+  updatedAt?: boolean
 }
 
-export type ShipmentPurchaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "shipmentId" | "sellerAccountId" | "idempotencyKey" | "provider" | "sellerCarrierConnectionId" | "quoteId" | "state" | "providerShipmentId" | "providerTrackingNumber" | "failureMessage" | "createdBySellerMemberId" | "createdAt" | "completedAt" | "purchasedShipmentId", ExtArgs["result"]["shipmentPurchase"]>
+export type ShipmentPurchaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "shipmentId" | "sellerAccountId" | "idempotencyKey" | "provider" | "sellerCarrierConnectionId" | "quoteId" | "state" | "providerShipmentId" | "providerTrackingNumber" | "failureMessage" | "createdBySellerMemberId" | "createdAt" | "completedAt" | "purchasedShipmentId" | "updatedAt", ExtArgs["result"]["shipmentPurchase"]>
 export type ShipmentPurchaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   shipment?: boolean | Prisma.LogisticsShipmentDefaultArgs<ExtArgs>
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
@@ -1011,6 +1048,7 @@ export type $ShipmentPurchasePayload<ExtArgs extends runtime.Types.Extensions.In
      * id on success and NULL otherwise.
      */
     purchasedShipmentId: string | null
+    updatedAt: Date
   }, ExtArgs["result"]["shipmentPurchase"]>
   composites: {}
 }
@@ -1397,6 +1435,7 @@ export interface ShipmentPurchaseFieldRefs {
   readonly createdAt: Prisma.FieldRef<"ShipmentPurchase", 'DateTime'>
   readonly completedAt: Prisma.FieldRef<"ShipmentPurchase", 'DateTime'>
   readonly purchasedShipmentId: Prisma.FieldRef<"ShipmentPurchase", 'String'>
+  readonly updatedAt: Prisma.FieldRef<"ShipmentPurchase", 'DateTime'>
 }
     
 

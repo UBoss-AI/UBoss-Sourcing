@@ -49,6 +49,11 @@ GENERATOR="$HERE/../mariadb/post-migrate-grants.sql"
 
 APP_USER="${UBOSS_APP_DB_USER:-uboss_app}"
 APP_HOST="${UBOSS_APP_DB_HOST:-localhost}"
+# The audit maintenance account (DATABASE_MAINTENANCE_URL): the only account
+# that may blank an erased person's email/IP/user agent on audit rows, or
+# delete rows past retention. Production refuses to start without it.
+MAINT_USER="${UBOSS_MAINTENANCE_DB_USER:-uboss_maintenance}"
+MAINT_HOST="${UBOSS_MAINTENANCE_DB_HOST:-$APP_HOST}"
 
 log()  { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 ok()   { printf '\033[1;32m +\033[0m %s\n' "$*"; }
@@ -98,13 +103,25 @@ SERVER_HOST="$("$CLIENT" -N -B -e "SELECT @@hostname;" 2>/dev/null || true)"
 [[ -n "$SERVER_HOST" ]] || die "could not connect to the local MariaDB as an administrator.
    This must run on the database host, as root or with sudo."
 
+# --- The maintenance account must exist ----------------------------------
+#
+# Checked before anything is generated: without it GDPR erasure and the audit
+# retention sweep are refused by the database, and the grant below would fail
+# half way through a release.
+MAINT_EXISTS="$("$CLIENT" -N -B -e "SELECT COUNT(*) FROM mysql.user WHERE User='$MAINT_USER' AND Host='$MAINT_HOST';")"
+[[ "$MAINT_EXISTS" == "1" ]] || die "the audit maintenance account '$MAINT_USER'@'$MAINT_HOST' does not exist.
+   Create it once (bootstrap.sh prints the statement), put its URL in
+   DATABASE_MAINTENANCE_URL in $SHARED/.env, then run this again:
+     CREATE USER '$MAINT_USER'@'$MAINT_HOST' IDENTIFIED BY '<a long random, unique to it>';"
+
 # --- Generate, show, apply -------------------------------------------------
 #
 # Generated into a variable first so that a failure in the generator cannot
 # result in a half-applied set of grants: nothing is executed until the whole
 # script has been produced.
 STATEMENTS="$(
-  printf "SET @app_user='%s'; SET @app_host='%s';\n" "$APP_USER" "$APP_HOST" \
+  printf "SET @app_user='%s'; SET @app_host='%s'; SET @maint_user='%s'; SET @maint_host='%s';\n" \
+    "$APP_USER" "$APP_HOST" "$MAINT_USER" "$MAINT_HOST" \
     | cat - "$GENERATOR" \
     | "$CLIENT" -N -B "$DB_NAME"
 )"
@@ -136,5 +153,16 @@ if [[ "$(printf '%s\n' "$VERIFICATION" | grep -c 'append-only')" -ne 2 ]]; then
 fi
 
 ok "audit_logs and _prisma_migrations are append-only for '$APP_USER'@'$APP_HOST'"
+
+# The maintenance account: SELECT and DELETE on audit_logs, UPDATE on exactly
+# actorEmail, ipAddress, userAgent and updatedAt (which Prisma stamps on every
+# update), and nothing more. Wider is a security
+# failure; narrower means erasure fails. Either way, stop.
+if ! printf '%s\n' "$VERIFICATION" | grep -q 'maintenance-scoped'; then
+  die "the audit maintenance account '$MAINT_USER'@'$MAINT_HOST' does not hold exactly its grant.
+   It must have SELECT, DELETE and UPDATE (actorEmail, ipAddress, updatedAt, userAgent) on
+   audit_logs and nothing else - docs/DATABASE-PRODUCTION.md section 6."
+fi
+ok "'$MAINT_USER'@'$MAINT_HOST' may pseudonymise and expire audit rows, and nothing else"
 warn "Re-run this after any release whose migration adds a table, or the"
 warn "application will get \"command denied\" on the new one. release.sh does it."

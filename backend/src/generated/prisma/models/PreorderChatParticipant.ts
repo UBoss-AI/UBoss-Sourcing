@@ -44,6 +44,8 @@ export type PreorderChatParticipantMinAggregateOutputType = {
   lastReadSeq: number | null
   lastReadAt: Date | null
   joinedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PreorderChatParticipantMaxAggregateOutputType = {
@@ -54,6 +56,8 @@ export type PreorderChatParticipantMaxAggregateOutputType = {
   lastReadSeq: number | null
   lastReadAt: Date | null
   joinedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PreorderChatParticipantCountAggregateOutputType = {
@@ -64,6 +68,8 @@ export type PreorderChatParticipantCountAggregateOutputType = {
   lastReadSeq: number
   lastReadAt: number
   joinedAt: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -84,6 +90,8 @@ export type PreorderChatParticipantMinAggregateInputType = {
   lastReadSeq?: true
   lastReadAt?: true
   joinedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type PreorderChatParticipantMaxAggregateInputType = {
@@ -94,6 +102,8 @@ export type PreorderChatParticipantMaxAggregateInputType = {
   lastReadSeq?: true
   lastReadAt?: true
   joinedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type PreorderChatParticipantCountAggregateInputType = {
@@ -104,6 +114,8 @@ export type PreorderChatParticipantCountAggregateInputType = {
   lastReadSeq?: true
   lastReadAt?: true
   joinedAt?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -201,6 +213,8 @@ export type PreorderChatParticipantGroupByOutputType = {
   lastReadSeq: number
   lastReadAt: Date | null
   joinedAt: Date
+  createdAt: Date
+  updatedAt: Date
   _count: PreorderChatParticipantCountAggregateOutputType | null
   _avg: PreorderChatParticipantAvgAggregateOutputType | null
   _sum: PreorderChatParticipantSumAggregateOutputType | null
@@ -234,6 +248,8 @@ export type PreorderChatParticipantWhereInput = {
   lastReadSeq?: Prisma.IntFilter<"PreorderChatParticipant"> | number
   lastReadAt?: Prisma.DateTimeNullableFilter<"PreorderChatParticipant"> | Date | string | null
   joinedAt?: Prisma.DateTimeFilter<"PreorderChatParticipant"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"PreorderChatParticipant"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PreorderChatParticipant"> | Date | string
   conversation?: Prisma.XOR<Prisma.PreorderChatConversationScalarRelationFilter, Prisma.PreorderChatConversationWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -246,6 +262,8 @@ export type PreorderChatParticipantOrderByWithRelationInput = {
   lastReadSeq?: Prisma.SortOrder
   lastReadAt?: Prisma.SortOrderInput | Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   conversation?: Prisma.PreorderChatConversationOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.PreorderChatParticipantOrderByRelevanceInput
@@ -263,6 +281,8 @@ export type PreorderChatParticipantWhereUniqueInput = Prisma.AtLeast<{
   lastReadSeq?: Prisma.IntFilter<"PreorderChatParticipant"> | number
   lastReadAt?: Prisma.DateTimeNullableFilter<"PreorderChatParticipant"> | Date | string | null
   joinedAt?: Prisma.DateTimeFilter<"PreorderChatParticipant"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"PreorderChatParticipant"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PreorderChatParticipant"> | Date | string
   conversation?: Prisma.XOR<Prisma.PreorderChatConversationScalarRelationFilter, Prisma.PreorderChatConversationWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "conversationId_userId">
@@ -275,6 +295,8 @@ export type PreorderChatParticipantOrderByWithAggregationInput = {
   lastReadSeq?: Prisma.SortOrder
   lastReadAt?: Prisma.SortOrderInput | Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PreorderChatParticipantCountOrderByAggregateInput
   _avg?: Prisma.PreorderChatParticipantAvgOrderByAggregateInput
   _max?: Prisma.PreorderChatParticipantMaxOrderByAggregateInput
@@ -293,6 +315,8 @@ export type PreorderChatParticipantScalarWhereWithAggregatesInput = {
   lastReadSeq?: Prisma.IntWithAggregatesFilter<"PreorderChatParticipant"> | number
   lastReadAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PreorderChatParticipant"> | Date | string | null
   joinedAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderChatParticipant"> | Date | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderChatParticipant"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderChatParticipant"> | Date | string
 }
 
 export type PreorderChatParticipantCreateInput = {
@@ -301,6 +325,8 @@ export type PreorderChatParticipantCreateInput = {
   lastReadSeq?: number
   lastReadAt?: Date | string | null
   joinedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   conversation: Prisma.PreorderChatConversationCreateNestedOneWithoutParticipantsInput
   user: Prisma.UserCreateNestedOneWithoutPreorderChatParticipantsInput
 }
@@ -313,6 +339,8 @@ export type PreorderChatParticipantUncheckedCreateInput = {
   lastReadSeq?: number
   lastReadAt?: Date | string | null
   joinedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatParticipantUpdateInput = {
@@ -321,6 +349,8 @@ export type PreorderChatParticipantUpdateInput = {
   lastReadSeq?: Prisma.IntFieldUpdateOperationsInput | number
   lastReadAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conversation?: Prisma.PreorderChatConversationUpdateOneRequiredWithoutParticipantsNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutPreorderChatParticipantsNestedInput
 }
@@ -333,6 +363,8 @@ export type PreorderChatParticipantUncheckedUpdateInput = {
   lastReadSeq?: Prisma.IntFieldUpdateOperationsInput | number
   lastReadAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatParticipantCreateManyInput = {
@@ -343,6 +375,8 @@ export type PreorderChatParticipantCreateManyInput = {
   lastReadSeq?: number
   lastReadAt?: Date | string | null
   joinedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatParticipantUpdateManyMutationInput = {
@@ -351,6 +385,8 @@ export type PreorderChatParticipantUpdateManyMutationInput = {
   lastReadSeq?: Prisma.IntFieldUpdateOperationsInput | number
   lastReadAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatParticipantUncheckedUpdateManyInput = {
@@ -361,6 +397,8 @@ export type PreorderChatParticipantUncheckedUpdateManyInput = {
   lastReadSeq?: Prisma.IntFieldUpdateOperationsInput | number
   lastReadAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatParticipantListRelationFilter = {
@@ -392,6 +430,8 @@ export type PreorderChatParticipantCountOrderByAggregateInput = {
   lastReadSeq?: Prisma.SortOrder
   lastReadAt?: Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderChatParticipantAvgOrderByAggregateInput = {
@@ -406,6 +446,8 @@ export type PreorderChatParticipantMaxOrderByAggregateInput = {
   lastReadSeq?: Prisma.SortOrder
   lastReadAt?: Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderChatParticipantMinOrderByAggregateInput = {
@@ -416,6 +458,8 @@ export type PreorderChatParticipantMinOrderByAggregateInput = {
   lastReadSeq?: Prisma.SortOrder
   lastReadAt?: Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PreorderChatParticipantSumOrderByAggregateInput = {
@@ -516,6 +560,8 @@ export type PreorderChatParticipantCreateWithoutUserInput = {
   lastReadSeq?: number
   lastReadAt?: Date | string | null
   joinedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   conversation: Prisma.PreorderChatConversationCreateNestedOneWithoutParticipantsInput
 }
 
@@ -526,6 +572,8 @@ export type PreorderChatParticipantUncheckedCreateWithoutUserInput = {
   lastReadSeq?: number
   lastReadAt?: Date | string | null
   joinedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatParticipantCreateOrConnectWithoutUserInput = {
@@ -565,6 +613,8 @@ export type PreorderChatParticipantScalarWhereInput = {
   lastReadSeq?: Prisma.IntFilter<"PreorderChatParticipant"> | number
   lastReadAt?: Prisma.DateTimeNullableFilter<"PreorderChatParticipant"> | Date | string | null
   joinedAt?: Prisma.DateTimeFilter<"PreorderChatParticipant"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"PreorderChatParticipant"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PreorderChatParticipant"> | Date | string
 }
 
 export type PreorderChatParticipantCreateWithoutConversationInput = {
@@ -573,6 +623,8 @@ export type PreorderChatParticipantCreateWithoutConversationInput = {
   lastReadSeq?: number
   lastReadAt?: Date | string | null
   joinedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPreorderChatParticipantsInput
 }
 
@@ -583,6 +635,8 @@ export type PreorderChatParticipantUncheckedCreateWithoutConversationInput = {
   lastReadSeq?: number
   lastReadAt?: Date | string | null
   joinedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatParticipantCreateOrConnectWithoutConversationInput = {
@@ -618,6 +672,8 @@ export type PreorderChatParticipantCreateManyUserInput = {
   lastReadSeq?: number
   lastReadAt?: Date | string | null
   joinedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatParticipantUpdateWithoutUserInput = {
@@ -626,6 +682,8 @@ export type PreorderChatParticipantUpdateWithoutUserInput = {
   lastReadSeq?: Prisma.IntFieldUpdateOperationsInput | number
   lastReadAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conversation?: Prisma.PreorderChatConversationUpdateOneRequiredWithoutParticipantsNestedInput
 }
 
@@ -636,6 +694,8 @@ export type PreorderChatParticipantUncheckedUpdateWithoutUserInput = {
   lastReadSeq?: Prisma.IntFieldUpdateOperationsInput | number
   lastReadAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatParticipantUncheckedUpdateManyWithoutUserInput = {
@@ -645,6 +705,8 @@ export type PreorderChatParticipantUncheckedUpdateManyWithoutUserInput = {
   lastReadSeq?: Prisma.IntFieldUpdateOperationsInput | number
   lastReadAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatParticipantCreateManyConversationInput = {
@@ -654,6 +716,8 @@ export type PreorderChatParticipantCreateManyConversationInput = {
   lastReadSeq?: number
   lastReadAt?: Date | string | null
   joinedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PreorderChatParticipantUpdateWithoutConversationInput = {
@@ -662,6 +726,8 @@ export type PreorderChatParticipantUpdateWithoutConversationInput = {
   lastReadSeq?: Prisma.IntFieldUpdateOperationsInput | number
   lastReadAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPreorderChatParticipantsNestedInput
 }
 
@@ -672,6 +738,8 @@ export type PreorderChatParticipantUncheckedUpdateWithoutConversationInput = {
   lastReadSeq?: Prisma.IntFieldUpdateOperationsInput | number
   lastReadAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PreorderChatParticipantUncheckedUpdateManyWithoutConversationInput = {
@@ -681,6 +749,8 @@ export type PreorderChatParticipantUncheckedUpdateManyWithoutConversationInput =
   lastReadSeq?: Prisma.IntFieldUpdateOperationsInput | number
   lastReadAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -693,6 +763,8 @@ export type PreorderChatParticipantSelect<ExtArgs extends runtime.Types.Extensio
   lastReadSeq?: boolean
   lastReadAt?: boolean
   joinedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   conversation?: boolean | Prisma.PreorderChatConversationDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["preorderChatParticipant"]>
@@ -707,9 +779,11 @@ export type PreorderChatParticipantSelectScalar = {
   lastReadSeq?: boolean
   lastReadAt?: boolean
   joinedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PreorderChatParticipantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "conversationId" | "participantType" | "userId" | "lastReadSeq" | "lastReadAt" | "joinedAt", ExtArgs["result"]["preorderChatParticipant"]>
+export type PreorderChatParticipantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "conversationId" | "participantType" | "userId" | "lastReadSeq" | "lastReadAt" | "joinedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderChatParticipant"]>
 export type PreorderChatParticipantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   conversation?: boolean | Prisma.PreorderChatConversationDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -734,6 +808,8 @@ export type $PreorderChatParticipantPayload<ExtArgs extends runtime.Types.Extens
     lastReadSeq: number
     lastReadAt: Date | null
     joinedAt: Date
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["preorderChatParticipant"]>
   composites: {}
 }
@@ -1112,6 +1188,8 @@ export interface PreorderChatParticipantFieldRefs {
   readonly lastReadSeq: Prisma.FieldRef<"PreorderChatParticipant", 'Int'>
   readonly lastReadAt: Prisma.FieldRef<"PreorderChatParticipant", 'DateTime'>
   readonly joinedAt: Prisma.FieldRef<"PreorderChatParticipant", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"PreorderChatParticipant", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"PreorderChatParticipant", 'DateTime'>
 }
     
 

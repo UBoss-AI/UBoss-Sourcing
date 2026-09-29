@@ -39,6 +39,7 @@ import {
   Select,
   Textarea,
 } from '@/components/ui';
+import { ProofOfDeliveryDialog } from '@/components/ProofOfDeliveryDialog';
 import { useToast } from '@/components/toast-context';
 import { useI18n } from '@/i18n/i18n-context';
 import { formatDateTime, formatRelative } from '@/lib/format';
@@ -815,6 +816,8 @@ function StatusCard({ shipment }: { shipment: ShipmentDetail }): React.JSX.Eleme
   const { t } = useI18n();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const { can } = useSession();
+  const [isCapturing, setIsCapturing] = useState(false);
 
   const [status, setStatus] = useState<ShipmentStatus | ''>('');
   const [reason, setReason] = useState('');
@@ -881,7 +884,7 @@ function StatusCard({ shipment }: { shipment: ShipmentDetail }): React.JSX.Eleme
 
       {chosen?.requiresProofOfDelivery === true ? (
         <Callout tone="warning" className="mt-3">
-          {t('pod.required')}
+          {can(Permission.POD_WRITE) ? t('pod.requiredCapture') : t('pod.requiredNoAccess')}
         </Callout>
       ) : null}
 
@@ -918,20 +921,44 @@ function StatusCard({ shipment }: { shipment: ShipmentDetail }): React.JSX.Eleme
         </Field>
       </div>
 
-      <Button
-        className="mt-4 w-full"
-        disabled={
-          status === '' ||
-          submit.isPending ||
-          (chosen?.requiresReason === true && reason.trim().length === 0) ||
-          chosen?.requiresProofOfDelivery === true
-        }
-        onClick={() => {
-          submit.mutate();
-        }}
-      >
-        {t('shipment.updateStatus')}
-      </Button>
+      {chosen?.requiresProofOfDelivery === true ? (
+        // Delivering IS capturing the proof: the capture moves the shipment to
+        // DELIVERED itself, so there is no status to submit afterwards.
+        <Button
+          className="mt-4 w-full"
+          disabled={!can(Permission.POD_WRITE)}
+          onClick={() => {
+            setIsCapturing(true);
+          }}
+        >
+          {t('pod.capture')}
+        </Button>
+      ) : (
+        <Button
+          className="mt-4 w-full"
+          disabled={
+            status === '' ||
+            submit.isPending ||
+            (chosen?.requiresReason === true && reason.trim().length === 0)
+          }
+          onClick={() => {
+            submit.mutate();
+          }}
+        >
+          {t('shipment.updateStatus')}
+        </Button>
+      )}
+
+      {isCapturing ? (
+        <ProofOfDeliveryDialog
+          shipment={shipment}
+          isOpen
+          onClose={() => {
+            setIsCapturing(false);
+            setStatus('');
+          }}
+        />
+      ) : null}
     </Card>
   );
 }

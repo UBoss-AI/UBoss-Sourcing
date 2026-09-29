@@ -48,6 +48,7 @@ export type ExportJobMinAggregateOutputType = {
   createdById: string | null
   createdAt: Date | null
   completedAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ExportJobMaxAggregateOutputType = {
@@ -64,6 +65,7 @@ export type ExportJobMaxAggregateOutputType = {
   createdById: string | null
   createdAt: Date | null
   completedAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ExportJobCountAggregateOutputType = {
@@ -81,6 +83,7 @@ export type ExportJobCountAggregateOutputType = {
   createdById: number
   createdAt: number
   completedAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -107,6 +110,7 @@ export type ExportJobMinAggregateInputType = {
   createdById?: true
   createdAt?: true
   completedAt?: true
+  updatedAt?: true
 }
 
 export type ExportJobMaxAggregateInputType = {
@@ -123,6 +127,7 @@ export type ExportJobMaxAggregateInputType = {
   createdById?: true
   createdAt?: true
   completedAt?: true
+  updatedAt?: true
 }
 
 export type ExportJobCountAggregateInputType = {
@@ -140,6 +145,7 @@ export type ExportJobCountAggregateInputType = {
   createdById?: true
   createdAt?: true
   completedAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -244,6 +250,7 @@ export type ExportJobGroupByOutputType = {
   createdById: string
   createdAt: Date
   completedAt: Date | null
+  updatedAt: Date
   _count: ExportJobCountAggregateOutputType | null
   _avg: ExportJobAvgAggregateOutputType | null
   _sum: ExportJobSumAggregateOutputType | null
@@ -284,6 +291,7 @@ export type ExportJobWhereInput = {
   createdById?: Prisma.StringFilter<"ExportJob"> | string
   createdAt?: Prisma.DateTimeFilter<"ExportJob"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"ExportJob"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"ExportJob"> | Date | string
 }
 
 export type ExportJobOrderByWithRelationInput = {
@@ -301,6 +309,7 @@ export type ExportJobOrderByWithRelationInput = {
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _relevance?: Prisma.ExportJobOrderByRelevanceInput
 }
 
@@ -322,6 +331,7 @@ export type ExportJobWhereUniqueInput = Prisma.AtLeast<{
   createdById?: Prisma.StringFilter<"ExportJob"> | string
   createdAt?: Prisma.DateTimeFilter<"ExportJob"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"ExportJob"> | Date | string | null
+  updatedAt?: Prisma.DateTimeFilter<"ExportJob"> | Date | string
 }, "id" | "downloadTokenHash">
 
 export type ExportJobOrderByWithAggregationInput = {
@@ -339,6 +349,7 @@ export type ExportJobOrderByWithAggregationInput = {
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ExportJobCountOrderByAggregateInput
   _avg?: Prisma.ExportJobAvgOrderByAggregateInput
   _max?: Prisma.ExportJobMaxOrderByAggregateInput
@@ -364,6 +375,7 @@ export type ExportJobScalarWhereWithAggregatesInput = {
   createdById?: Prisma.StringWithAggregatesFilter<"ExportJob"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ExportJob"> | Date | string
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ExportJob"> | Date | string | null
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ExportJob"> | Date | string
 }
 
 export type ExportJobCreateInput = {
@@ -381,6 +393,7 @@ export type ExportJobCreateInput = {
   createdById: string
   createdAt?: Date | string
   completedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type ExportJobUncheckedCreateInput = {
@@ -398,6 +411,7 @@ export type ExportJobUncheckedCreateInput = {
   createdById: string
   createdAt?: Date | string
   completedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type ExportJobUpdateInput = {
@@ -415,6 +429,7 @@ export type ExportJobUpdateInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ExportJobUncheckedUpdateInput = {
@@ -432,6 +447,7 @@ export type ExportJobUncheckedUpdateInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ExportJobCreateManyInput = {
@@ -449,6 +465,7 @@ export type ExportJobCreateManyInput = {
   createdById: string
   createdAt?: Date | string
   completedAt?: Date | string | null
+  updatedAt?: Date | string
 }
 
 export type ExportJobUpdateManyMutationInput = {
@@ -466,6 +483,7 @@ export type ExportJobUpdateManyMutationInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ExportJobUncheckedUpdateManyInput = {
@@ -483,6 +501,7 @@ export type ExportJobUncheckedUpdateManyInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ExportJobOrderByRelevanceInput = {
@@ -506,6 +525,7 @@ export type ExportJobCountOrderByAggregateInput = {
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ExportJobAvgOrderByAggregateInput = {
@@ -526,6 +546,7 @@ export type ExportJobMaxOrderByAggregateInput = {
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ExportJobMinOrderByAggregateInput = {
@@ -542,6 +563,7 @@ export type ExportJobMinOrderByAggregateInput = {
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ExportJobSumOrderByAggregateInput = {
@@ -565,6 +587,7 @@ export type ExportJobSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   createdById?: boolean
   createdAt?: boolean
   completedAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["exportJob"]>
 
 
@@ -584,9 +607,10 @@ export type ExportJobSelectScalar = {
   createdById?: boolean
   createdAt?: boolean
   completedAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ExportJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "paramsJson" | "status" | "fileKey" | "fileName" | "rowCount" | "downloadTokenHash" | "downloadExpiresAt" | "downloadedAt" | "errorMessage" | "createdById" | "createdAt" | "completedAt", ExtArgs["result"]["exportJob"]>
+export type ExportJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "paramsJson" | "status" | "fileKey" | "fileName" | "rowCount" | "downloadTokenHash" | "downloadExpiresAt" | "downloadedAt" | "errorMessage" | "createdById" | "createdAt" | "completedAt" | "updatedAt", ExtArgs["result"]["exportJob"]>
 
 export type $ExportJobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ExportJob"
@@ -610,6 +634,7 @@ export type $ExportJobPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     createdById: string
     createdAt: Date
     completedAt: Date | null
+    updatedAt: Date
   }, ExtArgs["result"]["exportJob"]>
   composites: {}
 }
@@ -993,6 +1018,7 @@ export interface ExportJobFieldRefs {
   readonly createdById: Prisma.FieldRef<"ExportJob", 'String'>
   readonly createdAt: Prisma.FieldRef<"ExportJob", 'DateTime'>
   readonly completedAt: Prisma.FieldRef<"ExportJob", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ExportJob", 'DateTime'>
 }
     
 

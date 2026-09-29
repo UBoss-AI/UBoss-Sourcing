@@ -9,13 +9,26 @@
  * An order that came from a repeat purchase says so in teal, the app's colour
  * for a standing arrangement. It is a label, not an alarm — the row is not
  * tinted, only the chip.
+ *
+ * The status filter lives in the URL (`?status=SHIPPED`), so a filtered list
+ * survives a reload and the back button, and can be linked to. The API
+ * filters, not the page: fifty rows filtered in the browser would hide an
+ * older shipped order on page two and call the list complete.
  */
-import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { Link, useSearchParams } from 'react-router-dom';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { PageEmptyState } from '@/components/PageEmptyState';
 import { ChevronRightIcon, RepeatIcon } from '@/components/icons';
-import { Badge, ButtonLink, ErrorState, LoadingState, PageHeader } from '@/components/ui';
+import {
+  Badge,
+  ButtonLink,
+  ErrorState,
+  Field,
+  LoadingState,
+  PageHeader,
+  Select,
+} from '@/components/ui';
 import { api } from '@/lib/api';
 import { formatDateTime, formatMoney, formatNumber } from '@/lib/format';
 import { orderStatusLabel, orderStatusTone } from '@/lib/order-status';
@@ -47,6 +60,30 @@ function Figure({
   );
 }
 
+/**
+ * The statuses a customer can filter by, in the order an order moves through
+ * them. The backend's own vocabulary; `DRAFT` is left out because a draft is
+ * never listed to the customer as an order they placed.
+ */
+const FILTER_STATUSES = [
+  'PENDING_APPROVAL',
+  'PENDING_PAYMENT',
+  'CONFIRMED',
+  'PROCESSING',
+  'SHIPPED',
+  'DELIVERED',
+  'CANCELLED',
+  'RETURNED',
+  'REFUNDED',
+] as const;
+
+type FilterStatus = (typeof FILTER_STATUSES)[number];
+
+/** A status from the URL, or null for anything that is not one — never sent on. */
+function readStatus(value: string | null): FilterStatus | null {
+  return FILTER_STATUSES.find((status) => status === value) ?? null;
+}
+
 export function OrdersPage(): React.JSX.Element {
   const { t } = useI18n();
 
@@ -54,12 +91,26 @@ export function OrdersPage(): React.JSX.Element {
 
   useDocumentMeta({ title: t('orders.yourOrders'), noIndex: true }, business.displayName);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const status = readStatus(searchParams.get('status'));
+
+  const setStatus = (next: FilterStatus | null): void => {
+    const params = new URLSearchParams(searchParams);
+    if (next === null) params.delete('status');
+    else params.set('status', next);
+    setSearchParams(params);
+  };
+
   const query = useQuery({
-    queryKey: ['orders'],
+    queryKey: ['orders', { status }],
     queryFn: () =>
       api.get<{ orders: OrderListItem[]; pagination: Pagination }>('/orders', {
-        query: { limit: 50 },
+        query: { limit: 50, ...(status !== null ? { status } : {}) },
       }),
+    // The previous list stays on screen while the next one loads, so changing
+    // the filter does not blank the page and move the select out from under
+    // the pointer that just used it.
+    placeholderData: keepPreviousData,
   });
 
   if (query.isPending) return <LoadingState label={t('orders.loadingYourOrders')} />;
@@ -77,7 +128,9 @@ export function OrdersPage(): React.JSX.Element {
 
   const orders = query.data.orders;
 
-  if (orders.length === 0) {
+  // No orders at all is the first-visit page. No orders with a status is a
+  // filter that matched nothing, and says so with the way back beside it.
+  if (orders.length === 0 && status === null) {
     return (
       <PageEmptyState
         title={t('orders.noOrdersYet')}
@@ -100,6 +153,37 @@ export function OrdersPage(): React.JSX.Element {
           orders: formatNumber(orders.length),
         })}
       />
+
+      <div className="mb-4 max-w-xs">
+        <Field label={t('orders.statusFilter')}>
+          {({ inputId }) => (
+            <Select
+              id={inputId}
+              value={status ?? ''}
+              onChange={(event) => {
+                setStatus(readStatus(event.target.value));
+              }}
+            >
+              <option value="">{t('orders.allStatuses')}</option>
+              {FILTER_STATUSES.map((value) => (
+                <option key={value} value={value}>
+                  {orderStatusLabel(t, value)}
+                </option>
+              ))}
+            </Select>
+          )}
+        </Field>
+      </div>
+
+      {orders.length === 0 && (
+        <div className="rounded-lg border border-border bg-surface px-5 py-8 text-center shadow-card">
+          <p className="text-title-sm text-ink">{t('orders.noOrdersWithStatus')}</p>
+          <p className="mt-1 text-sm text-ink-muted">{t('orders.noOrdersWithStatusBody')}</p>
+          <ButtonLink to="/account/orders" className="mt-4">
+            {t('orders.showAllOrders')}
+          </ButtonLink>
+        </div>
+      )}
 
       <ul className="space-y-3">
         {orders.map((order) => {
@@ -127,8 +211,10 @@ export function OrdersPage(): React.JSX.Element {
                        * products was being announced here as "2 items", which
                        * the cart had just called 56.
                        */}
-                      {formatNumber(order.itemCount)} product
-                      {order.itemCount === 1 ? '' : 's'}
+                      {t('orders.productCount', {
+                        count: order.itemCount,
+                        products: formatNumber(order.itemCount),
+                      })}
                     </p>
                   </div>
 

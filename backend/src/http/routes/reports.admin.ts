@@ -40,6 +40,19 @@ import {
 } from '../../modules/reports/report.service.js';
 import { buildInsight } from '../../modules/assistant/insights.service.js';
 import {
+  AUDIT_EXPORT_ROWS_HEADER,
+  AUDIT_EXPORT_TOTAL_HEADER,
+  auditFilterSchema,
+  exportAuditEntries,
+  listAuditEntries,
+} from '../../modules/audit/audit-log.read.js';
+import {
+  listDeadJobs,
+  listFailedNotifications,
+  retryDeadJob,
+  retryFailedNotification,
+} from '../../modules/notifications/dead-letter.service.js';
+import {
   operationsInsightMetrics,
   readOperationsOverview,
 } from '../../modules/notifications/operations-overview.service.js';
@@ -95,6 +108,65 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
 
     return reply.header('cache-control', 'no-store').status(200).send(overview);
   });
+
+  // --- The dead-letter queues the overview counts -------------------------
+  //
+  // Reading needs SETTINGS_READ - the grant the dashboard queue itself is
+  // gated on, so whoever sees the count can see what is behind it. Retrying
+  // makes something happen that had stopped, so it needs SETTINGS_WRITE.
+  // Neither response carries a job payload or an email body; see
+  // modules/notifications/dead-letter.service.ts.
+  const deadLetterPage = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(25),
+  });
+  const deadLetterId = z.object({ id: z.string().length(26) });
+  const deadLetterActor = (request: FastifyRequest) => {
+    const auth = currentUser(request);
+    return { userId: auth.id, email: auth.email, ipAddress: request.ip, correlationId: request.correlationId };
+  };
+
+  // Background jobs that exhausted their attempts, newest first.
+  app.get(
+    '/operations/dead-jobs',
+    { preHandler: requireAdmin(Permission.SETTINGS_READ) },
+    async (request, reply) => {
+      const page = deadLetterPage.parse(request.query);
+      return reply.header('cache-control', 'no-store').send(await listDeadJobs(page));
+    },
+  );
+
+  // Queue one more attempt of a dead background job.
+  app.post(
+    '/operations/dead-jobs/:id/retry',
+    { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
+    async (request, reply) => {
+      const { id } = deadLetterId.parse(request.params);
+      await retryDeadJob(id, deadLetterActor(request));
+      return reply.status(202).send({ retried: true });
+    },
+  );
+
+  // Emails that could not be delivered, newest first, with the recipient masked.
+  app.get(
+    '/operations/failed-notifications',
+    { preHandler: requireAdmin(Permission.SETTINGS_READ) },
+    async (request, reply) => {
+      const page = deadLetterPage.parse(request.query);
+      return reply.header('cache-control', 'no-store').send(await listFailedNotifications(page));
+    },
+  );
+
+  // Queue one more delivery attempt of an undeliverable email.
+  app.post(
+    '/operations/failed-notifications/:id/retry',
+    { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
+    async (request, reply) => {
+      const { id } = deadLetterId.parse(request.params);
+      await retryFailedNotification(id, deadLetterActor(request));
+      return reply.status(202).send({ retried: true });
+    },
+  );
 
   /**
    * The operational picture, explained.
@@ -541,75 +613,67 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
   // --- Audit ---------------------------------------------------------------
 
   /**
-   * Search the audit trail, newest first, a page at a time: who did what, to
-   * which record, when and from where. Filter by action, record, person or
-   * date range. Secrets were already blanked out when each entry was written.
+   * Search the audit trail, newest first, a page at a time: who did what, in
+   * which role, to which record, why (where the entry says), when, and from
+   * which address and device. Filter by action, record, person or date range.
+   * Secrets were already blanked out when each entry was written.
    */
   app.get(
     '/audit-logs',
     { preHandler: requireAdmin(Permission.AUDIT_READ) },
     async (request, reply) => {
-      const query = z
-        .object({
+      const query = auditFilterSchema
+        .extend({
           page: z.coerce.number().int().min(1).max(10_000).default(1),
           limit: z.coerce.number().int().min(1).max(100).default(50),
-          action: z.string().max(96).optional(),
-          resourceType: z.string().max(48).optional(),
-          resourceId: z.string().length(26).optional(),
-          actorUserId: z.string().length(26).optional(),
-          from: z.string().datetime().optional(),
-          to: z.string().datetime().optional(),
         })
         .parse(request.query);
 
-      const where = {
-        ...(query.action !== undefined ? { action: query.action } : {}),
-        ...(query.resourceType !== undefined ? { resourceType: query.resourceType } : {}),
-        ...(query.resourceId !== undefined ? { resourceId: query.resourceId } : {}),
-        ...(query.actorUserId !== undefined ? { actorUserId: query.actorUserId } : {}),
-        ...(query.from !== undefined || query.to !== undefined
-          ? {
-              createdAt: {
-                ...(query.from !== undefined ? { gte: new Date(query.from) } : {}),
-                ...(query.to !== undefined ? { lt: new Date(query.to) } : {}),
-              },
-            }
-          : {}),
-      };
+      const { page, limit, ...filter } = query;
+      return reply
+        .header('cache-control', 'no-store')
+        .status(200)
+        .send(await listAuditEntries(filter, page, limit));
+    },
+  );
 
-      const [rows, total] = await Promise.all([
-        prisma.auditLog.findMany({
-          where,
-          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-          skip: (query.page - 1) * query.limit,
-          take: query.limit,
-        }),
-        prisma.auditLog.count({ where }),
-      ]);
+  /**
+   * Download the audit entries matching a filter as a CSV file, newest first,
+   * at most 10,000 of them. Needs audit.read and export.create, and writes an
+   * audit entry of its own before the file is produced.
+   */
+  app.post(
+    '/audit-logs/export',
+    {
+      // Both, not either: the file holds nothing the caller could not already
+      // read on the screen (audit.read), and taking a copy away is the act
+      // export.create already gates for every other download of records.
+      preHandler: requireAdmin(Permission.AUDIT_READ, Permission.EXPORT_CREATE),
+      config: { rateLimit: { max: 10, timeWindow: '15 minutes' } },
+    },
+    async (request, reply) => {
+      const filter = auditFilterSchema.parse(request.body ?? {});
+      const auth = currentUser(request);
+      const agent = request.headers['user-agent'];
 
-      return reply.status(200).send({
-        entries: rows.map((row) => ({
-          id: row.id,
-          action: row.action,
-          resourceType: row.resourceType,
-          resourceId: row.resourceId,
-          actorType: row.actorType,
-          actorUserId: row.actorUserId,
-          actorEmail: row.actorEmail,
-          // Values were redacted on write; secrets are already [REDACTED].
-          before: row.beforeJson,
-          after: row.afterJson,
-          ipAddress: row.ipAddress,
-          correlationId: row.correlationId,
-          createdAt: row.createdAt.toISOString(),
-        })),
-        pagination: {
-          page: query.page,
-          limit: query.limit,
-          total,
-          totalPages: Math.ceil(total / query.limit),
-        },
+      const file = await exportAuditEntries(filter, {
+        userId: auth.id,
+        email: auth.email,
+        ipAddress: request.ip,
+        userAgent: typeof agent === 'string' ? agent : null,
+        correlationId: request.correlationId,
       });
+
+      return reply
+        .header('Content-Type', 'text/csv; charset=utf-8')
+        // `attachment` so the browser saves rather than renders it.
+        .header('Content-Disposition', `attachment; filename="${file.fileName}"`)
+        .header('X-Content-Type-Options', 'nosniff')
+        .header('Cache-Control', 'no-store')
+        .header(AUDIT_EXPORT_ROWS_HEADER, String(file.rowCount))
+        .header(AUDIT_EXPORT_TOTAL_HEADER, String(file.total))
+        .status(200)
+        .send(file.stream);
     },
   );
 

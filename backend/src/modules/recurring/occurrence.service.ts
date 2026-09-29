@@ -55,7 +55,7 @@
 import { captureOrderItemSnapshots } from '../orders/order-item-snapshot.service.js';
 import type { Prisma } from '../../generated/prisma/client.js';
 import { env } from '../../config/env.js';
-import { ErrorCode } from '../../domain/errors.js';
+import { ErrorCode, conflict, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
 import { isRepeating, nextRunAt, retryDelayMinutes } from '../../domain/recurrence.js';
 import {
@@ -77,6 +77,11 @@ import {
   dispatchPendingNotifications,
   enqueueNotification,
 } from '../notifications/notification.service.js';
+import {
+  type AutoPayDecision,
+  evaluateAutoPay,
+  recordWithheldCharge,
+} from '../payments/autopay.service.js';
 import { createPaymentLink } from '../payments/payment-link.service.js';
 import { chargeOrderOffSession } from '../payments/payment.service.js';
 import { completeSchedulePlan, failSchedulePlan, pauseScheduleForFailure } from './schedule.service.js';
@@ -309,6 +314,7 @@ export type OccurrenceOutcome =
   | { result: 'ACTION_REQUIRED'; orderId: string; reason: string }
   | { result: 'DUPLICATE' }
   | { result: 'SKIPPED'; reason: string }
+  | { result: 'AWAITING_CONFIRMATION'; totalMinor: bigint; currency: string }
   | { result: 'FAILED'; reason: string };
 
 /**
@@ -546,7 +552,7 @@ async function executeOccurrence(
   const customerName = schedule.customerProfile.fullName;
   const occurrence = await prisma.scheduleOccurrence.findUniqueOrThrow({
     where: { id: occurrenceId },
-    select: { quotedTotalMinor: true, paymentAttemptCount: true },
+    select: { quotedTotalMinor: true, paymentAttemptCount: true, confirmedTotalMinor: true },
   });
 
   // --- Step 2: re-validate the plan itself -------------------------------
@@ -714,8 +720,30 @@ async function executeOccurrence(
   // --- Step 4: the price guards ------------------------------------------
   //
   // Two independent tests, and either one tripping holds the occurrence.
-
-  if (exceedsApprovalThreshold(totalMinor, schedule.repriceApprovalThresholdMinor)) {
+  //
+  // Unless the customer has just accepted a new price for THIS delivery. Then
+  // the only test is whether the fresh quote still comes to exactly what they
+  // accepted: equal, and it is charged under that explicit agreement; moved
+  // again, and they are asked again - never charged a number they did not see.
+  if (occurrence.confirmedTotalMinor !== null) {
+    if (totalMinor !== occurrence.confirmedTotalMinor) {
+      return awaitPriceConfirmation({
+        occurrenceId,
+        scheduleId,
+        plannedRunAt,
+        quote,
+        reason: 'the price moved again after you confirmed it',
+        notify: {
+          email: customerEmail,
+          name: customerName,
+          scheduleName: schedule.name,
+          quotedMinor: occurrence.confirmedTotalMinor,
+          allowedChange: '0%',
+        },
+        ...(correlationId !== undefined ? { correlationId } : {}),
+      });
+    }
+  } else if (exceedsApprovalThreshold(totalMinor, schedule.repriceApprovalThresholdMinor)) {
     await notifyPriceChanged({
       email: customerEmail,
       name: customerName,
@@ -740,30 +768,25 @@ async function executeOccurrence(
     toleranceMinor: schedule.priceToleranceMinor,
   });
 
-  if (!tolerance.withinTolerance) {
-    await notifyPriceChanged({
-      email: customerEmail,
-      name: customerName,
-      scheduleId,
-      occurrenceId,
-      scheduleName: schedule.name,
-      quotedMinor: occurrence.quotedTotalMinor,
-      actualMinor: totalMinor,
-      currency: quote.currency,
-      allowedChange: `${tolerance.allowedPercent}%`,
-      correlationId,
-    });
-
-    // Held, not paused: the plan is fine and the next cycle may well be back
-    // inside tolerance. The customer is asked about THIS delivery.
-    return holdWithSnapshot(
+  if (occurrence.confirmedTotalMinor === null && !tolerance.withinTolerance) {
+    // Waiting for the customer, not skipped: the plan is fine and the next
+    // cycle may well be back inside tolerance. The customer is asked about
+    // THIS delivery, and can accept the new total and have it go ahead.
+    return awaitPriceConfirmation({
       occurrenceId,
       scheduleId,
       plannedRunAt,
-      `the amount changed by ${tolerance.deltaPercent}%, beyond the approved ${tolerance.allowedPercent}%`,
       quote,
-      ErrorCode.SCHEDULE_PRICE_CHANGED,
-    );
+      reason: `the amount changed by ${tolerance.deltaPercent}%, beyond the approved ${tolerance.allowedPercent}%`,
+      notify: {
+        email: customerEmail,
+        name: customerName,
+        scheduleName: schedule.name,
+        quotedMinor: occurrence.quotedTotalMinor,
+        allowedChange: `${tolerance.allowedPercent}%`,
+      },
+      ...(correlationId !== undefined ? { correlationId } : {}),
+    });
   }
 
   // --- Payment attempt budget -------------------------------------------
@@ -784,6 +807,58 @@ async function executeOccurrence(
       occurrenceId,
     );
     return hold(occurrenceId, scheduleId, plannedRunAt, 'the payment attempt limit is reached');
+  }
+
+  // --- The customer's own standing authority ---------------------------
+  //
+  // A stored card on the schedule is permission for THIS plan. A customer who
+  // has also set account-wide auto-pay limits has said how much may ever be
+  // taken while they are away, and that instruction binds every off-session
+  // charge, this one included. Asked before the order exists, so a refusal
+  // reserves no stock and leaves nothing to cancel.
+  const autoPayDecision =
+    schedule.paymentMode === 'AUTO_PAY' && schedule.paymentMethod !== null
+      ? await customerAutoPayDecision(
+          schedule.customerProfileId,
+          totalMinor,
+          quote.currency,
+          quote.pricing.lines.map((line) => line.productId),
+        )
+      : null;
+
+  if (autoPayDecision !== null && autoPayDecision.outcome === 'REFUSE') {
+    await recordWithheldCharge({
+      customerProfileId: schedule.customerProfileId,
+      userId: schedule.customerProfile.user.id,
+      orderId: null,
+      amountMinor: totalMinor,
+      currency: quote.currency,
+      decision: autoPayDecision,
+      correlationId: correlationId ?? null,
+    });
+
+    // Paused rather than held: a limit the customer set, or a paused
+    // authority, refuses the next run just the same. Asking them once, with
+    // the reason, beats a refusal every cycle that nobody reads.
+    await pauseScheduleForFailure(scheduleId, autoPayDecision.reason);
+    await notifyPaused(
+      customerEmail,
+      customerName,
+      schedule.name,
+      `We did not take payment for this delivery. ${autoPayDecision.reason} ` +
+        'The schedule has been paused. Review your automatic payment settings to resume it.',
+      scheduleId,
+      occurrenceId,
+    );
+
+    return holdWithSnapshot(
+      occurrenceId,
+      scheduleId,
+      plannedRunAt,
+      `not charged: ${autoPayDecision.reason}`,
+      quote,
+      autoPayDecision.code,
+    );
   }
 
   // --- Step 5: exactly one order ----------------------------------------
@@ -850,6 +925,51 @@ async function executeOccurrence(
 
     await advanceSchedule(scheduleId, plannedRunAt);
     return { result: 'ORDER_CREATED', orderId, orderNumber };
+  }
+
+  if (autoPayDecision !== null && autoPayDecision.outcome === 'ASK_CUSTOMER') {
+    // Above the level the customer asked to be consulted about. Nothing is
+    // charged: the order waits, payable, and paying it themselves is the
+    // approval. The same state and message as a bank asking for the
+    // cardholder, because to the customer it is the same request.
+    await recordWithheldCharge({
+      customerProfileId: schedule.customerProfileId,
+      userId: schedule.customerProfile.user.id,
+      orderId,
+      amountMinor: totalMinor,
+      currency: quote.currency,
+      decision: autoPayDecision,
+      correlationId: correlationId ?? null,
+    });
+
+    await transitionOccurrence(occurrenceId, 'PAYMENT_PENDING', 'ACTION_REQUIRED', {
+      actionRequiredAt: new Date(),
+      failureCode: autoPayDecision.code,
+      failureMessage: autoPayDecision.reason.slice(0, 500),
+    });
+
+    const expiresAt = new Date(Date.now() + ACTION_REQUIRED_WINDOW_HOURS * 3_600_000);
+
+    await enqueueNotification({
+      eventKey: NotificationEvent.SCHEDULE_PAYMENT_ACTION_REQUIRED,
+      recipientEmail: customerEmail,
+      recipientName: customerName,
+      variables: {
+        scheduleName: schedule.name,
+        estimatedTotal: serialiseMoney(totalMinor, quote.currency).formatted,
+        paymentUrl: `${env.CUSTOMER_WEB_PUBLIC_URL}/orders/${orderId}/pay`,
+        expiresAt: formatInZone(expiresAt, schedule.timezone),
+      },
+      dedupeKey: `occurrence_autopay_approval:${occurrenceId}`,
+      relatedType: 'order',
+      relatedId: orderId,
+      ...(correlationId !== undefined ? { correlationId } : {}),
+    });
+
+    await dispatchPendingNotifications();
+    await advanceSchedule(scheduleId, plannedRunAt);
+
+    return { result: 'ACTION_REQUIRED', orderId, reason: autoPayDecision.reason };
   }
 
   await prisma.scheduleOccurrence.update({
@@ -1543,6 +1663,49 @@ async function hold(
   return { result: 'SKIPPED', reason };
 }
 
+/**
+ * The customer's account-wide auto-pay decision for an off-session charge, or
+ * null when they have no standing authority of their own to consult.
+ *
+ * Null for DISABLED as well as for no row: a customer who never set limits, or
+ * withdrew them, is governed by the consent they gave the schedule itself, as
+ * before. PAUSED is consulted - pausing is how a customer says "take nothing
+ * automatically for now", and it would mean nothing if schedules ignored it.
+ */
+async function customerAutoPayDecision(
+  customerProfileId: string,
+  amountMinor: bigint,
+  currency: string,
+  productIds: readonly string[],
+): Promise<AutoPayDecision | null> {
+  if (!env.FEATURE_CUSTOMER_AUTOPAY) return null;
+
+  const setting = await prisma.customerAutoPaySetting.findUnique({
+    where: { customerProfileId },
+    select: { status: true },
+  });
+
+  if (setting === null || setting.status === 'DISABLED') return null;
+
+  // A plan holds the operator's own stock only, so every line's supplier is
+  // the marketplace itself (null); the category is read from the product.
+  const products = await prisma.product.findMany({
+    where: { id: { in: [...new Set(productIds)] } },
+    select: { id: true, categoryId: true },
+  });
+  const categoryOf = new Map(products.map((product) => [product.id, product.categoryId]));
+
+  return evaluateAutoPay({
+    customerProfileId,
+    amountMinor,
+    currency,
+    lines: productIds.map((productId) => ({
+      sellerAccountId: null,
+      categoryId: categoryOf.get(productId) ?? null,
+    })),
+  });
+}
+
 /** Hold, keeping the priced snapshot so the customer can be shown the amount. */
 async function holdWithSnapshot(
   occurrenceId: string,
@@ -1567,6 +1730,255 @@ async function holdWithSnapshot(
 
   await advanceSchedule(scheduleId, plannedRunAt);
   return { result: 'SKIPPED', reason };
+}
+
+/**
+ * Stop this delivery and ask the customer to confirm a new total.
+ *
+ * Nothing is charged and no order exists. The occurrence keeps the priced
+ * snapshot, so the screen shows exactly the total being asked about, and a
+ * deadline (`SCHEDULE_PRICE_CONFIRMATION_HOURS`) after which it is skipped.
+ * The plan itself moves on to its next slot: one delivery waiting for an
+ * answer does not hold the next one hostage.
+ */
+async function awaitPriceConfirmation(input: {
+  occurrenceId: string;
+  scheduleId: string;
+  plannedRunAt: Date;
+  quote: ScheduleQuote;
+  reason: string;
+  notify: {
+    email: string;
+    name: string;
+    scheduleName: string;
+    quotedMinor: bigint | null;
+    allowedChange: string;
+  };
+  correlationId?: string;
+}): Promise<OccurrenceOutcome> {
+  const totalMinor = input.quote.pricing.totals.grandTotalMinor;
+
+  await transitionOccurrence(input.occurrenceId, 'AWAITING_VALIDATION', 'AWAITING_CONFIRMATION', {
+    skipReason: input.reason.slice(0, 500),
+    failureCode: ErrorCode.SCHEDULE_PRICE_CHANGED,
+    actualTotalMinor: totalMinor,
+    cartSnapshotJson: snapshotOf(input.quote),
+    confirmationDueAt: new Date(Date.now() + env.SCHEDULE_PRICE_CONFIRMATION_HOURS * 3_600_000),
+    // A fresh question. Any earlier acceptance was for a different number.
+    confirmedTotalMinor: null,
+    confirmedAt: null,
+    confirmedByUserId: null,
+  });
+
+  await recordAudit({
+    action: AuditAction.OCCURRENCE_HELD,
+    resourceType: 'schedule_occurrence',
+    resourceId: input.occurrenceId,
+    actorType: 'SYSTEM',
+    after: {
+      reason: input.reason.slice(0, 300),
+      awaitingConfirmation: true,
+      totalMinor: totalMinor.toString(),
+      currency: input.quote.currency,
+    },
+  });
+
+  await notifyPriceChanged({
+    email: input.notify.email,
+    name: input.notify.name,
+    scheduleId: input.scheduleId,
+    // Keyed on the total too: a second price move is a second question.
+    occurrenceId: `${input.occurrenceId}:${totalMinor.toString()}`,
+    scheduleName: input.notify.scheduleName,
+    quotedMinor: input.notify.quotedMinor,
+    actualMinor: totalMinor,
+    currency: input.quote.currency,
+    allowedChange: input.notify.allowedChange,
+    ...(input.correlationId !== undefined ? { correlationId: input.correlationId } : {}),
+  });
+
+  await advanceSchedule(input.scheduleId, input.plannedRunAt);
+  return { result: 'AWAITING_CONFIRMATION', totalMinor, currency: input.quote.currency };
+}
+
+export interface PriceConfirmationActor {
+  customerProfileId: string;
+  userId: string;
+  email: string;
+  correlationId?: string | null;
+}
+
+async function loadOccurrenceAwaitingConfirmation(
+  scheduleId: string,
+  occurrenceId: string,
+  customerProfileId: string,
+) {
+  // Ownership by WHERE clause: somebody else's occurrence is indistinguishable
+  // from one that does not exist.
+  const occurrence = await prisma.scheduleOccurrence.findFirst({
+    where: { id: occurrenceId, scheduleId, schedule: { customerProfileId } },
+    select: {
+      id: true,
+      status: true,
+      plannedRunAt: true,
+      idempotencyKey: true,
+      actualTotalMinor: true,
+      confirmationDueAt: true,
+      schedule: { select: { status: true } },
+    },
+  });
+
+  if (occurrence === null) throw notFound('Scheduled delivery');
+
+  if (
+    occurrence.status !== 'AWAITING_CONFIRMATION' ||
+    (occurrence.confirmationDueAt !== null && occurrence.confirmationDueAt.getTime() <= Date.now())
+  ) {
+    throw conflict(
+      ErrorCode.SCHEDULE_CONFIRMATION_NOT_PENDING,
+      'This delivery is no longer waiting for you to confirm a price.',
+      [{ code: occurrence.status }],
+    );
+  }
+
+  return occurrence;
+}
+
+/**
+ * The customer accepts the new total for one held delivery, and it goes ahead.
+ *
+ * `acceptedTotalMinor` is the number they were shown. It must equal the one
+ * stored on the occurrence, or the screen was stale and they are told so.
+ * Then the delivery is priced AGAIN, by `quoteSchedule` through the same
+ * engine run the worker uses, and charged only if that fresh total is still
+ * exactly what they accepted - see `executeOccurrence`. A total that moved
+ * again in between goes back to waiting, with the new number.
+ */
+export async function confirmOccurrencePrice(
+  actor: PriceConfirmationActor,
+  input: { scheduleId: string; occurrenceId: string; acceptedTotalMinor: bigint },
+): Promise<OccurrenceOutcome> {
+  const occurrence = await loadOccurrenceAwaitingConfirmation(
+    input.scheduleId,
+    input.occurrenceId,
+    actor.customerProfileId,
+  );
+
+  if (occurrence.schedule.status !== 'ACTIVE') {
+    throw conflict(
+      ErrorCode.SCHEDULE_NOT_ACTIVE,
+      'This schedule is not active. Resume it before confirming a delivery.',
+    );
+  }
+
+  if (occurrence.actualTotalMinor === null || occurrence.actualTotalMinor !== input.acceptedTotalMinor) {
+    throw conflict(
+      ErrorCode.SCHEDULE_CONFIRMED_TOTAL_STALE,
+      'The total has changed since you looked. Check the new amount and confirm again.',
+      [{ field: 'acceptedTotalMinor', code: 'STALE', meta: { totalMinor: occurrence.actualTotalMinor?.toString() ?? null } }],
+    );
+  }
+
+  assertOccurrenceTransition({
+    from: 'AWAITING_CONFIRMATION',
+    to: 'AWAITING_VALIDATION',
+    actor: 'CUSTOMER',
+  });
+
+  // Conditional: a double-click, or the expiry sweep at the same moment, gets
+  // exactly one winner.
+  const claimed = await prisma.scheduleOccurrence.updateMany({
+    where: { id: occurrence.id, status: 'AWAITING_CONFIRMATION' },
+    data: {
+      status: 'AWAITING_VALIDATION',
+      confirmedTotalMinor: input.acceptedTotalMinor,
+      confirmedAt: new Date(),
+      confirmedByUserId: actor.userId,
+      attemptCount: { increment: 1 },
+      lastAttemptAt: new Date(),
+    },
+  });
+
+  if (claimed.count !== 1) {
+    throw conflict(
+      ErrorCode.SCHEDULE_CONFIRMATION_NOT_PENDING,
+      'This delivery is no longer waiting for you to confirm a price.',
+    );
+  }
+
+  await recordAudit({
+    action: AuditAction.OCCURRENCE_PRICE_CONFIRMED,
+    resourceType: 'schedule_occurrence',
+    resourceId: occurrence.id,
+    actorType: 'CUSTOMER',
+    actorUserId: actor.userId,
+    actorEmail: actor.email,
+    after: { acceptedTotalMinor: input.acceptedTotalMinor.toString() },
+    correlationId: actor.correlationId ?? null,
+  });
+
+  const correlationId = actor.correlationId ?? undefined;
+
+  try {
+    return await executeOccurrence(
+      occurrence.id,
+      input.scheduleId,
+      occurrence.plannedRunAt,
+      occurrence.idempotencyKey,
+      correlationId,
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown error';
+    const current = await prisma.scheduleOccurrence.findUnique({
+      where: { id: occurrence.id },
+      select: { status: true },
+    });
+    // The same rule as `runOccurrence`: once money moved, never FAILED.
+    if (current !== null && hasCapturedPayment(current.status)) throw error;
+    return recordFailure(occurrence.id, input.scheduleId, message, correlationId);
+  }
+}
+
+/** The customer declines the new total: this delivery is skipped, the plan carries on. */
+export async function declineOccurrencePrice(
+  actor: PriceConfirmationActor,
+  input: { scheduleId: string; occurrenceId: string },
+): Promise<void> {
+  const occurrence = await loadOccurrenceAwaitingConfirmation(
+    input.scheduleId,
+    input.occurrenceId,
+    actor.customerProfileId,
+  );
+
+  assertOccurrenceTransition({ from: 'AWAITING_CONFIRMATION', to: 'SKIPPED', actor: 'CUSTOMER' });
+
+  const updated = await prisma.scheduleOccurrence.updateMany({
+    where: { id: occurrence.id, status: 'AWAITING_CONFIRMATION' },
+    data: {
+      status: 'SKIPPED',
+      skippedByUser: true,
+      skipReason: 'you declined the new price',
+      completedAt: new Date(),
+    },
+  });
+
+  if (updated.count !== 1) {
+    throw conflict(
+      ErrorCode.SCHEDULE_CONFIRMATION_NOT_PENDING,
+      'This delivery is no longer waiting for you to confirm a price.',
+    );
+  }
+
+  await recordAudit({
+    action: AuditAction.OCCURRENCE_PRICE_DECLINED,
+    resourceType: 'schedule_occurrence',
+    resourceId: occurrence.id,
+    actorType: 'CUSTOMER',
+    actorUserId: actor.userId,
+    actorEmail: actor.email,
+    after: { totalMinor: occurrence.actualTotalMinor?.toString() ?? null },
+    correlationId: actor.correlationId ?? null,
+  });
 }
 
 /**
@@ -1661,6 +2073,11 @@ async function recordFailure(
 async function advanceSchedule(scheduleId: string, servedSlot: Date): Promise<void> {
   const schedule = await prisma.recurringSchedule.findUnique({ where: { id: scheduleId } });
   if (schedule === null || schedule.status !== 'ACTIVE') return;
+
+  // A slot served late - a retry, or a delivery the customer confirmed after
+  // later slots already ran - must not move the plan back to a slot it has
+  // passed.
+  if (schedule.lastRunAt !== null && schedule.lastRunAt.getTime() > servedSlot.getTime()) return;
 
   // A one-shot plan has no next run by definition.
   if (!isRepeating(schedule.frequency)) {
@@ -1996,7 +2413,28 @@ export async function expireActionRequiredOccurrences(): Promise<number> {
     }
   }
 
-  return stale.length;
+  // Deliveries waiting for a price confirmation nobody gave. No order exists
+  // and nothing was charged, so skipping them is all there is to do.
+  const unanswered = await prisma.scheduleOccurrence.findMany({
+    where: { status: 'AWAITING_CONFIRMATION', confirmationDueAt: { lte: new Date() } },
+    take: 100,
+    select: { id: true },
+  });
+
+  for (const occurrence of unanswered) {
+    assertOccurrenceTransition({ from: 'AWAITING_CONFIRMATION', to: 'SKIPPED', actor: 'SYSTEM' });
+    await prisma.scheduleOccurrence.updateMany({
+      where: { id: occurrence.id, status: 'AWAITING_CONFIRMATION' },
+      data: {
+        status: 'SKIPPED',
+        skippedByUser: false,
+        skipReason: 'the new price was not confirmed in time',
+        completedAt: new Date(),
+      },
+    });
+  }
+
+  return stale.length + unanswered.length;
 }
 
 /**

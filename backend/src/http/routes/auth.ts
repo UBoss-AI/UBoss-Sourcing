@@ -59,7 +59,16 @@ import {
   toContextView,
 } from '../../modules/buyer-companies/context.service.js';
 import { markInvitationAccepted } from '../../modules/logistics/partner.service.js';
+import { assertCaptcha, captchaTokenFrom } from '../../modules/identity/captcha.service.js';
 import {
+  assertRecentStepUp,
+  challengePending,
+  readCustomerMfaState,
+} from '../../modules/identity/customer-mfa.service.js';
+import { maybeSendNewSignInAlert } from '../../modules/identity/login-alert.service.js';
+import { prisma } from '../../infra/prisma.js';
+import {
+  assertCustomerSecondFactor,
   cookieNamesFor,
   authCookieOptions,
   csrfCookieOptions,
@@ -295,6 +304,17 @@ export function authRoutes(kind: UserKind) {
       const body = loginSchema.parse(request.body);
       const context = requestContext(request);
 
+      // The storefront's bot check, when the deployment has one, before any
+      // password is compared. The console and the carrier portal have a
+      // mandatory second factor instead.
+      if (kind === 'CUSTOMER') {
+        await assertCaptcha({
+          token: captchaTokenFrom(request.body, request.headers['x-captcha-token']),
+          action: 'login',
+          remoteIp: request.ip,
+        });
+      }
+
       const result = await login({
         email: body.email,
         password: body.password,
@@ -310,6 +330,29 @@ export function authRoutes(kind: UserKind) {
         kind === 'CUSTOMER'
           ? await contextAfterSignIn(result.user.id, result.session.sessionId, body.buyerType ?? 'individual')
           : null;
+
+      // Storefront only. A sign-in that needed no second code is itself a
+      // fresh confirmation, so the next few minutes' sensitive changes do not
+      // ask for the password again; with two-step sign-in on, the code is what
+      // confirms it. And a sign-in from somewhere new is emailed to the holder.
+      const mfaChallengeRequired =
+        kind === 'CUSTOMER' && challengePending({ mfaEnabled: result.user.mfaEnabled, sessionMfaVerifiedAt: null });
+      if (kind === 'CUSTOMER') {
+        if (!mfaChallengeRequired) {
+          await prisma.session.update({
+            where: { id: result.session.sessionId },
+            data: { reauthenticatedAt: new Date() },
+          });
+        }
+        await maybeSendNewSignInAlert({
+          userId: result.user.id,
+          email: result.user.email,
+          sessionId: result.session.sessionId,
+          ipAddress: context.ipAddress,
+          userAgent: context.userAgent,
+          correlationId: context.correlationId,
+        });
+      }
 
       return reply.status(200).send({
         ...(buyer !== null
@@ -329,6 +372,9 @@ export function authRoutes(kind: UserKind) {
           mfaEnabled: result.user.mfaEnabled,
           mfaRequired: kind === 'ADMIN' && env.FEATURE_ADMIN_MFA,
           mfaSessionVerified: false,
+          // Storefront: this account has two-step sign-in on, so the session
+          // can do nothing until POST /auth/mfa/challenge accepts a code.
+          mfaChallengeRequired,
           // The Admin Panel reads this to send a first-time signer-in straight
           // to the change-password screen instead of the dashboard.
           mustChangePassword: result.user.mustChangePassword,
@@ -517,6 +563,10 @@ export function authRoutes(kind: UserKind) {
           };
         }
 
+        // The storefront's two-step state: whether this session still owes its
+        // code, and whether the person's seller role requires a factor at all.
+        const customerMfa = kind === 'CUSTOMER' ? await readCustomerMfaState(auth) : null;
+
         return reply.status(200).send({
           ...buyer,
           id: auth.id,
@@ -526,9 +576,20 @@ export function authRoutes(kind: UserKind) {
           permissions: auth.permissions,
           customerProfileId: auth.customerProfileId,
           mfaEnabled: auth.mfaEnabled,
-          mfaRequired: kind === 'ADMIN' && env.FEATURE_ADMIN_MFA,
+          mfaRequired:
+            customerMfa !== null ? customerMfa.required : kind === 'ADMIN' && env.FEATURE_ADMIN_MFA,
           mfaSessionVerified:
-            kind === 'ADMIN' && env.FEATURE_ADMIN_MFA && auth.sessionMfaVerifiedAt !== null,
+            customerMfa !== null
+              ? customerMfa.sessionVerified
+              : kind === 'ADMIN' && env.FEATURE_ADMIN_MFA && auth.sessionMfaVerifiedAt !== null,
+          ...(customerMfa !== null
+            ? {
+                mfaChallengeRequired: customerMfa.challengePending,
+                mfaRequiredReason: customerMfa.requiredReason,
+                mfaAvailable: customerMfa.available,
+                stepUpMethod: customerMfa.stepUpMethod,
+              }
+            : {}),
           mustChangePassword: auth.mustChangePassword,
           locationRequired: locationRequiredFor(kind),
           locationGranted: auth.sessionHasLocation,
@@ -675,6 +736,15 @@ export function authRoutes(kind: UserKind) {
         const auth = currentUser(request);
         const context = requestContext(request);
 
+        // Storefront: the current password in the form is itself a
+        // confirmation - unless the account has two-step sign-in, in which case
+        // the password alone must not be enough to change it. And a session
+        // still owing its code may not change anything.
+        if (kind === 'CUSTOMER') {
+          assertCustomerSecondFactor(auth);
+          if (auth.mfaEnabled) assertRecentStepUp(auth);
+        }
+
         await changePassword({
           userId: auth.id,
           currentPassword: body.currentPassword,
@@ -700,6 +770,14 @@ export function authRoutes(kind: UserKind) {
       async (request, reply) => {
         const body = forgotPasswordSchema.parse(request.body);
         const context = requestContext(request);
+
+        if (kind === 'CUSTOMER') {
+          await assertCaptcha({
+            token: captchaTokenFrom(request.body, request.headers['x-captcha-token']),
+            action: 'password_forgot',
+            remoteIp: request.ip,
+          });
+        }
 
         const issued = await requestPasswordReset(body.email, {
           ipAddress: context.ipAddress,
@@ -923,6 +1001,12 @@ export function authRoutes(kind: UserKind) {
         async (request, reply) => {
           const body = registerSchema.parse(request.body);
           const context = requestContext(request);
+
+          await assertCaptcha({
+            token: captchaTokenFrom(request.body, request.headers['x-captcha-token']),
+            action: 'register',
+            remoteIp: request.ip,
+          });
 
           const outcome = await registerCustomer({
             fullName: body.fullName,

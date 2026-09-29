@@ -59,6 +59,16 @@ process.env.FEATURE_ADMIN_LOGIN_LOCATION = 'true';
 // different TOTP for every helper login; dedicated MFA tests cover that gate.
 process.env.FEATURE_ADMIN_MFA = 'false';
 
+// The same reasoning for the storefront's mandatory seller factor, the step-up
+// confirmation before sensitive acts, and the new-device email: unrelated
+// suites would each have to enrol a factor or confirm a password, and every
+// sign-in would add an outbox row. `customer-mfa.test.ts` switches each back
+// on for itself. An account that ENROLS is still challenged either way.
+process.env.SELLER_MFA_REQUIRED = 'false';
+process.env.FEATURE_STEP_UP = 'false';
+process.env.FEATURE_LOGIN_ALERTS = 'false';
+process.env.CAPTCHA_PROVIDER = 'off';
+
 // The same for the forward direction, which the warehouse form's "look up this
 // address" button calls. Empty means "no geocoder", a supported setting: the
 // endpoint answers `{ result: null }` and somebody types the coordinates.

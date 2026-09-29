@@ -314,7 +314,7 @@ Measured **[tested]**: full dump 32.3 MB, restores in 8 seconds.
 `mysql`, `performance_schema`, `information_schema`, `sys`, `phpmyadmin`,
 `test`. XAMPP's accounts, its privilege tables, its phpMyAdmin configuration.
 None of it has an equivalent in production, and importing `mysql` would replace
-production's four accounts with four passwordless root logins.
+production's five accounts with passwordless root logins.
 
 ---
 
@@ -515,7 +515,7 @@ has to be undone, that is a restore, and it is `docs/DATABASE-RECOVERY.md`.
 |---|---|
 | 1 | `bootstrap.sh`, `mariadb-secure-installation`, timezone tables |
 | 2 | `CREATE DATABASE uboss CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;` — the `COLLATE` is not optional on 11.4 |
-| 3 | The four accounts, four generated passwords |
+| 3 | The five accounts, five generated passwords (the fifth is `uboss_maintenance`, for erasure and audit retention) |
 | 4 | `DATABASE_URL="$MIGRATE_DATABASE_URL" npx prisma migrate deploy` |
 | 5 | `apply-grants.sh` |
 | 6 | Import the reference dump. Nothing else |

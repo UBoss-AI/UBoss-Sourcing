@@ -41,7 +41,10 @@ import type { LogisticsEventSource } from '../../generated/prisma/enums.js';
 import { ErrorCode, conflict, notFound } from '../../domain/errors.js';
 import type { OrderStatusName } from '../../domain/order-state-machine.js';
 import type { LogisticsPermissionKey } from '../../domain/logistics-permissions.js';
+import { assertInspectionGateOpen } from '../../domain/inspection-gate.js';
+import { evaluateShipmentGate, recordGatePassage } from '../inspection/gate.service.js';
 import {
+  INSPECTION_GATED_SHIPMENT_STATUSES,
   assertShipmentCorrection,
   assertShipmentTransition,
   isShipmentException,
@@ -65,7 +68,11 @@ import { recordLogisticsAudit } from './audit.service.js';
 // reaches this file through `operations.service.ts`, and importing it here
 // would close the loop. See the header of `driver-assignment.service.ts`.
 import { completeDriverAssignmentsFor } from './driver-assignment.service.js';
+// A leaf too, for the same reason: `pod.service.ts` imports this file.
+import { sendDeliveryCodeOnDispatch } from './delivery-code.service.js';
 import { notifyShipmentEvent } from './notification.service.js';
+// The seller's side of the same events. A leaf: it imports nothing from here.
+import { notifySellerConsignmentMovement } from '../seller/carrier-notification.service.js';
 import {
   NotificationEvent,
   enqueueNotification,
@@ -373,6 +380,17 @@ async function attemptShipmentEvent(
       const from = shipment.status;
 
       /*
+       * The pre-shipment inspection gate, for every status that means the
+       * goods have been collected or are moving. Asked here, inside the
+       * transaction, for every caller - portal, driver, carrier feed, manifest
+       * and the marketplace itself - so none of them can take a consignment
+       * past an inspection that has not passed.
+       */
+      const inspectionGate = INSPECTION_GATED_SHIPMENT_STATUSES.includes(input.status)
+        ? await evaluateShipmentGate(tx, shipment.id, from)
+        : undefined;
+
+      /*
        * The legality check.
        *
        * A correction takes the other door: it is the marketplace saying "the
@@ -387,6 +405,11 @@ async function attemptShipmentEvent(
           actor: input.actor,
           ...((input.reason !== undefined && input.reason !== null) ? { reason: input.reason } : {}),
         });
+        // A correction is not a way round the gate: "the record is wrong, it
+        // was collected" is refused for goods that were never released.
+        if (inspectionGate !== undefined) {
+          assertInspectionGateOpen(inspectionGate, 'SHIPMENT', { from, to: input.status });
+        }
       } else {
         assertShipmentTransition({
           from,
@@ -396,6 +419,7 @@ async function attemptShipmentEvent(
           ...((input.reason !== undefined && input.reason !== null) ? { reason: input.reason } : {}),
           hasProofOfDelivery:
             input.hasProofOfDelivery === true || shipment.proofOfDelivery !== null,
+          inspectionGate,
         });
       }
 
@@ -470,6 +494,12 @@ async function attemptShipmentEvent(
         await completeDriverAssignmentsFor(shipment.id, tx);
       }
 
+      if (inspectionGate !== undefined) {
+        await recordGatePassage(tx, inspectionGate, {
+          what: `${shipment.shipmentReference} moved to ${input.status.toLowerCase().replace(/_/g, ' ')}`,
+        });
+      }
+
       if (shipment.assignedPartnerId !== null) {
         await recordLogisticsAudit(
           {
@@ -521,7 +551,22 @@ async function attemptShipmentEvent(
       eventId: result.eventId,
     });
     await syncOperationsAlert(result.shipmentId, result.status);
-    await tellTheBuyer(result.shipmentId, result.status);
+    await tellTheBuyer(result.shipmentId, result.status, result.eventId);
+    // The seller's bell, for the same movement. Not for a milestone the seller
+    // typed in themselves - telling them what they just said is noise.
+    if (input.source !== 'SELLER_PORTAL') {
+      await notifySellerConsignmentMovement({
+        shipmentId: result.shipmentId,
+        status: result.status,
+        eventId: result.eventId,
+      });
+    }
+
+    // The van has left: where the delivery's policy asks for a delivery code,
+    // the buyer is sent one now. Only after the commit, and it never throws.
+    if (result.status === 'OUT_FOR_DELIVERY') {
+      await sendDeliveryCodeOnDispatch(result.shipmentId, input.correlationId ?? null);
+    }
 
     return {
       eventId: result.eventId,
@@ -769,6 +814,26 @@ async function allDeliveredFor(orderId: string): Promise<boolean> {
 }
 
 /**
+ * What the buyer is told when something goes wrong, one sentence per status.
+ *
+ * Written for the buyer and fixed here, never the carrier's own words about
+ * it - those are on the event's internal note, which does not leave the
+ * portal. "Customs or the port" is one sentence on purpose: to a buyer waiting
+ * for a container they are the same wait.
+ */
+const BUYER_TROUBLE_LINES: Readonly<Partial<Record<ShipmentStatusName, string>>> = Object.freeze({
+  CUSTOMS_HOLD: 'it is being held at customs or at the port while it is cleared.',
+  DELAYED: 'it has been delayed.',
+  ON_HOLD: 'it has been put on hold by the carrier.',
+  ADDRESS_ISSUE: 'the carrier has a problem with the delivery address.',
+  DELIVERY_ATTEMPTED: 'the carrier tried to deliver it but could not. They will try again.',
+  DELIVERY_FAILED: 'the carrier could not deliver it.',
+  DAMAGED: 'the carrier has reported damage to it.',
+  LOST: 'the carrier has reported it lost.',
+  TEMPERATURE_EXCEPTION: 'the carrier has reported that it went outside its temperature range.',
+});
+
+/**
  * Tell the buyer a consignment reached a milestone they care about.
  *
  * Four milestones, no more: a buyer does not need an email per hub scan. The
@@ -779,7 +844,12 @@ async function allDeliveredFor(orderId: string): Promise<boolean> {
  *
  * After the commit and never throwing, like every consequence here.
  */
-async function tellTheBuyer(shipmentId: string, status: ShipmentStatusName): Promise<void> {
+async function tellTheBuyer(
+  shipmentId: string,
+  status: ShipmentStatusName,
+  eventId: string,
+): Promise<void> {
+  const troubleLine = BUYER_TROUBLE_LINES[status];
   const eventKey =
     status === 'PICKED_UP'
       ? NotificationEvent.SHIPMENT_PICKED_UP
@@ -789,7 +859,9 @@ async function tellTheBuyer(shipmentId: string, status: ShipmentStatusName): Pro
           ? NotificationEvent.SHIPMENT_OUT_FOR_DELIVERY
           : status === 'DELIVERED'
             ? NotificationEvent.SHIPMENT_DELIVERED
-            : null;
+            : troubleLine !== undefined
+              ? NotificationEvent.SHIPMENT_EXCEPTION
+              : null;
 
   if (eventKey === null) return;
 
@@ -838,8 +910,18 @@ async function tellTheBuyer(shipmentId: string, status: ShipmentStatusName): Pro
             ? ''
             : `${carrier} tracking number: ${shipment.carrierTrackingNumber}\n\n`,
         orderUrl: `/orders/${shipment.orderId}`,
+        troubleLine: troubleLine ?? '',
       },
-      dedupeKey: `consignment:${shipmentId}:${status}`,
+      /*
+       * A milestone is said once per consignment. Trouble is said once per
+       * EVENT: a parcel delayed on Monday and again on Thursday is two things
+       * the buyer needs to hear, and a redelivered webhook never reaches here
+       * with a new event id (`recordShipmentEvent` returns the old one first).
+       */
+      dedupeKey:
+        troubleLine === undefined
+          ? `consignment:${shipmentId}:${status}`
+          : `consignment:${shipmentId}:${status}:${eventId}`,
       relatedType: 'logistics_shipment',
       relatedId: shipmentId,
     });

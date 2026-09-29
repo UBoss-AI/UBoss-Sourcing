@@ -131,7 +131,24 @@ export interface StorefrontConfig {
      * can never put up a form the server would refuse.
      */
     supportTickets?: boolean;
+    /**
+     * Whether a customer can set up Autopay at `/account/autopay`, and
+     * whether they can connect their own ERP at `/account/integrations/erp`.
+     * Optional and absent means off, like the fields above: the home hub's
+     * cards for them explain themselves instead of linking to a page that can
+     * only say the feature is not available here.
+     */
+    customerAutopay?: boolean;
+    customerErp?: boolean;
+    /** Whether buyers and sellers are offered two-step sign-in. */
+    customerMfa?: boolean;
   };
+
+  /**
+   * The bot check on sign-in, sign-up and "forgot password". Absent or `off`
+   * means none: the form is sent without one. The site key is public.
+   */
+  captcha?: { provider: 'off' | 'turnstile' | 'hcaptcha'; siteKey: string | null };
 
   /**
    * The two numbers the storefront has to draw a calendar and a warehouse
@@ -1301,6 +1318,12 @@ export interface OrderShipment {
    * page, and the buyer is told so rather than left refreshing.
    */
   trackingIsAutomatic?: boolean | null;
+  /**
+   * The consignments this line stands for, whose timeline, ETA and proof of
+   * delivery come from `GET /orders/:id/tracking`. Optional so a response from
+   * an older server still renders; empty for a parcel with no consignment.
+   */
+  consignmentIds?: string[];
   carrier: string | null;
   trackingNumber: string | null;
   trackingUrl: string | null;
@@ -1795,6 +1818,10 @@ export interface AutoPaySettings {
   retryPreference: AutoPayRetryPreference;
   notifyOnCharge: boolean;
   notifyOnFailure: boolean;
+  /** The customer's own end date for the authority, ISO. Absent on an older backend. */
+  authorityExpiresAt?: string | null;
+  /** That date has passed: nothing will be charged until a new one is set. */
+  authorityExpired?: boolean;
   consentAcceptedAt: string | null;
   consentVersion: string | null;
   consentWithdrawnAt: string | null;

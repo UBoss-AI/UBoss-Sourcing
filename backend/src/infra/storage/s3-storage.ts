@@ -98,6 +98,30 @@ const MAX_ATTEMPTS = 3;
  */
 const PUBLIC_CACHE_CONTROL = 'public, max-age=31536000, immutable';
 
+/**
+ * Server-side encryption for every object written - public photographs and
+ * private export bundles alike, because "which objects are sensitive" is not a
+ * question worth getting wrong.
+ *
+ * Production refuses to start with S3_SSE empty (config/env.ts). `provider-
+ * managed` sends no header: the provider encrypts every object whether asked
+ * or not (R2 always; AWS S3 since January 2023), and some S3-compatible
+ * services reject an SSE header they do not implement.
+ */
+export function serverSideEncryption(): {
+  ServerSideEncryption?: 'AES256' | 'aws:kms';
+  SSEKMSKeyId?: string;
+} {
+  switch (env.S3_SSE) {
+    case 'AES256':
+      return { ServerSideEncryption: 'AES256' };
+    case 'aws:kms':
+      return { ServerSideEncryption: 'aws:kms', SSEKMSKeyId: env.S3_SSE_KMS_KEY_ID };
+    default:
+      return {};
+  }
+}
+
 function isPrivateKey(storageKey: string): boolean {
   return storageKey === PRIVATE_PREFIX || storageKey.startsWith(`${PRIVATE_PREFIX}/`);
 }
@@ -219,6 +243,8 @@ export class S3StorageDriver implements StorageDriver {
           // Integrity end to end: the service rejects the upload if what
           // arrived does not hash to this.
           ChecksumSHA256: createHash('sha256').update(buffer).digest('base64'),
+          // Encrypted at rest by the provider - see `serverSideEncryption`.
+          ...serverSideEncryption(),
         }),
         { abortSignal: signal },
       ),

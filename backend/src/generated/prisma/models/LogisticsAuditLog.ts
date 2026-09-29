@@ -46,6 +46,7 @@ export type LogisticsAuditLogMinAggregateOutputType = {
   ipAddress: string | null
   correlationId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsAuditLogMaxAggregateOutputType = {
@@ -61,6 +62,7 @@ export type LogisticsAuditLogMaxAggregateOutputType = {
   ipAddress: string | null
   correlationId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsAuditLogCountAggregateOutputType = {
@@ -78,6 +80,7 @@ export type LogisticsAuditLogCountAggregateOutputType = {
   ipAddress: number
   correlationId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -95,6 +98,7 @@ export type LogisticsAuditLogMinAggregateInputType = {
   ipAddress?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsAuditLogMaxAggregateInputType = {
@@ -110,6 +114,7 @@ export type LogisticsAuditLogMaxAggregateInputType = {
   ipAddress?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsAuditLogCountAggregateInputType = {
@@ -127,6 +132,7 @@ export type LogisticsAuditLogCountAggregateInputType = {
   ipAddress?: true
   correlationId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -217,6 +223,7 @@ export type LogisticsAuditLogGroupByOutputType = {
   ipAddress: string | null
   correlationId: string | null
   createdAt: Date
+  updatedAt: Date
   _count: LogisticsAuditLogCountAggregateOutputType | null
   _min: LogisticsAuditLogMinAggregateOutputType | null
   _max: LogisticsAuditLogMaxAggregateOutputType | null
@@ -255,6 +262,7 @@ export type LogisticsAuditLogWhereInput = {
   ipAddress?: Prisma.StringNullableFilter<"LogisticsAuditLog"> | string | null
   correlationId?: Prisma.StringNullableFilter<"LogisticsAuditLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsAuditLog"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsAuditLog"> | Date | string
   partner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
   actor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
@@ -274,6 +282,7 @@ export type LogisticsAuditLogOrderByWithRelationInput = {
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   correlationId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   partner?: Prisma.LogisticsPartnerOrderByWithRelationInput
   actor?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.LogisticsAuditLogOrderByRelevanceInput
@@ -297,6 +306,7 @@ export type LogisticsAuditLogWhereUniqueInput = Prisma.AtLeast<{
   ipAddress?: Prisma.StringNullableFilter<"LogisticsAuditLog"> | string | null
   correlationId?: Prisma.StringNullableFilter<"LogisticsAuditLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsAuditLog"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsAuditLog"> | Date | string
   partner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
   actor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id">
@@ -316,6 +326,7 @@ export type LogisticsAuditLogOrderByWithAggregationInput = {
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   correlationId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LogisticsAuditLogCountOrderByAggregateInput
   _max?: Prisma.LogisticsAuditLogMaxOrderByAggregateInput
   _min?: Prisma.LogisticsAuditLogMinOrderByAggregateInput
@@ -339,6 +350,7 @@ export type LogisticsAuditLogScalarWhereWithAggregatesInput = {
   ipAddress?: Prisma.StringNullableWithAggregatesFilter<"LogisticsAuditLog"> | string | null
   correlationId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsAuditLog"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsAuditLog"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsAuditLog"> | Date | string
 }
 
 export type LogisticsAuditLogCreateInput = {
@@ -354,6 +366,7 @@ export type LogisticsAuditLogCreateInput = {
   ipAddress?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutAuditLogsInput
   actor?: Prisma.UserCreateNestedOneWithoutLogisticsAuditLogsInput
 }
@@ -373,6 +386,7 @@ export type LogisticsAuditLogUncheckedCreateInput = {
   ipAddress?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsAuditLogUpdateInput = {
@@ -388,6 +402,7 @@ export type LogisticsAuditLogUpdateInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutAuditLogsNestedInput
   actor?: Prisma.UserUpdateOneWithoutLogisticsAuditLogsNestedInput
 }
@@ -407,6 +422,7 @@ export type LogisticsAuditLogUncheckedUpdateInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsAuditLogCreateManyInput = {
@@ -424,6 +440,7 @@ export type LogisticsAuditLogCreateManyInput = {
   ipAddress?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsAuditLogUpdateManyMutationInput = {
@@ -439,6 +456,7 @@ export type LogisticsAuditLogUpdateManyMutationInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsAuditLogUncheckedUpdateManyInput = {
@@ -456,6 +474,7 @@ export type LogisticsAuditLogUncheckedUpdateManyInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsAuditLogListRelationFilter = {
@@ -489,6 +508,7 @@ export type LogisticsAuditLogCountOrderByAggregateInput = {
   ipAddress?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsAuditLogMaxOrderByAggregateInput = {
@@ -504,6 +524,7 @@ export type LogisticsAuditLogMaxOrderByAggregateInput = {
   ipAddress?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsAuditLogMinOrderByAggregateInput = {
@@ -519,6 +540,7 @@ export type LogisticsAuditLogMinOrderByAggregateInput = {
   ipAddress?: Prisma.SortOrder
   correlationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsAuditLogCreateNestedManyWithoutActorInput = {
@@ -618,6 +640,7 @@ export type LogisticsAuditLogCreateWithoutActorInput = {
   ipAddress?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutAuditLogsInput
 }
 
@@ -635,6 +658,7 @@ export type LogisticsAuditLogUncheckedCreateWithoutActorInput = {
   ipAddress?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsAuditLogCreateOrConnectWithoutActorInput = {
@@ -681,6 +705,7 @@ export type LogisticsAuditLogScalarWhereInput = {
   ipAddress?: Prisma.StringNullableFilter<"LogisticsAuditLog"> | string | null
   correlationId?: Prisma.StringNullableFilter<"LogisticsAuditLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsAuditLog"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsAuditLog"> | Date | string
 }
 
 export type LogisticsAuditLogCreateWithoutPartnerInput = {
@@ -696,6 +721,7 @@ export type LogisticsAuditLogCreateWithoutPartnerInput = {
   ipAddress?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   actor?: Prisma.UserCreateNestedOneWithoutLogisticsAuditLogsInput
 }
 
@@ -713,6 +739,7 @@ export type LogisticsAuditLogUncheckedCreateWithoutPartnerInput = {
   ipAddress?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsAuditLogCreateOrConnectWithoutPartnerInput = {
@@ -755,6 +782,7 @@ export type LogisticsAuditLogCreateManyActorInput = {
   ipAddress?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsAuditLogUpdateWithoutActorInput = {
@@ -770,6 +798,7 @@ export type LogisticsAuditLogUpdateWithoutActorInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutAuditLogsNestedInput
 }
 
@@ -787,6 +816,7 @@ export type LogisticsAuditLogUncheckedUpdateWithoutActorInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsAuditLogUncheckedUpdateManyWithoutActorInput = {
@@ -803,6 +833,7 @@ export type LogisticsAuditLogUncheckedUpdateManyWithoutActorInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsAuditLogCreateManyPartnerInput = {
@@ -819,6 +850,7 @@ export type LogisticsAuditLogCreateManyPartnerInput = {
   ipAddress?: string | null
   correlationId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsAuditLogUpdateWithoutPartnerInput = {
@@ -834,6 +866,7 @@ export type LogisticsAuditLogUpdateWithoutPartnerInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   actor?: Prisma.UserUpdateOneWithoutLogisticsAuditLogsNestedInput
 }
 
@@ -851,6 +884,7 @@ export type LogisticsAuditLogUncheckedUpdateWithoutPartnerInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsAuditLogUncheckedUpdateManyWithoutPartnerInput = {
@@ -867,6 +901,7 @@ export type LogisticsAuditLogUncheckedUpdateManyWithoutPartnerInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   correlationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -886,6 +921,7 @@ export type LogisticsAuditLogSelect<ExtArgs extends runtime.Types.Extensions.Int
   ipAddress?: boolean
   correlationId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
   actor?: boolean | Prisma.LogisticsAuditLog$actorArgs<ExtArgs>
 }, ExtArgs["result"]["logisticsAuditLog"]>
@@ -907,9 +943,10 @@ export type LogisticsAuditLogSelectScalar = {
   ipAddress?: boolean
   correlationId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LogisticsAuditLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "actorUserId" | "actorLabel" | "action" | "resourceType" | "resourceId" | "beforeJson" | "afterJson" | "summary" | "isContactReveal" | "ipAddress" | "correlationId" | "createdAt", ExtArgs["result"]["logisticsAuditLog"]>
+export type LogisticsAuditLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "actorUserId" | "actorLabel" | "action" | "resourceType" | "resourceId" | "beforeJson" | "afterJson" | "summary" | "isContactReveal" | "ipAddress" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsAuditLog"]>
 export type LogisticsAuditLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
   actor?: boolean | Prisma.LogisticsAuditLog$actorArgs<ExtArgs>
@@ -952,6 +989,7 @@ export type $LogisticsAuditLogPayload<ExtArgs extends runtime.Types.Extensions.I
     ipAddress: string | null
     correlationId: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["logisticsAuditLog"]>
   composites: {}
 }
@@ -1337,6 +1375,7 @@ export interface LogisticsAuditLogFieldRefs {
   readonly ipAddress: Prisma.FieldRef<"LogisticsAuditLog", 'String'>
   readonly correlationId: Prisma.FieldRef<"LogisticsAuditLog", 'String'>
   readonly createdAt: Prisma.FieldRef<"LogisticsAuditLog", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LogisticsAuditLog", 'DateTime'>
 }
     
 

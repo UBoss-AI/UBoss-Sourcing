@@ -66,6 +66,8 @@ export type CustomerErpSyncJobMinAggregateOutputType = {
   errorCode: string | null
   errorMessage: string | null
   startedByProfileId: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CustomerErpSyncJobMaxAggregateOutputType = {
@@ -88,6 +90,8 @@ export type CustomerErpSyncJobMaxAggregateOutputType = {
   errorCode: string | null
   errorMessage: string | null
   startedByProfileId: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CustomerErpSyncJobCountAggregateOutputType = {
@@ -110,6 +114,8 @@ export type CustomerErpSyncJobCountAggregateOutputType = {
   errorCode: number
   errorMessage: number
   startedByProfileId: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -150,6 +156,8 @@ export type CustomerErpSyncJobMinAggregateInputType = {
   errorCode?: true
   errorMessage?: true
   startedByProfileId?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CustomerErpSyncJobMaxAggregateInputType = {
@@ -172,6 +180,8 @@ export type CustomerErpSyncJobMaxAggregateInputType = {
   errorCode?: true
   errorMessage?: true
   startedByProfileId?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CustomerErpSyncJobCountAggregateInputType = {
@@ -194,6 +204,8 @@ export type CustomerErpSyncJobCountAggregateInputType = {
   errorCode?: true
   errorMessage?: true
   startedByProfileId?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -303,6 +315,8 @@ export type CustomerErpSyncJobGroupByOutputType = {
   errorCode: string | null
   errorMessage: string | null
   startedByProfileId: string | null
+  createdAt: Date
+  updatedAt: Date
   _count: CustomerErpSyncJobCountAggregateOutputType | null
   _avg: CustomerErpSyncJobAvgAggregateOutputType | null
   _sum: CustomerErpSyncJobSumAggregateOutputType | null
@@ -348,6 +362,8 @@ export type CustomerErpSyncJobWhereInput = {
   errorCode?: Prisma.StringNullableFilter<"CustomerErpSyncJob"> | string | null
   errorMessage?: Prisma.StringNullableFilter<"CustomerErpSyncJob"> | string | null
   startedByProfileId?: Prisma.StringNullableFilter<"CustomerErpSyncJob"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"CustomerErpSyncJob"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpSyncJob"> | Date | string
   connection?: Prisma.XOR<Prisma.CustomerErpConnectionScalarRelationFilter, Prisma.CustomerErpConnectionWhereInput>
 }
 
@@ -371,6 +387,8 @@ export type CustomerErpSyncJobOrderByWithRelationInput = {
   errorCode?: Prisma.SortOrderInput | Prisma.SortOrder
   errorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   startedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   connection?: Prisma.CustomerErpConnectionOrderByWithRelationInput
   _relevance?: Prisma.CustomerErpSyncJobOrderByRelevanceInput
 }
@@ -398,6 +416,8 @@ export type CustomerErpSyncJobWhereUniqueInput = Prisma.AtLeast<{
   errorCode?: Prisma.StringNullableFilter<"CustomerErpSyncJob"> | string | null
   errorMessage?: Prisma.StringNullableFilter<"CustomerErpSyncJob"> | string | null
   startedByProfileId?: Prisma.StringNullableFilter<"CustomerErpSyncJob"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"CustomerErpSyncJob"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpSyncJob"> | Date | string
   connection?: Prisma.XOR<Prisma.CustomerErpConnectionScalarRelationFilter, Prisma.CustomerErpConnectionWhereInput>
 }, "id">
 
@@ -421,6 +441,8 @@ export type CustomerErpSyncJobOrderByWithAggregationInput = {
   errorCode?: Prisma.SortOrderInput | Prisma.SortOrder
   errorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   startedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CustomerErpSyncJobCountOrderByAggregateInput
   _avg?: Prisma.CustomerErpSyncJobAvgOrderByAggregateInput
   _max?: Prisma.CustomerErpSyncJobMaxOrderByAggregateInput
@@ -451,6 +473,8 @@ export type CustomerErpSyncJobScalarWhereWithAggregatesInput = {
   errorCode?: Prisma.StringNullableWithAggregatesFilter<"CustomerErpSyncJob"> | string | null
   errorMessage?: Prisma.StringNullableWithAggregatesFilter<"CustomerErpSyncJob"> | string | null
   startedByProfileId?: Prisma.StringNullableWithAggregatesFilter<"CustomerErpSyncJob"> | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerErpSyncJob"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerErpSyncJob"> | Date | string
 }
 
 export type CustomerErpSyncJobCreateInput = {
@@ -472,6 +496,8 @@ export type CustomerErpSyncJobCreateInput = {
   errorCode?: string | null
   errorMessage?: string | null
   startedByProfileId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   connection: Prisma.CustomerErpConnectionCreateNestedOneWithoutJobsInput
 }
 
@@ -495,6 +521,8 @@ export type CustomerErpSyncJobUncheckedCreateInput = {
   errorCode?: string | null
   errorMessage?: string | null
   startedByProfileId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpSyncJobUpdateInput = {
@@ -516,6 +544,8 @@ export type CustomerErpSyncJobUpdateInput = {
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   connection?: Prisma.CustomerErpConnectionUpdateOneRequiredWithoutJobsNestedInput
 }
 
@@ -539,6 +569,8 @@ export type CustomerErpSyncJobUncheckedUpdateInput = {
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpSyncJobCreateManyInput = {
@@ -561,6 +593,8 @@ export type CustomerErpSyncJobCreateManyInput = {
   errorCode?: string | null
   errorMessage?: string | null
   startedByProfileId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpSyncJobUpdateManyMutationInput = {
@@ -582,6 +616,8 @@ export type CustomerErpSyncJobUpdateManyMutationInput = {
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpSyncJobUncheckedUpdateManyInput = {
@@ -604,6 +640,8 @@ export type CustomerErpSyncJobUncheckedUpdateManyInput = {
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpSyncJobListRelationFilter = {
@@ -642,6 +680,8 @@ export type CustomerErpSyncJobCountOrderByAggregateInput = {
   errorCode?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
   startedByProfileId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpSyncJobAvgOrderByAggregateInput = {
@@ -672,6 +712,8 @@ export type CustomerErpSyncJobMaxOrderByAggregateInput = {
   errorCode?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
   startedByProfileId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpSyncJobMinOrderByAggregateInput = {
@@ -694,6 +736,8 @@ export type CustomerErpSyncJobMinOrderByAggregateInput = {
   errorCode?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
   startedByProfileId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerErpSyncJobSumOrderByAggregateInput = {
@@ -765,6 +809,8 @@ export type CustomerErpSyncJobCreateWithoutConnectionInput = {
   errorCode?: string | null
   errorMessage?: string | null
   startedByProfileId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpSyncJobUncheckedCreateWithoutConnectionInput = {
@@ -786,6 +832,8 @@ export type CustomerErpSyncJobUncheckedCreateWithoutConnectionInput = {
   errorCode?: string | null
   errorMessage?: string | null
   startedByProfileId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpSyncJobCreateOrConnectWithoutConnectionInput = {
@@ -837,6 +885,8 @@ export type CustomerErpSyncJobScalarWhereInput = {
   errorCode?: Prisma.StringNullableFilter<"CustomerErpSyncJob"> | string | null
   errorMessage?: Prisma.StringNullableFilter<"CustomerErpSyncJob"> | string | null
   startedByProfileId?: Prisma.StringNullableFilter<"CustomerErpSyncJob"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"CustomerErpSyncJob"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerErpSyncJob"> | Date | string
 }
 
 export type CustomerErpSyncJobCreateManyConnectionInput = {
@@ -858,6 +908,8 @@ export type CustomerErpSyncJobCreateManyConnectionInput = {
   errorCode?: string | null
   errorMessage?: string | null
   startedByProfileId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerErpSyncJobUpdateWithoutConnectionInput = {
@@ -879,6 +931,8 @@ export type CustomerErpSyncJobUpdateWithoutConnectionInput = {
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpSyncJobUncheckedUpdateWithoutConnectionInput = {
@@ -900,6 +954,8 @@ export type CustomerErpSyncJobUncheckedUpdateWithoutConnectionInput = {
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerErpSyncJobUncheckedUpdateManyWithoutConnectionInput = {
@@ -921,6 +977,8 @@ export type CustomerErpSyncJobUncheckedUpdateManyWithoutConnectionInput = {
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -945,6 +1003,8 @@ export type CustomerErpSyncJobSelect<ExtArgs extends runtime.Types.Extensions.In
   errorCode?: boolean
   errorMessage?: boolean
   startedByProfileId?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   connection?: boolean | Prisma.CustomerErpConnectionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerErpSyncJob"]>
 
@@ -970,9 +1030,11 @@ export type CustomerErpSyncJobSelectScalar = {
   errorCode?: boolean
   errorMessage?: boolean
   startedByProfileId?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CustomerErpSyncJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "organizationId" | "trigger" | "status" | "isDryRun" | "correlationId" | "startedAt" | "finishedAt" | "processedCount" | "succeededCount" | "skippedCount" | "failedCount" | "conflictCount" | "rateLimitedUntil" | "cursorAfter" | "errorCode" | "errorMessage" | "startedByProfileId", ExtArgs["result"]["customerErpSyncJob"]>
+export type CustomerErpSyncJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "organizationId" | "trigger" | "status" | "isDryRun" | "correlationId" | "startedAt" | "finishedAt" | "processedCount" | "succeededCount" | "skippedCount" | "failedCount" | "conflictCount" | "rateLimitedUntil" | "cursorAfter" | "errorCode" | "errorMessage" | "startedByProfileId" | "createdAt" | "updatedAt", ExtArgs["result"]["customerErpSyncJob"]>
 export type CustomerErpSyncJobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   connection?: boolean | Prisma.CustomerErpConnectionDefaultArgs<ExtArgs>
 }
@@ -1025,6 +1087,8 @@ export type $CustomerErpSyncJobPayload<ExtArgs extends runtime.Types.Extensions.
      * The member who pressed the button, for a manual run.
      */
     startedByProfileId: string | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["customerErpSyncJob"]>
   composites: {}
 }
@@ -1414,6 +1478,8 @@ export interface CustomerErpSyncJobFieldRefs {
   readonly errorCode: Prisma.FieldRef<"CustomerErpSyncJob", 'String'>
   readonly errorMessage: Prisma.FieldRef<"CustomerErpSyncJob", 'String'>
   readonly startedByProfileId: Prisma.FieldRef<"CustomerErpSyncJob", 'String'>
+  readonly createdAt: Prisma.FieldRef<"CustomerErpSyncJob", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CustomerErpSyncJob", 'DateTime'>
 }
     
 

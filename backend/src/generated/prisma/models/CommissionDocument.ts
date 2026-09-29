@@ -49,6 +49,7 @@ export type CommissionDocumentMinAggregateOutputType = {
   pageCount: number | null
   templateVersion: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CommissionDocumentMaxAggregateOutputType = {
@@ -63,6 +64,7 @@ export type CommissionDocumentMaxAggregateOutputType = {
   pageCount: number | null
   templateVersion: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CommissionDocumentCountAggregateOutputType = {
@@ -77,6 +79,7 @@ export type CommissionDocumentCountAggregateOutputType = {
   pageCount: number
   templateVersion: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -103,6 +106,7 @@ export type CommissionDocumentMinAggregateInputType = {
   pageCount?: true
   templateVersion?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type CommissionDocumentMaxAggregateInputType = {
@@ -117,6 +121,7 @@ export type CommissionDocumentMaxAggregateInputType = {
   pageCount?: true
   templateVersion?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type CommissionDocumentCountAggregateInputType = {
@@ -131,6 +136,7 @@ export type CommissionDocumentCountAggregateInputType = {
   pageCount?: true
   templateVersion?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -232,6 +238,7 @@ export type CommissionDocumentGroupByOutputType = {
   pageCount: number
   templateVersion: string
   createdAt: Date
+  updatedAt: Date
   _count: CommissionDocumentCountAggregateOutputType | null
   _avg: CommissionDocumentAvgAggregateOutputType | null
   _sum: CommissionDocumentSumAggregateOutputType | null
@@ -269,6 +276,7 @@ export type CommissionDocumentWhereInput = {
   pageCount?: Prisma.IntFilter<"CommissionDocument"> | number
   templateVersion?: Prisma.StringFilter<"CommissionDocument"> | string
   createdAt?: Prisma.DateTimeFilter<"CommissionDocument"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommissionDocument"> | Date | string
   invoice?: Prisma.XOR<Prisma.CommissionInvoiceNullableScalarRelationFilter, Prisma.CommissionInvoiceWhereInput> | null
   creditNote?: Prisma.XOR<Prisma.CommissionCreditNoteNullableScalarRelationFilter, Prisma.CommissionCreditNoteWhereInput> | null
 }
@@ -285,6 +293,7 @@ export type CommissionDocumentOrderByWithRelationInput = {
   pageCount?: Prisma.SortOrder
   templateVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   invoice?: Prisma.CommissionInvoiceOrderByWithRelationInput
   creditNote?: Prisma.CommissionCreditNoteOrderByWithRelationInput
   _relevance?: Prisma.CommissionDocumentOrderByRelevanceInput
@@ -305,6 +314,7 @@ export type CommissionDocumentWhereUniqueInput = Prisma.AtLeast<{
   pageCount?: Prisma.IntFilter<"CommissionDocument"> | number
   templateVersion?: Prisma.StringFilter<"CommissionDocument"> | string
   createdAt?: Prisma.DateTimeFilter<"CommissionDocument"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommissionDocument"> | Date | string
   invoice?: Prisma.XOR<Prisma.CommissionInvoiceNullableScalarRelationFilter, Prisma.CommissionInvoiceWhereInput> | null
   creditNote?: Prisma.XOR<Prisma.CommissionCreditNoteNullableScalarRelationFilter, Prisma.CommissionCreditNoteWhereInput> | null
 }, "id" | "invoiceId" | "creditNoteId" | "storageKey">
@@ -321,6 +331,7 @@ export type CommissionDocumentOrderByWithAggregationInput = {
   pageCount?: Prisma.SortOrder
   templateVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CommissionDocumentCountOrderByAggregateInput
   _avg?: Prisma.CommissionDocumentAvgOrderByAggregateInput
   _max?: Prisma.CommissionDocumentMaxOrderByAggregateInput
@@ -343,6 +354,7 @@ export type CommissionDocumentScalarWhereWithAggregatesInput = {
   pageCount?: Prisma.IntWithAggregatesFilter<"CommissionDocument"> | number
   templateVersion?: Prisma.StringWithAggregatesFilter<"CommissionDocument"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CommissionDocument"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CommissionDocument"> | Date | string
 }
 
 export type CommissionDocumentCreateInput = {
@@ -355,6 +367,7 @@ export type CommissionDocumentCreateInput = {
   pageCount: number
   templateVersion: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   invoice?: Prisma.CommissionInvoiceCreateNestedOneWithoutDocumentsInput
   creditNote?: Prisma.CommissionCreditNoteCreateNestedOneWithoutDocumentsInput
 }
@@ -371,6 +384,7 @@ export type CommissionDocumentUncheckedCreateInput = {
   pageCount: number
   templateVersion: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionDocumentUpdateInput = {
@@ -383,6 +397,7 @@ export type CommissionDocumentUpdateInput = {
   pageCount?: Prisma.IntFieldUpdateOperationsInput | number
   templateVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invoice?: Prisma.CommissionInvoiceUpdateOneWithoutDocumentsNestedInput
   creditNote?: Prisma.CommissionCreditNoteUpdateOneWithoutDocumentsNestedInput
 }
@@ -399,6 +414,7 @@ export type CommissionDocumentUncheckedUpdateInput = {
   pageCount?: Prisma.IntFieldUpdateOperationsInput | number
   templateVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionDocumentCreateManyInput = {
@@ -413,6 +429,7 @@ export type CommissionDocumentCreateManyInput = {
   pageCount: number
   templateVersion: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionDocumentUpdateManyMutationInput = {
@@ -425,6 +442,7 @@ export type CommissionDocumentUpdateManyMutationInput = {
   pageCount?: Prisma.IntFieldUpdateOperationsInput | number
   templateVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionDocumentUncheckedUpdateManyInput = {
@@ -439,6 +457,7 @@ export type CommissionDocumentUncheckedUpdateManyInput = {
   pageCount?: Prisma.IntFieldUpdateOperationsInput | number
   templateVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionDocumentListRelationFilter = {
@@ -469,6 +488,7 @@ export type CommissionDocumentCountOrderByAggregateInput = {
   pageCount?: Prisma.SortOrder
   templateVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommissionDocumentAvgOrderByAggregateInput = {
@@ -488,6 +508,7 @@ export type CommissionDocumentMaxOrderByAggregateInput = {
   pageCount?: Prisma.SortOrder
   templateVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommissionDocumentMinOrderByAggregateInput = {
@@ -502,6 +523,7 @@ export type CommissionDocumentMinOrderByAggregateInput = {
   pageCount?: Prisma.SortOrder
   templateVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommissionDocumentSumOrderByAggregateInput = {
@@ -603,6 +625,7 @@ export type CommissionDocumentCreateWithoutInvoiceInput = {
   pageCount: number
   templateVersion: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   creditNote?: Prisma.CommissionCreditNoteCreateNestedOneWithoutDocumentsInput
 }
 
@@ -617,6 +640,7 @@ export type CommissionDocumentUncheckedCreateWithoutInvoiceInput = {
   pageCount: number
   templateVersion: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionDocumentCreateOrConnectWithoutInvoiceInput = {
@@ -660,6 +684,7 @@ export type CommissionDocumentScalarWhereInput = {
   pageCount?: Prisma.IntFilter<"CommissionDocument"> | number
   templateVersion?: Prisma.StringFilter<"CommissionDocument"> | string
   createdAt?: Prisma.DateTimeFilter<"CommissionDocument"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommissionDocument"> | Date | string
 }
 
 export type CommissionDocumentCreateWithoutCreditNoteInput = {
@@ -672,6 +697,7 @@ export type CommissionDocumentCreateWithoutCreditNoteInput = {
   pageCount: number
   templateVersion: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   invoice?: Prisma.CommissionInvoiceCreateNestedOneWithoutDocumentsInput
 }
 
@@ -686,6 +712,7 @@ export type CommissionDocumentUncheckedCreateWithoutCreditNoteInput = {
   pageCount: number
   templateVersion: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionDocumentCreateOrConnectWithoutCreditNoteInput = {
@@ -725,6 +752,7 @@ export type CommissionDocumentCreateManyInvoiceInput = {
   pageCount: number
   templateVersion: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionDocumentUpdateWithoutInvoiceInput = {
@@ -737,6 +765,7 @@ export type CommissionDocumentUpdateWithoutInvoiceInput = {
   pageCount?: Prisma.IntFieldUpdateOperationsInput | number
   templateVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creditNote?: Prisma.CommissionCreditNoteUpdateOneWithoutDocumentsNestedInput
 }
 
@@ -751,6 +780,7 @@ export type CommissionDocumentUncheckedUpdateWithoutInvoiceInput = {
   pageCount?: Prisma.IntFieldUpdateOperationsInput | number
   templateVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionDocumentUncheckedUpdateManyWithoutInvoiceInput = {
@@ -764,6 +794,7 @@ export type CommissionDocumentUncheckedUpdateManyWithoutInvoiceInput = {
   pageCount?: Prisma.IntFieldUpdateOperationsInput | number
   templateVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionDocumentCreateManyCreditNoteInput = {
@@ -777,6 +808,7 @@ export type CommissionDocumentCreateManyCreditNoteInput = {
   pageCount: number
   templateVersion: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionDocumentUpdateWithoutCreditNoteInput = {
@@ -789,6 +821,7 @@ export type CommissionDocumentUpdateWithoutCreditNoteInput = {
   pageCount?: Prisma.IntFieldUpdateOperationsInput | number
   templateVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invoice?: Prisma.CommissionInvoiceUpdateOneWithoutDocumentsNestedInput
 }
 
@@ -803,6 +836,7 @@ export type CommissionDocumentUncheckedUpdateWithoutCreditNoteInput = {
   pageCount?: Prisma.IntFieldUpdateOperationsInput | number
   templateVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionDocumentUncheckedUpdateManyWithoutCreditNoteInput = {
@@ -816,6 +850,7 @@ export type CommissionDocumentUncheckedUpdateManyWithoutCreditNoteInput = {
   pageCount?: Prisma.IntFieldUpdateOperationsInput | number
   templateVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -832,6 +867,7 @@ export type CommissionDocumentSelect<ExtArgs extends runtime.Types.Extensions.In
   pageCount?: boolean
   templateVersion?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   invoice?: boolean | Prisma.CommissionDocument$invoiceArgs<ExtArgs>
   creditNote?: boolean | Prisma.CommissionDocument$creditNoteArgs<ExtArgs>
 }, ExtArgs["result"]["commissionDocument"]>
@@ -850,9 +886,10 @@ export type CommissionDocumentSelectScalar = {
   pageCount?: boolean
   templateVersion?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CommissionDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceId" | "creditNoteId" | "kind" | "storageKey" | "fileName" | "contentHash" | "sizeBytes" | "pageCount" | "templateVersion" | "createdAt", ExtArgs["result"]["commissionDocument"]>
+export type CommissionDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceId" | "creditNoteId" | "kind" | "storageKey" | "fileName" | "contentHash" | "sizeBytes" | "pageCount" | "templateVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["commissionDocument"]>
 export type CommissionDocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   invoice?: boolean | Prisma.CommissionDocument$invoiceArgs<ExtArgs>
   creditNote?: boolean | Prisma.CommissionDocument$creditNoteArgs<ExtArgs>
@@ -879,6 +916,7 @@ export type $CommissionDocumentPayload<ExtArgs extends runtime.Types.Extensions.
     pageCount: number
     templateVersion: string
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["commissionDocument"]>
   composites: {}
 }
@@ -1261,6 +1299,7 @@ export interface CommissionDocumentFieldRefs {
   readonly pageCount: Prisma.FieldRef<"CommissionDocument", 'Int'>
   readonly templateVersion: Prisma.FieldRef<"CommissionDocument", 'String'>
   readonly createdAt: Prisma.FieldRef<"CommissionDocument", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CommissionDocument", 'DateTime'>
 }
     
 

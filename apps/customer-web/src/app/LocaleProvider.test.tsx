@@ -62,7 +62,7 @@ const VISITOR: SessionState = {
   user: null,
   isLoading: false,
   isCustomer: false,
-  login: () => Promise.resolve({ next: 'READY' as const }),
+  login: () => Promise.resolve({ next: 'READY' as const, mfaChallengeRequired: false }),
   logout: () => Promise.resolve(),
   refreshUser: () => Promise.resolve(),
   buyerContext: { kind: 'INDIVIDUAL' },

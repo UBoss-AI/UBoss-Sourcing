@@ -130,6 +130,14 @@ export function isLegalDocumentKind(value: unknown): value is LegalDocumentKindN
   return typeof value === 'string' && (LEGAL_DOCUMENT_KINDS as readonly string[]).includes(value);
 }
 
+/**
+ * The column allows more kinds than this service manages. A row of any other
+ * kind is not one of these documents, so it is treated as not there.
+ */
+function hasManagedKind<T extends { kind: string }>(row: T): row is T & { kind: LegalDocumentKindName } {
+  return isLegalDocumentKind(row.kind);
+}
+
 // ---------------------------------------------------------------------------
 // What is in force
 // ---------------------------------------------------------------------------
@@ -174,7 +182,7 @@ export async function findCurrentDocument(
     rows.find((row) => row.locale === locale) ??
     rows.find((row) => row.locale === FALLBACK_LOCALE) ??
     rows[0];
-  if (chosen === undefined) return null;
+  if (chosen === undefined || !hasManagedKind(chosen)) return null;
 
   return {
     document: toPublic(chosen),
@@ -208,7 +216,7 @@ export async function getPublishedDocument(id: string): Promise<PublicLegalDocum
     where: { id, status: 'PUBLISHED' },
     select: PUBLIC_SELECT,
   });
-  if (row === null) throw notFound('Document');
+  if (row === null || !hasManagedKind(row)) throw notFound('Document');
   return toPublic(row);
 }
 
@@ -311,7 +319,7 @@ export async function assertAcceptableTerms(input: {
 
   return {
     id: document.id,
-    kind: document.kind,
+    kind: input.kind,
     version: document.version,
     locale: document.locale,
     contentSha256: document.contentSha256,
@@ -489,12 +497,14 @@ export async function listLegalDocuments(filter: {
   const counts = await acceptanceCounts(rows.map((row) => row.id));
   const current = new Map<LegalDocumentKindName, string | null>();
   for (const kind of LEGAL_DOCUMENT_KINDS) current.set(kind, await currentVersionOf(kind, now));
-  return rows.map((row) => toAdmin(row, counts.get(row.id) ?? 0, current.get(row.kind) ?? null, now));
+  return rows
+    .filter(hasManagedKind)
+    .map((row) => toAdmin(row, counts.get(row.id) ?? 0, current.get(row.kind) ?? null, now));
 }
 
 export async function getLegalDocumentForAdmin(id: string): Promise<LegalDocumentAdminView> {
   const row = await prisma.legalDocument.findUnique({ where: { id } });
-  if (row === null) throw notFound('Document');
+  if (row === null || !hasManagedKind(row)) throw notFound('Document');
   const now = new Date();
   const counts = await acceptanceCounts([row.id]);
   return toAdmin(row, counts.get(row.id) ?? 0, await currentVersionOf(row.kind, now), now);

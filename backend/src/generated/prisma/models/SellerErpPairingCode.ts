@@ -52,6 +52,7 @@ export type SellerErpPairingCodeMinAggregateOutputType = {
   deviceLabel: string | null
   createdByProfileId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerErpPairingCodeMaxAggregateOutputType = {
@@ -67,6 +68,7 @@ export type SellerErpPairingCodeMaxAggregateOutputType = {
   deviceLabel: string | null
   createdByProfileId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerErpPairingCodeCountAggregateOutputType = {
@@ -82,6 +84,7 @@ export type SellerErpPairingCodeCountAggregateOutputType = {
   deviceLabel: number
   createdByProfileId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -107,6 +110,7 @@ export type SellerErpPairingCodeMinAggregateInputType = {
   deviceLabel?: true
   createdByProfileId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerErpPairingCodeMaxAggregateInputType = {
@@ -122,6 +126,7 @@ export type SellerErpPairingCodeMaxAggregateInputType = {
   deviceLabel?: true
   createdByProfileId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerErpPairingCodeCountAggregateInputType = {
@@ -137,6 +142,7 @@ export type SellerErpPairingCodeCountAggregateInputType = {
   deviceLabel?: true
   createdByProfileId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -239,6 +245,7 @@ export type SellerErpPairingCodeGroupByOutputType = {
   deviceLabel: string
   createdByProfileId: string | null
   createdAt: Date
+  updatedAt: Date
   _count: SellerErpPairingCodeCountAggregateOutputType | null
   _avg: SellerErpPairingCodeAvgAggregateOutputType | null
   _sum: SellerErpPairingCodeSumAggregateOutputType | null
@@ -277,6 +284,7 @@ export type SellerErpPairingCodeWhereInput = {
   deviceLabel?: Prisma.StringFilter<"SellerErpPairingCode"> | string
   createdByProfileId?: Prisma.StringNullableFilter<"SellerErpPairingCode"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerErpPairingCode"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerErpPairingCode"> | Date | string
   connection?: Prisma.XOR<Prisma.SellerErpConnectionScalarRelationFilter, Prisma.SellerErpConnectionWhereInput>
 }
 
@@ -293,6 +301,7 @@ export type SellerErpPairingCodeOrderByWithRelationInput = {
   deviceLabel?: Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   connection?: Prisma.SellerErpConnectionOrderByWithRelationInput
   _relevance?: Prisma.SellerErpPairingCodeOrderByRelevanceInput
 }
@@ -313,6 +322,7 @@ export type SellerErpPairingCodeWhereUniqueInput = Prisma.AtLeast<{
   deviceLabel?: Prisma.StringFilter<"SellerErpPairingCode"> | string
   createdByProfileId?: Prisma.StringNullableFilter<"SellerErpPairingCode"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerErpPairingCode"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerErpPairingCode"> | Date | string
   connection?: Prisma.XOR<Prisma.SellerErpConnectionScalarRelationFilter, Prisma.SellerErpConnectionWhereInput>
 }, "id" | "codeHash">
 
@@ -329,6 +339,7 @@ export type SellerErpPairingCodeOrderByWithAggregationInput = {
   deviceLabel?: Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerErpPairingCodeCountOrderByAggregateInput
   _avg?: Prisma.SellerErpPairingCodeAvgOrderByAggregateInput
   _max?: Prisma.SellerErpPairingCodeMaxOrderByAggregateInput
@@ -352,6 +363,7 @@ export type SellerErpPairingCodeScalarWhereWithAggregatesInput = {
   deviceLabel?: Prisma.StringWithAggregatesFilter<"SellerErpPairingCode"> | string
   createdByProfileId?: Prisma.StringNullableWithAggregatesFilter<"SellerErpPairingCode"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerErpPairingCode"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerErpPairingCode"> | Date | string
 }
 
 export type SellerErpPairingCodeCreateInput = {
@@ -366,6 +378,7 @@ export type SellerErpPairingCodeCreateInput = {
   deviceLabel: string
   createdByProfileId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   connection: Prisma.SellerErpConnectionCreateNestedOneWithoutPairingCodesInput
 }
 
@@ -382,6 +395,7 @@ export type SellerErpPairingCodeUncheckedCreateInput = {
   deviceLabel: string
   createdByProfileId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpPairingCodeUpdateInput = {
@@ -396,6 +410,7 @@ export type SellerErpPairingCodeUpdateInput = {
   deviceLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   connection?: Prisma.SellerErpConnectionUpdateOneRequiredWithoutPairingCodesNestedInput
 }
 
@@ -412,6 +427,7 @@ export type SellerErpPairingCodeUncheckedUpdateInput = {
   deviceLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpPairingCodeCreateManyInput = {
@@ -427,6 +443,7 @@ export type SellerErpPairingCodeCreateManyInput = {
   deviceLabel: string
   createdByProfileId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpPairingCodeUpdateManyMutationInput = {
@@ -441,6 +458,7 @@ export type SellerErpPairingCodeUpdateManyMutationInput = {
   deviceLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpPairingCodeUncheckedUpdateManyInput = {
@@ -456,6 +474,7 @@ export type SellerErpPairingCodeUncheckedUpdateManyInput = {
   deviceLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpPairingCodeListRelationFilter = {
@@ -487,6 +506,7 @@ export type SellerErpPairingCodeCountOrderByAggregateInput = {
   deviceLabel?: Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerErpPairingCodeAvgOrderByAggregateInput = {
@@ -506,6 +526,7 @@ export type SellerErpPairingCodeMaxOrderByAggregateInput = {
   deviceLabel?: Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerErpPairingCodeMinOrderByAggregateInput = {
@@ -521,6 +542,7 @@ export type SellerErpPairingCodeMinOrderByAggregateInput = {
   deviceLabel?: Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerErpPairingCodeSumOrderByAggregateInput = {
@@ -581,6 +603,7 @@ export type SellerErpPairingCodeCreateWithoutConnectionInput = {
   deviceLabel: string
   createdByProfileId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpPairingCodeUncheckedCreateWithoutConnectionInput = {
@@ -595,6 +618,7 @@ export type SellerErpPairingCodeUncheckedCreateWithoutConnectionInput = {
   deviceLabel: string
   createdByProfileId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpPairingCodeCreateOrConnectWithoutConnectionInput = {
@@ -639,6 +663,7 @@ export type SellerErpPairingCodeScalarWhereInput = {
   deviceLabel?: Prisma.StringFilter<"SellerErpPairingCode"> | string
   createdByProfileId?: Prisma.StringNullableFilter<"SellerErpPairingCode"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerErpPairingCode"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerErpPairingCode"> | Date | string
 }
 
 export type SellerErpPairingCodeCreateManyConnectionInput = {
@@ -653,6 +678,7 @@ export type SellerErpPairingCodeCreateManyConnectionInput = {
   deviceLabel: string
   createdByProfileId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerErpPairingCodeUpdateWithoutConnectionInput = {
@@ -667,6 +693,7 @@ export type SellerErpPairingCodeUpdateWithoutConnectionInput = {
   deviceLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpPairingCodeUncheckedUpdateWithoutConnectionInput = {
@@ -681,6 +708,7 @@ export type SellerErpPairingCodeUncheckedUpdateWithoutConnectionInput = {
   deviceLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerErpPairingCodeUncheckedUpdateManyWithoutConnectionInput = {
@@ -695,6 +723,7 @@ export type SellerErpPairingCodeUncheckedUpdateManyWithoutConnectionInput = {
   deviceLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -712,6 +741,7 @@ export type SellerErpPairingCodeSelect<ExtArgs extends runtime.Types.Extensions.
   deviceLabel?: boolean
   createdByProfileId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   connection?: boolean | Prisma.SellerErpConnectionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerErpPairingCode"]>
 
@@ -730,9 +760,10 @@ export type SellerErpPairingCodeSelectScalar = {
   deviceLabel?: boolean
   createdByProfileId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerErpPairingCodeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "connectionId" | "codeHash" | "codePrefix" | "expiresAt" | "consumedAt" | "consumedByDeviceId" | "attemptCount" | "deviceLabel" | "createdByProfileId" | "createdAt", ExtArgs["result"]["sellerErpPairingCode"]>
+export type SellerErpPairingCodeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "connectionId" | "codeHash" | "codePrefix" | "expiresAt" | "consumedAt" | "consumedByDeviceId" | "attemptCount" | "deviceLabel" | "createdByProfileId" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerErpPairingCode"]>
 export type SellerErpPairingCodeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   connection?: boolean | Prisma.SellerErpConnectionDefaultArgs<ExtArgs>
 }
@@ -774,6 +805,7 @@ export type $SellerErpPairingCodePayload<ExtArgs extends runtime.Types.Extension
     deviceLabel: string
     createdByProfileId: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerErpPairingCode"]>
   composites: {}
 }
@@ -1156,6 +1188,7 @@ export interface SellerErpPairingCodeFieldRefs {
   readonly deviceLabel: Prisma.FieldRef<"SellerErpPairingCode", 'String'>
   readonly createdByProfileId: Prisma.FieldRef<"SellerErpPairingCode", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerErpPairingCode", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerErpPairingCode", 'DateTime'>
 }
     
 

@@ -126,7 +126,7 @@ function BrandMark(): React.JSX.Element {
           alt=""
           width={40}
           height={40}
-          className="h-10 w-10 shrink-0 rounded-md border border-border bg-surface-media object-contain p-1"
+          className="h-10 w-10 shrink-0 rounded-md border border-border bg-surface-media object-contain p-1 max-[359px]:h-8 max-[359px]:w-8"
         />
       )}
 
@@ -220,7 +220,7 @@ function CartLink(): React.JSX.Element {
       // Orange, and the only orange in the chrome, because orange is what this
       // app spends on the buy path and nothing else. `action-strong` on
       // `action-soft` is 4.88:1.
-      className="relative flex h-10 items-center gap-2 rounded-md bg-action-soft px-3 text-sm font-medium text-action-strong ring-1 ring-inset ring-action/30 transition-colors hover:bg-action-soft-hover hover:ring-action/50"
+      className="relative flex h-10 items-center gap-2 rounded-md bg-action-soft px-3 text-sm font-medium text-action-strong ring-1 ring-inset ring-action/30 transition-colors hover:bg-action-soft-hover hover:ring-action/50 max-[359px]:px-2"
       // Counted, not an appended "s": the plural of "item" is a different word
       // shape in most of the catalogue, and Polish needs three of them.
       // i18next reads `count` and picks the form.
@@ -328,7 +328,7 @@ export function Header(): React.JSX.Element {
          * wanted now. A `flex-1` element in the middle would be a named,
          * measurable hole where a control used to be.
          */}
-        <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-1 max-[359px]:gap-0.5 sm:gap-2">
           {/* First, and the quietest of the four: it is the only one that
               changes nothing about the order somebody is placing. An
               unlabelled icon button beside the market chip rather than a

@@ -46,6 +46,7 @@ export type ProductCountryRestrictionMinAggregateOutputType = {
   countryCode: string | null
   reason: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ProductCountryRestrictionMaxAggregateOutputType = {
@@ -54,6 +55,7 @@ export type ProductCountryRestrictionMaxAggregateOutputType = {
   countryCode: string | null
   reason: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ProductCountryRestrictionCountAggregateOutputType = {
@@ -62,6 +64,7 @@ export type ProductCountryRestrictionCountAggregateOutputType = {
   countryCode: number
   reason: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -72,6 +75,7 @@ export type ProductCountryRestrictionMinAggregateInputType = {
   countryCode?: true
   reason?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type ProductCountryRestrictionMaxAggregateInputType = {
@@ -80,6 +84,7 @@ export type ProductCountryRestrictionMaxAggregateInputType = {
   countryCode?: true
   reason?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type ProductCountryRestrictionCountAggregateInputType = {
@@ -88,6 +93,7 @@ export type ProductCountryRestrictionCountAggregateInputType = {
   countryCode?: true
   reason?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -169,6 +175,7 @@ export type ProductCountryRestrictionGroupByOutputType = {
   countryCode: string
   reason: string | null
   createdAt: Date
+  updatedAt: Date
   _count: ProductCountryRestrictionCountAggregateOutputType | null
   _min: ProductCountryRestrictionMinAggregateOutputType | null
   _max: ProductCountryRestrictionMaxAggregateOutputType | null
@@ -198,6 +205,7 @@ export type ProductCountryRestrictionWhereInput = {
   countryCode?: Prisma.StringFilter<"ProductCountryRestriction"> | string
   reason?: Prisma.StringNullableFilter<"ProductCountryRestriction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductCountryRestriction"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ProductCountryRestriction"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
 }
 
@@ -207,6 +215,7 @@ export type ProductCountryRestrictionOrderByWithRelationInput = {
   countryCode?: Prisma.SortOrder
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   product?: Prisma.ProductOrderByWithRelationInput
   _relevance?: Prisma.ProductCountryRestrictionOrderByRelevanceInput
 }
@@ -221,6 +230,7 @@ export type ProductCountryRestrictionWhereUniqueInput = Prisma.AtLeast<{
   countryCode?: Prisma.StringFilter<"ProductCountryRestriction"> | string
   reason?: Prisma.StringNullableFilter<"ProductCountryRestriction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductCountryRestriction"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ProductCountryRestriction"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
 }, "id" | "productId_countryCode">
 
@@ -230,6 +240,7 @@ export type ProductCountryRestrictionOrderByWithAggregationInput = {
   countryCode?: Prisma.SortOrder
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductCountryRestrictionCountOrderByAggregateInput
   _max?: Prisma.ProductCountryRestrictionMaxOrderByAggregateInput
   _min?: Prisma.ProductCountryRestrictionMinOrderByAggregateInput
@@ -244,6 +255,7 @@ export type ProductCountryRestrictionScalarWhereWithAggregatesInput = {
   countryCode?: Prisma.StringWithAggregatesFilter<"ProductCountryRestriction"> | string
   reason?: Prisma.StringNullableWithAggregatesFilter<"ProductCountryRestriction"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductCountryRestriction"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductCountryRestriction"> | Date | string
 }
 
 export type ProductCountryRestrictionCreateInput = {
@@ -251,6 +263,7 @@ export type ProductCountryRestrictionCreateInput = {
   countryCode: string
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutCountryRestrictionsInput
 }
 
@@ -260,6 +273,7 @@ export type ProductCountryRestrictionUncheckedCreateInput = {
   countryCode: string
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductCountryRestrictionUpdateInput = {
@@ -267,6 +281,7 @@ export type ProductCountryRestrictionUpdateInput = {
   countryCode?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutCountryRestrictionsNestedInput
 }
 
@@ -276,6 +291,7 @@ export type ProductCountryRestrictionUncheckedUpdateInput = {
   countryCode?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductCountryRestrictionCreateManyInput = {
@@ -284,6 +300,7 @@ export type ProductCountryRestrictionCreateManyInput = {
   countryCode: string
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductCountryRestrictionUpdateManyMutationInput = {
@@ -291,6 +308,7 @@ export type ProductCountryRestrictionUpdateManyMutationInput = {
   countryCode?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductCountryRestrictionUncheckedUpdateManyInput = {
@@ -299,6 +317,7 @@ export type ProductCountryRestrictionUncheckedUpdateManyInput = {
   countryCode?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductCountryRestrictionListRelationFilter = {
@@ -328,6 +347,7 @@ export type ProductCountryRestrictionCountOrderByAggregateInput = {
   countryCode?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductCountryRestrictionMaxOrderByAggregateInput = {
@@ -336,6 +356,7 @@ export type ProductCountryRestrictionMaxOrderByAggregateInput = {
   countryCode?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductCountryRestrictionMinOrderByAggregateInput = {
@@ -344,6 +365,7 @@ export type ProductCountryRestrictionMinOrderByAggregateInput = {
   countryCode?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductCountryRestrictionCreateNestedManyWithoutProductInput = {
@@ -393,6 +415,7 @@ export type ProductCountryRestrictionCreateWithoutProductInput = {
   countryCode: string
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductCountryRestrictionUncheckedCreateWithoutProductInput = {
@@ -400,6 +423,7 @@ export type ProductCountryRestrictionUncheckedCreateWithoutProductInput = {
   countryCode: string
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductCountryRestrictionCreateOrConnectWithoutProductInput = {
@@ -437,6 +461,7 @@ export type ProductCountryRestrictionScalarWhereInput = {
   countryCode?: Prisma.StringFilter<"ProductCountryRestriction"> | string
   reason?: Prisma.StringNullableFilter<"ProductCountryRestriction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductCountryRestriction"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ProductCountryRestriction"> | Date | string
 }
 
 export type ProductCountryRestrictionCreateManyProductInput = {
@@ -444,6 +469,7 @@ export type ProductCountryRestrictionCreateManyProductInput = {
   countryCode: string
   reason?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductCountryRestrictionUpdateWithoutProductInput = {
@@ -451,6 +477,7 @@ export type ProductCountryRestrictionUpdateWithoutProductInput = {
   countryCode?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductCountryRestrictionUncheckedUpdateWithoutProductInput = {
@@ -458,6 +485,7 @@ export type ProductCountryRestrictionUncheckedUpdateWithoutProductInput = {
   countryCode?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductCountryRestrictionUncheckedUpdateManyWithoutProductInput = {
@@ -465,6 +493,7 @@ export type ProductCountryRestrictionUncheckedUpdateManyWithoutProductInput = {
   countryCode?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -475,6 +504,7 @@ export type ProductCountryRestrictionSelect<ExtArgs extends runtime.Types.Extens
   countryCode?: boolean
   reason?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productCountryRestriction"]>
 
@@ -486,9 +516,10 @@ export type ProductCountryRestrictionSelectScalar = {
   countryCode?: boolean
   reason?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ProductCountryRestrictionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "countryCode" | "reason" | "createdAt", ExtArgs["result"]["productCountryRestriction"]>
+export type ProductCountryRestrictionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "countryCode" | "reason" | "createdAt" | "updatedAt", ExtArgs["result"]["productCountryRestriction"]>
 export type ProductCountryRestrictionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
 }
@@ -514,6 +545,7 @@ export type $ProductCountryRestrictionPayload<ExtArgs extends runtime.Types.Exte
      */
     reason: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["productCountryRestriction"]>
   composites: {}
 }
@@ -889,6 +921,7 @@ export interface ProductCountryRestrictionFieldRefs {
   readonly countryCode: Prisma.FieldRef<"ProductCountryRestriction", 'String'>
   readonly reason: Prisma.FieldRef<"ProductCountryRestriction", 'String'>
   readonly createdAt: Prisma.FieldRef<"ProductCountryRestriction", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ProductCountryRestriction", 'DateTime'>
 }
     
 

@@ -52,6 +52,7 @@ export type AdminNotificationMinAggregateOutputType = {
   relatedId: string | null
   dedupeKey: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type AdminNotificationMaxAggregateOutputType = {
@@ -72,6 +73,7 @@ export type AdminNotificationMaxAggregateOutputType = {
   relatedId: string | null
   dedupeKey: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type AdminNotificationCountAggregateOutputType = {
@@ -93,6 +95,7 @@ export type AdminNotificationCountAggregateOutputType = {
   relatedId: number
   dedupeKey: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -123,6 +126,7 @@ export type AdminNotificationMinAggregateInputType = {
   relatedId?: true
   dedupeKey?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type AdminNotificationMaxAggregateInputType = {
@@ -143,6 +147,7 @@ export type AdminNotificationMaxAggregateInputType = {
   relatedId?: true
   dedupeKey?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type AdminNotificationCountAggregateInputType = {
@@ -164,6 +169,7 @@ export type AdminNotificationCountAggregateInputType = {
   relatedId?: true
   dedupeKey?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -272,6 +278,7 @@ export type AdminNotificationGroupByOutputType = {
   relatedId: string | null
   dedupeKey: string | null
   createdAt: Date
+  updatedAt: Date
   _count: AdminNotificationCountAggregateOutputType | null
   _avg: AdminNotificationAvgAggregateOutputType | null
   _sum: AdminNotificationSumAggregateOutputType | null
@@ -316,6 +323,7 @@ export type AdminNotificationWhereInput = {
   relatedId?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
   dedupeKey?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AdminNotification"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"AdminNotification"> | Date | string
   reads?: Prisma.AdminNotificationReadListRelationFilter
   resolvedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
@@ -339,6 +347,7 @@ export type AdminNotificationOrderByWithRelationInput = {
   relatedId?: Prisma.SortOrderInput | Prisma.SortOrder
   dedupeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   reads?: Prisma.AdminNotificationReadOrderByRelationAggregateInput
   resolvedBy?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.AdminNotificationOrderByRelevanceInput
@@ -366,6 +375,7 @@ export type AdminNotificationWhereUniqueInput = Prisma.AtLeast<{
   relatedType?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
   relatedId?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AdminNotification"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"AdminNotification"> | Date | string
   reads?: Prisma.AdminNotificationReadListRelationFilter
   resolvedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id" | "dedupeKey">
@@ -389,6 +399,7 @@ export type AdminNotificationOrderByWithAggregationInput = {
   relatedId?: Prisma.SortOrderInput | Prisma.SortOrder
   dedupeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.AdminNotificationCountOrderByAggregateInput
   _avg?: Prisma.AdminNotificationAvgOrderByAggregateInput
   _max?: Prisma.AdminNotificationMaxOrderByAggregateInput
@@ -418,6 +429,7 @@ export type AdminNotificationScalarWhereWithAggregatesInput = {
   relatedId?: Prisma.StringNullableWithAggregatesFilter<"AdminNotification"> | string | null
   dedupeKey?: Prisma.StringNullableWithAggregatesFilter<"AdminNotification"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AdminNotification"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AdminNotification"> | Date | string
 }
 
 export type AdminNotificationCreateInput = {
@@ -438,6 +450,7 @@ export type AdminNotificationCreateInput = {
   relatedId?: string | null
   dedupeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   reads?: Prisma.AdminNotificationReadCreateNestedManyWithoutNotificationInput
   resolvedBy?: Prisma.UserCreateNestedOneWithoutNotificationsResolvedInput
 }
@@ -461,6 +474,7 @@ export type AdminNotificationUncheckedCreateInput = {
   relatedId?: string | null
   dedupeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   reads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutNotificationInput
 }
 
@@ -482,6 +496,7 @@ export type AdminNotificationUpdateInput = {
   relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reads?: Prisma.AdminNotificationReadUpdateManyWithoutNotificationNestedInput
   resolvedBy?: Prisma.UserUpdateOneWithoutNotificationsResolvedNestedInput
 }
@@ -505,6 +520,7 @@ export type AdminNotificationUncheckedUpdateInput = {
   relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutNotificationNestedInput
 }
 
@@ -527,6 +543,7 @@ export type AdminNotificationCreateManyInput = {
   relatedId?: string | null
   dedupeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AdminNotificationUpdateManyMutationInput = {
@@ -547,6 +564,7 @@ export type AdminNotificationUpdateManyMutationInput = {
   relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AdminNotificationUncheckedUpdateManyInput = {
@@ -568,6 +586,7 @@ export type AdminNotificationUncheckedUpdateManyInput = {
   relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AdminNotificationListRelationFilter = {
@@ -605,6 +624,7 @@ export type AdminNotificationCountOrderByAggregateInput = {
   relatedId?: Prisma.SortOrder
   dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type AdminNotificationAvgOrderByAggregateInput = {
@@ -629,6 +649,7 @@ export type AdminNotificationMaxOrderByAggregateInput = {
   relatedId?: Prisma.SortOrder
   dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type AdminNotificationMinOrderByAggregateInput = {
@@ -649,6 +670,7 @@ export type AdminNotificationMinOrderByAggregateInput = {
   relatedId?: Prisma.SortOrder
   dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type AdminNotificationSumOrderByAggregateInput = {
@@ -750,6 +772,7 @@ export type AdminNotificationCreateWithoutResolvedByInput = {
   relatedId?: string | null
   dedupeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   reads?: Prisma.AdminNotificationReadCreateNestedManyWithoutNotificationInput
 }
 
@@ -771,6 +794,7 @@ export type AdminNotificationUncheckedCreateWithoutResolvedByInput = {
   relatedId?: string | null
   dedupeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   reads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutNotificationInput
 }
 
@@ -822,6 +846,7 @@ export type AdminNotificationScalarWhereInput = {
   relatedId?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
   dedupeKey?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AdminNotification"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"AdminNotification"> | Date | string
 }
 
 export type AdminNotificationCreateWithoutReadsInput = {
@@ -842,6 +867,7 @@ export type AdminNotificationCreateWithoutReadsInput = {
   relatedId?: string | null
   dedupeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   resolvedBy?: Prisma.UserCreateNestedOneWithoutNotificationsResolvedInput
 }
 
@@ -864,6 +890,7 @@ export type AdminNotificationUncheckedCreateWithoutReadsInput = {
   relatedId?: string | null
   dedupeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AdminNotificationCreateOrConnectWithoutReadsInput = {
@@ -900,6 +927,7 @@ export type AdminNotificationUpdateWithoutReadsInput = {
   relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedBy?: Prisma.UserUpdateOneWithoutNotificationsResolvedNestedInput
 }
 
@@ -922,6 +950,7 @@ export type AdminNotificationUncheckedUpdateWithoutReadsInput = {
   relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AdminNotificationCreateManyResolvedByInput = {
@@ -942,6 +971,7 @@ export type AdminNotificationCreateManyResolvedByInput = {
   relatedId?: string | null
   dedupeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AdminNotificationUpdateWithoutResolvedByInput = {
@@ -962,6 +992,7 @@ export type AdminNotificationUpdateWithoutResolvedByInput = {
   relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reads?: Prisma.AdminNotificationReadUpdateManyWithoutNotificationNestedInput
 }
 
@@ -983,6 +1014,7 @@ export type AdminNotificationUncheckedUpdateWithoutResolvedByInput = {
   relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutNotificationNestedInput
 }
 
@@ -1004,6 +1036,7 @@ export type AdminNotificationUncheckedUpdateManyWithoutResolvedByInput = {
   relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1056,6 +1089,7 @@ export type AdminNotificationSelect<ExtArgs extends runtime.Types.Extensions.Int
   relatedId?: boolean
   dedupeKey?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   reads?: boolean | Prisma.AdminNotification$readsArgs<ExtArgs>
   resolvedBy?: boolean | Prisma.AdminNotification$resolvedByArgs<ExtArgs>
   _count?: boolean | Prisma.AdminNotificationCountOutputTypeDefaultArgs<ExtArgs>
@@ -1082,9 +1116,10 @@ export type AdminNotificationSelectScalar = {
   relatedId?: boolean
   dedupeKey?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type AdminNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "class" | "status" | "resolutionKey" | "resolutionPolicy" | "resolvedAt" | "resolvedByUserId" | "resolutionReason" | "resolutionSource" | "occurrence" | "variablesJson" | "linkPath" | "requiredPermission" | "relatedType" | "relatedId" | "dedupeKey" | "createdAt", ExtArgs["result"]["adminNotification"]>
+export type AdminNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "class" | "status" | "resolutionKey" | "resolutionPolicy" | "resolvedAt" | "resolvedByUserId" | "resolutionReason" | "resolutionSource" | "occurrence" | "variablesJson" | "linkPath" | "requiredPermission" | "relatedType" | "relatedId" | "dedupeKey" | "createdAt" | "updatedAt", ExtArgs["result"]["adminNotification"]>
 export type AdminNotificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   reads?: boolean | Prisma.AdminNotification$readsArgs<ExtArgs>
   resolvedBy?: boolean | Prisma.AdminNotification$resolvedByArgs<ExtArgs>
@@ -1178,6 +1213,7 @@ export type $AdminNotificationPayload<ExtArgs extends runtime.Types.Extensions.I
      */
     dedupeKey: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["adminNotification"]>
   composites: {}
 }
@@ -1567,6 +1603,7 @@ export interface AdminNotificationFieldRefs {
   readonly relatedId: Prisma.FieldRef<"AdminNotification", 'String'>
   readonly dedupeKey: Prisma.FieldRef<"AdminNotification", 'String'>
   readonly createdAt: Prisma.FieldRef<"AdminNotification", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"AdminNotification", 'DateTime'>
 }
     
 

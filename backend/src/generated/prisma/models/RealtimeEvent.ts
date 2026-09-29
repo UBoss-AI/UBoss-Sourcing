@@ -46,12 +46,14 @@ export type RealtimeEventMinAggregateOutputType = {
   id: bigint | null
   instanceId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type RealtimeEventMaxAggregateOutputType = {
   id: bigint | null
   instanceId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type RealtimeEventCountAggregateOutputType = {
@@ -59,6 +61,7 @@ export type RealtimeEventCountAggregateOutputType = {
   instanceId: number
   payloadJson: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -75,12 +78,14 @@ export type RealtimeEventMinAggregateInputType = {
   id?: true
   instanceId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type RealtimeEventMaxAggregateInputType = {
   id?: true
   instanceId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type RealtimeEventCountAggregateInputType = {
@@ -88,6 +93,7 @@ export type RealtimeEventCountAggregateInputType = {
   instanceId?: true
   payloadJson?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -182,6 +188,7 @@ export type RealtimeEventGroupByOutputType = {
   instanceId: string
   payloadJson: runtime.JsonValue
   createdAt: Date
+  updatedAt: Date
   _count: RealtimeEventCountAggregateOutputType | null
   _avg: RealtimeEventAvgAggregateOutputType | null
   _sum: RealtimeEventSumAggregateOutputType | null
@@ -212,6 +219,7 @@ export type RealtimeEventWhereInput = {
   instanceId?: Prisma.StringFilter<"RealtimeEvent"> | string
   payloadJson?: Prisma.JsonFilter<"RealtimeEvent">
   createdAt?: Prisma.DateTimeFilter<"RealtimeEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"RealtimeEvent"> | Date | string
 }
 
 export type RealtimeEventOrderByWithRelationInput = {
@@ -219,6 +227,7 @@ export type RealtimeEventOrderByWithRelationInput = {
   instanceId?: Prisma.SortOrder
   payloadJson?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _relevance?: Prisma.RealtimeEventOrderByRelevanceInput
 }
 
@@ -230,6 +239,7 @@ export type RealtimeEventWhereUniqueInput = Prisma.AtLeast<{
   instanceId?: Prisma.StringFilter<"RealtimeEvent"> | string
   payloadJson?: Prisma.JsonFilter<"RealtimeEvent">
   createdAt?: Prisma.DateTimeFilter<"RealtimeEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"RealtimeEvent"> | Date | string
 }, "id">
 
 export type RealtimeEventOrderByWithAggregationInput = {
@@ -237,6 +247,7 @@ export type RealtimeEventOrderByWithAggregationInput = {
   instanceId?: Prisma.SortOrder
   payloadJson?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.RealtimeEventCountOrderByAggregateInput
   _avg?: Prisma.RealtimeEventAvgOrderByAggregateInput
   _max?: Prisma.RealtimeEventMaxOrderByAggregateInput
@@ -252,6 +263,7 @@ export type RealtimeEventScalarWhereWithAggregatesInput = {
   instanceId?: Prisma.StringWithAggregatesFilter<"RealtimeEvent"> | string
   payloadJson?: Prisma.JsonWithAggregatesFilter<"RealtimeEvent">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RealtimeEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"RealtimeEvent"> | Date | string
 }
 
 export type RealtimeEventCreateInput = {
@@ -259,6 +271,7 @@ export type RealtimeEventCreateInput = {
   instanceId: string
   payloadJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RealtimeEventUncheckedCreateInput = {
@@ -266,6 +279,7 @@ export type RealtimeEventUncheckedCreateInput = {
   instanceId: string
   payloadJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RealtimeEventUpdateInput = {
@@ -273,6 +287,7 @@ export type RealtimeEventUpdateInput = {
   instanceId?: Prisma.StringFieldUpdateOperationsInput | string
   payloadJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RealtimeEventUncheckedUpdateInput = {
@@ -280,6 +295,7 @@ export type RealtimeEventUncheckedUpdateInput = {
   instanceId?: Prisma.StringFieldUpdateOperationsInput | string
   payloadJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RealtimeEventCreateManyInput = {
@@ -287,6 +303,7 @@ export type RealtimeEventCreateManyInput = {
   instanceId: string
   payloadJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type RealtimeEventUpdateManyMutationInput = {
@@ -294,6 +311,7 @@ export type RealtimeEventUpdateManyMutationInput = {
   instanceId?: Prisma.StringFieldUpdateOperationsInput | string
   payloadJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RealtimeEventUncheckedUpdateManyInput = {
@@ -301,6 +319,7 @@ export type RealtimeEventUncheckedUpdateManyInput = {
   instanceId?: Prisma.StringFieldUpdateOperationsInput | string
   payloadJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RealtimeEventOrderByRelevanceInput = {
@@ -314,6 +333,7 @@ export type RealtimeEventCountOrderByAggregateInput = {
   instanceId?: Prisma.SortOrder
   payloadJson?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type RealtimeEventAvgOrderByAggregateInput = {
@@ -324,12 +344,14 @@ export type RealtimeEventMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   instanceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type RealtimeEventMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   instanceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type RealtimeEventSumOrderByAggregateInput = {
@@ -343,6 +365,7 @@ export type RealtimeEventSelect<ExtArgs extends runtime.Types.Extensions.Interna
   instanceId?: boolean
   payloadJson?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["realtimeEvent"]>
 
 
@@ -352,9 +375,10 @@ export type RealtimeEventSelectScalar = {
   instanceId?: boolean
   payloadJson?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type RealtimeEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "instanceId" | "payloadJson" | "createdAt", ExtArgs["result"]["realtimeEvent"]>
+export type RealtimeEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "instanceId" | "payloadJson" | "createdAt" | "updatedAt", ExtArgs["result"]["realtimeEvent"]>
 
 export type $RealtimeEventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "RealtimeEvent"
@@ -367,6 +391,7 @@ export type $RealtimeEventPayload<ExtArgs extends runtime.Types.Extensions.Inter
     instanceId: string
     payloadJson: runtime.JsonValue
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["realtimeEvent"]>
   composites: {}
 }
@@ -740,6 +765,7 @@ export interface RealtimeEventFieldRefs {
   readonly instanceId: Prisma.FieldRef<"RealtimeEvent", 'String'>
   readonly payloadJson: Prisma.FieldRef<"RealtimeEvent", 'Json'>
   readonly createdAt: Prisma.FieldRef<"RealtimeEvent", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"RealtimeEvent", 'DateTime'>
 }
     
 

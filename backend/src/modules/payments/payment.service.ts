@@ -45,6 +45,7 @@ import { RazorpayAdapter } from './razorpay.adapter.js';
 import { StripeAdapter } from './stripe.adapter.js';
 import { getMarketplaceName } from '../settings/marketplace-name.js';
 import { syncSettlementRefunds } from '../seller/settlement-refund.service.js';
+import { recordChargebackEvent } from '../disputes/chargeback.service.js';
 import {
   assertChargeable,
   markPaymentMethodExpired,
@@ -313,6 +314,31 @@ export interface AvailableGateway {
  * environment keys - so a gateway nobody has credentials for never appears as
  * a choice. Returns no secrets: a provider name and a label, nothing more.
  */
+/**
+ * Whether customers can be offered automatic payment right now.
+ *
+ * Both flags default to on, and neither is enough by itself: automatic
+ * payment charges a saved card while the customer is away, which only Stripe
+ * does here. So it is available only once Stripe is actually connected -
+ * through Settings > Payments or the environment, exactly as a real payment
+ * would find it (`availableGateways` mirrors `loadActiveProvider`). Until
+ * then the storefront says it is not offered yet and the routes refuse,
+ * rather than asking a customer to consent to charges that could never be
+ * made. This replaced a start-up refusal: a store that has not connected
+ * Stripe still starts.
+ */
+export async function isCustomerAutoPayAvailable(): Promise<boolean> {
+  if (!env.FEATURE_CUSTOMER_AUTOPAY || !env.FEATURE_SUBSCRIPTION_AUTOPAY) return false;
+  return isCardEnrolmentAvailable();
+}
+
+/** Whether a card can be saved for off-session charging: the flag, and Stripe connected. */
+export async function isCardEnrolmentAvailable(): Promise<boolean> {
+  if (!env.FEATURE_SUBSCRIPTION_AUTOPAY) return false;
+  const { gateways } = await availableGateways();
+  return gateways.some((gateway) => gateway.provider === 'STRIPE');
+}
+
 export async function availableGateways(): Promise<{
   gateways: AvailableGateway[];
   defaultProvider: ProviderKind | null;
@@ -2066,7 +2092,12 @@ async function findTransactionForEvent(
     if (bySession !== null) return bySession;
   }
 
-  if (event.intent === 'DISPUTE_OPENED' && event.providerPaymentId !== null) {
+  if (
+    (event.intent === 'DISPUTE_OPENED' ||
+      event.intent === 'DISPUTE_UPDATED' ||
+      event.intent === 'DISPUTE_CLOSED') &&
+    event.providerPaymentId !== null
+  ) {
     const byCharge = await prisma.paymentTransaction.findUnique({
       where: { providerPaymentId: event.providerPaymentId },
       include,
@@ -2222,6 +2253,19 @@ async function applyEvent(
         },
       });
 
+      // The chargeback's own lifecycle, on the dispute console. Same
+      // transaction as the event's "processed" mark: exactly once.
+      await recordChargebackEvent(tx, {
+        event,
+        transaction,
+        order: {
+          id: order.id,
+          orderNumber: order.orderNumber,
+          customerProfileId: order.customerProfileId,
+          currency: order.currency,
+        },
+      });
+
       await markEventProcessed(
         eventRowId,
         { orderId: order.id, paymentTransactionId: transaction.id },
@@ -2246,6 +2290,37 @@ async function applyEvent(
       reason: event.disputeReason ?? 'unspecified',
       amountMinor: (event.amountMinor ?? 0n).toString(),
     });
+
+    return { accepted: true, duplicate: false };
+  }
+
+  // --- A chargeback moving on: evidence due, under review, won, lost --------
+  if (event.intent === 'DISPUTE_UPDATED' || event.intent === 'DISPUTE_CLOSED') {
+    const outcome = await prisma.$transaction(async (tx) => {
+      const result = await recordChargebackEvent(tx, {
+        event,
+        transaction,
+        order: {
+          id: order.id,
+          orderNumber: order.orderNumber,
+          customerProfileId: order.customerProfileId,
+          currency: order.currency,
+        },
+      });
+      await markEventProcessed(
+        eventRowId,
+        { orderId: order.id, paymentTransactionId: transaction.id },
+        tx,
+      );
+      return result;
+    });
+
+    if (outcome.status === 'LOST' && outcome.changed) {
+      await alertFinance(order.id, order.orderNumber, 'CHARGEBACK_LOST', {
+        disputeId: outcome.disputeId ?? '',
+        amountMinor: (event.amountMinor ?? 0n).toString(),
+      });
+    }
 
     return { accepted: true, duplicate: false };
   }

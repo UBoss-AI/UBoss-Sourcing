@@ -43,6 +43,7 @@ export type SupportTicketEventMinAggregateOutputType = {
   fromValue: string | null
   toValue: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SupportTicketEventMaxAggregateOutputType = {
@@ -56,6 +57,7 @@ export type SupportTicketEventMaxAggregateOutputType = {
   fromValue: string | null
   toValue: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SupportTicketEventCountAggregateOutputType = {
@@ -69,6 +71,7 @@ export type SupportTicketEventCountAggregateOutputType = {
   fromValue: number
   toValue: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -84,6 +87,7 @@ export type SupportTicketEventMinAggregateInputType = {
   fromValue?: true
   toValue?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SupportTicketEventMaxAggregateInputType = {
@@ -97,6 +101,7 @@ export type SupportTicketEventMaxAggregateInputType = {
   fromValue?: true
   toValue?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SupportTicketEventCountAggregateInputType = {
@@ -110,6 +115,7 @@ export type SupportTicketEventCountAggregateInputType = {
   fromValue?: true
   toValue?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -196,6 +202,7 @@ export type SupportTicketEventGroupByOutputType = {
   fromValue: string | null
   toValue: string | null
   createdAt: Date
+  updatedAt: Date
   _count: SupportTicketEventCountAggregateOutputType | null
   _min: SupportTicketEventMinAggregateOutputType | null
   _max: SupportTicketEventMaxAggregateOutputType | null
@@ -230,6 +237,7 @@ export type SupportTicketEventWhereInput = {
   fromValue?: Prisma.StringNullableFilter<"SupportTicketEvent"> | string | null
   toValue?: Prisma.StringNullableFilter<"SupportTicketEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SupportTicketEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SupportTicketEvent"> | Date | string
   ticket?: Prisma.XOR<Prisma.SupportTicketScalarRelationFilter, Prisma.SupportTicketWhereInput>
   actor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
@@ -245,6 +253,7 @@ export type SupportTicketEventOrderByWithRelationInput = {
   fromValue?: Prisma.SortOrderInput | Prisma.SortOrder
   toValue?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   ticket?: Prisma.SupportTicketOrderByWithRelationInput
   actor?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.SupportTicketEventOrderByRelevanceInput
@@ -264,6 +273,7 @@ export type SupportTicketEventWhereUniqueInput = Prisma.AtLeast<{
   fromValue?: Prisma.StringNullableFilter<"SupportTicketEvent"> | string | null
   toValue?: Prisma.StringNullableFilter<"SupportTicketEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SupportTicketEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SupportTicketEvent"> | Date | string
   ticket?: Prisma.XOR<Prisma.SupportTicketScalarRelationFilter, Prisma.SupportTicketWhereInput>
   actor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id">
@@ -279,6 +289,7 @@ export type SupportTicketEventOrderByWithAggregationInput = {
   fromValue?: Prisma.SortOrderInput | Prisma.SortOrder
   toValue?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SupportTicketEventCountOrderByAggregateInput
   _max?: Prisma.SupportTicketEventMaxOrderByAggregateInput
   _min?: Prisma.SupportTicketEventMinOrderByAggregateInput
@@ -298,6 +309,7 @@ export type SupportTicketEventScalarWhereWithAggregatesInput = {
   fromValue?: Prisma.StringNullableWithAggregatesFilter<"SupportTicketEvent"> | string | null
   toValue?: Prisma.StringNullableWithAggregatesFilter<"SupportTicketEvent"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SupportTicketEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SupportTicketEvent"> | Date | string
 }
 
 export type SupportTicketEventCreateInput = {
@@ -309,6 +321,7 @@ export type SupportTicketEventCreateInput = {
   fromValue?: string | null
   toValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   ticket: Prisma.SupportTicketCreateNestedOneWithoutEventsInput
   actor?: Prisma.UserCreateNestedOneWithoutSupportTicketEventsInput
 }
@@ -324,6 +337,7 @@ export type SupportTicketEventUncheckedCreateInput = {
   fromValue?: string | null
   toValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SupportTicketEventUpdateInput = {
@@ -335,6 +349,7 @@ export type SupportTicketEventUpdateInput = {
   fromValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ticket?: Prisma.SupportTicketUpdateOneRequiredWithoutEventsNestedInput
   actor?: Prisma.UserUpdateOneWithoutSupportTicketEventsNestedInput
 }
@@ -350,6 +365,7 @@ export type SupportTicketEventUncheckedUpdateInput = {
   fromValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SupportTicketEventCreateManyInput = {
@@ -363,6 +379,7 @@ export type SupportTicketEventCreateManyInput = {
   fromValue?: string | null
   toValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SupportTicketEventUpdateManyMutationInput = {
@@ -374,6 +391,7 @@ export type SupportTicketEventUpdateManyMutationInput = {
   fromValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SupportTicketEventUncheckedUpdateManyInput = {
@@ -387,6 +405,7 @@ export type SupportTicketEventUncheckedUpdateManyInput = {
   fromValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SupportTicketEventListRelationFilter = {
@@ -416,6 +435,7 @@ export type SupportTicketEventCountOrderByAggregateInput = {
   fromValue?: Prisma.SortOrder
   toValue?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SupportTicketEventMaxOrderByAggregateInput = {
@@ -429,6 +449,7 @@ export type SupportTicketEventMaxOrderByAggregateInput = {
   fromValue?: Prisma.SortOrder
   toValue?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SupportTicketEventMinOrderByAggregateInput = {
@@ -442,6 +463,7 @@ export type SupportTicketEventMinOrderByAggregateInput = {
   fromValue?: Prisma.SortOrder
   toValue?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SupportTicketEventCreateNestedManyWithoutActorInput = {
@@ -541,6 +563,7 @@ export type SupportTicketEventCreateWithoutActorInput = {
   fromValue?: string | null
   toValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   ticket: Prisma.SupportTicketCreateNestedOneWithoutEventsInput
 }
 
@@ -554,6 +577,7 @@ export type SupportTicketEventUncheckedCreateWithoutActorInput = {
   fromValue?: string | null
   toValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SupportTicketEventCreateOrConnectWithoutActorInput = {
@@ -596,6 +620,7 @@ export type SupportTicketEventScalarWhereInput = {
   fromValue?: Prisma.StringNullableFilter<"SupportTicketEvent"> | string | null
   toValue?: Prisma.StringNullableFilter<"SupportTicketEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SupportTicketEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SupportTicketEvent"> | Date | string
 }
 
 export type SupportTicketEventCreateWithoutTicketInput = {
@@ -607,6 +632,7 @@ export type SupportTicketEventCreateWithoutTicketInput = {
   fromValue?: string | null
   toValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   actor?: Prisma.UserCreateNestedOneWithoutSupportTicketEventsInput
 }
 
@@ -620,6 +646,7 @@ export type SupportTicketEventUncheckedCreateWithoutTicketInput = {
   fromValue?: string | null
   toValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SupportTicketEventCreateOrConnectWithoutTicketInput = {
@@ -658,6 +685,7 @@ export type SupportTicketEventCreateManyActorInput = {
   fromValue?: string | null
   toValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SupportTicketEventUpdateWithoutActorInput = {
@@ -669,6 +697,7 @@ export type SupportTicketEventUpdateWithoutActorInput = {
   fromValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ticket?: Prisma.SupportTicketUpdateOneRequiredWithoutEventsNestedInput
 }
 
@@ -682,6 +711,7 @@ export type SupportTicketEventUncheckedUpdateWithoutActorInput = {
   fromValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SupportTicketEventUncheckedUpdateManyWithoutActorInput = {
@@ -694,6 +724,7 @@ export type SupportTicketEventUncheckedUpdateManyWithoutActorInput = {
   fromValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SupportTicketEventCreateManyTicketInput = {
@@ -706,6 +737,7 @@ export type SupportTicketEventCreateManyTicketInput = {
   fromValue?: string | null
   toValue?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SupportTicketEventUpdateWithoutTicketInput = {
@@ -717,6 +749,7 @@ export type SupportTicketEventUpdateWithoutTicketInput = {
   fromValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   actor?: Prisma.UserUpdateOneWithoutSupportTicketEventsNestedInput
 }
 
@@ -730,6 +763,7 @@ export type SupportTicketEventUncheckedUpdateWithoutTicketInput = {
   fromValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SupportTicketEventUncheckedUpdateManyWithoutTicketInput = {
@@ -742,6 +776,7 @@ export type SupportTicketEventUncheckedUpdateManyWithoutTicketInput = {
   fromValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -757,6 +792,7 @@ export type SupportTicketEventSelect<ExtArgs extends runtime.Types.Extensions.In
   fromValue?: boolean
   toValue?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   ticket?: boolean | Prisma.SupportTicketDefaultArgs<ExtArgs>
   actor?: boolean | Prisma.SupportTicketEvent$actorArgs<ExtArgs>
 }, ExtArgs["result"]["supportTicketEvent"]>
@@ -774,9 +810,10 @@ export type SupportTicketEventSelectScalar = {
   fromValue?: boolean
   toValue?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SupportTicketEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ticketId" | "kind" | "visibleToRequester" | "actorUserId" | "actorIsRequester" | "body" | "fromValue" | "toValue" | "createdAt", ExtArgs["result"]["supportTicketEvent"]>
+export type SupportTicketEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ticketId" | "kind" | "visibleToRequester" | "actorUserId" | "actorIsRequester" | "body" | "fromValue" | "toValue" | "createdAt" | "updatedAt", ExtArgs["result"]["supportTicketEvent"]>
 export type SupportTicketEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ticket?: boolean | Prisma.SupportTicketDefaultArgs<ExtArgs>
   actor?: boolean | Prisma.SupportTicketEvent$actorArgs<ExtArgs>
@@ -813,6 +850,7 @@ export type $SupportTicketEventPayload<ExtArgs extends runtime.Types.Extensions.
     fromValue: string | null
     toValue: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["supportTicketEvent"]>
   composites: {}
 }
@@ -1194,6 +1232,7 @@ export interface SupportTicketEventFieldRefs {
   readonly fromValue: Prisma.FieldRef<"SupportTicketEvent", 'String'>
   readonly toValue: Prisma.FieldRef<"SupportTicketEvent", 'String'>
   readonly createdAt: Prisma.FieldRef<"SupportTicketEvent", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SupportTicketEvent", 'DateTime'>
 }
     
 

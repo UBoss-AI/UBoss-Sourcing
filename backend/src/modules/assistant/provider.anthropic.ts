@@ -63,11 +63,73 @@ function anthropic(): Anthropic {
   return client;
 }
 
+/**
+ * The whole exchange, body included: two attempts of the SDK's thirty seconds.
+ *
+ * The SDK's `timeout` is armed around `fetch` itself and cleared the moment
+ * the response headers arrive. Everything after that - every streamed token,
+ * or the JSON body of a `create` - is outside it, so a connection that sends
+ * its headers and then goes quiet would hold the visitor's panel open until
+ * the socket's own idle limit, minutes later. Gemini's per-attempt timeout
+ * stays armed through the body; this is what gives the Anthropic path the same
+ * property.
+ */
+export const ANTHROPIC_EXCHANGE_DEADLINE_MS = 60_000;
+
+/**
+ * One exchange's abort signal: the caller's, plus our deadline.
+ *
+ * A timer and a controller rather than `AbortSignal.timeout` so that it can be
+ * cleared the moment the answer is in, and so `expired()` can tell "we gave up
+ * waiting" from "the visitor closed the panel". The route reads its own signal
+ * for the second; the first has to become a `timeout` failure here, or it
+ * would reach the route as the SDK's generic "Request was aborted."
+ */
+function exchangeDeadline(callerSignal: AbortSignal | undefined): {
+  signal: AbortSignal;
+  expired: () => boolean;
+  clear: () => void;
+} {
+  const controller = new AbortController();
+  let timedOut = false;
+
+  const timer = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, ANTHROPIC_EXCHANGE_DEADLINE_MS);
+
+  const forward = (): void => {
+    controller.abort();
+  };
+
+  if (callerSignal?.aborted === true) controller.abort();
+  else callerSignal?.addEventListener('abort', forward, { once: true });
+
+  return {
+    signal: controller.signal,
+    expired: () => timedOut,
+    clear: () => {
+      clearTimeout(timer);
+      callerSignal?.removeEventListener('abort', forward);
+    },
+  };
+}
+
+/** What the deadline firing becomes: the same `timeout` the SDK's own raises. */
+function deadlineExceeded(): AssistantProviderError {
+  return new AssistantProviderError(
+    `Anthropic did not finish within ${String(ANTHROPIC_EXCHANGE_DEADLINE_MS / 1000)} seconds.`,
+    'timeout',
+  );
+}
+
 export const anthropicProvider: AssistantProvider = {
   name: 'anthropic',
   model: env.ANTHROPIC_MODEL,
 
   async stream(request: AssistantRequest): Promise<AssistantResult> {
+    const deadline = exchangeDeadline(request.signal);
+
     const stream = anthropic().messages.stream(
       {
         model: env.ANTHROPIC_MODEL,
@@ -94,7 +156,7 @@ export const anthropicProvider: AssistantProvider = {
         output_config: { effort: 'low' },
         messages: request.turns.map((turn) => ({ role: turn.role, content: turn.content })),
       },
-      request.signal === undefined ? undefined : { signal: request.signal },
+      { signal: deadline.signal },
     );
 
     stream.on('text', request.onText);
@@ -103,7 +165,10 @@ export const anthropicProvider: AssistantProvider = {
     try {
       message = await stream.finalMessage();
     } catch (error) {
+      if (deadline.expired()) throw deadlineExceeded();
       throw classifyAnthropic(error) ?? error;
+    } finally {
+      deadline.clear();
     }
 
     return {
@@ -132,6 +197,7 @@ export const anthropicProvider: AssistantProvider = {
    * the prompt. The image is the only per-request bytes and it comes after.
    */
   async describeImage(request: AssistantVisionRequest): Promise<AssistantVisionResult> {
+    const deadline = exchangeDeadline(request.signal);
     let message;
 
     try {
@@ -165,10 +231,13 @@ export const anthropicProvider: AssistantProvider = {
             },
           ],
         },
-        request.signal === undefined ? undefined : { signal: request.signal },
+        { signal: deadline.signal },
       );
     } catch (error) {
+      if (deadline.expired()) throw deadlineExceeded();
       throw classifyAnthropic(error) ?? error;
+    } finally {
+      deadline.clear();
     }
 
     // Only the text blocks. A reply carrying anything else is not something

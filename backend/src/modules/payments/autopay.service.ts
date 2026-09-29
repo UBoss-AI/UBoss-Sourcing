@@ -34,8 +34,19 @@
  * decision about somebody's money that nothing here is entitled to make - so a
  * mismatch refuses, loudly, with its own error code.
  */
-import type { Prisma } from '../../generated/prisma/client.js';
-import type { AutoPayRetryPreference, AutoPayStatus } from '../../generated/prisma/enums.js';
+import { Prisma } from '../../generated/prisma/client.js';
+import type {
+  AutoPayCapPeriod,
+  AutoPayRetryPreference,
+  AutoPayStatus,
+} from '../../generated/prisma/enums.js';
+import {
+  MARKETPLACE_SUPPLIER_KEY,
+  type ScopedLine,
+  capPeriodWindow,
+  firstLineOutsideScope,
+  parseScopeList,
+} from '../../domain/autopay-authority.js';
 import { env } from '../../config/env.js';
 import { ErrorCode, badRequest, conflict, forbidden, notFound } from '../../domain/errors.js';
 import { sha256Hex } from '../../infra/crypto.js';
@@ -70,6 +81,23 @@ export interface AutoPayView {
   retryPreference: AutoPayRetryPreference;
   notifyOnCharge: boolean;
   notifyOnFailure: boolean;
+  /** The customer's own end date for this authority, or null for none. */
+  authorityExpiresAt: string | null;
+  /** True once that date has passed: nothing will be charged. */
+  authorityExpired: boolean;
+  /** The customer's own start date, or null for "from when it was switched on". */
+  authorityStartsAt: string | null;
+  /** True while that date is still ahead: nothing will be charged yet. */
+  authorityNotStarted: boolean;
+  /** The most that may be charged automatically per calendar period. */
+  periodCapMinor: string | null;
+  capPeriod: AutoPayCapPeriod | null;
+  /** What automatic charges have used of the cap in the current period. */
+  periodUsedMinor: string | null;
+  /** Seller account ids and MARKETPLACE, or null for every supplier. */
+  scopeSellerKeys: string[] | null;
+  /** Category ids, or null for every category. */
+  scopeCategoryIds: string[] | null;
   consentAcceptedAt: string | null;
   consentVersion: string | null;
   consentWithdrawnAt: string | null;
@@ -112,6 +140,15 @@ function toView(row: SettingRow | null): AutoPayView {
       retryPreference: 'STANDARD',
       notifyOnCharge: true,
       notifyOnFailure: true,
+      authorityExpiresAt: null,
+      authorityExpired: false,
+      authorityStartsAt: null,
+      authorityNotStarted: false,
+      periodCapMinor: null,
+      capPeriod: null,
+      periodUsedMinor: null,
+      scopeSellerKeys: null,
+      scopeCategoryIds: null,
       consentAcceptedAt: null,
       consentVersion: null,
       consentWithdrawnAt: null,
@@ -138,6 +175,15 @@ function toView(row: SettingRow | null): AutoPayView {
     retryPreference: row.retryPreference,
     notifyOnCharge: row.notifyOnCharge,
     notifyOnFailure: row.notifyOnFailure,
+    authorityExpiresAt: row.authorityExpiresAt?.toISOString() ?? null,
+    authorityExpired: row.authorityExpiresAt !== null && row.authorityExpiresAt.getTime() <= Date.now(),
+    authorityStartsAt: row.authorityStartsAt?.toISOString() ?? null,
+    authorityNotStarted: row.authorityStartsAt !== null && row.authorityStartsAt.getTime() > Date.now(),
+    periodCapMinor: minorToString(row.periodCapMinor),
+    capPeriod: row.capPeriod,
+    periodUsedMinor: null,
+    scopeSellerKeys: parseScopeList(row.scopeSellerKeysJson),
+    scopeCategoryIds: parseScopeList(row.scopeCategoryIdsJson),
     consentAcceptedAt: row.consentAcceptedAt?.toISOString() ?? null,
     consentVersion: row.consentVersion,
     consentWithdrawnAt: row.consentWithdrawnAt?.toISOString() ?? null,
@@ -170,7 +216,44 @@ export async function getAutoPaySettings(customerProfileId: string): Promise<Aut
     include: { paymentMethod: true },
   });
 
-  return toView(row);
+  const view = toView(row);
+  if (row !== null && row.periodCapMinor !== null && row.capPeriod !== null && row.limitCurrency !== null) {
+    view.periodUsedMinor = (
+      await automaticChargesInPeriod(customerProfileId, row.limitCurrency, row.capPeriod, new Date())
+    ).toString();
+  }
+  return view;
+}
+
+/**
+ * What automatic (off-session, scheduled) charges have taken - or are in the
+ * middle of taking - from this customer in the current period.
+ *
+ * Counted from the payment attempts themselves rather than from orders, and
+ * including attempts still in flight: two plans running in the same minute
+ * must not both see the whole cap available. A failed or cancelled attempt
+ * moved no money and does not count. Only the scheduled engine's own charges
+ * count (their idempotency key is the occurrence's, `occ:...`): an order the
+ * customer paid by hand was not taken under this authority.
+ */
+export async function automaticChargesInPeriod(
+  customerProfileId: string,
+  currency: string,
+  period: AutoPayCapPeriod,
+  now: Date,
+): Promise<bigint> {
+  const window = capPeriodWindow(now, period);
+  const total = await prisma.paymentTransaction.aggregate({
+    where: {
+      currency,
+      idempotencyKey: { startsWith: 'occ:' },
+      status: { in: ['CREATED', 'PENDING', 'AUTHORIZED', 'CAPTURED'] },
+      createdAt: { gte: window.start, lt: window.end },
+      order: { customerProfileId },
+    },
+    _sum: { amountMinor: true },
+  });
+  return total._sum.amountMinor ?? 0n;
 }
 
 // ---------------------------------------------------------------------------
@@ -190,6 +273,115 @@ export interface EnableAutoPayInput {
   retryPreference?: AutoPayRetryPreference;
   notifyOnCharge?: boolean;
   notifyOnFailure?: boolean;
+  /** The end date of the authority. Null means until switched off. */
+  authorityExpiresAt?: Date | null;
+  /** The start date of the authority. Null means from now. */
+  authorityStartsAt?: Date | null;
+  periodCapMinor?: bigint | null;
+  capPeriod?: AutoPayCapPeriod | null;
+  /** Seller account ids and MARKETPLACE. Null: every supplier. */
+  scopeSellerKeys?: string[] | null;
+  /** Category ids. Null: every category. */
+  scopeCategoryIds?: string[] | null;
+}
+
+/**
+ * The start has to come before the end, and a period cap is an amount, a
+ * period and a currency together - the rule `chk_autopay_period_cap` holds
+ * the table to.
+ */
+function assertAuthorityWindowAndCap(input: {
+  authorityStartsAt: Date | null;
+  authorityExpiresAt: Date | null;
+  periodCapMinor: bigint | null;
+  capPeriod: AutoPayCapPeriod | null;
+  limitCurrency: string | null;
+}): void {
+  if (
+    input.authorityStartsAt !== null &&
+    input.authorityExpiresAt !== null &&
+    input.authorityStartsAt.getTime() >= input.authorityExpiresAt.getTime()
+  ) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'The start date has to be before the end date.', [
+      { field: 'authorityStartsAt', code: 'AFTER_END' },
+    ]);
+  }
+
+  if (input.periodCapMinor === null) return;
+
+  if (input.periodCapMinor <= 0n) {
+    throw badRequest(
+      ErrorCode.VALIDATION_FAILED,
+      'A cap of nothing would stop every payment. Leave it empty for no cap.',
+      [{ field: 'periodCapMinor', code: 'MUST_BE_POSITIVE' }],
+    );
+  }
+  if (input.capPeriod === null) {
+    throw badRequest(
+      ErrorCode.VALIDATION_FAILED,
+      'Choose the period your cap applies to: a week, a month, a quarter or a year.',
+      [{ field: 'capPeriod', code: 'REQUIRED' }],
+    );
+  }
+  if ((input.limitCurrency ?? '') === '') {
+    throw badRequest(
+      ErrorCode.VALIDATION_FAILED,
+      'Choose the currency your limits are in. An amount without a currency is not a limit.',
+      [{ field: 'limitCurrency', code: 'REQUIRED' }],
+    );
+  }
+}
+
+/**
+ * Every supplier and category named in a scope has to exist. A typo stored as
+ * a scope would quietly hold every delivery from the supplier the customer
+ * meant, and they would only find out when one was not paid for.
+ */
+async function assertScopeKnown(input: {
+  scopeSellerKeys?: string[] | null;
+  scopeCategoryIds?: string[] | null;
+}): Promise<void> {
+  const sellers = [...new Set(input.scopeSellerKeys ?? [])].filter(
+    (key) => key !== MARKETPLACE_SUPPLIER_KEY,
+  );
+  if (sellers.length > 0) {
+    const found = await prisma.sellerAccount.count({ where: { id: { in: sellers } } });
+    if (found !== sellers.length) {
+      throw badRequest(ErrorCode.VALIDATION_FAILED, 'One of the suppliers you chose no longer exists.', [
+        { field: 'scopeSellerKeys', code: 'NOT_FOUND' },
+      ]);
+    }
+  }
+  const categories = [...new Set(input.scopeCategoryIds ?? [])];
+  if (categories.length > 0) {
+    const found = await prisma.category.count({ where: { id: { in: categories } } });
+    if (found !== categories.length) {
+      throw badRequest(ErrorCode.VALIDATION_FAILED, 'One of the categories you chose no longer exists.', [
+        { field: 'scopeCategoryIds', code: 'NOT_FOUND' },
+      ]);
+    }
+  }
+}
+
+/** A scope list for a JSON column: DbNull for "every", a de-duplicated list otherwise. */
+function scopeJson(value: string[] | null): string[] | typeof Prisma.DbNull {
+  return value === null ? Prisma.DbNull : [...new Set(value)];
+}
+
+/**
+ * An end date has to be in the future. A date already past would switch the
+ * authority on and off in the same breath, and the customer would believe they
+ * had set something up.
+ */
+function assertExpiryInFuture(value: Date | null | undefined): void {
+  if (value === undefined || value === null) return;
+  if (value.getTime() <= Date.now()) {
+    throw badRequest(
+      ErrorCode.VALIDATION_FAILED,
+      'Choose an end date in the future, or leave it empty to keep automatic payment until you switch it off.',
+      [{ field: 'authorityExpiresAt', code: 'IN_THE_PAST' }],
+    );
+  }
 }
 
 /**
@@ -284,11 +476,26 @@ export async function enableAutoPay(
   assertChargeable(method);
 
   assertLimitsCoherent(input);
+  assertExpiryInFuture(input.authorityExpiresAt);
+  assertAuthorityWindowAndCap({
+    authorityStartsAt: input.authorityStartsAt ?? null,
+    authorityExpiresAt: input.authorityExpiresAt ?? null,
+    periodCapMinor: input.periodCapMinor ?? null,
+    capPeriod: input.capPeriod ?? null,
+    limitCurrency: input.limitCurrency ?? null,
+  });
+  await assertScopeKnown(input);
 
   const now = new Date();
 
   const data = {
     status: 'ACTIVE' as const,
+    authorityExpiresAt: input.authorityExpiresAt ?? null,
+    authorityStartsAt: input.authorityStartsAt ?? null,
+    periodCapMinor: input.periodCapMinor ?? null,
+    capPeriod: (input.periodCapMinor ?? null) === null ? null : (input.capPeriod ?? null),
+    scopeSellerKeysJson: scopeJson(input.scopeSellerKeys ?? null),
+    scopeCategoryIdsJson: scopeJson(input.scopeCategoryIds ?? null),
     paymentMethodId: input.paymentMethodId,
     maxTransactionMinor: input.maxTransactionMinor ?? null,
     approvalThresholdMinor: input.approvalThresholdMinor ?? null,
@@ -332,6 +539,12 @@ export async function enableAutoPay(
       maxTransactionMinor: minorToString(data.maxTransactionMinor),
       approvalThresholdMinor: minorToString(data.approvalThresholdMinor),
       limitCurrency: data.limitCurrency,
+      authorityExpiresAt: data.authorityExpiresAt?.toISOString() ?? null,
+      authorityStartsAt: data.authorityStartsAt?.toISOString() ?? null,
+      periodCapMinor: minorToString(data.periodCapMinor),
+      capPeriod: data.capPeriod,
+      scopeSellerKeys: input.scopeSellerKeys ?? null,
+      scopeCategoryIds: input.scopeCategoryIds ?? null,
     },
     ipAddress: actor.ipAddress ?? null,
     userAgent: actor.userAgent ?? null,
@@ -393,6 +606,21 @@ export async function updateAutoPaySettings(
     limitCurrency:
       input.limitCurrency === undefined ? existing.limitCurrency : input.limitCurrency,
   });
+  assertExpiryInFuture(input.authorityExpiresAt);
+  const mergedCap =
+    input.periodCapMinor === undefined ? existing.periodCapMinor : input.periodCapMinor;
+  const mergedPeriod =
+    mergedCap === null ? null : input.capPeriod === undefined ? existing.capPeriod : input.capPeriod;
+  assertAuthorityWindowAndCap({
+    authorityStartsAt:
+      input.authorityStartsAt === undefined ? existing.authorityStartsAt : input.authorityStartsAt,
+    authorityExpiresAt:
+      input.authorityExpiresAt === undefined ? existing.authorityExpiresAt : input.authorityExpiresAt,
+    periodCapMinor: mergedCap,
+    capPeriod: mergedPeriod,
+    limitCurrency: input.limitCurrency === undefined ? existing.limitCurrency : input.limitCurrency,
+  });
+  await assertScopeKnown(input);
 
   const saved = await prisma.customerAutoPaySetting.update({
     where: { customerProfileId: actor.customerProfileId },
@@ -410,6 +638,18 @@ export async function updateAutoPaySettings(
       ...(input.retryPreference === undefined ? {} : { retryPreference: input.retryPreference }),
       ...(input.notifyOnCharge === undefined ? {} : { notifyOnCharge: input.notifyOnCharge }),
       ...(input.notifyOnFailure === undefined ? {} : { notifyOnFailure: input.notifyOnFailure }),
+      ...(input.authorityExpiresAt === undefined
+        ? {}
+        : { authorityExpiresAt: input.authorityExpiresAt }),
+      ...(input.authorityStartsAt === undefined ? {} : { authorityStartsAt: input.authorityStartsAt }),
+      periodCapMinor: mergedCap,
+      capPeriod: mergedPeriod,
+      ...(input.scopeSellerKeys === undefined
+        ? {}
+        : { scopeSellerKeysJson: scopeJson(input.scopeSellerKeys) }),
+      ...(input.scopeCategoryIds === undefined
+        ? {}
+        : { scopeCategoryIdsJson: scopeJson(input.scopeCategoryIds) }),
     },
     include: { paymentMethod: true },
   });
@@ -427,6 +667,12 @@ export async function updateAutoPaySettings(
       limitCurrency: existing.limitCurrency,
       paymentMethodId: existing.paymentMethodId,
       retryPreference: existing.retryPreference,
+      authorityExpiresAt: existing.authorityExpiresAt?.toISOString() ?? null,
+      authorityStartsAt: existing.authorityStartsAt?.toISOString() ?? null,
+      periodCapMinor: minorToString(existing.periodCapMinor),
+      capPeriod: existing.capPeriod,
+      scopeSellerKeys: parseScopeList(existing.scopeSellerKeysJson),
+      scopeCategoryIds: parseScopeList(existing.scopeCategoryIdsJson),
     },
     after: {
       maxTransactionMinor: minorToString(saved.maxTransactionMinor),
@@ -434,6 +680,12 @@ export async function updateAutoPaySettings(
       limitCurrency: saved.limitCurrency,
       paymentMethodId: saved.paymentMethodId,
       retryPreference: saved.retryPreference,
+      authorityExpiresAt: saved.authorityExpiresAt?.toISOString() ?? null,
+      authorityStartsAt: saved.authorityStartsAt?.toISOString() ?? null,
+      periodCapMinor: minorToString(saved.periodCapMinor),
+      capPeriod: saved.capPeriod,
+      scopeSellerKeys: parseScopeList(saved.scopeSellerKeysJson),
+      scopeCategoryIds: parseScopeList(saved.scopeCategoryIdsJson),
     },
     ipAddress: actor.ipAddress ?? null,
     correlationId: actor.correlationId ?? null,
@@ -575,7 +827,15 @@ export type AutoPayDecision =
    * Do not charge, and ask the customer first. The amount crossed the threshold
    * they set for being consulted.
    */
-  | { outcome: 'ASK_CUSTOMER'; reason: string; thresholdMinor: string; currency: string }
+  | {
+      outcome: 'ASK_CUSTOMER';
+      /** AUTOPAY_APPROVAL_REQUIRED, AUTOPAY_PERIOD_CAP_REACHED or AUTOPAY_OUTSIDE_SCOPE. */
+      code: string;
+      reason: string;
+      /** The limit that fired, in `currency`; null for a scope question. */
+      thresholdMinor: string | null;
+      currency: string;
+    }
   /** Do not charge, and do not ask. Something makes this charge impermissible. */
   | { outcome: 'REFUSE'; code: string; reason: string };
 
@@ -596,7 +856,17 @@ export async function evaluateAutoPay(input: {
   customerProfileId: string;
   amountMinor: bigint;
   currency: string;
+  /**
+   * Who supplies each line and what category it is in, for the supplier and
+   * category scope. A caller with no basket to describe leaves it out, and a
+   * scope is then treated as NOT satisfied: "we did not look" is not "it is
+   * covered".
+   */
+  lines?: readonly ScopedLine[];
+  now?: Date;
 }): Promise<AutoPayDecision> {
+  const now = input.now ?? new Date();
+
   if (!env.FEATURE_CUSTOMER_AUTOPAY) {
     return {
       outcome: 'REFUSE',
@@ -623,6 +893,25 @@ export async function evaluateAutoPay(input: {
       outcome: 'REFUSE',
       code: ErrorCode.AUTOPAY_NOT_ENABLED,
       reason: 'Automatic payment is paused for this account.',
+    };
+  }
+
+  // The customer's own end date. Checked before the card and the limits:
+  // an authority that has run out is not a charge that is too large.
+  if (settings.authorityExpiresAt !== null && settings.authorityExpiresAt.getTime() <= now.getTime()) {
+    return {
+      outcome: 'REFUSE',
+      code: ErrorCode.AUTOPAY_AUTHORITY_EXPIRED,
+      reason: 'The end date you set for automatic payment has passed. Set a new one to carry on.',
+    };
+  }
+
+  // The customer's own start date. Before it, the authority does not exist yet.
+  if (settings.authorityStartsAt !== null && settings.authorityStartsAt.getTime() > now.getTime()) {
+    return {
+      outcome: 'REFUSE',
+      code: ErrorCode.AUTOPAY_AUTHORITY_NOT_STARTED,
+      reason: 'The start date you set for automatic payment has not come yet.',
     };
   }
 
@@ -705,9 +994,69 @@ export async function evaluateAutoPay(input: {
       // this size, and they are about to be.
       return {
         outcome: 'ASK_CUSTOMER',
+        code: ErrorCode.AUTOPAY_APPROVAL_REQUIRED,
         reason: 'This amount is above the level you asked to be consulted about.',
         thresholdMinor: settings.approvalThresholdMinor.toString(),
         currency: settings.limitCurrency ?? input.currency,
+      };
+    }
+  }
+
+  // --- Supplier and category scope ---------------------------------------
+  //
+  // Asked rather than refused: the customer may well want this order, they
+  // just did not authorise it to be paid without them. Paying it themselves
+  // is the approval.
+  const scope = {
+    sellerKeys: parseScopeList(settings.scopeSellerKeysJson),
+    categoryIds: parseScopeList(settings.scopeCategoryIdsJson),
+  };
+  if (scope.sellerKeys !== null || scope.categoryIds !== null) {
+    const outside =
+      input.lines === undefined
+        ? { dimension: scope.sellerKeys !== null ? ('SUPPLIER' as const) : ('CATEGORY' as const) }
+        : firstLineOutsideScope(scope, input.lines);
+    if (outside !== null) {
+      return {
+        outcome: 'ASK_CUSTOMER',
+        code: ErrorCode.AUTOPAY_OUTSIDE_SCOPE,
+        reason:
+          outside.dimension === 'SUPPLIER'
+            ? 'This order includes a supplier your automatic payment does not cover.'
+            : 'This order includes a category your automatic payment does not cover.',
+        thresholdMinor: null,
+        currency: input.currency,
+      };
+    }
+  }
+
+  // --- The cap per calendar period ----------------------------------------
+  if (settings.periodCapMinor !== null && settings.capPeriod !== null) {
+    if (settings.limitCurrency !== input.currency) {
+      return {
+        outcome: 'REFUSE',
+        code: ErrorCode.AUTOPAY_CURRENCY_MISMATCH,
+        reason:
+          `Your automatic payment limits are set in ${settings.limitCurrency ?? 'another currency'} ` +
+          `and this order is in ${input.currency}. Update your limits to cover this currency.`,
+      };
+    }
+
+    const used = await automaticChargesInPeriod(
+      input.customerProfileId,
+      input.currency,
+      settings.capPeriod,
+      now,
+    );
+
+    if (used + input.amountMinor > settings.periodCapMinor) {
+      return {
+        outcome: 'ASK_CUSTOMER',
+        code: ErrorCode.AUTOPAY_PERIOD_CAP_REACHED,
+        reason:
+          'This payment would take your automatic payments for this period above the cap you set.',
+        thresholdMinor: settings.periodCapMinor.toString(),
+        currency: input.currency,
       };
     }
   }
@@ -748,7 +1097,7 @@ export async function recordWithheldCharge(input: {
       reason: input.decision.reason,
       amountMinor: input.amountMinor.toString(),
       currency: input.currency,
-      ...(input.decision.outcome === 'REFUSE' ? { code: input.decision.code } : {}),
+      code: input.decision.code,
     },
     correlationId: input.correlationId ?? null,
   });

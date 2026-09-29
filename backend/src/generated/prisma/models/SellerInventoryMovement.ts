@@ -55,6 +55,7 @@ export type SellerInventoryMovementMinAggregateOutputType = {
   actorProfileId: string | null
   idempotencyKey: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerInventoryMovementMaxAggregateOutputType = {
@@ -72,6 +73,7 @@ export type SellerInventoryMovementMaxAggregateOutputType = {
   actorProfileId: string | null
   idempotencyKey: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerInventoryMovementCountAggregateOutputType = {
@@ -89,6 +91,7 @@ export type SellerInventoryMovementCountAggregateOutputType = {
   actorProfileId: number
   idempotencyKey: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -118,6 +121,7 @@ export type SellerInventoryMovementMinAggregateInputType = {
   actorProfileId?: true
   idempotencyKey?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerInventoryMovementMaxAggregateInputType = {
@@ -135,6 +139,7 @@ export type SellerInventoryMovementMaxAggregateInputType = {
   actorProfileId?: true
   idempotencyKey?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerInventoryMovementCountAggregateInputType = {
@@ -152,6 +157,7 @@ export type SellerInventoryMovementCountAggregateInputType = {
   actorProfileId?: true
   idempotencyKey?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -256,6 +262,7 @@ export type SellerInventoryMovementGroupByOutputType = {
   actorProfileId: string | null
   idempotencyKey: string | null
   createdAt: Date
+  updatedAt: Date
   _count: SellerInventoryMovementCountAggregateOutputType | null
   _avg: SellerInventoryMovementAvgAggregateOutputType | null
   _sum: SellerInventoryMovementSumAggregateOutputType | null
@@ -296,6 +303,7 @@ export type SellerInventoryMovementWhereInput = {
   actorProfileId?: Prisma.StringNullableFilter<"SellerInventoryMovement"> | string | null
   idempotencyKey?: Prisma.StringNullableFilter<"SellerInventoryMovement"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerInventoryMovement"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerInventoryMovement"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   location?: Prisma.XOR<Prisma.SellerLocationScalarRelationFilter, Prisma.SellerLocationWhereInput>
 }
@@ -315,6 +323,7 @@ export type SellerInventoryMovementOrderByWithRelationInput = {
   actorProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   location?: Prisma.SellerLocationOrderByWithRelationInput
   _relevance?: Prisma.SellerInventoryMovementOrderByRelevanceInput
@@ -339,6 +348,7 @@ export type SellerInventoryMovementWhereUniqueInput = Prisma.AtLeast<{
   actorProfileId?: Prisma.StringNullableFilter<"SellerInventoryMovement"> | string | null
   idempotencyKey?: Prisma.StringNullableFilter<"SellerInventoryMovement"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerInventoryMovement"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerInventoryMovement"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   location?: Prisma.XOR<Prisma.SellerLocationScalarRelationFilter, Prisma.SellerLocationWhereInput>
 }, "id" | "sellerAccountId_idempotencyKey">
@@ -358,6 +368,7 @@ export type SellerInventoryMovementOrderByWithAggregationInput = {
   actorProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerInventoryMovementCountOrderByAggregateInput
   _avg?: Prisma.SellerInventoryMovementAvgOrderByAggregateInput
   _max?: Prisma.SellerInventoryMovementMaxOrderByAggregateInput
@@ -383,6 +394,7 @@ export type SellerInventoryMovementScalarWhereWithAggregatesInput = {
   actorProfileId?: Prisma.StringNullableWithAggregatesFilter<"SellerInventoryMovement"> | string | null
   idempotencyKey?: Prisma.StringNullableWithAggregatesFilter<"SellerInventoryMovement"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerInventoryMovement"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerInventoryMovement"> | Date | string
 }
 
 export type SellerInventoryMovementCreateInput = {
@@ -398,6 +410,7 @@ export type SellerInventoryMovementCreateInput = {
   actorProfileId?: string | null
   idempotencyKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutInventoryMovementsInput
   location: Prisma.SellerLocationCreateNestedOneWithoutMovementsInput
 }
@@ -417,6 +430,7 @@ export type SellerInventoryMovementUncheckedCreateInput = {
   actorProfileId?: string | null
   idempotencyKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerInventoryMovementUpdateInput = {
@@ -432,6 +446,7 @@ export type SellerInventoryMovementUpdateInput = {
   actorProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutInventoryMovementsNestedInput
   location?: Prisma.SellerLocationUpdateOneRequiredWithoutMovementsNestedInput
 }
@@ -451,6 +466,7 @@ export type SellerInventoryMovementUncheckedUpdateInput = {
   actorProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerInventoryMovementCreateManyInput = {
@@ -468,6 +484,7 @@ export type SellerInventoryMovementCreateManyInput = {
   actorProfileId?: string | null
   idempotencyKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerInventoryMovementUpdateManyMutationInput = {
@@ -483,6 +500,7 @@ export type SellerInventoryMovementUpdateManyMutationInput = {
   actorProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerInventoryMovementUncheckedUpdateManyInput = {
@@ -500,6 +518,7 @@ export type SellerInventoryMovementUncheckedUpdateManyInput = {
   actorProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerInventoryMovementListRelationFilter = {
@@ -538,6 +557,7 @@ export type SellerInventoryMovementCountOrderByAggregateInput = {
   actorProfileId?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerInventoryMovementAvgOrderByAggregateInput = {
@@ -560,6 +580,7 @@ export type SellerInventoryMovementMaxOrderByAggregateInput = {
   actorProfileId?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerInventoryMovementMinOrderByAggregateInput = {
@@ -577,6 +598,7 @@ export type SellerInventoryMovementMinOrderByAggregateInput = {
   actorProfileId?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerInventoryMovementSumOrderByAggregateInput = {
@@ -685,6 +707,7 @@ export type SellerInventoryMovementCreateWithoutSellerAccountInput = {
   actorProfileId?: string | null
   idempotencyKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   location: Prisma.SellerLocationCreateNestedOneWithoutMovementsInput
 }
 
@@ -702,6 +725,7 @@ export type SellerInventoryMovementUncheckedCreateWithoutSellerAccountInput = {
   actorProfileId?: string | null
   idempotencyKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerInventoryMovementCreateOrConnectWithoutSellerAccountInput = {
@@ -748,6 +772,7 @@ export type SellerInventoryMovementScalarWhereInput = {
   actorProfileId?: Prisma.StringNullableFilter<"SellerInventoryMovement"> | string | null
   idempotencyKey?: Prisma.StringNullableFilter<"SellerInventoryMovement"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerInventoryMovement"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerInventoryMovement"> | Date | string
 }
 
 export type SellerInventoryMovementCreateWithoutLocationInput = {
@@ -763,6 +788,7 @@ export type SellerInventoryMovementCreateWithoutLocationInput = {
   actorProfileId?: string | null
   idempotencyKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutInventoryMovementsInput
 }
 
@@ -780,6 +806,7 @@ export type SellerInventoryMovementUncheckedCreateWithoutLocationInput = {
   actorProfileId?: string | null
   idempotencyKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerInventoryMovementCreateOrConnectWithoutLocationInput = {
@@ -822,6 +849,7 @@ export type SellerInventoryMovementCreateManySellerAccountInput = {
   actorProfileId?: string | null
   idempotencyKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerInventoryMovementUpdateWithoutSellerAccountInput = {
@@ -837,6 +865,7 @@ export type SellerInventoryMovementUpdateWithoutSellerAccountInput = {
   actorProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.SellerLocationUpdateOneRequiredWithoutMovementsNestedInput
 }
 
@@ -854,6 +883,7 @@ export type SellerInventoryMovementUncheckedUpdateWithoutSellerAccountInput = {
   actorProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerInventoryMovementUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -870,6 +900,7 @@ export type SellerInventoryMovementUncheckedUpdateManyWithoutSellerAccountInput 
   actorProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerInventoryMovementCreateManyLocationInput = {
@@ -886,6 +917,7 @@ export type SellerInventoryMovementCreateManyLocationInput = {
   actorProfileId?: string | null
   idempotencyKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerInventoryMovementUpdateWithoutLocationInput = {
@@ -901,6 +933,7 @@ export type SellerInventoryMovementUpdateWithoutLocationInput = {
   actorProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutInventoryMovementsNestedInput
 }
 
@@ -918,6 +951,7 @@ export type SellerInventoryMovementUncheckedUpdateWithoutLocationInput = {
   actorProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerInventoryMovementUncheckedUpdateManyWithoutLocationInput = {
@@ -934,6 +968,7 @@ export type SellerInventoryMovementUncheckedUpdateManyWithoutLocationInput = {
   actorProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -953,6 +988,7 @@ export type SellerInventoryMovementSelect<ExtArgs extends runtime.Types.Extensio
   actorProfileId?: boolean
   idempotencyKey?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   location?: boolean | Prisma.SellerLocationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerInventoryMovement"]>
@@ -974,9 +1010,10 @@ export type SellerInventoryMovementSelectScalar = {
   actorProfileId?: boolean
   idempotencyKey?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerInventoryMovementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "offerId" | "locationId" | "type" | "quantityDelta" | "balanceAfter" | "referenceType" | "referenceId" | "reason" | "batchNumber" | "actorProfileId" | "idempotencyKey" | "createdAt", ExtArgs["result"]["sellerInventoryMovement"]>
+export type SellerInventoryMovementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "offerId" | "locationId" | "type" | "quantityDelta" | "balanceAfter" | "referenceType" | "referenceId" | "reason" | "batchNumber" | "actorProfileId" | "idempotencyKey" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerInventoryMovement"]>
 export type SellerInventoryMovementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   location?: boolean | Prisma.SellerLocationDefaultArgs<ExtArgs>
@@ -1025,6 +1062,7 @@ export type $SellerInventoryMovementPayload<ExtArgs extends runtime.Types.Extens
      */
     idempotencyKey: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerInventoryMovement"]>
   composites: {}
 }
@@ -1410,6 +1448,7 @@ export interface SellerInventoryMovementFieldRefs {
   readonly actorProfileId: Prisma.FieldRef<"SellerInventoryMovement", 'String'>
   readonly idempotencyKey: Prisma.FieldRef<"SellerInventoryMovement", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerInventoryMovement", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerInventoryMovement", 'DateTime'>
 }
     
 

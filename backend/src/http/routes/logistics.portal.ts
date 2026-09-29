@@ -51,7 +51,13 @@ import {
   listShipmentDocuments,
   uploadShipmentDocument,
 } from '../../modules/logistics/document.service.js';
-import { captureProofOfDelivery, readProofOfDelivery } from '../../modules/logistics/pod.service.js';
+import {
+  captureProofOfDelivery,
+  readDeliveryCodeFor,
+  readPodRequirements,
+  readProofOfDelivery,
+  requestDeliveryCode,
+} from '../../modules/logistics/pod.service.js';
 import { raiseExceptionFromPortal } from '../../modules/logistics/exception.service.js';
 import { recordShipmentEvent } from '../../modules/logistics/shipment-event.service.js';
 import { readTimeline } from '../../modules/logistics/shipment-event.service.js';
@@ -83,7 +89,12 @@ import {
 import { readLiveLocation } from '../../modules/logistics/trip.service.js';
 import { currentUser } from '../plugins/auth.js';
 import { readOwnIntegrationHealth } from '../../modules/logistics/partner-catalogue.service.js';
-import { currentLogistics, requireLogistics, requireLogisticsSession } from '../plugins/logistics.js';
+import {
+  currentLogistics,
+  requireLogistics,
+  requireLogisticsAny,
+  requireLogisticsSession,
+} from '../plugins/logistics.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 
@@ -575,15 +586,24 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
 
   /**
    * One shipment this delivery company holds, with contact details masked to
-   * what the caller is entitled to see.
+   * what the caller is entitled to see. A driver may open only the stops on
+   * their own round, and sees contact details masked here as everybody does.
    */
   app.get(
     '/shipments/:id',
-    { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_READ) },
+    // A driver holds DRIVER_TASK_READ, not SHIPMENT_READ; readShipment's
+    // access check narrows them to their own stops.
+    { preHandler: requireLogisticsAny(LogisticsPermission.SHIPMENT_READ, LogisticsPermission.DRIVER_TASK_READ) },
     async (request, reply) => {
       const params = idParam.parse(request.params);
       const shipment = await readShipment(currentLogistics(request), params.id);
-      return reply.status(200).send(shipment);
+      // What a proof of delivery must include here, so the portal can ask for
+      // exactly that. Read after readShipment, which is the access check.
+      const podRequirements = await readPodRequirements(params.id);
+      // Whether a delivery code is live, where the policy asks for one. Never
+      // the code itself, and never where it was sent.
+      const deliveryCode = await readDeliveryCodeFor(params.id, podRequirements);
+      return reply.status(200).send({ ...shipment, podRequirements, deliveryCode });
     },
   );
 
@@ -594,7 +614,9 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
    */
   app.get(
     '/shipments/:id/timeline',
-    { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_READ) },
+    // A driver reads the timeline of a stop on their own round only: the
+    // assertShipmentAccess call below narrows them.
+    { preHandler: requireLogisticsAny(LogisticsPermission.SHIPMENT_READ, LogisticsPermission.DRIVER_TASK_READ) },
     async (request, reply) => {
       const params = idParam.parse(request.params);
       const membership = currentLogistics(request);
@@ -877,7 +899,9 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
    */
   app.get(
     '/shipments/:id/proof-of-delivery',
-    { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_READ) },
+    // A driver reads the proof on their own stops only; readProofOfDelivery's
+    // access check narrows them.
+    { preHandler: requireLogisticsAny(LogisticsPermission.SHIPMENT_READ, LogisticsPermission.DRIVER_TASK_READ) },
     async (request, reply) => {
       const params = idParam.parse(request.params);
       const pod = await readProofOfDelivery(currentLogistics(request), params.id);
@@ -934,6 +958,31 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
       );
 
       return reply.status(result.duplicate ? 200 : 201).send(result);
+    },
+  );
+
+  /**
+   * Send the person receiving a shipment a new delivery code by email, for a
+   * delivery whose policy asks for one. Only while it is out for delivery; at
+   * most one a minute and five a day, and sending one cancels the last. The
+   * code is never in the response. Writes an audit entry.
+   */
+  app.post(
+    '/shipments/:id/delivery-code',
+    {
+      preHandler: requireLogistics(LogisticsPermission.POD_WRITE),
+      // The service's own limits are per consignment; this one is per caller,
+      // so nobody can walk the table sending emails to every buyer on it.
+      config: { rateLimit: { max: 20, timeWindow: '15 minutes' } },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const sent = await requestDeliveryCode(
+        currentLogistics(request),
+        params.id,
+        request.correlationId,
+      );
+      return reply.header('cache-control', 'no-store').status(201).send(sent);
     },
   );
 

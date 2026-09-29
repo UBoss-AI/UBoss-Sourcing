@@ -46,6 +46,8 @@ export type VatNumberCheckMinAggregateOutputType = {
   consultationNumber: string | null
   unavailableReason: string | null
   checkedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type VatNumberCheckMaxAggregateOutputType = {
@@ -58,6 +60,8 @@ export type VatNumberCheckMaxAggregateOutputType = {
   consultationNumber: string | null
   unavailableReason: string | null
   checkedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type VatNumberCheckCountAggregateOutputType = {
@@ -70,6 +74,8 @@ export type VatNumberCheckCountAggregateOutputType = {
   consultationNumber: number
   unavailableReason: number
   checkedAt: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -84,6 +90,8 @@ export type VatNumberCheckMinAggregateInputType = {
   consultationNumber?: true
   unavailableReason?: true
   checkedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type VatNumberCheckMaxAggregateInputType = {
@@ -96,6 +104,8 @@ export type VatNumberCheckMaxAggregateInputType = {
   consultationNumber?: true
   unavailableReason?: true
   checkedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type VatNumberCheckCountAggregateInputType = {
@@ -108,6 +118,8 @@ export type VatNumberCheckCountAggregateInputType = {
   consultationNumber?: true
   unavailableReason?: true
   checkedAt?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -193,6 +205,8 @@ export type VatNumberCheckGroupByOutputType = {
   consultationNumber: string | null
   unavailableReason: string | null
   checkedAt: Date
+  createdAt: Date
+  updatedAt: Date
   _count: VatNumberCheckCountAggregateOutputType | null
   _min: VatNumberCheckMinAggregateOutputType | null
   _max: VatNumberCheckMaxAggregateOutputType | null
@@ -226,6 +240,8 @@ export type VatNumberCheckWhereInput = {
   consultationNumber?: Prisma.StringNullableFilter<"VatNumberCheck"> | string | null
   unavailableReason?: Prisma.StringNullableFilter<"VatNumberCheck"> | string | null
   checkedAt?: Prisma.DateTimeFilter<"VatNumberCheck"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"VatNumberCheck"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"VatNumberCheck"> | Date | string
 }
 
 export type VatNumberCheckOrderByWithRelationInput = {
@@ -238,6 +254,8 @@ export type VatNumberCheckOrderByWithRelationInput = {
   consultationNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   unavailableReason?: Prisma.SortOrderInput | Prisma.SortOrder
   checkedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _relevance?: Prisma.VatNumberCheckOrderByRelevanceInput
 }
 
@@ -255,6 +273,8 @@ export type VatNumberCheckWhereUniqueInput = Prisma.AtLeast<{
   consultationNumber?: Prisma.StringNullableFilter<"VatNumberCheck"> | string | null
   unavailableReason?: Prisma.StringNullableFilter<"VatNumberCheck"> | string | null
   checkedAt?: Prisma.DateTimeFilter<"VatNumberCheck"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"VatNumberCheck"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"VatNumberCheck"> | Date | string
 }, "id" | "countryCode_number">
 
 export type VatNumberCheckOrderByWithAggregationInput = {
@@ -267,6 +287,8 @@ export type VatNumberCheckOrderByWithAggregationInput = {
   consultationNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   unavailableReason?: Prisma.SortOrderInput | Prisma.SortOrder
   checkedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.VatNumberCheckCountOrderByAggregateInput
   _max?: Prisma.VatNumberCheckMaxOrderByAggregateInput
   _min?: Prisma.VatNumberCheckMinOrderByAggregateInput
@@ -285,6 +307,8 @@ export type VatNumberCheckScalarWhereWithAggregatesInput = {
   consultationNumber?: Prisma.StringNullableWithAggregatesFilter<"VatNumberCheck"> | string | null
   unavailableReason?: Prisma.StringNullableWithAggregatesFilter<"VatNumberCheck"> | string | null
   checkedAt?: Prisma.DateTimeWithAggregatesFilter<"VatNumberCheck"> | Date | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"VatNumberCheck"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"VatNumberCheck"> | Date | string
 }
 
 export type VatNumberCheckCreateInput = {
@@ -297,6 +321,8 @@ export type VatNumberCheckCreateInput = {
   consultationNumber?: string | null
   unavailableReason?: string | null
   checkedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type VatNumberCheckUncheckedCreateInput = {
@@ -309,6 +335,8 @@ export type VatNumberCheckUncheckedCreateInput = {
   consultationNumber?: string | null
   unavailableReason?: string | null
   checkedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type VatNumberCheckUpdateInput = {
@@ -321,6 +349,8 @@ export type VatNumberCheckUpdateInput = {
   consultationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unavailableReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type VatNumberCheckUncheckedUpdateInput = {
@@ -333,6 +363,8 @@ export type VatNumberCheckUncheckedUpdateInput = {
   consultationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unavailableReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type VatNumberCheckCreateManyInput = {
@@ -345,6 +377,8 @@ export type VatNumberCheckCreateManyInput = {
   consultationNumber?: string | null
   unavailableReason?: string | null
   checkedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type VatNumberCheckUpdateManyMutationInput = {
@@ -357,6 +391,8 @@ export type VatNumberCheckUpdateManyMutationInput = {
   consultationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unavailableReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type VatNumberCheckUncheckedUpdateManyInput = {
@@ -369,6 +405,8 @@ export type VatNumberCheckUncheckedUpdateManyInput = {
   consultationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unavailableReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type VatNumberCheckOrderByRelevanceInput = {
@@ -392,6 +430,8 @@ export type VatNumberCheckCountOrderByAggregateInput = {
   consultationNumber?: Prisma.SortOrder
   unavailableReason?: Prisma.SortOrder
   checkedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type VatNumberCheckMaxOrderByAggregateInput = {
@@ -404,6 +444,8 @@ export type VatNumberCheckMaxOrderByAggregateInput = {
   consultationNumber?: Prisma.SortOrder
   unavailableReason?: Prisma.SortOrder
   checkedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type VatNumberCheckMinOrderByAggregateInput = {
@@ -416,6 +458,8 @@ export type VatNumberCheckMinOrderByAggregateInput = {
   consultationNumber?: Prisma.SortOrder
   unavailableReason?: Prisma.SortOrder
   checkedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 
@@ -430,6 +474,8 @@ export type VatNumberCheckSelect<ExtArgs extends runtime.Types.Extensions.Intern
   consultationNumber?: boolean
   unavailableReason?: boolean
   checkedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["vatNumberCheck"]>
 
 
@@ -444,9 +490,11 @@ export type VatNumberCheckSelectScalar = {
   consultationNumber?: boolean
   unavailableReason?: boolean
   checkedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type VatNumberCheckOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "countryCode" | "number" | "isValid" | "registeredName" | "registeredAddress" | "consultationNumber" | "unavailableReason" | "checkedAt", ExtArgs["result"]["vatNumberCheck"]>
+export type VatNumberCheckOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "countryCode" | "number" | "isValid" | "registeredName" | "registeredAddress" | "consultationNumber" | "unavailableReason" | "checkedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["vatNumberCheck"]>
 
 export type $VatNumberCheckPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "VatNumberCheck"
@@ -479,6 +527,8 @@ export type $VatNumberCheckPayload<ExtArgs extends runtime.Types.Extensions.Inte
      */
     unavailableReason: string | null
     checkedAt: Date
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["vatNumberCheck"]>
   composites: {}
 }
@@ -857,6 +907,8 @@ export interface VatNumberCheckFieldRefs {
   readonly consultationNumber: Prisma.FieldRef<"VatNumberCheck", 'String'>
   readonly unavailableReason: Prisma.FieldRef<"VatNumberCheck", 'String'>
   readonly checkedAt: Prisma.FieldRef<"VatNumberCheck", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"VatNumberCheck", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"VatNumberCheck", 'DateTime'>
 }
     
 

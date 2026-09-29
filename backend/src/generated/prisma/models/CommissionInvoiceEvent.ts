@@ -38,6 +38,7 @@ export type CommissionInvoiceEventMinAggregateOutputType = {
   actorUserId: string | null
   snapshotHash: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CommissionInvoiceEventMaxAggregateOutputType = {
@@ -50,6 +51,7 @@ export type CommissionInvoiceEventMaxAggregateOutputType = {
   actorUserId: string | null
   snapshotHash: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CommissionInvoiceEventCountAggregateOutputType = {
@@ -63,6 +65,7 @@ export type CommissionInvoiceEventCountAggregateOutputType = {
   detailJson: number
   snapshotHash: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -77,6 +80,7 @@ export type CommissionInvoiceEventMinAggregateInputType = {
   actorUserId?: true
   snapshotHash?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type CommissionInvoiceEventMaxAggregateInputType = {
@@ -89,6 +93,7 @@ export type CommissionInvoiceEventMaxAggregateInputType = {
   actorUserId?: true
   snapshotHash?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type CommissionInvoiceEventCountAggregateInputType = {
@@ -102,6 +107,7 @@ export type CommissionInvoiceEventCountAggregateInputType = {
   detailJson?: true
   snapshotHash?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -188,6 +194,7 @@ export type CommissionInvoiceEventGroupByOutputType = {
   detailJson: runtime.JsonValue | null
   snapshotHash: string | null
   createdAt: Date
+  updatedAt: Date
   _count: CommissionInvoiceEventCountAggregateOutputType | null
   _min: CommissionInvoiceEventMinAggregateOutputType | null
   _max: CommissionInvoiceEventMaxAggregateOutputType | null
@@ -222,6 +229,7 @@ export type CommissionInvoiceEventWhereInput = {
   detailJson?: Prisma.JsonNullableFilter<"CommissionInvoiceEvent">
   snapshotHash?: Prisma.StringNullableFilter<"CommissionInvoiceEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CommissionInvoiceEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommissionInvoiceEvent"> | Date | string
   invoice?: Prisma.XOR<Prisma.CommissionInvoiceScalarRelationFilter, Prisma.CommissionInvoiceWhereInput>
 }
 
@@ -236,6 +244,7 @@ export type CommissionInvoiceEventOrderByWithRelationInput = {
   detailJson?: Prisma.SortOrderInput | Prisma.SortOrder
   snapshotHash?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   invoice?: Prisma.CommissionInvoiceOrderByWithRelationInput
   _relevance?: Prisma.CommissionInvoiceEventOrderByRelevanceInput
 }
@@ -254,6 +263,7 @@ export type CommissionInvoiceEventWhereUniqueInput = Prisma.AtLeast<{
   detailJson?: Prisma.JsonNullableFilter<"CommissionInvoiceEvent">
   snapshotHash?: Prisma.StringNullableFilter<"CommissionInvoiceEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CommissionInvoiceEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommissionInvoiceEvent"> | Date | string
   invoice?: Prisma.XOR<Prisma.CommissionInvoiceScalarRelationFilter, Prisma.CommissionInvoiceWhereInput>
 }, "id">
 
@@ -268,6 +278,7 @@ export type CommissionInvoiceEventOrderByWithAggregationInput = {
   detailJson?: Prisma.SortOrderInput | Prisma.SortOrder
   snapshotHash?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CommissionInvoiceEventCountOrderByAggregateInput
   _max?: Prisma.CommissionInvoiceEventMaxOrderByAggregateInput
   _min?: Prisma.CommissionInvoiceEventMinOrderByAggregateInput
@@ -287,6 +298,7 @@ export type CommissionInvoiceEventScalarWhereWithAggregatesInput = {
   detailJson?: Prisma.JsonNullableWithAggregatesFilter<"CommissionInvoiceEvent">
   snapshotHash?: Prisma.StringNullableWithAggregatesFilter<"CommissionInvoiceEvent"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CommissionInvoiceEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CommissionInvoiceEvent"> | Date | string
 }
 
 export type CommissionInvoiceEventCreateInput = {
@@ -299,6 +311,7 @@ export type CommissionInvoiceEventCreateInput = {
   detailJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   snapshotHash?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   invoice: Prisma.CommissionInvoiceCreateNestedOneWithoutEventsInput
 }
 
@@ -313,6 +326,7 @@ export type CommissionInvoiceEventUncheckedCreateInput = {
   detailJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   snapshotHash?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionInvoiceEventUpdateInput = {
@@ -325,6 +339,7 @@ export type CommissionInvoiceEventUpdateInput = {
   detailJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   snapshotHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invoice?: Prisma.CommissionInvoiceUpdateOneRequiredWithoutEventsNestedInput
 }
 
@@ -339,6 +354,7 @@ export type CommissionInvoiceEventUncheckedUpdateInput = {
   detailJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   snapshotHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionInvoiceEventCreateManyInput = {
@@ -352,6 +368,7 @@ export type CommissionInvoiceEventCreateManyInput = {
   detailJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   snapshotHash?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionInvoiceEventUpdateManyMutationInput = {
@@ -364,6 +381,7 @@ export type CommissionInvoiceEventUpdateManyMutationInput = {
   detailJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   snapshotHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionInvoiceEventUncheckedUpdateManyInput = {
@@ -377,6 +395,7 @@ export type CommissionInvoiceEventUncheckedUpdateManyInput = {
   detailJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   snapshotHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionInvoiceEventListRelationFilter = {
@@ -406,6 +425,7 @@ export type CommissionInvoiceEventCountOrderByAggregateInput = {
   detailJson?: Prisma.SortOrder
   snapshotHash?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommissionInvoiceEventMaxOrderByAggregateInput = {
@@ -418,6 +438,7 @@ export type CommissionInvoiceEventMaxOrderByAggregateInput = {
   actorUserId?: Prisma.SortOrder
   snapshotHash?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommissionInvoiceEventMinOrderByAggregateInput = {
@@ -430,6 +451,7 @@ export type CommissionInvoiceEventMinOrderByAggregateInput = {
   actorUserId?: Prisma.SortOrder
   snapshotHash?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommissionInvoiceEventCreateNestedManyWithoutInvoiceInput = {
@@ -484,6 +506,7 @@ export type CommissionInvoiceEventCreateWithoutInvoiceInput = {
   detailJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   snapshotHash?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionInvoiceEventUncheckedCreateWithoutInvoiceInput = {
@@ -496,6 +519,7 @@ export type CommissionInvoiceEventUncheckedCreateWithoutInvoiceInput = {
   detailJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   snapshotHash?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionInvoiceEventCreateOrConnectWithoutInvoiceInput = {
@@ -538,6 +562,7 @@ export type CommissionInvoiceEventScalarWhereInput = {
   detailJson?: Prisma.JsonNullableFilter<"CommissionInvoiceEvent">
   snapshotHash?: Prisma.StringNullableFilter<"CommissionInvoiceEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CommissionInvoiceEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommissionInvoiceEvent"> | Date | string
 }
 
 export type CommissionInvoiceEventCreateManyInvoiceInput = {
@@ -550,6 +575,7 @@ export type CommissionInvoiceEventCreateManyInvoiceInput = {
   detailJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   snapshotHash?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionInvoiceEventUpdateWithoutInvoiceInput = {
@@ -562,6 +588,7 @@ export type CommissionInvoiceEventUpdateWithoutInvoiceInput = {
   detailJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   snapshotHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionInvoiceEventUncheckedUpdateWithoutInvoiceInput = {
@@ -574,6 +601,7 @@ export type CommissionInvoiceEventUncheckedUpdateWithoutInvoiceInput = {
   detailJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   snapshotHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionInvoiceEventUncheckedUpdateManyWithoutInvoiceInput = {
@@ -586,6 +614,7 @@ export type CommissionInvoiceEventUncheckedUpdateManyWithoutInvoiceInput = {
   detailJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   snapshotHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -601,6 +630,7 @@ export type CommissionInvoiceEventSelect<ExtArgs extends runtime.Types.Extension
   detailJson?: boolean
   snapshotHash?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   invoice?: boolean | Prisma.CommissionInvoiceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["commissionInvoiceEvent"]>
 
@@ -617,9 +647,10 @@ export type CommissionInvoiceEventSelectScalar = {
   detailJson?: boolean
   snapshotHash?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CommissionInvoiceEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceId" | "creditNoteId" | "action" | "fromStatus" | "toStatus" | "actorUserId" | "detailJson" | "snapshotHash" | "createdAt", ExtArgs["result"]["commissionInvoiceEvent"]>
+export type CommissionInvoiceEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceId" | "creditNoteId" | "action" | "fromStatus" | "toStatus" | "actorUserId" | "detailJson" | "snapshotHash" | "createdAt" | "updatedAt", ExtArgs["result"]["commissionInvoiceEvent"]>
 export type CommissionInvoiceEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   invoice?: boolean | Prisma.CommissionInvoiceDefaultArgs<ExtArgs>
 }
@@ -647,6 +678,7 @@ export type $CommissionInvoiceEventPayload<ExtArgs extends runtime.Types.Extensi
     detailJson: runtime.JsonValue | null
     snapshotHash: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["commissionInvoiceEvent"]>
   composites: {}
 }
@@ -1027,6 +1059,7 @@ export interface CommissionInvoiceEventFieldRefs {
   readonly detailJson: Prisma.FieldRef<"CommissionInvoiceEvent", 'Json'>
   readonly snapshotHash: Prisma.FieldRef<"CommissionInvoiceEvent", 'String'>
   readonly createdAt: Prisma.FieldRef<"CommissionInvoiceEvent", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CommissionInvoiceEvent", 'DateTime'>
 }
     
 

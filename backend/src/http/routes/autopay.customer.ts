@@ -17,6 +17,7 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { env } from '../../config/env.js';
+import { isCustomerAutoPayAvailable } from '../../modules/payments/payment.service.js';
 import { ErrorCode, forbidden } from '../../domain/errors.js';
 import {
   type AutoPayActor,
@@ -27,6 +28,46 @@ import {
   updateAutoPaySettings,
 } from '../../modules/payments/autopay.service.js';
 import { currentUser, requireCustomer } from '../plugins/auth.js';
+import { assertRecentStepUp } from '../../modules/identity/customer-mfa.service.js';
+
+/**
+ * The customer's own end date for the authority, as an ISO date-time. Null
+ * clears it (until switched off); absent leaves it as it is.
+ */
+const expirySchema = z.string().datetime({ offset: true }).nullable().optional();
+
+function toDate(value: string | null | undefined): Date | null | undefined {
+  if (value === undefined) return undefined;
+  return value === null ? null : new Date(value);
+}
+
+/** A supplier or category scope: a list, null for every one, absent to leave it. */
+const scopeSchema = z.array(z.string().trim().min(1).max(26)).max(100).nullable().optional();
+
+/** The start date, period cap and scope, in the service's shape. */
+function extraAuthorityFields(body: {
+  authorityStartsAt?: string | null | undefined;
+  periodCapMinor?: string | null | undefined;
+  capPeriod?: 'WEEK' | 'MONTH' | 'QUARTER' | 'YEAR' | null | undefined;
+  scopeSellerKeys?: string[] | null | undefined;
+  scopeCategoryIds?: string[] | null | undefined;
+}): {
+  authorityStartsAt?: Date | null;
+  periodCapMinor?: bigint | null;
+  capPeriod?: 'WEEK' | 'MONTH' | 'QUARTER' | 'YEAR' | null;
+  scopeSellerKeys?: string[] | null;
+  scopeCategoryIds?: string[] | null;
+} {
+  const startsAt = toDate(body.authorityStartsAt);
+  const cap = toMinor(body.periodCapMinor);
+  return {
+    ...(startsAt === undefined ? {} : { authorityStartsAt: startsAt }),
+    ...(cap === undefined ? {} : { periodCapMinor: cap }),
+    ...(body.capPeriod === undefined ? {} : { capPeriod: body.capPeriod }),
+    ...(body.scopeSellerKeys === undefined ? {} : { scopeSellerKeys: body.scopeSellerKeys }),
+    ...(body.scopeCategoryIds === undefined ? {} : { scopeCategoryIds: body.scopeCategoryIds }),
+  };
+}
 
 function actorFor(request: FastifyRequest): AutoPayActor {
   const auth = currentUser(request);
@@ -65,13 +106,12 @@ export function registerCustomerAutoPayRoutes(app: FastifyInstance): Promise<voi
   app.addHook('preHandler', requireCustomer);
 
   const requireFeature = async (): Promise<void> => {
-    if (!env.FEATURE_CUSTOMER_AUTOPAY) {
+    if (!(await isCustomerAutoPayAvailable())) {
       throw forbidden(
         ErrorCode.FEATURE_DISABLED,
-        'Automatic payment is not enabled for this store.',
+        'Automatic payment is not available on this store yet.',
       );
     }
-    await Promise.resolve();
   };
 
   /**
@@ -86,7 +126,7 @@ export function registerCustomerAutoPayRoutes(app: FastifyInstance): Promise<voi
 
     return reply.status(200).send({
       autoPay: settings,
-      available: env.FEATURE_CUSTOMER_AUTOPAY,
+      available: await isCustomerAutoPayAvailable(),
       consentVersion: env.AUTOPAY_CONSENT_VERSION,
     });
   });
@@ -120,10 +160,24 @@ export function registerCustomerAutoPayRoutes(app: FastifyInstance): Promise<voi
           retryPreference: z.enum(['NONE', 'ONCE', 'STANDARD']).optional(),
           notifyOnCharge: z.boolean().optional(),
           notifyOnFailure: z.boolean().optional(),
+          authorityExpiresAt: expirySchema,
+          authorityStartsAt: expirySchema,
+          periodCapMinor: minorAmountSchema,
+          capPeriod: z.enum(['WEEK', 'MONTH', 'QUARTER', 'YEAR']).nullable().optional(),
+          scopeSellerKeys: scopeSchema,
+          scopeCategoryIds: scopeSchema,
         })
         .parse(request.body);
 
+      // Standing payment authority: a fresh confirmation, and - with
+      // AUTOPAY_REQUIRES_MFA - a real second factor behind it.
+      assertRecentStepUp(currentUser(request), { requireFactor: env.AUTOPAY_REQUIRES_MFA });
+
       const settings = await enableAutoPay(actorFor(request), {
+        ...extraAuthorityFields(body),
+        ...(body.authorityExpiresAt === undefined
+          ? {}
+          : { authorityExpiresAt: toDate(body.authorityExpiresAt) ?? null }),
         paymentMethodId: body.paymentMethodId,
         consentAccepted: body.consentAccepted,
         maxTransactionMinor: toMinor(body.maxTransactionMinor),
@@ -153,10 +207,22 @@ export function registerCustomerAutoPayRoutes(app: FastifyInstance): Promise<voi
         retryPreference: z.enum(['NONE', 'ONCE', 'STANDARD']).optional(),
         notifyOnCharge: z.boolean().optional(),
         notifyOnFailure: z.boolean().optional(),
+        authorityExpiresAt: expirySchema,
+        authorityStartsAt: expirySchema,
+        periodCapMinor: minorAmountSchema,
+        capPeriod: z.enum(['WEEK', 'MONTH', 'QUARTER', 'YEAR']).nullable().optional(),
+        scopeSellerKeys: scopeSchema,
+        scopeCategoryIds: scopeSchema,
       })
       .parse(request.body);
 
+    assertRecentStepUp(currentUser(request), { requireFactor: env.AUTOPAY_REQUIRES_MFA });
+
     const settings = await updateAutoPaySettings(actorFor(request), {
+      ...extraAuthorityFields(body),
+      ...(body.authorityExpiresAt === undefined
+        ? {}
+        : { authorityExpiresAt: toDate(body.authorityExpiresAt) ?? null }),
       ...(body.paymentMethodId === undefined ? {} : { paymentMethodId: body.paymentMethodId }),
       ...(body.maxTransactionMinor === undefined
         ? {}

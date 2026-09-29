@@ -20,20 +20,24 @@
  */
 import type { Prisma } from '../../generated/prisma/client.js';
 import {
+  applyFeeRules,
   candidateScopeKeys,
   estimatedSettlement,
+  isIndependentApprover,
   feeBasisFor,
   feeTaxWording,
   platformFeeOn,
   scopeKeyFor,
   taxOnPlatformFee,
   trimRate,
+  type AppliedFeeRule,
+  type FeeAdjustmentRule,
   type FeeRule,
   type PlatformFeeBasis,
   type PlatformFeeScope,
   type PlatformFeeType,
 } from '../../domain/platform-fee.js';
-import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
+import { AppError, ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { apportion, serialiseMoney, sumMinor, type Minor } from '../../domain/money.js';
 import { Permission } from '../../domain/permissions.js';
 import { newId } from '../../infra/ids.js';
@@ -216,6 +220,13 @@ export function toPolicyView(row: PolicyRow) {
     publishedAt: row.publishedAt?.toISOString() ?? null,
     retiredAt: row.retiredAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
+    createdByUserId: row.createdByUserId,
+    lastEditedByUserId: row.lastEditedByUserId,
+    submittedByUserId: row.submittedByUserId,
+    submittedAt: row.submittedAt?.toISOString() ?? null,
+    publishedByUserId: row.publishedByUserId,
+    rejectedAt: row.rejectedAt?.toISOString() ?? null,
+    rejectionReason: row.rejectionReason,
   };
 }
 
@@ -244,7 +255,7 @@ function auditShape(row: PolicyRow | null) {
 
 // --- Reading -----------------------------------------------------------------
 
-export async function listPolicies(input: { status?: 'DRAFT' | 'PUBLISHED' | 'RETIRED' | null } = {}) {
+export async function listPolicies(input: { status?: 'DRAFT' | 'PENDING_APPROVAL' | 'PUBLISHED' | 'RETIRED' | null } = {}) {
   const rows = await prisma.platformFeePolicy.findMany({
     where: input.status === undefined || input.status === null ? {} : { status: input.status },
     orderBy: [{ scopeKey: 'asc' }, { versionNumber: 'desc' }],
@@ -307,6 +318,7 @@ export async function createDraftPolicy(actor: FinanceActor, input: PolicyInput)
       versionNumber: (latest?.versionNumber ?? 0) + 1,
       status: 'DRAFT',
       createdByUserId: actor.userId,
+      lastEditedByUserId: actor.userId,
     },
   });
 
@@ -342,7 +354,10 @@ export async function updateDraftPolicy(actor: FinanceActor, policyId: string, i
     ]);
   }
 
-  const row = await prisma.platformFeePolicy.update({ where: { id: policyId }, data });
+  const row = await prisma.platformFeePolicy.update({
+    where: { id: policyId },
+    data: { ...data, lastEditedByUserId: actor.userId },
+  });
   await recordAudit({
     action: AuditAction.PLATFORM_FEE_POLICY_SAVED,
     resourceType: 'platform_fee_policy',
@@ -370,11 +385,19 @@ export async function publishPolicy(actor: FinanceActor, policyId: string) {
   const draft = await prisma.platformFeePolicy.findUnique({ where: { id: policyId } });
   if (draft === null) throw notFound('Platform fee policy');
   if (draft.status === 'PUBLISHED') return toPolicyView(draft);
-  if (draft.status !== 'DRAFT') {
+  if (draft.status === 'RETIRED') {
     throw conflict(ErrorCode.PLATFORM_FEE_POLICY_NOT_EDITABLE, 'A retired policy cannot be published again. Create a new version.');
   }
+  // Maker-checker: a draft is submitted by its maker and approved by somebody
+  // else. Publishing IS the approval.
+  if (draft.status !== 'PENDING_APPROVAL') throw notPendingApproval(draft.status);
+  assertIndependentApprover(actor, draft);
 
   const now = new Date();
+  // No retroactive surprise: a policy approved after the date it was drafted
+  // to start from starts now. Orders confirmed before this instant were
+  // settled on the version in force then, and stay so.
+  const effectiveFrom = draft.effectiveFrom < now ? now : draft.effectiveFrom;
   const { published, retired } = await prisma.$transaction(async (tx) => {
     const current = await tx.platformFeePolicy.findFirst({ where: { activeScopeKey: draft.scopeKey } });
     if (current !== null) {
@@ -388,15 +411,20 @@ export async function publishPolicy(actor: FinanceActor, policyId: string) {
         },
       });
     }
-    const row = await tx.platformFeePolicy.update({
-      where: { id: draft.id },
+    // Conditional on the status read above, so two approvers pressing at once
+    // publish it once.
+    const claimed = await tx.platformFeePolicy.updateMany({
+      where: { id: draft.id, status: 'PENDING_APPROVAL' },
       data: {
         status: 'PUBLISHED',
         activeScopeKey: draft.scopeKey,
         publishedAt: now,
         publishedByUserId: actor.userId,
+        effectiveFrom,
       },
     });
+    if (claimed.count === 0) throw notPendingApproval('PUBLISHED');
+    const row = await tx.platformFeePolicy.findUniqueOrThrow({ where: { id: draft.id } });
     return { published: row, retired: current };
   });
 
@@ -435,6 +463,104 @@ export async function publishPolicy(actor: FinanceActor, policyId: string) {
   }
 
   return toPolicyView(published);
+}
+
+/** "It is not waiting for approval": said with where it actually is. */
+export function notPendingApproval(status: string): AppError {
+  return conflict(
+    ErrorCode.PLATFORM_FEE_NOT_PENDING_APPROVAL,
+    status === 'DRAFT'
+      ? 'Submit this draft for approval first.'
+      : 'Only a submitted draft can be approved or rejected.',
+    [{ field: 'status', code: 'STATUS', meta: { status } }],
+  );
+}
+
+/** Refuse the maker approving their own work. */
+export function assertIndependentApprover(
+  actor: FinanceActor,
+  makers: { createdByUserId: string | null; lastEditedByUserId: string | null; submittedByUserId: string | null },
+): void {
+  if (!isIndependentApprover(actor.userId, makers)) {
+    throw new AppError({
+      statusCode: 403,
+      code: ErrorCode.PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN,
+      message: 'A different member of finance staff must approve this. You created, edited or submitted it.',
+    });
+  }
+}
+
+export function assertRejectionReason(reason: string): string {
+  const trimmed = reason.trim();
+  if (trimmed.length < 10) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'Say why it is being sent back, in at least ten characters.', [
+      { field: 'reason', code: 'REQUIRED' },
+    ]);
+  }
+  return trimmed.slice(0, 1000);
+}
+
+/** Send a draft for a second person's approval. Only the draft's own state changes. */
+export async function submitPolicy(actor: FinanceActor, policyId: string) {
+  const before = await prisma.platformFeePolicy.findUnique({ where: { id: policyId } });
+  if (before === null) throw notFound('Platform fee policy');
+  if (before.status === 'PENDING_APPROVAL') return toPolicyView(before);
+  if (before.status !== 'DRAFT') throw notPendingApproval(before.status);
+
+  const claimed = await prisma.platformFeePolicy.updateMany({
+    where: { id: policyId, status: 'DRAFT' },
+    data: { status: 'PENDING_APPROVAL', submittedByUserId: actor.userId, submittedAt: new Date() },
+  });
+  if (claimed.count === 0) throw notPendingApproval('UNKNOWN');
+  const row = await prisma.platformFeePolicy.findUniqueOrThrow({ where: { id: policyId } });
+  await recordAudit({
+    action: AuditAction.PLATFORM_FEE_POLICY_SUBMITTED,
+    resourceType: 'platform_fee_policy',
+    resourceId: row.id,
+    actorType: 'ADMIN',
+    actorUserId: actor.userId,
+    actorEmail: actor.email,
+    before: auditShape(before),
+    after: auditShape(row),
+    ipAddress: actor.ipAddress ?? null,
+    correlationId: actor.correlationId ?? null,
+  });
+  return toPolicyView(row);
+}
+
+/** Send a submitted draft back to DRAFT with a reason. Anybody with the permission. */
+export async function rejectPolicy(actor: FinanceActor, policyId: string, input: { reason: string }) {
+  const reason = assertRejectionReason(input.reason);
+  const before = await prisma.platformFeePolicy.findUnique({ where: { id: policyId } });
+  if (before === null) throw notFound('Platform fee policy');
+  if (before.status !== 'PENDING_APPROVAL') throw notPendingApproval(before.status);
+
+  const claimed = await prisma.platformFeePolicy.updateMany({
+    where: { id: policyId, status: 'PENDING_APPROVAL' },
+    data: {
+      status: 'DRAFT',
+      rejectedByUserId: actor.userId,
+      rejectedAt: new Date(),
+      rejectionReason: reason,
+      submittedByUserId: null,
+      submittedAt: null,
+    },
+  });
+  if (claimed.count === 0) throw notPendingApproval('UNKNOWN');
+  const row = await prisma.platformFeePolicy.findUniqueOrThrow({ where: { id: policyId } });
+  await recordAudit({
+    action: AuditAction.PLATFORM_FEE_POLICY_REJECTED,
+    resourceType: 'platform_fee_policy',
+    resourceId: row.id,
+    actorType: 'ADMIN',
+    actorUserId: actor.userId,
+    actorEmail: actor.email,
+    before: auditShape(before),
+    after: { ...auditShape(row), reason },
+    ipAddress: actor.ipAddress ?? null,
+    correlationId: actor.correlationId ?? null,
+  });
+  return toPolicyView(row);
 }
 
 export async function retirePolicy(actor: FinanceActor, policyId: string) {
@@ -560,7 +686,76 @@ export interface SettlementCalculation {
     taxRatePercent: string;
     taxMinor: string;
     note: string | null;
+    /** What the policy alone would have charged, before any fee rule. */
+    baseFeeMinor?: string;
+    /** The fee rules that changed this fee, in the order they applied. */
+    rulesApplied?: { ruleId: string; kind: AppliedFeeRule['kind']; name: string; percent: string; effectMinor: string }[];
   }[];
+  /** One row per fee rule that changed the fee, summed over the groups. */
+  ruleApplications: { ruleId: string; kind: AppliedFeeRule['kind']; effectMinor: Minor }[];
+}
+
+type FeeRuleRow = Prisma.PlatformFeeRuleGetPayload<Record<string, never>>;
+
+/** The row as the pure rule engine reads it. */
+export function feeRuleOf(row: FeeRuleRow): FeeAdjustmentRule {
+  return {
+    id: row.id,
+    kind: row.kind,
+    name: row.name,
+    scopeKey: row.scopeKey,
+    currency: row.currency,
+    minValueMinor: row.minValueMinor,
+    maxValueMinor: row.maxValueMinor,
+    volumeThresholdMinor: row.volumeThresholdMinor,
+    volumeWindowDays: row.volumeWindowDays,
+    sellerTier: row.sellerTier,
+    percentRate: row.percentRate?.toString() ?? null,
+    discountPercent: row.discountPercent?.toString() ?? null,
+    effectiveFrom: row.effectiveFrom,
+    effectiveTo: row.effectiveTo,
+  };
+}
+
+/** Published fee rules live at `at` for any of these scope keys. */
+async function liveFeeRules(client: Tx | typeof prisma, keys: readonly string[], at: Date): Promise<FeeAdjustmentRule[]> {
+  const rows = await client.platformFeeRule.findMany({
+    where: {
+      status: 'PUBLISHED',
+      scopeKey: { in: [...new Set(keys)] },
+      effectiveFrom: { lte: at },
+      OR: [{ effectiveTo: null }, { effectiveTo: { gt: at } }],
+    },
+  });
+  return rows.map(feeRuleOf);
+}
+
+/**
+ * The seller's goods sold, in one currency, over each trailing window.
+ *
+ * Read from the settlements already calculated - the same figure the seller's
+ * statements are made of - over [at - window, at). The order being settled is
+ * not in it yet, so a seller crosses a threshold on the order AFTER the one
+ * that took them over it, never retroactively on earlier ones.
+ */
+async function trailingVolumes(
+  client: Tx | typeof prisma,
+  input: { sellerAccountId: string; currency: string; at: Date; windows: readonly number[] },
+): Promise<Map<number, Minor>> {
+  const result = new Map<number, Minor>();
+  for (const days of new Set(input.windows)) {
+    const since = new Date(input.at.getTime() - days * 86_400_000);
+    const sum = await client.sellerOrderSettlement.aggregate({
+      where: {
+        sellerAccountId: input.sellerAccountId,
+        currency: input.currency,
+        computedAt: { gte: since, lt: input.at },
+      },
+      _sum: { grossProceedsMinor: true },
+    });
+    result.set(days, sum._sum.grossProceedsMinor ?? 0n);
+  }
+  return result;
 }
 
 async function livePolicies(client: Tx | typeof prisma, keys: readonly string[], at: Date): Promise<Map<string, PolicyRow>> {
@@ -624,7 +819,7 @@ export async function calculateSettlement(
 
   const seller = await client.sellerAccount.findUnique({
     where: { id: input.sellerAccountId },
-    select: { commissionBasisPoints: true },
+    select: { commissionBasisPoints: true, feeTier: true },
   });
   const platform = await client.businessProfile.findFirst({ select: { sellerCommissionBasisPoints: true } });
   const negotiatedBp = seller?.commissionBasisPoints ?? null;
@@ -638,6 +833,17 @@ export async function calculateSettlement(
     }),
   );
   const policies = await livePolicies(client, keysPerLine.flat(), at);
+  const feeRules = await liveFeeRules(client, keysPerLine.flat(), at);
+  const volumes =
+    feeRules.some((rule) => rule.kind === 'VOLUME_TIER')
+      ? await trailingVolumes(client, {
+          sellerAccountId: input.sellerAccountId,
+          currency: input.currency,
+          at,
+          windows: feeRules.flatMap((rule) => (rule.kind === 'VOLUME_TIER' && rule.volumeWindowDays !== null ? [rule.volumeWindowDays] : [])),
+        })
+      : new Map<number, Minor>();
+  const ruleEffects = new Map<string, { kind: AppliedFeeRule['kind']; effectMinor: Minor }>();
 
   const resolvedPerLine: ResolvedRule[] = keysPerLine.map((keys) => {
     const hit = keys.map((key) => policies.get(key)).find((row) => row !== undefined) ?? null;
@@ -708,8 +914,35 @@ export async function calculateSettlement(
       sellerDeliveryMinor: key === primaryKey ? input.sellerDeliveryMinor : 0n,
     });
     let fee: Minor;
+    let applied: AppliedFeeRule[] = [];
+    let baseFee: Minor | null = null;
     if (group.resolved.source === 'POLICY') {
-      fee = platformFeeOn(rule, basis);
+      /*
+       * Fee rules adjust a PUBLISHED POLICY's fee. A group matches a rule only
+       * on the scope keys ALL its lines share, so a category rule never
+       * reaches a line from another category that happens to share the policy.
+       * A seller's negotiated rate and the legacy platform rate are contracts
+       * and defaults respectively, and are left exactly as they were.
+       */
+      const sharedKeys = group.indexes
+        .map((index) => keysPerLine[index] ?? [])
+        .reduce<string[]>((shared, keys, position) => (position === 0 ? [...keys] : shared.filter((key) => keys.includes(key))), []);
+      const outcome = applyFeeRules(rule, feeRules, {
+        scopeKeys: sharedKeys,
+        currency: input.currency,
+        basisMinor: basis,
+        volumeByWindowDays: volumes,
+        sellerTier: seller?.feeTier ?? null,
+        at,
+      });
+      fee = outcome.feeMinor;
+      applied = outcome.applied;
+      baseFee = outcome.baseFeeMinor;
+      for (const entry of applied) {
+        const current = ruleEffects.get(entry.ruleId) ?? { kind: entry.kind, effectMinor: 0n };
+        current.effectMinor += entry.effectMinor;
+        ruleEffects.set(entry.ruleId, current);
+      }
       // Spread over the lines by value so each line's share adds up exactly.
       const shares = apportion(fee, group.indexes.map((index) => input.lines[index]?.goodsMinor ?? 0n));
       group.indexes.forEach((lineIndex, position) => {
@@ -763,6 +996,18 @@ export async function calculateSettlement(
       taxRatePercent: rule.taxRatePercent,
       taxMinor: tax.toString(),
       note: policyCurrencyMatches ? null : `Flat, minimum and maximum amounts are in ${group.resolved.policy?.currency ?? ''} and were not applied to an order in ${input.currency}.`,
+      ...(baseFee !== null ? { baseFeeMinor: baseFee.toString() } : {}),
+      ...(applied.length > 0
+        ? {
+            rulesApplied: applied.map((entry) => ({
+              ruleId: entry.ruleId,
+              kind: entry.kind,
+              name: entry.name,
+              percent: trimRate(entry.percent),
+              effectMinor: entry.effectMinor.toString(),
+            })),
+          }
+        : {}),
     });
   }
 
@@ -805,6 +1050,7 @@ export async function calculateSettlement(
         ? Math.round(Number(primary.rule.percentRate) * 100)
         : 0,
     breakdown,
+    ruleApplications: [...ruleEffects].map(([ruleId, entry]) => ({ ruleId, ...entry })),
   };
 }
 

@@ -48,6 +48,9 @@ import { Permission, permissionsForRoles, type PermissionKey } from '../../domai
 import {
   WORKING_STATUSES,
   assertStaffTransition,
+  clearsResolutionCode,
+  requiresResolutionCode,
+  type SupportResolutionCodeName,
   assertWritable,
   onRequesterMessage,
   onStaffReply,
@@ -70,6 +73,7 @@ import {
   createAdminNotification,
 } from '../notifications/admin-notification.service.js';
 import { NotificationEvent, enqueueNotification } from '../notifications/notification.service.js';
+import { breachedWhere, deadlinesFor, slaView } from './support-sla.service.js';
 
 // ---------------------------------------------------------------------------
 // Limits - one list, read by the routes' schemas and by the pages' counters
@@ -323,6 +327,8 @@ export interface TicketAttachmentView {
   kind: 'IMAGE' | 'VIDEO' | 'DOCUMENT';
   byteSize: number;
   createdAt: string;
+  /** Attached by the team rather than the sender. */
+  fromTeam: boolean;
 }
 
 const ATTACHMENT_VIEW_SELECT = {
@@ -334,6 +340,7 @@ const ATTACHMENT_VIEW_SELECT = {
     kind: true,
     byteSize: true,
     createdAt: true,
+    uploadedByStaff: true,
   },
 };
 
@@ -344,8 +351,10 @@ function attachmentView(row: {
   kind: 'IMAGE' | 'VIDEO' | 'DOCUMENT';
   byteSize: number;
   createdAt: Date;
+  uploadedByStaff: boolean;
 }): TicketAttachmentView {
-  return { ...row, createdAt: row.createdAt.toISOString() };
+  const { uploadedByStaff, ...rest } = row;
+  return { ...rest, createdAt: row.createdAt.toISOString(), fromTeam: uploadedByStaff };
 }
 
 export interface RequesterTicketView extends RequesterTicketSummary {
@@ -594,6 +603,8 @@ export async function createSupportTicket(
 
   const contacts = await readSupportContacts();
   const language = input.language?.trim().slice(0, 10) ?? null;
+  // The service targets in force now, copied onto the request.
+  const deadlines = await deadlinesFor(input.category, new Date());
 
   for (let attempt = 0; ; attempt += 1) {
     const id = newId();
@@ -620,6 +631,8 @@ export async function createSupportTicket(
             message,
             relatedOrderId: order?.id ?? null,
             relatedOrderNumber: order?.orderNumber ?? null,
+            firstResponseDueAt: deadlines.firstResponseDueAt,
+            resolutionDueAt: deadlines.resolutionDueAt,
           },
         });
 
@@ -789,7 +802,13 @@ export async function addRequesterMessage(
       where: { id: ticketId, status: ticket.status },
       data: {
         lastActivityAt: now,
-        ...(next === null ? {} : { status: next, ...timestampsFor(next, now) }),
+        ...(next === null
+          ? {}
+          : {
+              status: next,
+              ...timestampsFor(next, now),
+              ...(clearsResolutionCode(next) ? { resolutionCode: null } : {}),
+            }),
       },
     });
     if (moved.count === 0) {
@@ -874,6 +893,8 @@ async function staffTicketRow(ticketId: string) {
       source: true,
       emailSnapshot: true,
       nameSnapshot: true,
+      resolutionCode: true,
+      firstRespondedAt: true,
     },
   });
   if (row === null) throw notFound('Support request');
@@ -891,6 +912,8 @@ export interface AdminTicketListQuery {
   /** `me`, `unassigned`, or a staff user id. */
   assignee?: string | undefined;
   search?: string | undefined;
+  /** Only requests past a service-level deadline they are still waiting on. */
+  breached?: boolean | undefined;
 }
 
 export async function listSupportTicketsForAdmin(
@@ -912,6 +935,9 @@ export async function listSupportTicketsForAdmin(
       : query.assignee === 'unassigned'
         ? { assignedAdminId: null }
         : { assignedAdminId: query.assignee === 'me' ? actor.userId : query.assignee }),
+    ...(query.breached === true
+      ? { AND: [breachedWhere(), { status: { in: [...WORKING_STATUSES] } }] }
+      : {}),
     ...(search.length === 0
       ? {}
       : {
@@ -947,6 +973,12 @@ export async function listSupportTicketsForAdmin(
         relatedOrderNumber: true,
         lastActivityAt: true,
         createdAt: true,
+        firstResponseDueAt: true,
+        resolutionDueAt: true,
+        firstRespondedAt: true,
+        resolvedAt: true,
+        closedAt: true,
+        resolutionCode: true,
         assignedAdmin: { select: { id: true, email: true } },
       },
     }),
@@ -971,6 +1003,8 @@ export async function listSupportTicketsForAdmin(
       assignee: row.assignedAdmin,
       lastActivityAt: row.lastActivityAt.toISOString(),
       createdAt: row.createdAt.toISOString(),
+      resolutionCode: row.resolutionCode,
+      sla: slaView(row),
     })),
     counts: Object.fromEntries(grouped.map((entry) => [entry.status, entry._count._all])),
     pagination: {
@@ -1042,6 +1076,8 @@ export async function readSupportTicketForAdmin(actor: SupportStaffActor, ticket
           },
     assignee: row.assignedAdmin,
     attachments: row.attachments.map(attachmentView),
+    resolutionCode: row.resolutionCode,
+    sla: slaView(row),
     lastActivityAt: row.lastActivityAt.toISOString(),
     resolvedAt: row.resolvedAt?.toISOString() ?? null,
     closedAt: row.closedAt?.toISOString() ?? null,
@@ -1073,7 +1109,12 @@ async function applyStatus(
 ): Promise<void> {
   const moved = await tx.supportTicket.updateMany({
     where: { id: ticketId, status: from },
-    data: { status: to, lastActivityAt: now, ...timestampsFor(to, now) },
+    data: {
+      status: to,
+      lastActivityAt: now,
+      ...timestampsFor(to, now),
+      ...(clearsResolutionCode(to) ? { resolutionCode: null } : {}),
+    },
   });
   if (moved.count === 0) {
     throw conflict(
@@ -1096,6 +1137,26 @@ async function applyStatus(
 }
 
 /**
+ * Resolving or closing needs a code saying how it ended - unless the request
+ * already carries one. 400 naming the field.
+ */
+function assertResolutionCode(
+  to: SupportTicketStatusName,
+  current: SupportResolutionCodeName | null,
+  given: SupportResolutionCodeName | null | undefined,
+): SupportResolutionCodeName | null {
+  const code = given ?? null;
+  if (requiresResolutionCode(to, current) && code === null) {
+    throw badRequest(
+      ErrorCode.SUPPORT_RESOLUTION_CODE_REQUIRED,
+      'Choose how this request was resolved before resolving or closing it.',
+      [{ field: 'resolutionCode', code: 'REQUIRED' }],
+    );
+  }
+  return code;
+}
+
+/**
  * Answer the sender.
  *
  * The reply is shown on their request and they are emailed that there is one.
@@ -1107,7 +1168,11 @@ async function applyStatus(
 export async function replyToSupportTicket(
   actor: SupportStaffActor,
   ticketId: string,
-  input: { body: string; nextStatus?: SupportTicketStatusName | null | undefined },
+  input: {
+    body: string;
+    nextStatus?: SupportTicketStatusName | null | undefined;
+    resolutionCode?: SupportResolutionCodeName | null | undefined;
+  },
 ): Promise<{ emailQueued: boolean }> {
   requirePermission(actor, Permission.SUPPORT_TICKET_REPLY);
   const body = cleanText(input.body, 'body', { min: 1, max: SUPPORT_LIMITS.messageMax });
@@ -1117,9 +1182,15 @@ export async function replyToSupportTicket(
   const implied = onStaffReply(row.status) ?? row.status;
   const target = input.nextStatus ?? implied;
   if (target !== implied) assertStaffTransition(implied, target);
+  const resolutionCode =
+    target === row.status ? null : assertResolutionCode(target, row.resolutionCode, input.resolutionCode);
 
   return prisma.$transaction(async (tx) => {
     const now = new Date();
+    // The first reply is what the first-response target measures.
+    if (row.firstRespondedAt === null) {
+      await tx.supportTicket.update({ where: { id: ticketId }, data: { firstRespondedAt: now } });
+    }
     await tx.supportTicketEvent.create({
       data: {
         id: newId(),
@@ -1147,6 +1218,9 @@ export async function replyToSupportTicket(
       if (target !== implied) {
         await applyStatus(tx, ticketId, implied, target, actor.userId, new Date(now.getTime() + 2));
       }
+      if (resolutionCode !== null) {
+        await tx.supportTicket.update({ where: { id: ticketId }, data: { resolutionCode } });
+      }
     } else {
       await tx.supportTicket.update({ where: { id: ticketId }, data: { lastActivityAt: now } });
     }
@@ -1168,7 +1242,7 @@ export async function replyToSupportTicket(
         actorUserId: actor.userId,
         actorEmail: actor.email,
         before: { status: row.status },
-        after: { status: target, length: characterCount(body) },
+        after: { status: target, length: characterCount(body), resolutionCode },
         ipAddress: actor.ipAddress ?? null,
         correlationId: actor.correlationId ?? null,
       },
@@ -1240,6 +1314,7 @@ export async function updateSupportTicket(
   input: {
     status?: SupportTicketStatusName | undefined;
     priority?: SupportTicketPriorityName | undefined;
+    resolutionCode?: SupportResolutionCodeName | undefined;
   },
 ): Promise<void> {
   requirePermission(actor, Permission.SUPPORT_TICKET_REPLY);
@@ -1247,13 +1322,27 @@ export async function updateSupportTicket(
 
   const statusChanges = input.status !== undefined && input.status !== row.status;
   const priorityChanges = input.priority !== undefined && input.priority !== row.priority;
-  if (!statusChanges && !priorityChanges) return;
+  // A code on its own re-labels a resolved request; with a move it says how it ended.
+  const target = statusChanges ? (input.status as SupportTicketStatusName) : row.status;
+  const codeChanges =
+    input.resolutionCode !== undefined &&
+    input.resolutionCode !== row.resolutionCode &&
+    (target === 'RESOLVED' || target === 'CLOSED');
+  if (!statusChanges && !priorityChanges && !codeChanges) return;
 
   if (statusChanges) assertStaffTransition(row.status, input.status as SupportTicketStatusName);
   else assertWritable(row.status);
+  if (statusChanges) assertResolutionCode(target, row.resolutionCode, input.resolutionCode);
 
   await prisma.$transaction(async (tx) => {
     const now = new Date();
+
+    if (codeChanges) {
+      await tx.supportTicket.update({
+        where: { id: ticketId },
+        data: { resolutionCode: input.resolutionCode ?? null },
+      });
+    }
 
     if (statusChanges) {
       const to = input.status as SupportTicketStatusName;
@@ -1266,8 +1355,8 @@ export async function updateSupportTicket(
           actorType: 'ADMIN',
           actorUserId: actor.userId,
           actorEmail: actor.email,
-          before: { status: row.status },
-          after: { status: to },
+          before: { status: row.status, resolutionCode: row.resolutionCode },
+          after: { status: to, resolutionCode: input.resolutionCode ?? row.resolutionCode },
           ipAddress: actor.ipAddress ?? null,
           correlationId: actor.correlationId ?? null,
         },

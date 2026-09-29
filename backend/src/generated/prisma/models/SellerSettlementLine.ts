@@ -46,6 +46,7 @@ export type SellerSettlementLineMinAggregateOutputType = {
   occurredAt: Date | null
   createdByUserId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerSettlementLineMaxAggregateOutputType = {
@@ -60,6 +61,7 @@ export type SellerSettlementLineMaxAggregateOutputType = {
   occurredAt: Date | null
   createdByUserId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerSettlementLineCountAggregateOutputType = {
@@ -74,6 +76,7 @@ export type SellerSettlementLineCountAggregateOutputType = {
   occurredAt: number
   createdByUserId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -98,6 +101,7 @@ export type SellerSettlementLineMinAggregateInputType = {
   occurredAt?: true
   createdByUserId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerSettlementLineMaxAggregateInputType = {
@@ -112,6 +116,7 @@ export type SellerSettlementLineMaxAggregateInputType = {
   occurredAt?: true
   createdByUserId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerSettlementLineCountAggregateInputType = {
@@ -126,6 +131,7 @@ export type SellerSettlementLineCountAggregateInputType = {
   occurredAt?: true
   createdByUserId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -227,6 +233,7 @@ export type SellerSettlementLineGroupByOutputType = {
   occurredAt: Date
   createdByUserId: string | null
   createdAt: Date
+  updatedAt: Date
   _count: SellerSettlementLineCountAggregateOutputType | null
   _avg: SellerSettlementLineAvgAggregateOutputType | null
   _sum: SellerSettlementLineSumAggregateOutputType | null
@@ -264,6 +271,7 @@ export type SellerSettlementLineWhereInput = {
   occurredAt?: Prisma.DateTimeFilter<"SellerSettlementLine"> | Date | string
   createdByUserId?: Prisma.StringNullableFilter<"SellerSettlementLine"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerSettlementLine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerSettlementLine"> | Date | string
   settlement?: Prisma.XOR<Prisma.SellerSettlementScalarRelationFilter, Prisma.SellerSettlementWhereInput>
   orderGroup?: Prisma.XOR<Prisma.SellerOrderGroupNullableScalarRelationFilter, Prisma.SellerOrderGroupWhereInput> | null
 }
@@ -280,6 +288,7 @@ export type SellerSettlementLineOrderByWithRelationInput = {
   occurredAt?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   settlement?: Prisma.SellerSettlementOrderByWithRelationInput
   orderGroup?: Prisma.SellerOrderGroupOrderByWithRelationInput
   _relevance?: Prisma.SellerSettlementLineOrderByRelevanceInput
@@ -300,6 +309,7 @@ export type SellerSettlementLineWhereUniqueInput = Prisma.AtLeast<{
   occurredAt?: Prisma.DateTimeFilter<"SellerSettlementLine"> | Date | string
   createdByUserId?: Prisma.StringNullableFilter<"SellerSettlementLine"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerSettlementLine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerSettlementLine"> | Date | string
   settlement?: Prisma.XOR<Prisma.SellerSettlementScalarRelationFilter, Prisma.SellerSettlementWhereInput>
   orderGroup?: Prisma.XOR<Prisma.SellerOrderGroupNullableScalarRelationFilter, Prisma.SellerOrderGroupWhereInput> | null
 }, "id">
@@ -316,6 +326,7 @@ export type SellerSettlementLineOrderByWithAggregationInput = {
   occurredAt?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerSettlementLineCountOrderByAggregateInput
   _avg?: Prisma.SellerSettlementLineAvgOrderByAggregateInput
   _max?: Prisma.SellerSettlementLineMaxOrderByAggregateInput
@@ -338,6 +349,7 @@ export type SellerSettlementLineScalarWhereWithAggregatesInput = {
   occurredAt?: Prisma.DateTimeWithAggregatesFilter<"SellerSettlementLine"> | Date | string
   createdByUserId?: Prisma.StringNullableWithAggregatesFilter<"SellerSettlementLine"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerSettlementLine"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerSettlementLine"> | Date | string
 }
 
 export type SellerSettlementLineCreateInput = {
@@ -350,6 +362,7 @@ export type SellerSettlementLineCreateInput = {
   occurredAt: Date | string
   createdByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   settlement: Prisma.SellerSettlementCreateNestedOneWithoutLinesInput
   orderGroup?: Prisma.SellerOrderGroupCreateNestedOneWithoutSettlementLinesInput
 }
@@ -366,6 +379,7 @@ export type SellerSettlementLineUncheckedCreateInput = {
   occurredAt: Date | string
   createdByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerSettlementLineUpdateInput = {
@@ -378,6 +392,7 @@ export type SellerSettlementLineUpdateInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   settlement?: Prisma.SellerSettlementUpdateOneRequiredWithoutLinesNestedInput
   orderGroup?: Prisma.SellerOrderGroupUpdateOneWithoutSettlementLinesNestedInput
 }
@@ -394,6 +409,7 @@ export type SellerSettlementLineUncheckedUpdateInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerSettlementLineCreateManyInput = {
@@ -408,6 +424,7 @@ export type SellerSettlementLineCreateManyInput = {
   occurredAt: Date | string
   createdByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerSettlementLineUpdateManyMutationInput = {
@@ -420,6 +437,7 @@ export type SellerSettlementLineUpdateManyMutationInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerSettlementLineUncheckedUpdateManyInput = {
@@ -434,6 +452,7 @@ export type SellerSettlementLineUncheckedUpdateManyInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerSettlementLineListRelationFilter = {
@@ -464,6 +483,7 @@ export type SellerSettlementLineCountOrderByAggregateInput = {
   occurredAt?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerSettlementLineAvgOrderByAggregateInput = {
@@ -482,6 +502,7 @@ export type SellerSettlementLineMaxOrderByAggregateInput = {
   occurredAt?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerSettlementLineMinOrderByAggregateInput = {
@@ -496,6 +517,7 @@ export type SellerSettlementLineMinOrderByAggregateInput = {
   occurredAt?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerSettlementLineSumOrderByAggregateInput = {
@@ -600,6 +622,7 @@ export type SellerSettlementLineCreateWithoutOrderGroupInput = {
   occurredAt: Date | string
   createdByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   settlement: Prisma.SellerSettlementCreateNestedOneWithoutLinesInput
 }
 
@@ -614,6 +637,7 @@ export type SellerSettlementLineUncheckedCreateWithoutOrderGroupInput = {
   occurredAt: Date | string
   createdByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerSettlementLineCreateOrConnectWithoutOrderGroupInput = {
@@ -657,6 +681,7 @@ export type SellerSettlementLineScalarWhereInput = {
   occurredAt?: Prisma.DateTimeFilter<"SellerSettlementLine"> | Date | string
   createdByUserId?: Prisma.StringNullableFilter<"SellerSettlementLine"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerSettlementLine"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerSettlementLine"> | Date | string
 }
 
 export type SellerSettlementLineCreateWithoutSettlementInput = {
@@ -669,6 +694,7 @@ export type SellerSettlementLineCreateWithoutSettlementInput = {
   occurredAt: Date | string
   createdByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   orderGroup?: Prisma.SellerOrderGroupCreateNestedOneWithoutSettlementLinesInput
 }
 
@@ -683,6 +709,7 @@ export type SellerSettlementLineUncheckedCreateWithoutSettlementInput = {
   occurredAt: Date | string
   createdByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerSettlementLineCreateOrConnectWithoutSettlementInput = {
@@ -722,6 +749,7 @@ export type SellerSettlementLineCreateManyOrderGroupInput = {
   occurredAt: Date | string
   createdByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerSettlementLineUpdateWithoutOrderGroupInput = {
@@ -734,6 +762,7 @@ export type SellerSettlementLineUpdateWithoutOrderGroupInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   settlement?: Prisma.SellerSettlementUpdateOneRequiredWithoutLinesNestedInput
 }
 
@@ -748,6 +777,7 @@ export type SellerSettlementLineUncheckedUpdateWithoutOrderGroupInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerSettlementLineUncheckedUpdateManyWithoutOrderGroupInput = {
@@ -761,6 +791,7 @@ export type SellerSettlementLineUncheckedUpdateManyWithoutOrderGroupInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerSettlementLineCreateManySettlementInput = {
@@ -774,6 +805,7 @@ export type SellerSettlementLineCreateManySettlementInput = {
   occurredAt: Date | string
   createdByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerSettlementLineUpdateWithoutSettlementInput = {
@@ -786,6 +818,7 @@ export type SellerSettlementLineUpdateWithoutSettlementInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orderGroup?: Prisma.SellerOrderGroupUpdateOneWithoutSettlementLinesNestedInput
 }
 
@@ -800,6 +833,7 @@ export type SellerSettlementLineUncheckedUpdateWithoutSettlementInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerSettlementLineUncheckedUpdateManyWithoutSettlementInput = {
@@ -813,6 +847,7 @@ export type SellerSettlementLineUncheckedUpdateManyWithoutSettlementInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -829,6 +864,7 @@ export type SellerSettlementLineSelect<ExtArgs extends runtime.Types.Extensions.
   occurredAt?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   settlement?: boolean | Prisma.SellerSettlementDefaultArgs<ExtArgs>
   orderGroup?: boolean | Prisma.SellerSettlementLine$orderGroupArgs<ExtArgs>
 }, ExtArgs["result"]["sellerSettlementLine"]>
@@ -847,9 +883,10 @@ export type SellerSettlementLineSelectScalar = {
   occurredAt?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerSettlementLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "settlementId" | "orderGroupId" | "kind" | "amountMinor" | "currency" | "description" | "reason" | "occurredAt" | "createdByUserId" | "createdAt", ExtArgs["result"]["sellerSettlementLine"]>
+export type SellerSettlementLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "settlementId" | "orderGroupId" | "kind" | "amountMinor" | "currency" | "description" | "reason" | "occurredAt" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerSettlementLine"]>
 export type SellerSettlementLineInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   settlement?: boolean | Prisma.SellerSettlementDefaultArgs<ExtArgs>
   orderGroup?: boolean | Prisma.SellerSettlementLine$orderGroupArgs<ExtArgs>
@@ -881,6 +918,7 @@ export type $SellerSettlementLinePayload<ExtArgs extends runtime.Types.Extension
     occurredAt: Date
     createdByUserId: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerSettlementLine"]>
   composites: {}
 }
@@ -1263,6 +1301,7 @@ export interface SellerSettlementLineFieldRefs {
   readonly occurredAt: Prisma.FieldRef<"SellerSettlementLine", 'DateTime'>
   readonly createdByUserId: Prisma.FieldRef<"SellerSettlementLine", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerSettlementLine", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerSettlementLine", 'DateTime'>
 }
     
 

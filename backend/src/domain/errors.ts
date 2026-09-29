@@ -48,6 +48,30 @@ export const ErrorCode = {
   REFRESH_TOKEN_REUSED: 'REFRESH_TOKEN_REUSED',
   MFA_REQUIRED: 'MFA_REQUIRED',
   MFA_INVALID: 'MFA_INVALID',
+  /// Storefront and Seller Hub. The account has two-step sign-in switched on
+  /// and THIS session has not passed its code yet. 403. The storefront shows
+  /// the code box; only /auth/me, /auth/mfa/challenge and /auth/logout answer.
+  MFA_CHALLENGE_REQUIRED: 'MFA_CHALLENGE_REQUIRED',
+  /// Storefront and Seller Hub. This person's role (a seller owner, or anybody
+  /// holding payout or finance permissions), or the act itself (switching on
+  /// AutoPay), needs two-step sign-in and the account has none. 403. The
+  /// storefront answers with the setup screen - a prompt, never a dead end.
+  MFA_SETUP_REQUIRED: 'MFA_SETUP_REQUIRED',
+  /// Asked to switch two-step sign-in off while holding a role that requires
+  /// it. 409. Changing the role first is the way out.
+  MFA_REQUIRED_BY_ROLE: 'MFA_REQUIRED_BY_ROLE',
+  /// A sensitive act - changing the email or password, connecting payouts,
+  /// changing team roles, switching on AutoPay, changing two-step sign-in -
+  /// needs the person to confirm it is them again, and this session has not
+  /// done so within STEP_UP_WINDOW_SECONDS. 403. `details[0].meta.method` is
+  /// `TOTP` or `PASSWORD`: which proof the storefront should ask for.
+  STEP_UP_REQUIRED: 'STEP_UP_REQUIRED',
+  /// The deployment has a bot check switched on (CAPTCHA_PROVIDER) and the
+  /// form was sent without its answer. 400.
+  CAPTCHA_REQUIRED: 'CAPTCHA_REQUIRED',
+  /// The bot check's answer was refused by the provider, or the provider
+  /// could not be asked. 400. Fails closed: the form is not accepted.
+  CAPTCHA_FAILED: 'CAPTCHA_FAILED',
   FORBIDDEN: 'FORBIDDEN',
   PERMISSION_DENIED: 'PERMISSION_DENIED',
   /// Authenticated, but the resource belongs to somebody else. Returned instead
@@ -150,8 +174,15 @@ export const ErrorCode = {
   // Deliberately NOT reusing SERVICE_UNAVAILABLE, which the storefront reads
   // as "the whole store is down" and puts a site-wide maintenance banner
   // behind. One camera button failing is not an outage.
+  //
+  // BUSY also covers a provider that did not answer in time or could not be
+  // reached: the customer's move is the same - wait a moment and try again -
+  // and the detail code (`busy`, `quota`, `timeout`, `network`) tells the
+  // operator which it was. UNAVAILABLE is the one a retry cannot fix: the
+  // deployment's key was refused or its model does not exist.
   IMAGE_SEARCH_BUSY: 'IMAGE_SEARCH_BUSY',
   IMAGE_SEARCH_UNREADABLE: 'IMAGE_SEARCH_UNREADABLE',
+  IMAGE_SEARCH_UNAVAILABLE: 'IMAGE_SEARCH_UNAVAILABLE',
 
   // --- Inventory ---
   INSUFFICIENT_STOCK: 'INSUFFICIENT_STOCK',
@@ -262,6 +293,10 @@ export const ErrorCode = {
   PAYMENT_LINK_REVOKED: 'PAYMENT_LINK_REVOKED',
   REFUND_EXCEEDS_CAPTURED: 'REFUND_EXCEEDS_CAPTURED',
   REFUND_NOT_PERMITTED: 'REFUND_NOT_PERMITTED',
+  /// A receipt was asked for a payment that was never captured, or a refund
+  /// the provider has not confirmed. A receipt says money moved; until it
+  /// has, there is nothing to acknowledge.
+  RECEIPT_NOT_AVAILABLE: 'RECEIPT_NOT_AVAILABLE',
 
   // --- Recurring ---
   SCHEDULE_PRODUCT_NOT_ELIGIBLE: 'SCHEDULE_PRODUCT_NOT_ELIGIBLE',
@@ -476,6 +511,33 @@ export const ErrorCode = {
   /// limit cannot be applied. Refused rather than guessed at: converting a cap
   /// the customer typed is not something to do silently.
   AUTOPAY_CURRENCY_MISMATCH: 'AUTOPAY_CURRENCY_MISMATCH',
+  /// The end date the customer gave their standing authority has passed.
+  /// Nothing is charged; the customer sets a new date to carry on.
+  AUTOPAY_AUTHORITY_EXPIRED: 'AUTOPAY_AUTHORITY_EXPIRED',
+  /// The start date the customer gave their standing authority has not come
+  /// yet. Nothing is charged.
+  AUTOPAY_AUTHORITY_NOT_STARTED: 'AUTOPAY_AUTHORITY_NOT_STARTED',
+  /// This charge would take the customer's automatic payments for the
+  /// current period above the cap they set. Not charged; the order waits for
+  /// them to pay it themselves, which is their explicit approval.
+  AUTOPAY_PERIOD_CAP_REACHED: 'AUTOPAY_PERIOD_CAP_REACHED',
+  /// The order is from a supplier or in a category the customer's standing
+  /// authority does not cover. Not charged; it waits for them.
+  AUTOPAY_OUTSIDE_SCOPE: 'AUTOPAY_OUTSIDE_SCOPE',
+  /// A scheduled delivery is not waiting for a price confirmation (it was
+  /// already confirmed, declined, or its deadline passed).
+  SCHEDULE_CONFIRMATION_NOT_PENDING: 'SCHEDULE_CONFIRMATION_NOT_PENDING',
+  /// The total the customer confirmed is no longer the total: the price moved
+  /// again. Nothing is charged; the new total is shown to confirm afresh.
+  SCHEDULE_CONFIRMED_TOTAL_STALE: 'SCHEDULE_CONFIRMED_TOTAL_STALE',
+  /// The buyer company's own sign-off rule: the order waits for an approver
+  /// or finance before it can be paid.
+  BUYER_COMPANY_APPROVAL_PENDING: 'BUYER_COMPANY_APPROVAL_PENDING',
+  /// Nobody may sign off an order they placed, and the finance stage may not
+  /// be signed off by whoever approved the first.
+  BUYER_COMPANY_SELF_APPROVAL: 'BUYER_COMPANY_SELF_APPROVAL',
+  /// This stage has already been decided, or the order is no longer waiting.
+  BUYER_COMPANY_APPROVAL_NOT_PENDING: 'BUYER_COMPANY_APPROVAL_NOT_PENDING',
 
   // --- Data protection ---
   /// One open request of this kind already exists. Art. 12(3) runs from the
@@ -816,7 +878,23 @@ export const ErrorCode = {
   /// a question that was already answered.
   SHIPMENT_ASSIGNMENT_SETTLED: 'SHIPMENT_ASSIGNMENT_SETTLED',
   /// A delivery OTP did not match, or has expired.
+  ///
+  /// `details[0]` names the `otp` field, and its `code` says which: `MISSING`,
+  /// `INVALID`, `EXPIRED`, `NOT_SENT` (no live code - send one) or
+  /// `TOO_MANY_ATTEMPTS` (this code is dead - send a new one).
   SHIPMENT_OTP_INVALID: 'SHIPMENT_OTP_INVALID',
+  /// A delivery code cannot be sent for this consignment at all.
+  ///
+  /// `details[0].code` says why: `NOT_REQUIRED` (its policy asks for no code),
+  /// `NOT_OUT_FOR_DELIVERY` (codes are sent only while it is on the van) or
+  /// `NO_RECIPIENT` (no buyer account to send it to - the operator has to
+  /// change the delivery's service level). Waiting fixes none of them.
+  SHIPMENT_OTP_UNAVAILABLE: 'SHIPMENT_OTP_UNAVAILABLE',
+  /// A new delivery code was asked for too soon after the last one, or the
+  /// consignment has had as many codes as it may have today. HTTP 429.
+  /// `details[0].code` is `TOO_SOON` (with `meta.retryAt`) or
+  /// `DAILY_LIMIT_REACHED`.
+  SHIPMENT_OTP_RESEND_LIMITED: 'SHIPMENT_OTP_RESEND_LIMITED',
 
   /// A pickup cannot be scheduled or completed in its current state.
   /// A SELLER asked to hand a consignment to a carrier they are not entitled
@@ -868,7 +946,10 @@ export const ErrorCode = {
    */
   CARRIER_PROVIDER_UNCONFIGURED: 'CARRIER_PROVIDER_UNCONFIGURED',
   /// The carrier answered, and answered with a refusal. The message carries
-  /// their own words where they are safe to repeat.
+  /// their own words where they are safe to repeat. Also raised when the
+  /// carrier did not answer in time or could not be reached - either way
+  /// nothing was booked - with detail code CARRIER_TIMEOUT (HTTP 504) or
+  /// CARRIER_UNREACHABLE (502) in place of CARRIER_REFUSED.
   CARRIER_REQUEST_FAILED: 'CARRIER_REQUEST_FAILED',
   /// A webhook's signature did not verify, its timestamp was outside the
   /// accepted window, or its event id had already been processed. One code:
@@ -1242,6 +1323,18 @@ export const ErrorCode = {
   /// A published or retired fee policy is never edited; draft a new version.
   PLATFORM_FEE_POLICY_NOT_EDITABLE: 'PLATFORM_FEE_POLICY_NOT_EDITABLE',
 
+  /// A fee policy or fee rule must be approved by a different member of
+  /// finance staff from the one who created, last edited or submitted it.
+  PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN: 'PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN',
+
+  /// Only a draft can be submitted, and only a submitted one can be approved
+  /// or rejected. details[0].meta.status is where it is now.
+  PLATFORM_FEE_NOT_PENDING_APPROVAL: 'PLATFORM_FEE_NOT_PENDING_APPROVAL',
+
+  /// A fee rule is inconsistent - a value band with no lower bound, a volume
+  /// tier with no window, a promotion with no end date. details[0].field.
+  PLATFORM_FEE_RULE_INVALID: 'PLATFORM_FEE_RULE_INVALID',
+
   // --- Bulk preorders ----------------------------------------------------------
   //
   // Each of these is a specific reason with its figures in `details[0].meta`,
@@ -1401,6 +1494,47 @@ export const ErrorCode = {
 
   /// This ticket already carries as many files as one ticket may. meta.limit.
   SUPPORT_ATTACHMENT_LIMIT_REACHED: 'SUPPORT_ATTACHMENT_LIMIT_REACHED',
+
+  /// Resolving or closing a request needs a resolution code saying how it
+  /// ended. details[0].field is `resolutionCode`.
+  SUPPORT_RESOLUTION_CODE_REQUIRED: 'SUPPORT_RESOLUTION_CODE_REQUIRED',
+
+  // --- Disputes, claims and chargebacks ---------------------------------------------
+
+  /// The dispute cannot move to that status from where it is - it is closed,
+  /// already decided, or waiting for somebody else. meta.from, meta.to.
+  DISPUTE_TRANSITION_NOT_ALLOWED: 'DISPUTE_TRANSITION_NOT_ALLOWED',
+
+  /// This order (or line) cannot have a claim raised on it: not paid, not
+  /// yours, or the line is not on the order. details[0].code says which.
+  DISPUTE_NOT_ELIGIBLE: 'DISPUTE_NOT_ELIGIBLE',
+
+  /// There is already an open claim on this order line. Write on that one.
+  /// meta.reference.
+  DISPUTE_ALREADY_OPEN: 'DISPUTE_ALREADY_OPEN',
+
+  /// The time allowed for raising a claim on this order has passed.
+  /// meta.windowDays.
+  DISPUTE_WINDOW_CLOSED: 'DISPUTE_WINDOW_CLOSED',
+
+  /// A decision must be approved by a different member of staff from the one
+  /// who proposed it.
+  DISPUTE_SELF_APPROVAL_FORBIDDEN: 'DISPUTE_SELF_APPROVAL_FORBIDDEN',
+
+  /// This decision cannot be appealed: the window has passed, or it has been
+  /// appealed once already. details[0].code is WINDOW_CLOSED or ALREADY_APPEALED.
+  DISPUTE_APPEAL_NOT_ALLOWED: 'DISPUTE_APPEAL_NOT_ALLOWED',
+
+  /// The payment on this order is under a chargeback. Refunding it as well
+  /// could pay the buyer twice; the chargeback decides the money.
+  DISPUTE_CHARGEBACK_OPEN: 'DISPUTE_CHARGEBACK_OPEN',
+
+  /// The amount is not valid for this dispute - not whole minor units, zero,
+  /// or more than was paid. meta.maxMinor.
+  DISPUTE_AMOUNT_INVALID: 'DISPUTE_AMOUNT_INVALID',
+
+  /// Somebody saved the dispute settings a moment ago. Reload and try again.
+  DISPUTE_SETTINGS_CONFLICT: 'DISPUTE_SETTINGS_CONFLICT',
 
   // --- Seller invoices and packing lists -----------------------------------------
 
@@ -1565,6 +1699,157 @@ export const ErrorCode = {
   /// `domain/b2c-order-limit.ts`. Not QUANTITY_ABOVE_MAXIMUM, which is the
   /// per-line maximum that binds every buyer.
   B2C_MAX_ORDER_QUANTITY_EXCEEDED: 'B2C_MAX_ORDER_QUANTITY_EXCEEDED',
+
+  // --- Pre-shipment inspection and the dispatch gate ---
+  /// The order must be inspected before it leaves and the gate is shut. 409.
+  /// `details[0].code` says why: NOT_BOOKED, IN_PROGRESS, FAILED,
+  /// BLOCKING_NCR_OPEN, RELEASE_PENDING_APPROVAL, SCOPE_CHANGED or
+  /// BUYER_REVIEW_PERIOD; `meta.requirementId` names the inspection. See
+  /// `domain/inspection-gate.ts`.
+  INSPECTION_GATE_CLOSED: 'INSPECTION_GATE_CLOSED',
+  /// A guarded move reached a state machine without the gate being checked.
+  /// A programming error on the server, refused rather than let through. 409.
+  INSPECTION_GATE_NOT_EVALUATED: 'INSPECTION_GATE_NOT_EVALUATED',
+  /// That inspection job cannot move that way, for that role. `details[0]
+  /// .code` is SAME_STATUS, TRANSITION_UNDEFINED, ACTOR_NOT_PERMITTED or
+  /// REASON_REQUIRED.
+  INSPECTION_JOB_TRANSITION_NOT_ALLOWED: 'INSPECTION_JOB_TRANSITION_NOT_ALLOWED',
+  /// The signed-in account is not an active member of an inspection agency,
+  /// or its role does not carry this action. 403.
+  INSPECTION_AGENCY_MEMBER_REQUIRED: 'INSPECTION_AGENCY_MEMBER_REQUIRED',
+  /// The agency cannot take this job: suspended, not serving the category or
+  /// country, affiliated with the seller, or full on that day. `details[0]
+  /// .code` says which.
+  INSPECTION_AGENCY_NOT_ELIGIBLE: 'INSPECTION_AGENCY_NOT_ELIGIBLE',
+  /// The person or agency has a conflict of interest with this order - a
+  /// member of the seller, the buyer, or a declared conflict. 409.
+  INSPECTION_CONFLICT_OF_INTEREST: 'INSPECTION_CONFLICT_OF_INTEREST',
+  /// The inspector is not authorised for this category, has no verified
+  /// identity, or their credentials have expired. `details[0].code` says which.
+  INSPECTOR_NOT_QUALIFIED: 'INSPECTOR_NOT_QUALIFIED',
+  /// The report cannot be submitted or signed yet. `details` lists each
+  /// missing item: an unanswered checklist line, the sampling record, evidence.
+  INSPECTION_REPORT_INCOMPLETE: 'INSPECTION_REPORT_INCOMPLETE',
+  /// A signed report, and its evidence, never change. 409.
+  INSPECTION_REPORT_LOCKED: 'INSPECTION_REPORT_LOCKED',
+  /// The person who requested a conditional release cannot also approve it. 409.
+  INSPECTION_SELF_APPROVAL_FORBIDDEN: 'INSPECTION_SELF_APPROVAL_FORBIDDEN',
+  /// A conditional release cannot be recorded: the rule does not allow one,
+  /// the reason is too short, evidence is missing, or one is already pending.
+  /// `details[0].code` says which.
+  INSPECTION_RELEASE_NOT_ALLOWED: 'INSPECTION_RELEASE_NOT_ALLOWED',
+  /// A re-inspection needs corrective action recorded on every open
+  /// non-conformance first. `details` names each NCR still open.
+  INSPECTION_CAPA_REQUIRED: 'INSPECTION_CAPA_REQUIRED',
+  /// A defect's severity can be changed only by the agency's QA reviewer, who
+  /// is not the inspector who recorded it, with a reason and evidence.
+  INSPECTION_RECLASSIFICATION_NOT_ALLOWED: 'INSPECTION_RECLASSIFICATION_NOT_ALLOWED',
+  /// The container or seal recorded at loading does not match the packages on
+  /// the consignment. 409.
+  INSPECTION_BINDING_MISMATCH: 'INSPECTION_BINDING_MISMATCH',
+  /// The seller cannot present the lot yet. `details` lists each missing item,
+  /// such as PACKING_LIST_MISSING or DECLARATION_REQUIRED.
+  INSPECTION_READINESS_INCOMPLETE: 'INSPECTION_READINESS_INCOMPLETE',
+  /// An inspection rule, plan or policy contradicts itself. `details` names
+  /// each field.
+  INSPECTION_POLICY_INVALID: 'INSPECTION_POLICY_INVALID',
+  /// An inspection cannot be booked for this order now: none is required and
+  /// the buyer did not ask, one is already open, or the order is past dispatch.
+  INSPECTION_BOOKING_NOT_ALLOWED: 'INSPECTION_BOOKING_NOT_ALLOWED',
+
+  // --- Returns ---
+  /// This order cannot be returned from the storefront. 409. `details[0].code`
+  /// says why: NOT_DELIVERED, WINDOW_CLOSED (meta.windowDays, meta.closedAt),
+  /// RETURNS_OFF (the operator's window is 0), MIXED_SELLERS (the lines chosen
+  /// belong to more than one seller - send one return per seller) or
+  /// REASON_NOT_OFFERED.
+  RETURN_NOT_ELIGIBLE: 'RETURN_NOT_ELIGIBLE',
+  /// More of a line was asked for than is left to return. 409. One detail per
+  /// line: `field` is `items.N.quantity`, meta.returnable is how many may still
+  /// go back.
+  RETURN_QUANTITY_EXCEEDED: 'RETURN_QUANTITY_EXCEEDED',
+  /// The reason chosen needs at least one photograph or video of the problem,
+  /// and none was attached. 400.
+  RETURN_EVIDENCE_REQUIRED: 'RETURN_EVIDENCE_REQUIRED',
+  /// The return cannot move that way from where it is, or the move needs a
+  /// reason that was not given. 409. meta.from, meta.to.
+  RETURN_TRANSITION_NOT_ALLOWED: 'RETURN_TRANSITION_NOT_ALLOWED',
+  /// Files cannot be added to returns here: no malware scanner is configured
+  /// and unscanned files are not accepted. 409. The return itself still works.
+  RETURN_FILES_UNAVAILABLE: 'RETURN_FILES_UNAVAILABLE',
+
+  // --- The buyer experience: cart, checkout, account, alerts, reviews ---
+  /// That saved-for-later line is not one of this buyer's. 404.
+  SAVED_ITEM_NOT_FOUND: 'SAVED_ITEM_NOT_FOUND',
+  /// The operator's buyer settings or a duty rate contradict themselves.
+  /// `details` names each field. 400.
+  BUYER_COMMERCE_SETTINGS_INVALID: 'BUYER_COMMERCE_SETTINGS_INVALID',
+  /// Somebody else saved the buyer settings since they were loaded. Reload. 409.
+  BUYER_COMMERCE_SETTINGS_CONFLICT: 'BUYER_COMMERCE_SETTINGS_CONFLICT',
+  /// The identity details cannot be changed while they are being reviewed or
+  /// once verified - ask support to reopen them. 409.
+  KYC_NOT_EDITABLE: 'KYC_NOT_EDITABLE',
+  /// The identity details are not complete enough to submit. `details` lists
+  /// each missing field. 400.
+  KYC_INCOMPLETE: 'KYC_INCOMPLETE',
+  /// The uploaded identity or import document is not accepted: wrong type by
+  /// its own bytes, too large, empty, or it failed the malware scan. 400.
+  KYC_DOCUMENT_REJECTED: 'KYC_DOCUMENT_REJECTED',
+  /// The buyer already has as many saved searches as the installation allows. 409.
+  SAVED_SEARCH_LIMIT_REACHED: 'SAVED_SEARCH_LIMIT_REACHED',
+  /// Nothing on that past order can be bought today. `details` lists each
+  /// line and why (UNPUBLISHED, OUT_OF_STOCK, OFFER_WITHDRAWN). 409.
+  REORDER_NOTHING_AVAILABLE: 'REORDER_NOTHING_AVAILABLE',
+  /// The reorder changed since the buyer reviewed it - a price or stock moved.
+  /// `details[0].meta.previewToken` is the new preview to review. 409.
+  REORDER_PREVIEW_STALE: 'REORDER_PREVIEW_STALE',
+  /// Security and account notices cannot be switched off. 400.
+  NOTIFICATION_PREFERENCE_LOCKED: 'NOTIFICATION_PREFERENCE_LOCKED',
+  /// Only the seller whose goods were reviewed may answer a review, once, and
+  /// only a published one. 409 (403 for somebody else's review).
+  REVIEW_RESPONSE_NOT_ALLOWED: 'REVIEW_RESPONSE_NOT_ALLOWED',
+  /// No translation provider is configured, or it failed. The original text is
+  /// still shown. 503.
+  TRANSLATION_UNAVAILABLE: 'TRANSLATION_UNAVAILABLE',
+  /// An inbound ERP purchase order could not become an order. `details` names
+  /// each problem: a missing field, an unknown product code (UNKNOWN_PRODUCT),
+  /// or a line that cannot be bought. 422.
+  CUSTOMER_ERP_PURCHASE_ORDER_REJECTED: 'CUSTOMER_ERP_PURCHASE_ORDER_REJECTED',
+  /// A production milestone or delay cannot be recorded: the order is not
+  /// accepted (NOT_ACCEPTED), has left (CLOSED), the stage is already done
+  /// (ALREADY_COMPLETED) or an earlier one is open (OUT_OF_ORDER). 409.
+  PRODUCTION_MILESTONE_NOT_ALLOWED: 'PRODUCTION_MILESTONE_NOT_ALLOWED',
+  /// The marketplace has blocked this listing. Only staff can lift it; the
+  /// seller cannot resume, edit it live or archive it. 409.
+  LISTING_BLOCKED: 'LISTING_BLOCKED',
+  /// The seller does not sell this listing to the delivery country.
+  /// `details[0].meta.country` is the country. 409.
+  OFFER_NOT_AVAILABLE_IN_MARKET: 'OFFER_NOT_AVAILABLE_IN_MARKET',
+  /// A bulk-import file cannot be read: empty, not CSV/XLSX by its bytes,
+  /// too large, too many rows, or missing a required column. 400.
+  BULK_IMPORT_FILE_INVALID: 'BULK_IMPORT_FILE_INVALID',
+  /// A bulk import cannot be applied: it is not a finished dry run, it has
+  /// row errors, or it was already applied. 409.
+  BULK_IMPORT_NOT_APPLICABLE: 'BULK_IMPORT_NOT_APPLICABLE',
+  /// A trade document is incomplete or not acceptable here - unknown kind,
+  /// missing issuer, expiry before issue, no file and no reference. 400.
+  TRADE_DOCUMENT_INVALID: 'TRADE_DOCUMENT_INVALID',
+  /// The consignment is on an exception hold: a document the destination or
+  /// category requires is missing or not valid, the HS code is unverified or
+  /// rejected, or the goods are prohibited there. `details` lists each hold
+  /// with its code and the party who must act. 409.
+  DESTINATION_DOCUMENTS_NOT_READY: 'DESTINATION_DOCUMENTS_NOT_READY',
+  /// A cross-border consignment must state its Incoterm, mode and ports
+  /// before it can be booked. 409.
+  BOOKING_TERMS_REQUIRED: 'BOOKING_TERMS_REQUIRED',
+  /// Booking terms are not acceptable: unknown Incoterm, a port that is not a
+  /// UN/LOCODE, an insured value above what the settings allow. 400.
+  BOOKING_TERMS_INVALID: 'BOOKING_TERMS_INVALID',
+  /// Cargo insurance is not offered on this installation. 409.
+  SHIPMENT_INSURANCE_NOT_OFFERED: 'SHIPMENT_INSURANCE_NOT_OFFERED',
+  /// A lane rate card is not acceptable: overlapping weight bands, transit
+  /// days out of order, validity ending before it starts. 400.
+  LOGISTICS_LANE_INVALID: 'LOGISTICS_LANE_INVALID',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

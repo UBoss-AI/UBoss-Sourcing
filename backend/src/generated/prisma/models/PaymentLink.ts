@@ -51,6 +51,7 @@ export type PaymentLinkMinAggregateOutputType = {
   supersededByLinkId: string | null
   createdById: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PaymentLinkMaxAggregateOutputType = {
@@ -70,6 +71,7 @@ export type PaymentLinkMaxAggregateOutputType = {
   supersededByLinkId: string | null
   createdById: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PaymentLinkCountAggregateOutputType = {
@@ -89,6 +91,7 @@ export type PaymentLinkCountAggregateOutputType = {
   supersededByLinkId: number
   createdById: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -118,6 +121,7 @@ export type PaymentLinkMinAggregateInputType = {
   supersededByLinkId?: true
   createdById?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PaymentLinkMaxAggregateInputType = {
@@ -137,6 +141,7 @@ export type PaymentLinkMaxAggregateInputType = {
   supersededByLinkId?: true
   createdById?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PaymentLinkCountAggregateInputType = {
@@ -156,6 +161,7 @@ export type PaymentLinkCountAggregateInputType = {
   supersededByLinkId?: true
   createdById?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -262,6 +268,7 @@ export type PaymentLinkGroupByOutputType = {
   supersededByLinkId: string | null
   createdById: string
   createdAt: Date
+  updatedAt: Date
   _count: PaymentLinkCountAggregateOutputType | null
   _avg: PaymentLinkAvgAggregateOutputType | null
   _sum: PaymentLinkSumAggregateOutputType | null
@@ -304,6 +311,7 @@ export type PaymentLinkWhereInput = {
   supersededByLinkId?: Prisma.StringNullableFilter<"PaymentLink"> | string | null
   createdById?: Prisma.StringFilter<"PaymentLink"> | string
   createdAt?: Prisma.DateTimeFilter<"PaymentLink"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PaymentLink"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
 }
 
@@ -324,6 +332,7 @@ export type PaymentLinkOrderByWithRelationInput = {
   supersededByLinkId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   order?: Prisma.OrderOrderByWithRelationInput
   _relevance?: Prisma.PaymentLinkOrderByRelevanceInput
 }
@@ -348,6 +357,7 @@ export type PaymentLinkWhereUniqueInput = Prisma.AtLeast<{
   supersededByLinkId?: Prisma.StringNullableFilter<"PaymentLink"> | string | null
   createdById?: Prisma.StringFilter<"PaymentLink"> | string
   createdAt?: Prisma.DateTimeFilter<"PaymentLink"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PaymentLink"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
 }, "id" | "tokenHash">
 
@@ -368,6 +378,7 @@ export type PaymentLinkOrderByWithAggregationInput = {
   supersededByLinkId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PaymentLinkCountOrderByAggregateInput
   _avg?: Prisma.PaymentLinkAvgOrderByAggregateInput
   _max?: Prisma.PaymentLinkMaxOrderByAggregateInput
@@ -395,6 +406,7 @@ export type PaymentLinkScalarWhereWithAggregatesInput = {
   supersededByLinkId?: Prisma.StringNullableWithAggregatesFilter<"PaymentLink"> | string | null
   createdById?: Prisma.StringWithAggregatesFilter<"PaymentLink"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentLink"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentLink"> | Date | string
 }
 
 export type PaymentLinkCreateInput = {
@@ -413,6 +425,7 @@ export type PaymentLinkCreateInput = {
   supersededByLinkId?: string | null
   createdById: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutPaymentLinksInput
 }
 
@@ -433,6 +446,7 @@ export type PaymentLinkUncheckedCreateInput = {
   supersededByLinkId?: string | null
   createdById: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PaymentLinkUpdateInput = {
@@ -451,6 +465,7 @@ export type PaymentLinkUpdateInput = {
   supersededByLinkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutPaymentLinksNestedInput
 }
 
@@ -471,6 +486,7 @@ export type PaymentLinkUncheckedUpdateInput = {
   supersededByLinkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentLinkCreateManyInput = {
@@ -490,6 +506,7 @@ export type PaymentLinkCreateManyInput = {
   supersededByLinkId?: string | null
   createdById: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PaymentLinkUpdateManyMutationInput = {
@@ -508,6 +525,7 @@ export type PaymentLinkUpdateManyMutationInput = {
   supersededByLinkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentLinkUncheckedUpdateManyInput = {
@@ -527,6 +545,7 @@ export type PaymentLinkUncheckedUpdateManyInput = {
   supersededByLinkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentLinkListRelationFilter = {
@@ -562,6 +581,7 @@ export type PaymentLinkCountOrderByAggregateInput = {
   supersededByLinkId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PaymentLinkAvgOrderByAggregateInput = {
@@ -585,6 +605,7 @@ export type PaymentLinkMaxOrderByAggregateInput = {
   supersededByLinkId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PaymentLinkMinOrderByAggregateInput = {
@@ -604,6 +625,7 @@ export type PaymentLinkMinOrderByAggregateInput = {
   supersededByLinkId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PaymentLinkSumOrderByAggregateInput = {
@@ -668,6 +690,7 @@ export type PaymentLinkCreateWithoutOrderInput = {
   supersededByLinkId?: string | null
   createdById: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PaymentLinkUncheckedCreateWithoutOrderInput = {
@@ -686,6 +709,7 @@ export type PaymentLinkUncheckedCreateWithoutOrderInput = {
   supersededByLinkId?: string | null
   createdById: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PaymentLinkCreateOrConnectWithoutOrderInput = {
@@ -734,6 +758,7 @@ export type PaymentLinkScalarWhereInput = {
   supersededByLinkId?: Prisma.StringNullableFilter<"PaymentLink"> | string | null
   createdById?: Prisma.StringFilter<"PaymentLink"> | string
   createdAt?: Prisma.DateTimeFilter<"PaymentLink"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PaymentLink"> | Date | string
 }
 
 export type PaymentLinkCreateManyOrderInput = {
@@ -752,6 +777,7 @@ export type PaymentLinkCreateManyOrderInput = {
   supersededByLinkId?: string | null
   createdById: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PaymentLinkUpdateWithoutOrderInput = {
@@ -770,6 +796,7 @@ export type PaymentLinkUpdateWithoutOrderInput = {
   supersededByLinkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentLinkUncheckedUpdateWithoutOrderInput = {
@@ -788,6 +815,7 @@ export type PaymentLinkUncheckedUpdateWithoutOrderInput = {
   supersededByLinkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentLinkUncheckedUpdateManyWithoutOrderInput = {
@@ -806,6 +834,7 @@ export type PaymentLinkUncheckedUpdateManyWithoutOrderInput = {
   supersededByLinkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -827,6 +856,7 @@ export type PaymentLinkSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   supersededByLinkId?: boolean
   createdById?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["paymentLink"]>
 
@@ -849,9 +879,10 @@ export type PaymentLinkSelectScalar = {
   supersededByLinkId?: boolean
   createdById?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PaymentLinkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "tokenHash" | "recipientEmail" | "recipientName" | "amountMinor" | "currency" | "expiresAt" | "sentAt" | "openedAt" | "usedAt" | "revokedAt" | "revokedReason" | "supersededByLinkId" | "createdById" | "createdAt", ExtArgs["result"]["paymentLink"]>
+export type PaymentLinkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "tokenHash" | "recipientEmail" | "recipientName" | "amountMinor" | "currency" | "expiresAt" | "sentAt" | "openedAt" | "usedAt" | "revokedAt" | "revokedReason" | "supersededByLinkId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentLink"]>
 export type PaymentLinkInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
 }
@@ -890,6 +921,7 @@ export type $PaymentLinkPayload<ExtArgs extends runtime.Types.Extensions.Interna
     supersededByLinkId: string | null
     createdById: string
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["paymentLink"]>
   composites: {}
 }
@@ -1276,6 +1308,7 @@ export interface PaymentLinkFieldRefs {
   readonly supersededByLinkId: Prisma.FieldRef<"PaymentLink", 'String'>
   readonly createdById: Prisma.FieldRef<"PaymentLink", 'String'>
   readonly createdAt: Prisma.FieldRef<"PaymentLink", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"PaymentLink", 'DateTime'>
 }
     
 

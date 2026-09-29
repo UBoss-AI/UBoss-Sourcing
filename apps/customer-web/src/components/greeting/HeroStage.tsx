@@ -62,6 +62,7 @@
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import type { GlobeAnchor } from '@/components/ui/3d-globe';
+import { prefersLightMedia } from '@/lib/light-media';
 
 const EarthScene = lazy(() => import('./EarthScene'));
 
@@ -128,6 +129,10 @@ function chooseTier(): StageTier | null {
    * absent in jsdom, so this is both the cheap check and the honest one.
    */
   if (typeof WebGL2RenderingContext === 'undefined') return null;
+
+  // Data saver on, or a connection the browser measures as 3G or slower: the
+  // CSS sphere, and none of the scene's download. See `lib/light-media.ts`.
+  if (prefersLightMedia()) return null;
 
   // `deviceMemory` is Chromium-only; its absence is not evidence of anything,
   // so it only ever rules a device out, never in.

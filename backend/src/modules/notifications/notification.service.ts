@@ -73,10 +73,19 @@ export const NotificationEvent = {
   /// deactivation somebody did not ask for is something they need to hear
   /// about while they can still get it reversed.
   USER_ACCOUNT_DEACTIVATED: 'user.account_deactivated',
+  /// "Was this you?" A storefront sign-in from a device and network this
+  /// account has not used recently. Says what to do if it was not them, and
+  /// carries no link that signs anybody in. See `identity/login-alert.service.ts`.
+  USER_NEW_SIGN_IN: 'user.new_sign_in',
+  /// Two-step sign-in was switched off on this account.
+  USER_MFA_DISABLED: 'user.mfa_disabled',
   ORDER_SUBMITTED: 'order.submitted',
   ORDER_CONFIRMED: 'order.confirmed',
   ORDER_CANCELLED: 'order.cancelled',
   ORDER_SHIPPED: 'order.shipped',
+  /// A seller recorded a production milestone or a delay on the buyer's order.
+  /// Only the structured, buyer-safe update is in it - never the seller's notes.
+  ORDER_PRODUCTION_UPDATE: 'order.production_update',
   /// A consignment's milestones, told to the BUYER. One email per consignment
   /// per milestone, however many carrier scans report it. PICKED_UP is sent
   /// only where the order has more than one consignment - with one, the
@@ -85,6 +94,16 @@ export const NotificationEvent = {
   SHIPMENT_IN_TRANSIT: 'shipment.in_transit',
   SHIPMENT_OUT_FOR_DELIVERY: 'shipment.out_for_delivery',
   SHIPMENT_DELIVERED: 'shipment.delivered',
+  /// Something went wrong with a consignment, told to the BUYER: held at
+  /// customs or the port, delayed, an address problem, a missed or failed
+  /// delivery, damage, loss, a temperature excursion. One email per trouble
+  /// event, in a sentence written for the buyer - never the carrier's notes.
+  SHIPMENT_EXCEPTION: 'shipment.exception',
+  /// The six-digit code the BUYER reads out to the driver, for a delivery whose
+  /// policy requires one. Worded in the buyer's own language by
+  /// `logistics/delivery-code-email.ts` and framed here like the buyer-company
+  /// emails. Never sent to anybody at the carrier.
+  SHIPMENT_DELIVERY_CODE: 'shipment.delivery_code',
   PAYMENT_LINK: 'payment.link',
   PAYMENT_SUCCEEDED: 'payment.succeeded',
   PAYMENT_FAILED: 'payment.failed',
@@ -211,6 +230,24 @@ export const NotificationEvent = {
   SUPPORT_TICKET_NEW_FOR_TEAM: 'support_ticket.new_for_team',
   /// Told to a member of STAFF: a colleague handed them a request.
   SUPPORT_TICKET_ASSIGNED: 'support_ticket.assigned',
+  /// Disputes, told to the BUYER: the claim arrived, something happened on it,
+  /// it was decided. The reference, the outcome and a link - never what the
+  /// seller or the team wrote.
+  DISPUTE_RECEIVED: 'dispute.received',
+  DISPUTE_UPDATE: 'dispute.update',
+  DISPUTE_DECIDED: 'dispute.decided',
+  /// Returns. Told to the BUYER at each step of their return, and to the
+  /// SELLER's owners when a return of their goods arrives and as it moves.
+  /// The refund itself is told by `refund.processed`, as every refund is.
+  RETURN_REQUESTED: 'return.requested',
+  RETURN_APPROVED: 'return.approved',
+  RETURN_REJECTED: 'return.rejected',
+  RETURN_INSTRUCTIONS: 'return.instructions',
+  RETURN_RECEIVED: 'return.received',
+  RETURN_INSPECTED: 'return.inspected',
+  RETURN_COMPLETED: 'return.completed',
+  RETURN_NEW_FOR_SELLER: 'return.new_for_seller',
+  RETURN_UPDATE_FOR_SELLER: 'return.update_for_seller',
 } as const;
 
 export type NotificationEventKey = (typeof NotificationEvent)[keyof typeof NotificationEvent];
@@ -276,6 +313,13 @@ const LOCALISED_FRAME = Object.freeze({
 /** Built-in fallbacks, used when no notification_settings row exists yet. */
 const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string }>> =
   Object.freeze({
+    [NotificationEvent.ORDER_PRODUCTION_UPDATE]: {
+      subject: 'Production update on order {{orderNumber}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        '{{sellerName}} has an update on your order {{orderNumber}}: {{updateLine}}\n\n' +
+        '{{messageLine}}Follow the order here:\n{{orderUrl}}\n',
+    },
     [NotificationEvent.SHIPMENT_PICKED_UP]: {
       subject: 'Part of order {{orderNumber}} has been collected',
       body:
@@ -303,6 +347,13 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'Hello {{recipientName}},\n\n' +
         'Consignment {{shipmentReference}} from order {{orderNumber}} has been delivered by {{carrier}}.\n\n' +
         'If anything is wrong with it, tell us from the order:\n{{orderUrl}}\n',
+    },
+    [NotificationEvent.SHIPMENT_EXCEPTION]: {
+      subject: 'Order {{orderNumber}}: an update on your delivery',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Consignment {{shipmentReference}} from order {{orderNumber}}, with {{carrier}}: {{troubleLine}}\n\n' +
+        '{{trackingLine}}The latest news and the expected delivery date are on the order:\n{{orderUrl}}\n',
     },
     [NotificationEvent.CUSTOMER_INVITATION]: {
       subject: 'Your {{businessName}} account is ready to activate',
@@ -352,6 +403,7 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'Questions? Write to {{supportEmail}}.\n',
     },
     [NotificationEvent.BUYER_COMPANY_EMAIL_CODE]: LOCALISED_FRAME,
+    [NotificationEvent.SHIPMENT_DELIVERY_CODE]: LOCALISED_FRAME,
     [NotificationEvent.BUYER_COMPANY_SUBMITTED]: LOCALISED_FRAME,
     [NotificationEvent.BUYER_COMPANY_REVIEW_STARTED]: LOCALISED_FRAME,
     [NotificationEvent.BUYER_COMPANY_INFO_REQUESTED]: LOCALISED_FRAME,
@@ -426,6 +478,29 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'Nothing else has been deleted — if you want the account reopened, or you want\n' +
         'your data erased, write to {{supportEmail}}.\n\n' +
         'If you did not ask for this, contact {{supportEmail}} immediately.\n',
+    },
+    [NotificationEvent.USER_NEW_SIGN_IN]: {
+      subject: 'New sign-in to your {{businessName}} account',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your {{businessName}} account was just signed in to from a device or network it\n' +
+        'has not used recently.\n\n' +
+        '  Device:   {{device}}\n' +
+        '  Address:  {{ipAddress}}\n' +
+        '  When:     {{signedInAt}}\n\n' +
+        'If that was you, there is nothing to do.\n\n' +
+        'If it was not you, change your password now - that signs the account out\n' +
+        'everywhere - and switch on two-step sign-in in your account settings:\n' +
+        '{{passwordUrl}}\n\n' +
+        'Questions? Write to {{supportEmail}}.\n',
+    },
+    [NotificationEvent.USER_MFA_DISABLED]: {
+      subject: 'Two-step sign-in was switched off on your {{businessName}} account',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Two-step sign-in was switched off on your {{businessName}} account at {{changedAt}}.\n' +
+        'From now on, your password alone signs you in.\n\n' +
+        'If you did not do this, change your password now and contact {{supportEmail}}.\n',
     },
     [NotificationEvent.ORDER_SUBMITTED]: {
       subject: 'Order {{orderNumber}} received',
@@ -934,12 +1009,104 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'A new support request {{reference}} ({{category}}) has arrived.\n\n' +
         'Open it in the console:\n{{consoleUrl}}\n',
     },
+    // --- Disputes. The reference, the outcome and a link; never the messages.
+    [NotificationEvent.DISPUTE_RECEIVED]: {
+      subject: 'We have your claim {{reference}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your claim {{reference}} about order {{orderNumber}} has reached {{businessName}}. ' +
+        'We will decide it by {{decisionDueAt}} at the latest.\n\n' +
+        'Follow it and add evidence here:\n{{disputeUrl}}\n',
+    },
+    [NotificationEvent.DISPUTE_UPDATE]: {
+      subject: 'There is news on your claim {{reference}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Something has happened on your claim {{reference}} about order {{orderNumber}}.\n\n' +
+        'Read it here:\n{{disputeUrl}}\n',
+    },
+    [NotificationEvent.DISPUTE_DECIDED]: {
+      subject: 'Your claim {{reference}} has been decided',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        '{{businessName}} has decided your claim {{reference}} about order {{orderNumber}}: ' +
+        '{{outcome}}.\n\n' +
+        'The reasons, and how to appeal if you disagree, are here:\n{{disputeUrl}}\n',
+    },
     [NotificationEvent.SUPPORT_TICKET_ASSIGNED]: {
       subject: 'Support request {{reference}} has been assigned to you',
       body:
         'Hello,\n\n' +
         'Support request {{reference}} has been assigned to you by {{assignedBy}}.\n\n' +
         'Open it in the console:\n{{consoleUrl}}\n',
+    },
+    [NotificationEvent.RETURN_REQUESTED]: {
+      subject: 'We have your return request {{returnReference}} for order {{orderNumber}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your request to return items from order {{orderNumber}} has reached us.\n\n' +
+        'We will tell you as soon as it has been reviewed. Follow it here:\n{{returnUrl}}\n',
+    },
+    [NotificationEvent.RETURN_APPROVED]: {
+      subject: 'Your return {{returnReference}} is approved',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your return of items from order {{orderNumber}} has been approved.\n\n' +
+        'How to send them back:\n{{instructions}}\n\n' +
+        'Details, and any return label:\n{{returnUrl}}\n',
+    },
+    [NotificationEvent.RETURN_REJECTED]: {
+      subject: 'Your return {{returnReference}} could not be accepted',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'We are sorry: your return of items from order {{orderNumber}} could not be accepted.\n\n' +
+        'The reason given: {{decisionReason}}\n\n' +
+        'If you think this is wrong, contact us from the order page:\n{{returnUrl}}\n',
+    },
+    [NotificationEvent.RETURN_INSTRUCTIONS]: {
+      subject: 'Return instructions for {{returnReference}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'The instructions for sending back items from order {{orderNumber}} have been updated.\n\n' +
+        '{{instructions}}\n\n' +
+        'Details, and any return label:\n{{returnUrl}}\n',
+    },
+    [NotificationEvent.RETURN_RECEIVED]: {
+      subject: 'Your return {{returnReference}} has arrived',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'The items you sent back from order {{orderNumber}} have arrived. They will be inspected next.\n\n' +
+        'Follow it here:\n{{returnUrl}}\n',
+    },
+    [NotificationEvent.RETURN_INSPECTED]: {
+      subject: 'Your return {{returnReference}} has been inspected',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'The items you sent back from order {{orderNumber}} have been inspected. {{nextStep}}\n\n' +
+        'Follow it here:\n{{returnUrl}}\n',
+    },
+    [NotificationEvent.RETURN_COMPLETED]: {
+      subject: 'Your return {{returnReference}} is complete',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your return of items from order {{orderNumber}} is complete. {{outcome}}\n\n' +
+        'Details:\n{{returnUrl}}\n',
+    },
+    [NotificationEvent.RETURN_NEW_FOR_SELLER]: {
+      subject: 'Return requested on your order {{sellerOrderNumber}}',
+      body:
+        'Hello,\n\n' +
+        'A buyer has asked to return items from your order {{sellerOrderNumber}}.\n\n' +
+        'Reason: {{reasonCode}}\n\n' +
+        'Tell the marketplace whether you accept it, and how the goods should come back, in Seller Hub:\n{{sellerUrl}}\n',
+    },
+    [NotificationEvent.RETURN_UPDATE_FOR_SELLER]: {
+      subject: 'Return {{returnReference}} on order {{sellerOrderNumber}}: {{step}}',
+      body:
+        'Hello,\n\n' +
+        'The return {{returnReference}} on your order {{sellerOrderNumber}} has moved on: {{step}}.\n\n' +
+        '{{detail}}\n\n' +
+        'Open it in Seller Hub:\n{{sellerUrl}}\n',
     },
   });
 

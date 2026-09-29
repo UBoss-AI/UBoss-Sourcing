@@ -92,6 +92,12 @@ export type PlatformFeePolicyMinAggregateOutputType = {
   publishedByUserId: string | null
   retiredAt: Date | null
   createdByUserId: string | null
+  lastEditedByUserId: string | null
+  submittedByUserId: string | null
+  submittedAt: Date | null
+  rejectedByUserId: string | null
+  rejectedAt: Date | null
+  rejectionReason: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -128,6 +134,12 @@ export type PlatformFeePolicyMaxAggregateOutputType = {
   publishedByUserId: string | null
   retiredAt: Date | null
   createdByUserId: string | null
+  lastEditedByUserId: string | null
+  submittedByUserId: string | null
+  submittedAt: Date | null
+  rejectedByUserId: string | null
+  rejectedAt: Date | null
+  rejectionReason: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -164,6 +176,12 @@ export type PlatformFeePolicyCountAggregateOutputType = {
   publishedByUserId: number
   retiredAt: number
   createdByUserId: number
+  lastEditedByUserId: number
+  submittedByUserId: number
+  submittedAt: number
+  rejectedByUserId: number
+  rejectedAt: number
+  rejectionReason: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -220,6 +238,12 @@ export type PlatformFeePolicyMinAggregateInputType = {
   publishedByUserId?: true
   retiredAt?: true
   createdByUserId?: true
+  lastEditedByUserId?: true
+  submittedByUserId?: true
+  submittedAt?: true
+  rejectedByUserId?: true
+  rejectedAt?: true
+  rejectionReason?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -256,6 +280,12 @@ export type PlatformFeePolicyMaxAggregateInputType = {
   publishedByUserId?: true
   retiredAt?: true
   createdByUserId?: true
+  lastEditedByUserId?: true
+  submittedByUserId?: true
+  submittedAt?: true
+  rejectedByUserId?: true
+  rejectedAt?: true
+  rejectionReason?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -292,6 +322,12 @@ export type PlatformFeePolicyCountAggregateInputType = {
   publishedByUserId?: true
   retiredAt?: true
   createdByUserId?: true
+  lastEditedByUserId?: true
+  submittedByUserId?: true
+  submittedAt?: true
+  rejectedByUserId?: true
+  rejectedAt?: true
+  rejectionReason?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -415,6 +451,12 @@ export type PlatformFeePolicyGroupByOutputType = {
   publishedByUserId: string | null
   retiredAt: Date | null
   createdByUserId: string | null
+  lastEditedByUserId: string | null
+  submittedByUserId: string | null
+  submittedAt: Date | null
+  rejectedByUserId: string | null
+  rejectedAt: Date | null
+  rejectionReason: string | null
   createdAt: Date
   updatedAt: Date
   _count: PlatformFeePolicyCountAggregateOutputType | null
@@ -474,6 +516,12 @@ export type PlatformFeePolicyWhereInput = {
   publishedByUserId?: Prisma.StringNullableFilter<"PlatformFeePolicy"> | string | null
   retiredAt?: Prisma.DateTimeNullableFilter<"PlatformFeePolicy"> | Date | string | null
   createdByUserId?: Prisma.StringNullableFilter<"PlatformFeePolicy"> | string | null
+  lastEditedByUserId?: Prisma.StringNullableFilter<"PlatformFeePolicy"> | string | null
+  submittedByUserId?: Prisma.StringNullableFilter<"PlatformFeePolicy"> | string | null
+  submittedAt?: Prisma.DateTimeNullableFilter<"PlatformFeePolicy"> | Date | string | null
+  rejectedByUserId?: Prisma.StringNullableFilter<"PlatformFeePolicy"> | string | null
+  rejectedAt?: Prisma.DateTimeNullableFilter<"PlatformFeePolicy"> | Date | string | null
+  rejectionReason?: Prisma.StringNullableFilter<"PlatformFeePolicy"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PlatformFeePolicy"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PlatformFeePolicy"> | Date | string
   settlements?: Prisma.SellerOrderSettlementListRelationFilter
@@ -511,6 +559,12 @@ export type PlatformFeePolicyOrderByWithRelationInput = {
   publishedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   retiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastEditedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  submittedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  rejectedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  rejectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   settlements?: Prisma.SellerOrderSettlementOrderByRelationAggregateInput
@@ -553,6 +607,12 @@ export type PlatformFeePolicyWhereUniqueInput = Prisma.AtLeast<{
   publishedByUserId?: Prisma.StringNullableFilter<"PlatformFeePolicy"> | string | null
   retiredAt?: Prisma.DateTimeNullableFilter<"PlatformFeePolicy"> | Date | string | null
   createdByUserId?: Prisma.StringNullableFilter<"PlatformFeePolicy"> | string | null
+  lastEditedByUserId?: Prisma.StringNullableFilter<"PlatformFeePolicy"> | string | null
+  submittedByUserId?: Prisma.StringNullableFilter<"PlatformFeePolicy"> | string | null
+  submittedAt?: Prisma.DateTimeNullableFilter<"PlatformFeePolicy"> | Date | string | null
+  rejectedByUserId?: Prisma.StringNullableFilter<"PlatformFeePolicy"> | string | null
+  rejectedAt?: Prisma.DateTimeNullableFilter<"PlatformFeePolicy"> | Date | string | null
+  rejectionReason?: Prisma.StringNullableFilter<"PlatformFeePolicy"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PlatformFeePolicy"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PlatformFeePolicy"> | Date | string
   settlements?: Prisma.SellerOrderSettlementListRelationFilter
@@ -590,6 +650,12 @@ export type PlatformFeePolicyOrderByWithAggregationInput = {
   publishedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   retiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastEditedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  submittedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  rejectedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  rejectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PlatformFeePolicyCountOrderByAggregateInput
@@ -634,6 +700,12 @@ export type PlatformFeePolicyScalarWhereWithAggregatesInput = {
   publishedByUserId?: Prisma.StringNullableWithAggregatesFilter<"PlatformFeePolicy"> | string | null
   retiredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PlatformFeePolicy"> | Date | string | null
   createdByUserId?: Prisma.StringNullableWithAggregatesFilter<"PlatformFeePolicy"> | string | null
+  lastEditedByUserId?: Prisma.StringNullableWithAggregatesFilter<"PlatformFeePolicy"> | string | null
+  submittedByUserId?: Prisma.StringNullableWithAggregatesFilter<"PlatformFeePolicy"> | string | null
+  submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PlatformFeePolicy"> | Date | string | null
+  rejectedByUserId?: Prisma.StringNullableWithAggregatesFilter<"PlatformFeePolicy"> | string | null
+  rejectedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PlatformFeePolicy"> | Date | string | null
+  rejectionReason?: Prisma.StringNullableWithAggregatesFilter<"PlatformFeePolicy"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PlatformFeePolicy"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PlatformFeePolicy"> | Date | string
 }
@@ -670,6 +742,12 @@ export type PlatformFeePolicyCreateInput = {
   publishedByUserId?: string | null
   retiredAt?: Date | string | null
   createdByUserId?: string | null
+  lastEditedByUserId?: string | null
+  submittedByUserId?: string | null
+  submittedAt?: Date | string | null
+  rejectedByUserId?: string | null
+  rejectedAt?: Date | string | null
+  rejectionReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   settlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutFeePolicyInput
@@ -707,6 +785,12 @@ export type PlatformFeePolicyUncheckedCreateInput = {
   publishedByUserId?: string | null
   retiredAt?: Date | string | null
   createdByUserId?: string | null
+  lastEditedByUserId?: string | null
+  submittedByUserId?: string | null
+  submittedAt?: Date | string | null
+  rejectedByUserId?: string | null
+  rejectedAt?: Date | string | null
+  rejectionReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   settlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutFeePolicyInput
@@ -744,6 +828,12 @@ export type PlatformFeePolicyUpdateInput = {
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastEditedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   settlements?: Prisma.SellerOrderSettlementUpdateManyWithoutFeePolicyNestedInput
@@ -781,6 +871,12 @@ export type PlatformFeePolicyUncheckedUpdateInput = {
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastEditedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   settlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutFeePolicyNestedInput
@@ -818,6 +914,12 @@ export type PlatformFeePolicyCreateManyInput = {
   publishedByUserId?: string | null
   retiredAt?: Date | string | null
   createdByUserId?: string | null
+  lastEditedByUserId?: string | null
+  submittedByUserId?: string | null
+  submittedAt?: Date | string | null
+  rejectedByUserId?: string | null
+  rejectedAt?: Date | string | null
+  rejectionReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -854,6 +956,12 @@ export type PlatformFeePolicyUpdateManyMutationInput = {
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastEditedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -890,6 +998,12 @@ export type PlatformFeePolicyUncheckedUpdateManyInput = {
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastEditedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -937,6 +1051,12 @@ export type PlatformFeePolicyCountOrderByAggregateInput = {
   publishedByUserId?: Prisma.SortOrder
   retiredAt?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  lastEditedByUserId?: Prisma.SortOrder
+  submittedByUserId?: Prisma.SortOrder
+  submittedAt?: Prisma.SortOrder
+  rejectedByUserId?: Prisma.SortOrder
+  rejectedAt?: Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -982,6 +1102,12 @@ export type PlatformFeePolicyMaxOrderByAggregateInput = {
   publishedByUserId?: Prisma.SortOrder
   retiredAt?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  lastEditedByUserId?: Prisma.SortOrder
+  submittedByUserId?: Prisma.SortOrder
+  submittedAt?: Prisma.SortOrder
+  rejectedByUserId?: Prisma.SortOrder
+  rejectedAt?: Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1018,6 +1144,12 @@ export type PlatformFeePolicyMinOrderByAggregateInput = {
   publishedByUserId?: Prisma.SortOrder
   retiredAt?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  lastEditedByUserId?: Prisma.SortOrder
+  submittedByUserId?: Prisma.SortOrder
+  submittedAt?: Prisma.SortOrder
+  rejectedByUserId?: Prisma.SortOrder
+  rejectedAt?: Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1100,6 +1232,12 @@ export type PlatformFeePolicyCreateWithoutSettlementsInput = {
   publishedByUserId?: string | null
   retiredAt?: Date | string | null
   createdByUserId?: string | null
+  lastEditedByUserId?: string | null
+  submittedByUserId?: string | null
+  submittedAt?: Date | string | null
+  rejectedByUserId?: string | null
+  rejectedAt?: Date | string | null
+  rejectionReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1136,6 +1274,12 @@ export type PlatformFeePolicyUncheckedCreateWithoutSettlementsInput = {
   publishedByUserId?: string | null
   retiredAt?: Date | string | null
   createdByUserId?: string | null
+  lastEditedByUserId?: string | null
+  submittedByUserId?: string | null
+  submittedAt?: Date | string | null
+  rejectedByUserId?: string | null
+  rejectedAt?: Date | string | null
+  rejectionReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1188,6 +1332,12 @@ export type PlatformFeePolicyUpdateWithoutSettlementsInput = {
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastEditedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1224,6 +1374,12 @@ export type PlatformFeePolicyUncheckedUpdateWithoutSettlementsInput = {
   publishedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastEditedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1291,6 +1447,12 @@ export type PlatformFeePolicySelect<ExtArgs extends runtime.Types.Extensions.Int
   publishedByUserId?: boolean
   retiredAt?: boolean
   createdByUserId?: boolean
+  lastEditedByUserId?: boolean
+  submittedByUserId?: boolean
+  submittedAt?: boolean
+  rejectedByUserId?: boolean
+  rejectedAt?: boolean
+  rejectionReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   settlements?: boolean | Prisma.PlatformFeePolicy$settlementsArgs<ExtArgs>
@@ -1331,11 +1493,17 @@ export type PlatformFeePolicySelectScalar = {
   publishedByUserId?: boolean
   retiredAt?: boolean
   createdByUserId?: boolean
+  lastEditedByUserId?: boolean
+  submittedByUserId?: boolean
+  submittedAt?: boolean
+  rejectedByUserId?: boolean
+  rejectedAt?: boolean
+  rejectionReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PlatformFeePolicyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scope" | "scopeKey" | "sellerAccountId" | "categoryId" | "marketCountry" | "versionNumber" | "status" | "activeScopeKey" | "name" | "feeType" | "feeBasis" | "percentRate" | "flatFeeMinor" | "minFeeMinor" | "maxFeeMinor" | "currency" | "taxRatePercent" | "taxLabel" | "taxJurisdiction" | "isTaxRuleVerified" | "taxVerifiedByUserId" | "taxVerifiedAt" | "taxVerificationNote" | "effectiveFrom" | "effectiveTo" | "notes" | "publishedAt" | "publishedByUserId" | "retiredAt" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["platformFeePolicy"]>
+export type PlatformFeePolicyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scope" | "scopeKey" | "sellerAccountId" | "categoryId" | "marketCountry" | "versionNumber" | "status" | "activeScopeKey" | "name" | "feeType" | "feeBasis" | "percentRate" | "flatFeeMinor" | "minFeeMinor" | "maxFeeMinor" | "currency" | "taxRatePercent" | "taxLabel" | "taxJurisdiction" | "isTaxRuleVerified" | "taxVerifiedByUserId" | "taxVerifiedAt" | "taxVerificationNote" | "effectiveFrom" | "effectiveTo" | "notes" | "publishedAt" | "publishedByUserId" | "retiredAt" | "createdByUserId" | "lastEditedByUserId" | "submittedByUserId" | "submittedAt" | "rejectedByUserId" | "rejectedAt" | "rejectionReason" | "createdAt" | "updatedAt", ExtArgs["result"]["platformFeePolicy"]>
 export type PlatformFeePolicyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   settlements?: boolean | Prisma.PlatformFeePolicy$settlementsArgs<ExtArgs>
   _count?: boolean | Prisma.PlatformFeePolicyCountOutputTypeDefaultArgs<ExtArgs>
@@ -1387,6 +1555,16 @@ export type $PlatformFeePolicyPayload<ExtArgs extends runtime.Types.Extensions.I
     publishedByUserId: string | null
     retiredAt: Date | null
     createdByUserId: string | null
+    /**
+     * Maker-checker. The approver must be none of creator, last editor and
+     * submitter; a rejection needs a reason and sends the draft back.
+     */
+    lastEditedByUserId: string | null
+    submittedByUserId: string | null
+    submittedAt: Date | null
+    rejectedByUserId: string | null
+    rejectedAt: Date | null
+    rejectionReason: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["platformFeePolicy"]>
@@ -1790,6 +1968,12 @@ export interface PlatformFeePolicyFieldRefs {
   readonly publishedByUserId: Prisma.FieldRef<"PlatformFeePolicy", 'String'>
   readonly retiredAt: Prisma.FieldRef<"PlatformFeePolicy", 'DateTime'>
   readonly createdByUserId: Prisma.FieldRef<"PlatformFeePolicy", 'String'>
+  readonly lastEditedByUserId: Prisma.FieldRef<"PlatformFeePolicy", 'String'>
+  readonly submittedByUserId: Prisma.FieldRef<"PlatformFeePolicy", 'String'>
+  readonly submittedAt: Prisma.FieldRef<"PlatformFeePolicy", 'DateTime'>
+  readonly rejectedByUserId: Prisma.FieldRef<"PlatformFeePolicy", 'String'>
+  readonly rejectedAt: Prisma.FieldRef<"PlatformFeePolicy", 'DateTime'>
+  readonly rejectionReason: Prisma.FieldRef<"PlatformFeePolicy", 'String'>
   readonly createdAt: Prisma.FieldRef<"PlatformFeePolicy", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PlatformFeePolicy", 'DateTime'>
 }

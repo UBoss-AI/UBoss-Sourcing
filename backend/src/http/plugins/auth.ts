@@ -81,6 +81,7 @@ declare module 'fastify' {
        * `currentUser` keeps one shape across all three audiences.
        */
       sessionMfaVerifiedAt: Date | null;
+      sessionReauthenticatedAt: Date | null;
       /** Where this sign-in happened, ISO-3166-1 alpha-2. Null when unknown. */
       sessionCountry: string | null;
       /**
@@ -213,6 +214,7 @@ async function authenticate(
     sessionId: string;
     sessionHasLocation: boolean;
     sessionMfaVerifiedAt: Date | null;
+    sessionReauthenticatedAt: Date | null;
     sessionCountry: string | null;
     sessionPlace: string | null;
     sessionSellerUnlockedAt: Date | null;
@@ -261,6 +263,7 @@ async function authenticate(
     sessionId: claims.sid,
     sessionHasLocation: session.hasLocation,
     sessionMfaVerifiedAt: session.mfaVerifiedAt,
+    sessionReauthenticatedAt: session.reauthenticatedAt,
     sessionCountry: session.country,
     sessionPlace: session.place,
     sessionSellerUnlockedAt: session.sellerUnlockedAt,
@@ -367,7 +370,31 @@ export async function requireCustomer(
     throw forbidden(ErrorCode.ACCOUNT_NOT_ACTIVATED, 'This account is not fully set up.');
   }
 
+  assertCustomerSecondFactor(auth);
+
   request.auth = { ...auth, buyerContext: await confirmBuyerContext(auth) };
+}
+
+/**
+ * A storefront session whose account has two-step sign-in switched on, and
+ * which has not passed its code yet, may do nothing but finish signing in.
+ *
+ * The same shape as the console's gate in `requireAdmin`: the session is real
+ * and useless until the challenge is passed. `/auth/me`, `/auth/mfa/*`,
+ * `/auth/logout` and `/auth/language` use `requireAuthenticated`, which is why
+ * they need no exception here. Optional for a buyer: only an account that
+ * enrolled is ever challenged.
+ */
+export function assertCustomerSecondFactor(auth: {
+  mfaEnabled: boolean;
+  sessionMfaVerifiedAt: Date | null;
+}): void {
+  if (env.FEATURE_CUSTOMER_MFA && auth.mfaEnabled && auth.sessionMfaVerifiedAt === null) {
+    throw forbidden(
+      ErrorCode.MFA_CHALLENGE_REQUIRED,
+      'Enter the code from your authenticator app to finish signing in.',
+    );
+  }
 }
 
 /**
@@ -532,6 +559,10 @@ export async function optionalCustomer(
     throw forbidden(ErrorCode.ACCOUNT_NOT_ACTIVATED, 'This account is not fully set up.');
   }
 
+  // A credential means prove it, and a session still owing its two-step code
+  // has not finished proving it.
+  assertCustomerSecondFactor(auth);
+
   request.auth = { ...auth, buyerContext: await confirmBuyerContext(auth) };
 }
 
@@ -549,6 +580,7 @@ export function currentUser(
   sessionId: string;
   sessionHasLocation: boolean;
   sessionMfaVerifiedAt: Date | null;
+  sessionReauthenticatedAt: Date | null;
   sessionCountry: string | null;
   sessionPlace: string | null;
   sessionSellerUnlockedAt: Date | null;

@@ -39,7 +39,9 @@
  *     AI Mode everywhere it is named as a page — the route, the admin console
  *     and `pages/AiModePage.tsx`.
  *
- * **Whatever is typed travels with them.** Pressing AI Mode with words in the
+ * **Whatever is typed travels with them.** Pressing Products with words in the
+ * box opens the catalogue already searched for them, exactly as Search does.
+ * Pressing AI Mode with words in the
  * box parks them for the AI page to pick up, with intent `compose` — they land
  * in the composer ready to edit rather than being asked on arrival, because
  * switching to AI Mode is not the same act as pressing Search. See
@@ -82,7 +84,7 @@ import { ImageSearchDialog } from './ImageSearchDialog';
 
 /** The shared shape of every item, so they cannot drift apart visually. */
 const ITEM_CLASS =
-  'relative inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-sm pb-2.5 text-base font-semibold tracking-tight transition-colors min-[400px]:text-lg sm:text-xl';
+  'relative inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-sm pb-2.5 text-sm font-semibold tracking-tight transition-colors min-[360px]:text-base min-[400px]:text-lg sm:text-xl';
 
 /**
  * One item in the row: a link, underlined when it is the page you are on.
@@ -140,12 +142,24 @@ function Divider(): React.JSX.Element {
   return <span aria-hidden="true" className="mb-3.5 h-5 w-px bg-border" />;
 }
 
+/**
+ * Where a search for `term` lands: the catalogue, filtered by it when there is
+ * one. Shared by the Products item and the Search button, so pressing either
+ * with words in the box ends on the same page.
+ */
+function catalogueHref(term: string): string {
+  const query = term.trim();
+  return query.length === 0 ? '/products' : `/products?q=${encodeURIComponent(query)}`;
+}
+
 /** Home, then AI Assistant, then Products. */
 function SearchModes({
   hasAi,
+  term,
   onLeaveForAi,
 }: {
   hasAi: boolean;
+  term: string;
   onLeaveForAi: () => void;
 }): React.JSX.Element {
   const { t } = useI18n();
@@ -168,7 +182,7 @@ function SearchModes({
       // 400px, and, for a language whose labels are longer still, the row
       // scrolls sideways (scrollbar hidden) rather than clipping an item.
       // `relative` so screen-reader text inside cannot escape the scroll area.
-      className="hide-scrollbar relative mb-2 flex items-end gap-3 overflow-x-auto border-b border-transparent min-[400px]:gap-4 sm:gap-5"
+      className="hide-scrollbar relative mb-2 flex items-end gap-2 overflow-x-auto border-b border-transparent min-[360px]:gap-3 min-[400px]:gap-4 sm:gap-5"
     >
       <ModeLink to="/" isCurrent={pathname === '/'}>
         {t('heroSearch.home')}
@@ -189,7 +203,11 @@ function SearchModes({
         </>
       )}
 
-      <ModeLink to="/products" isCurrent={pathname.startsWith('/products')}>
+      {/* What is typed travels with Products too, as it does with the AI item:
+          somebody who typed "nitrile gloves" and then pressed Products wanted
+          the catalogue for nitrile gloves, not the whole catalogue with their
+          words thrown away. */}
+      <ModeLink to={catalogueHref(term)} isCurrent={pathname.startsWith('/products')}>
         {t('heroSearch.products')}
       </ModeLink>
     </nav>
@@ -240,8 +258,13 @@ export function HeroSearch(): React.JSX.Element {
    * everything", and the catalogue page with no `q` is exactly that.
    */
   const submit = (): void => {
-    const query = term.trim();
-    void navigate(query.length === 0 ? '/products' : `/products?q=${encodeURIComponent(query)}`);
+    // A second press while the first is still on its way is dropped, not
+    // queued: the catalogue is a lazy route, and on a slow connection the
+    // chunk takes long enough for somebody to press again. The spinner on the
+    // button is the feedback that the first press was heard.
+    if (isNavigating) return;
+    setIsNavigating(true);
+    void navigate(catalogueHref(term));
   };
 
   /*
@@ -267,7 +290,7 @@ export function HeroSearch(): React.JSX.Element {
     <div className="mt-8 w-full max-w-2xl">
       {/* Home and Products are always there, so the row always is. Only the AI
           item comes and goes with what the operator has configured. */}
-      <SearchModes hasAi={hasAi} onLeaveForAi={leaveForAi} />
+      <SearchModes hasAi={hasAi} term={term} onLeaveForAi={leaveForAi} />
 
       <div>
         <form

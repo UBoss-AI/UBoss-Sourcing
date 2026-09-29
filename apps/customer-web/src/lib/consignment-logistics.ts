@@ -7,6 +7,7 @@
  */
 import { api, postFile } from './api';
 import type { CarrierSetupStatus, OutsideCarrier } from './carrier-providers';
+import type { TrackingEta, TrackingProofOfDelivery } from './order-tracking';
 
 export type LogisticsStage =
   | 'AWAITING_LOGISTICS_ASSIGNMENT'
@@ -228,6 +229,15 @@ export interface SellerTracking {
   state: ConsignmentLogisticsState;
   events: { id: string; status: string; description: string | null; occurredAt: string; source: string }[];
   documents: { id: string; kind: string; fileName: string; createdAt: string }[];
+  /**
+   * The same ETA and proof-of-delivery summary the buyer sees, with the
+   * recipient's name masked and no images. Optional for an older server.
+   */
+  delivery?: {
+    eta: TrackingEta;
+    proofOfDelivery: TrackingProofOfDelivery | null;
+    deliveredWithoutProof: boolean;
+  };
 }
 
 export function fetchSellerTracking(shipmentId: string): Promise<SellerTracking> {

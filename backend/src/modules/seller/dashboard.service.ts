@@ -219,8 +219,13 @@ export async function readDashboard(
     ),
 
     tile('returns', unavailable, 0, () =>
-      prisma.sellerReturn.count({
-        where: { sellerAccountId, status: { in: ['REQUESTED', 'APPROVED', 'RECEIVED'] } },
+      // Buyer returns of this seller's goods still being worked. The older
+      // `seller_returns` table is no longer written.
+      prisma.returnRequest.count({
+        where: {
+          sellerOrderGroup: { sellerAccountId },
+          status: { in: ['REQUESTED', 'APPROVED', 'RECEIVED', 'INSPECTED'] },
+        },
       }),
     ),
 

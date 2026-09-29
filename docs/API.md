@@ -1021,10 +1021,10 @@ routes it guards refuse to work. What they answer is shown below.
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `false` | The location gate and `/admin/auth/session/location` | The route does not exist |
 | `FEATURE_RECURRING_ORDERS` | `true` | Creating recurring schedules (`POST /api/v1/recurring-schedules`) | `403 FEATURE_DISABLED` |
 | `FEATURE_SCHEDULED_ORDERS` | `true` | One-time scheduled orders | `400 FEATURE_DISABLED` |
-| `FEATURE_CUSTOMER_AUTOPAY` | `false` | Writes under `/api/v1/account/autopay` (reading and withdrawing stay open) | `403 FEATURE_DISABLED` |
-| `FEATURE_SUBSCRIPTION_AUTOPAY` | `false` | Starting to save a card for automatic charges: `POST /api/v1/account/payment-methods/setup-intent` and `POST /api/v1/account/payment-methods` (listing, choosing the default and removing cards stay open) | `403 FEATURE_DISABLED` |
+| `FEATURE_CUSTOMER_AUTOPAY` | `true` | Writes under `/api/v1/account/autopay` (reading and withdrawing stay open). Also refused while no Stripe gateway is connected | `403 FEATURE_DISABLED` |
+| `FEATURE_SUBSCRIPTION_AUTOPAY` | `true` (refused while no Stripe gateway is connected) | Starting to save a card for automatic charges: `POST /api/v1/account/payment-methods/setup-intent` and `POST /api/v1/account/payment-methods` (listing, choosing the default and removing cards stay open) | `403 FEATURE_DISABLED` |
 | `FEATURE_ERP_INTEGRATION` | `false` | Writes under `/api/v1/admin/erp/*`, and the operator ERP webhook | `403 FEATURE_DISABLED`; the webhook answers `404` |
-| `FEATURE_CUSTOMER_ERP` | `false` | Writes under `/api/v1/account/integrations/erp/*`, and `/api/v1/erp-inbound/:slug` | `403 FEATURE_DISABLED`; the webhook answers `404` |
+| `FEATURE_CUSTOMER_ERP` | `true` | Writes under `/api/v1/account/integrations/erp/*`, and `/api/v1/erp-inbound/:slug` | `403 FEATURE_DISABLED`; the webhook answers `404` |
 | `FEATURE_SELLER_ERP` | `false` | Writes under `/api/v1/seller/erp/*`, and `/api/v1/integrations/tally-bridge/*` | `403 FEATURE_DISABLED` |
 | `FEATURE_LOGISTICS_PORTAL` | `false` | Every guarded `/api/v1/logistics/*` route (the shared sign-in routes under `/api/v1/logistics/auth` are registered regardless), and the carrier webhook | `403 FEATURE_DISABLED`; the carrier webhook answers `404` |
 | `PAYMENT_MOCK_SUCCESS` | `false` | `POST /api/v1/payments/orders/:orderId/mock-capture` (never in production) | `403 FEATURE_DISABLED` |
@@ -1473,7 +1473,7 @@ this." and the details are only in the server log.
 | `422 Unprocessable Entity` | Understood but not acceptable as it stands, for example a product not complete enough to publish |
 | `429 Too Many Requests` | A rate limit |
 | `500 Internal Server Error` | Our fault. Quote the `correlationId` |
-| `502` / `503` | A provider behind the API failed (`IMAGE_SEARCH_UNREADABLE` is 502; `SERVICE_UNAVAILABLE` and `IMAGE_SEARCH_BUSY` are 503). `/health/ready` also answers 503 when not ready |
+| `502` / `503` | A provider behind the API failed (`IMAGE_SEARCH_UNREADABLE` is 502; `SERVICE_UNAVAILABLE`, `IMAGE_SEARCH_BUSY` and `IMAGE_SEARCH_UNAVAILABLE` are 503). `/health/ready` also answers 503 when not ready |
 
 The status tells you the kind of problem; the `code` tells you exactly which.
 
@@ -2631,7 +2631,65 @@ Problems go through exceptions:
 `CUSTOMS_DELAY`), an optional `severity` and a `reason`. Proof of delivery is
 `POST /api/v1/logistics/shipments/:id/proof-of-delivery`.
 
-A carrier sees only its own shipments; another carrier's id answers `404`.
+**Completing a delivery.** `DELIVERED` needs a proof of delivery, and
+recording the proof is what moves the shipment there — there is no separate
+status event. `GET /api/v1/logistics/shipments/:id` returns
+`podRequirements` from the shipment's SLA policy:
+
+```json
+"podRequirements": {
+  "requiresRecipientName": true,
+  "requiresSignature": false,
+  "requiresPhoto": false,
+  "requiresOtp": false,
+  "requiresDesignation": false
+}
+```
+
+Upload any signature or photo first, as images, with
+`POST /api/v1/logistics/shipments/:id/documents` (multipart). Then send
+`POST /api/v1/logistics/shipments/:id/proof-of-delivery` with an
+`Idempotency-Key` and a body such as `recipientName`,
+`recipientDesignation`, `signatureDocumentId`, `photoDocumentId`,
+`businessStamped` and `exceptionNote`. It needs `logistics.pod.write`. The
+answer is `{ podId, status, duplicate }`. A repeat after a successful capture —
+a phone retrying after a lost response — answers `duplicate: true` rather than
+an error.
+
+**Delivery codes (OTP).** When `requiresOtp` is true, the buyer is emailed a
+six-digit code when the shipment goes `OUT_FOR_DELIVERY`. Send the digits the
+buyer reads out as `otp` in the proof-of-delivery body. The code is never in
+any response. `GET /shipments/:id` also returns `deliveryCode` (or `null` when
+no code is needed):
+
+```json
+"deliveryCode": {
+  "status": "ACTIVE",
+  "canBeSent": true,
+  "sentAt": "2026-09-29T08:00:00.000Z",
+  "expiresAt": "2026-09-29T20:00:00.000Z",
+  "attemptsLeft": 5,
+  "nextSendAt": "2026-09-29T08:01:00.000Z",
+  "sendsLeftToday": 4
+}
+```
+
+`status` is `NOT_SENT`, `ACTIVE`, `EXPIRED`, `LOCKED` (five wrong tries) or
+`USED`. `POST /api/v1/logistics/shipments/:id/delivery-code` (needs
+`logistics.pod.write`, only while `OUT_FOR_DELIVERY` or `DELIVERY_ATTEMPTED`)
+emails a new code, cancels the old one, and answers
+`{ sentAt, expiresAt, deliveryCode }`. The errors:
+
+| Code | HTTP | `details[0].code` |
+|---|---|---|
+| `SHIPMENT_OTP_INVALID` | 409 | `MISSING`, `INVALID`, `EXPIRED`, `NOT_SENT`, `TOO_MANY_ATTEMPTS` (with `field: "otp"`) |
+| `SHIPMENT_OTP_UNAVAILABLE` | 409 | `NOT_REQUIRED`, `NOT_OUT_FOR_DELIVERY`, `NO_RECIPIENT` |
+| `SHIPMENT_OTP_RESEND_LIMITED` | 429 | `TOO_SOON` (with `meta.retryAt`), `DAILY_LIMIT_REACHED` |
+
+A carrier sees only its own shipments; another carrier's id answers `404`. A
+driver reads `GET /shipments/:id`, `/timeline` and `/proof-of-delivery` with
+`logistics.driver.task.read`, and only for a stop assigned to them; anything
+else answers `404`.
 
 ---
 
@@ -2670,7 +2728,7 @@ confirmed by guessing its slug.
 
 | Endpoint | What |
 |---|---|
-| `GET /api/v1/config` | Branding, support contacts, capability flags. `marketplace` is `{ displayName, teamName }` - the operator's trading name, and the name the operator's own team works under in preorder chat and delivery levels (`OPERATOR_TEAM_NAME`, else the trading name). Cached for a minute |
+| `GET /api/v1/config` | Branding, support contacts, capability flags. `marketplace` is `{ displayName, teamName }` - the operator's trading name, and the name the operator's own team works under in preorder chat and delivery levels (`OPERATOR_TEAM_NAME`, else the trading name). `features.customerAutopay` is true only when `FEATURE_CUSTOMER_AUTOPAY` and `FEATURE_SUBSCRIPTION_AUTOPAY` are both on; `features.customerErp` follows `FEATURE_CUSTOMER_ERP`. A client should treat a missing flag as off. Cached for a minute |
 | `GET /api/v1/catalog/categories`, `/categories/:slug` | The category tree, one category |
 | `GET /api/v1/catalog/products`, `/products/:slug` | Product list and detail, priced for `country` and `currency` |
 | `GET /api/v1/catalog/filters` | Price range and attribute facets |
@@ -3008,7 +3066,7 @@ Seller Hub password.
 | Orders and shipping | `GET /api/v1/seller/orders`, `POST /orders/:id/consignments`, `POST /consignments/:id/quotes`, `/purchase`, `/carrier`, `/manual-booking`, `/pickups` |
 | Delivery set-up | `/api/v1/seller/fulfilment/*` (methods, rules, carrier connections, service areas, rate cards) |
 | Logistics levels | `GET`/`PUT /api/v1/seller/logistics/policy`, `PUT /logistics/levels/:level`, `/logistics/rates`, `/orders/:id/legs` |
-| Money | `GET /api/v1/seller/settlements`, `/payouts`, `/payout-account`, `/settlements/estimate` |
+| Money | `GET /api/v1/seller/settlements`, `/settlements/:id/lines`, `/payouts`, `/payout-account`, `/settlements/estimate`. Statements exist only when the operator turns on `FEATURE_SELLER_SETTLEMENT_STATEMENTS`: a daily job then writes one per seller, period and currency, `PENDING_PAYOUT`, numbered `STL-YYYY-MM-NNNN`. A line's `description` is the seller order number only; label it by its `kind`. A statement moves no money — paying one is refused with `SELLER_PAYOUT_PROVIDER_UNCONFIGURED` |
 | Team and audit | `GET /api/v1/seller/members`, `PATCH`/`DELETE /members/:memberId`, `GET /audit` |
 | Own ERP (TallyPrime) | `/api/v1/seller/erp/*`, with `FEATURE_SELLER_ERP` |
 
@@ -3045,7 +3103,7 @@ Everything under `/api/v1/admin`, each behind its named permission.
 | Logistics | `/admin/logistics/partners`, `/logistics/shipments`, `/shipments/:id/assign`, `/logistics/integrations`, `/logistics/managed-levels`, `/logistics/legs` | `logistics.*` |
 | Platform fees | `/admin/platform-fees`, `/:id/publish`, `/:id/verify-tax` | `finance.*` |
 | Commission invoices to sellers | `/admin/commission-invoices`, `/candidates`, `/settings`, `/:id/issue`, `/:id/credit-notes`, `/admin/seller-orders/:id/commission-invoice` (see [Commission invoices to sellers](#commission-invoices-to-sellers-commission-invoicesadmints)) | `commission_invoice.*`, `commission_credit_note.create` |
-| Reports and exports | `/admin/dashboard`, `/admin/reports/*`, `POST /admin/exports`, `/admin/audit-logs` | `report.read`, `export.create`, `audit.read` |
+| Reports and exports | `/admin/dashboard`, `/admin/reports/*`, `POST /admin/exports`, `/admin/audit-logs`, `POST /admin/audit-logs/export` (needs `audit.read` and `export.create`) | `report.read`, `export.create`, `audit.read` |
 | Notifications | `/admin/notifications`, `/admin/attention` | Any staff |
 | Privacy | `/admin/data-requests`, `/:requestId/approve`, `/reject` | `data_request.*` |
 | AI chat transcripts | `/admin/assistant/conversations` | `assistant_chat.read` |
@@ -3071,7 +3129,9 @@ A carrier's own desk. There is no carrier id in any path.
 | `POST /api/v1/logistics/shipments/:id/accept`, `/reject` | `shipment.accept` | Answer offered work |
 | `POST /api/v1/logistics/shipments/:id/status-events` | `shipment.status.write` | Tracking events |
 | `POST /api/v1/logistics/shipments/:id/exceptions`, `PATCH /api/v1/logistics/exceptions/:id` | `shipment.exception.write` | Exceptions |
-| `GET`/`POST /api/v1/logistics/shipments/:id/proof-of-delivery` | `shipment.read` / `pod.write` | Proof of delivery |
+| `GET`/`POST /api/v1/logistics/shipments/:id/proof-of-delivery` | `shipment.read` or `driver.task.read` / `pod.write` | Proof of delivery. Recording it moves the shipment to `DELIVERED`; a repeat answers `duplicate: true`. The shipment's `podRequirements` (on `GET /shipments/:id`) say what it must contain |
+| `POST /api/v1/logistics/shipments/:id/delivery-code` | `pod.write` | Email the buyer a new delivery code. One a minute, five a day; the code is never in the response |
+| `GET /api/v1/logistics/shipments/:id`, `/:id/timeline` for a driver | `driver.task.read` | A stop on the driver's own round only |
 | `GET`/`POST /api/v1/logistics/pickups`, `/dispatch-manifests` | `pickup.*`, `dispatch.*` | Pickups and manifests |
 | `GET`/`POST /api/v1/logistics/drivers`, `/vehicles`, `POST /shipments/:id/assign-driver` | `driver.*`, `vehicle.*` | Fleet |
 | `GET /api/v1/logistics/packages/lookup`, `POST /packages/:id/scan` | any member | Scanning |
@@ -3303,7 +3363,7 @@ The request cannot name a model, a system prompt or a token budget; a body that
 tries is a `400`.
 
 A chat `error` frame's `code` is one of `BUSY` (the provider is overloaded),
-`QUOTA` (the key's allowance is spent), `TIMEOUT` (no answer in 30 seconds),
+`QUOTA` (the key's allowance is spent), `TIMEOUT` (the provider did not answer in time: 30 seconds per attempt on Gemini; on Anthropic 30 seconds to start and 60 for the whole answer),
 `UNAVAILABLE` (the provider could not be reached, refused the key, or does not
 have the model) and `REFUSED` (the model declined). `retryable` says whether a
 second attempt can work: it is `false` for `REFUSED` and for a refused key or
@@ -3327,6 +3387,39 @@ approve or reject. A copy is delivered as a download link to
 `GET /api/v1/admin/audit-logs`, `GET /api/v1/admin/notifications`,
 `GET /api/v1/admin/attention`, and the general integrations list at
 `/api/v1/admin/integrations`.
+
+**Dead background jobs and undeliverable emails.**
+`GET /api/v1/admin/operations/dead-jobs` and
+`GET /api/v1/admin/operations/failed-notifications` list what stopped after
+its last attempt (`settings.read`; paged with `page` and `pageSize`, at most
+100). A job row carries its type, attempts made and allowed, the last error
+and when it stopped — never its payload. An email row carries the event key,
+the recipient masked (first letter and domain), attempts, the last error with
+addresses masked, the last attempt, and `retryable` (false when the
+recipient was erased) — never the body, subject, name or phone. `POST .../dead-jobs/:id/retry` and
+`POST .../failed-notifications/:id/retry` (`settings.write`) give **one more
+attempt**: the attempt count is kept and the allowance raised by one. Anything
+no longer waiting to be retried — a second press, a second person, or an email
+to an erased person — answers `409 CONFLICT`. Each retry is audited as
+`job.retried` or `notification.retried`.
+
+**The audit log, and a copy of it.** `GET /api/v1/admin/audit-logs`
+(`audit.read`, `Cache-Control: no-store`) pages the trail newest first
+(`page`, `limit` up to 100) and filters on exact `action`, `resourceType`,
+`resourceId`, `actorUserId`, `actorEmail`, and a `from`/`to` date range. Each
+entry carries `actorRoles` (the role keys the actor held **when the entry was
+written**, or `null` where none was recorded — never today's roles),
+`reason` (read from the entry's `after` values, or `null`), `ipAddress`,
+`userAgent` (the full header as recorded) and `device`
+(`{ browser, os }`, a summary of it, or `null`), beside `before`, `after`
+and `correlationId`. `POST /api/v1/admin/audit-logs/export` takes the same
+filter as a JSON body and answers a CSV attachment (`text/csv`,
+`Cache-Control: no-store`) of at most **10,000** entries. It needs
+`audit.read` **and** `export.create`, carries the CSRF token like every
+write, is limited to 10 per 15 minutes, and reports its size in two headers,
+`X-Audit-Export-Rows` (in the file) and `X-Audit-Export-Total` (matched),
+exposed to the panel through CORS. Before the file is sent it writes an
+`audit.exported` entry with the filter and the counts.
 
 ## Partner invitations (`partner-invitations.public.ts`)
 

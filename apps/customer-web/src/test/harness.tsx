@@ -39,7 +39,7 @@ export function makeSession(overrides: Partial<SessionState> = {}): SessionState
     },
     isLoading: false,
     isCustomer: true,
-    login: vi.fn(() => Promise.resolve({ next: 'READY' as const })),
+    login: vi.fn(() => Promise.resolve({ next: 'READY' as const, mfaChallengeRequired: false })),
     logout: vi.fn(),
     refreshUser: vi.fn(),
     buyerContext: { kind: 'INDIVIDUAL' },

@@ -48,6 +48,7 @@ export type LogisticsNotificationMinAggregateOutputType = {
   readAt: Date | null
   emailedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsNotificationMaxAggregateOutputType = {
@@ -69,6 +70,7 @@ export type LogisticsNotificationMaxAggregateOutputType = {
   readAt: Date | null
   emailedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LogisticsNotificationCountAggregateOutputType = {
@@ -91,6 +93,7 @@ export type LogisticsNotificationCountAggregateOutputType = {
   readAt: number
   emailedAt: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -114,6 +117,7 @@ export type LogisticsNotificationMinAggregateInputType = {
   readAt?: true
   emailedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsNotificationMaxAggregateInputType = {
@@ -135,6 +139,7 @@ export type LogisticsNotificationMaxAggregateInputType = {
   readAt?: true
   emailedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LogisticsNotificationCountAggregateInputType = {
@@ -157,6 +162,7 @@ export type LogisticsNotificationCountAggregateInputType = {
   readAt?: true
   emailedAt?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -252,6 +258,7 @@ export type LogisticsNotificationGroupByOutputType = {
   readAt: Date | null
   emailedAt: Date | null
   createdAt: Date
+  updatedAt: Date
   _count: LogisticsNotificationCountAggregateOutputType | null
   _min: LogisticsNotificationMinAggregateOutputType | null
   _max: LogisticsNotificationMaxAggregateOutputType | null
@@ -295,6 +302,7 @@ export type LogisticsNotificationWhereInput = {
   readAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
   emailedAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsNotification"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsNotification"> | Date | string
   partner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
   partnerUser?: Prisma.XOR<Prisma.LogisticsPartnerUserNullableScalarRelationFilter, Prisma.LogisticsPartnerUserWhereInput> | null
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentNullableScalarRelationFilter, Prisma.LogisticsShipmentWhereInput> | null
@@ -320,6 +328,7 @@ export type LogisticsNotificationOrderByWithRelationInput = {
   readAt?: Prisma.SortOrderInput | Prisma.SortOrder
   emailedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   partner?: Prisma.LogisticsPartnerOrderByWithRelationInput
   partnerUser?: Prisma.LogisticsPartnerUserOrderByWithRelationInput
   shipment?: Prisma.LogisticsShipmentOrderByWithRelationInput
@@ -350,6 +359,7 @@ export type LogisticsNotificationWhereUniqueInput = Prisma.AtLeast<{
   readAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
   emailedAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsNotification"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsNotification"> | Date | string
   partner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
   partnerUser?: Prisma.XOR<Prisma.LogisticsPartnerUserNullableScalarRelationFilter, Prisma.LogisticsPartnerUserWhereInput> | null
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentNullableScalarRelationFilter, Prisma.LogisticsShipmentWhereInput> | null
@@ -375,6 +385,7 @@ export type LogisticsNotificationOrderByWithAggregationInput = {
   readAt?: Prisma.SortOrderInput | Prisma.SortOrder
   emailedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LogisticsNotificationCountOrderByAggregateInput
   _max?: Prisma.LogisticsNotificationMaxOrderByAggregateInput
   _min?: Prisma.LogisticsNotificationMinOrderByAggregateInput
@@ -403,6 +414,7 @@ export type LogisticsNotificationScalarWhereWithAggregatesInput = {
   readAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsNotification"> | Date | string | null
   emailedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsNotification"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsNotification"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsNotification"> | Date | string
 }
 
 export type LogisticsNotificationCreateInput = {
@@ -422,6 +434,7 @@ export type LogisticsNotificationCreateInput = {
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutNotificationsInput
   partnerUser?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutNotificationsInput
   shipment?: Prisma.LogisticsShipmentCreateNestedOneWithoutNotificationsInput
@@ -447,6 +460,7 @@ export type LogisticsNotificationUncheckedCreateInput = {
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsNotificationUpdateInput = {
@@ -466,6 +480,7 @@ export type LogisticsNotificationUpdateInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutNotificationsNestedInput
   partnerUser?: Prisma.LogisticsPartnerUserUpdateOneWithoutNotificationsNestedInput
   shipment?: Prisma.LogisticsShipmentUpdateOneWithoutNotificationsNestedInput
@@ -491,6 +506,7 @@ export type LogisticsNotificationUncheckedUpdateInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsNotificationCreateManyInput = {
@@ -513,6 +529,7 @@ export type LogisticsNotificationCreateManyInput = {
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsNotificationUpdateManyMutationInput = {
@@ -532,6 +549,7 @@ export type LogisticsNotificationUpdateManyMutationInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsNotificationUncheckedUpdateManyInput = {
@@ -554,6 +572,7 @@ export type LogisticsNotificationUncheckedUpdateManyInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsNotificationListRelationFilter = {
@@ -598,6 +617,7 @@ export type LogisticsNotificationCountOrderByAggregateInput = {
   readAt?: Prisma.SortOrder
   emailedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsNotificationMaxOrderByAggregateInput = {
@@ -619,6 +639,7 @@ export type LogisticsNotificationMaxOrderByAggregateInput = {
   readAt?: Prisma.SortOrder
   emailedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsNotificationMinOrderByAggregateInput = {
@@ -640,6 +661,7 @@ export type LogisticsNotificationMinOrderByAggregateInput = {
   readAt?: Prisma.SortOrder
   emailedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LogisticsNotificationCreateNestedManyWithoutPartnerInput = {
@@ -789,6 +811,7 @@ export type LogisticsNotificationCreateWithoutPartnerInput = {
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   partnerUser?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutNotificationsInput
   shipment?: Prisma.LogisticsShipmentCreateNestedOneWithoutNotificationsInput
 }
@@ -812,6 +835,7 @@ export type LogisticsNotificationUncheckedCreateWithoutPartnerInput = {
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsNotificationCreateOrConnectWithoutPartnerInput = {
@@ -863,6 +887,7 @@ export type LogisticsNotificationScalarWhereInput = {
   readAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
   emailedAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsNotification"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsNotification"> | Date | string
 }
 
 export type LogisticsNotificationCreateWithoutPartnerUserInput = {
@@ -882,6 +907,7 @@ export type LogisticsNotificationCreateWithoutPartnerUserInput = {
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutNotificationsInput
   shipment?: Prisma.LogisticsShipmentCreateNestedOneWithoutNotificationsInput
 }
@@ -905,6 +931,7 @@ export type LogisticsNotificationUncheckedCreateWithoutPartnerUserInput = {
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsNotificationCreateOrConnectWithoutPartnerUserInput = {
@@ -950,6 +977,7 @@ export type LogisticsNotificationCreateWithoutShipmentInput = {
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutNotificationsInput
   partnerUser?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutNotificationsInput
 }
@@ -973,6 +1001,7 @@ export type LogisticsNotificationUncheckedCreateWithoutShipmentInput = {
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsNotificationCreateOrConnectWithoutShipmentInput = {
@@ -1020,6 +1049,7 @@ export type LogisticsNotificationCreateManyPartnerInput = {
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsNotificationUpdateWithoutPartnerInput = {
@@ -1039,6 +1069,7 @@ export type LogisticsNotificationUpdateWithoutPartnerInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partnerUser?: Prisma.LogisticsPartnerUserUpdateOneWithoutNotificationsNestedInput
   shipment?: Prisma.LogisticsShipmentUpdateOneWithoutNotificationsNestedInput
 }
@@ -1062,6 +1093,7 @@ export type LogisticsNotificationUncheckedUpdateWithoutPartnerInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsNotificationUncheckedUpdateManyWithoutPartnerInput = {
@@ -1083,6 +1115,7 @@ export type LogisticsNotificationUncheckedUpdateManyWithoutPartnerInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsNotificationCreateManyPartnerUserInput = {
@@ -1104,6 +1137,7 @@ export type LogisticsNotificationCreateManyPartnerUserInput = {
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsNotificationUpdateWithoutPartnerUserInput = {
@@ -1123,6 +1157,7 @@ export type LogisticsNotificationUpdateWithoutPartnerUserInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutNotificationsNestedInput
   shipment?: Prisma.LogisticsShipmentUpdateOneWithoutNotificationsNestedInput
 }
@@ -1146,6 +1181,7 @@ export type LogisticsNotificationUncheckedUpdateWithoutPartnerUserInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsNotificationUncheckedUpdateManyWithoutPartnerUserInput = {
@@ -1167,6 +1203,7 @@ export type LogisticsNotificationUncheckedUpdateManyWithoutPartnerUserInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsNotificationCreateManyShipmentInput = {
@@ -1188,6 +1225,7 @@ export type LogisticsNotificationCreateManyShipmentInput = {
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LogisticsNotificationUpdateWithoutShipmentInput = {
@@ -1207,6 +1245,7 @@ export type LogisticsNotificationUpdateWithoutShipmentInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutNotificationsNestedInput
   partnerUser?: Prisma.LogisticsPartnerUserUpdateOneWithoutNotificationsNestedInput
 }
@@ -1230,6 +1269,7 @@ export type LogisticsNotificationUncheckedUpdateWithoutShipmentInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsNotificationUncheckedUpdateManyWithoutShipmentInput = {
@@ -1251,6 +1291,7 @@ export type LogisticsNotificationUncheckedUpdateManyWithoutShipmentInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1275,6 +1316,7 @@ export type LogisticsNotificationSelect<ExtArgs extends runtime.Types.Extensions
   readAt?: boolean
   emailedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
   partnerUser?: boolean | Prisma.LogisticsNotification$partnerUserArgs<ExtArgs>
   shipment?: boolean | Prisma.LogisticsNotification$shipmentArgs<ExtArgs>
@@ -1302,9 +1344,10 @@ export type LogisticsNotificationSelectScalar = {
   readAt?: boolean
   emailedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LogisticsNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "partnerUserId" | "shipmentId" | "kind" | "title" | "body" | "variablesJson" | "dedupeKey" | "class" | "status" | "resolutionKey" | "resolvedAt" | "resolvedByUserId" | "resolutionReason" | "resolutionSource" | "readAt" | "emailedAt" | "createdAt", ExtArgs["result"]["logisticsNotification"]>
+export type LogisticsNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "partnerUserId" | "shipmentId" | "kind" | "title" | "body" | "variablesJson" | "dedupeKey" | "class" | "status" | "resolutionKey" | "resolvedAt" | "resolvedByUserId" | "resolutionReason" | "resolutionSource" | "readAt" | "emailedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsNotification"]>
 export type LogisticsNotificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
   partnerUser?: boolean | Prisma.LogisticsNotification$partnerUserArgs<ExtArgs>
@@ -1365,6 +1408,7 @@ export type $LogisticsNotificationPayload<ExtArgs extends runtime.Types.Extensio
     readAt: Date | null
     emailedAt: Date | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["logisticsNotification"]>
   composites: {}
 }
@@ -1756,6 +1800,7 @@ export interface LogisticsNotificationFieldRefs {
   readonly readAt: Prisma.FieldRef<"LogisticsNotification", 'DateTime'>
   readonly emailedAt: Prisma.FieldRef<"LogisticsNotification", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"LogisticsNotification", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LogisticsNotification", 'DateTime'>
 }
     
 

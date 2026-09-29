@@ -211,6 +211,23 @@ export const AdminNotificationKind = {
   /// The sender wrote again on a request. The variables are reference and
   /// requesterName. Same grant and class.
   SUPPORT_TICKET_REPLIED: 'support_ticket.requester_replied',
+  /// A buyer raised a claim. The variables are reference, reason and
+  /// orderNumber. Carries `dispute.view`. INFORMATION: the queue says it waits.
+  DISPUTE_OPENED: 'dispute.opened',
+  /// A party wrote, answered, escalated or appealed. The variables are
+  /// reference and what (MESSAGE, SELLER_RESPONSE, ESCALATED, APPEALED,
+  /// WITHDRAWN, SELLER_LATE). Same grant and class.
+  DISPUTE_ACTIVITY: 'dispute.activity',
+  /// A refund decision above the threshold waits for a second member of
+  /// staff. The variables are reference, amount and proposedBy. Carries
+  /// `dispute.approve`.
+  DISPUTE_APPROVAL_REQUESTED: 'dispute.approval_requested',
+  /// A dispute passed a deadline: the decision, or a chargeback's evidence.
+  /// The variables are reference and which (DECISION or EVIDENCE).
+  DISPUTE_SLA_BREACHED: 'dispute.sla_breached',
+  /// The payment provider opened, updated or closed a chargeback. The
+  /// variables are reference, orderNumber and status.
+  DISPUTE_CHARGEBACK: 'dispute.chargeback',
   /// A buyer company sent its application for review, or sent it back after
   /// answering a request. The variables are companyName, reference, country and
   /// resubmitted. Carries `buyer_company.read`. INFORMATION: the review queue
@@ -354,6 +371,11 @@ const KIND_POLICY: Readonly<Record<string, KindPolicy>> = Object.freeze({
   [AdminNotificationKind.PREORDER_CHAT_HANDOFF]: INFORMATION,
   [AdminNotificationKind.SUPPORT_TICKET_OPENED]: INFORMATION,
   [AdminNotificationKind.SUPPORT_TICKET_REPLIED]: INFORMATION,
+  [AdminNotificationKind.DISPUTE_OPENED]: INFORMATION,
+  [AdminNotificationKind.DISPUTE_ACTIVITY]: INFORMATION,
+  [AdminNotificationKind.DISPUTE_APPROVAL_REQUESTED]: INFORMATION,
+  [AdminNotificationKind.DISPUTE_SLA_BREACHED]: INFORMATION,
+  [AdminNotificationKind.DISPUTE_CHARGEBACK]: INFORMATION,
   [AdminNotificationKind.BUYER_COMPANY_SUBMITTED]: INFORMATION,
   [AdminNotificationKind.BUYER_COMPANY_RESPONDED]: INFORMATION,
 });

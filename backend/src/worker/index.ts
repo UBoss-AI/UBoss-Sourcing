@@ -200,6 +200,14 @@ async function maintenance(): Promise<void> {
       { dedupeKey: `preorder_chat_sweep:${slot}` },
     );
 
+    // The dispute clock. Deadlines are in hours, so the ordinary beat is plenty;
+    // a pass with nothing late is two indexed queries.
+    await queue.enqueue(
+      JobType.DISPUTE_SLA_SWEEP,
+      {},
+      { dedupeKey: `dispute_sla_sweep:${slot}` },
+    );
+
     // Delivery risk is measured in days, so hourly is plenty.
     await queue.enqueue(
       JobType.PREORDER_RISK_SWEEP,
@@ -370,6 +378,20 @@ async function maintenance(): Promise<void> {
       {},
       { dedupeKey: `seller_erp_reconcile:${new Date().toISOString().slice(0, 10)}` },
     );
+
+    /*
+     * Seller settlement statements, once a day, and only when the operator has
+     * switched them on. Daily rather than once at the period boundary so a
+     * worker that was down at midnight still closes the period the next time
+     * it runs; closing a period twice writes nothing the second time.
+     */
+    if (env.FEATURE_SELLER_SETTLEMENT_STATEMENTS) {
+      await queue.enqueue(
+        JobType.SELLER_SETTLEMENT_CLOSE,
+        {},
+        { dedupeKey: `seller_settlement_close:${new Date().toISOString().slice(0, 10)}` },
+      );
+    }
   } catch (error) {
     // Maintenance must never take the loop down; the next tick retries it.
     logger.error({ err: error }, 'maintenance pass failed');

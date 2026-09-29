@@ -253,7 +253,7 @@ const FAULTS: readonly FaultQueue[] = Object.freeze([
     group: 'platform',
     permission: Permission.SETTINGS_READ,
     severity: 'attention',
-    href: '/settings/notifications',
+    href: '/operations/failed-notifications',
     count: () =>
       prisma.notificationOutbox.count({ where: { status: { in: ['FAILED', 'DEAD'] } } }),
   },
@@ -262,7 +262,7 @@ const FAULTS: readonly FaultQueue[] = Object.freeze([
     group: 'platform',
     permission: Permission.SETTINGS_READ,
     severity: 'urgent',
-    href: '/settings/jobs',
+    href: '/operations/dead-jobs',
     count: () => prisma.jobQueue.count({ where: { status: 'DEAD' } }),
   },
 ]);

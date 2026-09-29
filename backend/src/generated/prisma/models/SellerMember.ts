@@ -41,6 +41,7 @@ export type SellerMemberMinAggregateOutputType = {
   joinedAt: Date | null
   updatedAt: Date | null
   removedAt: Date | null
+  createdAt: Date | null
 }
 
 export type SellerMemberMaxAggregateOutputType = {
@@ -54,6 +55,7 @@ export type SellerMemberMaxAggregateOutputType = {
   joinedAt: Date | null
   updatedAt: Date | null
   removedAt: Date | null
+  createdAt: Date | null
 }
 
 export type SellerMemberCountAggregateOutputType = {
@@ -67,6 +69,7 @@ export type SellerMemberCountAggregateOutputType = {
   joinedAt: number
   updatedAt: number
   removedAt: number
+  createdAt: number
   _all: number
 }
 
@@ -82,6 +85,7 @@ export type SellerMemberMinAggregateInputType = {
   joinedAt?: true
   updatedAt?: true
   removedAt?: true
+  createdAt?: true
 }
 
 export type SellerMemberMaxAggregateInputType = {
@@ -95,6 +99,7 @@ export type SellerMemberMaxAggregateInputType = {
   joinedAt?: true
   updatedAt?: true
   removedAt?: true
+  createdAt?: true
 }
 
 export type SellerMemberCountAggregateInputType = {
@@ -108,6 +113,7 @@ export type SellerMemberCountAggregateInputType = {
   joinedAt?: true
   updatedAt?: true
   removedAt?: true
+  createdAt?: true
   _all?: true
 }
 
@@ -194,6 +200,7 @@ export type SellerMemberGroupByOutputType = {
   joinedAt: Date
   updatedAt: Date
   removedAt: Date | null
+  createdAt: Date
   _count: SellerMemberCountAggregateOutputType | null
   _min: SellerMemberMinAggregateOutputType | null
   _max: SellerMemberMaxAggregateOutputType | null
@@ -228,6 +235,7 @@ export type SellerMemberWhereInput = {
   joinedAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
   removedAt?: Prisma.DateTimeNullableFilter<"SellerMember"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
 }
@@ -243,6 +251,7 @@ export type SellerMemberOrderByWithRelationInput = {
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   removedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   customerProfile?: Prisma.CustomerProfileOrderByWithRelationInput
   _relevance?: Prisma.SellerMemberOrderByRelevanceInput
@@ -262,6 +271,7 @@ export type SellerMemberWhereUniqueInput = Prisma.AtLeast<{
   joinedAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
   removedAt?: Prisma.DateTimeNullableFilter<"SellerMember"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
 }, "id" | "customerProfileId">
@@ -277,6 +287,7 @@ export type SellerMemberOrderByWithAggregationInput = {
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   removedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _count?: Prisma.SellerMemberCountOrderByAggregateInput
   _max?: Prisma.SellerMemberMaxOrderByAggregateInput
   _min?: Prisma.SellerMemberMinOrderByAggregateInput
@@ -296,6 +307,7 @@ export type SellerMemberScalarWhereWithAggregatesInput = {
   joinedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerMember"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerMember"> | Date | string
   removedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerMember"> | Date | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerMember"> | Date | string
 }
 
 export type SellerMemberCreateInput = {
@@ -307,6 +319,7 @@ export type SellerMemberCreateInput = {
   joinedAt?: Date | string
   updatedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutMembersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutSellerMembershipInput
 }
@@ -322,6 +335,7 @@ export type SellerMemberUncheckedCreateInput = {
   joinedAt?: Date | string
   updatedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
 }
 
 export type SellerMemberUpdateInput = {
@@ -333,6 +347,7 @@ export type SellerMemberUpdateInput = {
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutMembersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutSellerMembershipNestedInput
 }
@@ -348,6 +363,7 @@ export type SellerMemberUncheckedUpdateInput = {
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerMemberCreateManyInput = {
@@ -361,6 +377,7 @@ export type SellerMemberCreateManyInput = {
   joinedAt?: Date | string
   updatedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
 }
 
 export type SellerMemberUpdateManyMutationInput = {
@@ -372,6 +389,7 @@ export type SellerMemberUpdateManyMutationInput = {
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerMemberUncheckedUpdateManyInput = {
@@ -385,6 +403,7 @@ export type SellerMemberUncheckedUpdateManyInput = {
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerMemberNullableScalarRelationFilter = {
@@ -419,6 +438,7 @@ export type SellerMemberCountOrderByAggregateInput = {
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   removedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type SellerMemberMaxOrderByAggregateInput = {
@@ -432,6 +452,7 @@ export type SellerMemberMaxOrderByAggregateInput = {
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   removedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type SellerMemberMinOrderByAggregateInput = {
@@ -445,6 +466,7 @@ export type SellerMemberMinOrderByAggregateInput = {
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   removedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type SellerMemberCreateNestedOneWithoutCustomerProfileInput = {
@@ -534,6 +556,7 @@ export type SellerMemberCreateWithoutCustomerProfileInput = {
   joinedAt?: Date | string
   updatedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutMembersInput
 }
 
@@ -547,6 +570,7 @@ export type SellerMemberUncheckedCreateWithoutCustomerProfileInput = {
   joinedAt?: Date | string
   updatedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
 }
 
 export type SellerMemberCreateOrConnectWithoutCustomerProfileInput = {
@@ -574,6 +598,7 @@ export type SellerMemberUpdateWithoutCustomerProfileInput = {
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutMembersNestedInput
 }
 
@@ -587,6 +612,7 @@ export type SellerMemberUncheckedUpdateWithoutCustomerProfileInput = {
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerMemberCreateWithoutSellerAccountInput = {
@@ -598,6 +624,7 @@ export type SellerMemberCreateWithoutSellerAccountInput = {
   joinedAt?: Date | string
   updatedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutSellerMembershipInput
 }
 
@@ -611,6 +638,7 @@ export type SellerMemberUncheckedCreateWithoutSellerAccountInput = {
   joinedAt?: Date | string
   updatedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
 }
 
 export type SellerMemberCreateOrConnectWithoutSellerAccountInput = {
@@ -653,6 +681,7 @@ export type SellerMemberScalarWhereInput = {
   joinedAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
   removedAt?: Prisma.DateTimeNullableFilter<"SellerMember"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
 }
 
 export type SellerMemberCreateManySellerAccountInput = {
@@ -665,6 +694,7 @@ export type SellerMemberCreateManySellerAccountInput = {
   joinedAt?: Date | string
   updatedAt?: Date | string
   removedAt?: Date | string | null
+  createdAt?: Date | string
 }
 
 export type SellerMemberUpdateWithoutSellerAccountInput = {
@@ -676,6 +706,7 @@ export type SellerMemberUpdateWithoutSellerAccountInput = {
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutSellerMembershipNestedInput
 }
 
@@ -689,6 +720,7 @@ export type SellerMemberUncheckedUpdateWithoutSellerAccountInput = {
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerMemberUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -701,6 +733,7 @@ export type SellerMemberUncheckedUpdateManyWithoutSellerAccountInput = {
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   removedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -716,6 +749,7 @@ export type SellerMemberSelect<ExtArgs extends runtime.Types.Extensions.Internal
   joinedAt?: boolean
   updatedAt?: boolean
   removedAt?: boolean
+  createdAt?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerMember"]>
@@ -733,9 +767,10 @@ export type SellerMemberSelectScalar = {
   joinedAt?: boolean
   updatedAt?: boolean
   removedAt?: boolean
+  createdAt?: boolean
 }
 
-export type SellerMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "customerProfileId" | "role" | "passwordHash" | "passwordSetAt" | "invitedByProfileId" | "joinedAt" | "updatedAt" | "removedAt", ExtArgs["result"]["sellerMember"]>
+export type SellerMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "customerProfileId" | "role" | "passwordHash" | "passwordSetAt" | "invitedByProfileId" | "joinedAt" | "updatedAt" | "removedAt" | "createdAt", ExtArgs["result"]["sellerMember"]>
 export type SellerMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
@@ -780,6 +815,7 @@ export type $SellerMemberPayload<ExtArgs extends runtime.Types.Extensions.Intern
      * person. A removed member fails the guard.
      */
     removedAt: Date | null
+    createdAt: Date
   }, ExtArgs["result"]["sellerMember"]>
   composites: {}
 }
@@ -1161,6 +1197,7 @@ export interface SellerMemberFieldRefs {
   readonly joinedAt: Prisma.FieldRef<"SellerMember", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SellerMember", 'DateTime'>
   readonly removedAt: Prisma.FieldRef<"SellerMember", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"SellerMember", 'DateTime'>
 }
     
 

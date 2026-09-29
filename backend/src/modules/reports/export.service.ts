@@ -129,7 +129,11 @@ function csvCell(value: unknown): string {
   return /[",\n\r]/.test(guarded) ? `"${guarded.replace(/"/g, '""')}"` : guarded;
 }
 
-function csvRow(cells: readonly unknown[]): string {
+/**
+ * One CSV line: RFC-4180 quoting and the spreadsheet-formula guard above.
+ * Exported so the audit-log download writes its file by the same rules.
+ */
+export function csvRow(cells: readonly unknown[]): string {
   return `${cells.map(csvCell).join(',')}\r\n`;
 }
 

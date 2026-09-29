@@ -41,6 +41,8 @@ export type ImportRowErrorMinAggregateOutputType = {
   field: string | null
   code: string | null
   message: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ImportRowErrorMaxAggregateOutputType = {
@@ -50,6 +52,8 @@ export type ImportRowErrorMaxAggregateOutputType = {
   field: string | null
   code: string | null
   message: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ImportRowErrorCountAggregateOutputType = {
@@ -60,6 +64,8 @@ export type ImportRowErrorCountAggregateOutputType = {
   code: number
   message: number
   rawJson: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -79,6 +85,8 @@ export type ImportRowErrorMinAggregateInputType = {
   field?: true
   code?: true
   message?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ImportRowErrorMaxAggregateInputType = {
@@ -88,6 +96,8 @@ export type ImportRowErrorMaxAggregateInputType = {
   field?: true
   code?: true
   message?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ImportRowErrorCountAggregateInputType = {
@@ -98,6 +108,8 @@ export type ImportRowErrorCountAggregateInputType = {
   code?: true
   message?: true
   rawJson?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -195,6 +207,8 @@ export type ImportRowErrorGroupByOutputType = {
   code: string
   message: string
   rawJson: runtime.JsonValue | null
+  createdAt: Date
+  updatedAt: Date
   _count: ImportRowErrorCountAggregateOutputType | null
   _avg: ImportRowErrorAvgAggregateOutputType | null
   _sum: ImportRowErrorSumAggregateOutputType | null
@@ -228,6 +242,8 @@ export type ImportRowErrorWhereInput = {
   code?: Prisma.StringFilter<"ImportRowError"> | string
   message?: Prisma.StringFilter<"ImportRowError"> | string
   rawJson?: Prisma.JsonNullableFilter<"ImportRowError">
+  createdAt?: Prisma.DateTimeFilter<"ImportRowError"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ImportRowError"> | Date | string
   importJob?: Prisma.XOR<Prisma.ImportJobScalarRelationFilter, Prisma.ImportJobWhereInput>
 }
 
@@ -239,6 +255,8 @@ export type ImportRowErrorOrderByWithRelationInput = {
   code?: Prisma.SortOrder
   message?: Prisma.SortOrder
   rawJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   importJob?: Prisma.ImportJobOrderByWithRelationInput
   _relevance?: Prisma.ImportRowErrorOrderByRelevanceInput
 }
@@ -254,6 +272,8 @@ export type ImportRowErrorWhereUniqueInput = Prisma.AtLeast<{
   code?: Prisma.StringFilter<"ImportRowError"> | string
   message?: Prisma.StringFilter<"ImportRowError"> | string
   rawJson?: Prisma.JsonNullableFilter<"ImportRowError">
+  createdAt?: Prisma.DateTimeFilter<"ImportRowError"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ImportRowError"> | Date | string
   importJob?: Prisma.XOR<Prisma.ImportJobScalarRelationFilter, Prisma.ImportJobWhereInput>
 }, "id">
 
@@ -265,6 +285,8 @@ export type ImportRowErrorOrderByWithAggregationInput = {
   code?: Prisma.SortOrder
   message?: Prisma.SortOrder
   rawJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ImportRowErrorCountOrderByAggregateInput
   _avg?: Prisma.ImportRowErrorAvgOrderByAggregateInput
   _max?: Prisma.ImportRowErrorMaxOrderByAggregateInput
@@ -283,6 +305,8 @@ export type ImportRowErrorScalarWhereWithAggregatesInput = {
   code?: Prisma.StringWithAggregatesFilter<"ImportRowError"> | string
   message?: Prisma.StringWithAggregatesFilter<"ImportRowError"> | string
   rawJson?: Prisma.JsonNullableWithAggregatesFilter<"ImportRowError">
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ImportRowError"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ImportRowError"> | Date | string
 }
 
 export type ImportRowErrorCreateInput = {
@@ -292,6 +316,8 @@ export type ImportRowErrorCreateInput = {
   code: string
   message: string
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
   importJob: Prisma.ImportJobCreateNestedOneWithoutRowErrorsInput
 }
 
@@ -303,6 +329,8 @@ export type ImportRowErrorUncheckedCreateInput = {
   code: string
   message: string
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ImportRowErrorUpdateInput = {
@@ -312,6 +340,8 @@ export type ImportRowErrorUpdateInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importJob?: Prisma.ImportJobUpdateOneRequiredWithoutRowErrorsNestedInput
 }
 
@@ -323,6 +353,8 @@ export type ImportRowErrorUncheckedUpdateInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ImportRowErrorCreateManyInput = {
@@ -333,6 +365,8 @@ export type ImportRowErrorCreateManyInput = {
   code: string
   message: string
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ImportRowErrorUpdateManyMutationInput = {
@@ -342,6 +376,8 @@ export type ImportRowErrorUpdateManyMutationInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ImportRowErrorUncheckedUpdateManyInput = {
@@ -352,6 +388,8 @@ export type ImportRowErrorUncheckedUpdateManyInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ImportRowErrorListRelationFilter = {
@@ -378,6 +416,8 @@ export type ImportRowErrorCountOrderByAggregateInput = {
   code?: Prisma.SortOrder
   message?: Prisma.SortOrder
   rawJson?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ImportRowErrorAvgOrderByAggregateInput = {
@@ -391,6 +431,8 @@ export type ImportRowErrorMaxOrderByAggregateInput = {
   field?: Prisma.SortOrder
   code?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ImportRowErrorMinOrderByAggregateInput = {
@@ -400,6 +442,8 @@ export type ImportRowErrorMinOrderByAggregateInput = {
   field?: Prisma.SortOrder
   code?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ImportRowErrorSumOrderByAggregateInput = {
@@ -455,6 +499,8 @@ export type ImportRowErrorCreateWithoutImportJobInput = {
   code: string
   message: string
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ImportRowErrorUncheckedCreateWithoutImportJobInput = {
@@ -464,6 +510,8 @@ export type ImportRowErrorUncheckedCreateWithoutImportJobInput = {
   code: string
   message: string
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ImportRowErrorCreateOrConnectWithoutImportJobInput = {
@@ -503,6 +551,8 @@ export type ImportRowErrorScalarWhereInput = {
   code?: Prisma.StringFilter<"ImportRowError"> | string
   message?: Prisma.StringFilter<"ImportRowError"> | string
   rawJson?: Prisma.JsonNullableFilter<"ImportRowError">
+  createdAt?: Prisma.DateTimeFilter<"ImportRowError"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ImportRowError"> | Date | string
 }
 
 export type ImportRowErrorCreateManyImportJobInput = {
@@ -512,6 +562,8 @@ export type ImportRowErrorCreateManyImportJobInput = {
   code: string
   message: string
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ImportRowErrorUpdateWithoutImportJobInput = {
@@ -521,6 +573,8 @@ export type ImportRowErrorUpdateWithoutImportJobInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ImportRowErrorUncheckedUpdateWithoutImportJobInput = {
@@ -530,6 +584,8 @@ export type ImportRowErrorUncheckedUpdateWithoutImportJobInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ImportRowErrorUncheckedUpdateManyWithoutImportJobInput = {
@@ -539,6 +595,8 @@ export type ImportRowErrorUncheckedUpdateManyWithoutImportJobInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -551,6 +609,8 @@ export type ImportRowErrorSelect<ExtArgs extends runtime.Types.Extensions.Intern
   code?: boolean
   message?: boolean
   rawJson?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   importJob?: boolean | Prisma.ImportJobDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["importRowError"]>
 
@@ -564,9 +624,11 @@ export type ImportRowErrorSelectScalar = {
   code?: boolean
   message?: boolean
   rawJson?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ImportRowErrorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importJobId" | "rowNumber" | "field" | "code" | "message" | "rawJson", ExtArgs["result"]["importRowError"]>
+export type ImportRowErrorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importJobId" | "rowNumber" | "field" | "code" | "message" | "rawJson" | "createdAt" | "updatedAt", ExtArgs["result"]["importRowError"]>
 export type ImportRowErrorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   importJob?: boolean | Prisma.ImportJobDefaultArgs<ExtArgs>
 }
@@ -584,6 +646,8 @@ export type $ImportRowErrorPayload<ExtArgs extends runtime.Types.Extensions.Inte
     code: string
     message: string
     rawJson: runtime.JsonValue | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["importRowError"]>
   composites: {}
 }
@@ -961,6 +1025,8 @@ export interface ImportRowErrorFieldRefs {
   readonly code: Prisma.FieldRef<"ImportRowError", 'String'>
   readonly message: Prisma.FieldRef<"ImportRowError", 'String'>
   readonly rawJson: Prisma.FieldRef<"ImportRowError", 'Json'>
+  readonly createdAt: Prisma.FieldRef<"ImportRowError", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ImportRowError", 'DateTime'>
 }
     
 

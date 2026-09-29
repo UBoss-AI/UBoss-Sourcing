@@ -562,3 +562,76 @@ describe('choosing a fulfilment warehouse', () => {
     expect(screen.getByText(/choose a warehouse to place this order/i)).toBeInTheDocument();
   });
 });
+
+describe('when the connection drops while the order is being placed', () => {
+  /**
+   * The first checkout request fails in transport — no response at all, the
+   * way a dropped mobile connection or a tunnel restart looks to `fetch` — and
+   * the second one goes through. Whatever the page sends is recorded.
+   */
+  function dropFirstCheckout(): { keys: (string | null)[] } {
+    const keys: (string | null)[] = [];
+    const served = fetchMock.getMockImplementation();
+    fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+      if (url.includes('/cart/checkout')) {
+        const headers = new Headers(init?.headers);
+        keys.push(headers.get('Idempotency-Key'));
+        if (keys.length === 1) return Promise.reject(new TypeError('Failed to fetch'));
+      }
+      return served?.(url, init) as Promise<Response>;
+    });
+    return { keys };
+  }
+
+  it('says the store could not be reached, and a retry reuses the same key', async () => {
+    const bodies: Record<string, unknown>[] = [];
+    serve({ onCheckout: (body) => bodies.push(body) });
+    const { keys } = dropFirstCheckout();
+    await renderCheckout();
+
+    const place = screen.getByRole('button', { name: /place order and pay/i });
+    await userEvent.click(place);
+
+    // The customer is told what happened in words they can act on, and the
+    // button is usable again rather than stuck on its spinner.
+    expect(
+      await screen.findByText(
+        'Could not reach the store. Check your connection and try again. If your order did go through, trying again will not create a second one.',
+      ),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(place).toBeEnabled();
+    });
+    expect(bodies).toHaveLength(0);
+
+    await userEvent.click(place);
+
+    await waitFor(() => {
+      expect(bodies).toHaveLength(1);
+    });
+
+    // The same Idempotency-Key both times. The first request may well have
+    // reached the server before the connection went; with one key the server
+    // answers the retry with that same order instead of creating a second.
+    expect(keys).toHaveLength(2);
+    expect(keys[0]).not.toBeNull();
+    expect(keys[1]).toBe(keys[0]);
+  });
+
+  it('says the customer is offline when the browser knows it is', async () => {
+    serve();
+    dropFirstCheckout();
+    await renderCheckout();
+
+    const onLine = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    try {
+      await userEvent.click(screen.getByRole('button', { name: /place order and pay/i }));
+
+      expect(
+        await screen.findByText(/^You appear to be offline\. Check your connection/),
+      ).toBeInTheDocument();
+    } finally {
+      onLine.mockRestore();
+    }
+  });
+});

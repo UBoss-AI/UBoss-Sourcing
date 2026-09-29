@@ -33,6 +33,7 @@
  */
 import { Suspense, lazy, useEffect, useState } from 'react';
 import earthSmallUrl from '@/assets/globe/earth-blue-marble-sm.jpg';
+import { prefersLightMedia } from '@/lib/light-media';
 
 const Globe3D = lazy(async () => {
   const module = await import('@/components/ui/3d-globe');
@@ -58,7 +59,7 @@ export interface EarthMarkProps {
 /** Box, letter and radius, per size. The globe fills whatever box it is in. */
 const SIZES = {
   sm: { box: 'h-7 w-7', letter: 'text-xs', radius: 'rounded-md' },
-  md: { box: 'h-10 w-10', letter: 'text-base', radius: 'rounded-md' },
+  md: { box: 'h-10 w-10 max-[359px]:h-8 max-[359px]:w-8', letter: 'text-base', radius: 'rounded-md' },
 } as const;
 
 /**
@@ -75,7 +76,13 @@ function supported(): boolean {
 
 /** And does this visitor want it drawn? */
 function wanted(): boolean {
-  return supported() && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Not on data saver or a slow connection either: the letter plate is a
+  // finished mark, and the globe is a download. See `lib/light-media.ts`.
+  return (
+    supported() &&
+    !prefersLightMedia() &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
 }
 
 export function EarthMark({ initial, size = 'md' }: EarthMarkProps): React.JSX.Element {

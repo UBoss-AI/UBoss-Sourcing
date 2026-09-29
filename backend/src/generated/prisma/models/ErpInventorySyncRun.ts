@@ -59,6 +59,8 @@ export type ErpInventorySyncRunMinAggregateOutputType = {
   rateLimitedUntil: Date | null
   errorCode: string | null
   errorMessage: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ErpInventorySyncRunMaxAggregateOutputType = {
@@ -78,6 +80,8 @@ export type ErpInventorySyncRunMaxAggregateOutputType = {
   rateLimitedUntil: Date | null
   errorCode: string | null
   errorMessage: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ErpInventorySyncRunCountAggregateOutputType = {
@@ -97,6 +101,8 @@ export type ErpInventorySyncRunCountAggregateOutputType = {
   rateLimitedUntil: number
   errorCode: number
   errorMessage: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -134,6 +140,8 @@ export type ErpInventorySyncRunMinAggregateInputType = {
   rateLimitedUntil?: true
   errorCode?: true
   errorMessage?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ErpInventorySyncRunMaxAggregateInputType = {
@@ -153,6 +161,8 @@ export type ErpInventorySyncRunMaxAggregateInputType = {
   rateLimitedUntil?: true
   errorCode?: true
   errorMessage?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ErpInventorySyncRunCountAggregateInputType = {
@@ -172,6 +182,8 @@ export type ErpInventorySyncRunCountAggregateInputType = {
   rateLimitedUntil?: true
   errorCode?: true
   errorMessage?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -278,6 +290,8 @@ export type ErpInventorySyncRunGroupByOutputType = {
   rateLimitedUntil: Date | null
   errorCode: string | null
   errorMessage: string | null
+  createdAt: Date
+  updatedAt: Date
   _count: ErpInventorySyncRunCountAggregateOutputType | null
   _avg: ErpInventorySyncRunAvgAggregateOutputType | null
   _sum: ErpInventorySyncRunSumAggregateOutputType | null
@@ -320,6 +334,8 @@ export type ErpInventorySyncRunWhereInput = {
   rateLimitedUntil?: Prisma.DateTimeNullableFilter<"ErpInventorySyncRun"> | Date | string | null
   errorCode?: Prisma.StringNullableFilter<"ErpInventorySyncRun"> | string | null
   errorMessage?: Prisma.StringNullableFilter<"ErpInventorySyncRun"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"ErpInventorySyncRun"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ErpInventorySyncRun"> | Date | string
   connection?: Prisma.XOR<Prisma.ErpConnectionScalarRelationFilter, Prisma.ErpConnectionWhereInput>
   records?: Prisma.ErpSyncRecordErrorListRelationFilter
 }
@@ -341,6 +357,8 @@ export type ErpInventorySyncRunOrderByWithRelationInput = {
   rateLimitedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   errorCode?: Prisma.SortOrderInput | Prisma.SortOrder
   errorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   connection?: Prisma.ErpConnectionOrderByWithRelationInput
   records?: Prisma.ErpSyncRecordErrorOrderByRelationAggregateInput
   _relevance?: Prisma.ErpInventorySyncRunOrderByRelevanceInput
@@ -366,6 +384,8 @@ export type ErpInventorySyncRunWhereUniqueInput = Prisma.AtLeast<{
   rateLimitedUntil?: Prisma.DateTimeNullableFilter<"ErpInventorySyncRun"> | Date | string | null
   errorCode?: Prisma.StringNullableFilter<"ErpInventorySyncRun"> | string | null
   errorMessage?: Prisma.StringNullableFilter<"ErpInventorySyncRun"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"ErpInventorySyncRun"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ErpInventorySyncRun"> | Date | string
   connection?: Prisma.XOR<Prisma.ErpConnectionScalarRelationFilter, Prisma.ErpConnectionWhereInput>
   records?: Prisma.ErpSyncRecordErrorListRelationFilter
 }, "id">
@@ -387,6 +407,8 @@ export type ErpInventorySyncRunOrderByWithAggregationInput = {
   rateLimitedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   errorCode?: Prisma.SortOrderInput | Prisma.SortOrder
   errorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ErpInventorySyncRunCountOrderByAggregateInput
   _avg?: Prisma.ErpInventorySyncRunAvgOrderByAggregateInput
   _max?: Prisma.ErpInventorySyncRunMaxOrderByAggregateInput
@@ -414,6 +436,8 @@ export type ErpInventorySyncRunScalarWhereWithAggregatesInput = {
   rateLimitedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"ErpInventorySyncRun"> | Date | string | null
   errorCode?: Prisma.StringNullableWithAggregatesFilter<"ErpInventorySyncRun"> | string | null
   errorMessage?: Prisma.StringNullableWithAggregatesFilter<"ErpInventorySyncRun"> | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ErpInventorySyncRun"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ErpInventorySyncRun"> | Date | string
 }
 
 export type ErpInventorySyncRunCreateInput = {
@@ -432,6 +456,8 @@ export type ErpInventorySyncRunCreateInput = {
   rateLimitedUntil?: Date | string | null
   errorCode?: string | null
   errorMessage?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   connection: Prisma.ErpConnectionCreateNestedOneWithoutSyncRunsInput
   records?: Prisma.ErpSyncRecordErrorCreateNestedManyWithoutSyncRunInput
 }
@@ -453,6 +479,8 @@ export type ErpInventorySyncRunUncheckedCreateInput = {
   rateLimitedUntil?: Date | string | null
   errorCode?: string | null
   errorMessage?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   records?: Prisma.ErpSyncRecordErrorUncheckedCreateNestedManyWithoutSyncRunInput
 }
 
@@ -472,6 +500,8 @@ export type ErpInventorySyncRunUpdateInput = {
   rateLimitedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   connection?: Prisma.ErpConnectionUpdateOneRequiredWithoutSyncRunsNestedInput
   records?: Prisma.ErpSyncRecordErrorUpdateManyWithoutSyncRunNestedInput
 }
@@ -493,6 +523,8 @@ export type ErpInventorySyncRunUncheckedUpdateInput = {
   rateLimitedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   records?: Prisma.ErpSyncRecordErrorUncheckedUpdateManyWithoutSyncRunNestedInput
 }
 
@@ -513,6 +545,8 @@ export type ErpInventorySyncRunCreateManyInput = {
   rateLimitedUntil?: Date | string | null
   errorCode?: string | null
   errorMessage?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ErpInventorySyncRunUpdateManyMutationInput = {
@@ -531,6 +565,8 @@ export type ErpInventorySyncRunUpdateManyMutationInput = {
   rateLimitedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ErpInventorySyncRunUncheckedUpdateManyInput = {
@@ -550,6 +586,8 @@ export type ErpInventorySyncRunUncheckedUpdateManyInput = {
   rateLimitedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ErpInventorySyncRunListRelationFilter = {
@@ -585,6 +623,8 @@ export type ErpInventorySyncRunCountOrderByAggregateInput = {
   rateLimitedUntil?: Prisma.SortOrder
   errorCode?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ErpInventorySyncRunAvgOrderByAggregateInput = {
@@ -612,6 +652,8 @@ export type ErpInventorySyncRunMaxOrderByAggregateInput = {
   rateLimitedUntil?: Prisma.SortOrder
   errorCode?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ErpInventorySyncRunMinOrderByAggregateInput = {
@@ -631,6 +673,8 @@ export type ErpInventorySyncRunMinOrderByAggregateInput = {
   rateLimitedUntil?: Prisma.SortOrder
   errorCode?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ErpInventorySyncRunSumOrderByAggregateInput = {
@@ -726,6 +770,8 @@ export type ErpInventorySyncRunCreateWithoutConnectionInput = {
   rateLimitedUntil?: Date | string | null
   errorCode?: string | null
   errorMessage?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   records?: Prisma.ErpSyncRecordErrorCreateNestedManyWithoutSyncRunInput
 }
 
@@ -745,6 +791,8 @@ export type ErpInventorySyncRunUncheckedCreateWithoutConnectionInput = {
   rateLimitedUntil?: Date | string | null
   errorCode?: string | null
   errorMessage?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   records?: Prisma.ErpSyncRecordErrorUncheckedCreateNestedManyWithoutSyncRunInput
 }
 
@@ -794,6 +842,8 @@ export type ErpInventorySyncRunScalarWhereInput = {
   rateLimitedUntil?: Prisma.DateTimeNullableFilter<"ErpInventorySyncRun"> | Date | string | null
   errorCode?: Prisma.StringNullableFilter<"ErpInventorySyncRun"> | string | null
   errorMessage?: Prisma.StringNullableFilter<"ErpInventorySyncRun"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"ErpInventorySyncRun"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ErpInventorySyncRun"> | Date | string
 }
 
 export type ErpInventorySyncRunCreateWithoutRecordsInput = {
@@ -812,6 +862,8 @@ export type ErpInventorySyncRunCreateWithoutRecordsInput = {
   rateLimitedUntil?: Date | string | null
   errorCode?: string | null
   errorMessage?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   connection: Prisma.ErpConnectionCreateNestedOneWithoutSyncRunsInput
 }
 
@@ -832,6 +884,8 @@ export type ErpInventorySyncRunUncheckedCreateWithoutRecordsInput = {
   rateLimitedUntil?: Date | string | null
   errorCode?: string | null
   errorMessage?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ErpInventorySyncRunCreateOrConnectWithoutRecordsInput = {
@@ -866,6 +920,8 @@ export type ErpInventorySyncRunUpdateWithoutRecordsInput = {
   rateLimitedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   connection?: Prisma.ErpConnectionUpdateOneRequiredWithoutSyncRunsNestedInput
 }
 
@@ -886,6 +942,8 @@ export type ErpInventorySyncRunUncheckedUpdateWithoutRecordsInput = {
   rateLimitedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ErpInventorySyncRunCreateManyConnectionInput = {
@@ -904,6 +962,8 @@ export type ErpInventorySyncRunCreateManyConnectionInput = {
   rateLimitedUntil?: Date | string | null
   errorCode?: string | null
   errorMessage?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ErpInventorySyncRunUpdateWithoutConnectionInput = {
@@ -922,6 +982,8 @@ export type ErpInventorySyncRunUpdateWithoutConnectionInput = {
   rateLimitedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   records?: Prisma.ErpSyncRecordErrorUpdateManyWithoutSyncRunNestedInput
 }
 
@@ -941,6 +1003,8 @@ export type ErpInventorySyncRunUncheckedUpdateWithoutConnectionInput = {
   rateLimitedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   records?: Prisma.ErpSyncRecordErrorUncheckedUpdateManyWithoutSyncRunNestedInput
 }
 
@@ -960,6 +1024,8 @@ export type ErpInventorySyncRunUncheckedUpdateManyWithoutConnectionInput = {
   rateLimitedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1010,6 +1076,8 @@ export type ErpInventorySyncRunSelect<ExtArgs extends runtime.Types.Extensions.I
   rateLimitedUntil?: boolean
   errorCode?: boolean
   errorMessage?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   connection?: boolean | Prisma.ErpConnectionDefaultArgs<ExtArgs>
   records?: boolean | Prisma.ErpInventorySyncRun$recordsArgs<ExtArgs>
   _count?: boolean | Prisma.ErpInventorySyncRunCountOutputTypeDefaultArgs<ExtArgs>
@@ -1034,9 +1102,11 @@ export type ErpInventorySyncRunSelectScalar = {
   rateLimitedUntil?: boolean
   errorCode?: boolean
   errorMessage?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ErpInventorySyncRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "trigger" | "status" | "isDryRun" | "correlationId" | "startedAt" | "finishedAt" | "processedCount" | "appliedCount" | "skippedCount" | "failedCount" | "conflictCount" | "rateLimitedUntil" | "errorCode" | "errorMessage", ExtArgs["result"]["erpInventorySyncRun"]>
+export type ErpInventorySyncRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "trigger" | "status" | "isDryRun" | "correlationId" | "startedAt" | "finishedAt" | "processedCount" | "appliedCount" | "skippedCount" | "failedCount" | "conflictCount" | "rateLimitedUntil" | "errorCode" | "errorMessage" | "createdAt" | "updatedAt", ExtArgs["result"]["erpInventorySyncRun"]>
 export type ErpInventorySyncRunInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   connection?: boolean | Prisma.ErpConnectionDefaultArgs<ExtArgs>
   records?: boolean | Prisma.ErpInventorySyncRun$recordsArgs<ExtArgs>
@@ -1082,6 +1152,8 @@ export type $ErpInventorySyncRunPayload<ExtArgs extends runtime.Types.Extensions
     rateLimitedUntil: Date | null
     errorCode: string | null
     errorMessage: string | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["erpInventorySyncRun"]>
   composites: {}
 }
@@ -1469,6 +1541,8 @@ export interface ErpInventorySyncRunFieldRefs {
   readonly rateLimitedUntil: Prisma.FieldRef<"ErpInventorySyncRun", 'DateTime'>
   readonly errorCode: Prisma.FieldRef<"ErpInventorySyncRun", 'String'>
   readonly errorMessage: Prisma.FieldRef<"ErpInventorySyncRun", 'String'>
+  readonly createdAt: Prisma.FieldRef<"ErpInventorySyncRun", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ErpInventorySyncRun", 'DateTime'>
 }
     
 

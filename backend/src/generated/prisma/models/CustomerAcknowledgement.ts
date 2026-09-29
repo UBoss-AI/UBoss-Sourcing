@@ -49,6 +49,8 @@ export type CustomerAcknowledgementMinAggregateOutputType = {
   type: $Enums.AcknowledgementType | null
   policyVersion: string | null
   acknowledgedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CustomerAcknowledgementMaxAggregateOutputType = {
@@ -57,6 +59,8 @@ export type CustomerAcknowledgementMaxAggregateOutputType = {
   type: $Enums.AcknowledgementType | null
   policyVersion: string | null
   acknowledgedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CustomerAcknowledgementCountAggregateOutputType = {
@@ -65,6 +69,8 @@ export type CustomerAcknowledgementCountAggregateOutputType = {
   type: number
   policyVersion: number
   acknowledgedAt: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -75,6 +81,8 @@ export type CustomerAcknowledgementMinAggregateInputType = {
   type?: true
   policyVersion?: true
   acknowledgedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CustomerAcknowledgementMaxAggregateInputType = {
@@ -83,6 +91,8 @@ export type CustomerAcknowledgementMaxAggregateInputType = {
   type?: true
   policyVersion?: true
   acknowledgedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CustomerAcknowledgementCountAggregateInputType = {
@@ -91,6 +101,8 @@ export type CustomerAcknowledgementCountAggregateInputType = {
   type?: true
   policyVersion?: true
   acknowledgedAt?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -172,6 +184,8 @@ export type CustomerAcknowledgementGroupByOutputType = {
   type: $Enums.AcknowledgementType
   policyVersion: string
   acknowledgedAt: Date
+  createdAt: Date
+  updatedAt: Date
   _count: CustomerAcknowledgementCountAggregateOutputType | null
   _min: CustomerAcknowledgementMinAggregateOutputType | null
   _max: CustomerAcknowledgementMaxAggregateOutputType | null
@@ -201,6 +215,8 @@ export type CustomerAcknowledgementWhereInput = {
   type?: Prisma.EnumAcknowledgementTypeFilter<"CustomerAcknowledgement"> | $Enums.AcknowledgementType
   policyVersion?: Prisma.StringFilter<"CustomerAcknowledgement"> | string
   acknowledgedAt?: Prisma.DateTimeFilter<"CustomerAcknowledgement"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"CustomerAcknowledgement"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerAcknowledgement"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
@@ -210,6 +226,8 @@ export type CustomerAcknowledgementOrderByWithRelationInput = {
   type?: Prisma.SortOrder
   policyVersion?: Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.CustomerAcknowledgementOrderByRelevanceInput
 }
@@ -224,6 +242,8 @@ export type CustomerAcknowledgementWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.EnumAcknowledgementTypeFilter<"CustomerAcknowledgement"> | $Enums.AcknowledgementType
   policyVersion?: Prisma.StringFilter<"CustomerAcknowledgement"> | string
   acknowledgedAt?: Prisma.DateTimeFilter<"CustomerAcknowledgement"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"CustomerAcknowledgement"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerAcknowledgement"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "userId_type_policyVersion">
 
@@ -233,6 +253,8 @@ export type CustomerAcknowledgementOrderByWithAggregationInput = {
   type?: Prisma.SortOrder
   policyVersion?: Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CustomerAcknowledgementCountOrderByAggregateInput
   _max?: Prisma.CustomerAcknowledgementMaxOrderByAggregateInput
   _min?: Prisma.CustomerAcknowledgementMinOrderByAggregateInput
@@ -247,6 +269,8 @@ export type CustomerAcknowledgementScalarWhereWithAggregatesInput = {
   type?: Prisma.EnumAcknowledgementTypeWithAggregatesFilter<"CustomerAcknowledgement"> | $Enums.AcknowledgementType
   policyVersion?: Prisma.StringWithAggregatesFilter<"CustomerAcknowledgement"> | string
   acknowledgedAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerAcknowledgement"> | Date | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerAcknowledgement"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerAcknowledgement"> | Date | string
 }
 
 export type CustomerAcknowledgementCreateInput = {
@@ -254,6 +278,8 @@ export type CustomerAcknowledgementCreateInput = {
   type: $Enums.AcknowledgementType
   policyVersion: string
   acknowledgedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAcknowledgementsInput
 }
 
@@ -263,6 +289,8 @@ export type CustomerAcknowledgementUncheckedCreateInput = {
   type: $Enums.AcknowledgementType
   policyVersion: string
   acknowledgedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerAcknowledgementUpdateInput = {
@@ -270,6 +298,8 @@ export type CustomerAcknowledgementUpdateInput = {
   type?: Prisma.EnumAcknowledgementTypeFieldUpdateOperationsInput | $Enums.AcknowledgementType
   policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   acknowledgedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAcknowledgementsNestedInput
 }
 
@@ -279,6 +309,8 @@ export type CustomerAcknowledgementUncheckedUpdateInput = {
   type?: Prisma.EnumAcknowledgementTypeFieldUpdateOperationsInput | $Enums.AcknowledgementType
   policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   acknowledgedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerAcknowledgementCreateManyInput = {
@@ -287,6 +319,8 @@ export type CustomerAcknowledgementCreateManyInput = {
   type: $Enums.AcknowledgementType
   policyVersion: string
   acknowledgedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerAcknowledgementUpdateManyMutationInput = {
@@ -294,6 +328,8 @@ export type CustomerAcknowledgementUpdateManyMutationInput = {
   type?: Prisma.EnumAcknowledgementTypeFieldUpdateOperationsInput | $Enums.AcknowledgementType
   policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   acknowledgedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerAcknowledgementUncheckedUpdateManyInput = {
@@ -302,6 +338,8 @@ export type CustomerAcknowledgementUncheckedUpdateManyInput = {
   type?: Prisma.EnumAcknowledgementTypeFieldUpdateOperationsInput | $Enums.AcknowledgementType
   policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   acknowledgedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerAcknowledgementListRelationFilter = {
@@ -332,6 +370,8 @@ export type CustomerAcknowledgementCountOrderByAggregateInput = {
   type?: Prisma.SortOrder
   policyVersion?: Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerAcknowledgementMaxOrderByAggregateInput = {
@@ -340,6 +380,8 @@ export type CustomerAcknowledgementMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   policyVersion?: Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerAcknowledgementMinOrderByAggregateInput = {
@@ -348,6 +390,8 @@ export type CustomerAcknowledgementMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   policyVersion?: Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerAcknowledgementCreateNestedManyWithoutUserInput = {
@@ -401,6 +445,8 @@ export type CustomerAcknowledgementCreateWithoutUserInput = {
   type: $Enums.AcknowledgementType
   policyVersion: string
   acknowledgedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerAcknowledgementUncheckedCreateWithoutUserInput = {
@@ -408,6 +454,8 @@ export type CustomerAcknowledgementUncheckedCreateWithoutUserInput = {
   type: $Enums.AcknowledgementType
   policyVersion: string
   acknowledgedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerAcknowledgementCreateOrConnectWithoutUserInput = {
@@ -445,6 +493,8 @@ export type CustomerAcknowledgementScalarWhereInput = {
   type?: Prisma.EnumAcknowledgementTypeFilter<"CustomerAcknowledgement"> | $Enums.AcknowledgementType
   policyVersion?: Prisma.StringFilter<"CustomerAcknowledgement"> | string
   acknowledgedAt?: Prisma.DateTimeFilter<"CustomerAcknowledgement"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"CustomerAcknowledgement"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerAcknowledgement"> | Date | string
 }
 
 export type CustomerAcknowledgementCreateManyUserInput = {
@@ -452,6 +502,8 @@ export type CustomerAcknowledgementCreateManyUserInput = {
   type: $Enums.AcknowledgementType
   policyVersion: string
   acknowledgedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerAcknowledgementUpdateWithoutUserInput = {
@@ -459,6 +511,8 @@ export type CustomerAcknowledgementUpdateWithoutUserInput = {
   type?: Prisma.EnumAcknowledgementTypeFieldUpdateOperationsInput | $Enums.AcknowledgementType
   policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   acknowledgedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerAcknowledgementUncheckedUpdateWithoutUserInput = {
@@ -466,6 +520,8 @@ export type CustomerAcknowledgementUncheckedUpdateWithoutUserInput = {
   type?: Prisma.EnumAcknowledgementTypeFieldUpdateOperationsInput | $Enums.AcknowledgementType
   policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   acknowledgedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerAcknowledgementUncheckedUpdateManyWithoutUserInput = {
@@ -473,6 +529,8 @@ export type CustomerAcknowledgementUncheckedUpdateManyWithoutUserInput = {
   type?: Prisma.EnumAcknowledgementTypeFieldUpdateOperationsInput | $Enums.AcknowledgementType
   policyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   acknowledgedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -483,6 +541,8 @@ export type CustomerAcknowledgementSelect<ExtArgs extends runtime.Types.Extensio
   type?: boolean
   policyVersion?: boolean
   acknowledgedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerAcknowledgement"]>
 
@@ -494,9 +554,11 @@ export type CustomerAcknowledgementSelectScalar = {
   type?: boolean
   policyVersion?: boolean
   acknowledgedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CustomerAcknowledgementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "type" | "policyVersion" | "acknowledgedAt", ExtArgs["result"]["customerAcknowledgement"]>
+export type CustomerAcknowledgementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "type" | "policyVersion" | "acknowledgedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customerAcknowledgement"]>
 export type CustomerAcknowledgementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -512,6 +574,8 @@ export type $CustomerAcknowledgementPayload<ExtArgs extends runtime.Types.Extens
     type: $Enums.AcknowledgementType
     policyVersion: string
     acknowledgedAt: Date
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["customerAcknowledgement"]>
   composites: {}
 }
@@ -887,6 +951,8 @@ export interface CustomerAcknowledgementFieldRefs {
   readonly type: Prisma.FieldRef<"CustomerAcknowledgement", 'AcknowledgementType'>
   readonly policyVersion: Prisma.FieldRef<"CustomerAcknowledgement", 'String'>
   readonly acknowledgedAt: Prisma.FieldRef<"CustomerAcknowledgement", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"CustomerAcknowledgement", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CustomerAcknowledgement", 'DateTime'>
 }
     
 

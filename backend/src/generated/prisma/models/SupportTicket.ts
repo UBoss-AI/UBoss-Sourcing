@@ -65,6 +65,10 @@ export type SupportTicketMinAggregateOutputType = {
   lastActivityAt: Date | null
   resolvedAt: Date | null
   closedAt: Date | null
+  firstResponseDueAt: Date | null
+  resolutionDueAt: Date | null
+  firstRespondedAt: Date | null
+  resolutionCode: $Enums.SupportResolutionCode | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -94,6 +98,10 @@ export type SupportTicketMaxAggregateOutputType = {
   lastActivityAt: Date | null
   resolvedAt: Date | null
   closedAt: Date | null
+  firstResponseDueAt: Date | null
+  resolutionDueAt: Date | null
+  firstRespondedAt: Date | null
+  resolutionCode: $Enums.SupportResolutionCode | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -123,6 +131,10 @@ export type SupportTicketCountAggregateOutputType = {
   lastActivityAt: number
   resolvedAt: number
   closedAt: number
+  firstResponseDueAt: number
+  resolutionDueAt: number
+  firstRespondedAt: number
+  resolutionCode: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -154,6 +166,10 @@ export type SupportTicketMinAggregateInputType = {
   lastActivityAt?: true
   resolvedAt?: true
   closedAt?: true
+  firstResponseDueAt?: true
+  resolutionDueAt?: true
+  firstRespondedAt?: true
+  resolutionCode?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -183,6 +199,10 @@ export type SupportTicketMaxAggregateInputType = {
   lastActivityAt?: true
   resolvedAt?: true
   closedAt?: true
+  firstResponseDueAt?: true
+  resolutionDueAt?: true
+  firstRespondedAt?: true
+  resolutionCode?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -212,6 +232,10 @@ export type SupportTicketCountAggregateInputType = {
   lastActivityAt?: true
   resolvedAt?: true
   closedAt?: true
+  firstResponseDueAt?: true
+  resolutionDueAt?: true
+  firstRespondedAt?: true
+  resolutionCode?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -314,6 +338,10 @@ export type SupportTicketGroupByOutputType = {
   lastActivityAt: Date
   resolvedAt: Date | null
   closedAt: Date | null
+  firstResponseDueAt: Date | null
+  resolutionDueAt: Date | null
+  firstRespondedAt: Date | null
+  resolutionCode: $Enums.SupportResolutionCode | null
   createdAt: Date
   updatedAt: Date
   _count: SupportTicketCountAggregateOutputType | null
@@ -364,6 +392,10 @@ export type SupportTicketWhereInput = {
   lastActivityAt?: Prisma.DateTimeFilter<"SupportTicket"> | Date | string
   resolvedAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
   closedAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+  firstResponseDueAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+  resolutionDueAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+  firstRespondedAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+  resolutionCode?: Prisma.EnumSupportResolutionCodeNullableFilter<"SupportTicket"> | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFilter<"SupportTicket"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SupportTicket"> | Date | string
   requester?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -402,6 +434,10 @@ export type SupportTicketOrderByWithRelationInput = {
   lastActivityAt?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   closedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstResponseDueAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionDueAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstRespondedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionCode?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   requester?: Prisma.UserOrderByWithRelationInput
@@ -444,6 +480,10 @@ export type SupportTicketWhereUniqueInput = Prisma.AtLeast<{
   lastActivityAt?: Prisma.DateTimeFilter<"SupportTicket"> | Date | string
   resolvedAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
   closedAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+  firstResponseDueAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+  resolutionDueAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+  firstRespondedAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+  resolutionCode?: Prisma.EnumSupportResolutionCodeNullableFilter<"SupportTicket"> | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFilter<"SupportTicket"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SupportTicket"> | Date | string
   requester?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -482,6 +522,10 @@ export type SupportTicketOrderByWithAggregationInput = {
   lastActivityAt?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   closedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstResponseDueAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionDueAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstRespondedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionCode?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SupportTicketCountOrderByAggregateInput
@@ -517,6 +561,10 @@ export type SupportTicketScalarWhereWithAggregatesInput = {
   lastActivityAt?: Prisma.DateTimeWithAggregatesFilter<"SupportTicket"> | Date | string
   resolvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SupportTicket"> | Date | string | null
   closedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SupportTicket"> | Date | string | null
+  firstResponseDueAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SupportTicket"> | Date | string | null
+  resolutionDueAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SupportTicket"> | Date | string | null
+  firstRespondedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SupportTicket"> | Date | string | null
+  resolutionCode?: Prisma.EnumSupportResolutionCodeNullableWithAggregatesFilter<"SupportTicket"> | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SupportTicket"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SupportTicket"> | Date | string
 }
@@ -539,6 +587,10 @@ export type SupportTicketCreateInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   requester: Prisma.UserCreateNestedOneWithoutSupportTicketsRequestedInput
@@ -577,6 +629,10 @@ export type SupportTicketUncheckedCreateInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   events?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutTicketInput
@@ -601,6 +657,10 @@ export type SupportTicketUpdateInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requester?: Prisma.UserUpdateOneRequiredWithoutSupportTicketsRequestedNestedInput
@@ -639,6 +699,10 @@ export type SupportTicketUncheckedUpdateInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutTicketNestedInput
@@ -670,6 +734,10 @@ export type SupportTicketCreateManyInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -692,6 +760,10 @@ export type SupportTicketUpdateManyMutationInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -721,6 +793,10 @@ export type SupportTicketUncheckedUpdateManyInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -766,6 +842,10 @@ export type SupportTicketCountOrderByAggregateInput = {
   lastActivityAt?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
+  firstResponseDueAt?: Prisma.SortOrder
+  resolutionDueAt?: Prisma.SortOrder
+  firstRespondedAt?: Prisma.SortOrder
+  resolutionCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -795,6 +875,10 @@ export type SupportTicketMaxOrderByAggregateInput = {
   lastActivityAt?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
+  firstResponseDueAt?: Prisma.SortOrder
+  resolutionDueAt?: Prisma.SortOrder
+  firstRespondedAt?: Prisma.SortOrder
+  resolutionCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -824,6 +908,10 @@ export type SupportTicketMinOrderByAggregateInput = {
   lastActivityAt?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
+  firstResponseDueAt?: Prisma.SortOrder
+  resolutionDueAt?: Prisma.SortOrder
+  firstRespondedAt?: Prisma.SortOrder
+  resolutionCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1021,6 +1109,10 @@ export type EnumSupportTicketPriorityFieldUpdateOperationsInput = {
   set?: $Enums.SupportTicketPriority
 }
 
+export type NullableEnumSupportResolutionCodeFieldUpdateOperationsInput = {
+  set?: $Enums.SupportResolutionCode | null
+}
+
 export type SupportTicketCreateNestedOneWithoutEventsInput = {
   create?: Prisma.XOR<Prisma.SupportTicketCreateWithoutEventsInput, Prisma.SupportTicketUncheckedCreateWithoutEventsInput>
   connectOrCreate?: Prisma.SupportTicketCreateOrConnectWithoutEventsInput
@@ -1193,6 +1285,10 @@ export type SupportTicketCreateWithoutRequesterInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutSupportTicketsInput
@@ -1229,6 +1325,10 @@ export type SupportTicketUncheckedCreateWithoutRequesterInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   events?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutTicketInput
@@ -1263,6 +1363,10 @@ export type SupportTicketCreateWithoutAssignedAdminInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   requester: Prisma.UserCreateNestedOneWithoutSupportTicketsRequestedInput
@@ -1299,6 +1403,10 @@ export type SupportTicketUncheckedCreateWithoutAssignedAdminInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   events?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutTicketInput
@@ -1359,6 +1467,10 @@ export type SupportTicketScalarWhereInput = {
   lastActivityAt?: Prisma.DateTimeFilter<"SupportTicket"> | Date | string
   resolvedAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
   closedAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+  firstResponseDueAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+  resolutionDueAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+  firstRespondedAt?: Prisma.DateTimeNullableFilter<"SupportTicket"> | Date | string | null
+  resolutionCode?: Prisma.EnumSupportResolutionCodeNullableFilter<"SupportTicket"> | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFilter<"SupportTicket"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SupportTicket"> | Date | string
 }
@@ -1397,6 +1509,10 @@ export type SupportTicketCreateWithoutCustomerProfileInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   requester: Prisma.UserCreateNestedOneWithoutSupportTicketsRequestedInput
@@ -1433,6 +1549,10 @@ export type SupportTicketUncheckedCreateWithoutCustomerProfileInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   events?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutTicketInput
@@ -1483,6 +1603,10 @@ export type SupportTicketCreateWithoutRelatedOrderInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   requester: Prisma.UserCreateNestedOneWithoutSupportTicketsRequestedInput
@@ -1519,6 +1643,10 @@ export type SupportTicketUncheckedCreateWithoutRelatedOrderInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   events?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutTicketInput
@@ -1569,6 +1697,10 @@ export type SupportTicketCreateWithoutEventsInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   requester: Prisma.UserCreateNestedOneWithoutSupportTicketsRequestedInput
@@ -1606,6 +1738,10 @@ export type SupportTicketUncheckedCreateWithoutEventsInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   attachments?: Prisma.SupportTicketAttachmentUncheckedCreateNestedManyWithoutTicketInput
@@ -1645,6 +1781,10 @@ export type SupportTicketUpdateWithoutEventsInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requester?: Prisma.UserUpdateOneRequiredWithoutSupportTicketsRequestedNestedInput
@@ -1682,6 +1822,10 @@ export type SupportTicketUncheckedUpdateWithoutEventsInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attachments?: Prisma.SupportTicketAttachmentUncheckedUpdateManyWithoutTicketNestedInput
@@ -1705,6 +1849,10 @@ export type SupportTicketCreateWithoutAttachmentsInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   requester: Prisma.UserCreateNestedOneWithoutSupportTicketsRequestedInput
@@ -1742,6 +1890,10 @@ export type SupportTicketUncheckedCreateWithoutAttachmentsInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   events?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutTicketInput
@@ -1781,6 +1933,10 @@ export type SupportTicketUpdateWithoutAttachmentsInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requester?: Prisma.UserUpdateOneRequiredWithoutSupportTicketsRequestedNestedInput
@@ -1818,6 +1974,10 @@ export type SupportTicketUncheckedUpdateWithoutAttachmentsInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutTicketNestedInput
@@ -1841,6 +2001,10 @@ export type SupportTicketCreateWithoutSellerAccountInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   requester: Prisma.UserCreateNestedOneWithoutSupportTicketsRequestedInput
@@ -1877,6 +2041,10 @@ export type SupportTicketUncheckedCreateWithoutSellerAccountInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   events?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutTicketInput
@@ -1927,6 +2095,10 @@ export type SupportTicketCreateWithoutLogisticsPartnerInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   requester: Prisma.UserCreateNestedOneWithoutSupportTicketsRequestedInput
@@ -1963,6 +2135,10 @@ export type SupportTicketUncheckedCreateWithoutLogisticsPartnerInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   events?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutTicketInput
@@ -2013,6 +2189,10 @@ export type SupportTicketCreateWithoutBuyerCompanyInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   requester: Prisma.UserCreateNestedOneWithoutSupportTicketsRequestedInput
@@ -2049,6 +2229,10 @@ export type SupportTicketUncheckedCreateWithoutBuyerCompanyInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
   events?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutTicketInput
@@ -2105,6 +2289,10 @@ export type SupportTicketCreateManyRequesterInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -2133,6 +2321,10 @@ export type SupportTicketCreateManyAssignedAdminInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -2155,6 +2347,10 @@ export type SupportTicketUpdateWithoutRequesterInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutSupportTicketsNestedInput
@@ -2191,6 +2387,10 @@ export type SupportTicketUncheckedUpdateWithoutRequesterInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutTicketNestedInput
@@ -2221,6 +2421,10 @@ export type SupportTicketUncheckedUpdateManyWithoutRequesterInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2243,6 +2447,10 @@ export type SupportTicketUpdateWithoutAssignedAdminInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requester?: Prisma.UserUpdateOneRequiredWithoutSupportTicketsRequestedNestedInput
@@ -2279,6 +2487,10 @@ export type SupportTicketUncheckedUpdateWithoutAssignedAdminInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutTicketNestedInput
@@ -2309,6 +2521,10 @@ export type SupportTicketUncheckedUpdateManyWithoutAssignedAdminInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2337,6 +2553,10 @@ export type SupportTicketCreateManyCustomerProfileInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -2359,6 +2579,10 @@ export type SupportTicketUpdateWithoutCustomerProfileInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requester?: Prisma.UserUpdateOneRequiredWithoutSupportTicketsRequestedNestedInput
@@ -2395,6 +2619,10 @@ export type SupportTicketUncheckedUpdateWithoutCustomerProfileInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutTicketNestedInput
@@ -2425,6 +2653,10 @@ export type SupportTicketUncheckedUpdateManyWithoutCustomerProfileInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2453,6 +2685,10 @@ export type SupportTicketCreateManyRelatedOrderInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -2475,6 +2711,10 @@ export type SupportTicketUpdateWithoutRelatedOrderInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requester?: Prisma.UserUpdateOneRequiredWithoutSupportTicketsRequestedNestedInput
@@ -2511,6 +2751,10 @@ export type SupportTicketUncheckedUpdateWithoutRelatedOrderInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutTicketNestedInput
@@ -2541,6 +2785,10 @@ export type SupportTicketUncheckedUpdateManyWithoutRelatedOrderInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2569,6 +2817,10 @@ export type SupportTicketCreateManySellerAccountInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -2591,6 +2843,10 @@ export type SupportTicketUpdateWithoutSellerAccountInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requester?: Prisma.UserUpdateOneRequiredWithoutSupportTicketsRequestedNestedInput
@@ -2627,6 +2883,10 @@ export type SupportTicketUncheckedUpdateWithoutSellerAccountInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutTicketNestedInput
@@ -2657,6 +2917,10 @@ export type SupportTicketUncheckedUpdateManyWithoutSellerAccountInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2685,6 +2949,10 @@ export type SupportTicketCreateManyLogisticsPartnerInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -2707,6 +2975,10 @@ export type SupportTicketUpdateWithoutLogisticsPartnerInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requester?: Prisma.UserUpdateOneRequiredWithoutSupportTicketsRequestedNestedInput
@@ -2743,6 +3015,10 @@ export type SupportTicketUncheckedUpdateWithoutLogisticsPartnerInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutTicketNestedInput
@@ -2773,6 +3049,10 @@ export type SupportTicketUncheckedUpdateManyWithoutLogisticsPartnerInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2801,6 +3081,10 @@ export type SupportTicketCreateManyBuyerCompanyInput = {
   lastActivityAt?: Date | string
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  firstResponseDueAt?: Date | string | null
+  resolutionDueAt?: Date | string | null
+  firstRespondedAt?: Date | string | null
+  resolutionCode?: $Enums.SupportResolutionCode | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -2823,6 +3107,10 @@ export type SupportTicketUpdateWithoutBuyerCompanyInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requester?: Prisma.UserUpdateOneRequiredWithoutSupportTicketsRequestedNestedInput
@@ -2859,6 +3147,10 @@ export type SupportTicketUncheckedUpdateWithoutBuyerCompanyInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutTicketNestedInput
@@ -2889,6 +3181,10 @@ export type SupportTicketUncheckedUpdateManyWithoutBuyerCompanyInput = {
   lastActivityAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstResponseDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionCode?: Prisma.NullableEnumSupportResolutionCodeFieldUpdateOperationsInput | $Enums.SupportResolutionCode | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2958,6 +3254,10 @@ export type SupportTicketSelect<ExtArgs extends runtime.Types.Extensions.Interna
   lastActivityAt?: boolean
   resolvedAt?: boolean
   closedAt?: boolean
+  firstResponseDueAt?: boolean
+  resolutionDueAt?: boolean
+  firstRespondedAt?: boolean
+  resolutionCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   requester?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -2999,11 +3299,15 @@ export type SupportTicketSelectScalar = {
   lastActivityAt?: boolean
   resolvedAt?: boolean
   closedAt?: boolean
+  firstResponseDueAt?: boolean
+  resolutionDueAt?: boolean
+  firstRespondedAt?: boolean
+  resolutionCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SupportTicketOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reference" | "requesterUserId" | "requesterRole" | "source" | "customerProfileId" | "buyerCompanyId" | "sellerAccountId" | "logisticsPartnerId" | "nameSnapshot" | "emailSnapshot" | "companyNameSnapshot" | "language" | "category" | "subject" | "message" | "relatedOrderId" | "relatedOrderNumber" | "status" | "priority" | "assignedAdminId" | "lastActivityAt" | "resolvedAt" | "closedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["supportTicket"]>
+export type SupportTicketOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reference" | "requesterUserId" | "requesterRole" | "source" | "customerProfileId" | "buyerCompanyId" | "sellerAccountId" | "logisticsPartnerId" | "nameSnapshot" | "emailSnapshot" | "companyNameSnapshot" | "language" | "category" | "subject" | "message" | "relatedOrderId" | "relatedOrderNumber" | "status" | "priority" | "assignedAdminId" | "lastActivityAt" | "resolvedAt" | "closedAt" | "firstResponseDueAt" | "resolutionDueAt" | "firstRespondedAt" | "resolutionCode" | "createdAt" | "updatedAt", ExtArgs["result"]["supportTicket"]>
 export type SupportTicketInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   requester?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   customerProfile?: boolean | Prisma.SupportTicket$customerProfileArgs<ExtArgs>
@@ -3080,6 +3384,18 @@ export type $SupportTicketPayload<ExtArgs extends runtime.Types.Extensions.Inter
     lastActivityAt: Date
     resolvedAt: Date | null
     closedAt: Date | null
+    /**
+     * The service targets, copied from the category's SLA policy when the
+     * ticket is sent: when the first staff reply is due, and when it must be
+     * resolved by. A breach is a deadline passed without the thing it waits for.
+     */
+    firstResponseDueAt: Date | null
+    resolutionDueAt: Date | null
+    firstRespondedAt: Date | null
+    /**
+     * How it ended. Required to resolve or close; cleared when it reopens.
+     */
+    resolutionCode: $Enums.SupportResolutionCode | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["supportTicket"]>
@@ -3484,6 +3800,10 @@ export interface SupportTicketFieldRefs {
   readonly lastActivityAt: Prisma.FieldRef<"SupportTicket", 'DateTime'>
   readonly resolvedAt: Prisma.FieldRef<"SupportTicket", 'DateTime'>
   readonly closedAt: Prisma.FieldRef<"SupportTicket", 'DateTime'>
+  readonly firstResponseDueAt: Prisma.FieldRef<"SupportTicket", 'DateTime'>
+  readonly resolutionDueAt: Prisma.FieldRef<"SupportTicket", 'DateTime'>
+  readonly firstRespondedAt: Prisma.FieldRef<"SupportTicket", 'DateTime'>
+  readonly resolutionCode: Prisma.FieldRef<"SupportTicket", 'SupportResolutionCode'>
   readonly createdAt: Prisma.FieldRef<"SupportTicket", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SupportTicket", 'DateTime'>
 }

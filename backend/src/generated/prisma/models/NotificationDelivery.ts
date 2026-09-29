@@ -43,6 +43,7 @@ export type NotificationDeliveryMinAggregateOutputType = {
   errorMessage: string | null
   durationMs: number | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type NotificationDeliveryMaxAggregateOutputType = {
@@ -54,6 +55,7 @@ export type NotificationDeliveryMaxAggregateOutputType = {
   errorMessage: string | null
   durationMs: number | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type NotificationDeliveryCountAggregateOutputType = {
@@ -65,6 +67,7 @@ export type NotificationDeliveryCountAggregateOutputType = {
   errorMessage: number
   durationMs: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -86,6 +89,7 @@ export type NotificationDeliveryMinAggregateInputType = {
   errorMessage?: true
   durationMs?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type NotificationDeliveryMaxAggregateInputType = {
@@ -97,6 +101,7 @@ export type NotificationDeliveryMaxAggregateInputType = {
   errorMessage?: true
   durationMs?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type NotificationDeliveryCountAggregateInputType = {
@@ -108,6 +113,7 @@ export type NotificationDeliveryCountAggregateInputType = {
   errorMessage?: true
   durationMs?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -206,6 +212,7 @@ export type NotificationDeliveryGroupByOutputType = {
   errorMessage: string | null
   durationMs: number | null
   createdAt: Date
+  updatedAt: Date
   _count: NotificationDeliveryCountAggregateOutputType | null
   _avg: NotificationDeliveryAvgAggregateOutputType | null
   _sum: NotificationDeliverySumAggregateOutputType | null
@@ -240,6 +247,7 @@ export type NotificationDeliveryWhereInput = {
   errorMessage?: Prisma.StringNullableFilter<"NotificationDelivery"> | string | null
   durationMs?: Prisma.IntNullableFilter<"NotificationDelivery"> | number | null
   createdAt?: Prisma.DateTimeFilter<"NotificationDelivery"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"NotificationDelivery"> | Date | string
   outbox?: Prisma.XOR<Prisma.NotificationOutboxScalarRelationFilter, Prisma.NotificationOutboxWhereInput>
 }
 
@@ -252,6 +260,7 @@ export type NotificationDeliveryOrderByWithRelationInput = {
   errorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   durationMs?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   outbox?: Prisma.NotificationOutboxOrderByWithRelationInput
   _relevance?: Prisma.NotificationDeliveryOrderByRelevanceInput
 }
@@ -268,6 +277,7 @@ export type NotificationDeliveryWhereUniqueInput = Prisma.AtLeast<{
   errorMessage?: Prisma.StringNullableFilter<"NotificationDelivery"> | string | null
   durationMs?: Prisma.IntNullableFilter<"NotificationDelivery"> | number | null
   createdAt?: Prisma.DateTimeFilter<"NotificationDelivery"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"NotificationDelivery"> | Date | string
   outbox?: Prisma.XOR<Prisma.NotificationOutboxScalarRelationFilter, Prisma.NotificationOutboxWhereInput>
 }, "id">
 
@@ -280,6 +290,7 @@ export type NotificationDeliveryOrderByWithAggregationInput = {
   errorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   durationMs?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.NotificationDeliveryCountOrderByAggregateInput
   _avg?: Prisma.NotificationDeliveryAvgOrderByAggregateInput
   _max?: Prisma.NotificationDeliveryMaxOrderByAggregateInput
@@ -299,6 +310,7 @@ export type NotificationDeliveryScalarWhereWithAggregatesInput = {
   errorMessage?: Prisma.StringNullableWithAggregatesFilter<"NotificationDelivery"> | string | null
   durationMs?: Prisma.IntNullableWithAggregatesFilter<"NotificationDelivery"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"NotificationDelivery"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"NotificationDelivery"> | Date | string
 }
 
 export type NotificationDeliveryCreateInput = {
@@ -309,6 +321,7 @@ export type NotificationDeliveryCreateInput = {
   errorMessage?: string | null
   durationMs?: number | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   outbox: Prisma.NotificationOutboxCreateNestedOneWithoutDeliveriesInput
 }
 
@@ -321,6 +334,7 @@ export type NotificationDeliveryUncheckedCreateInput = {
   errorMessage?: string | null
   durationMs?: number | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type NotificationDeliveryUpdateInput = {
@@ -331,6 +345,7 @@ export type NotificationDeliveryUpdateInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   durationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   outbox?: Prisma.NotificationOutboxUpdateOneRequiredWithoutDeliveriesNestedInput
 }
 
@@ -343,6 +358,7 @@ export type NotificationDeliveryUncheckedUpdateInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   durationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type NotificationDeliveryCreateManyInput = {
@@ -354,6 +370,7 @@ export type NotificationDeliveryCreateManyInput = {
   errorMessage?: string | null
   durationMs?: number | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type NotificationDeliveryUpdateManyMutationInput = {
@@ -364,6 +381,7 @@ export type NotificationDeliveryUpdateManyMutationInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   durationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type NotificationDeliveryUncheckedUpdateManyInput = {
@@ -375,6 +393,7 @@ export type NotificationDeliveryUncheckedUpdateManyInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   durationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type NotificationDeliveryListRelationFilter = {
@@ -402,6 +421,7 @@ export type NotificationDeliveryCountOrderByAggregateInput = {
   errorMessage?: Prisma.SortOrder
   durationMs?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type NotificationDeliveryAvgOrderByAggregateInput = {
@@ -417,6 +437,7 @@ export type NotificationDeliveryMaxOrderByAggregateInput = {
   errorMessage?: Prisma.SortOrder
   durationMs?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type NotificationDeliveryMinOrderByAggregateInput = {
@@ -428,6 +449,7 @@ export type NotificationDeliveryMinOrderByAggregateInput = {
   errorMessage?: Prisma.SortOrder
   durationMs?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type NotificationDeliverySumOrderByAggregateInput = {
@@ -484,6 +506,7 @@ export type NotificationDeliveryCreateWithoutOutboxInput = {
   errorMessage?: string | null
   durationMs?: number | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type NotificationDeliveryUncheckedCreateWithoutOutboxInput = {
@@ -494,6 +517,7 @@ export type NotificationDeliveryUncheckedCreateWithoutOutboxInput = {
   errorMessage?: string | null
   durationMs?: number | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type NotificationDeliveryCreateOrConnectWithoutOutboxInput = {
@@ -534,6 +558,7 @@ export type NotificationDeliveryScalarWhereInput = {
   errorMessage?: Prisma.StringNullableFilter<"NotificationDelivery"> | string | null
   durationMs?: Prisma.IntNullableFilter<"NotificationDelivery"> | number | null
   createdAt?: Prisma.DateTimeFilter<"NotificationDelivery"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"NotificationDelivery"> | Date | string
 }
 
 export type NotificationDeliveryCreateManyOutboxInput = {
@@ -544,6 +569,7 @@ export type NotificationDeliveryCreateManyOutboxInput = {
   errorMessage?: string | null
   durationMs?: number | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type NotificationDeliveryUpdateWithoutOutboxInput = {
@@ -554,6 +580,7 @@ export type NotificationDeliveryUpdateWithoutOutboxInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   durationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type NotificationDeliveryUncheckedUpdateWithoutOutboxInput = {
@@ -564,6 +591,7 @@ export type NotificationDeliveryUncheckedUpdateWithoutOutboxInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   durationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type NotificationDeliveryUncheckedUpdateManyWithoutOutboxInput = {
@@ -574,6 +602,7 @@ export type NotificationDeliveryUncheckedUpdateManyWithoutOutboxInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   durationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -587,6 +616,7 @@ export type NotificationDeliverySelect<ExtArgs extends runtime.Types.Extensions.
   errorMessage?: boolean
   durationMs?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   outbox?: boolean | Prisma.NotificationOutboxDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["notificationDelivery"]>
 
@@ -601,9 +631,10 @@ export type NotificationDeliverySelectScalar = {
   errorMessage?: boolean
   durationMs?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type NotificationDeliveryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "outboxId" | "provider" | "providerMessageId" | "status" | "errorMessage" | "durationMs" | "createdAt", ExtArgs["result"]["notificationDelivery"]>
+export type NotificationDeliveryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "outboxId" | "provider" | "providerMessageId" | "status" | "errorMessage" | "durationMs" | "createdAt" | "updatedAt", ExtArgs["result"]["notificationDelivery"]>
 export type NotificationDeliveryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   outbox?: boolean | Prisma.NotificationOutboxDefaultArgs<ExtArgs>
 }
@@ -625,6 +656,7 @@ export type $NotificationDeliveryPayload<ExtArgs extends runtime.Types.Extension
      */
     durationMs: number | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["notificationDelivery"]>
   composites: {}
 }
@@ -1003,6 +1035,7 @@ export interface NotificationDeliveryFieldRefs {
   readonly errorMessage: Prisma.FieldRef<"NotificationDelivery", 'String'>
   readonly durationMs: Prisma.FieldRef<"NotificationDelivery", 'Int'>
   readonly createdAt: Prisma.FieldRef<"NotificationDelivery", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"NotificationDelivery", 'DateTime'>
 }
     
 

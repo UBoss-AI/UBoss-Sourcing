@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**396 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**474 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -25,36 +25,37 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | Group | Codes |
 |---|---|
 | [Generic](#generic) | 10 |
-| [Authentication / authorization](#authentication-authorization) | 14 |
+| [Authentication / authorization](#authentication-authorization) | 20 |
 | [Invitations and tokens](#invitations-and-tokens) | 8 |
 | [Catalog](#catalog) | 15 |
-| [Image search](#image-search) | 2 |
+| [Image search](#image-search) | 3 |
 | [Inventory](#inventory) | 9 |
 | [Cart and purchasing limits](#cart-and-purchasing-limits) | 10 |
 | [Orders](#orders) | 7 |
 | [Fulfilment options](#fulfilment-options) | 6 |
 | [Idempotency](#idempotency) | 3 |
-| [Payments](#payments) | 14 |
+| [Payments](#payments) | 15 |
 | [Recurring](#recurring) | 29 |
 | [Localisation & currency](#localisation-currency) | 4 |
 | [Coupons](#coupons) | 8 |
 | [Integrations](#integrations) | 9 |
 | [A configurable ERP connection](#a-configurable-erp-connection) | 13 |
-| [Auto-pay](#auto-pay) | 6 |
+| [Auto-pay](#auto-pay) | 15 |
 | [Data protection](#data-protection) | 6 |
 | [A buyer's own ERP, and the organisation that owns it](#a-buyer-s-own-erp-and-the-organisation-that-owns-it) | 26 |
 | [Seller Hub](#seller-hub) | 41 |
-| [Logistics partner portal](#logistics-partner-portal) | 21 |
+| [Logistics partner portal](#logistics-partner-portal) | 23 |
 | [How a seller's own goods get delivered](#how-a-seller-s-own-goods-get-delivered) | 15 |
 | [Console notifications](#console-notifications) | 2 |
 | [The assistant](#the-assistant) | 1 |
 | [Bulk ordering: carton, pallet, container](#bulk-ordering-carton-pallet-container) | 9 |
 | [A seller's own accounting system (TallyPrime)](#a-seller-s-own-accounting-system-tallyprime) | 13 |
 | [The four delivery levels (L1-L4)](#the-four-delivery-levels-l1-l4) | 18 |
-| [Platform fee](#platform-fee) | 2 |
+| [Platform fee](#platform-fee) | 5 |
 | [Bulk preorders](#bulk-preorders) | 20 |
 | [Preorder chat](#preorder-chat) | 10 |
-| [Support tickets](#support-tickets) | 7 |
+| [Support tickets](#support-tickets) | 8 |
+| [Disputes, claims and chargebacks](#disputes-claims-and-chargebacks) | 9 |
 | [Seller invoices and packing lists](#seller-invoices-and-packing-lists) | 7 |
 | [Seller commission invoices](#seller-commission-invoices) | 8 |
 | [Terms and Conditions](#terms-and-conditions) | 5 |
@@ -62,6 +63,9 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Buyer companies](#buyer-companies) | 14 |
 | [Product reviews](#product-reviews) | 1 |
 | [B2C maximum order quantity](#b2c-maximum-order-quantity) | 1 |
+| [Pre-shipment inspection and the dispatch gate](#pre-shipment-inspection-and-the-dispatch-gate) | 17 |
+| [Returns](#returns) | 5 |
+| [The buyer experience: cart, checkout, account, alerts, reviews](#the-buyer-experience-cart-checkout-account-alerts-reviews) | 24 |
 
 ## Generic
 
@@ -93,6 +97,12 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `REFRESH_TOKEN_REUSED` |  |
 | `MFA_REQUIRED` |  |
 | `MFA_INVALID` |  |
+| `MFA_CHALLENGE_REQUIRED` | Storefront and Seller Hub. The account has two-step sign-in switched on and THIS session has not passed its code yet. 403. The storefront shows the code box; only /auth/me, /auth/mfa/challenge and /auth/logout answer. |
+| `MFA_SETUP_REQUIRED` | Storefront and Seller Hub. This person's role (a seller owner, or anybody holding payout or finance permissions), or the act itself (switching on AutoPay), needs two-step sign-in and the account has none. 403. The storefront answers with the setup screen - a prompt, never a dead end. |
+| `MFA_REQUIRED_BY_ROLE` | Asked to switch two-step sign-in off while holding a role that requires it. 409. Changing the role first is the way out. |
+| `STEP_UP_REQUIRED` | A sensitive act - changing the email or password, connecting payouts, changing team roles, switching on AutoPay, changing two-step sign-in - needs the person to confirm it is them again, and this session has not done so within STEP_UP_WINDOW_SECONDS. 403. `details[0].meta.method` is `TOTP` or `PASSWORD`: which proof the storefront should ask for. |
+| `CAPTCHA_REQUIRED` | The deployment has a bot check switched on (CAPTCHA_PROVIDER) and the form was sent without its answer. 400. |
+| `CAPTCHA_FAILED` | The bot check's answer was refused by the provider, or the provider could not be asked. 400. Fails closed: the form is not accepted. |
 | `FORBIDDEN` |  |
 | `PERMISSION_DENIED` |  |
 | `RESOURCE_OWNERSHIP_DENIED` | Authenticated, but the resource belongs to somebody else. Returned instead of NOT_FOUND only where existence is already known to the caller. |
@@ -136,6 +146,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 |---|---|
 | `IMAGE_SEARCH_BUSY` | Two codes and not one, because the two failures need different words in front of a customer and different actions from whoever runs the deployment. BUSY is the provider being over quota or overloaded, and the answer is to wait; UNREADABLE is a reply that came back and could not be used, and the answer is to try a clearer photograph or type the name. |
 | `IMAGE_SEARCH_UNREADABLE` |  |
+| `IMAGE_SEARCH_UNAVAILABLE` |  |
 
 ## Inventory
 
@@ -215,6 +226,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `PAYMENT_LINK_REVOKED` |  |
 | `REFUND_EXCEEDS_CAPTURED` |  |
 | `REFUND_NOT_PERMITTED` |  |
+| `RECEIPT_NOT_AVAILABLE` | A receipt was asked for a payment that was never captured, or a refund the provider has not confirmed. A receipt says money moved; until it has, there is nothing to acknowledge. |
 
 ## Recurring
 
@@ -314,6 +326,15 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `AUTOPAY_LIMIT_EXCEEDED` | The amount is above the ceiling the customer set. Refused, not deferred. |
 | `AUTOPAY_APPROVAL_REQUIRED` | The amount is above the threshold at which the customer asked to be consulted. Nothing is charged and they are asked - which is why this is not the same code as the one above. |
 | `AUTOPAY_CURRENCY_MISMATCH` | The charge and the customer's limits are in different currencies, so the limit cannot be applied. Refused rather than guessed at: converting a cap the customer typed is not something to do silently. |
+| `AUTOPAY_AUTHORITY_EXPIRED` | The end date the customer gave their standing authority has passed. Nothing is charged; the customer sets a new date to carry on. |
+| `AUTOPAY_AUTHORITY_NOT_STARTED` | The start date the customer gave their standing authority has not come yet. Nothing is charged. |
+| `AUTOPAY_PERIOD_CAP_REACHED` | This charge would take the customer's automatic payments for the current period above the cap they set. Not charged; the order waits for them to pay it themselves, which is their explicit approval. |
+| `AUTOPAY_OUTSIDE_SCOPE` | The order is from a supplier or in a category the customer's standing authority does not cover. Not charged; it waits for them. |
+| `SCHEDULE_CONFIRMATION_NOT_PENDING` | A scheduled delivery is not waiting for a price confirmation (it was already confirmed, declined, or its deadline passed). |
+| `SCHEDULE_CONFIRMED_TOTAL_STALE` | The total the customer confirmed is no longer the total: the price moved again. Nothing is charged; the new total is shown to confirm afresh. |
+| `BUYER_COMPANY_APPROVAL_PENDING` | The buyer company's own sign-off rule: the order waits for an approver or finance before it can be paid. |
+| `BUYER_COMPANY_SELF_APPROVAL` | Nobody may sign off an order they placed, and the finance stage may not be signed off by whoever approved the first. |
+| `BUYER_COMPANY_APPROVAL_NOT_PENDING` | This stage has already been decided, or the order is no longer waiting. |
 
 ## Data protection
 
@@ -418,6 +439,8 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `SHIPMENT_NOT_ASSIGNED` | The shipment is not assigned to the caller's organisation, or the assignment has been withdrawn. Returned only where the caller already knows the shipment exists - a bare lookup answers NOT_FOUND, on the same reasoning as `assertOwnership`. |
 | `SHIPMENT_ASSIGNMENT_SETTLED` | The assignment has already been accepted or rejected. A second answer to a question that was already answered. |
 | `SHIPMENT_OTP_INVALID` | A delivery OTP did not match, or has expired. |
+| `SHIPMENT_OTP_UNAVAILABLE` | A delivery code cannot be sent for this consignment at all. |
+| `SHIPMENT_OTP_RESEND_LIMITED` | A new delivery code was asked for too soon after the last one, or the consignment has had as many codes as it may have today. HTTP 429. `details[0].code` is `TOO_SOON` (with `meta.retryAt`) or `DAILY_LIMIT_REACHED`. |
 | `LOGISTICS_PARTNER_NOT_ELIGIBLE` | A pickup cannot be scheduled or completed in its current state. A SELLER asked to hand a consignment to a carrier they are not entitled to use: no arrangement, one that is not approved, one that is suspended or out of its dates, or one that does not cover this route or this handling. |
 | `LOGISTICS_SHIPMENT_TERMINAL` | The consignment has finished - delivered, cancelled, returned, lost or destroyed - and cannot be assigned, reassigned or moved on. |
 | `LOGISTICS_PICKUP_NOT_ACTIONABLE` |  |
@@ -426,7 +449,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `LOGISTICS_LOCATION_PING_REJECTED` | A location ping was refused. One code with a detail rather than five codes, because the caller is a phone in a van and its only sensible response to any of them is to drop the ping and carry on: impossible coordinates, a timestamp too far in the past or future, a speed no vehicle achieves, a sequence number already seen, or no active trip. |
 | `LOGISTICS_LOCATION_NOT_AVAILABLE` | The caller asked for a driver's position and holds no authority to read one, or the trip is not running. Separate from PERMISSION_DENIED because the portal must not offer a retry: there is nothing to retry. |
 | `CARRIER_PROVIDER_UNCONFIGURED` |  |
-| `CARRIER_REQUEST_FAILED` | The carrier answered, and answered with a refusal. The message carries their own words where they are safe to repeat. |
+| `CARRIER_REQUEST_FAILED` | The carrier answered, and answered with a refusal. The message carries their own words where they are safe to repeat. Also raised when the carrier did not answer in time or could not be reached - either way nothing was booked - with detail code CARRIER_TIMEOUT (HTTP 504) or CARRIER_UNREACHABLE (502) in place of CARRIER_REFUSED. |
 | `CARRIER_WEBHOOK_REJECTED` | A webhook's signature did not verify, its timestamp was outside the accepted window, or its event id had already been processed. One code: the sender is a machine, the response is a 4xx it will log, and telling it which of the three would help an attacker tune the next attempt. |
 
 ## How a seller's own goods get delivered
@@ -523,6 +546,9 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 |---|---|
 | `PLATFORM_FEE_POLICY_INVALID` | A platform-fee policy is inconsistent - a PERCENT fee with no rate, a minimum above the maximum, a scope with nothing to apply to. |
 | `PLATFORM_FEE_POLICY_NOT_EDITABLE` | A published or retired fee policy is never edited; draft a new version. |
+| `PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN` | A fee policy or fee rule must be approved by a different member of finance staff from the one who created, last edited or submitted it. |
+| `PLATFORM_FEE_NOT_PENDING_APPROVAL` | Only a draft can be submitted, and only a submitted one can be approved or rejected. details[0].meta.status is where it is now. |
+| `PLATFORM_FEE_RULE_INVALID` | A fee rule is inconsistent - a value band with no lower bound, a volume tier with no window, a promotion with no end date. details[0].field. |
 
 ## Bulk preorders
 
@@ -575,6 +601,21 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `SUPPORT_ASSIGNEE_NOT_ELIGIBLE` | The staff member named cannot work support requests - deactivated, or without the support permission. |
 | `SUPPORT_ATTACHMENTS_UNAVAILABLE` | Files cannot be attached here: switched off, or no malware scanner is configured. The ticket itself still goes. details[0].code is DISABLED or NO_SCANNER. |
 | `SUPPORT_ATTACHMENT_LIMIT_REACHED` | This ticket already carries as many files as one ticket may. meta.limit. |
+| `SUPPORT_RESOLUTION_CODE_REQUIRED` | Resolving or closing a request needs a resolution code saying how it ended. details[0].field is `resolutionCode`. |
+
+## Disputes, claims and chargebacks
+
+| Code | Meaning |
+|---|---|
+| `DISPUTE_TRANSITION_NOT_ALLOWED` | The dispute cannot move to that status from where it is - it is closed, already decided, or waiting for somebody else. meta.from, meta.to. |
+| `DISPUTE_NOT_ELIGIBLE` | This order (or line) cannot have a claim raised on it: not paid, not yours, or the line is not on the order. details[0].code says which. |
+| `DISPUTE_ALREADY_OPEN` | There is already an open claim on this order line. Write on that one. meta.reference. |
+| `DISPUTE_WINDOW_CLOSED` | The time allowed for raising a claim on this order has passed. meta.windowDays. |
+| `DISPUTE_SELF_APPROVAL_FORBIDDEN` | A decision must be approved by a different member of staff from the one who proposed it. |
+| `DISPUTE_APPEAL_NOT_ALLOWED` | This decision cannot be appealed: the window has passed, or it has been appealed once already. details[0].code is WINDOW_CLOSED or ALREADY_APPEALED. |
+| `DISPUTE_CHARGEBACK_OPEN` | The payment on this order is under a chargeback. Refunding it as well could pay the buyer twice; the chargeback decides the money. |
+| `DISPUTE_AMOUNT_INVALID` | The amount is not valid for this dispute - not whole minor units, zero, or more than was paid. meta.maxMinor. |
+| `DISPUTE_SETTINGS_CONFLICT` | Somebody saved the dispute settings a moment ago. Reload and try again. |
 
 ## Seller invoices and packing lists
 
@@ -648,4 +689,65 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | Code | Meaning |
 |---|---|
 | `B2C_MAX_ORDER_QUANTITY_EXCEEDED` | A buyer who is not an approved company asked for more of one product than its seller allows an individual to buy in one order - every variant and every basket line of it counted together. 409. `details[0].meta` carries `productId`, `allowedQuantity`, `requestedQuantity`, `currentCartQuantity` and `requiresApprovedCompanyAccount`, so the storefront can offer "Reduce to N" or switching to a company. Also a basket line issue while an existing basket is over. See `domain/b2c-order-limit.ts`. Not… |
+
+## Pre-shipment inspection and the dispatch gate
+
+| Code | Meaning |
+|---|---|
+| `INSPECTION_GATE_CLOSED` | The order must be inspected before it leaves and the gate is shut. 409. `details[0].code` says why: NOT_BOOKED, IN_PROGRESS, FAILED, BLOCKING_NCR_OPEN, RELEASE_PENDING_APPROVAL, SCOPE_CHANGED or BUYER_REVIEW_PERIOD; `meta.requirementId` names the inspection. See `domain/inspection-gate.ts`. |
+| `INSPECTION_GATE_NOT_EVALUATED` | A guarded move reached a state machine without the gate being checked. A programming error on the server, refused rather than let through. 409. |
+| `INSPECTION_JOB_TRANSITION_NOT_ALLOWED` | That inspection job cannot move that way, for that role. `details[0] .code` is SAME_STATUS, TRANSITION_UNDEFINED, ACTOR_NOT_PERMITTED or REASON_REQUIRED. |
+| `INSPECTION_AGENCY_MEMBER_REQUIRED` | The signed-in account is not an active member of an inspection agency, or its role does not carry this action. 403. |
+| `INSPECTION_AGENCY_NOT_ELIGIBLE` | The agency cannot take this job: suspended, not serving the category or country, affiliated with the seller, or full on that day. `details[0] .code` says which. |
+| `INSPECTION_CONFLICT_OF_INTEREST` | The person or agency has a conflict of interest with this order - a member of the seller, the buyer, or a declared conflict. 409. |
+| `INSPECTOR_NOT_QUALIFIED` | The inspector is not authorised for this category, has no verified identity, or their credentials have expired. `details[0].code` says which. |
+| `INSPECTION_REPORT_INCOMPLETE` | The report cannot be submitted or signed yet. `details` lists each missing item: an unanswered checklist line, the sampling record, evidence. |
+| `INSPECTION_REPORT_LOCKED` | A signed report, and its evidence, never change. 409. |
+| `INSPECTION_SELF_APPROVAL_FORBIDDEN` | The person who requested a conditional release cannot also approve it. 409. |
+| `INSPECTION_RELEASE_NOT_ALLOWED` | A conditional release cannot be recorded: the rule does not allow one, the reason is too short, evidence is missing, or one is already pending. `details[0].code` says which. |
+| `INSPECTION_CAPA_REQUIRED` | A re-inspection needs corrective action recorded on every open non-conformance first. `details` names each NCR still open. |
+| `INSPECTION_RECLASSIFICATION_NOT_ALLOWED` | A defect's severity can be changed only by the agency's QA reviewer, who is not the inspector who recorded it, with a reason and evidence. |
+| `INSPECTION_BINDING_MISMATCH` | The container or seal recorded at loading does not match the packages on the consignment. 409. |
+| `INSPECTION_READINESS_INCOMPLETE` | The seller cannot present the lot yet. `details` lists each missing item, such as PACKING_LIST_MISSING or DECLARATION_REQUIRED. |
+| `INSPECTION_POLICY_INVALID` | An inspection rule, plan or policy contradicts itself. `details` names each field. |
+| `INSPECTION_BOOKING_NOT_ALLOWED` | An inspection cannot be booked for this order now: none is required and the buyer did not ask, one is already open, or the order is past dispatch. |
+
+## Returns
+
+| Code | Meaning |
+|---|---|
+| `RETURN_NOT_ELIGIBLE` | This order cannot be returned from the storefront. 409. `details[0].code` says why: NOT_DELIVERED, WINDOW_CLOSED (meta.windowDays, meta.closedAt), RETURNS_OFF (the operator's window is 0), MIXED_SELLERS (the lines chosen belong to more than one seller - send one return per seller) or REASON_NOT_OFFERED. |
+| `RETURN_QUANTITY_EXCEEDED` | More of a line was asked for than is left to return. 409. One detail per line: `field` is `items.N.quantity`, meta.returnable is how many may still go back. |
+| `RETURN_EVIDENCE_REQUIRED` | The reason chosen needs at least one photograph or video of the problem, and none was attached. 400. |
+| `RETURN_TRANSITION_NOT_ALLOWED` | The return cannot move that way from where it is, or the move needs a reason that was not given. 409. meta.from, meta.to. |
+| `RETURN_FILES_UNAVAILABLE` | Files cannot be added to returns here: no malware scanner is configured and unscanned files are not accepted. 409. The return itself still works. |
+
+## The buyer experience: cart, checkout, account, alerts, reviews
+
+| Code | Meaning |
+|---|---|
+| `SAVED_ITEM_NOT_FOUND` | That saved-for-later line is not one of this buyer's. 404. |
+| `BUYER_COMMERCE_SETTINGS_INVALID` | The operator's buyer settings or a duty rate contradict themselves. `details` names each field. 400. |
+| `BUYER_COMMERCE_SETTINGS_CONFLICT` | Somebody else saved the buyer settings since they were loaded. Reload. 409. |
+| `KYC_NOT_EDITABLE` | The identity details cannot be changed while they are being reviewed or once verified - ask support to reopen them. 409. |
+| `KYC_INCOMPLETE` | The identity details are not complete enough to submit. `details` lists each missing field. 400. |
+| `KYC_DOCUMENT_REJECTED` | The uploaded identity or import document is not accepted: wrong type by its own bytes, too large, empty, or it failed the malware scan. 400. |
+| `SAVED_SEARCH_LIMIT_REACHED` | The buyer already has as many saved searches as the installation allows. 409. |
+| `REORDER_NOTHING_AVAILABLE` | Nothing on that past order can be bought today. `details` lists each line and why (UNPUBLISHED, OUT_OF_STOCK, OFFER_WITHDRAWN). 409. |
+| `REORDER_PREVIEW_STALE` | The reorder changed since the buyer reviewed it - a price or stock moved. `details[0].meta.previewToken` is the new preview to review. 409. |
+| `NOTIFICATION_PREFERENCE_LOCKED` | Security and account notices cannot be switched off. 400. |
+| `REVIEW_RESPONSE_NOT_ALLOWED` | Only the seller whose goods were reviewed may answer a review, once, and only a published one. 409 (403 for somebody else's review). |
+| `TRANSLATION_UNAVAILABLE` | No translation provider is configured, or it failed. The original text is still shown. 503. |
+| `CUSTOMER_ERP_PURCHASE_ORDER_REJECTED` | An inbound ERP purchase order could not become an order. `details` names each problem: a missing field, an unknown product code (UNKNOWN_PRODUCT), or a line that cannot be bought. 422. |
+| `PRODUCTION_MILESTONE_NOT_ALLOWED` | A production milestone or delay cannot be recorded: the order is not accepted (NOT_ACCEPTED), has left (CLOSED), the stage is already done (ALREADY_COMPLETED) or an earlier one is open (OUT_OF_ORDER). 409. |
+| `LISTING_BLOCKED` | The marketplace has blocked this listing. Only staff can lift it; the seller cannot resume, edit it live or archive it. 409. |
+| `OFFER_NOT_AVAILABLE_IN_MARKET` | The seller does not sell this listing to the delivery country. `details[0].meta.country` is the country. 409. |
+| `BULK_IMPORT_FILE_INVALID` | A bulk-import file cannot be read: empty, not CSV/XLSX by its bytes, too large, too many rows, or missing a required column. 400. |
+| `BULK_IMPORT_NOT_APPLICABLE` | A bulk import cannot be applied: it is not a finished dry run, it has row errors, or it was already applied. 409. |
+| `TRADE_DOCUMENT_INVALID` | A trade document is incomplete or not acceptable here - unknown kind, missing issuer, expiry before issue, no file and no reference. 400. |
+| `DESTINATION_DOCUMENTS_NOT_READY` | The consignment is on an exception hold: a document the destination or category requires is missing or not valid, the HS code is unverified or rejected, or the goods are prohibited there. `details` lists each hold with its code and the party who must act. 409. |
+| `BOOKING_TERMS_REQUIRED` | A cross-border consignment must state its Incoterm, mode and ports before it can be booked. 409. |
+| `BOOKING_TERMS_INVALID` | Booking terms are not acceptable: unknown Incoterm, a port that is not a UN/LOCODE, an insured value above what the settings allow. 400. |
+| `SHIPMENT_INSURANCE_NOT_OFFERED` | Cargo insurance is not offered on this installation. 409. |
+| `LOGISTICS_LANE_INVALID` | A lane rate card is not acceptable: overlapping weight bands, transit days out of order, validity ending before it starts. 400. |
 

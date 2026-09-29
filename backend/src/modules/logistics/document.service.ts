@@ -318,8 +318,11 @@ export async function listShipmentDocuments(
  * CLEAN always. SKIPPED only where the operator has said so. INFECTED, FAILED
  * and PENDING never - and PENDING is in that list deliberately: "the scan has
  * not finished" is not "the scan passed".
+ *
+ * Exported for the buyer's proof-of-delivery link (`buyer-tracking.service.ts`),
+ * so a buyer and a carrier are refused the same files for the same reason.
  */
-function isServable(scanState: LogisticsDocumentScanState): boolean {
+export function isServable(scanState: LogisticsDocumentScanState): boolean {
   if (scanState === 'CLEAN') return true;
   // Produced by this server from its own records - an issued packing list.
   // Nothing was uploaded, so there is nothing a scanner could have looked at.

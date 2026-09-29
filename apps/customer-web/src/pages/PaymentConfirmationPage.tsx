@@ -25,6 +25,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { CheckoutSteps } from '@/components/CheckoutSteps';
+import { OrderPaymentReceipts } from '@/components/OrderPaymentReceipts';
 import { AlertIcon, CheckIcon, ClockIcon } from '@/components/icons';
 import { Button, ButtonLink, ErrorState, Spinner } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
@@ -265,6 +266,13 @@ export function PaymentConfirmationPage(): React.JSX.Element {
               {orderStatusLabel(t, view.orderStatus)}
             </Detail>
           </dl>
+        )}
+
+        {/* The receipt for this payment, once it has been captured. */}
+        {view?.state === 'SUCCEEDED' && (
+          <div className="mx-auto mt-6 max-w-sm text-left">
+            <OrderPaymentReceipts orderId={view.orderId} />
+          </div>
         )}
 
         <div className="mt-6 flex flex-wrap justify-center gap-2">

@@ -621,6 +621,8 @@ call fails, everything below counts as off.
 | `selfRegistrationRequiresApproval` | Whether sign-up says the account will be reviewed first |
 | `recurringOrders` | The Instant Buy / Schedule Cart tabs, the schedule builder, Schedule Cart, "Scheduled orders" in the account menu, and "Schedule your Cart" on the product page |
 | `assistant` | The AI Assistant tab on the front page and the AI node in the sourcing hub |
+| `customerAutopay` | Whether the Autopay card in the sourcing hub opens `/account/autopay` or explains "Autopay is not offered on this deployment…". True only when the server settings `FEATURE_CUSTOMER_AUTOPAY` and `FEATURE_SUBSCRIPTION_AUTOPAY` are both on (both off by default) |
+| `customerErp` | Whether the ERP Integration card opens `/account/integrations/erp` or explains "Connecting your own purchasing system is not offered on this deployment…" (server setting `FEATURE_CUSTOMER_ERP`, off by default) |
 | `assistant.allowsGuests` | Whether AI Mode answers somebody who is not signed in (server setting `ASSISTANT_ALLOW_GUESTS`, off by default) |
 | `imageSearch` | The camera button on the front page search and in AI Mode |
 | `buyerCompanies` | The Individual and Company tabs on `/login`, `/register/company`, `/select-company`, "Company accounts" in the account area and menu, the "Buying for" switch and the company status bar (server setting `FEATURE_BUYER_COMPANIES`, on by default) |
@@ -682,7 +684,9 @@ browse.
      scheduling" (when switched on).
    - **The sourcing hub**: four glass cards — AI Assistant, Schedule your Cart,
      Autopay, ERP Integration. Each opens its page, or explains why it cannot
-     (switched off, or sign in first). The turning globe they surround is
+     (switched off, or sign in first). A switched-off feature shows the same
+     note to guests and customers; Autopay and ERP are off by default, so
+     their cards usually explain rather than link. The turning globe they surround is
      labelled **Gloviaa** alone — never "Gloviaa Mart", the tagline or
      "Powered by UBOSS".
 2. **Shop by category**: a rail of the departments that have stock. Opening
@@ -695,8 +699,13 @@ browse.
 4. **Products**: the catalogue, 12 at a time, with **Sort by** and page
    buttons. Then "Looking for something specific?" and **View all products**.
 
-**What happens.** **Search** opens `/products?q=…`. Typing and then pressing
-**AI Assistant** carries the words over to AI Mode. **Image search** (customers
+**What happens.** **Search** opens `/products?q=…`; it shows a spinner and
+ignores a second press until the catalogue arrives. **Products** in the row
+above the bar opens the same `/products?q=…` when words are typed, and the
+whole catalogue when the box is empty. Typing and then pressing
+**AI Assistant** carries the words over to AI Mode. On data saver or a
+connection the browser measures as 3G or slower, the 3D globe is not
+downloaded and the drawn sphere stays. **Image search** (customers
 only; a guest is asked to sign in) takes or uploads a photo and shows matching
 products.
 
@@ -2067,12 +2076,15 @@ scratch. Note the address: `/accounts/schedule`, with an **s**, next to
 
 **Purpose.** Your order history, newest first (the latest 50).
 
-**On the screen.** A row per order: number and date, how many products, a
-"Repeat purchase" badge for orders placed by a schedule, the status, and the
-Total, Paid and Refunded figures. Each row opens the order. Empty: "No orders
-yet", with **Browse products**.
+**On the screen.** A **Status** filter ("All orders" or one status), kept in
+the address as `?status=`. A row per order: number and date, how many products
+(translated, with the right plural), a "Repeat purchase" badge for orders
+placed by a schedule, the status, and the Total, Paid and Refunded figures.
+Each row opens the order. Empty: "No orders yet", with **Browse products**. A
+filter that matches nothing says "No orders with this status", with **Show all
+orders**. A status in the address that is not a real one is ignored.
 
-**API call:** `GET /api/v1/orders?limit=50`
+**API call:** `GET /api/v1/orders?limit=50`, plus `&status=…` when filtered
 
 #### `/account/orders/:id` — One order
 
@@ -3654,7 +3666,16 @@ goes.
   marketplace has not set up payouts: "Not set up yet".
 - **Statements**: per period, its status (Still open, Awaiting payout, Paid,
   On hold), the lines (sales, commission, payment processing, refunds,
-  adjustments) and **Payable to you**. **Show every line**.
+  adjustments) and **Payable to you**. **Show every line**. The period is shown
+  as the days it covers, in UTC ("1 October – 31 October", not "until 1
+  November"). Each line is labelled by its kind in the reader's language (Sale,
+  Marketplace commission, Your delivery charge, Refund, …) followed by the
+  seller order number.
+- Statements appear only when the marketplace has switched them on (server
+  setting `FEATURE_SELLER_SETTLEMENT_STATEMENTS`, off by default); a daily job
+  then closes each finished period into one statement per currency, marked
+  Awaiting payout. Otherwise the list stays empty. A statement moves no money:
+  while payouts are not set up, it stays Awaiting payout.
 - **Payouts**: reference, date, amount, status (Being prepared, On its way,
   Paid, Failed, Cancelled) and why one failed.
 
@@ -4184,6 +4205,8 @@ can act on.
   delivery problems, unreconciled payments, refused payment webhooks, failed
   scheduled deliveries, low stock, unhealthy ERP connections, failed
   notifications and dead background jobs. **View as a table** shows the rows.
+  The last two have their own screens, `/operations/dead-jobs` and
+  `/operations/failed-notifications` (below).
   Pressing a slice focuses the AI question on it; it does not open the queue.
 - **Gloviaa Mart AI Insights**: **Explain this chart** and **Ask**. If the AI
   provider cannot be reached, the answer says it was built straight from the
@@ -4195,6 +4218,37 @@ The ring refreshes every minute.
 
 - `GET /api/v1/admin/operations`
 - `POST /api/v1/admin/dashboard/insights/stream` (a live stream)
+
+#### `/operations/dead-jobs` and `/operations/failed-notifications` — Dead background jobs, Undeliverable emails
+
+| | |
+|---|---|
+| **Who** | `settings.read`. **Try again**: `settings.write` |
+| **File** | `src/pages/DeadLetterPage.tsx` |
+
+**Purpose.** The work that stopped after its last attempt, why it stopped, and
+one more attempt once the cause is fixed. These are the screens the
+dashboard's "dead background jobs" and "failed notifications" queues name. They
+are not in the navigation menu; each has a button that opens the other.
+
+**On the screen**
+
+- **Dead background jobs**: Job (its type), Status (Stopped), Attempts ("3 of
+  3"), Last error, Stopped at. The job's own data is never shown.
+- **Undeliverable emails**: Message (the event), Recipient masked to its first
+  letter and domain (for example `j•••••@hospital.example`), Attempts, Last
+  error (any address in it masked), Last attempt. The subject, body, name and
+  phone are never shown. An email to an erased person shows "Recipient erased —
+  cannot be sent" instead of a button.
+- **Try again** asks "Try this job once more?" (or "…email…"): one more attempt
+  is queued and the attempts already made are kept. If somebody else got there
+  first, or it can no longer be retried, the page says so and refreshes.
+- Empty: "No dead background jobs" / "No undeliverable emails".
+
+**API calls:** `GET /api/v1/admin/operations/dead-jobs`,
+`POST /api/v1/admin/operations/dead-jobs/:id/retry`,
+`GET /api/v1/admin/operations/failed-notifications`,
+`POST /api/v1/admin/operations/failed-notifications/:id/retry`
 
 ### 6.5 Catalogue
 
@@ -5674,18 +5728,29 @@ state and **Download** when ready.
 
 | | |
 |---|---|
-| **Who** | `audit.read` |
+| **Who** | `audit.read`. **Download CSV**: `audit.read` and `export.create` |
 | **File** | `src/pages/AuditPage.tsx` |
 | **Local screenshot** | `26-admin-audit.png` / `28-admin-audit.png` |
 
-**Purpose.** Who changed what, when and from where. Nothing on it can be
-changed.
+**Purpose.** Who changed what, in which role, when, why and from where.
+Nothing on it can be changed.
 
 **On the screen.** Filters: action, who (email), resource type. Columns: When,
-Action, By (email or "The system", and IP), Resource, **Show detail** (before
-and after), Reference (the correlation id a customer may quote).
+Action, By (email or "The system", and under it the role recorded when the
+entry was written — or "Role not recorded" for older entries), Resource,
+Reason (where the entry states one), Address and device (IP, and a summary
+such as "Chrome on Windows" with the full User-Agent on hover), **Show
+detail** (before and after), Reference (the correlation id a customer may
+quote).
 
-**API call:** `GET /api/v1/admin/audit-logs?…`
+**Download CSV** (top right, only with both permissions) saves the entries
+matching the current filters, newest first, up to 10,000, with the same fields
+as the screen. A message says how many entries the file holds, or that the
+cap cut it short and the filters should be narrowed. The download is itself
+recorded on the log as `audit.exported`.
+
+**API calls:** `GET /api/v1/admin/audit-logs?…`,
+`POST /api/v1/admin/audit-logs/export`
 
 #### `/data-requests` — Data subject requests
 
@@ -5742,7 +5807,7 @@ a test key in live mode and a mixed-up Stripe key.
 | | |
 |---|---|
 | **Who** | `integration.read` |
-| **Turned on by** | `FEATURE_CUSTOMER_ERP=true`. When off, the page says so |
+| **Turned on by** | `FEATURE_CUSTOMER_ERP`, on by default. When off, the page says so |
 | **File** | `src/pages/CustomerErpPage.tsx` |
 
 **Purpose.** Support monitoring of **customers'** own ERP connections (the
@@ -6160,15 +6225,22 @@ this company's: "You can read its history and change nothing."
 | Route | Everyone | Collection point, delivery address, distance. With the right permission, the driver's live location (checked every minute) and how old it is | — |
 | Timeline | Everyone | Every status change, who made it (Portal, Driver app, *{marketplace}* operations, Carrier API …), notes and places | — |
 | Packages | Everyone | Each package: weight, packaging, batch, collected and delivered scans | — |
-| Update status | Anyone allowed to change status, when the server offers a next step | **New status** lists only the steps the server allows for this person. Some need a **Reason** | **Update status** records it. A step that needs proof of delivery shows a warning and cannot be pressed |
+| Update status | Anyone allowed to change status, when the server offers a next step | **New status** lists only the steps the server allows for this person. Some need a **Reason** | **Update status** records it. Choosing **Delivered** replaces it with **Complete the delivery** for a role that may record proof of delivery (partner owner, admin, driver); anyone else is told to ask an administrator at their company |
+| Complete the delivery (dialog) | Roles with `logistics.pod.write` | What this shipment's service level asks for, marked \*: who took it (by default), their role, a signature image, a photograph; plus **Company stamp** and **Anything worth noting** | Pictures only, up to 10 MB. Recording it uploads the pictures to the shipment's documents, records the proof and marks the shipment delivered in one go: "Delivered. Thank you." A refused field shows its error beside it. Trying again after a failure does not upload the pictures twice. If the service level needs a delivery code, the dialog also shows whether a code has been sent to the person receiving it and until when it works, asks for the **Delivery code** (six digits they read out), and offers **Send the code** / **Send a new code** (one a minute, five a day; after that it says no more can be sent today). A wrong code, or one that can no longer be used, shows its message on the code field. The code itself is never shown. If there is nobody to send a code to, the dialog says so and the button is disabled |
 | Who has carried this | People who can see shipments (not drivers) | The current driver and vehicle, and the history | With the assign permission: **Assign** or **Move** to a driver (and vehicle), **Take off, no replacement** (asks why), and a quick **Send on the way** button |
 | Handling | Everyone | References, packages, weight, collection time, estimated delivery, temperature, contents, time left | — |
 | Contacts | Everyone | Pickup, delivery and driver contacts. A hidden number says so | Tap a visible number to call |
 | Documents | Can see documents | File names and types | — (read-only) |
 
-**Not on this screen yet:** capturing proof of delivery, raising an
-exception, and uploading a document. The server supports them; the page has
-no form for them. So **Delivered** cannot be recorded from the portal today.
+**Not on this screen yet:** raising an exception, and uploading a document on
+its own. The server supports them; the page has no form for them.
+
+**Drivers** open this page from their own round (**My tasks**), and only for a
+stop assigned to them — including one they have just completed, which then
+shows read-only. Any other shipment answers "not found". They see the facts,
+timeline and the update and delivery controls; contact details stay masked
+here (the real number is on their task list), and the documents and driver
+cards stay hidden because the role cannot read them.
 
 **API calls**
 
@@ -6180,6 +6252,9 @@ no form for them. So **Delivered** cannot be recorded from the portal today.
 - `POST /api/v1/logistics/shipments/:id/accept`
 - `POST /api/v1/logistics/shipments/:id/reject`
 - `POST /api/v1/logistics/shipments/:id/status-events`
+- `POST /api/v1/logistics/shipments/:id/documents` (the proof-of-delivery pictures)
+- `POST /api/v1/logistics/shipments/:id/proof-of-delivery` (records the proof and marks it delivered)
+- `POST /api/v1/logistics/shipments/:id/delivery-code` (emails the person receiving it a new delivery code)
 - `POST /api/v1/logistics/shipments/:id/assign-driver`
 - `POST /api/v1/logistics/shipments/:id/unassign-driver`
 - `GET /api/v1/logistics/drivers`, `GET /api/v1/logistics/vehicles`
@@ -6735,10 +6810,13 @@ flowchart TD
   Problem -->|"No"| Deliver["Delivered: needs proof of delivery"]
 ```
 
-Two things the portal cannot do yet, and the flow above does not pretend it
-can: there is no form to record **proof of delivery**, so "Delivered" cannot
-be pressed from the portal; and there is no button to **raise** an exception
-by itself (a problem is recorded by choosing a problem status).
+**Delivered** is recorded with **Complete the delivery** on the shipment page,
+which captures the proof of delivery. Where the service level needs a
+**delivery code**, the person receiving it was emailed one when the van left;
+the driver types the code they read out, and can send a new one from the
+dialog. One thing the portal cannot do yet, and the flow above does not pretend
+it can: there is no button to **raise** an exception by itself (a problem is
+recorded by choosing a problem status).
 
 **A driver's day**
 

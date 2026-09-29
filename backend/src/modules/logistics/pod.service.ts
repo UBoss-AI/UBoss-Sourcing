@@ -21,23 +21,28 @@
  *     at it. A signature inline in JSON is a signature in a browser cache, in
  *     a proxy log and in anybody's developer tools.
  *
- * THE OTP
+ * THE DELIVERY CODE (OTP)
  *
- * Delivered to the recipient by EMAIL, because this deployment has no SMS
- * driver - the same honest compromise `users.pendingPhone` already documents.
- * That proves control of the account the order was placed from, which is what
- * stops a parcel being signed for by whoever happens to be in the corridor. It
- * does not prove control of a telephone. Wiring an SMS provider is what
- * upgrades it, and the only thing that changes is where the code is sent.
+ * Sent to the BUYER by email - automatically when the consignment goes out for
+ * delivery, and again on request from the portal - and read out by them at the
+ * door. Issuing, limits and checking all live in `delivery-code.service.ts`;
+ * this file only asks it whether the code the driver typed is the live one,
+ * and asks it to send a new one. See that file for what an emailed code does
+ * and does not prove.
  */
-import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
+import { AppError, ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { LogisticsPermission } from '../../domain/logistics-permissions.js';
 import type { ShipmentStatusName } from '../../domain/logistics-shipment-state.js';
-import { safeCompare, sha256Hex } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { recordLogisticsAudit } from './audit.service.js';
 import { completeAssignmentsFor } from './assignment.service.js';
+import {
+  checkAndSpendDeliveryCode,
+  readDeliveryCodeState,
+  sendDeliveryCode,
+  type DeliveryCodeState,
+} from './delivery-code.service.js';
 import { recordShipmentEvent } from './shipment-event.service.js';
 import { assertShipmentAccess } from './shipment.service.js';
 import {
@@ -135,16 +140,24 @@ export async function captureProofOfDelivery(
 ): Promise<CapturedPod> {
   assertLogisticsPermission(membership, LogisticsPermission.POD_WRITE);
 
-  const access = await assertShipmentAccess(membership, input.shipmentId, 'WRITE');
+  // The duplicate check comes BEFORE write access, and it is still tenant
+  // scoped (READ loads only this carrier's own shipments). A successful
+  // capture completes the assignment, so write access ends at the very moment
+  // the proof is recorded; checked the other way round, the phone that retries
+  // after a lost response was told "no longer assigned to your company" - that
+  // the delivery it had just completed had failed.
+  const seen = await assertShipmentAccess(membership, input.shipmentId, 'READ');
 
   const existing = await prisma.logisticsProofOfDelivery.findUnique({
-    where: { shipmentId: access.shipmentId },
+    where: { shipmentId: seen.shipmentId },
     select: { id: true },
   });
 
   if (existing !== null) {
-    return { podId: existing.id, status: access.status, duplicate: true };
+    return { podId: existing.id, status: seen.status, duplicate: true };
   }
+
+  const access = await assertShipmentAccess(membership, input.shipmentId, 'WRITE');
 
   const policy = await readPodPolicy(access.shipmentId);
   const failures: { field: string; code: string }[] = [];
@@ -171,25 +184,30 @@ export async function captureProofOfDelivery(
     );
   }
 
-  let otpVerified = false;
-
-  if (policy.requiresOtp) {
-    otpVerified = await consumeDeliveryOtp(access.shipmentId, input.otp ?? '');
-    if (!otpVerified) {
-      throw conflict(
-        ErrorCode.SHIPMENT_OTP_INVALID,
-        'That delivery code is not right, or it has expired. Ask the recipient for the current one.',
-      );
-    }
-  }
-
   // Both documents must belong to THIS consignment. A driver supplying a
   // signature id from another delivery would otherwise attach somebody else's
-  // handwriting as proof of this one.
+  // handwriting as proof of this one. Checked BEFORE the code is spent: a
+  // refusal here must not burn the code the recipient just read out.
   await assertDocumentsBelong(access.shipmentId, [
     input.signatureDocumentId,
     input.photoDocumentId,
   ]);
+
+  let otpVerified = false;
+
+  if (policy.requiresOtp) {
+    const check = await checkAndSpendDeliveryCode(access.shipmentId, input.otp);
+    if (check !== 'OK') {
+      throw conflict(
+        ErrorCode.SHIPMENT_OTP_INVALID,
+        check === 'NOT_SENT' || check === 'TOO_MANY_ATTEMPTS' || check === 'EXPIRED'
+          ? 'That delivery code can no longer be used. Send the recipient a new one.'
+          : 'That delivery code is not right, or it has expired. Ask the recipient for the current one.',
+        [{ field: 'otp', code: check }],
+      );
+    }
+    otpVerified = true;
+  }
 
   const podId = newId();
   const deliveredAt = input.deliveredAt ?? new Date();
@@ -296,112 +314,90 @@ async function assertDocumentsBelong(
 // ---------------------------------------------------------------------------
 
 /**
- * Six digits, valid for the delivery window.
+ * Send the recipient a new delivery code, from the portal.
  *
- * Stored as a SHA-256 on the shared `AuthToken` table, scoped to the
- * consignment. Reusing that table rather than adding a sixth token store means
- * the existing expiry sweep and single-use enforcement apply for free.
+ * For the driver at the door whose recipient cannot find the email, or whose
+ * code expired or was killed by wrong guesses. Refused unless:
  *
- * The recipient's own user account is the subject, so the code is delivered to
- * the address the order was placed from - see the note at the top of this file
- * about what that does and does not prove.
+ *   - the caller may capture a proof of delivery (the same key that uses the
+ *     code), and has WRITE access to the consignment - for a driver, that
+ *     means it is on their own live round;
+ *   - the consignment is out for delivery, or a delivery was attempted - the
+ *     two statuses from which DELIVERED is reachable;
+ *   - its policy asks for a code at all, and there is somebody to send it to;
+ *   - the limits in `delivery-code.service.ts` allow another one.
+ *
+ * The response says when the code was sent and when it stops working. It
+ * never contains the code or where it went.
  */
-const OTP_TTL_MINUTES = 240;
+export async function requestDeliveryCode(
+  membership: LogisticsMembership,
+  shipmentId: string,
+  correlationId?: string | null,
+): Promise<{ sentAt: Date; expiresAt: Date; deliveryCode: DeliveryCodeState }> {
+  assertLogisticsPermission(membership, LogisticsPermission.POD_WRITE);
 
-function otpHash(shipmentId: string, code: string): string {
-  return sha256Hex(`logistics-pod-otp:${shipmentId}:${code}`);
-}
+  const access = await assertShipmentAccess(membership, shipmentId, 'WRITE');
 
-export async function issueDeliveryOtp(shipmentId: string): Promise<{ code: string } | null> {
-  const shipment = await prisma.logisticsShipment.findUnique({
-    where: { id: shipmentId },
-    select: { receivingCustomerProfileId: true },
+  if (access.status !== 'OUT_FOR_DELIVERY' && access.status !== 'DELIVERY_ATTEMPTED') {
+    throw conflict(
+      ErrorCode.SHIPMENT_OTP_UNAVAILABLE,
+      'A delivery code can only be sent while the shipment is out for delivery.',
+      [{ code: 'NOT_OUT_FOR_DELIVERY', meta: { status: access.status } }],
+    );
+  }
+
+  const result = await sendDeliveryCode(access.shipmentId, {
+    origin: 'REQUESTED',
+    requestedBy: { userId: membership.userId, label: membership.fullName },
+    correlationId: correlationId ?? null,
   });
 
-  /*
-   * Two reads rather than a join, and the reason is the schema.
-   *
-   * `receivingCustomerProfileId` is stored as a bare id with no Prisma
-   * relation, deliberately: it is the OPERATOR's link back to the buyer and is
-   * never selected on a path a carrier can reach. Declaring a relation would
-   * put `shipment.receivingCustomerProfile` one autocomplete away from every
-   * query in the logistics module, and the first person who used it would ship
-   * a buyer's account to a courier.
-   */
-  const profileId = shipment?.receivingCustomerProfileId ?? null;
-  if (profileId === null) return null;
-
-  const profile = await prisma.customerProfile.findUnique({
-    where: { id: profileId },
-    select: { userId: true },
-  });
-
-  // No account behind the consignment means nowhere to send a code - a manual
-  // movement, or an order imported without a buyer. The caller's policy check
-  // then refuses the delivery rather than accepting an unverified one, which
-  // is the safe direction.
-  const userId = profile?.userId ?? null;
-  if (userId === null) return null;
-
-  // Six digits, uniformly distributed. `Math.random` is deliberately not used:
-  // this is a credential, however short-lived.
-  const code = String(100000 + (cryptoInt() % 900000));
-
-  await prisma.authToken.create({
-    data: {
-      id: newId(),
-      userId,
-      type: 'EMAIL_VERIFICATION',
-      tokenHash: otpHash(shipmentId, code),
-      expiresAt: new Date(Date.now() + OTP_TTL_MINUTES * 60_000),
-    },
-  });
-
-  return { code };
-}
-
-function cryptoInt(): number {
-  // A single unsigned 32-bit draw, which is plenty for six digits and avoids
-  // pulling in a second random source.
-  const buffer = new Uint32Array(1);
-  globalThis.crypto.getRandomValues(buffer);
-  return buffer[0] ?? 0;
+  switch (result.kind) {
+    case 'SENT':
+      return {
+        sentAt: result.sentAt,
+        expiresAt: result.expiresAt,
+        deliveryCode: await readDeliveryCodeState(access.shipmentId),
+      };
+    case 'NOT_REQUIRED':
+      throw conflict(
+        ErrorCode.SHIPMENT_OTP_UNAVAILABLE,
+        'This delivery does not need a delivery code.',
+        [{ code: 'NOT_REQUIRED' }],
+      );
+    case 'NO_RECIPIENT':
+      throw conflict(
+        ErrorCode.SHIPMENT_OTP_UNAVAILABLE,
+        'There is no account to send a delivery code to, so this delivery cannot be completed here.',
+        [{ code: 'NO_RECIPIENT' }],
+      );
+    case 'TOO_SOON':
+      throw new AppError({
+        statusCode: 429,
+        code: ErrorCode.SHIPMENT_OTP_RESEND_LIMITED,
+        message: 'A code was sent a moment ago. Wait a minute before sending another.',
+        details: [{ code: 'TOO_SOON', meta: { retryAt: result.retryAt.toISOString() } }],
+      });
+    case 'DAILY_LIMIT_REACHED':
+      throw new AppError({
+        statusCode: 429,
+        code: ErrorCode.SHIPMENT_OTP_RESEND_LIMITED,
+        message: 'No more delivery codes can be sent for this shipment today.',
+        details: [{ code: 'DAILY_LIMIT_REACHED' }],
+      });
+  }
 }
 
 /**
- * Check the code the recipient read out, and spend it.
- *
- * Constant-time comparison of the HASHES rather than of the codes, and a
- * conditional update to spend it, so two drivers racing the same code produce
- * one accepted delivery. Returns false rather than throwing, because the
- * caller turns it into a POD-shaped refusal with the right wording.
+ * What the portal may know about this consignment's code, or null where its
+ * policy asks for none. Takes a shipment id the caller has already authorised.
  */
-async function consumeDeliveryOtp(shipmentId: string, supplied: string): Promise<boolean> {
-  const digits = supplied.replace(/\D/g, '');
-  if (digits.length !== 6) return false;
-
-  const hash = otpHash(shipmentId, digits);
-
-  const record = await prisma.authToken.findUnique({
-    where: { tokenHash: hash },
-    select: { id: true, tokenHash: true, expiresAt: true, consumedAt: true },
-  });
-
-  if (
-    record === null ||
-    record.consumedAt !== null ||
-    record.expiresAt.getTime() <= Date.now() ||
-    !safeCompare(record.tokenHash, hash)
-  ) {
-    return false;
-  }
-
-  const spent = await prisma.authToken.updateMany({
-    where: { id: record.id, consumedAt: null },
-    data: { consumedAt: new Date() },
-  });
-
-  return spent.count === 1;
+export async function readDeliveryCodeFor(
+  shipmentId: string,
+  policy: PodPolicy,
+): Promise<DeliveryCodeState | null> {
+  return policy.requiresOtp ? readDeliveryCodeState(shipmentId) : null;
 }
 
 export interface PodView {

@@ -1,0 +1,77 @@
+# =============================================================================
+# MariaDB data-at-rest encryption for UBOSS.
+#
+#   sudo deploy/scripts/mariadb-encryption-keys.sh       # once: makes the keys
+#   sudo cp deploy/mariadb/uboss-encryption.cnf /etc/mysql/mariadb.conf.d/99-uboss-encryption.cnf
+#   sudo systemctl restart mariadb
+#   # then set DATABASE_ENCRYPTION_AT_REST=innodb for the API
+#
+# A separate drop-in from uboss.cnf on purpose: it cannot be half-applied by
+# somebody copying the tuning file, and it cannot be removed without somebody
+# noticing that the API then refuses to start (backend/src/infra/
+# database-encryption.ts checks innodb_encrypt_tables and innodb_encrypt_log
+# at start-up whenever DATABASE_ENCRYPTION_AT_REST=innodb).
+#
+# WHAT THIS ENCRYPTS
+#
+#   every InnoDB table and index    innodb_encrypt_tables = FORCE
+#   the redo log                    innodb_encrypt_log
+#   temporary tables                innodb_encrypt_temporary_tables
+#   the binary log                  encrypt_binlog (point-in-time recovery data
+#                                   is a full copy of every change - customer
+#                                   names, addresses, amounts)
+#   temporary files and Aria tmp    encrypt_tmp_files, encrypt_tmp_disk_tables
+#
+# WHAT IT DOES NOT
+#
+#   - The disk as a whole, swap, /var/log/mysql's slow and error logs, or the
+#     nightly dumps. The dumps are encrypted by deploy/scripts/backup.sh; the
+#     disk is encrypted by the operator (LUKS on the data volume, or the cloud
+#     provider's volume encryption) - docs/DEPLOYMENT.md "Encryption at rest".
+#   - Somebody who can read the key file. The keys sit on the same machine as
+#     the data, so this protects a stolen disk, a leaked volume snapshot, a
+#     discarded drive and a copied data directory - not a root compromise of the
+#     running server. Keeping the key-encryption key off the data volume (the
+#     filekey below) is what makes a snapshot of the data volume useless on its
+#     own.
+#
+# TESTED ON: MariaDB 11.8.6 (Ubuntu 26.04, WSL) on 2026-09-29, with a plaintext
+# marker verified absent from the .ibd, redo log and binary log - see
+# verification-evidence/pass2/encryption-at-rest.md. The same variables exist
+# in 11.4 LTS, the production target.
+#
+# KEY ROTATION: the file_key_management plugin does not support key versions,
+# so `innodb_encryption_rotate_key_age` cannot rotate its keys in place. To
+# rotate, add a key with a new id, point `ENCRYPTION_KEY_ID` of the tables at it
+# (ALTER TABLE ... ENCRYPTION_KEY_ID=2) - or use a KMS-backed plugin
+# (aws_key_management, hashicorp_key_management) which versions keys and lets
+# the background threads re-encrypt. docs/DEPLOYMENT.md has both.
+# =============================================================================
+
+[mariadb]
+
+# --- Where the keys come from ----------------------------------------------
+plugin_load_add = file_key_management
+# `<id>;<64 hex characters>` per line, itself encrypted with the filekey.
+file_key_management_filename = /etc/mysql/encryption/keyfile.enc
+# The key that decrypts the key file. On a DIFFERENT volume from the data
+# directory - see "WHAT IT DOES NOT" above. Readable by mysql only.
+file_key_management_filekey = FILE:/etc/mysql/encryption/keyfile.key
+file_key_management_encryption_algorithm = AES_CTR
+
+# --- InnoDB ------------------------------------------------------------------
+# FORCE, not ON: a CREATE TABLE ... ENCRYPTED=NO is refused, so a migration
+# cannot create an unencrypted table by accident.
+innodb_encrypt_tables = FORCE
+innodb_encrypt_log = ON
+innodb_encrypt_temporary_tables = ON
+# Background threads that encrypt the tablespaces that existed before this file
+# was installed. Four is plenty for this schema; the work is done once.
+innodb_encryption_threads = 4
+innodb_encryption_rotate_key_age = 1
+
+# --- Everything else that writes table data to disk --------------------------
+encrypt_binlog = ON
+encrypt_tmp_disk_tables = ON
+encrypt_tmp_files = ON
+aria_encrypt_tables = ON

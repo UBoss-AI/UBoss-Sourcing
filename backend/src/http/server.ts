@@ -12,6 +12,9 @@ import { queue } from '../infra/queue/index.js';
 import { assertCurrencyTableMatchesMoneyModule } from '../modules/settings/currency.service.js';
 import { buildApp } from './app.js';
 import { warmAssistant } from '../modules/assistant/assistant.service.js';
+import { assertDatabaseEncryptionAtRest } from '../infra/database-encryption.js';
+import { reportSecretAges } from '../infra/secret-age.js';
+import { keyringSummary } from '../infra/crypto.js';
 
 const SHUTDOWN_TIMEOUT_MS = 15_000;
 
@@ -21,6 +24,10 @@ async function main(): Promise<void> {
   // factor of ten or a hundred, so it is a refuse-to-start condition in the
   // same spirit as the live-Razorpay-key guard.
   await assertCurrencyTableMatchesMoneyModule();
+
+  // Encryption at rest is configuration, and a configuration that claims it
+  // while the server does not is a refuse-to-start condition. See the module.
+  await assertDatabaseEncryptionAtRest();
 
   const app = await buildApp();
 
@@ -34,6 +41,9 @@ async function main(): Promise<void> {
       queueDriver: env.QUEUE_DRIVER,
       storageDriver: env.STORAGE_DRIVER,
       emailDriver: env.EMAIL_DRIVER,
+      secretsKeyProvider: keyringSummary().provider,
+      previousSecretsKeys: keyringSummary().previousKeys,
+      objectEncryption: env.STORAGE_DRIVER === 's3' ? env.S3_SSE || 'none' : 'n/a',
     },
     'UBOSS API listening',
   );
@@ -42,6 +52,10 @@ async function main(): Promise<void> {
   // the first visitor to open the chat panel does not wait for it. Awaited but
   // never fatal — see warmAssistant.
   await warmAssistant();
+
+  // How long each application secret has been in use: a metric, and a warning
+  // for anything past SECRET_MAX_AGE_DAYS. Never fatal - see the module.
+  await reportSecretAges();
 
   let shuttingDown = false;
 

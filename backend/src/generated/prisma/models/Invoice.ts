@@ -62,6 +62,7 @@ export type InvoiceMinAggregateOutputType = {
   grandTotalMinor: bigint | null
   creditsInvoiceId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type InvoiceMaxAggregateOutputType = {
@@ -84,6 +85,7 @@ export type InvoiceMaxAggregateOutputType = {
   grandTotalMinor: bigint | null
   creditsInvoiceId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type InvoiceCountAggregateOutputType = {
@@ -110,6 +112,7 @@ export type InvoiceCountAggregateOutputType = {
   grandTotalMinor: number
   creditsInvoiceId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -150,6 +153,7 @@ export type InvoiceMinAggregateInputType = {
   grandTotalMinor?: true
   creditsInvoiceId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type InvoiceMaxAggregateInputType = {
@@ -172,6 +176,7 @@ export type InvoiceMaxAggregateInputType = {
   grandTotalMinor?: true
   creditsInvoiceId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type InvoiceCountAggregateInputType = {
@@ -198,6 +203,7 @@ export type InvoiceCountAggregateInputType = {
   grandTotalMinor?: true
   creditsInvoiceId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -311,6 +317,7 @@ export type InvoiceGroupByOutputType = {
   grandTotalMinor: bigint
   creditsInvoiceId: string | null
   createdAt: Date
+  updatedAt: Date
   _count: InvoiceCountAggregateOutputType | null
   _avg: InvoiceAvgAggregateOutputType | null
   _sum: InvoiceSumAggregateOutputType | null
@@ -360,6 +367,7 @@ export type InvoiceWhereInput = {
   grandTotalMinor?: Prisma.BigIntFilter<"Invoice"> | bigint | number
   creditsInvoiceId?: Prisma.StringNullableFilter<"Invoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   creditsInvoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
   creditedBy?: Prisma.InvoiceListRelationFilter
@@ -389,6 +397,7 @@ export type InvoiceOrderByWithRelationInput = {
   grandTotalMinor?: Prisma.SortOrder
   creditsInvoiceId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   order?: Prisma.OrderOrderByWithRelationInput
   creditsInvoice?: Prisma.InvoiceOrderByWithRelationInput
   creditedBy?: Prisma.InvoiceOrderByRelationAggregateInput
@@ -422,6 +431,7 @@ export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
   grandTotalMinor?: Prisma.BigIntFilter<"Invoice"> | bigint | number
   creditsInvoiceId?: Prisma.StringNullableFilter<"Invoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   creditsInvoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
   creditedBy?: Prisma.InvoiceListRelationFilter
@@ -451,6 +461,7 @@ export type InvoiceOrderByWithAggregationInput = {
   grandTotalMinor?: Prisma.SortOrder
   creditsInvoiceId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.InvoiceCountOrderByAggregateInput
   _avg?: Prisma.InvoiceAvgOrderByAggregateInput
   _max?: Prisma.InvoiceMaxOrderByAggregateInput
@@ -485,6 +496,7 @@ export type InvoiceScalarWhereWithAggregatesInput = {
   grandTotalMinor?: Prisma.BigIntWithAggregatesFilter<"Invoice"> | bigint | number
   creditsInvoiceId?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Invoice"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Invoice"> | Date | string
 }
 
 export type InvoiceCreateInput = {
@@ -509,6 +521,7 @@ export type InvoiceCreateInput = {
   shippingMinor?: bigint | number
   grandTotalMinor: bigint | number
   createdAt?: Date | string
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutInvoicesInput
   creditsInvoice?: Prisma.InvoiceCreateNestedOneWithoutCreditedByInput
   creditedBy?: Prisma.InvoiceCreateNestedManyWithoutCreditsInvoiceInput
@@ -538,6 +551,7 @@ export type InvoiceUncheckedCreateInput = {
   grandTotalMinor: bigint | number
   creditsInvoiceId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   creditedBy?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreditsInvoiceInput
 }
 
@@ -563,6 +577,7 @@ export type InvoiceUpdateInput = {
   shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutInvoicesNestedInput
   creditsInvoice?: Prisma.InvoiceUpdateOneWithoutCreditedByNestedInput
   creditedBy?: Prisma.InvoiceUpdateManyWithoutCreditsInvoiceNestedInput
@@ -592,6 +607,7 @@ export type InvoiceUncheckedUpdateInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   creditsInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creditedBy?: Prisma.InvoiceUncheckedUpdateManyWithoutCreditsInvoiceNestedInput
 }
 
@@ -619,6 +635,7 @@ export type InvoiceCreateManyInput = {
   grandTotalMinor: bigint | number
   creditsInvoiceId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InvoiceUpdateManyMutationInput = {
@@ -643,6 +660,7 @@ export type InvoiceUpdateManyMutationInput = {
   shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InvoiceUncheckedUpdateManyInput = {
@@ -669,6 +687,7 @@ export type InvoiceUncheckedUpdateManyInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   creditsInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InvoiceListRelationFilter = {
@@ -716,6 +735,7 @@ export type InvoiceCountOrderByAggregateInput = {
   grandTotalMinor?: Prisma.SortOrder
   creditsInvoiceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InvoiceAvgOrderByAggregateInput = {
@@ -746,6 +766,7 @@ export type InvoiceMaxOrderByAggregateInput = {
   grandTotalMinor?: Prisma.SortOrder
   creditsInvoiceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InvoiceMinOrderByAggregateInput = {
@@ -768,6 +789,7 @@ export type InvoiceMinOrderByAggregateInput = {
   grandTotalMinor?: Prisma.SortOrder
   creditsInvoiceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InvoiceSumOrderByAggregateInput = {
@@ -900,6 +922,7 @@ export type InvoiceCreateWithoutOrderInput = {
   shippingMinor?: bigint | number
   grandTotalMinor: bigint | number
   createdAt?: Date | string
+  updatedAt?: Date | string
   creditsInvoice?: Prisma.InvoiceCreateNestedOneWithoutCreditedByInput
   creditedBy?: Prisma.InvoiceCreateNestedManyWithoutCreditsInvoiceInput
 }
@@ -927,6 +950,7 @@ export type InvoiceUncheckedCreateWithoutOrderInput = {
   grandTotalMinor: bigint | number
   creditsInvoiceId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   creditedBy?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreditsInvoiceInput
 }
 
@@ -983,6 +1007,7 @@ export type InvoiceScalarWhereInput = {
   grandTotalMinor?: Prisma.BigIntFilter<"Invoice"> | bigint | number
   creditsInvoiceId?: Prisma.StringNullableFilter<"Invoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
 }
 
 export type InvoiceCreateWithoutCreditedByInput = {
@@ -1007,6 +1032,7 @@ export type InvoiceCreateWithoutCreditedByInput = {
   shippingMinor?: bigint | number
   grandTotalMinor: bigint | number
   createdAt?: Date | string
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutInvoicesInput
   creditsInvoice?: Prisma.InvoiceCreateNestedOneWithoutCreditedByInput
 }
@@ -1035,6 +1061,7 @@ export type InvoiceUncheckedCreateWithoutCreditedByInput = {
   grandTotalMinor: bigint | number
   creditsInvoiceId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InvoiceCreateOrConnectWithoutCreditedByInput = {
@@ -1064,6 +1091,7 @@ export type InvoiceCreateWithoutCreditsInvoiceInput = {
   shippingMinor?: bigint | number
   grandTotalMinor: bigint | number
   createdAt?: Date | string
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutInvoicesInput
   creditedBy?: Prisma.InvoiceCreateNestedManyWithoutCreditsInvoiceInput
 }
@@ -1091,6 +1119,7 @@ export type InvoiceUncheckedCreateWithoutCreditsInvoiceInput = {
   shippingMinor?: bigint | number
   grandTotalMinor: bigint | number
   createdAt?: Date | string
+  updatedAt?: Date | string
   creditedBy?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCreditsInvoiceInput
 }
 
@@ -1137,6 +1166,7 @@ export type InvoiceUpdateWithoutCreditedByInput = {
   shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutInvoicesNestedInput
   creditsInvoice?: Prisma.InvoiceUpdateOneWithoutCreditedByNestedInput
 }
@@ -1165,6 +1195,7 @@ export type InvoiceUncheckedUpdateWithoutCreditedByInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   creditsInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InvoiceUpsertWithWhereUniqueWithoutCreditsInvoiceInput = {
@@ -1206,6 +1237,7 @@ export type InvoiceCreateManyOrderInput = {
   grandTotalMinor: bigint | number
   creditsInvoiceId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InvoiceUpdateWithoutOrderInput = {
@@ -1230,6 +1262,7 @@ export type InvoiceUpdateWithoutOrderInput = {
   shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creditsInvoice?: Prisma.InvoiceUpdateOneWithoutCreditedByNestedInput
   creditedBy?: Prisma.InvoiceUpdateManyWithoutCreditsInvoiceNestedInput
 }
@@ -1257,6 +1290,7 @@ export type InvoiceUncheckedUpdateWithoutOrderInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   creditsInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creditedBy?: Prisma.InvoiceUncheckedUpdateManyWithoutCreditsInvoiceNestedInput
 }
 
@@ -1283,6 +1317,7 @@ export type InvoiceUncheckedUpdateManyWithoutOrderInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   creditsInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InvoiceCreateManyCreditsInvoiceInput = {
@@ -1308,6 +1343,7 @@ export type InvoiceCreateManyCreditsInvoiceInput = {
   shippingMinor?: bigint | number
   grandTotalMinor: bigint | number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InvoiceUpdateWithoutCreditsInvoiceInput = {
@@ -1332,6 +1368,7 @@ export type InvoiceUpdateWithoutCreditsInvoiceInput = {
   shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutInvoicesNestedInput
   creditedBy?: Prisma.InvoiceUpdateManyWithoutCreditsInvoiceNestedInput
 }
@@ -1359,6 +1396,7 @@ export type InvoiceUncheckedUpdateWithoutCreditsInvoiceInput = {
   shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creditedBy?: Prisma.InvoiceUncheckedUpdateManyWithoutCreditsInvoiceNestedInput
 }
 
@@ -1385,6 +1423,7 @@ export type InvoiceUncheckedUpdateManyWithoutCreditsInvoiceInput = {
   shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1442,6 +1481,7 @@ export type InvoiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   grandTotalMinor?: boolean
   creditsInvoiceId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   creditsInvoice?: boolean | Prisma.Invoice$creditsInvoiceArgs<ExtArgs>
   creditedBy?: boolean | Prisma.Invoice$creditedByArgs<ExtArgs>
@@ -1474,9 +1514,10 @@ export type InvoiceSelectScalar = {
   grandTotalMinor?: boolean
   creditsInvoiceId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type InvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "number" | "series" | "orderId" | "issuedAt" | "suppliedAt" | "sellerJson" | "buyerJson" | "sellerVatNumber" | "buyerVatNumber" | "taxTreatment" | "taxCountry" | "exemptionNote" | "currency" | "linesJson" | "vatBreakdownJson" | "subtotalMinor" | "discountMinor" | "taxMinor" | "shippingMinor" | "grandTotalMinor" | "creditsInvoiceId" | "createdAt", ExtArgs["result"]["invoice"]>
+export type InvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "number" | "series" | "orderId" | "issuedAt" | "suppliedAt" | "sellerJson" | "buyerJson" | "sellerVatNumber" | "buyerVatNumber" | "taxTreatment" | "taxCountry" | "exemptionNote" | "currency" | "linesJson" | "vatBreakdownJson" | "subtotalMinor" | "discountMinor" | "taxMinor" | "shippingMinor" | "grandTotalMinor" | "creditsInvoiceId" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
 export type InvoiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   creditsInvoice?: boolean | Prisma.Invoice$creditsInvoiceArgs<ExtArgs>
@@ -1563,6 +1604,7 @@ export type $InvoicePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      */
     creditsInvoiceId: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["invoice"]>
   composites: {}
 }
@@ -1958,6 +2000,7 @@ export interface InvoiceFieldRefs {
   readonly grandTotalMinor: Prisma.FieldRef<"Invoice", 'BigInt'>
   readonly creditsInvoiceId: Prisma.FieldRef<"Invoice", 'String'>
   readonly createdAt: Prisma.FieldRef<"Invoice", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Invoice", 'DateTime'>
 }
     
 

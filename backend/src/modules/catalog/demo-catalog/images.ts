@@ -241,6 +241,17 @@ const UNSPLASH_SEARCH = 'https://api.unsplash.com/search/photos';
 /** Bounded exponential backoff. Never indefinite - a seed must terminate. */
 const MAX_ATTEMPTS = 3;
 
+/**
+ * One Unsplash call, body included. Exported for the timeout test.
+ *
+ * Without it a search that connected and then went quiet would hang the seed
+ * on one product for as long as the socket stayed open - the backoff above
+ * only counts attempts, it cannot end one. Ten seconds is generous for a JSON
+ * search answer; a timed-out attempt is retried like a failed connection, and
+ * after the last one the product falls back to the verified library.
+ */
+export const UNSPLASH_TIMEOUT_MS = 10_000;
+
 async function pause(milliseconds: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
@@ -294,7 +305,13 @@ async function searchUnsplash(query: string): Promise<ResolvedImage | null> {
   url.searchParams.set('order_by', 'relevant');
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      controller.abort();
+    }, UNSPLASH_TIMEOUT_MS);
+
     let response: Response;
+    let body: UnsplashSearchResponse | null = null;
     try {
       response = await fetch(url, {
         headers: {
@@ -303,17 +320,31 @@ async function searchUnsplash(query: string): Promise<ResolvedImage | null> {
           'Accept-Version': 'v1',
           Authorization: `Client-ID ${key}`,
         },
+        signal: controller.signal,
       });
+
+      // Read inside the same deadline: a server that sends its headers and
+      // then stalls the body is the hang the timer exists for.
+      if (response.ok) body = (await response.json()) as UnsplashSearchResponse;
     } catch (error) {
       // The error can carry the request, and the request carries the key.
       // Logged as a shape rather than as itself.
       logger.warn(
-        { attempt, reason: error instanceof Error ? error.name : 'unknown' },
-        'unsplash search failed to connect',
+        {
+          attempt,
+          reason: controller.signal.aborted
+            ? 'timeout'
+            : error instanceof Error
+              ? error.name
+              : 'unknown',
+        },
+        'unsplash search failed',
       );
       if (attempt === MAX_ATTEMPTS) return null;
       await pause(500 * 2 ** (attempt - 1));
       continue;
+    } finally {
+      clearTimeout(timer);
     }
 
     // 403 is how Unsplash says "you are out of requests this hour". Retrying
@@ -338,8 +369,7 @@ async function searchUnsplash(query: string): Promise<ResolvedImage | null> {
       return null;
     }
 
-    const body = (await response.json()) as UnsplashSearchResponse;
-    const results = body.results ?? [];
+    const results = body?.results ?? [];
 
     const chosen = results.find((photo) => looksRelevant(photo, query));
     if (chosen === undefined) return null;
@@ -364,6 +394,7 @@ async function searchUnsplash(query: string): Promise<ResolvedImage | null> {
     if (download !== undefined) {
       void fetch(download, {
         headers: { 'Accept-Version': 'v1', Authorization: `Client-ID ${key}` },
+        signal: AbortSignal.timeout(UNSPLASH_TIMEOUT_MS),
       }).catch(() => undefined);
     }
 

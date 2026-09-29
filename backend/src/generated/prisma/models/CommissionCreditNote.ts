@@ -80,6 +80,7 @@ export type CommissionCreditNoteMinAggregateOutputType = {
   amountInWords: string | null
   issuedByUserId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CommissionCreditNoteMaxAggregateOutputType = {
@@ -109,6 +110,7 @@ export type CommissionCreditNoteMaxAggregateOutputType = {
   amountInWords: string | null
   issuedByUserId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CommissionCreditNoteCountAggregateOutputType = {
@@ -139,6 +141,7 @@ export type CommissionCreditNoteCountAggregateOutputType = {
   linesJson: number
   issuedByUserId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -194,6 +197,7 @@ export type CommissionCreditNoteMinAggregateInputType = {
   amountInWords?: true
   issuedByUserId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type CommissionCreditNoteMaxAggregateInputType = {
@@ -223,6 +227,7 @@ export type CommissionCreditNoteMaxAggregateInputType = {
   amountInWords?: true
   issuedByUserId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type CommissionCreditNoteCountAggregateInputType = {
@@ -253,6 +258,7 @@ export type CommissionCreditNoteCountAggregateInputType = {
   linesJson?: true
   issuedByUserId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -370,6 +376,7 @@ export type CommissionCreditNoteGroupByOutputType = {
   linesJson: runtime.JsonValue
   issuedByUserId: string | null
   createdAt: Date
+  updatedAt: Date
   _count: CommissionCreditNoteCountAggregateOutputType | null
   _avg: CommissionCreditNoteAvgAggregateOutputType | null
   _sum: CommissionCreditNoteSumAggregateOutputType | null
@@ -423,6 +430,7 @@ export type CommissionCreditNoteWhereInput = {
   linesJson?: Prisma.JsonFilter<"CommissionCreditNote">
   issuedByUserId?: Prisma.StringNullableFilter<"CommissionCreditNote"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CommissionCreditNote"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommissionCreditNote"> | Date | string
   invoice?: Prisma.XOR<Prisma.CommissionInvoiceScalarRelationFilter, Prisma.CommissionInvoiceWhereInput>
   documents?: Prisma.CommissionDocumentListRelationFilter
 }
@@ -455,6 +463,7 @@ export type CommissionCreditNoteOrderByWithRelationInput = {
   linesJson?: Prisma.SortOrder
   issuedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   invoice?: Prisma.CommissionInvoiceOrderByWithRelationInput
   documents?: Prisma.CommissionDocumentOrderByRelationAggregateInput
   _relevance?: Prisma.CommissionCreditNoteOrderByRelevanceInput
@@ -492,6 +501,7 @@ export type CommissionCreditNoteWhereUniqueInput = Prisma.AtLeast<{
   linesJson?: Prisma.JsonFilter<"CommissionCreditNote">
   issuedByUserId?: Prisma.StringNullableFilter<"CommissionCreditNote"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CommissionCreditNote"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommissionCreditNote"> | Date | string
   invoice?: Prisma.XOR<Prisma.CommissionInvoiceScalarRelationFilter, Prisma.CommissionInvoiceWhereInput>
   documents?: Prisma.CommissionDocumentListRelationFilter
 }, "id" | "idempotencyKey" | "number" | "legalEntityCode_series_financialYear_sequenceNumber">
@@ -524,6 +534,7 @@ export type CommissionCreditNoteOrderByWithAggregationInput = {
   linesJson?: Prisma.SortOrder
   issuedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CommissionCreditNoteCountOrderByAggregateInput
   _avg?: Prisma.CommissionCreditNoteAvgOrderByAggregateInput
   _max?: Prisma.CommissionCreditNoteMaxOrderByAggregateInput
@@ -562,6 +573,7 @@ export type CommissionCreditNoteScalarWhereWithAggregatesInput = {
   linesJson?: Prisma.JsonWithAggregatesFilter<"CommissionCreditNote">
   issuedByUserId?: Prisma.StringNullableWithAggregatesFilter<"CommissionCreditNote"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CommissionCreditNote"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CommissionCreditNote"> | Date | string
 }
 
 export type CommissionCreditNoteCreateInput = {
@@ -591,6 +603,7 @@ export type CommissionCreditNoteCreateInput = {
   linesJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   invoice: Prisma.CommissionInvoiceCreateNestedOneWithoutCreditNotesInput
   documents?: Prisma.CommissionDocumentCreateNestedManyWithoutCreditNoteInput
 }
@@ -623,6 +636,7 @@ export type CommissionCreditNoteUncheckedCreateInput = {
   linesJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   documents?: Prisma.CommissionDocumentUncheckedCreateNestedManyWithoutCreditNoteInput
 }
 
@@ -653,6 +667,7 @@ export type CommissionCreditNoteUpdateInput = {
   linesJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invoice?: Prisma.CommissionInvoiceUpdateOneRequiredWithoutCreditNotesNestedInput
   documents?: Prisma.CommissionDocumentUpdateManyWithoutCreditNoteNestedInput
 }
@@ -685,6 +700,7 @@ export type CommissionCreditNoteUncheckedUpdateInput = {
   linesJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.CommissionDocumentUncheckedUpdateManyWithoutCreditNoteNestedInput
 }
 
@@ -716,6 +732,7 @@ export type CommissionCreditNoteCreateManyInput = {
   linesJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionCreditNoteUpdateManyMutationInput = {
@@ -745,6 +762,7 @@ export type CommissionCreditNoteUpdateManyMutationInput = {
   linesJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionCreditNoteUncheckedUpdateManyInput = {
@@ -775,6 +793,7 @@ export type CommissionCreditNoteUncheckedUpdateManyInput = {
   linesJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionCreditNoteListRelationFilter = {
@@ -828,6 +847,7 @@ export type CommissionCreditNoteCountOrderByAggregateInput = {
   linesJson?: Prisma.SortOrder
   issuedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommissionCreditNoteAvgOrderByAggregateInput = {
@@ -869,6 +889,7 @@ export type CommissionCreditNoteMaxOrderByAggregateInput = {
   amountInWords?: Prisma.SortOrder
   issuedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommissionCreditNoteMinOrderByAggregateInput = {
@@ -898,6 +919,7 @@ export type CommissionCreditNoteMinOrderByAggregateInput = {
   amountInWords?: Prisma.SortOrder
   issuedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommissionCreditNoteSumOrderByAggregateInput = {
@@ -1010,6 +1032,7 @@ export type CommissionCreditNoteCreateWithoutInvoiceInput = {
   linesJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   documents?: Prisma.CommissionDocumentCreateNestedManyWithoutCreditNoteInput
 }
 
@@ -1040,6 +1063,7 @@ export type CommissionCreditNoteUncheckedCreateWithoutInvoiceInput = {
   linesJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   documents?: Prisma.CommissionDocumentUncheckedCreateNestedManyWithoutCreditNoteInput
 }
 
@@ -1100,6 +1124,7 @@ export type CommissionCreditNoteScalarWhereInput = {
   linesJson?: Prisma.JsonFilter<"CommissionCreditNote">
   issuedByUserId?: Prisma.StringNullableFilter<"CommissionCreditNote"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CommissionCreditNote"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommissionCreditNote"> | Date | string
 }
 
 export type CommissionCreditNoteCreateWithoutDocumentsInput = {
@@ -1129,6 +1154,7 @@ export type CommissionCreditNoteCreateWithoutDocumentsInput = {
   linesJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   invoice: Prisma.CommissionInvoiceCreateNestedOneWithoutCreditNotesInput
 }
 
@@ -1160,6 +1186,7 @@ export type CommissionCreditNoteUncheckedCreateWithoutDocumentsInput = {
   linesJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionCreditNoteCreateOrConnectWithoutDocumentsInput = {
@@ -1205,6 +1232,7 @@ export type CommissionCreditNoteUpdateWithoutDocumentsInput = {
   linesJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invoice?: Prisma.CommissionInvoiceUpdateOneRequiredWithoutCreditNotesNestedInput
 }
 
@@ -1236,6 +1264,7 @@ export type CommissionCreditNoteUncheckedUpdateWithoutDocumentsInput = {
   linesJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommissionCreditNoteCreateManyInvoiceInput = {
@@ -1265,6 +1294,7 @@ export type CommissionCreditNoteCreateManyInvoiceInput = {
   linesJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommissionCreditNoteUpdateWithoutInvoiceInput = {
@@ -1294,6 +1324,7 @@ export type CommissionCreditNoteUpdateWithoutInvoiceInput = {
   linesJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.CommissionDocumentUpdateManyWithoutCreditNoteNestedInput
 }
 
@@ -1324,6 +1355,7 @@ export type CommissionCreditNoteUncheckedUpdateWithoutInvoiceInput = {
   linesJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.CommissionDocumentUncheckedUpdateManyWithoutCreditNoteNestedInput
 }
 
@@ -1354,6 +1386,7 @@ export type CommissionCreditNoteUncheckedUpdateManyWithoutInvoiceInput = {
   linesJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   issuedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1415,6 +1448,7 @@ export type CommissionCreditNoteSelect<ExtArgs extends runtime.Types.Extensions.
   linesJson?: boolean
   issuedByUserId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   invoice?: boolean | Prisma.CommissionInvoiceDefaultArgs<ExtArgs>
   documents?: boolean | Prisma.CommissionCreditNote$documentsArgs<ExtArgs>
   _count?: boolean | Prisma.CommissionCreditNoteCountOutputTypeDefaultArgs<ExtArgs>
@@ -1450,9 +1484,10 @@ export type CommissionCreditNoteSelectScalar = {
   linesJson?: boolean
   issuedByUserId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CommissionCreditNoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceId" | "legalEntityCode" | "sellerAccountId" | "idempotencyKey" | "series" | "financialYear" | "sequenceNumber" | "number" | "issueDate" | "issuedAt" | "reason" | "basis" | "note" | "currency" | "taxableMinor" | "cgstMinor" | "sgstMinor" | "igstMinor" | "otherTaxMinor" | "totalTaxMinor" | "roundingMinor" | "grandTotalMinor" | "amountInWords" | "linesJson" | "issuedByUserId" | "createdAt", ExtArgs["result"]["commissionCreditNote"]>
+export type CommissionCreditNoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceId" | "legalEntityCode" | "sellerAccountId" | "idempotencyKey" | "series" | "financialYear" | "sequenceNumber" | "number" | "issueDate" | "issuedAt" | "reason" | "basis" | "note" | "currency" | "taxableMinor" | "cgstMinor" | "sgstMinor" | "igstMinor" | "otherTaxMinor" | "totalTaxMinor" | "roundingMinor" | "grandTotalMinor" | "amountInWords" | "linesJson" | "issuedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["commissionCreditNote"]>
 export type CommissionCreditNoteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   invoice?: boolean | Prisma.CommissionInvoiceDefaultArgs<ExtArgs>
   documents?: boolean | Prisma.CommissionCreditNote$documentsArgs<ExtArgs>
@@ -1496,6 +1531,7 @@ export type $CommissionCreditNotePayload<ExtArgs extends runtime.Types.Extension
     linesJson: runtime.JsonValue
     issuedByUserId: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["commissionCreditNote"]>
   composites: {}
 }
@@ -1894,6 +1930,7 @@ export interface CommissionCreditNoteFieldRefs {
   readonly linesJson: Prisma.FieldRef<"CommissionCreditNote", 'Json'>
   readonly issuedByUserId: Prisma.FieldRef<"CommissionCreditNote", 'String'>
   readonly createdAt: Prisma.FieldRef<"CommissionCreditNote", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CommissionCreditNote", 'DateTime'>
 }
     
 
