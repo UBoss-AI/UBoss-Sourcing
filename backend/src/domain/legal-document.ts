@@ -17,8 +17,36 @@
  */
 import { createHash } from 'node:crypto';
 
-export const LEGAL_DOCUMENT_KINDS = ['PLATFORM_TERMS', 'LOGISTICS_PARTNER_TERMS'] as const;
+/**
+ * The agreements an account accepts at sign-up. Only these can be accepted:
+ * the kind is always chosen by the server from the account type
+ * (`termsKindForUserType`), never by the browser.
+ */
+export const TERMS_KINDS = ['PLATFORM_TERMS', 'LOGISTICS_PARTNER_TERMS'] as const;
+export type TermsKindName = (typeof TERMS_KINDS)[number];
+
+/**
+ * The published policies (checklist Master row 9): informational, versioned and
+ * hashed exactly like the terms, listed in the storefront's help and policies
+ * hub - and never accepted at sign-up.
+ */
+export const POLICY_KINDS = [
+  'SELLER_TERMS',
+  'PRIVACY_POLICY',
+  'RETURNS_POLICY',
+  'BUYER_PROTECTION_POLICY',
+  'INSPECTION_POLICY',
+  'PROHIBITED_PRODUCTS',
+] as const;
+export type PolicyKindName = (typeof POLICY_KINDS)[number];
+
+/** Every kind the legal-document service manages. */
+export const LEGAL_DOCUMENT_KINDS = [...TERMS_KINDS, ...POLICY_KINDS] as const;
 export type LegalDocumentKindName = (typeof LEGAL_DOCUMENT_KINDS)[number];
+
+export function isTermsKind(kind: string): kind is TermsKindName {
+  return (TERMS_KINDS as readonly string[]).includes(kind);
+}
 
 /** Where an acceptance was given. Stored on the consent record. */
 export const TERMS_ACCEPTANCE_SOURCES = [
@@ -36,7 +64,7 @@ export type TermsAcceptanceSource = (typeof TERMS_ACCEPTANCE_SOURCES)[number];
  * an unexpected type falls to the buyer terms rather than to none, so this
  * can only ever ask for more than it should, never less.
  */
-export function termsKindForUserType(userType: string): LegalDocumentKindName {
+export function termsKindForUserType(userType: string): TermsKindName {
   return userType === 'LOGISTICS' ? 'LOGISTICS_PARTNER_TERMS' : 'PLATFORM_TERMS';
 }
 

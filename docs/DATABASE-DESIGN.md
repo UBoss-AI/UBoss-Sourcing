@@ -5221,7 +5221,7 @@ person agreed to. The operator writes them; the software supplies none.
 
 | Model | Table | One row is |
 |---|---|---|
-| [`LegalDocument`](reference/DATABASE-TABLES.md#model-legaldocument) | `legal_documents` | one version of one agreement in one language: kind, version, language, title, plain-text body, optional summary of changes, effective date, status, and once published the SHA-256, publication time and publisher, and the document it replaced |
+| [`LegalDocument`](reference/DATABASE-TABLES.md#model-legaldocument) | `legal_documents` | one version of one agreement or policy in one language: kind, version, language, title, plain-text body, optional summary of changes, effective date, status, and once published the SHA-256, publication time and publisher, and the document it replaced. `kind` is one of the two terms that are accepted at sign-up (`PLATFORM_TERMS`, `LOGISTICS_PARTNER_TERMS`) or a published policy that is only read (`SELLER_TERMS`, `PRIVACY_POLICY`, `RETURNS_POLICY` — added 29 Sep 2026 —, `BUYER_PROTECTION_POLICY`, `INSPECTION_POLICY`, `PROHIBITED_PRODUCTS`) |
 | [`ConsentRecord`](reference/DATABASE-TABLES.md#model-consentrecord) | `consent_records` | with `purpose` `PLATFORM_TERMS` or `LOGISTICS_PARTNER_TERMS`: one person's acceptance of one `legal_documents` row |
 
 ```mermaid

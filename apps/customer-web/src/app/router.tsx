@@ -532,6 +532,8 @@ export const router = createBrowserRouter([
        * whether to buy or sell here at all.
        */
       { path: 'about', ...publicRoute(() => import('@/pages/AboutPage').then((m) => m.AboutPage)) },
+      // Help, policies and legal (checklist Master row 9).
+      { path: 'legal', ...publicRoute(() => import('@/pages/HelpPoliciesPage').then((m) => m.HelpPoliciesPage)) },
       // Shopping from one destination (checklist Master row 8).
       { path: 'markets/:country', ...publicRoute(() => import('@/pages/MarketPage').then((m) => m.MarketPage)) },
       // How assurance works here (checklist Master row 7).

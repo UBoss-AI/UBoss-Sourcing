@@ -16799,6 +16799,7 @@ A six-digit code sent to the business email address. Stored hashed, expires, and
 | `INSPECTION_POLICY` |  |
 | `BUYER_PROTECTION_POLICY` |  |
 | `PROHIBITED_PRODUCTS` |  |
+| `RETURNS_POLICY` | How returns work: the window, what can be returned, refunds or replacements. |
 
 <a id="enum-legaldocumentstatus"></a>
 

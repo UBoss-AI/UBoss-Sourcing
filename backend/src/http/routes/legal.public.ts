@@ -12,6 +12,7 @@ import { LEGAL_DOCUMENT_KINDS } from '../../domain/legal-document.js';
 import {
   getCurrentDocument,
   getPublishedDocument,
+  listDocumentsInForce,
   listPublishedVersions,
   renderLegalDocumentPdf,
 } from '../../modules/legal/legal-document.service.js';
@@ -34,6 +35,12 @@ export function registerPublicLegalRoutes(app: FastifyInstance): Promise<void> {
   app.get('/versions', async (request, reply) => {
     const { kind } = kindQuery.parse(request.query);
     return reply.send({ versions: await listPublishedVersions(kind) });
+  });
+
+  // The buyer terms and every published policy in force now, one per kind: titles and links for the help hub.
+  app.get('/in-force', async (request, reply) => {
+    const { locale } = z.object({ locale: z.string().trim().max(10).default('en') }).parse(request.query);
+    return reply.header('cache-control', 'no-store').send({ documents: await listDocumentsInForce(locale) });
   });
 
   // One published document, of any version. Drafts are never returned.

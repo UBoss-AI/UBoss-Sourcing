@@ -20784,6 +20784,8 @@ enum LegalDocumentKind {
   INSPECTION_POLICY
   BUYER_PROTECTION_POLICY
   PROHIBITED_PRODUCTS
+  /// How returns work: the window, what can be returned, refunds or replacements.
+  RETURNS_POLICY
 }
 
 enum LegalDocumentStatus {

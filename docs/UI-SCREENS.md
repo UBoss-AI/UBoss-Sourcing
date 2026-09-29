@@ -815,6 +815,25 @@ category shows an empty list, not an error.
 - `GET` and `POST /api/v1/account/wishlist`, `DELETE /api/v1/account/wishlist/:id`
   (customers)
 
+#### `/legal` — Help, policies and legal
+
+| | |
+|---|---|
+| **Who** | Anybody |
+| **File** | `pages/HelpPoliciesPage.tsx` |
+
+**On the screen.** **Get help** (Contact support, How assurance works);
+**Terms and policies** — each document in force as a link to
+`/legal/documents/:id` with its title, version and date (and "Not yet
+published in your language" when it falls back), then "Not published yet: …"
+naming the missing ones; **More from {marketplace}** — the operator's own
+policy links, opening in a new tab. Footer link: "Help, policies and legal".
+
+**States.** Loading; if the list cannot be read, **Try again** — help stays
+reachable.
+
+**API calls:** `GET /api/v1/legal/in-force?locale=…`
+
 #### `/markets/:country` — Shopping from one country
 
 | | |

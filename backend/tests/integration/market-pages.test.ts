@@ -96,7 +96,7 @@ afterAll(async () => {
 });
 
 const page = (code: string) => app.inject({ method: 'GET', url: `/api/v1/catalog/markets/${code}` });
-const save = (session: AdminSession, body: unknown) =>
+const save = (session: AdminSession, body: Record<string, unknown>) =>
   app.inject({
     method: 'PUT',
     url: `/api/v1/admin/settings/market-profiles/${COUNTRY}`,

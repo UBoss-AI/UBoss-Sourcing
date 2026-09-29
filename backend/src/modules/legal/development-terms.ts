@@ -8,7 +8,7 @@
  * would bind them to words nobody approved. A real deployment publishes its own
  * Terms from Administration → Legal documents, written by its own counsel.
  */
-import { legalContentHash, type LegalDocumentKindName } from '../../domain/legal-document.js';
+import { legalContentHash, type TermsKindName } from '../../domain/legal-document.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 
@@ -48,7 +48,7 @@ The website may terminate or suspend user access without prior notice for violat
 ## Governing Law
 These terms are governed by the laws of the jurisdiction where the website is primarily operated, without regard to conflict of law principles.`;
 
-const TITLES: Record<LegalDocumentKindName, string> = {
+const TITLES: Record<TermsKindName, string> = {
   PLATFORM_TERMS: 'Terms and Conditions (development placeholder)',
   LOGISTICS_PARTNER_TERMS: 'Logistics Partner Terms (development placeholder)',
 };
@@ -56,7 +56,7 @@ const TITLES: Record<LegalDocumentKindName, string> = {
 /** Publish the placeholder for each kind that has nothing published yet. Idempotent. */
 export async function seedDevelopmentTerms(): Promise<number> {
   let published = 0;
-  for (const kind of Object.keys(TITLES) as LegalDocumentKindName[]) {
+  for (const kind of Object.keys(TITLES) as TermsKindName[]) {
     const existing = await prisma.legalDocument.count({ where: { kind, status: 'PUBLISHED' } });
     if (existing > 0) continue;
 

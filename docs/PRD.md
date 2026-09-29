@@ -1679,6 +1679,28 @@ all absent (`BUYER_COMPANIES_DISABLED`).
      `settings.updated` audit entry (resource `market_profile`).
 - **Status.** Built (29 Sep 2026, checklist Master row 8).
 
+### FR-SRCH-017 — Help, policies and legal
+
+- **Statement.** `/legal` lists the Terms and Conditions and every published
+  policy — seller terms, privacy, returns, buyer protection, inspection,
+  prohibited products — each opening its published, versioned text; names the
+  ones not yet published; links support, How assurance works and the
+  operator's own policy links. Linked from the footer. The assurance page
+  links the returns, buyer-protection and inspection policies when published.
+- **Rules.**
+  1. Policies are legal documents like the terms: drafted and published in
+     Admin → Settings → Legal documents, hashed on publishing, never edited
+     after, older versions still readable.
+  2. Only the two terms kinds can be accepted at sign-up; the kind is always
+     chosen by the server, so a policy can never stand in for the terms.
+  3. `GET /api/v1/legal/in-force?locale=` returns titles and links (never
+     bodies) for the buyer terms and the policies; the carrier terms are not
+     listed.
+  4. `RETURNS_POLICY` added by migration `20261018100000_legal_returns_policy`.
+- **Status.** Built (29 Sep 2026, checklist Master row 9). **The texts
+  themselves are the operator's** — to be written and approved by their legal
+  owner; a fresh deployment has none, and the page says so.
+
 ### FR-SRCH-009 — The About page
 
 - **Statement.** `/about` is a public page explaining what the marketplace

@@ -13,7 +13,8 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { AlertIcon, CardIcon, ChatBubblesIcon, RepeatIcon, ShieldIcon } from '@/components/icons';
+import { AlertIcon, CardIcon, ChatBubblesIcon, DocumentIcon, RepeatIcon, ShieldIcon } from '@/components/icons';
+import type { DocumentInForce } from './HelpPoliciesPage';
 import { ErrorState, LoadingState } from '@/components/ui';
 import { useStorefront } from '@/app/storefront-context';
 import { api } from '@/lib/api';
@@ -51,7 +52,7 @@ function Section({
 }
 
 export function AssurancePage(): React.JSX.Element {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { business } = useStorefront();
   useDocumentMeta({ title: t('assurance.title'), description: t('assurance.intro') }, business.displayName);
 
@@ -59,6 +60,12 @@ export function AssurancePage(): React.JSX.Element {
     queryKey: ['assurance'],
     queryFn: () => api.get<AssuranceFacts>('/catalog/assurance'),
     staleTime: 5 * 60_000,
+    retry: false,
+  });
+
+  const inForce = useQuery({
+    queryKey: ['legal-in-force', language],
+    queryFn: () => api.get<{ documents: DocumentInForce[] }>('/legal/in-force', { query: { locale: language } }),
     retry: false,
   });
 
@@ -75,6 +82,10 @@ export function AssurancePage(): React.JSX.Element {
   }
 
   const facts = query.data;
+  // The published policies behind these sections, when the operator has them.
+  const policies = (inForce.data?.documents ?? []).filter((document) =>
+    (['BUYER_PROTECTION_POLICY', 'RETURNS_POLICY', 'INSPECTION_POLICY'] as const).some((kind) => kind === document.kind),
+  );
   const decisionDays = Math.max(1, Math.round(facts.claims.decisionHours / 24));
 
   return (
@@ -148,6 +159,20 @@ export function AssurancePage(): React.JSX.Element {
             </Link>
           </p>
         </Section>
+
+        {policies.length > 0 && (
+          <Section id="assurance-policies" icon={<DocumentIcon className="h-5 w-5" />} title={t('assurance.policiesTitle')}>
+            <ul className="space-y-1">
+              {policies.map((document) => (
+                <li key={document.kind}>
+                  <Link to={`/legal/documents/${encodeURIComponent(document.id)}`} className="font-medium text-brand underline-offset-2 hover:underline">
+                    {t(`help.kind.${document.kind}`)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
 
         <Section id="assurance-limits" icon={<AlertIcon className="h-5 w-5" />} title={t('assurance.limitsTitle')}>
           <ul className="list-disc space-y-1 pl-5">

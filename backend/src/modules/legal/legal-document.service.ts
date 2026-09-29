@@ -37,6 +37,7 @@ import {
   LEGAL_CHANGE_SUMMARY_MAX,
   LEGAL_DOCUMENT_KINDS,
   LEGAL_TITLE_MAX,
+  POLICY_KINDS,
   LEGAL_VERSION_PATTERN,
   legalContentHash,
   normaliseLegalText,
@@ -44,6 +45,7 @@ import {
   pickCurrent,
   type LegalDocumentKindName,
   type TermsAcceptanceSource,
+  type TermsKindName,
 } from '../../domain/legal-document.js';
 import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
@@ -210,6 +212,30 @@ export async function getCurrentDocument(
   return current;
 }
 
+/**
+ * Every document in force now, one per kind, for the storefront's help and
+ * policies hub (checklist Master row 9). The buyer terms and the policies -
+ * not the carrier terms, which are for carrier staff. Titles and links only:
+ * the body is read on the document's own page.
+ */
+export async function listDocumentsInForce(
+  requestedLocale: string,
+  now: Date = new Date(),
+): Promise<{ kind: LegalDocumentKindName; id: string; title: string; version: string; effectiveAt: string; isFallback: boolean }[]> {
+  const kinds: LegalDocumentKindName[] = ['PLATFORM_TERMS', ...POLICY_KINDS];
+  const found = await Promise.all(kinds.map((kind) => findCurrentDocument(kind, requestedLocale, now)));
+  return found
+    .filter((entry): entry is CurrentLegalDocument => entry !== null)
+    .map((entry) => ({
+      kind: entry.document.kind,
+      id: entry.document.id,
+      title: entry.document.title,
+      version: entry.document.version,
+      effectiveAt: entry.document.effectiveAt,
+      isFallback: entry.isFallback,
+    }));
+}
+
 /** One published document, of any version. Drafts are never found here. */
 export async function getPublishedDocument(id: string): Promise<PublicLegalDocument> {
   const row = await prisma.legalDocument.findFirst({
@@ -263,7 +289,7 @@ export async function listPublishedVersions(
 
 export interface AcceptableTerms {
   id: string;
-  kind: LegalDocumentKindName;
+  kind: TermsKindName;
   version: string;
   locale: string;
   contentSha256: string;
@@ -279,7 +305,8 @@ export interface AcceptableTerms {
  * moment between the two cannot slip through.
  */
 export async function assertAcceptableTerms(input: {
-  kind: LegalDocumentKindName;
+  /** Always a terms kind: a policy is informational and is never accepted. */
+  kind: TermsKindName;
   acceptedTerms: boolean;
   documentId: string | null | undefined;
   now?: Date;

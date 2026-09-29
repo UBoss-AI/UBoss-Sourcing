@@ -9,8 +9,29 @@
  */
 import { BASE_URL, api } from './api';
 
-export type LegalDocumentKind = 'PLATFORM_TERMS' | 'LOGISTICS_PARTNER_TERMS';
-export const LEGAL_DOCUMENT_KINDS: readonly LegalDocumentKind[] = ['PLATFORM_TERMS', 'LOGISTICS_PARTNER_TERMS'];
+export type LegalDocumentKind =
+  | 'PLATFORM_TERMS'
+  | 'LOGISTICS_PARTNER_TERMS'
+  | 'SELLER_TERMS'
+  | 'PRIVACY_POLICY'
+  | 'RETURNS_POLICY'
+  | 'BUYER_PROTECTION_POLICY'
+  | 'INSPECTION_POLICY'
+  | 'PROHIBITED_PRODUCTS';
+/**
+ * The two terms kinds are accepted at sign-up; the rest are published
+ * policies, shown in the storefront's help and policies hub (Master row 9).
+ */
+export const LEGAL_DOCUMENT_KINDS: readonly LegalDocumentKind[] = [
+  'PLATFORM_TERMS',
+  'LOGISTICS_PARTNER_TERMS',
+  'SELLER_TERMS',
+  'PRIVACY_POLICY',
+  'RETURNS_POLICY',
+  'BUYER_PROTECTION_POLICY',
+  'INSPECTION_POLICY',
+  'PROHIBITED_PRODUCTS',
+];
 
 export type LegalDocumentStatus = 'DRAFT' | 'PUBLISHED';
 

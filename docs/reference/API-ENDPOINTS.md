@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1060 endpoints** in 91 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1061 endpoints** in 91 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -32,7 +32,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 | [Seller Hub](#seller-hub) | 252 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
 | [Customer account](#customer-account) | 216 |
-| [Public and storefront](#public-and-storefront) | 51 |
+| [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
 
@@ -2261,6 +2261,7 @@ Defined in `backend/src/http/routes/legal.public.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/legal/current` | Public |  | The Terms in force now for a kind of account, in the reader's language where it is published. 503 TERMS_DOCUMENT_UNAVAILABLE when none are. |
 | GET | `/api/v1/legal/versions` | Public |  | Every published version of a kind, newest first, so anybody can read the terms they agreed to at the time. |
+| GET | `/api/v1/legal/in-force` | Public |  | The buyer terms and every published policy in force now, one per kind: titles and links for the help hub. |
 | GET | `/api/v1/legal/documents/:id` | Public |  | One published document, of any version. Drafts are never returned. |
 | GET | `/api/v1/legal/documents/:id/pdf` | Public |  | One published document as a PDF, built from exactly the stored text. |
 

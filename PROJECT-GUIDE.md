@@ -1690,6 +1690,17 @@ operator's words are labelled as theirs. Admin → Settings → Market pages
 `PUT /admin/settings/market-profiles/:country` (`settings.write`, audited as
 `settings.updated` on `market_profile`). Only active countries have a page.
 
+**Help, policies and legal.** The legal-document service now manages eight
+kinds (`domain/legal-document.ts`): the two `TERMS_KINDS` that are accepted at
+sign-up, and six `POLICY_KINDS` that are only read. They share one pipeline —
+draft, publish, hash, never edit — because a returns policy a buyer later
+argues about needs the same "these exact words, in force on that date" proof as
+the terms. `assertAcceptableTerms` takes `TermsKindName` only, and the kind is
+always chosen by the server, so a policy id can never satisfy a sign-up.
+`GET /legal/in-force` feeds `/legal` (`pages/HelpPoliciesPage.tsx`), which also
+names what is not published yet. `RETURNS_POLICY` was added by migration
+`20261018100000_legal_returns_policy`. The texts are the operator's to write.
+
 The bar carries four controls:
 
 | Control | What it does |

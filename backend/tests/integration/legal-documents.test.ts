@@ -17,6 +17,7 @@ import {
   deleteDraft,
   findCurrentDocument,
   getPublishedDocument,
+  listDocumentsInForce,
   listLegalDocuments,
   listPublishedVersions,
   publishDraft,
@@ -215,5 +216,35 @@ describe('publishing', () => {
     expect(first.bytes.subarray(0, 5).toString('latin1')).toBe('%PDF-');
     expect(first.bytes.equals(second.bytes)).toBe(true);
     expect(first.fileName).toBe(`platform_terms-it-${RUN}-en.pdf`);
+  });
+});
+
+describe('published policies (Master row 9)', () => {
+  it('publishes a policy like the terms, and lists it among the documents in force', async () => {
+    const view = await newDraft({ kind: 'RETURNS_POLICY', version: `it-${RUN}-returns`, title: 'Returns policy' });
+    // A draft is not in force.
+    expect((await listDocumentsInForce('en')).some((entry) => entry.id === view.id)).toBe(false);
+
+    const published = await publishDraft(view.id, actor);
+    expect(published.contentSha256).toBe(
+      legalContentHash({ kind: 'RETURNS_POLICY', version: `it-${RUN}-returns`, locale: 'en', title: view.title, body: view.body }),
+    );
+    const listed = (await listDocumentsInForce('en')).find((entry) => entry.kind === 'RETURNS_POLICY');
+    expect(listed).toMatchObject({ id: published.id, title: 'Returns policy', version: `it-${RUN}-returns`, isFallback: false });
+    // The hub lists titles and links, never the body.
+    expect(JSON.stringify(listed)).not.toContain('Text written by the operator');
+  });
+
+  it('never lets a policy stand in for the terms at sign-up', async () => {
+    const policy = await findCurrentDocument('RETURNS_POLICY', 'en');
+    expect(policy).not.toBeNull();
+    await expect(
+      assertAcceptableTerms({ kind: 'PLATFORM_TERMS', acceptedTerms: true, documentId: policy?.document.id ?? null }),
+    ).rejects.toMatchObject({ code: 'TERMS_VERSION_OUTDATED' });
+  });
+
+  it('leaves the carrier terms out of the storefront hub', async () => {
+    const kinds = (await listDocumentsInForce('en')).map((entry) => entry.kind);
+    expect(kinds).not.toContain('LOGISTICS_PARTNER_TERMS');
   });
 });
