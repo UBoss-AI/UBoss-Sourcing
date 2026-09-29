@@ -151,6 +151,14 @@ export function Footer({
             <InfoIcon className="h-4 w-4" />
             {t('about.link')}
           </Link>
+          {/* What the marketplace checks, and what it does not. */}
+          <Link
+            to="/assurance"
+            className="mt-2 flex items-center gap-2 rounded text-sm font-medium text-brand hover:underline"
+          >
+            <InfoIcon className="h-4 w-4" />
+            {t('assurance.link')}
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:flex lg:shrink-0 lg:gap-16">

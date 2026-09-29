@@ -101,6 +101,7 @@ import {
 } from '../../modules/catalog/packaging.service.js';
 import { productSourcingFor } from '../../modules/catalog/product-sourcing.service.js';
 import { supplierProfile } from '../../modules/catalog/supplier-profile.service.js';
+import { assuranceFacts } from '../../modules/catalog/assurance.service.js';
 import {
   categoryMarketNotes,
   marketEligibleWhere,
@@ -1345,6 +1346,9 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
 
     return reply.status(200).send(await listVerifiedSuppliers({ ...query, categoryIds }));
   });
+
+  // The protections this deployment runs, as its settings define them: verification, inspection, returns, claims.
+  app.get('/assurance', async (_request, reply) => reply.status(200).send(await assuranceFacts()));
 
   // One verified supplier's public profile: company, factories, verified certifications, what they sell.
   app.get('/suppliers/:slug', async (request, reply) => {

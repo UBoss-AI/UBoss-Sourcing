@@ -815,6 +815,31 @@ category shows an empty list, not an error.
 - `GET` and `POST /api/v1/account/wishlist`, `DELETE /api/v1/account/wishlist/:id`
   (customers)
 
+#### `/assurance` — How assurance works
+
+| | |
+|---|---|
+| **Who** | Anybody |
+| **File** | `pages/AssurancePage.tsx` |
+
+**Purpose.** What the marketplace checks, what happens when something goes
+wrong, and what is not covered — for this deployment's settings.
+
+**On the screen.** Six cards: **Verified suppliers** (the count, what the
+review means and what it is not), **Inspection before dispatch** (the
+dispatch gate when rules are in force; otherwise "not required on any order at
+the moment"), **Paying**, **Returns** (the window and refund / replacement, or
+"not offered"), **If something goes wrong** (claim window, seller response,
+decision and appeal times, and **Contact support**), **What this does not
+cover**. Reached from the footer ("How assurance works") and from the product
+page's "Who sells it…" block.
+
+**States.** Loading; an error shows **Try again** and no figures.
+
+**API calls**
+
+- `GET /api/v1/catalog/assurance`
+
 #### `/compare` — Products or suppliers side by side
 
 | | |

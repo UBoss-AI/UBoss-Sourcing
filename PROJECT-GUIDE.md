@@ -1671,6 +1671,15 @@ buy panel below changes shape with variants and quote mode; in the first
 version it lived in the panel and was missing from exactly the products with
 sizes.
 
+**How assurance works.** `/assurance` reads `GET /catalog/assurance`
+(`modules/catalog/assurance.service.ts`): the verified-supplier count, whether
+any inspection rule is active and in force, the return settings and the
+dispute settings. The page's rule is that nothing on it may be a promise the
+deployment does not keep: with no inspection rules it says inspection is not
+required; it says nothing about holding money back from sellers, because
+payouts are not built; and it always lists what is not covered. Claims are
+raised through support until the buyer claim screen exists.
+
 The bar carries four controls:
 
 | Control | What it does |

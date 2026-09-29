@@ -184,6 +184,11 @@ export function ProductSourcingPanel({ sourcing }: { sourcing: ProductSourcing |
           </Row>
         )}
       </dl>
+      <p className="border-t border-border-subtle py-3 text-sm">
+        <Link to="/assurance" className="font-medium text-brand underline-offset-2 hover:underline">
+          {t('assurance.link')}
+        </Link>
+      </p>
     </section>
   );
 }

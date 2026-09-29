@@ -40,7 +40,8 @@ describe('ProductSourcingPanel', () => {
   it('says the marketplace sells its own stock', () => {
     renderWithProviders(<ProductSourcingPanel sourcing={sourcing({ seller: null, inspection: { outlook: 'NOT_APPLICABLE', fromValueMinor: null, currency: null } })} />);
     expect(screen.getByText(/, from its own stock/)).toBeInTheDocument();
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    // No seller to link to; the only link is the explanation of assurance.
+    expect(screen.getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual(['/assurance']);
     // The marketplace's own stock is not gated, so no inspection line at all.
     expect(screen.queryByText('Inspection before dispatch')).not.toBeInTheDocument();
   });
