@@ -815,6 +815,28 @@ category shows an empty list, not an error.
 - `GET` and `POST /api/v1/account/wishlist`, `DELETE /api/v1/account/wishlist/:id`
   (customers)
 
+#### `/markets/:country` — Shopping from one country
+
+| | |
+|---|---|
+| **Who** | Anybody |
+| **File** | `pages/MarketPage.tsx` |
+
+**On the screen.** The heading (the operator's headline, or "Shopping from
+…"); **Prices and currency** ("Buyers in … are quoted in …", and **Shop as
+a buyer in …**, or "You are shopping as a buyer in …"); **What can be sold
+to …** (blocked categories/products with the reason, those needing documents
+with the list, or "no restrictions recorded"); when published, **Notes from
+{marketplace}** (about, duties and taxes, delivery, compliance, categories to
+start with, "Written by … for this market"); a link to How assurance works.
+The footer's Shop column links here as "Shopping from {country}" once the
+shopper has chosen a country.
+
+**States.** Loading; an unknown or inactive country is the not-found page; a
+malformed code is not sent; other failures offer **Try again**.
+
+**API calls:** `GET /api/v1/catalog/markets/:country`
+
 #### `/assurance` — How assurance works
 
 | | |

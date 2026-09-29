@@ -13,8 +13,11 @@
  * they will find it. Each contact is a tappable row with its own icon, sized
  * as a real touch target.
  */
+import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
+import { LocaleContext } from '@/app/locale-context';
+import { countryName } from '@/lib/iso-countries';
 import { useI18n } from '@/i18n/i18n-context';
 import { PARENT_ATTRIBUTION, PRODUCT_BRAND } from '@/lib/brand';
 import { DocumentIcon, HeadsetIcon, InfoIcon, MailIcon, PhoneIcon } from '@/components/icons';
@@ -88,7 +91,11 @@ export function Footer({
   className?: string;
 } = {}): React.JSX.Element {
   const { business, features } = useStorefront();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  // Read without the throwing hook: the footer also sits on the full-screen
+  // error page, which may render outside the locale provider.
+  const locale = useContext(LocaleContext);
+  const shopperCountry = locale?.country ?? null;
   const policies = Object.entries(business.policyLinks ?? {});
   const hasSupport = business.supportEmail !== null || business.supportPhone !== null;
 
@@ -170,6 +177,14 @@ export function Footer({
                   {t('footer.allProducts')}
                 </Link>
               </li>
+              {/* The shopper's own market page, once they have said where they are. */}
+              {shopperCountry !== null && (
+                <li>
+                  <Link to={`/markets/${shopperCountry.toLowerCase()}`} className={LINK_CLASS}>
+                    {t('market.footerLink', { country: countryName(shopperCountry, language) })}
+                  </Link>
+                </li>
+              )}
               <li>
                 <Link to="/account/orders" className={LINK_CLASS}>
                   {t('header.myOrders')}

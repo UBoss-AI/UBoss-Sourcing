@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1057 endpoints** in 91 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1060 endpoints** in 91 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,12 +27,12 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 439 |
+| [Admin panel (staff)](#admin-panel-staff) | 441 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 252 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
 | [Customer account](#customer-account) | 216 |
-| [Public and storefront](#public-and-storefront) | 50 |
+| [Public and storefront](#public-and-storefront) | 51 |
 
 ## Admin panel (staff)
 
@@ -790,6 +790,8 @@ Defined in `backend/src/http/routes/settings.admin.ts`.
 | GET | `/api/v1/admin/settings/business` | Staff | Admin(SETTINGS_READ) | The store's business profile: its names, contacts, tax numbers, currency and other store-wide settings. |
 | PATCH | `/api/v1/admin/settings/business` | Staff | Admin(SETTINGS_WRITE) | Change the business profile: names, support contacts, tax numbers, the standard seller commission, logo, address, currency, time zone and invoice and order number prefixes. The currency cannot change once any order exists. Writes an audit entry. |
 | PATCH | `/api/v1/admin/settings/policy-links` | Staff | Admin(SETTINGS_WRITE) | Replace the policy links shown in the storefront footer (terms, privacy and so on). Every link must start with http:// or https://; empty ones are dropped. Writes an audit entry. |
+| GET | `/api/v1/admin/settings/market-profiles` | Staff | Admin(SETTINGS_READ) | Every market the deployment sells in, with its landing-page text (Master row 8). |
+| PUT | `/api/v1/admin/settings/market-profiles/:country` | Staff | Admin(SETTINGS_WRITE) | Write one market's landing-page text; publishing makes it public. Audited. |
 | GET | `/api/v1/admin/settings/tax-classes` | Staff | Admin(SETTINGS_READ) | List the tax classes, the default first, with each one's rate. |
 | GET | `/api/v1/admin/settings/processors` | Staff | Admin(SETTINGS_READ) | Who this deployment actually shares data with |
 | POST | `/api/v1/admin/settings/tax-classes` | Staff | Admin(SETTINGS_WRITE) | Add a tax class with its rate and, optionally, its EU VAT band. Making it the default takes that from the previous default. Writes an audit entry. |
@@ -2199,6 +2201,7 @@ Defined in `backend/src/http/routes/catalog.public.ts`, `backend/src/http/routes
 |---|---|---|---|---|
 | GET | `/api/v1/catalog/variant-axes` | Public |  | The variant axis definitions, for the whole catalogue. |
 | GET | `/api/v1/catalog/suppliers` | Public |  | Verified suppliers: sellers the operator approved who have something live to sell. |
+| GET | `/api/v1/catalog/markets/:country` | Public |  | One destination's market page: its currency, what may not be sold there, and the operator's published notes. |
 | GET | `/api/v1/catalog/assurance` | Public |  | The protections this deployment runs, as its settings define them: verification, inspection, returns, claims. |
 | GET | `/api/v1/catalog/suppliers/:slug` | Public |  | One verified supplier's public profile: company, factories, verified certifications, what they sell. |
 | GET | `/api/v1/catalog/categories` | Public |  | Category tree |

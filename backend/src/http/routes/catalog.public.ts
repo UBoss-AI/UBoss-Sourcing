@@ -102,6 +102,7 @@ import {
 import { productSourcingFor } from '../../modules/catalog/product-sourcing.service.js';
 import { supplierProfile } from '../../modules/catalog/supplier-profile.service.js';
 import { assuranceFacts } from '../../modules/catalog/assurance.service.js';
+import { marketPage } from '../../modules/settings/market-profile.service.js';
 import {
   categoryMarketNotes,
   marketEligibleWhere,
@@ -1345,6 +1346,12 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
     }
 
     return reply.status(200).send(await listVerifiedSuppliers({ ...query, categoryIds }));
+  });
+
+  // One destination's market page: its currency, what may not be sold there, and the operator's published notes.
+  app.get('/markets/:country', async (request, reply) => {
+    const { country } = z.object({ country: z.string().trim().regex(/^[A-Za-z]{2}$/) }).parse(request.params);
+    return reply.status(200).send(await marketPage(country));
   });
 
   // The protections this deployment runs, as its settings define them: verification, inspection, returns, claims.

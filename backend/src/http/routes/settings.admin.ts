@@ -57,6 +57,11 @@ import {
 } from '../../modules/catalog/catalog-translation.service.js';
 import { processorReport } from '../../modules/settings/processors.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
+import {
+  listMarketProfiles,
+  marketProfileInput,
+  saveMarketProfile,
+} from '../../modules/settings/market-profile.service.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 const minorUnits = z.string().regex(/^\d+$/, 'Expected whole minor units.');
@@ -205,6 +210,26 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     async (request, reply) => {
       const body = z.record(z.string().max(64), z.string().max(1024)).parse(request.body);
       await updatePolicyLinks(body, actorFrom(request));
+      return reply.status(200).send({ updated: true });
+    },
+  );
+
+  // --- Market pages ---------------------------------------------------------
+
+  // Every market the deployment sells in, with its landing-page text (Master row 8).
+  app.get(
+    '/settings/market-profiles',
+    { preHandler: requireAdmin(Permission.SETTINGS_READ) },
+    async (_request, reply) => reply.status(200).send({ markets: await listMarketProfiles() }),
+  );
+
+  // Write one market's landing-page text; publishing makes it public. Audited.
+  app.put(
+    '/settings/market-profiles/:country',
+    { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
+    async (request, reply) => {
+      const { country } = z.object({ country: z.string().trim().regex(/^[A-Za-z]{2}$/) }).parse(request.params);
+      await saveMarketProfile(country, marketProfileInput.parse(request.body), actorFrom(request));
       return reply.status(200).send({ updated: true });
     },
   );

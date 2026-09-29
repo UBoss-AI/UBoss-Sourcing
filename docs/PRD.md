@@ -1659,6 +1659,26 @@ all absent (`BUYER_COMPANIES_DISABLED`).
 - **Status.** Built (29 Sep 2026, checklist Master row 7). Links to published
   buyer-protection, inspection and returns policies come with Master row 9.
 
+### FR-SRCH-016 — Market landing pages
+
+- **Statement.** `/markets/:country` tells a buyer in one destination the
+  currency they are quoted in (with "Shop as a buyer in …"), what may not be
+  sold there or needs documents (with the operator's reason), and — once
+  published — the operator's own intro, duties, delivery and compliance notes
+  and featured categories. Linked from the footer for the shopper's country.
+  Admin → Settings → **Market pages** edits the text.
+- **Rules.**
+  1. Only active countries have a page; any other code is a 404.
+  2. The currency and restrictions are always shown; the operator's text only
+     while published.
+  3. Featured categories keep the operator's order and drop any that are not
+     public; at most 12.
+  4. `GET /admin/settings/market-profiles` needs `settings.read`;
+     `PUT /admin/settings/market-profiles/:country` needs `settings.write`,
+     validates lengths and slugs, stores blanks as nothing and writes a
+     `settings.updated` audit entry (resource `market_profile`).
+- **Status.** Built (29 Sep 2026, checklist Master row 8).
+
 ### FR-SRCH-009 — The About page
 
 - **Statement.** `/about` is a public page explaining what the marketplace

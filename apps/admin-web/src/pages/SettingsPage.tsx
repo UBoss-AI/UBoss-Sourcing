@@ -49,6 +49,7 @@ import type { Translate } from '@/i18n/i18n-context';
 import { ExchangeRatesPanel } from './settings/ExchangeRatesPanel';
 import { CatalogueTranslationPanel } from './settings/CatalogueTranslationPanel';
 import { PolicyLinksPanel } from './settings/PolicyLinksPanel';
+import { MarketPagesPanel } from './settings/MarketPagesPanel';
 import { VatRatesPanel } from './settings/VatRatesPanel';
 import { ErpPanel } from './settings/ErpPanel';
 import { MarketplacePanel } from './settings/MarketplacePanel';
@@ -1020,6 +1021,8 @@ export function SettingsPage(): React.JSX.Element {
         {/* Beside the exchange rate panel because they are the same job seen
             twice: what a market is quoted in, and what it reads. */}
         <CatalogueTranslationPanel />
+        {/* The same job again: what each market's landing page says. */}
+        <MarketPagesPanel />
         {/* Above the feature flags: an ERP connection is a standing
             arrangement with another system, and reads closer to the business
             profile than to a switch. Renders nothing when the feature is off. */}

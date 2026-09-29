@@ -1680,6 +1680,16 @@ required; it says nothing about holding money back from sellers, because
 payouts are not built; and it always lists what is not covered. Claims are
 raised through support until the buyer claim screen exists.
 
+**Market pages.** `/markets/:country` reads `GET /catalog/markets/:country`
+(`modules/settings/market-profile.service.ts`), which always carries two
+facts the system holds — the country's currency and the market rules in force
+— and, only when the operator has published it, their `market_profiles` text.
+The split is deliberate: a fact is shown whatever the operator wrote, and the
+operator's words are labelled as theirs. Admin → Settings → Market pages
+(`MarketPagesPanel.tsx`) writes the text through
+`PUT /admin/settings/market-profiles/:country` (`settings.write`, audited as
+`settings.updated` on `market_profile`). Only active countries have a page.
+
 The bar carries four controls:
 
 | Control | What it does |
