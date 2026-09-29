@@ -608,6 +608,22 @@ bullets([
   'The customer never sees which warehouse the stock is in.',
   'Anything set aside for the customer is given back if the preorder is cancelled, expires or is rejected, or if its order is cancelled.',
 ]);
+h2('5.4c Asking suppliers to quote: requests for quotation');
+p('When the product pages do not offer what a buyer needs - a quantity, a specification, a destination, a set of conditions - the buyer can describe it once and let the right suppliers answer. This is a request for quotation.');
+table(['Step', 'What the customer does', 'What the system does back'], [
+  ['1', 'Opens Requests for quotation in their account and presses New request, or presses Request quotes on a category page or a product page.', 'Opens the request form. From a category or product page, the category (and the product name as a title) are already filled in.'],
+  ['2', 'Fills in what they need: category, title, a detailed description, key details such as material or size, the quantity and its unit, a yearly volume and a target price if they want, the destination country, port and address, the Incoterm, certifications, whether a sample or an inspection is needed, the deadline for quotes, the wanted delivery date, notes and files.', 'Saves it as a draft whenever they press Save draft, so they can come back later. It checks each answer as it is saved, for example that the quantity is a positive number and the deadline is in the future.'],
+  ['3', 'Looks at the suppliers the request would go to, leaves out any they do not want, and adds others by name.', 'Shows the approved suppliers who sell in that category and may sell into the destination. If nobody matches, it says so plainly. It never invites a supplier the marketplace has not approved, and never the buyer’s own business.'],
+  ['4', 'Presses Send to suppliers.', 'Checks everything again and names every missing or wrong detail at once. Then it sends the request, records each supplier it was sent to, and tells each supplier by email and in Seller Hub. Pressing twice sends it once.'],
+]);
+bullets([
+  'The deadline is always shown in UTC, so a buyer and a supplier in different countries read the same moment.',
+  'A category the marketplace does not sell into the destination cannot be sent there.',
+  'Files are checked by their content, scanned and kept private. A file becomes part of the request once it is sent and cannot be removed afterwards.',
+  'A company buyer needs a role that may buy, and a verified company, to send a request. A draft can be written while the company is still being checked.',
+  'A buyer can cancel a request, or close it without choosing anybody; every supplier still taking part is told.',
+]);
+
 h2('5.4b Asking the team about a preorder');
 p('Right beside the Preorder button on every product page there is a small chat icon: a pair of speech bubbles, the same height as Preorder. Pointing at it, or moving to it with the keyboard, shows a short hint that names the business running the marketplace — for example “Ask Northwind about this preorder”. Screen readers call it “Chat with Northwind”. On a phone a single tap opens the chat. It lets a customer ask that business’s own team a question before they decide: how many fit in a container, whether a date is possible, what a bulk price might be. The seller of the product is not part of this conversation and does not see it.');
 table(['Step', 'What the customer does', 'What the system does back'], [
@@ -2438,6 +2454,7 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Company buyers', 'On by default and can be switched off by a setting. On, the sign-in page has Individual and Company tabs, buyers can apply for a company account and switch between themselves and their companies, and staff get the Buyer companies screen. Off, none of this appears and buyers buy as themselves. The business can also change how many unfinished applications one person may have, the largest document allowed, and the version of the declarations.'],
   ['Product reviews', 'On by default and can be switched off by a setting. Off, no stars or reviews appear anywhere on the shop and buyers cannot write one. Reviews already written are kept, and staff can still read and hide them, so switching it back on loses nothing.'],
   ['Support tickets', 'On by default and can be switched off by a setting. Off, the Support page shows only the business’s published email and phone number, and nobody can raise a new ticket. Tickets already raised stay readable, their senders can still reply and add files, and staff keep answering them. The business can also change how many tickets one account may raise in a day and the largest file allowed. Files can be attached only when a virus scanner is connected.'],
+  ['Requests for quotation', 'On by default and can be switched off by a setting. Off, the Request quotes links, the account’s requests pages and the Seller Hub inbox disappear, and nothing can be sent or answered. Requests already raised are kept. Files on a request appear only when a virus scanner is connected. The business sets how far ahead a deadline may be and how many suppliers one request may reach.'],
   ['Second reviewer for risky company applications', 'Off by default and turned on by a setting. The business chooses whether applications of raised risk, or only high risk, need two different reviewers to approve them.'],
   ['Order approvals', 'Enabled when the business wants certain orders to wait for an approver.'],
   ['Recurring and scheduled orders', 'Enabled when the business offers Buy Later and Subscribe & Reorder.'],

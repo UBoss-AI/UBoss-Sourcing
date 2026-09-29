@@ -4732,6 +4732,29 @@ buyer sends a preorder request from it: the proposal becomes `SUBMITTED` with th
 request's id, the conversation's `preorderRequestId` and `activeKey` take it, and
 a system card says so. The request itself is untouched and goes to the supplier.
 
+### 5.23b Requests for quotation
+
+Migration `20261021100000_rfq_requests` (checklist Master row 16).
+
+| Table | What one row is |
+|---|---|
+| `rfq_requests` | One request. Holds the CURRENT requirement (category, title, specification, `specsJson`, `quantity` and `annualVolume` as `DECIMAL(15,3)`, `targetUnitPriceMinor` BIGINT + `targetCurrency`, destination, Incoterm, certifications, sample and inspection choices, `responseDeadline` in UTC, `deliveryTargetDate`, notes), the draft's supplier choices, the match outcome, `currentRequirementVersion`, `status` and `version` |
+| `rfq_requirement_versions` | Every submitted version of the requirement, whole (`snapshotJson`), with the fields that changed. Append-only; `UNIQUE (rfqId, versionNumber)` |
+| `rfq_invitations` | One seller asked to quote. `UNIQUE (rfqId, sellerAccountId)`: a seller is asked once per request. `source` MATCHED or BUYER_SELECTED |
+| `rfq_attachments` | A private file. `purpose` REQUIREMENT, QUOTE or NEGOTIATION; `requirementVersion` NULL until frozen into a version; `sellerAccountId` names the thread for quote and negotiation files |
+| `rfq_events` | The timeline. `sellerAccountId` and `sharedWithSuppliers` decide which seller may see a row |
+
+**Rules the database holds.** `chk_rfq_target_price_pair`: a target price is
+an amount and a currency, or neither. The request belongs to
+`customer_profiles` (cascade) and optionally `buyer_companies` (restrict).
+
+**State models** (`domain/rfq-state.ts`). Request: DRAFT → OPEN (buyer) →
+AWARDED (system, on acceptance) / CLOSED / CANCELLED (buyer); DRAFT →
+CANCELLED. Invitation: INVITED → VIEWED → QUOTED → WITHDRAWN; INVITED or
+VIEWED → DECLINED, or → EXPIRED (system, deadline passed) → INVITED again if
+the deadline moves later. Every write is conditional on the status and
+`version` read.
+
 ### 5.24 Seller documents: invoices and packing lists
 
 **Purpose.** A marketplace seller is the supplier of their goods, so the tax

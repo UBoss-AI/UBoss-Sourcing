@@ -16,8 +16,8 @@ import {
   RequirementDetails,
   RfqStatusBadge,
   RfqTimeline,
-  formatUtc,
 } from '@/components/rfq/RfqParts';
+import { formatUtc } from '@/lib/rfq-format';
 import { SupplierPicker } from '@/components/rfq/SupplierPicker';
 import { useToast } from '@/components/toast-context';
 import { Tabs } from '@/components/ui/Tabs';

@@ -195,7 +195,7 @@ function RfqForm({
 
   const fieldMessage = (code: string, meta?: Record<string, unknown>): string =>
     t(`rfq.fieldError.${code}` as TranslationKey, {
-      days: String(meta?.['maxDays'] ?? options.maxResponseDays),
+      days: typeof meta?.['maxDays'] === 'number' ? String(meta['maxDays']) : String(options.maxResponseDays),
       defaultValue: t('rfq.fieldError.INVALID'),
     });
 
@@ -205,7 +205,7 @@ function RfqForm({
       const lines: { field?: string; message: string }[] = [];
       for (const detail of error.details) {
         const field = detail.field ?? '';
-        const message = fieldMessage(detail.code, detail.meta);
+        const message = fieldMessage(detail.code ?? 'INVALID', detail.meta);
         if (field.length > 0 && next[field] === undefined) next[field] = message;
         lines.push({ field, message: field.length > 0 ? `${t(`rfq.fieldName.${field}` as TranslationKey, { defaultValue: field })}: ${message}` : message });
       }

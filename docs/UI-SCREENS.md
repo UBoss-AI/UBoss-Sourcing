@@ -346,6 +346,9 @@ flowchart TD
     Sched["/account/schedules/:id"]
     Pre["/account/preorders"]
     PreOne["/account/preorders/:id"]
+    Rfqs["/account/rfqs"]
+    RfqNew["/account/rfqs/new, /account/rfqs/:id/edit"]
+    RfqOne["/account/rfqs/:id"]
     Settings["profile, company, addresses, region"]
     Payments["payment-methods, autopay, billing"]
     Erp["/account/integrations/erp and its pages"]
@@ -2389,6 +2392,60 @@ is needed by …" when the seller is waiting on you.
 | Expired | Expired |
 
 **API call:** `GET /api/v1/preorders`
+
+#### `/account/rfqs` — Requests for quotation
+
+| | |
+|---|---|
+| **Who** | Activated customer; `features.rfq` on |
+| **File** | `pages/rfq/RfqListPage.tsx` |
+
+**On the screen.** "New request", status filters with a count each (in the
+address as `?status=`), and a card per request: title, reference, category,
+quantity, destination, deadline (UTC) and "n of m suppliers" answered. A draft
+opens its form; anything else opens the request. Loading, empty and
+error-with-retry states. **Calls** `GET /rfqs`.
+
+#### `/account/rfqs/new` and `/account/rfqs/:id/edit` — Write a request
+
+| | |
+|---|---|
+| **Who** | Activated customer; a company member needs PURCHASE |
+| **File** | `pages/rfq/RfqEditPage.tsx`, `components/rfq/SupplierPicker.tsx` |
+
+**On the screen.** One form in sections: what you need (category, title,
+specification, key details), quantity and price, where it goes (country,
+Incoterm, port, address), conditions (certifications, sample, inspection),
+timing (deadline in UTC, delivery date, notes), files (after the first save),
+and suppliers (the matches for the category and destination, each with a
+tick box to leave out, and a search to add an approved seller by name).
+`?categoryId=` and `?title=` prefill it. **Save draft**, **Delete draft**,
+**Send to suppliers**. The browser checks quantities, price and the deadline
+first; the server's refusal marks each field (`aria-invalid`,
+`aria-describedby`) and lists them in a focused summary. **Calls**
+`GET /rfqs/form-options`, `POST /rfqs`, `PUT /rfqs/:id`, `DELETE /rfqs/:id`,
+`GET /rfqs/:id/matches`, `GET /rfqs/suppliers`, `POST /rfqs/:id/attachments`,
+`POST /rfqs/:id/submit`.
+
+#### `/account/rfqs/:id` — One request
+
+| | |
+|---|---|
+| **Who** | The buyer who owns it, or a member of the company it belongs to |
+| **File** | `pages/rfq/RfqDetailPage.tsx`, `components/rfq/RfqParts.tsx` |
+
+**On the screen.** Status, deadline (UTC; says when it has passed), the
+requirement version and how many sellers answered. Tabs: **Requirement** (every
+field, missing ones as "Not provided", and the version history),
+**Suppliers** (a table of who was asked, how they were chosen and their status;
+"no match" said plainly; ask another seller by name while open), **Files**,
+**Timeline**. **Close request** and **Cancel request** ask for confirmation and
+an optional reason. **Calls** `GET /rfqs/:id`, `POST /rfqs/:id/invitations`,
+`POST /rfqs/:id/cancel`, `POST /rfqs/:id/close`.
+
+**Entry points.** Account menu and sidebar ("Requests for quotation"), "Request
+quotes from suppliers" in the category page's sourcing block, and "Need a
+different quantity or terms? Request quotes" under a product's sourcing panel.
 
 #### `/account/preorders/:id` — One preorder
 

@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1111 endpoints** in 97 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1126 endpoints** in 98 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -31,7 +31,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 274 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 233 |
+| [Customer account](#customer-account) | 248 |
 | [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
@@ -2256,6 +2256,28 @@ Defined in `backend/src/http/routes/returns.ts`.
 | POST | `/api/v1/returns/:id/files` | Customer | Customer | Add one more photograph or video to your open return. Checked by its contents, scanned, stored privately. |
 | POST | `/api/v1/returns/:id/files/:fileId/link` | Customer | Customer | A five-minute, single-use link to one file of your return. |
 | GET | `/api/v1/returns/:id/files/:fileId/download` | Customer | Customer | Download a file of your return with a link from the route above. Spent on first use. |
+
+### `rfqs`
+
+Defined in `backend/src/http/routes/rfq.customer.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/rfqs/form-options` | Customer | Feature + Customer | What the request form offers: units of measure, Incoterms, sample and inspection choices, the deadline limit and the file rules. |
+| GET | `/api/v1/rfqs` | Customer | Feature + Customer | Your requests for quotation, newest activity first, with a count per status. |
+| POST | `/api/v1/rfqs` | Customer | Feature + Customer | Start a draft request for quotation. Needs an Idempotency-Key. Writes an audit entry. |
+| GET | `/api/v1/rfqs/suppliers` | Customer | Feature + Customer | Approved sellers a buyer may pick by name, with whether each would match the category and destination given. |
+| GET | `/api/v1/rfqs/:id` | Customer | Feature + Customer | One of your requests: requirement, versions, sellers asked, files and timeline. |
+| PUT | `/api/v1/rfqs/:id` | Customer | Feature + Customer | Save a draft again, whole. Conditional on the version it was opened at. |
+| DELETE | `/api/v1/rfqs/:id` | Customer | Feature + Customer | Delete a draft and its files. A request already sent cannot be deleted. |
+| GET | `/api/v1/rfqs/:id/matches` | Customer | Feature + Customer | Which sellers a draft would be sent to now, and whether any match. |
+| POST | `/api/v1/rfqs/:id/submit` | Customer | Feature + Customer | Send a draft to the matching sellers and any picked by name. Validated again on the server; needs an Idempotency-Key. Writes an audit entry and tells every invited seller. |
+| POST | `/api/v1/rfqs/:id/invitations` | Customer | Feature + Customer | Ask one more approved seller, by name, on a request already sent. |
+| POST | `/api/v1/rfqs/:id/cancel` | Customer | Feature + Customer | Cancel a draft or an open request. Every seller still taking part is told. |
+| POST | `/api/v1/rfqs/:id/close` | Customer | Feature + Customer | Close an open request without choosing any quote. |
+| POST | `/api/v1/rfqs/:id/attachments` | Customer | Feature + Customer | Attach a PDF or image to the requirement. Checked by its contents, scanned and stored privately. On a sent request it waits for the next version. |
+| DELETE | `/api/v1/rfqs/:id/attachments/:attachmentId` | Customer | Feature + Customer | Remove a requirement file that is not yet part of any version sent to sellers. |
+| GET | `/api/v1/rfqs/:id/attachments/:attachmentId/download` | Customer | Feature + Customer | Download a file on your request. Served as a download, never inline. |
 
 ### `support`
 

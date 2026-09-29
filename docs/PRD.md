@@ -1668,8 +1668,9 @@ all absent (`BUYER_COMPANIES_DISABLED`).
      category's subtree; an unknown category has none.
   3. The assistant hand-off appears only when `features.assistant` is on, and
      parks the question for editing — it is never sent on the buyer's behalf.
-  4. There is no "Request quotes" button yet: that is the RFQ flow (Master
-     row 16), and a button with nothing behind it would mislead.
+  4. "Request quotes from suppliers" opens a new request for quotation
+     filed in this category (FR-RFQ-001), when `features.rfq` is on and the
+     category is not blocked for the destination.
 - **Status.** Built (29 Sep 2026, checklist Master row 3).
 
 ### FR-SRCH-012 — Product page: who sells it and how it reaches you
@@ -3047,6 +3048,53 @@ and has no route that reads these conversations.
   never by name.
 
 ---
+
+## 5.11b Requests for quotation (RFQ)
+
+A buyer describes what they need; the marketplace sends it to the approved
+sellers who could supply it; each seller answers. Behind `FEATURE_RFQ`
+(default on). Status is only changed through `domain/rfq-state.ts`, and every
+status write is conditional on the status and version that were read.
+
+### FR-RFQ-001 — Raise a request (checklist Master row 16)
+
+- **Statement.** A signed-in buyer, for themselves or for a company, writes a
+  request, saves it as a DRAFT as often as they like, and sends it.
+- **Fields.** Category, title, detailed specification, key/value details
+  (up to 40), quantity and unit of measure (decimal, up to 3 places), yearly
+  volume, target price (minor units + currency, both or neither), destination
+  country, port and address, Incoterm (the 11 Incoterms 2020), required
+  certifications, sample requirement, inspection requirement, response
+  deadline (an instant, UTC), wanted delivery date, notes, files.
+- **Rules.**
+  1. Every save checks format: known active category, active currency, ISO
+     country, positive quantities, a deadline in the future, a real date.
+  2. Submission checks again on the server and names every problem at once
+     (`RFQ_INCOMPLETE`): the required fields, a deadline within
+     `RFQ_MAX_RESPONSE_DAYS`, a port or address for C and D group Incoterms,
+     and a delivery date not before the deadline.
+  3. A company request needs the PURCHASE capability; a draft may be written
+     before the company is approved, but sending it needs APPROVED.
+  4. Only a draft can be edited in place or deleted (`RFQ_NOT_EDITABLE`).
+  5. Sending needs an Idempotency-Key; a repeat replays the first answer and a
+     second press finds the request no longer a draft (409).
+  6. Matching: sellers that are APPROVED, have a live offer on a public
+     product in the category or beneath it, whose product may be sold into
+     the destination (market rules), and are not the buyer's own business,
+     capped by `RFQ_MAX_MATCHED_SUPPLIERS`. The buyer may exclude matched
+     sellers and add approved ones by name; the total is capped by
+     `RFQ_MAX_INVITED_SUPPLIERS`.
+  7. A category blocked for the destination refuses submission
+     (`RFQ_DESTINATION_BLOCKED`). No match is a real outcome (`NO_MATCH`),
+     shown to the buyer, who can still invite sellers by name.
+  8. Each invitation is a row (one per seller per request); each invited
+     seller gets a Seller Hub alert and an email to members who can fulfil
+     orders. Creating, sending, inviting, cancelling and files are audited.
+  9. Files: PDF, JPEG, PNG, WebP or GIF, checked by content, malware-scanned,
+     private, up to `RFQ_ATTACHMENT_MAX_BYTES` and `RFQ_ATTACHMENTS_PER_RFQ`.
+     A file on a draft becomes part of version 1 on submission and can no
+     longer be removed.
+- **Status.** Built (checklist Master row 16).
 
 ## 5.12 Buying by the carton, pallet or container; freight (BULK)
 
@@ -5620,6 +5668,7 @@ Remove-Item Env:\DATABASE_URL
 | `PREORDER_OPEN_TO_ALL` | `true` | Preorders on every product (platform default terms; staff answer the operator's own) |
 | `FEATURE_PREORDER_CHAT` | `true` | **Chat with {marketplace}** on product pages and the **Preorder Chats** inbox (FR-PCH). Tuning: `REALTIME_BUS_DRIVER` (`memory`; `database` for several API processes), `PREORDER_CHAT_TYPICAL_RESPONSE`, `OPERATOR_TEAM_NAME` (the operator team's name in chat and delivery levels; empty = the marketplace name), `PREORDER_CHAT_SLA_MINUTES` (240), `PREORDER_CHAT_EMAIL_DELAY_MINUTES` (10), `PREORDER_CHAT_MESSAGES_PER_MINUTE` (20), `PREORDER_CHAT_CONVERSATIONS_PER_HOUR` (10), `PREORDER_CHAT_MAX_MESSAGE_CHARS` (4000), `PREORDER_CHAT_ATTACHMENTS_ENABLED` (`true`), `PREORDER_CHAT_ATTACHMENT_MAX_BYTES` (10 MB), `PREORDER_CHAT_ALLOW_UNSCANNED_ATTACHMENTS` (`false`, refused in production), `PREORDER_CHAT_RETENTION_DAYS` (0 = keep) |
 | `FEATURE_PRODUCT_REVIEWS` | `true` | **Product reviews** (FR-CAT-018): stars on cards and product pages, the review form, **Rate this product** on delivered orders and **Account → My reviews**. Reported as `features.productReviews` in the public config. Off refuses the storefront review routes; the console screen stays |
+| `FEATURE_RFQ` | `true` | **Requests for quotation** (§5.11b): the account's RFQ pages, "Request quotes" on category and product pages, and the Seller Hub inbox. Reported as `features.rfq`. Off refuses every RFQ route with `404 FEATURE_DISABLED` on both sides; nothing is deleted. Tuning: `RFQ_MAX_RESPONSE_DAYS` (90), `RFQ_MAX_MATCHED_SUPPLIERS` (25), `RFQ_MAX_INVITED_SUPPLIERS` (50), `RFQ_ATTACHMENT_MAX_BYTES` (10 MB), `RFQ_ATTACHMENTS_PER_RFQ` (40), `RFQ_ALLOW_UNSCANNED_ATTACHMENTS` (`false`; refused in production) |
 | `FEATURE_SUPPORT_TICKETS` | `true` | **Support tickets** (§5.19a): the **Raise a ticket** form on the Support page in the storefront, Seller Hub and the portal. Reported as `features.supportTickets` in the public config. Off shows only the published contacts and refuses new tickets with `403 FEATURE_DISABLED`; existing tickets stay readable, senders can still reply and add files, and the console inbox keeps working. Settings in §10.12 |
 | `PAYMENT_MOCK_SUCCESS` | `false` | Development-only "Mark this order as paid" test path |
 | `ENABLE_DEMO_CATALOG` | `true` outside production, `false` in production | Shows the demonstration catalogue |

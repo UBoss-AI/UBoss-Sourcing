@@ -145,7 +145,7 @@ export function CategorySourcing({
       {canRequest && (
         <p className="mt-3 text-sm">
           <Link
-            to={`/account/rfqs/new?categoryId=${encodeURIComponent(categoryId ?? "")}`}
+            to={`/account/rfqs/new?categoryId=${encodeURIComponent(categoryId)}`}
             className="inline-flex items-center gap-1.5 font-medium text-brand underline-offset-2 hover:text-brand-hover hover:underline
                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
           >

@@ -13111,6 +13111,40 @@ and refused in production.
 - No seller participant, no mobile push, no editing a sent message.
 - Spreadsheets are not accepted as attachments.
 
+## 9.5.3c Requests for quotation (RFQ)
+
+A buyer who needs something the product pages do not offer - a quantity, a
+specification, a destination - writes a **request for quotation** at
+`/account/rfqs/new` (or from "Request quotes" on a category or product page).
+It is saved as a **draft** as often as they like and sent with **Send to
+suppliers**. Behind `FEATURE_RFQ` (default on).
+
+**What the server checks.** Every save checks the format of what is there.
+Sending checks everything again and names every problem at once
+(`RFQ_INCOMPLETE`): category, title, specification, quantity and unit,
+destination country, Incoterm and a deadline in the future within
+`RFQ_MAX_RESPONSE_DAYS`; a port or address for C and D group Incoterms; and a
+delivery date not before the deadline. Sending needs an Idempotency-Key, and a
+second press finds the request no longer a draft - so it is sent once.
+
+**Who it goes to.** Sellers that are approved, have a live offer on a public
+product in the category or below it that may be sold into the destination,
+and are not the buyer's own business (`modules/rfq/matching.service.ts`). The
+buyer can leave matched sellers out and add approved ones by name. A category
+blocked for the destination refuses sending (`RFQ_DESTINATION_BLOCKED`). When
+nothing matches the request says **no match** - it never pretends - and the
+buyer invites sellers by name from its page. Each seller asked gets one
+`rfq_invitations` row, a Seller Hub alert and an email.
+
+**Who may see it.** The same line orders draw: the person's own requests, or
+the company's for a member of it (a BUYER role sees only their own). Another
+buyer's request is a 404. A company member needs PURCHASE to write, and an
+APPROVED company to send.
+
+**Files.** PDF or images, checked by content, scanned, private, streamed back
+only through the signed-in routes. A draft's files become part of version 1
+when it is sent and can no longer be removed.
+
 ## 9.5.4 Seller invoices and packing lists
 
 ### Whose document it is
@@ -18899,6 +18933,7 @@ the carrier portal does not sign a member of staff out of the console.
 | `FEATURE_LOGISTICS_PORTAL` | `false` | The whole of section 5a. Off means every guarded `/api/v1/logistics/*` route refuses with `FEATURE_DISABLED`, so the third application has nothing a carrier can use, and carrier webhooks are refused. The admin panel's Logistics group **stays**, and staff can still create carriers and prepare them before the switch is turned on |
 | `FEATURE_BUYER_COMPANIES` | `true` | **Individual and Company buyers** (section 9.1a): the Company sign-in tab, `/register/company`, the company application, the context switcher, and the console's **Company verification** screens. Published as `features.buyerCompanies`. Tuning lives beside it: `BUYER_COMPANY_MAX_OPEN_APPLICATIONS`, `BUYER_COMPANY_INVITE_TTL_HOURS`, `BUYER_COMPANY_DOCUMENT_MAX_BYTES`, `BUYER_COMPANY_DOCUMENT_MAX_PAGES`, `BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS` (development only; refused in production), `BUYER_COMPANY_SECOND_REVIEW_RISK`, `BUYER_COMPANY_CONSENT_VERSION`, the three register addresses `BUYER_COMPANY_GLEIF_URL`, `BUYER_COMPANY_PL_VAT_URL`, `BUYER_COMPANY_PL_KRS_URL` (blank makes that check manual) and `BUYER_COMPANY_REGISTRY_TIMEOUT_MS`. The EU VAT check reuses `VIES_CHECK_URL` |
 | `FEATURE_PRODUCT_REVIEWS` | `true` | **Product reviews** (section 9.12): the stars on every product card and product page, the review form, a delivered order's **Rate this product** and **Account → My reviews**. Published as `features.productReviews`. Off refuses the storefront review routes; written reviews are kept and the console's **Product reviews** screen still works |
+| `FEATURE_RFQ` | `true` | **Requests for quotation**: the account's RFQ pages (`/account/rfqs`), "Request quotes" on category and product pages, and the Seller Hub inbox. Published as `features.rfq`. Off, every RFQ route answers `404 FEATURE_DISABLED` and nothing is deleted. Tuning: `RFQ_MAX_RESPONSE_DAYS` (90), `RFQ_MAX_MATCHED_SUPPLIERS` (25), `RFQ_MAX_INVITED_SUPPLIERS` (50), `RFQ_ATTACHMENT_MAX_BYTES` (10485760), `RFQ_ATTACHMENTS_PER_RFQ` (40), `RFQ_ALLOW_UNSCANNED_ATTACHMENTS` (`false`; development only, refused in production) |
 | `FEATURE_SUPPORT_TICKETS` | `true` | **Support tickets** (section 9.13): the **Raise a ticket** form on the Support page in the storefront, Seller Hub and the logistics portal. Published as `features.supportTickets`. Off, the Support page shows only the published contacts and a new ticket is refused with `403 FEATURE_DISABLED`; existing tickets stay readable, senders can still reply and add files, and staff keep working in the console. Tuning lives beside it: `SUPPORT_TICKETS_PER_DAY` (10; 1 to 200), `SUPPORT_ATTACHMENTS_ENABLED` (`true`), `SUPPORT_ATTACHMENT_MAX_BYTES` (26214400, which is 25 MB) and `SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS` (`false`; development only, refused in production) |
 | `FEATURE_PREORDER_CHAT` | `true` | **Chat with {marketplace}** on every product page, **Account → Messages** and the console's **Preorder Chats** (section 9.5.3b). Off answers every chat route 404 and hides the button. Tuning lives beside it: `REALTIME_BUS_DRIVER` (`memory`; `database` for several API processes), `PREORDER_CHAT_TYPICAL_RESPONSE`, `OPERATOR_TEAM_NAME` (the name the operator's own team works under - `{{team}}` in the translations, used in chat and in every "who manages this delivery level" sentence; empty = the marketplace name), `PREORDER_CHAT_SLA_MINUTES`, `PREORDER_CHAT_EMAIL_DELAY_MINUTES`, the rate and size limits, the attachment settings and `PREORDER_CHAT_RETENTION_DAYS` |
 | `ASSISTANT_ENABLED` | — | AI Mode and image search |

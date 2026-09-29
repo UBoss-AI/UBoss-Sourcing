@@ -1433,6 +1433,7 @@ What these do is explained in [Support tickets](#support-tickets).
 
 | Variable | What it does |
 |---|---|
+| `FEATURE_RFQ` | Requests for quotation: buyers describe what they need, approved sellers of that category are invited, and they ask, quote and negotiate in Seller Hub. Default `true`. `false` hides every RFQ screen and entry point and refuses every RFQ route with `404 FEATURE_DISABLED`; nothing is deleted. Tuning: `RFQ_MAX_RESPONSE_DAYS`, `RFQ_MAX_MATCHED_SUPPLIERS`, `RFQ_MAX_INVITED_SUPPLIERS`, `RFQ_ATTACHMENT_MAX_BYTES`, `RFQ_ATTACHMENTS_PER_RFQ`, `RFQ_ALLOW_UNSCANNED_ATTACHMENTS` (development only) |
 | `FEATURE_SUPPORT_TICKETS` | Raising new tickets. Default `true`. `false` leaves the **Support** page showing only your published contacts and refuses a new ticket with `403 FEATURE_DISABLED`. Tickets already raised stay readable, their senders can still reply and add files, and staff keep working in the console |
 | `SUPPORT_TICKETS_PER_DAY` | How many tickets one account may raise in a day. Default `10`, from `1` to `200`. One more is refused with `429 SUPPORT_TICKET_LIMIT_REACHED` |
 | `SUPPORT_ATTACHMENTS_ENABLED` | Whether files can be attached to a ticket at all. Default `true` |
@@ -2846,6 +2847,16 @@ not issue a **proforma invoice**; the terms the buyer confirms, with their
 reference, are the quotation.
 
 ---
+## Requests for quotation
+
+A buyer describes what they need - category, specification, quantity and
+unit, destination, Incoterm, certifications, sample and inspection needs, a
+deadline and files - saves it as a draft and sends it from
+**Account → Requests for quotation** (`/account/rfqs`). The marketplace sends
+it to the approved sellers of that category who may sell into the
+destination; the buyer can leave some out and add others by name. When
+nobody matches, the request says so. Switched by `FEATURE_RFQ` (default on).
+
 ## Preorder chat
 
 A buyer looking at any product can ask **your team** about a preorder before

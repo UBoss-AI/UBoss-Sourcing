@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**342 tables · 319 enums · 788 extra indexes and unique keys**, in 54 groups. The groups follow the section banners in the schema file.
+**347 tables · 324 enums · 798 extra indexes and unique keys**, in 55 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -79,6 +79,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.](#group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts) | 14 | 11 |
 | [/ what a ledger account represents. balances are never stored; they are the / sum of the account's lines.](#group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines) | 8 | 7 |
 | [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
+| [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 5 | 5 |
 
 <a id="group-identity-access"></a>
 
@@ -825,6 +826,7 @@ Table `categories`
 - `attributeDefinitions` ← [CategoryAttributeDefinition](#model-categoryattributedefinition) - has many
 - `listingDrafts` ← [SellerListingDraft](#model-sellerlistingdraft) - has many
 - `marketRules` ← [MarketRule](#model-marketrule) - has many
+- `rfqRequests` ← [RfqRequest](#model-rfqrequest) - has many
 
 **Indexes and keys**
 
@@ -1729,6 +1731,7 @@ Table `customer_profiles`
 - `fulfilmentQuotes` ← [FulfilmentQuote](#model-fulfilmentquote) - has many
 - `assistantConversations` ← [AssistantConversation](#model-assistantconversation) - has many
 - `preorderRequests` ← [PreorderRequest](#model-preorderrequest) - has many
+- `rfqRequests` ← [RfqRequest](#model-rfqrequest) - has many
 - `preorderChats` ← [PreorderChatConversation](#model-preorderchatconversation) - has many
 - `preorderChatBlock` ← [PreorderChatCustomerBlock](#model-preorderchatcustomerblock) - has zero or one
 - `organizationMembership` ← [BuyerOrganizationMember](#model-buyerorganizationmember) - has zero or one
@@ -7929,6 +7932,7 @@ A seller business, as a tenant.
 - `orderSettlements` ← [SellerOrderSettlement](#model-sellerordersettlement) - has many
 - `preorderPolicies` ← [PreorderPolicy](#model-preorderpolicy) - has many
 - `preorderRequests` ← [PreorderRequest](#model-preorderrequest) - has many
+- `rfqInvitations` ← [RfqInvitation](#model-rfqinvitation) - has many
 - `invoiceSettings` ← [SellerInvoiceSettings](#model-sellerinvoicesettings) - has zero or one
 - `sellerInvoices` ← [SellerInvoice](#model-sellerinvoice) - has many
 - `packingLists` ← [SellerPackingList](#model-sellerpackinglist) - has many
@@ -9640,6 +9644,8 @@ What a seller is being told about.
 | `PREORDER_DELIVERY_RISK` | A confirmed preorder is close to its committed date and is not ready. |
 | `INVOICE_CREDIT_NOTE_REQUIRED` | An issued invoice's goods were cancelled or returned, so a credit note is owed. An ALERT, closed when the credit note is issued. |
 | `INSPECTION_UPDATE` | An inspection moved: booked, reported, failed, released. See the THIRD-PARTY PRE-SHIPMENT INSPECTION block. |
+| `RFQ_INVITATION` | A buyer asked this seller to quote. An ALERT: it waits on the seller, and is closed by a quote or a decline. |
+| `RFQ_UPDATE` | Something moved on a request this seller is quoting on: the requirement changed, the buyer asked or answered, countered, accepted or closed it. |
 
 <a id="group-how-a-seller-came-to-be-able-to-use-a-carrier-stored-because-it-decides-who-may-end-the-relationship-and-on-what-notice-which-is-a-question-that-gets-asked-exactly-once-during-a-dispute"></a>
 
@@ -16057,6 +16063,7 @@ Table `buyer_companies`
 - `orders` ← [Order](#model-order) - has many
 - `addressBook` ← [Address](#model-address) - has many
 - `preorderRequests` ← [PreorderRequest](#model-preorderrequest) - has many
+- `rfqRequests` ← [RfqRequest](#model-rfqrequest) - has many
 - `supportTickets` ← [SupportTicket](#model-supportticket) - has many
 - `schedules` ← [RecurringSchedule](#model-recurringschedule) - has many
 - `approvalPolicy` ← [BuyerCompanyApprovalPolicy](#model-buyercompanyapprovalpolicy) - has zero or one
@@ -20307,4 +20314,299 @@ Table `secret_fingerprints`
 **Indexes and keys**
 
 - `@@unique([secretName, fingerprint], map: "uq_secret_fingerprint")`
+
+<a id="group-requests-for-quotation-rfq-checklist-master-rows-16-19"></a>
+
+## Requests for quotation (rfq) - checklist master rows 16-19
+
+[RfqRequest](#model-rfqrequest) · [RfqRequirementVersion](#model-rfqrequirementversion) · [RfqInvitation](#model-rfqinvitation) · [RfqAttachment](#model-rfqattachment) · [RfqEvent](#model-rfqevent)
+
+```mermaid
+erDiagram
+    CustomerProfile ||--o{ RfqRequest : "customerProfile"
+    BuyerCompany |o--o{ RfqRequest : "buyerCompany"
+    Category |o--o{ RfqRequest : "category"
+    RfqRequest ||--o{ RfqRequirementVersion : "rfq"
+    RfqRequest ||--o{ RfqInvitation : "rfq"
+    SellerAccount ||--o{ RfqInvitation : "sellerAccount"
+    RfqRequest ||--o{ RfqAttachment : "rfq"
+    RfqRequest ||--o{ RfqEvent : "rfq"
+    RfqRequest {
+        String id PK
+        RfqStatus status
+        String customerProfileId FK
+        String buyerCompanyId FK
+        String categoryId FK
+        BigInt targetUnitPriceMinor
+    }
+    RfqRequirementVersion {
+        String id PK
+        String rfqId FK
+    }
+    RfqInvitation {
+        String id PK
+        String rfqId FK
+        String sellerAccountId FK
+        RfqInvitationStatus status
+    }
+    RfqAttachment {
+        String id PK
+        String rfqId FK
+    }
+    RfqEvent {
+        String id PK
+        String rfqId FK
+    }
+```
+
+<a id="model-rfqrequest"></a>
+
+### RfqRequest
+
+Table `rfq_requests`
+
+One request for quotation. The row holds the CURRENT requirement; every submitted version of it is also kept in `rfq_requirement_versions`.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `reference` | String · VarChar(32) |  | UNIQUE |  | RFQ-2026-000123. Given when the draft is created. |
+| `status` | [enum RfqStatus](#enum-rfqstatus) |  |  | DRAFT |  |
+| `version` | Int |  |  | 0 | Optimistic lock. Every status write and every requirement change is conditional on the version read. |
+| `customerProfileId` | String · Char(26) |  | FK → [CustomerProfile](#model-customerprofile) |  | Who raised it. Owner for an individual request; the creating member for a company one. (on delete: Cascade) |
+| `buyerCompanyId` | String · Char(26) | yes | FK → [BuyerCompany](#model-buyercompany) |  | The company it was raised for, or NULL for the person themselves. (on delete: Restrict) |
+| `createdByUserId` | String · Char(26) |  |  |  |  |
+| `categoryId` | String · Char(26) | yes | FK → [Category](#model-category) |  | (on delete: Restrict) |
+| `title` | String · VarChar(200) |  |  | "" |  |
+| `specification` | String · Text | yes |  |  |  |
+| `specsJson` | Json | yes |  |  | `[{ key, value }]` - the category-specific details in the buyer's words. |
+| `quantity` | Decimal · Decimal(15, 3) | yes |  |  | Decimal, up to three places, in `unitOfMeasure`. |
+| `unitOfMeasure` | String · VarChar(16) | yes |  |  |  |
+| `annualVolume` | Decimal · Decimal(15, 3) | yes |  |  |  |
+| `targetUnitPriceMinor` | BigInt | yes |  |  | Optional. Both or neither: the service refuses one without the other. |
+| `targetCurrency` | String · Char(3) | yes |  |  |  |
+| `destinationCountry` | String · Char(2) | yes |  |  |  |
+| `destinationAddress` | String · VarChar(500) | yes |  |  |  |
+| `destinationPort` | String · VarChar(120) | yes |  |  |  |
+| `incoterm` | String · VarChar(3) | yes |  |  | Incoterms 2020 three-letter code, validated against `domain/packaging.ts`. |
+| `certificationsJson` | Json | yes |  |  | `["ISO 13485", "CE"]`, as the buyer wrote them. |
+| `sampleRequirement` | String · VarChar(24) |  |  | "NONE" |  |
+| `inspectionRequirement` | String · VarChar(32) |  |  | "NONE" |  |
+| `responseDeadline` | DateTime · DateTime(3) | yes |  |  | An instant, held in UTC. Quotes are accepted until then. |
+| `deliveryTargetDate` | DateTime · Date | yes |  |  |  |
+| `notes` | String · Text | yes |  |  |  |
+| `includeSellerIdsJson` | Json | yes |  |  | Sellers the buyer picked by name on the draft, `[sellerAccountId]`. |
+| `excludeSellerIdsJson` | Json | yes |  |  | Matched sellers the buyer chose not to ask, `[sellerAccountId]`. |
+| `matchedSupplierCount` | Int |  |  | 0 | How many sellers matching found at submission, and whether any did. NO_MATCH is a real answer the buyer is shown, never papered over. |
+| `matchOutcome` | String · VarChar(16) | yes |  |  |  |
+| `currentRequirementVersion` | Int |  |  | 0 | 0 while a draft; 1 once submitted; +1 per amendment. |
+| `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `closedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `cancelledAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `statusReason` | String · VarChar(1000) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `buyerCompany` → [BuyerCompany](#model-buyercompany) via `buyerCompanyId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
+- `category` → [Category](#model-category) via `categoryId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
+- `requirementVersions` ← [RfqRequirementVersion](#model-rfqrequirementversion) - has many
+- `invitations` ← [RfqInvitation](#model-rfqinvitation) - has many
+- `attachments` ← [RfqAttachment](#model-rfqattachment) - has many
+- `events` ← [RfqEvent](#model-rfqevent) - has many
+
+**Indexes and keys**
+
+- `@@index([customerProfileId, buyerCompanyId, updatedAt], map: "ix_rfq_request_owner")`
+- `@@index([buyerCompanyId, updatedAt], map: "ix_rfq_request_company")`
+- `@@index([status, responseDeadline], map: "ix_rfq_request_deadline")`
+- `@@index([categoryId], map: "ix_rfq_request_category")`
+
+<a id="model-rfqrequirementversion"></a>
+
+### RfqRequirementVersion
+
+Table `rfq_requirement_versions`
+
+Every submitted version of a requirement. Append-only: version 1 is what was submitted, and each amendment adds one. What a seller quoted against is always recoverable.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `rfqId` | String · Char(26) |  | FK → [RfqRequest](#model-rfqrequest) |  | (on delete: Cascade) |
+| `versionNumber` | Int |  |  |  |  |
+| `snapshotJson` | Json |  |  |  | The whole requirement at this version (`domain/rfq.ts` RfqRequirement). |
+| `changedFieldsJson` | Json |  |  |  | The fields that differ from the version before. Empty for version 1. |
+| `changeSummary` | String · VarChar(1000) | yes |  |  | The buyer's own words about what changed and why. |
+| `createdByUserId` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `rfq` → [RfqRequest](#model-rfqrequest) via `rfqId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([rfqId, versionNumber], map: "uq_rfq_requirement_version")`
+
+<a id="model-rfqinvitation"></a>
+
+### RfqInvitation
+
+Table `rfq_invitations`
+
+One seller asked to quote on one request.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `rfqId` | String · Char(26) |  | FK → [RfqRequest](#model-rfqrequest) |  | (on delete: Cascade) |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `source` | [enum RfqInvitationSource](#enum-rfqinvitationsource) |  |  |  |  |
+| `status` | [enum RfqInvitationStatus](#enum-rfqinvitationstatus) |  |  | INVITED |  |
+| `invitedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `viewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `respondedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `declineReason` | String · VarChar(1000) | yes |  |  | The seller's reason for declining, shown to the buyer. |
+| `notifiedVersion` | Int |  |  | 1 | The latest requirement version this seller has been told about. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `rfq` → [RfqRequest](#model-rfqrequest) via `rfqId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([rfqId, sellerAccountId], map: "uq_rfq_invitation_seller")`
+- `@@index([sellerAccountId, status, updatedAt], map: "ix_rfq_invitation_seller")`
+
+<a id="model-rfqattachment"></a>
+
+### RfqAttachment
+
+Table `rfq_attachments`
+
+A file on a request. The bytes are private objects; who may download one is who may see its request and its purpose (see `rfq-attachment.service`).
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `rfqId` | String · Char(26) |  | FK → [RfqRequest](#model-rfqrequest) |  | (on delete: Cascade) |
+| `purpose` | [enum RfqAttachmentPurpose](#enum-rfqattachmentpurpose) |  |  |  |  |
+| `sellerAccountId` | String · Char(26) | yes |  |  | The seller thread a QUOTE or NEGOTIATION file belongs to. NULL for a requirement file, which every invited seller may see. |
+| `requirementVersion` | Int | yes |  |  | The requirement version a REQUIREMENT file was frozen into. NULL while it sits on a draft or waits for the next amendment - and while NULL no seller can see it and the buyer may still remove it. |
+| `quoteVersionId` | String · Char(26) | yes |  |  | The quote or offer version a QUOTE or NEGOTIATION file was sent with. NULL until it is sent; until then only its uploader can see it. |
+| `uploadedByParty` | [enum RfqParty](#enum-rfqparty) |  |  |  |  |
+| `uploadedByUserId` | String · Char(26) |  |  |  |  |
+| `storageKey` | String · VarChar(512) |  |  |  |  |
+| `fileName` | String · VarChar(255) |  |  |  | Sanitised display name. Never used as a storage path. |
+| `contentType` | String · VarChar(100) |  |  |  |  |
+| `byteSize` | Int |  |  |  |  |
+| `contentHash` | String · Char(64) |  |  |  |  |
+| `scanState` | String · VarChar(24) |  |  |  | CLEAN, or SCANNER_UNCONFIGURED on a development machine that accepts unscanned files. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `rfq` → [RfqRequest](#model-rfqrequest) via `rfqId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([rfqId, purpose, createdAt], map: "ix_rfq_attachment_rfq")`
+- `@@index([rfqId, sellerAccountId], map: "ix_rfq_attachment_seller")`
+
+<a id="model-rfqevent"></a>
+
+### RfqEvent
+
+Table `rfq_events`
+
+The activity timeline of a request. Append-only.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `rfqId` | String · Char(26) |  | FK → [RfqRequest](#model-rfqrequest) |  | (on delete: Cascade) |
+| `kind` | String · VarChar(40) |  |  |  | SUBMITTED, SUPPLIERS_MATCHED, NO_SUPPLIERS_MATCHED, SUPPLIER_INVITED, AMENDED, VIEWED, DECLINED, QUOTE_SUBMITTED, ... |
+| `sellerAccountId` | String · Char(26) | yes |  |  |  |
+| `sharedWithSuppliers` | Boolean |  |  | false |  |
+| `actorParty` | [enum RfqParty](#enum-rfqparty) |  |  |  |  |
+| `actorUserId` | String · Char(26) | yes |  |  |  |
+| `metaJson` | Json | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `rfq` → [RfqRequest](#model-rfqrequest) via `rfqId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([rfqId, createdAt], map: "ix_rfq_event_rfq")`
+
+### Enums in Requests for quotation (rfq) - checklist master rows 16-19
+
+<a id="enum-rfqstatus"></a>
+
+#### enum RfqStatus
+
+| Value | Meaning |
+|---|---|
+| `DRAFT` |  |
+| `OPEN` |  |
+| `CLOSED` |  |
+| `AWARDED` |  |
+| `CANCELLED` |  |
+
+<a id="enum-rfqparty"></a>
+
+#### enum RfqParty
+
+Who did something on a request. SYSTEM is the deadline sweep and matching.
+
+| Value | Meaning |
+|---|---|
+| `BUYER` |  |
+| `SUPPLIER` |  |
+| `SYSTEM` |  |
+
+<a id="enum-rfqinvitationstatus"></a>
+
+#### enum RfqInvitationStatus
+
+| Value | Meaning |
+|---|---|
+| `INVITED` |  |
+| `VIEWED` |  |
+| `QUOTED` |  |
+| `DECLINED` |  |
+| `WITHDRAWN` |  |
+| `EXPIRED` |  |
+
+<a id="enum-rfqinvitationsource"></a>
+
+#### enum RfqInvitationSource
+
+How a seller came to be asked: matched on category and destination, or picked by the buyer by name.
+
+| Value | Meaning |
+|---|---|
+| `MATCHED` |  |
+| `BUYER_SELECTED` |  |
+
+<a id="enum-rfqattachmentpurpose"></a>
+
+#### enum RfqAttachmentPurpose
+
+| Value | Meaning |
+|---|---|
+| `REQUIREMENT` | Part of the requirement. Seen by every invited seller once it is in a requirement version. |
+| `QUOTE` | Sent with a seller's quote. Seen by the buyer and that seller. |
+| `NEGOTIATION` | Sent with a counter-offer, by either side. Seen by the buyer and that seller. |
 

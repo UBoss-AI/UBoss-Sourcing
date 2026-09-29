@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**493 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**502 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -65,7 +65,8 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [B2C maximum order quantity](#b2c-maximum-order-quantity) | 1 |
 | [Pre-shipment inspection and the dispatch gate](#pre-shipment-inspection-and-the-dispatch-gate) | 17 |
 | [Returns](#returns) | 5 |
-| [The buyer experience: cart, checkout, account, alerts, reviews](#the-buyer-experience-cart-checkout-account-alerts-reviews) | 34 |
+| [The buyer experience: cart, checkout, account, alerts, reviews](#the-buyer-experience-cart-checkout-account-alerts-reviews) | 27 |
+| [Requests for quotation (Master rows 16-19)](#requests-for-quotation-master-rows-16-19) | 16 |
 
 ## Generic
 
@@ -762,6 +763,20 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `CUSTOMER_KYC_NOT_EDITABLE` | An individual buyer's identity details cannot be changed now: they are with a reviewer or already verified. 409. (Master row 11) |
 | `CUSTOMER_KYC_INCOMPLETE` | An identity check cannot be sent yet: a required detail or the identity document is missing. `details` names what. 400. |
 | `CUSTOMER_KYC_TRANSITION_INVALID` | The identity check cannot move that way from where it is. 409. |
+
+## Requests for quotation (Master rows 16-19)
+
+| Code | Meaning |
+|---|---|
+| `RFQ_TRANSITION_NOT_ALLOWED` | The request cannot move that way from where it is - or it changed while the screen was open (`details[0].code` STALE). 409. |
+| `RFQ_NOT_EDITABLE` | Only a draft can be edited in place or deleted. A submitted request changes through a new requirement version. 409. |
+| `RFQ_INCOMPLETE` | The request cannot be submitted yet. `details` names every field that is missing or wrong (`REQUIRED`, `IN_PAST`, `TOO_FAR`, `DESTINATION_NEEDED`, `BEFORE_DEADLINE`, `UNKNOWN`). 400. |
+| `RFQ_DESTINATION_BLOCKED` | The marketplace does not sell this category into the destination country (a market rule blocks it), so no seller may be asked to. 409. |
+| `RFQ_SUPPLIER_NOT_ELIGIBLE` | That seller cannot be invited: not approved to trade, the buyer's own business, or unknown. 409. |
+| `RFQ_INVITATION_LIMIT_REACHED` | The request is already sent to as many sellers as this marketplace allows (RFQ_MAX_INVITED_SUPPLIERS). 409. |
+| `RFQ_ATTACHMENTS_UNAVAILABLE` | Files cannot be attached on this installation: no malware scanner and unscanned files not accepted. 409. |
+| `RFQ_ATTACHMENT_LIMIT_REACHED` | The request already carries as many files as it may (RFQ_ATTACHMENTS_PER_RFQ). 409. |
+| `RFQ_RESPONSE_CLOSED` | The seller can no longer answer this request: they declined or withdrew, the deadline passed, or the request closed. `details[0].code` says which. 409. |
 | `FACTORY_NOT_EDITABLE` | A factory cannot be changed now: it is with a reviewer. 409. (Master row 13) |
 | `FACTORY_INCOMPLETE` | A factory cannot be sent for review, or verified, yet: it has no evidence attached. `details` names what is missing. 400 for the seller, 409 for a reviewer. |
 | `FACTORY_TRANSITION_INVALID` | The factory's verification cannot move that way from where it is - including a reviewer deciding a check a colleague already decided (`details[0].code` is `STALE`). 409. |
