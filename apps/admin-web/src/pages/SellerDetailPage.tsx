@@ -22,6 +22,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '@/components/Modal';
+import { SellerFactoriesPanel } from '@/pages/seller/SellerFactoriesPanel';
 import { useToast } from '@/components/toast-context';
 import {
   Badge,
@@ -344,6 +345,8 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
         </Card>
 
         <DocumentsCard sellerId={seller.id} documents={seller.documents} />
+
+        <SellerFactoriesPanel sellerId={seller.id} />
 
         <Card
           title="Where they ship from"

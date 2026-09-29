@@ -724,6 +724,13 @@ export const router = createBrowserRouter([
        * bury it behind a tab nobody presses.
        */
       {
+        // Factories and certificates, and sending them for verification.
+        path: 'factories',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerFactoriesPage').then((m) => m.SellerFactoriesPage),
+        ),
+      },
+      {
         path: 'instructions',
         ...accountPage(() =>
           import('@/pages/seller/SellerInstructionsPage').then((m) => m.SellerInstructionsPage),

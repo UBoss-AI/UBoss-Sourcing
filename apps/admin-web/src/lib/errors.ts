@@ -82,6 +82,17 @@ const CUSTOMER_KYC_CODES = new Set([
   'CUSTOMER_KYC_TRANSITION_INVALID',
 ]);
 
+/** Suppliers' factories and certificates, decided on the seller page (Master row 13). */
+const FACTORY_CODES = new Set([
+  'FACTORY_NOT_EDITABLE',
+  'FACTORY_INCOMPLETE',
+  'FACTORY_TRANSITION_INVALID',
+  'CERTIFICATION_NOT_EDITABLE',
+  'CERTIFICATION_TRANSITION_INVALID',
+  'TRUST_EVIDENCE_UNUSABLE',
+  'TRUST_EVIDENCE_IN_USE',
+]);
+
 /** Legal documents and the Terms they govern. Said in the reader's language. */
 const LEGAL_CODES = new Set([
   'LEGAL_DOCUMENT_IMMUTABLE',
@@ -140,6 +151,12 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
     }
     if (LEGAL_CODES.has(error.code)) {
       return t(`errors.legal.${error.code}` as TranslationKey);
+    }
+    if (FACTORY_CODES.has(error.code)) {
+      const detail = error.details.find((item) => item.code === 'STALE' || item.code === 'EXPIRED')?.code;
+      if (detail === 'STALE') return t('errors.factory.STALE');
+      if (detail === 'EXPIRED') return t('errors.factory.CERTIFICATE_EXPIRED');
+      return t(`errors.factory.${error.code}` as TranslationKey);
     }
     if (SUPPORT_CODES.has(error.code)) {
       return t(`errors.support.${error.code}` as TranslationKey);

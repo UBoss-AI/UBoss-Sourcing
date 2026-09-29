@@ -64,6 +64,17 @@ const PREORDER_CODES = new Set([
   'PREORDER_STOCK_CHANGED',
 ]);
 
+/** A seller's factories and certificates, and their verification (Master row 13). */
+const FACTORY_CODES = new Set([
+  'FACTORY_NOT_EDITABLE',
+  'FACTORY_INCOMPLETE',
+  'FACTORY_TRANSITION_INVALID',
+  'CERTIFICATION_NOT_EDITABLE',
+  'CERTIFICATION_TRANSITION_INVALID',
+  'TRUST_EVIDENCE_UNUSABLE',
+  'TRUST_EVIDENCE_IN_USE',
+]);
+
 /** Seller invoices and packing lists. */
 const SELLER_DOCUMENT_CODES = new Set([
   'SELLER_DOCUMENT_NOT_ELIGIBLE',
@@ -275,6 +286,12 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
 
     if (SELLER_DOCUMENT_CODES.has(error.code)) {
       return t(`errors.sellerDocument.${error.code}` as TranslationKey);
+    }
+
+    if (FACTORY_CODES.has(error.code)) {
+      // A page left open while a reviewer decided, or the check lapsed.
+      if (error.details.some((detail) => detail.code === 'STALE')) return t('errors.factory.STALE');
+      return t(`errors.factory.${error.code}` as TranslationKey);
     }
 
     if (CUSTOMER_KYC_CODES.has(error.code)) {

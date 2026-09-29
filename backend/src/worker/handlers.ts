@@ -596,6 +596,23 @@ const housekeepingSweep: JobHandler = async () => {
   if (result.moreToDo) {
     logger.info({ removed: result.removed }, 'housekeeping backlog remains; continuing next beat');
   }
+
+  /*
+   * Supplier verifications that have lapsed (Master row 13): a factory past
+   * its valid-until date, a certificate past its expiry date. Every screen and
+   * the public supplier page already treat them as lapsed when they read
+   * them; this records it for the ones nobody opens. Guarded apart, so a
+   * failure here never stops housekeeping.
+   */
+  try {
+    const { sweepExpiredFactories } = await import('../modules/trust/factory.service.js');
+    const { sweepExpiredCertifications } = await import('../modules/trust/certification.service.js');
+    const factories = await sweepExpiredFactories();
+    const certificates = await sweepExpiredCertifications();
+    if (factories + certificates > 0) logger.info({ factories, certificates }, 'recorded lapsed supplier verifications');
+  } catch (error) {
+    logger.error({ err: error }, 'supplier verification expiry pass failed');
+  }
 };
 
 /**

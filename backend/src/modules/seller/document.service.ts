@@ -532,6 +532,23 @@ export async function withdrawSellerDocument(
     );
   }
 
+  // Evidence for a factory or a certificate (Master row 13). Withdrawing it
+  // deletes the bytes, and a reviewer would then be deciding - or a
+  // verification would stand - on a file nobody can open.
+  const inUse =
+    (await prisma.sellerFactoryEvidence.count({
+      where: { documentId: row.id, factory: { sellerAccountId: row.sellerAccountId, archivedAt: null } },
+    })) +
+    (await prisma.sellerCertification.count({
+      where: { documentId: row.id, sellerAccountId: row.sellerAccountId, archivedAt: null },
+    }));
+  if (inUse > 0) {
+    throw conflict(
+      ErrorCode.TRUST_EVIDENCE_IN_USE,
+      'This document is evidence for a factory or a certificate. Remove it there first.',
+    );
+  }
+
   await prisma.$transaction(async (tx) => {
     await tx.sellerDocument.update({
       where: { id: row.id },

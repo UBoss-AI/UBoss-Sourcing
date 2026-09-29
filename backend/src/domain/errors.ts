@@ -1870,6 +1870,27 @@ export const ErrorCode = {
   CUSTOMER_KYC_INCOMPLETE: 'CUSTOMER_KYC_INCOMPLETE',
   /// The identity check cannot move that way from where it is. 409.
   CUSTOMER_KYC_TRANSITION_INVALID: 'CUSTOMER_KYC_TRANSITION_INVALID',
+  /// A factory cannot be changed now: it is with a reviewer. 409. (Master row 13)
+  FACTORY_NOT_EDITABLE: 'FACTORY_NOT_EDITABLE',
+  /// A factory cannot be sent for review, or verified, yet: it has no
+  /// evidence attached. `details` names what is missing. 400 for the seller,
+  /// 409 for a reviewer.
+  FACTORY_INCOMPLETE: 'FACTORY_INCOMPLETE',
+  /// The factory's verification cannot move that way from where it is -
+  /// including a reviewer deciding a check a colleague already decided
+  /// (`details[0].code` is `STALE`). 409.
+  FACTORY_TRANSITION_INVALID: 'FACTORY_TRANSITION_INVALID',
+  /// A certificate cannot be changed now: it is with a reviewer. 409.
+  CERTIFICATION_NOT_EDITABLE: 'CERTIFICATION_NOT_EDITABLE',
+  /// The certificate's verification cannot move that way from where it is,
+  /// including a stale reviewer screen (`STALE`). 409.
+  CERTIFICATION_TRANSITION_INVALID: 'CERTIFICATION_TRANSITION_INVALID',
+  /// That document cannot be used as evidence: it was replaced, withdrawn or
+  /// failed its security scan. 409.
+  TRUST_EVIDENCE_UNUSABLE: 'TRUST_EVIDENCE_UNUSABLE',
+  /// That document is evidence for a factory or a certificate and cannot be
+  /// withdrawn until it is detached. 409.
+  TRUST_EVIDENCE_IN_USE: 'TRUST_EVIDENCE_IN_USE',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

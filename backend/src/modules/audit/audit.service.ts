@@ -566,6 +566,14 @@ export const AuditAction = {
   /// A member of staff opened a buyer's identity document. Every download is one row.
   CUSTOMER_KYC_DOCUMENT_VIEWED: 'customer_kyc.document_viewed',
   CUSTOMER_MARKETING_PREFERENCES_UPDATED: 'customer.marketing_preferences_updated',
+  // A supplier's factories and certificates, and the operator's checks of
+  // them (Master row 13). Document metadata only - never a file's contents.
+  SELLER_FACTORY_DECIDED: 'seller_factory.decided',
+  /// A verified factory whose verification passed its valid-until date. Written by the system.
+  SELLER_FACTORY_EXPIRED: 'seller_factory.expired',
+  SELLER_CERTIFICATION_DECIDED: 'seller_certification.decided',
+  /// A verified certificate past its expiry date. Written by the system.
+  SELLER_CERTIFICATION_EXPIRED: 'seller_certification.expired',
   /// A member of staff opened a company document. Every download is one row.
   BUYER_COMPANY_DOCUMENT_VIEWED: 'buyer_company.document_viewed',
   BUYER_COMPANY_DOCUMENT_DECIDED: 'buyer_company.document_decided',

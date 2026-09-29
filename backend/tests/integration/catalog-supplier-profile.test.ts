@@ -3,7 +3,8 @@
  *
  *   - **Only a listed supplier has a page**; anyone else is a plain 404.
  *   - **Only verified, unexpired certifications are shown.**
- *   - **Factories are published by city, never by street address.**
+ *   - **Factories are published by city, never by street address**, and only
+ *     while the operator's verification of them is current (Master row 13).
  *   - **Nothing private leaks**: legal name, registration and tax numbers,
  *     contact people, internal notes.
  *   - **A website is linked only if it is http(s).**
@@ -72,6 +73,7 @@ async function offer(sellerAccountId: string, productId: string, key: string): P
 
 async function cleanUp(): Promise<void> {
   const ids = (await prisma.sellerAccount.findMany({ where: { slug: { startsWith: PREFIX } }, select: { id: true } })).map((row) => row.id);
+  await prisma.sellerTrustCheck.deleteMany({ where: { sellerAccountId: { in: ids } } });
   await prisma.sellerCertification.deleteMany({ where: { sellerAccountId: { in: ids } } });
   await prisma.sellerFactory.deleteMany({ where: { sellerAccountId: { in: ids } } });
   await prisma.sellerTrustProfile.deleteMany({ where: { sellerAccountId: { in: ids } } });
@@ -149,6 +151,38 @@ beforeAll(async () => {
     data: { id: newId(), sellerAccountId: sellerId, name: 'Closed plant', addressLine1: 'x', city: 'Nashik', postcode: '1', countryCode: 'IN', archivedAt: new Date() },
   });
 
+  // Master row 13: a factory is shown only while its current check is
+  // VERIFIED and in date. The Pune plant is; every other state is not.
+  const check = (subjectId: string, state: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'EXPIRED', validUntil: Date | null, isCurrent = true) =>
+    prisma.sellerTrustCheck.create({
+      data: {
+        id: newId(),
+        sellerAccountId: sellerId,
+        kind: 'FACTORY',
+        subjectId,
+        state,
+        checkedAt: new Date('2026-01-10'),
+        validUntil,
+        isCurrent,
+      },
+    });
+  await check(factoryId, 'VERIFIED', new Date('2099-01-01'));
+  const plant = async (name: string): Promise<string> => {
+    const id = newId();
+    await prisma.sellerFactory.create({
+      data: { id, sellerAccountId: sellerId, name, addressLine1: 'x', city: 'Nashik', postcode: '1', countryCode: 'IN' },
+    });
+    return id;
+  };
+  await plant('Never sent plant');
+  await check(await plant('Waiting plant'), 'PENDING', null);
+  await check(await plant('Refused plant'), 'REJECTED', null);
+  await check(await plant('Lapsed plant'), 'VERIFIED', new Date('2020-01-01'));
+  const reverify = await plant('Changed plant');
+  // Was verified; the seller changed it, so the current check is PENDING.
+  await check(reverify, 'VERIFIED', new Date('2099-01-01'), false);
+  await check(reverify, 'PENDING', null);
+
   const cert = (standard: string, state: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'EXPIRED', expiresOn: Date | null) =>
     prisma.sellerCertification.create({
       data: {
@@ -216,7 +250,7 @@ describe('GET /api/v1/catalog/suppliers/:slug', () => {
     expect(supplier.certifications.map((row) => row.standard)).toEqual(['ISO 14001', 'ISO 9001']);
   });
 
-  it('publishes a factory by city, never by street, postcode or coordinates, and skips a closed one', async () => {
+  it('publishes only a verified, in-date factory, by city, never by street, postcode or coordinates', async () => {
     const response = await profile('acme');
     const { supplier } = response.json<{ supplier: { factories: Record<string, unknown>[] } }>();
     expect(supplier.factories).toEqual([
@@ -230,6 +264,7 @@ describe('GET /api/v1/catalog/suppliers/:slug', () => {
         monthlyCapacity: 50000,
         capacityUnit: 'pieces',
         productsMade: 'Valves and flanges',
+        verifiedAt: '2026-01-10T00:00:00.000Z',
       },
     ]);
     for (const secret of ['SECRET STREET', '411001', '18.52', '73.85']) expect(response.body).not.toContain(secret);
