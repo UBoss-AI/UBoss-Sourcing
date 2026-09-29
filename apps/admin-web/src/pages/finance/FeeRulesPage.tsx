@@ -587,7 +587,7 @@ function RuleDialog({
               />
             )}
           </Field>
-          <Field label={t('feeRules.field.kind')} hint={locked ? t('feeRules.kindLocked') : undefined}>
+          <Field label={t('feeRules.field.kind')} {...(locked ? { hint: t('feeRules.kindLocked') } : {})}>
             {({ inputId }) => (
               <Select
                 id={inputId}
