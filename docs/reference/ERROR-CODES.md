@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**485 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**493 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -43,7 +43,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Auto-pay](#auto-pay) | 15 |
 | [Data protection](#data-protection) | 6 |
 | [A buyer's own ERP, and the organisation that owns it](#a-buyer-s-own-erp-and-the-organisation-that-owns-it) | 26 |
-| [Seller Hub](#seller-hub) | 45 |
+| [Seller Hub](#seller-hub) | 46 |
 | [Logistics partner portal](#logistics-partner-portal) | 23 |
 | [How a seller's own goods get delivered](#how-a-seller-s-own-goods-get-delivered) | 15 |
 | [Console notifications](#console-notifications) | 2 |
@@ -65,7 +65,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [B2C maximum order quantity](#b2c-maximum-order-quantity) | 1 |
 | [Pre-shipment inspection and the dispatch gate](#pre-shipment-inspection-and-the-dispatch-gate) | 17 |
 | [Returns](#returns) | 5 |
-| [The buyer experience: cart, checkout, account, alerts, reviews](#the-buyer-experience-cart-checkout-account-alerts-reviews) | 27 |
+| [The buyer experience: cart, checkout, account, alerts, reviews](#the-buyer-experience-cart-checkout-account-alerts-reviews) | 34 |
 
 ## Generic
 
@@ -395,6 +395,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `SELLER_APPLICATION_TRANSITION_NOT_ALLOWED` | The application cannot move the way it was asked to. Same shape as ORDER_TRANSITION_NOT_ALLOWED and separate from it, because the states and the remedies are different. |
 | `SELLER_ONBOARDING_INCOMPLETE` | Submission was refused because required onboarding steps are unfinished. `details` carries one entry per missing step, keyed to the step so the interface can link straight to it. |
 | `SELLER_RESUBMISSION_NOT_ALLOWED` | A rejected application whose operator closed resubmission. |
+| `SELLER_APPROVAL_EVIDENCE_MISSING` | Approval refused: the evidence a reviewer needs is not all there yet. A required onboarding step is unfinished, a required document is not accepted or has expired, or (with SELLER_REQUIRE_SCREENING) the business or one of its owners has no current CLEAR screening. `details` carries one entry per missing item: `STEP_INCOMPLETE` (field = step key), `DOCUMENT_NOT_APPROVED` / `DOCUMENT_EXPIRED` (field = requirement key), `SCREENING_REQUIRED` / `SCREENING_NOT_CLEAR` (field = `entity` or the owner… |
 | `SELLER_STALE_VERSION` | Somebody else saved this application, listing or offer since it was loaded. The client reloads and shows what changed rather than overwriting it. |
 | `SELLER_LAST_OWNER` | The last owner cannot be removed or demoted. An organisation with no owner has nobody who can invite one. |
 | `SELLER_INVITATION_INVALID` | The invitation is expired, already accepted, revoked, or addressed to a different email than the one signed in. |
@@ -761,4 +762,11 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `CUSTOMER_KYC_NOT_EDITABLE` | An individual buyer's identity details cannot be changed now: they are with a reviewer or already verified. 409. (Master row 11) |
 | `CUSTOMER_KYC_INCOMPLETE` | An identity check cannot be sent yet: a required detail or the identity document is missing. `details` names what. 400. |
 | `CUSTOMER_KYC_TRANSITION_INVALID` | The identity check cannot move that way from where it is. 409. |
+| `FACTORY_NOT_EDITABLE` | A factory cannot be changed now: it is with a reviewer. 409. (Master row 13) |
+| `FACTORY_INCOMPLETE` | A factory cannot be sent for review, or verified, yet: it has no evidence attached. `details` names what is missing. 400 for the seller, 409 for a reviewer. |
+| `FACTORY_TRANSITION_INVALID` | The factory's verification cannot move that way from where it is - including a reviewer deciding a check a colleague already decided (`details[0].code` is `STALE`). 409. |
+| `CERTIFICATION_NOT_EDITABLE` | A certificate cannot be changed now: it is with a reviewer. 409. |
+| `CERTIFICATION_TRANSITION_INVALID` | The certificate's verification cannot move that way from where it is, including a stale reviewer screen (`STALE`). 409. |
+| `TRUST_EVIDENCE_UNUSABLE` | That document cannot be used as evidence: it was replaced, withdrawn or failed its security scan. 409. |
+| `TRUST_EVIDENCE_IN_USE` | That document is evidence for a factory or a certificate and cannot be withdrawn until it is detached. 409. |
 

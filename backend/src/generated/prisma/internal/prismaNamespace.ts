@@ -29607,7 +29607,8 @@ export const TeamAccessReviewScalarFieldEnum = {
   reviewedByUserId: 'reviewedByUserId',
   memberCount: 'memberCount',
   invitationCount: 'invitationCount',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type TeamAccessReviewScalarFieldEnum = (typeof TeamAccessReviewScalarFieldEnum)[keyof typeof TeamAccessReviewScalarFieldEnum]

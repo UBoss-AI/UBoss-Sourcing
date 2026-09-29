@@ -50,6 +50,7 @@ export type TeamAccessReviewMinAggregateOutputType = {
   memberCount: number | null
   invitationCount: number | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type TeamAccessReviewMaxAggregateOutputType = {
@@ -60,6 +61,7 @@ export type TeamAccessReviewMaxAggregateOutputType = {
   memberCount: number | null
   invitationCount: number | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type TeamAccessReviewCountAggregateOutputType = {
@@ -70,6 +72,7 @@ export type TeamAccessReviewCountAggregateOutputType = {
   memberCount: number
   invitationCount: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -92,6 +95,7 @@ export type TeamAccessReviewMinAggregateInputType = {
   memberCount?: true
   invitationCount?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type TeamAccessReviewMaxAggregateInputType = {
@@ -102,6 +106,7 @@ export type TeamAccessReviewMaxAggregateInputType = {
   memberCount?: true
   invitationCount?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type TeamAccessReviewCountAggregateInputType = {
@@ -112,6 +117,7 @@ export type TeamAccessReviewCountAggregateInputType = {
   memberCount?: true
   invitationCount?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -209,6 +215,7 @@ export type TeamAccessReviewGroupByOutputType = {
   memberCount: number
   invitationCount: number
   createdAt: Date
+  updatedAt: Date
   _count: TeamAccessReviewCountAggregateOutputType | null
   _avg: TeamAccessReviewAvgAggregateOutputType | null
   _sum: TeamAccessReviewSumAggregateOutputType | null
@@ -242,6 +249,7 @@ export type TeamAccessReviewWhereInput = {
   memberCount?: Prisma.IntFilter<"TeamAccessReview"> | number
   invitationCount?: Prisma.IntFilter<"TeamAccessReview"> | number
   createdAt?: Prisma.DateTimeFilter<"TeamAccessReview"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"TeamAccessReview"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountNullableScalarRelationFilter, Prisma.SellerAccountWhereInput> | null
   buyerCompany?: Prisma.XOR<Prisma.BuyerCompanyNullableScalarRelationFilter, Prisma.BuyerCompanyWhereInput> | null
 }
@@ -254,6 +262,7 @@ export type TeamAccessReviewOrderByWithRelationInput = {
   memberCount?: Prisma.SortOrder
   invitationCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   buyerCompany?: Prisma.BuyerCompanyOrderByWithRelationInput
   _relevance?: Prisma.TeamAccessReviewOrderByRelevanceInput
@@ -270,6 +279,7 @@ export type TeamAccessReviewWhereUniqueInput = Prisma.AtLeast<{
   memberCount?: Prisma.IntFilter<"TeamAccessReview"> | number
   invitationCount?: Prisma.IntFilter<"TeamAccessReview"> | number
   createdAt?: Prisma.DateTimeFilter<"TeamAccessReview"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"TeamAccessReview"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountNullableScalarRelationFilter, Prisma.SellerAccountWhereInput> | null
   buyerCompany?: Prisma.XOR<Prisma.BuyerCompanyNullableScalarRelationFilter, Prisma.BuyerCompanyWhereInput> | null
 }, "id">
@@ -282,6 +292,7 @@ export type TeamAccessReviewOrderByWithAggregationInput = {
   memberCount?: Prisma.SortOrder
   invitationCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.TeamAccessReviewCountOrderByAggregateInput
   _avg?: Prisma.TeamAccessReviewAvgOrderByAggregateInput
   _max?: Prisma.TeamAccessReviewMaxOrderByAggregateInput
@@ -300,6 +311,7 @@ export type TeamAccessReviewScalarWhereWithAggregatesInput = {
   memberCount?: Prisma.IntWithAggregatesFilter<"TeamAccessReview"> | number
   invitationCount?: Prisma.IntWithAggregatesFilter<"TeamAccessReview"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"TeamAccessReview"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"TeamAccessReview"> | Date | string
 }
 
 export type TeamAccessReviewCreateInput = {
@@ -308,6 +320,7 @@ export type TeamAccessReviewCreateInput = {
   memberCount: number
   invitationCount: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutAccessReviewsInput
   buyerCompany?: Prisma.BuyerCompanyCreateNestedOneWithoutAccessReviewsInput
 }
@@ -320,6 +333,7 @@ export type TeamAccessReviewUncheckedCreateInput = {
   memberCount: number
   invitationCount: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type TeamAccessReviewUpdateInput = {
@@ -328,6 +342,7 @@ export type TeamAccessReviewUpdateInput = {
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
   invitationCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneWithoutAccessReviewsNestedInput
   buyerCompany?: Prisma.BuyerCompanyUpdateOneWithoutAccessReviewsNestedInput
 }
@@ -340,6 +355,7 @@ export type TeamAccessReviewUncheckedUpdateInput = {
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
   invitationCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TeamAccessReviewCreateManyInput = {
@@ -350,6 +366,7 @@ export type TeamAccessReviewCreateManyInput = {
   memberCount: number
   invitationCount: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type TeamAccessReviewUpdateManyMutationInput = {
@@ -358,6 +375,7 @@ export type TeamAccessReviewUpdateManyMutationInput = {
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
   invitationCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TeamAccessReviewUncheckedUpdateManyInput = {
@@ -368,6 +386,7 @@ export type TeamAccessReviewUncheckedUpdateManyInput = {
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
   invitationCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TeamAccessReviewListRelationFilter = {
@@ -394,6 +413,7 @@ export type TeamAccessReviewCountOrderByAggregateInput = {
   memberCount?: Prisma.SortOrder
   invitationCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type TeamAccessReviewAvgOrderByAggregateInput = {
@@ -409,6 +429,7 @@ export type TeamAccessReviewMaxOrderByAggregateInput = {
   memberCount?: Prisma.SortOrder
   invitationCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type TeamAccessReviewMinOrderByAggregateInput = {
@@ -419,6 +440,7 @@ export type TeamAccessReviewMinOrderByAggregateInput = {
   memberCount?: Prisma.SortOrder
   invitationCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type TeamAccessReviewSumOrderByAggregateInput = {
@@ -516,6 +538,7 @@ export type TeamAccessReviewCreateWithoutSellerAccountInput = {
   memberCount: number
   invitationCount: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   buyerCompany?: Prisma.BuyerCompanyCreateNestedOneWithoutAccessReviewsInput
 }
 
@@ -526,6 +549,7 @@ export type TeamAccessReviewUncheckedCreateWithoutSellerAccountInput = {
   memberCount: number
   invitationCount: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type TeamAccessReviewCreateOrConnectWithoutSellerAccountInput = {
@@ -565,6 +589,7 @@ export type TeamAccessReviewScalarWhereInput = {
   memberCount?: Prisma.IntFilter<"TeamAccessReview"> | number
   invitationCount?: Prisma.IntFilter<"TeamAccessReview"> | number
   createdAt?: Prisma.DateTimeFilter<"TeamAccessReview"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"TeamAccessReview"> | Date | string
 }
 
 export type TeamAccessReviewCreateWithoutBuyerCompanyInput = {
@@ -573,6 +598,7 @@ export type TeamAccessReviewCreateWithoutBuyerCompanyInput = {
   memberCount: number
   invitationCount: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutAccessReviewsInput
 }
 
@@ -583,6 +609,7 @@ export type TeamAccessReviewUncheckedCreateWithoutBuyerCompanyInput = {
   memberCount: number
   invitationCount: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type TeamAccessReviewCreateOrConnectWithoutBuyerCompanyInput = {
@@ -618,6 +645,7 @@ export type TeamAccessReviewCreateManySellerAccountInput = {
   memberCount: number
   invitationCount: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type TeamAccessReviewUpdateWithoutSellerAccountInput = {
@@ -626,6 +654,7 @@ export type TeamAccessReviewUpdateWithoutSellerAccountInput = {
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
   invitationCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   buyerCompany?: Prisma.BuyerCompanyUpdateOneWithoutAccessReviewsNestedInput
 }
 
@@ -636,6 +665,7 @@ export type TeamAccessReviewUncheckedUpdateWithoutSellerAccountInput = {
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
   invitationCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -645,6 +675,7 @@ export type TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountInput = {
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
   invitationCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TeamAccessReviewCreateManyBuyerCompanyInput = {
@@ -654,6 +685,7 @@ export type TeamAccessReviewCreateManyBuyerCompanyInput = {
   memberCount: number
   invitationCount: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type TeamAccessReviewUpdateWithoutBuyerCompanyInput = {
@@ -662,6 +694,7 @@ export type TeamAccessReviewUpdateWithoutBuyerCompanyInput = {
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
   invitationCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneWithoutAccessReviewsNestedInput
 }
 
@@ -672,6 +705,7 @@ export type TeamAccessReviewUncheckedUpdateWithoutBuyerCompanyInput = {
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
   invitationCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyInput = {
@@ -681,6 +715,7 @@ export type TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyInput = {
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
   invitationCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -693,6 +728,7 @@ export type TeamAccessReviewSelect<ExtArgs extends runtime.Types.Extensions.Inte
   memberCount?: boolean
   invitationCount?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   sellerAccount?: boolean | Prisma.TeamAccessReview$sellerAccountArgs<ExtArgs>
   buyerCompany?: boolean | Prisma.TeamAccessReview$buyerCompanyArgs<ExtArgs>
 }, ExtArgs["result"]["teamAccessReview"]>
@@ -707,9 +743,10 @@ export type TeamAccessReviewSelectScalar = {
   memberCount?: boolean
   invitationCount?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type TeamAccessReviewOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "buyerCompanyId" | "reviewedByUserId" | "memberCount" | "invitationCount" | "createdAt", ExtArgs["result"]["teamAccessReview"]>
+export type TeamAccessReviewOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "buyerCompanyId" | "reviewedByUserId" | "memberCount" | "invitationCount" | "createdAt" | "updatedAt", ExtArgs["result"]["teamAccessReview"]>
 export type TeamAccessReviewInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.TeamAccessReview$sellerAccountArgs<ExtArgs>
   buyerCompany?: boolean | Prisma.TeamAccessReview$buyerCompanyArgs<ExtArgs>
@@ -729,6 +766,7 @@ export type $TeamAccessReviewPayload<ExtArgs extends runtime.Types.Extensions.In
     memberCount: number
     invitationCount: number
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["teamAccessReview"]>
   composites: {}
 }
@@ -1107,6 +1145,7 @@ export interface TeamAccessReviewFieldRefs {
   readonly memberCount: Prisma.FieldRef<"TeamAccessReview", 'Int'>
   readonly invitationCount: Prisma.FieldRef<"TeamAccessReview", 'Int'>
   readonly createdAt: Prisma.FieldRef<"TeamAccessReview", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"TeamAccessReview", 'DateTime'>
 }
     
 

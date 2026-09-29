@@ -60,7 +60,7 @@ function serve(current: KybView, onPut?: (body: Record<string, unknown>) => Resp
     const url = String(input);
     if (url.includes('/seller/kyb')) {
       if (init?.method === 'PUT') {
-        const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+        const body = JSON.parse(typeof init.body === 'string' ? init.body : '{}') as Record<string, unknown>;
         return Promise.resolve(onPut === undefined ? jsonResponse(current) : onPut(body));
       }
       return Promise.resolve(jsonResponse(current));
@@ -75,7 +75,7 @@ function serve(current: KybView, onPut?: (body: Record<string, unknown>) => Resp
 function putBodies(): Record<string, unknown>[] {
   return fetchMock.mock.calls
     .filter(([input, init]) => String(input).includes('/seller/kyb') && (init as RequestInit | undefined)?.method === 'PUT')
-    .map(([, init]) => JSON.parse(String((init as RequestInit).body)) as Record<string, unknown>);
+    .map(([, init]) => JSON.parse(typeof (init as RequestInit).body === 'string' ? ((init as RequestInit).body as string) : '{}') as Record<string, unknown>);
 }
 
 const locale = makeLocale({

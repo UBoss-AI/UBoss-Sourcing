@@ -123,7 +123,7 @@ describe('SellerTeamPage', () => {
 
   it('changes a role, removes only after confirming, and resends, withdraws and records a review', async () => {
     fetchMock.mockImplementation((_url: string, init?: RequestInit) =>
-      Promise.resolve(init?.method === 'PATCH' || init?.method === 'DELETE' && String(_url).includes('/members/') ? new Response(null, { status: 204 }) : jsonResponse(team())),
+      Promise.resolve(init?.method === 'PATCH' || init?.method === 'DELETE' && _url.includes('/members/') ? new Response(null, { status: 204 }) : jsonResponse(team())),
     );
     renderWithProviders(<SellerTeamPage />);
 

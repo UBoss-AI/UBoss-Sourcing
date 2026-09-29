@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**342 tables · 318 enums · 788 extra indexes and unique keys**, in 54 groups. The groups follow the section banners in the schema file.
+**342 tables · 319 enums · 788 extra indexes and unique keys**, in 54 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -59,7 +59,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ where a ticket is in its life. see `domain/support-ticket-state.ts`. / / append only - MariaDB stores an enum by position.](#group-where-a-ticket-is-in-its-life-see-domain-support-ticket-state-ts-append-only-mariadb-stores-an-enum-by-position) | 4 | 9 |
 | [/ append only - MariaDB stores an enum by position.](#group-append-only-mariadb-stores-an-enum-by-position) | 4 | 5 |
 | [/ what somebody may do inside a buyer organisation. / / three levels rather than a permission matrix, because there are exactly / three questions a buyer's it department actually has: who owns this, who / may change the credentials, and who may look. a fourth role would have to / be explained to somebody, and nobody has asked for one.](#group-what-somebody-may-do-inside-a-buyer-organisation-three-levels-rather-than-a-permission-matrix-because-there-are-exactly-three-questions-a-buyer-s-it-department-actually-has-who-owns-this-who-may-change-the-credentials-and-who-may-look-a-fourth-role-would-have-to-be-explained-to-somebody-and-nobody-has-asked-for-one) | 19 | 20 |
-| [/ where a seller's application has got to. / / the order matters: this is a state machine, enforced in / `domain/seller-state.ts`, and nothing writes this column directly - the / same rule `orderstatus` and `schedulestatus` follow, for the same reason. / an application decides whether a business may put medical devices in front / of hospitals, so "how did it get to approved" must always have an answer.](#group-where-a-seller-s-application-has-got-to-the-order-matters-this-is-a-state-machine-enforced-in-domain-seller-state-ts-and-nothing-writes-this-column-directly-the-same-rule-orderstatus-and-schedulestatus-follow-for-the-same-reason-an-application-decides-whether-a-business-may-put-medical-devices-in-front-of-hospitals-so-how-did-it-get-to-approved-must-always-have-an-answer) | 33 | 25 |
+| [/ where a seller's application has got to. / / the order matters: this is a state machine, enforced in / `domain/seller-state.ts`, and nothing writes this column directly - the / same rule `orderstatus` and `schedulestatus` follow, for the same reason. / an application decides whether a business may put medical devices in front / of hospitals, so "how did it get to approved" must always have an answer.](#group-where-a-seller-s-application-has-got-to-the-order-matters-this-is-a-state-machine-enforced-in-domain-seller-state-ts-and-nothing-writes-this-column-directly-the-same-rule-orderstatus-and-schedulestatus-follow-for-the-same-reason-an-application-decides-whether-a-business-may-put-medical-devices-in-front-of-hospitals-so-how-did-it-get-to-approved-must-always-have-an-answer) | 33 | 26 |
 | [/ how a seller came to be able to use a carrier. / / stored because it decides who may end the relationship and on what notice, / which is a question that gets asked exactly once - during a dispute.](#group-how-a-seller-came-to-be-able-to-use-a-carrier-stored-because-it-decides-who-may-end-the-relationship-and-on-what-notice-which-is-a-question-that-gets-asked-exactly-once-during-a-dispute) | 1 | 2 |
 | [/ who is responsible for moving a seller's goods. / / read together with `sellerfulfilmentmethod.status`: a mode says what kind / of delivery this is, the status says whether it may be used yet. a seller / can have a dedicated_partner method sitting in pending_approval for a / fortnight while their integrated_carrier method carries everything.](#group-who-is-responsible-for-moving-a-seller-s-goods-read-together-with-sellerfulfilmentmethod-status-a-mode-says-what-kind-of-delivery-this-is-the-status-says-whether-it-may-be-used-yet-a-seller-can-have-a-dedicated-partner-method-sitting-in-pending-approval-for-a-fortnight-while-their-integrated-carrier-method-carries-everything) | 11 | 12 |
 | [Logistics partner portal](#group-logistics-partner-portal) | 30 | 32 |
@@ -8084,6 +8084,7 @@ The business behind a seller account: who it is, where it is registered, what it
 |---|---|---|---|---|---|
 | `id` | String · Char(26) |  | PK |  |  |
 | `sellerAccountId` | String · Char(26) |  | UNIQUE, FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `legalForm` | [enum SellerLegalForm](#enum-sellerlegalform) | yes |  |  | Null until the seller answers the "Ownership, registrations and exports" section. Required to submit. |
 | `representativeName` | String · VarChar(160) | yes |  |  | Whoever signs for the business. A person, so this row is personal data and is disclosed in the Art. 15 export. |
 | `representativeEmail` | String · VarChar(320) | yes |  |  |  |
 | `representativePhone` | String · VarChar(32) | yes |  |  |  |
@@ -9252,6 +9253,21 @@ Who somebody is inside one seller organisation.
 | `ORDER_MANAGER` | Orders, shipments, returns. |
 | `FINANCE_VIEWER` | Settlements, payouts, statements. Read-only - a marketplace seller does not move their own money from here. |
 | `SUPPORT_MEMBER` | Reads orders and returns to answer a buyer. No money, no catalogue. |
+
+<a id="enum-sellerlegalform"></a>
+
+#### enum SellerLegalForm
+
+What a seller business is, in law. Decides which registration number is asked for: in India a company has a CIN and an LLP an LLPIN, while a proprietorship or an ordinary partnership has neither. The same values as `BuyerCompanyEntityType`, less the forms a seller is not (a public body).
+
+| Value | Meaning |
+|---|---|
+| `SOLE_PROPRIETORSHIP` |  |
+| `PARTNERSHIP` |  |
+| `LIMITED_LIABILITY_PARTNERSHIP` |  |
+| `PRIVATE_LIMITED_COMPANY` |  |
+| `PUBLIC_LIMITED_COMPANY` |  |
+| `OTHER` |  |
 
 <a id="enum-sellerverificationkind"></a>
 
@@ -16134,6 +16150,7 @@ Table `team_access_reviews`
 | `memberCount` | Int |  |  |  |  |
 | `invitationCount` | Int |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -18556,6 +18573,7 @@ What a supplier says about itself beyond the application, one row per seller. Ve
 | `exportCapable` | Boolean |  |  | false |  |
 | `exportMarketsJson` | Json | yes |  |  | ISO-3166 alpha-2 codes the supplier says it already exports to. |
 | `yearsExporting` | Int · SmallInt | yes |  |  |  |
+| `intendedCategoryIdsJson` | Json | yes |  |  | Category ids the seller says it intends to sell in, from the application. Checked against `categories` when saved; a reviewer sees each one against the market rules that block it. |
 | `capabilitiesJson` | Json | yes |  |  | Capability tags - OEM, PRIVATE_LABEL, CUSTOM_PACKAGING, R_AND_D, CONTRACT_MANUFACTURING, STERILE_MANUFACTURING, TESTING_LAB. |
 | `responseSlaHours` | Int · SmallInt | yes |  |  | Hours the supplier commits to answering an enquiry in. |
 | `about` | String · Text | yes |  |  |  |
@@ -18589,6 +18607,7 @@ A natural person who ultimately owns or controls the supplier. Personal data of 
 | `nationality` | String · Char(2) | yes |  |  |  |
 | `ownershipBasisPoints` | Int · SmallInt |  |  |  | 2500 = 25.00%. |
 | `isControllingPerson` | Boolean |  |  | false |  |
+| `isPoliticallyExposed` | Boolean |  |  | false | The seller's own declaration that this person is a politically exposed person. A declaration, not a screening result - screening is `SellerScreeningCheck`, recorded by the operator. |
 | `role` | String · VarChar(120) | yes |  |  |  |
 | `archivedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
