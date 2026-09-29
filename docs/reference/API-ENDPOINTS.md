@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1164 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1165 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -31,7 +31,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 293 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 267 |
+| [Customer account](#customer-account) | 268 |
 | [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
@@ -2290,6 +2290,7 @@ Defined in `backend/src/http/routes/rfq.customer.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/rfqs/form-options` | Customer | Feature + Customer | What the request form offers: units of measure, Incoterms, sample and inspection choices, the deadline limit and the file rules. |
+| GET | `/api/v1/rfqs/summary` | Customer | Feature + Customer | Sourcing figures and next actions for the buyer dashboard. A failed block is null, never an error. |
 | GET | `/api/v1/rfqs` | Customer | Feature + Customer | Your requests for quotation, newest activity first, with a count per status. |
 | POST | `/api/v1/rfqs` | Customer | Feature + Customer | Start a draft request for quotation. Needs an Idempotency-Key. Writes an audit entry. |
 | GET | `/api/v1/rfqs/suppliers` | Customer | Feature + Customer | Approved sellers a buyer may pick by name, with whether each would match the category and destination given. |

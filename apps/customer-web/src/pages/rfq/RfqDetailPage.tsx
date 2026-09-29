@@ -6,7 +6,7 @@
  * happened when. The deadline is shown in UTC everywhere.
  */
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { ConfirmDialog } from '@/components/Modal';
@@ -96,7 +96,8 @@ function RfqWorkspace({ rfq }: { rfq: BuyerRfq }): React.JSX.Element {
   const { t, intlLocale } = useI18n();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<TabKey>('requirement');
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState<TabKey>(() => (searchParams.get('tab') === 'samples' ? 'samples' : 'requirement'));
   const [ending, setEnding] = useState<'cancel' | 'close' | null>(null);
   const [reason, setReason] = useState('');
 

@@ -13192,6 +13192,16 @@ not built, so a charged sample stays PAYMENT_PENDING. An approved sample gets
 a reference code for later inspection. Evidence files are seen by the two
 parties only; every step is on the timeline, notified and audited.
 
+**Dashboard (row 15).** `GET /rfqs/summary` (`modules/rfq/summary.service.ts`)
+gives the buyer's counts - requests by status, open quotes, negotiations,
+samples, each with "waiting on you" - and up to six next actions, all from the
+buyer's own rows. Each block is measured separately: a failed one is `null`
+and listed in `unavailable`. The dashboard's Sourcing card
+(`components/rfq/SourcingSummaryCard.tsx`, shown only with `FEATURE_RFQ`) has
+its own request, so its failure never blanks the order ring; unknown shows
+"–", never 0. Tiles link to `/account/rfqs?status=…`; sample actions open the
+request's Samples tab (`?tab=samples`).
+
 ## 9.5.4 Seller invoices and packing lists
 
 ### Whose document it is

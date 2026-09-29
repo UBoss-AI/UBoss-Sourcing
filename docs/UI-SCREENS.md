@@ -2712,6 +2712,16 @@ on me, and where have my other orders got to?"
   press **Ask**. The answer is written word by word as it arrives. A line under
   it says the figures come from your own data, never from the model. Nothing is
   sent until you press a button.
+- **Sourcing** card (only when `FEATURE_RFQ` is on;
+  `components/rfq/SourcingSummaryCard.tsx`, checklist Master row 15). Tiles:
+  Open requests, Drafts, Open quotes, Negotiations, Samples in progress,
+  Awarded - each with "N waiting on you" where it applies and each a link to
+  `/account/rfqs?status=…`. **Next actions** lists up to six items (answer an
+  offer, confirm or judge a sample, a passed deadline, a draft to finish), each
+  linking to the quote, the Samples tab (`?tab=samples`), the comparison or the
+  draft. It has its own request (`GET /rfqs/summary`): if that fails the card
+  says so with **Try again** and the ring is untouched; a block the server
+  could not measure shows "–", not 0.
 
 **What the system does.** The period, the dates and the chosen slice are kept
 in the address bar, so a view can be shared or reloaded. The page refreshes

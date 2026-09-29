@@ -3224,6 +3224,23 @@ status write is conditional on the status and version that were read.
   payment for a sample; linking a reference sample into an inspection
   booking (the code is recorded for that).
 
+### FR-RFQ-006 — Sourcing on the buyer dashboard (checklist Master row 15)
+
+- **Statement.** With `FEATURE_RFQ` on, the buyer dashboard shows counts of
+  requests (open, draft, awarded), open quotes, negotiations (a quote past its
+  first offer) and samples in progress, each with how many wait on the buyer,
+  and up to six next actions. Every figure links to the filtered list; every
+  action to the page where it is done.
+- **Rules.**
+  1. Everything is counted from the buyer's own rows (the same scope as the
+     request list); nothing is estimated. "Waiting on you" means the current
+     offer is the supplier's and still open, or a sample is shipped (confirm
+     receipt) or delivered (approve or reject).
+  2. Each block is measured on its own; a block that fails is `null` and
+     named in `unavailable`, and the screen shows a dash, never 0.
+  3. The card has its own request; its failure never blanks the order ring.
+- **Status.** Built.
+
 ## 5.12 Buying by the carton, pallet or container; freight (BULK)
 
 ### FR-BULK-001 — Seller packaging per listing

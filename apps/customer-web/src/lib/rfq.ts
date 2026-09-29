@@ -315,3 +315,49 @@ export function fromDeadlineInput(value: string): string | null {
   const date = new Date(`${value}:00.000Z`);
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
+
+// --- Dashboard summary (Master row 15) -------------------------------------
+
+export type RfqNextActionKind = 'FINISH_DRAFT' | 'REVIEW_OFFER' | 'DEADLINE_PASSED' | 'CONFIRM_SAMPLE' | 'DECIDE_SAMPLE';
+
+export interface RfqNextAction {
+  kind: RfqNextActionKind;
+  rfqId: string;
+  rfqReference: string;
+  rfqTitle: string;
+  quoteId: string | null;
+  sampleReference: string | null;
+  at: string;
+}
+
+/** Each block is null when the server could not measure it; the rest still stand. */
+export interface RfqDashboardSummary {
+  requests: { draft: number; open: number; awarded: number; closed: number } | null;
+  quotes: { open: number; awaitingYou: number; shortlisted: number } | null;
+  negotiations: { active: number; awaitingYou: number; accepted: number } | null;
+  samples: { inProgress: number; awaitingYou: number; approved: number } | null;
+  nextActions: RfqNextAction[] | null;
+  unavailable: string[];
+  generatedAt: string;
+}
+
+export async function fetchRfqSummary(): Promise<RfqDashboardSummary> {
+  return api.get('/rfqs/summary');
+}
+
+/** Where a next action is done. */
+export function nextActionHref(action: RfqNextAction): string {
+  switch (action.kind) {
+    case 'FINISH_DRAFT':
+      return `/account/rfqs/${action.rfqId}/edit`;
+    case 'REVIEW_OFFER':
+      return action.quoteId === null
+        ? `/account/rfqs/${action.rfqId}/compare`
+        : `/account/rfqs/${action.rfqId}/quotes/${action.quoteId}`;
+    case 'DEADLINE_PASSED':
+      return `/account/rfqs/${action.rfqId}/compare`;
+    case 'CONFIRM_SAMPLE':
+    case 'DECIDE_SAMPLE':
+      return `/account/rfqs/${action.rfqId}?tab=samples`;
+  }
+}

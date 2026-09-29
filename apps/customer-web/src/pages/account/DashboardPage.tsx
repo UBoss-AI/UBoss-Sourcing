@@ -41,6 +41,7 @@ import { RangeTabs, RefreshButton } from '@/components/dashboard/controls';
 import { ModernDonutCard } from '@/components/dashboard/ModernDonutCard';
 import { AiInsightsCard } from '@/components/dashboard/AiInsightsCard';
 import { ErrorState } from '@/components/ui';
+import { SourcingSummaryCard } from '@/components/rfq/SourcingSummaryCard';
 import { formatDate, formatRelative } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useDashboardParams } from '@/lib/use-dashboard-params';
@@ -83,7 +84,7 @@ const SEGMENT_LABELS: Record<BuyerSegmentKey, TranslationKey> = {
 export function DashboardPage(): React.JSX.Element {
   const { t, language } = useI18n();
   const params = useDashboardParams();
-  const { business } = useStorefront();
+  const { business, features } = useStorefront();
 
   // `noIndex`, like every other account screen: this page is somebody's own
   // orders and spend, and it is behind a session anyway.
@@ -261,6 +262,14 @@ export function DashboardPage(): React.JSX.Element {
             }}
           />
         </BentoCell>
+
+        {/* --- Sourcing (row 15) ---------------------------------------- */}
+        {/* Its own request: a sourcing failure never blanks the ring. */}
+        {features.rfq === true && (
+          <BentoCell span={6} spanMd={3}>
+            <SourcingSummaryCard />
+          </BentoCell>
+        )}
       </BentoGrid>
     </ConsoleGround>
   );

@@ -2871,7 +2871,9 @@ match). Turning agreed terms into a purchase order is not built yet. The
 buyer can also ask any supplier taking part for a sample and follow it from
 request to shipped (courier and tracking), delivered and approved or rejected
 against written criteria; an approved sample becomes the reference sample.
-Sample payments are not collected by the marketplace.
+Sample payments are not collected by the marketplace. The buyer dashboard
+gains a Sourcing card with these counts and the next actions waiting on the
+buyer.
 Switched by `FEATURE_RFQ` (default on).
 
 ## Preorder chat

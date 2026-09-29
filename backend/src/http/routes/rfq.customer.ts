@@ -59,6 +59,7 @@ import {
   storeRfqAttachment,
 } from '../../modules/rfq/attachment.service.js';
 import { searchSuppliers } from '../../modules/rfq/matching.service.js';
+import { buyerRfqSummary } from '../../modules/rfq/summary.service.js';
 import {
   amendRfq,
   createDraft,
@@ -159,6 +160,11 @@ export function registerCustomerRfqRoutes(app: FastifyInstance): Promise<void> {
       attachments: rfqAttachmentPolicy(),
     }),
   );
+
+  /** Sourcing figures and next actions for the buyer dashboard. A failed block is null, never an error. */
+  app.get('/summary', { preHandler: requireCustomer }, async (request, reply) => {
+    return reply.header('Cache-Control', 'no-store').status(200).send(await buyerRfqSummary(buyerOf(request)));
+  });
 
   /** Your requests for quotation, newest activity first, with a count per status. */
   app.get('/', { preHandler: requireCustomer }, async (request, reply) => {
