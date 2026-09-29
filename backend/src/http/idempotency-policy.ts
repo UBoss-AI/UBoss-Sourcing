@@ -93,6 +93,9 @@ const REQUIRED_CENTRAL: Record<string, string> = {
   [`POST ${P}/seller/orders/:id/consignments`]: 'Splits a seller order into consignments.',
   [`POST ${P}/admin/orders/:id/shipments`]: 'Creates a shipment for an order.',
   [`POST ${P}/admin/orders/:id/returns`]: 'Books a return against an order.',
+  [`POST ${P}/rfqs`]: 'Starts a draft request for quotation; a double press must not start two.',
+  [`POST ${P}/rfqs/:id/submit`]:
+    'Sends a request for quotation to sellers, writing their invitations and telling each of them.',
 };
 
 // ---------------------------------------------------------------------------

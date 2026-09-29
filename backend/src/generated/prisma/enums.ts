@@ -1506,7 +1506,9 @@ export const SellerNotificationKind = {
   PREORDER_CLOSED: 'PREORDER_CLOSED',
   PREORDER_DELIVERY_RISK: 'PREORDER_DELIVERY_RISK',
   INVOICE_CREDIT_NOTE_REQUIRED: 'INVOICE_CREDIT_NOTE_REQUIRED',
-  INSPECTION_UPDATE: 'INSPECTION_UPDATE'
+  INSPECTION_UPDATE: 'INSPECTION_UPDATE',
+  RFQ_INVITATION: 'RFQ_INVITATION',
+  RFQ_UPDATE: 'RFQ_UPDATE'
 } as const
 
 export type SellerNotificationKind = (typeof SellerNotificationKind)[keyof typeof SellerNotificationKind]
@@ -3494,3 +3496,52 @@ export const LedgerReconciliationItemKind = {
 } as const
 
 export type LedgerReconciliationItemKind = (typeof LedgerReconciliationItemKind)[keyof typeof LedgerReconciliationItemKind]
+
+
+export const RfqStatus = {
+  DRAFT: 'DRAFT',
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+  AWARDED: 'AWARDED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type RfqStatus = (typeof RfqStatus)[keyof typeof RfqStatus]
+
+
+export const RfqParty = {
+  BUYER: 'BUYER',
+  SUPPLIER: 'SUPPLIER',
+  SYSTEM: 'SYSTEM'
+} as const
+
+export type RfqParty = (typeof RfqParty)[keyof typeof RfqParty]
+
+
+export const RfqInvitationStatus = {
+  INVITED: 'INVITED',
+  VIEWED: 'VIEWED',
+  QUOTED: 'QUOTED',
+  DECLINED: 'DECLINED',
+  WITHDRAWN: 'WITHDRAWN',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type RfqInvitationStatus = (typeof RfqInvitationStatus)[keyof typeof RfqInvitationStatus]
+
+
+export const RfqInvitationSource = {
+  MATCHED: 'MATCHED',
+  BUYER_SELECTED: 'BUYER_SELECTED'
+} as const
+
+export type RfqInvitationSource = (typeof RfqInvitationSource)[keyof typeof RfqInvitationSource]
+
+
+export const RfqAttachmentPurpose = {
+  REQUIREMENT: 'REQUIREMENT',
+  QUOTE: 'QUOTE',
+  NEGOTIATION: 'NEGOTIATION'
+} as const
+
+export type RfqAttachmentPurpose = (typeof RfqAttachmentPurpose)[keyof typeof RfqAttachmentPurpose]

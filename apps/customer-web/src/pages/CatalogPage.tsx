@@ -1401,6 +1401,7 @@ export function CatalogPage(): React.JSX.Element {
       {singleCategory !== null && categoryDetail.data !== undefined && (
         <CategorySourcing
           slug={singleCategory}
+          categoryId={categoryDetail.data.category.id}
           categoryName={categoryDetail.data.category.name}
           country={destinationCountry}
           notes={categoryDetail.data.marketNotes ?? []}

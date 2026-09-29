@@ -133,6 +133,7 @@ export function AccountLayout(): React.JSX.Element {
     recurringOrders: features.recurringOrders,
     buyerCompanies: features.buyerCompanies === true,
     productReviews: features.productReviews === true,
+    rfq: features.rfq === true,
   });
 
   // The drawer, below `md`, and nothing else: the rail widens on hover and

@@ -911,6 +911,8 @@ model Category {
   listingDrafts        SellerListingDraft[]
   /// Destination rules that apply to this category and everything under it.
   marketRules          MarketRule[]
+  /// Requests for quotation filed in this category.
+  rfqRequests          RfqRequest[]
 
   imageMedia  MediaAsset? @relation("CategoryImage", fields: [imageMediaId], references: [id], onDelete: SetNull)
   bannerMedia MediaAsset? @relation("CategoryBanner", fields: [bannerMediaId], references: [id], onDelete: SetNull)
@@ -2364,6 +2366,8 @@ model CustomerProfile {
 
   assistantConversations AssistantConversation[]
   preorderRequests  PreorderRequest[]
+  /// Requests for quotation they raised. See REQUESTS FOR QUOTATION.
+  rfqRequests       RfqRequest[]
   preorderChats     PreorderChatConversation[]
   preorderChatBlock PreorderChatCustomerBlock?
 
@@ -9743,6 +9747,8 @@ model SellerAccount {
   /// BULK PREORDER block at the end of this file.
   preorderPolicies        PreorderPolicy[]
   preorderRequests        PreorderRequest[]
+  /// Requests for quotation this seller was asked to answer.
+  rfqInvitations          RfqInvitation[]
   /// The seller's own invoices and packing lists, and how they are numbered.
   /// See the SELLER DOCUMENTS block at the end of this file.
   invoiceSettings         SellerInvoiceSettings?
@@ -12057,6 +12063,15 @@ enum SellerNotificationKind {
   /// An inspection moved: booked, reported, failed, released. See the
   /// THIRD-PARTY PRE-SHIPMENT INSPECTION block.
   INSPECTION_UPDATE
+
+  // --- Requests for quotation ----------------------------------------------
+
+  /// A buyer asked this seller to quote. An ALERT: it waits on the seller,
+  /// and is closed by a quote or a decline.
+  RFQ_INVITATION
+  /// Something moved on a request this seller is quoting on: the requirement
+  /// changed, the buyer asked or answered, countered, accepted or closed it.
+  RFQ_UPDATE
 }
 
 /// An in-app notification for a seller organisation.
@@ -20329,6 +20344,8 @@ model BuyerCompany {
   orders           Order[]
   addressBook      Address[]
   preorderRequests PreorderRequest[]
+  /// Requests for quotation raised for this company.
+  rfqRequests      RfqRequest[]
   /// Support requests a member sent while buying for this company. See SUPPORT.
   supportTickets   SupportTicket[]
   /// Recurring and Buy Later plans a member set up while buying for this company.
@@ -23729,3 +23746,258 @@ model SecretFingerprint {
 // =============================================================================
 // Operational alerts (monitor.sh, the worker) and who acknowledged them
 // =============================================================================
+
+// ===========================================================================
+// REQUESTS FOR QUOTATION (RFQ) - checklist Master rows 16-19
+//
+// A buyer (a person, or a verified buyer company) describes what they need;
+// the marketplace invites the approved sellers of that category who may sell
+// into the destination; each invited seller asks questions, quotes and
+// negotiates in its own thread; one set of terms is accepted and locked.
+//
+// Status is only ever changed through `domain/rfq-state.ts`, conditionally on
+// the status that was read. A submitted requirement never changes in place:
+// every change is a new row in `rfq_requirement_versions` that the sellers see.
+//
+// Migrations: 20261021100000_rfq_requests (row 16).
+// ===========================================================================
+
+enum RfqStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  AWARDED
+  CANCELLED
+}
+
+/// Who did something on a request. SYSTEM is the deadline sweep and matching.
+enum RfqParty {
+  BUYER
+  SUPPLIER
+  SYSTEM
+}
+
+enum RfqInvitationStatus {
+  INVITED
+  VIEWED
+  QUOTED
+  DECLINED
+  WITHDRAWN
+  EXPIRED
+}
+
+/// How a seller came to be asked: matched on category and destination, or
+/// picked by the buyer by name.
+enum RfqInvitationSource {
+  MATCHED
+  BUYER_SELECTED
+}
+
+enum RfqAttachmentPurpose {
+  /// Part of the requirement. Seen by every invited seller once it is in a
+  /// requirement version.
+  REQUIREMENT
+  /// Sent with a seller's quote. Seen by the buyer and that seller.
+  QUOTE
+  /// Sent with a counter-offer, by either side. Seen by the buyer and that
+  /// seller.
+  NEGOTIATION
+}
+
+/// One request for quotation. The row holds the CURRENT requirement; every
+/// submitted version of it is also kept in `rfq_requirement_versions`.
+model RfqRequest {
+  id        String    @id @db.Char(26)
+  /// RFQ-2026-000123. Given when the draft is created.
+  reference String    @unique(map: "uq_rfq_reference") @db.VarChar(32)
+  status    RfqStatus @default(DRAFT)
+  /// Optimistic lock. Every status write and every requirement change is
+  /// conditional on the version read.
+  version   Int       @default(0)
+
+  /// Who raised it. Owner for an individual request; the creating member for
+  /// a company one.
+  customerProfileId String  @db.Char(26)
+  /// The company it was raised for, or NULL for the person themselves.
+  buyerCompanyId    String? @db.Char(26)
+  createdByUserId   String  @db.Char(26)
+
+  // --- The requirement (current) -----------------------------------------
+  categoryId            String?  @db.Char(26)
+  title                 String   @default("") @db.VarChar(200)
+  specification         String?  @db.Text
+  /// `[{ key, value }]` - the category-specific details in the buyer's words.
+  specsJson             Json?
+  /// Decimal, up to three places, in `unitOfMeasure`.
+  quantity              Decimal? @db.Decimal(15, 3)
+  unitOfMeasure         String?  @db.VarChar(16)
+  annualVolume          Decimal? @db.Decimal(15, 3)
+  /// Optional. Both or neither: the service refuses one without the other.
+  targetUnitPriceMinor  BigInt?
+  targetCurrency        String?  @db.Char(3)
+  destinationCountry    String?  @db.Char(2)
+  destinationAddress    String?  @db.VarChar(500)
+  destinationPort       String?  @db.VarChar(120)
+  /// Incoterms 2020 three-letter code, validated against `domain/packaging.ts`.
+  incoterm              String?  @db.VarChar(3)
+  /// `["ISO 13485", "CE"]`, as the buyer wrote them.
+  certificationsJson    Json?
+  sampleRequirement     String   @default("NONE") @db.VarChar(24)
+  inspectionRequirement String   @default("NONE") @db.VarChar(32)
+  /// An instant, held in UTC. Quotes are accepted until then.
+  responseDeadline      DateTime? @db.DateTime(3)
+  deliveryTargetDate    DateTime? @db.Date
+  notes                 String?  @db.Text
+
+  // --- Who to ask ---------------------------------------------------------
+  /// Sellers the buyer picked by name on the draft, `[sellerAccountId]`.
+  includeSellerIdsJson Json?
+  /// Matched sellers the buyer chose not to ask, `[sellerAccountId]`.
+  excludeSellerIdsJson Json?
+  /// How many sellers matching found at submission, and whether any did.
+  /// NO_MATCH is a real answer the buyer is shown, never papered over.
+  matchedSupplierCount Int     @default(0)
+  matchOutcome         String? @db.VarChar(16)
+
+  /// 0 while a draft; 1 once submitted; +1 per amendment.
+  currentRequirementVersion Int @default(0)
+
+  submittedAt  DateTime? @db.DateTime(3)
+  closedAt     DateTime? @db.DateTime(3)
+  cancelledAt  DateTime? @db.DateTime(3)
+  statusReason String?   @db.VarChar(1000)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_request_customer")
+  buyerCompany    BuyerCompany?   @relation(fields: [buyerCompanyId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_rfq_request_buyer_company")
+  category        Category?       @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_rfq_request_category")
+
+  requirementVersions RfqRequirementVersion[]
+  invitations         RfqInvitation[]
+  attachments         RfqAttachment[]
+  events              RfqEvent[]
+
+  @@index([customerProfileId, buyerCompanyId, updatedAt], map: "ix_rfq_request_owner")
+  @@index([buyerCompanyId, updatedAt], map: "ix_rfq_request_company")
+  @@index([status, responseDeadline], map: "ix_rfq_request_deadline")
+  @@index([categoryId], map: "ix_rfq_request_category")
+  @@map("rfq_requests")
+}
+
+/// Every submitted version of a requirement. Append-only: version 1 is what
+/// was submitted, and each amendment adds one. What a seller quoted against
+/// is always recoverable.
+model RfqRequirementVersion {
+  id            String @id @db.Char(26)
+  rfqId         String @db.Char(26)
+  versionNumber Int
+  /// The whole requirement at this version (`domain/rfq.ts` RfqRequirement).
+  snapshotJson  Json
+  /// The fields that differ from the version before. Empty for version 1.
+  changedFieldsJson Json
+  /// The buyer's own words about what changed and why.
+  changeSummary String? @db.VarChar(1000)
+  createdByUserId String @db.Char(26)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  rfq RfqRequest @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_requirement_version_rfq")
+
+  @@unique([rfqId, versionNumber], map: "uq_rfq_requirement_version")
+  @@map("rfq_requirement_versions")
+}
+
+/// One seller asked to quote on one request.
+model RfqInvitation {
+  id              String              @id @db.Char(26)
+  rfqId           String              @db.Char(26)
+  sellerAccountId String              @db.Char(26)
+  source          RfqInvitationSource
+  status          RfqInvitationStatus @default(INVITED)
+
+  invitedAt   DateTime  @default(now()) @db.DateTime(3)
+  viewedAt    DateTime? @db.DateTime(3)
+  respondedAt DateTime? @db.DateTime(3)
+  /// The seller's reason for declining, shown to the buyer.
+  declineReason String? @db.VarChar(1000)
+  /// The latest requirement version this seller has been told about.
+  notifiedVersion Int @default(1)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  rfq           RfqRequest    @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_invitation_rfq")
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_invitation_seller")
+
+  /// One place per seller per request: inviting twice is refused by the index.
+  @@unique([rfqId, sellerAccountId], map: "uq_rfq_invitation_seller")
+  @@index([sellerAccountId, status, updatedAt], map: "ix_rfq_invitation_seller")
+  @@map("rfq_invitations")
+}
+
+/// A file on a request. The bytes are private objects; who may download one
+/// is who may see its request and its purpose (see `rfq-attachment.service`).
+model RfqAttachment {
+  id      String               @id @db.Char(26)
+  rfqId   String               @db.Char(26)
+  purpose RfqAttachmentPurpose
+  /// The seller thread a QUOTE or NEGOTIATION file belongs to. NULL for a
+  /// requirement file, which every invited seller may see.
+  sellerAccountId    String? @db.Char(26)
+  /// The requirement version a REQUIREMENT file was frozen into. NULL while it
+  /// sits on a draft or waits for the next amendment - and while NULL no
+  /// seller can see it and the buyer may still remove it.
+  requirementVersion Int?
+  /// The quote or offer version a QUOTE or NEGOTIATION file was sent with.
+  /// NULL until it is sent; until then only its uploader can see it.
+  quoteVersionId     String? @db.Char(26)
+
+  uploadedByParty  RfqParty
+  uploadedByUserId String  @db.Char(26)
+
+  storageKey  String @db.VarChar(512)
+  /// Sanitised display name. Never used as a storage path.
+  fileName    String @db.VarChar(255)
+  contentType String @db.VarChar(100)
+  byteSize    Int
+  contentHash String @db.Char(64)
+  /// CLEAN, or SCANNER_UNCONFIGURED on a development machine that accepts
+  /// unscanned files.
+  scanState   String @db.VarChar(24)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  rfq RfqRequest @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_attachment_rfq")
+
+  @@index([rfqId, purpose, createdAt], map: "ix_rfq_attachment_rfq")
+  @@index([rfqId, sellerAccountId], map: "ix_rfq_attachment_seller")
+  @@map("rfq_attachments")
+}
+
+/// The activity timeline of a request. Append-only.
+///
+/// `sellerAccountId` NULL and `sharedWithSuppliers` true: every invited seller
+/// sees it (submitted, amended, closed). `sellerAccountId` set: only the buyer
+/// and that seller see it. Neither: the buyer alone.
+model RfqEvent {
+  id    String @id @db.Char(26)
+  rfqId String @db.Char(26)
+  /// SUBMITTED, SUPPLIERS_MATCHED, NO_SUPPLIERS_MATCHED, SUPPLIER_INVITED,
+  /// AMENDED, VIEWED, DECLINED, QUOTE_SUBMITTED, ...
+  kind  String @db.VarChar(40)
+
+  sellerAccountId     String? @db.Char(26)
+  sharedWithSuppliers Boolean @default(false)
+
+  actorParty  RfqParty
+  actorUserId String?  @db.Char(26)
+  metaJson    Json?
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  rfq RfqRequest @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_event_rfq")
+
+  @@index([rfqId, createdAt], map: "ix_rfq_event_rfq")
+  @@map("rfq_events")
+}

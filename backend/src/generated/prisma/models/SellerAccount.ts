@@ -445,6 +445,7 @@ export type SellerAccountWhereInput = {
   orderSettlements?: Prisma.SellerOrderSettlementListRelationFilter
   preorderPolicies?: Prisma.PreorderPolicyListRelationFilter
   preorderRequests?: Prisma.PreorderRequestListRelationFilter
+  rfqInvitations?: Prisma.RfqInvitationListRelationFilter
   invoiceSettings?: Prisma.XOR<Prisma.SellerInvoiceSettingsNullableScalarRelationFilter, Prisma.SellerInvoiceSettingsWhereInput> | null
   sellerInvoices?: Prisma.SellerInvoiceListRelationFilter
   packingLists?: Prisma.SellerPackingListListRelationFilter
@@ -537,6 +538,7 @@ export type SellerAccountOrderByWithRelationInput = {
   orderSettlements?: Prisma.SellerOrderSettlementOrderByRelationAggregateInput
   preorderPolicies?: Prisma.PreorderPolicyOrderByRelationAggregateInput
   preorderRequests?: Prisma.PreorderRequestOrderByRelationAggregateInput
+  rfqInvitations?: Prisma.RfqInvitationOrderByRelationAggregateInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsOrderByWithRelationInput
   sellerInvoices?: Prisma.SellerInvoiceOrderByRelationAggregateInput
   packingLists?: Prisma.SellerPackingListOrderByRelationAggregateInput
@@ -633,6 +635,7 @@ export type SellerAccountWhereUniqueInput = Prisma.AtLeast<{
   orderSettlements?: Prisma.SellerOrderSettlementListRelationFilter
   preorderPolicies?: Prisma.PreorderPolicyListRelationFilter
   preorderRequests?: Prisma.PreorderRequestListRelationFilter
+  rfqInvitations?: Prisma.RfqInvitationListRelationFilter
   invoiceSettings?: Prisma.XOR<Prisma.SellerInvoiceSettingsNullableScalarRelationFilter, Prisma.SellerInvoiceSettingsWhereInput> | null
   sellerInvoices?: Prisma.SellerInvoiceListRelationFilter
   packingLists?: Prisma.SellerPackingListListRelationFilter
@@ -789,6 +792,7 @@ export type SellerAccountCreateInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -881,6 +885,7 @@ export type SellerAccountUncheckedCreateInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -973,6 +978,7 @@ export type SellerAccountUpdateInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -1065,6 +1071,7 @@ export type SellerAccountUncheckedUpdateInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -2196,6 +2203,20 @@ export type SellerAccountUpdateOneRequiredWithoutListingTrustNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutListingTrustInput, Prisma.SellerAccountUpdateWithoutListingTrustInput>, Prisma.SellerAccountUncheckedUpdateWithoutListingTrustInput>
 }
 
+export type SellerAccountCreateNestedOneWithoutRfqInvitationsInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutRfqInvitationsInput, Prisma.SellerAccountUncheckedCreateWithoutRfqInvitationsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutRfqInvitationsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+}
+
+export type SellerAccountUpdateOneRequiredWithoutRfqInvitationsNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutRfqInvitationsInput, Prisma.SellerAccountUncheckedCreateWithoutRfqInvitationsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutRfqInvitationsInput
+  upsert?: Prisma.SellerAccountUpsertWithoutRfqInvitationsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutRfqInvitationsInput, Prisma.SellerAccountUpdateWithoutRfqInvitationsInput>, Prisma.SellerAccountUncheckedUpdateWithoutRfqInvitationsInput>
+}
+
 export type SellerAccountCreateWithoutCreatedProductsInput = {
   id: string
   legalName: string
@@ -2270,6 +2291,7 @@ export type SellerAccountCreateWithoutCreatedProductsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -2361,6 +2383,7 @@ export type SellerAccountUncheckedCreateWithoutCreatedProductsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -2468,6 +2491,7 @@ export type SellerAccountUpdateWithoutCreatedProductsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -2559,6 +2583,7 @@ export type SellerAccountUncheckedUpdateWithoutCreatedProductsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -2651,6 +2676,7 @@ export type SellerAccountCreateWithoutSupportTicketsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -2742,6 +2768,7 @@ export type SellerAccountUncheckedCreateWithoutSupportTicketsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -2849,6 +2876,7 @@ export type SellerAccountUpdateWithoutSupportTicketsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -2940,6 +2968,7 @@ export type SellerAccountUncheckedUpdateWithoutSupportTicketsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -3031,6 +3060,7 @@ export type SellerAccountCreateWithoutDisputesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -3122,6 +3152,7 @@ export type SellerAccountUncheckedCreateWithoutDisputesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -3229,6 +3260,7 @@ export type SellerAccountUpdateWithoutDisputesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -3320,6 +3352,7 @@ export type SellerAccountUncheckedUpdateWithoutDisputesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -3410,6 +3443,7 @@ export type SellerAccountCreateWithoutMembersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -3501,6 +3535,7 @@ export type SellerAccountUncheckedCreateWithoutMembersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -3608,6 +3643,7 @@ export type SellerAccountUpdateWithoutMembersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -3699,6 +3735,7 @@ export type SellerAccountUncheckedUpdateWithoutMembersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -3790,6 +3827,7 @@ export type SellerAccountCreateWithoutInvitationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -3881,6 +3919,7 @@ export type SellerAccountUncheckedCreateWithoutInvitationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -3988,6 +4027,7 @@ export type SellerAccountUpdateWithoutInvitationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -4079,6 +4119,7 @@ export type SellerAccountUncheckedUpdateWithoutInvitationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -4170,6 +4211,7 @@ export type SellerAccountCreateWithoutOnboardingInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -4261,6 +4303,7 @@ export type SellerAccountUncheckedCreateWithoutOnboardingInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -4368,6 +4411,7 @@ export type SellerAccountUpdateWithoutOnboardingInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -4459,6 +4503,7 @@ export type SellerAccountUncheckedUpdateWithoutOnboardingInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -4550,6 +4595,7 @@ export type SellerAccountCreateWithoutBusinessProfileInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -4641,6 +4687,7 @@ export type SellerAccountUncheckedCreateWithoutBusinessProfileInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -4748,6 +4795,7 @@ export type SellerAccountUpdateWithoutBusinessProfileInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -4839,6 +4887,7 @@ export type SellerAccountUncheckedUpdateWithoutBusinessProfileInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -4930,6 +4979,7 @@ export type SellerAccountCreateWithoutVerificationCasesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -5021,6 +5071,7 @@ export type SellerAccountUncheckedCreateWithoutVerificationCasesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -5128,6 +5179,7 @@ export type SellerAccountUpdateWithoutVerificationCasesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -5219,6 +5271,7 @@ export type SellerAccountUncheckedUpdateWithoutVerificationCasesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -5310,6 +5363,7 @@ export type SellerAccountCreateWithoutDocumentsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -5401,6 +5455,7 @@ export type SellerAccountUncheckedCreateWithoutDocumentsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -5508,6 +5563,7 @@ export type SellerAccountUpdateWithoutDocumentsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -5599,6 +5655,7 @@ export type SellerAccountUncheckedUpdateWithoutDocumentsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -5690,6 +5747,7 @@ export type SellerAccountCreateWithoutAgreementsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -5781,6 +5839,7 @@ export type SellerAccountUncheckedCreateWithoutAgreementsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -5888,6 +5947,7 @@ export type SellerAccountUpdateWithoutAgreementsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -5979,6 +6039,7 @@ export type SellerAccountUncheckedUpdateWithoutAgreementsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -6070,6 +6131,7 @@ export type SellerAccountCreateWithoutPayoutAccountInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -6161,6 +6223,7 @@ export type SellerAccountUncheckedCreateWithoutPayoutAccountInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -6268,6 +6331,7 @@ export type SellerAccountUpdateWithoutPayoutAccountInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -6359,6 +6423,7 @@ export type SellerAccountUncheckedUpdateWithoutPayoutAccountInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -6450,6 +6515,7 @@ export type SellerAccountCreateWithoutLocationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -6541,6 +6607,7 @@ export type SellerAccountUncheckedCreateWithoutLocationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -6648,6 +6715,7 @@ export type SellerAccountUpdateWithoutLocationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -6739,6 +6807,7 @@ export type SellerAccountUncheckedUpdateWithoutLocationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -6830,6 +6899,7 @@ export type SellerAccountCreateWithoutBrandRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -6921,6 +6991,7 @@ export type SellerAccountUncheckedCreateWithoutBrandRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -7028,6 +7099,7 @@ export type SellerAccountUpdateWithoutBrandRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -7119,6 +7191,7 @@ export type SellerAccountUncheckedUpdateWithoutBrandRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -7210,6 +7283,7 @@ export type SellerAccountCreateWithoutListingDraftsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -7301,6 +7375,7 @@ export type SellerAccountUncheckedCreateWithoutListingDraftsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -7408,6 +7483,7 @@ export type SellerAccountUpdateWithoutListingDraftsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -7499,6 +7575,7 @@ export type SellerAccountUncheckedUpdateWithoutListingDraftsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -7590,6 +7667,7 @@ export type SellerAccountCreateWithoutOffersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -7681,6 +7759,7 @@ export type SellerAccountUncheckedCreateWithoutOffersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -7788,6 +7867,7 @@ export type SellerAccountUpdateWithoutOffersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -7879,6 +7959,7 @@ export type SellerAccountUncheckedUpdateWithoutOffersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -7970,6 +8051,7 @@ export type SellerAccountCreateWithoutInventoryInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -8061,6 +8143,7 @@ export type SellerAccountUncheckedCreateWithoutInventoryInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -8168,6 +8251,7 @@ export type SellerAccountUpdateWithoutInventoryInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -8259,6 +8343,7 @@ export type SellerAccountUncheckedUpdateWithoutInventoryInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -8350,6 +8435,7 @@ export type SellerAccountCreateWithoutInventoryMovementsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -8441,6 +8527,7 @@ export type SellerAccountUncheckedCreateWithoutInventoryMovementsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -8548,6 +8635,7 @@ export type SellerAccountUpdateWithoutInventoryMovementsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -8639,6 +8727,7 @@ export type SellerAccountUncheckedUpdateWithoutInventoryMovementsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -8730,6 +8819,7 @@ export type SellerAccountCreateWithoutBulkImportsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -8821,6 +8911,7 @@ export type SellerAccountUncheckedCreateWithoutBulkImportsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -8928,6 +9019,7 @@ export type SellerAccountUpdateWithoutBulkImportsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -9019,6 +9111,7 @@ export type SellerAccountUncheckedUpdateWithoutBulkImportsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -9110,6 +9203,7 @@ export type SellerAccountCreateWithoutOrderGroupsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -9201,6 +9295,7 @@ export type SellerAccountUncheckedCreateWithoutOrderGroupsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -9308,6 +9403,7 @@ export type SellerAccountUpdateWithoutOrderGroupsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -9399,6 +9495,7 @@ export type SellerAccountUncheckedUpdateWithoutOrderGroupsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -9490,6 +9587,7 @@ export type SellerAccountCreateWithoutShipmentsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -9581,6 +9679,7 @@ export type SellerAccountUncheckedCreateWithoutShipmentsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -9688,6 +9787,7 @@ export type SellerAccountUpdateWithoutShipmentsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -9779,6 +9879,7 @@ export type SellerAccountUncheckedUpdateWithoutShipmentsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -9870,6 +9971,7 @@ export type SellerAccountCreateWithoutReturnsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -9961,6 +10063,7 @@ export type SellerAccountUncheckedCreateWithoutReturnsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -10068,6 +10171,7 @@ export type SellerAccountUpdateWithoutReturnsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -10159,6 +10263,7 @@ export type SellerAccountUncheckedUpdateWithoutReturnsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -10250,6 +10355,7 @@ export type SellerAccountCreateWithoutSettlementsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -10341,6 +10447,7 @@ export type SellerAccountUncheckedCreateWithoutSettlementsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -10448,6 +10555,7 @@ export type SellerAccountUpdateWithoutSettlementsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -10539,6 +10647,7 @@ export type SellerAccountUncheckedUpdateWithoutSettlementsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -10630,6 +10739,7 @@ export type SellerAccountCreateWithoutPayoutsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -10721,6 +10831,7 @@ export type SellerAccountUncheckedCreateWithoutPayoutsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -10828,6 +10939,7 @@ export type SellerAccountUpdateWithoutPayoutsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -10919,6 +11031,7 @@ export type SellerAccountUncheckedUpdateWithoutPayoutsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -11010,6 +11123,7 @@ export type SellerAccountCreateWithoutNotificationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -11101,6 +11215,7 @@ export type SellerAccountUncheckedCreateWithoutNotificationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -11208,6 +11323,7 @@ export type SellerAccountUpdateWithoutNotificationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -11299,6 +11415,7 @@ export type SellerAccountUncheckedUpdateWithoutNotificationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -11390,6 +11507,7 @@ export type SellerAccountCreateWithoutAuditLogsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -11481,6 +11599,7 @@ export type SellerAccountUncheckedCreateWithoutAuditLogsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -11588,6 +11707,7 @@ export type SellerAccountUpdateWithoutAuditLogsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -11679,6 +11799,7 @@ export type SellerAccountUncheckedUpdateWithoutAuditLogsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -11770,6 +11891,7 @@ export type SellerAccountCreateWithoutLogisticsPartnersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -11861,6 +11983,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPartnersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -11968,6 +12091,7 @@ export type SellerAccountUpdateWithoutLogisticsPartnersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -12059,6 +12183,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPartnersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -12150,6 +12275,7 @@ export type SellerAccountCreateWithoutFulfilmentMethodsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -12241,6 +12367,7 @@ export type SellerAccountUncheckedCreateWithoutFulfilmentMethodsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -12348,6 +12475,7 @@ export type SellerAccountUpdateWithoutFulfilmentMethodsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -12439,6 +12567,7 @@ export type SellerAccountUncheckedUpdateWithoutFulfilmentMethodsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -12530,6 +12659,7 @@ export type SellerAccountCreateWithoutCarrierConnectionsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -12621,6 +12751,7 @@ export type SellerAccountUncheckedCreateWithoutCarrierConnectionsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -12728,6 +12859,7 @@ export type SellerAccountUpdateWithoutCarrierConnectionsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -12819,6 +12951,7 @@ export type SellerAccountUncheckedUpdateWithoutCarrierConnectionsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -12910,6 +13043,7 @@ export type SellerAccountCreateWithoutFulfilmentRulesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -13001,6 +13135,7 @@ export type SellerAccountUncheckedCreateWithoutFulfilmentRulesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -13108,6 +13243,7 @@ export type SellerAccountUpdateWithoutFulfilmentRulesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -13199,6 +13335,7 @@ export type SellerAccountUncheckedUpdateWithoutFulfilmentRulesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -13290,6 +13427,7 @@ export type SellerAccountCreateWithoutPickupProfilesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -13381,6 +13519,7 @@ export type SellerAccountUncheckedCreateWithoutPickupProfilesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -13488,6 +13627,7 @@ export type SellerAccountUpdateWithoutPickupProfilesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -13579,6 +13719,7 @@ export type SellerAccountUncheckedUpdateWithoutPickupProfilesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -13670,6 +13811,7 @@ export type SellerAccountCreateWithoutLogisticsRateCardsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -13761,6 +13903,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsRateCardsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -13868,6 +14011,7 @@ export type SellerAccountUpdateWithoutLogisticsRateCardsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -13959,6 +14103,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsRateCardsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -14050,6 +14195,7 @@ export type SellerAccountCreateWithoutCarrierRateQuotesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -14141,6 +14287,7 @@ export type SellerAccountUncheckedCreateWithoutCarrierRateQuotesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -14248,6 +14395,7 @@ export type SellerAccountUpdateWithoutCarrierRateQuotesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -14339,6 +14487,7 @@ export type SellerAccountUncheckedUpdateWithoutCarrierRateQuotesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -14430,6 +14579,7 @@ export type SellerAccountCreateWithoutShipmentPurchasesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -14521,6 +14671,7 @@ export type SellerAccountUncheckedCreateWithoutShipmentPurchasesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -14628,6 +14779,7 @@ export type SellerAccountUpdateWithoutShipmentPurchasesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -14719,6 +14871,7 @@ export type SellerAccountUncheckedUpdateWithoutShipmentPurchasesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -14810,6 +14963,7 @@ export type SellerAccountCreateWithoutPartnerInvitationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -14901,6 +15055,7 @@ export type SellerAccountUncheckedCreateWithoutPartnerInvitationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -15008,6 +15163,7 @@ export type SellerAccountUpdateWithoutPartnerInvitationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -15099,6 +15255,7 @@ export type SellerAccountUncheckedUpdateWithoutPartnerInvitationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -15190,6 +15347,7 @@ export type SellerAccountCreateWithoutOwnedLogisticsPartnersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -15281,6 +15439,7 @@ export type SellerAccountUncheckedCreateWithoutOwnedLogisticsPartnersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -15388,6 +15547,7 @@ export type SellerAccountUpdateWithoutOwnedLogisticsPartnersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -15479,6 +15639,7 @@ export type SellerAccountUncheckedUpdateWithoutOwnedLogisticsPartnersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -15570,6 +15731,7 @@ export type SellerAccountCreateWithoutPickupRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -15661,6 +15823,7 @@ export type SellerAccountUncheckedCreateWithoutPickupRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -15768,6 +15931,7 @@ export type SellerAccountUpdateWithoutPickupRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -15859,6 +16023,7 @@ export type SellerAccountUncheckedUpdateWithoutPickupRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -15950,6 +16115,7 @@ export type SellerAccountCreateWithoutPackagingProfilesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -16041,6 +16207,7 @@ export type SellerAccountUncheckedCreateWithoutPackagingProfilesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -16148,6 +16315,7 @@ export type SellerAccountUpdateWithoutPackagingProfilesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -16239,6 +16407,7 @@ export type SellerAccountUncheckedUpdateWithoutPackagingProfilesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -16330,6 +16499,7 @@ export type SellerAccountCreateWithoutFreightQuoteRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -16421,6 +16591,7 @@ export type SellerAccountUncheckedCreateWithoutFreightQuoteRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -16528,6 +16699,7 @@ export type SellerAccountUpdateWithoutFreightQuoteRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -16619,6 +16791,7 @@ export type SellerAccountUncheckedUpdateWithoutFreightQuoteRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -16710,6 +16883,7 @@ export type SellerAccountCreateWithoutErpConnectionsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -16801,6 +16975,7 @@ export type SellerAccountUncheckedCreateWithoutErpConnectionsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -16908,6 +17083,7 @@ export type SellerAccountUpdateWithoutErpConnectionsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -16999,6 +17175,7 @@ export type SellerAccountUncheckedUpdateWithoutErpConnectionsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -17090,6 +17267,7 @@ export type SellerAccountCreateWithoutErpBridgeDevicesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -17181,6 +17359,7 @@ export type SellerAccountUncheckedCreateWithoutErpBridgeDevicesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -17288,6 +17467,7 @@ export type SellerAccountUpdateWithoutErpBridgeDevicesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -17379,6 +17559,7 @@ export type SellerAccountUncheckedUpdateWithoutErpBridgeDevicesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -17470,6 +17651,7 @@ export type SellerAccountCreateWithoutErpSyncJobsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -17561,6 +17743,7 @@ export type SellerAccountUncheckedCreateWithoutErpSyncJobsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -17668,6 +17851,7 @@ export type SellerAccountUpdateWithoutErpSyncJobsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -17759,6 +17943,7 @@ export type SellerAccountUncheckedUpdateWithoutErpSyncJobsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -17850,6 +18035,7 @@ export type SellerAccountCreateWithoutErpAuditEventsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -17941,6 +18127,7 @@ export type SellerAccountUncheckedCreateWithoutErpAuditEventsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -18048,6 +18235,7 @@ export type SellerAccountUpdateWithoutErpAuditEventsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -18139,6 +18327,7 @@ export type SellerAccountUncheckedUpdateWithoutErpAuditEventsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -18230,6 +18419,7 @@ export type SellerAccountCreateWithoutLogisticsPolicyInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -18321,6 +18511,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPolicyInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -18428,6 +18619,7 @@ export type SellerAccountUpdateWithoutLogisticsPolicyInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -18519,6 +18711,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -18610,6 +18803,7 @@ export type SellerAccountCreateWithoutLogisticsPolicyVersionsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -18701,6 +18895,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPolicyVersionsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -18808,6 +19003,7 @@ export type SellerAccountUpdateWithoutLogisticsPolicyVersionsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -18899,6 +19095,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyVersionsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -18990,6 +19187,7 @@ export type SellerAccountCreateWithoutLogisticsProvidersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -19081,6 +19279,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsProvidersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -19188,6 +19387,7 @@ export type SellerAccountUpdateWithoutLogisticsProvidersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -19279,6 +19479,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsProvidersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -19370,6 +19571,7 @@ export type SellerAccountCreateWithoutLogisticsLevelRatesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -19461,6 +19663,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsLevelRatesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -19568,6 +19771,7 @@ export type SellerAccountUpdateWithoutLogisticsLevelRatesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -19659,6 +19863,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsLevelRatesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -19750,6 +19955,7 @@ export type SellerAccountCreateWithoutOrderLogisticsLegsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -19841,6 +20047,7 @@ export type SellerAccountUncheckedCreateWithoutOrderLogisticsLegsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -19948,6 +20155,7 @@ export type SellerAccountUpdateWithoutOrderLogisticsLegsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -20039,6 +20247,7 @@ export type SellerAccountUncheckedUpdateWithoutOrderLogisticsLegsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -20130,6 +20339,7 @@ export type SellerAccountCreateWithoutShipmentLegsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -20221,6 +20431,7 @@ export type SellerAccountUncheckedCreateWithoutShipmentLegsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -20328,6 +20539,7 @@ export type SellerAccountUpdateWithoutShipmentLegsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -20419,6 +20631,7 @@ export type SellerAccountUncheckedUpdateWithoutShipmentLegsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -20510,6 +20723,7 @@ export type SellerAccountCreateWithoutOrderSettlementsInput = {
   shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -20601,6 +20815,7 @@ export type SellerAccountUncheckedCreateWithoutOrderSettlementsInput = {
   shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -20708,6 +20923,7 @@ export type SellerAccountUpdateWithoutOrderSettlementsInput = {
   shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -20799,6 +21015,7 @@ export type SellerAccountUncheckedUpdateWithoutOrderSettlementsInput = {
   shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -20890,6 +21107,7 @@ export type SellerAccountCreateWithoutPreorderPoliciesInput = {
   shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerAccountInput
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -20981,6 +21199,7 @@ export type SellerAccountUncheckedCreateWithoutPreorderPoliciesInput = {
   shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerAccountInput
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -21088,6 +21307,7 @@ export type SellerAccountUpdateWithoutPreorderPoliciesInput = {
   shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerAccountNestedInput
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -21179,6 +21399,7 @@ export type SellerAccountUncheckedUpdateWithoutPreorderPoliciesInput = {
   shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerAccountNestedInput
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -21270,6 +21491,7 @@ export type SellerAccountCreateWithoutPreorderRequestsInput = {
   shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerAccountInput
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -21361,6 +21583,7 @@ export type SellerAccountUncheckedCreateWithoutPreorderRequestsInput = {
   shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerAccountInput
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -21468,6 +21691,7 @@ export type SellerAccountUpdateWithoutPreorderRequestsInput = {
   shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerAccountNestedInput
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -21559,6 +21783,7 @@ export type SellerAccountUncheckedUpdateWithoutPreorderRequestsInput = {
   shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerAccountNestedInput
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -21651,6 +21876,7 @@ export type SellerAccountCreateWithoutInvoiceSettingsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
   linkedBuyerCompanies?: Prisma.BuyerCompanyCreateNestedManyWithoutLinkedSellerAccountInput
@@ -21742,6 +21968,7 @@ export type SellerAccountUncheckedCreateWithoutInvoiceSettingsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
   linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedCreateNestedManyWithoutLinkedSellerAccountInput
@@ -21849,6 +22076,7 @@ export type SellerAccountUpdateWithoutInvoiceSettingsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
   linkedBuyerCompanies?: Prisma.BuyerCompanyUpdateManyWithoutLinkedSellerAccountNestedInput
@@ -21940,6 +22168,7 @@ export type SellerAccountUncheckedUpdateWithoutInvoiceSettingsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
   linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedUpdateManyWithoutLinkedSellerAccountNestedInput
@@ -22031,6 +22260,7 @@ export type SellerAccountCreateWithoutSellerInvoicesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
   linkedBuyerCompanies?: Prisma.BuyerCompanyCreateNestedManyWithoutLinkedSellerAccountInput
@@ -22122,6 +22352,7 @@ export type SellerAccountUncheckedCreateWithoutSellerInvoicesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
   linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedCreateNestedManyWithoutLinkedSellerAccountInput
@@ -22229,6 +22460,7 @@ export type SellerAccountUpdateWithoutSellerInvoicesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
   linkedBuyerCompanies?: Prisma.BuyerCompanyUpdateManyWithoutLinkedSellerAccountNestedInput
@@ -22320,6 +22552,7 @@ export type SellerAccountUncheckedUpdateWithoutSellerInvoicesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
   linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedUpdateManyWithoutLinkedSellerAccountNestedInput
@@ -22411,6 +22644,7 @@ export type SellerAccountCreateWithoutPackingListsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   linkedBuyerCompanies?: Prisma.BuyerCompanyCreateNestedManyWithoutLinkedSellerAccountInput
@@ -22502,6 +22736,7 @@ export type SellerAccountUncheckedCreateWithoutPackingListsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedCreateNestedManyWithoutLinkedSellerAccountInput
@@ -22609,6 +22844,7 @@ export type SellerAccountUpdateWithoutPackingListsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   linkedBuyerCompanies?: Prisma.BuyerCompanyUpdateManyWithoutLinkedSellerAccountNestedInput
@@ -22700,6 +22936,7 @@ export type SellerAccountUncheckedUpdateWithoutPackingListsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedUpdateManyWithoutLinkedSellerAccountNestedInput
@@ -22791,6 +23028,7 @@ export type SellerAccountCreateWithoutLinkedBuyerCompaniesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -22882,6 +23120,7 @@ export type SellerAccountUncheckedCreateWithoutLinkedBuyerCompaniesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -22989,6 +23228,7 @@ export type SellerAccountUpdateWithoutLinkedBuyerCompaniesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -23080,6 +23320,7 @@ export type SellerAccountUncheckedUpdateWithoutLinkedBuyerCompaniesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -23171,6 +23412,7 @@ export type SellerAccountCreateWithoutCommissionInvoicesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -23262,6 +23504,7 @@ export type SellerAccountUncheckedCreateWithoutCommissionInvoicesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -23369,6 +23612,7 @@ export type SellerAccountUpdateWithoutCommissionInvoicesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -23460,6 +23704,7 @@ export type SellerAccountUncheckedUpdateWithoutCommissionInvoicesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -23551,6 +23796,7 @@ export type SellerAccountCreateWithoutTrustProfileInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -23642,6 +23888,7 @@ export type SellerAccountUncheckedCreateWithoutTrustProfileInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -23749,6 +23996,7 @@ export type SellerAccountUpdateWithoutTrustProfileInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -23840,6 +24088,7 @@ export type SellerAccountUncheckedUpdateWithoutTrustProfileInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -23931,6 +24180,7 @@ export type SellerAccountCreateWithoutBeneficialOwnersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -24022,6 +24272,7 @@ export type SellerAccountUncheckedCreateWithoutBeneficialOwnersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -24129,6 +24380,7 @@ export type SellerAccountUpdateWithoutBeneficialOwnersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -24220,6 +24472,7 @@ export type SellerAccountUncheckedUpdateWithoutBeneficialOwnersInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -24311,6 +24564,7 @@ export type SellerAccountCreateWithoutFactoriesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -24402,6 +24656,7 @@ export type SellerAccountUncheckedCreateWithoutFactoriesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -24509,6 +24764,7 @@ export type SellerAccountUpdateWithoutFactoriesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -24600,6 +24856,7 @@ export type SellerAccountUncheckedUpdateWithoutFactoriesInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -24691,6 +24948,7 @@ export type SellerAccountCreateWithoutCertificationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -24782,6 +25040,7 @@ export type SellerAccountUncheckedCreateWithoutCertificationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -24889,6 +25148,7 @@ export type SellerAccountUpdateWithoutCertificationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -24980,6 +25240,7 @@ export type SellerAccountUncheckedUpdateWithoutCertificationsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -25071,6 +25332,7 @@ export type SellerAccountCreateWithoutTrustChecksInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -25162,6 +25424,7 @@ export type SellerAccountUncheckedCreateWithoutTrustChecksInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -25269,6 +25532,7 @@ export type SellerAccountUpdateWithoutTrustChecksInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -25360,6 +25624,7 @@ export type SellerAccountUncheckedUpdateWithoutTrustChecksInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -25451,6 +25716,7 @@ export type SellerAccountCreateWithoutScreeningChecksInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -25542,6 +25808,7 @@ export type SellerAccountUncheckedCreateWithoutScreeningChecksInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -25649,6 +25916,7 @@ export type SellerAccountUpdateWithoutScreeningChecksInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -25740,6 +26008,7 @@ export type SellerAccountUncheckedUpdateWithoutScreeningChecksInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -25831,6 +26100,7 @@ export type SellerAccountCreateWithoutProfileChangeRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -25922,6 +26192,7 @@ export type SellerAccountUncheckedCreateWithoutProfileChangeRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -26029,6 +26300,7 @@ export type SellerAccountUpdateWithoutProfileChangeRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -26120,6 +26392,7 @@ export type SellerAccountUncheckedUpdateWithoutProfileChangeRequestsInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -26211,6 +26484,7 @@ export type SellerAccountCreateWithoutListingTrustInput = {
   orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
@@ -26302,6 +26576,7 @@ export type SellerAccountUncheckedCreateWithoutListingTrustInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -26409,6 +26684,7 @@ export type SellerAccountUpdateWithoutListingTrustInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
@@ -26500,6 +26776,7 @@ export type SellerAccountUncheckedUpdateWithoutListingTrustInput = {
   orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
   invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -26514,6 +26791,390 @@ export type SellerAccountUncheckedUpdateWithoutListingTrustInput = {
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountCreateWithoutRfqInvitationsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountUncheckedCreateWithoutRfqInvitationsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationUncheckedCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnUncheckedCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutUncheckedCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductUncheckedCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountCreateOrConnectWithoutRfqInvitationsInput = {
+  where: Prisma.SellerAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutRfqInvitationsInput, Prisma.SellerAccountUncheckedCreateWithoutRfqInvitationsInput>
+}
+
+export type SellerAccountUpsertWithoutRfqInvitationsInput = {
+  update: Prisma.XOR<Prisma.SellerAccountUpdateWithoutRfqInvitationsInput, Prisma.SellerAccountUncheckedUpdateWithoutRfqInvitationsInput>
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutRfqInvitationsInput, Prisma.SellerAccountUncheckedCreateWithoutRfqInvitationsInput>
+  where?: Prisma.SellerAccountWhereInput
+}
+
+export type SellerAccountUpdateToOneWithWhereWithoutRfqInvitationsInput = {
+  where?: Prisma.SellerAccountWhereInput
+  data: Prisma.XOR<Prisma.SellerAccountUpdateWithoutRfqInvitationsInput, Prisma.SellerAccountUncheckedUpdateWithoutRfqInvitationsInput>
+}
+
+export type SellerAccountUpdateWithoutRfqInvitationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountUncheckedUpdateWithoutRfqInvitationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUncheckedUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUncheckedUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUncheckedUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 
@@ -26567,6 +27228,7 @@ export type SellerAccountCountOutputType = {
   orderSettlements: number
   preorderPolicies: number
   preorderRequests: number
+  rfqInvitations: number
   sellerInvoices: number
   packingLists: number
   linkedBuyerCompanies: number
@@ -26628,6 +27290,7 @@ export type SellerAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Ext
   orderSettlements?: boolean | SellerAccountCountOutputTypeCountOrderSettlementsArgs
   preorderPolicies?: boolean | SellerAccountCountOutputTypeCountPreorderPoliciesArgs
   preorderRequests?: boolean | SellerAccountCountOutputTypeCountPreorderRequestsArgs
+  rfqInvitations?: boolean | SellerAccountCountOutputTypeCountRfqInvitationsArgs
   sellerInvoices?: boolean | SellerAccountCountOutputTypeCountSellerInvoicesArgs
   packingLists?: boolean | SellerAccountCountOutputTypeCountPackingListsArgs
   linkedBuyerCompanies?: boolean | SellerAccountCountOutputTypeCountLinkedBuyerCompaniesArgs
@@ -26971,6 +27634,13 @@ export type SellerAccountCountOutputTypeCountPreorderRequestsArgs<ExtArgs extend
 /**
  * SellerAccountCountOutputType without action
  */
+export type SellerAccountCountOutputTypeCountRfqInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RfqInvitationWhereInput
+}
+
+/**
+ * SellerAccountCountOutputType without action
+ */
 export type SellerAccountCountOutputTypeCountSellerInvoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.SellerInvoiceWhereInput
 }
@@ -27135,6 +27805,7 @@ export type SellerAccountSelect<ExtArgs extends runtime.Types.Extensions.Interna
   orderSettlements?: boolean | Prisma.SellerAccount$orderSettlementsArgs<ExtArgs>
   preorderPolicies?: boolean | Prisma.SellerAccount$preorderPoliciesArgs<ExtArgs>
   preorderRequests?: boolean | Prisma.SellerAccount$preorderRequestsArgs<ExtArgs>
+  rfqInvitations?: boolean | Prisma.SellerAccount$rfqInvitationsArgs<ExtArgs>
   invoiceSettings?: boolean | Prisma.SellerAccount$invoiceSettingsArgs<ExtArgs>
   sellerInvoices?: boolean | Prisma.SellerAccount$sellerInvoicesArgs<ExtArgs>
   packingLists?: boolean | Prisma.SellerAccount$packingListsArgs<ExtArgs>
@@ -27234,6 +27905,7 @@ export type SellerAccountInclude<ExtArgs extends runtime.Types.Extensions.Intern
   orderSettlements?: boolean | Prisma.SellerAccount$orderSettlementsArgs<ExtArgs>
   preorderPolicies?: boolean | Prisma.SellerAccount$preorderPoliciesArgs<ExtArgs>
   preorderRequests?: boolean | Prisma.SellerAccount$preorderRequestsArgs<ExtArgs>
+  rfqInvitations?: boolean | Prisma.SellerAccount$rfqInvitationsArgs<ExtArgs>
   invoiceSettings?: boolean | Prisma.SellerAccount$invoiceSettingsArgs<ExtArgs>
   sellerInvoices?: boolean | Prisma.SellerAccount$sellerInvoicesArgs<ExtArgs>
   packingLists?: boolean | Prisma.SellerAccount$packingListsArgs<ExtArgs>
@@ -27321,6 +27993,10 @@ export type $SellerAccountPayload<ExtArgs extends runtime.Types.Extensions.Inter
      */
     preorderPolicies: Prisma.$PreorderPolicyPayload<ExtArgs>[]
     preorderRequests: Prisma.$PreorderRequestPayload<ExtArgs>[]
+    /**
+     * Requests for quotation this seller was asked to answer.
+     */
+    rfqInvitations: Prisma.$RfqInvitationPayload<ExtArgs>[]
     /**
      * The seller's own invoices and packing lists, and how they are numbered.
      * See the SELLER DOCUMENTS block at the end of this file.
@@ -27842,6 +28518,7 @@ export interface Prisma__SellerAccountClient<T, Null = never, ExtArgs extends ru
   orderSettlements<T extends Prisma.SellerAccount$orderSettlementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$orderSettlementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerOrderSettlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   preorderPolicies<T extends Prisma.SellerAccount$preorderPoliciesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$preorderPoliciesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PreorderPolicyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   preorderRequests<T extends Prisma.SellerAccount$preorderRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$preorderRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PreorderRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  rfqInvitations<T extends Prisma.SellerAccount$rfqInvitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$rfqInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RfqInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invoiceSettings<T extends Prisma.SellerAccount$invoiceSettingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$invoiceSettingsArgs<ExtArgs>>): Prisma.Prisma__SellerInvoiceSettingsClient<runtime.Types.Result.GetResult<Prisma.$SellerInvoiceSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   sellerInvoices<T extends Prisma.SellerAccount$sellerInvoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$sellerInvoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   packingLists<T extends Prisma.SellerAccount$packingListsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$packingListsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerPackingListPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -29412,6 +30089,30 @@ export type SellerAccount$preorderRequestsArgs<ExtArgs extends runtime.Types.Ext
   take?: number
   skip?: number
   distinct?: Prisma.PreorderRequestScalarFieldEnum | Prisma.PreorderRequestScalarFieldEnum[]
+}
+
+/**
+ * SellerAccount.rfqInvitations
+ */
+export type SellerAccount$rfqInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RfqInvitation
+   */
+  select?: Prisma.RfqInvitationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RfqInvitation
+   */
+  omit?: Prisma.RfqInvitationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RfqInvitationInclude<ExtArgs> | null
+  where?: Prisma.RfqInvitationWhereInput
+  orderBy?: Prisma.RfqInvitationOrderByWithRelationInput | Prisma.RfqInvitationOrderByWithRelationInput[]
+  cursor?: Prisma.RfqInvitationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RfqInvitationScalarFieldEnum | Prisma.RfqInvitationScalarFieldEnum[]
 }
 
 /**

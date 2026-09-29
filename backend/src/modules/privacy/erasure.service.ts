@@ -446,6 +446,28 @@ export async function executeErasure(input: {
         })
       ).count;
 
+      /*
+       * Requests for quotation raised for themselves.
+       *
+       * Deleted, with their versions, invitations, files, questions and
+       * timeline (cascade), on the preorders' line: a request is a
+       * negotiation, not a sale, and no order is ever made from one here -
+       * the accepted terms are what a purchase order would later be built
+       * from, and that step is not part of this product yet. The files go
+       * after commit. A request raised for a COMPANY is the company's
+       * purchasing record and stays with the company.
+       */
+      const rfqs = await tx.rfqRequest.findMany({
+        where: { customerProfileId: profile.id, buyerCompanyId: null },
+        select: { id: true, attachments: { select: { storageKey: true } } },
+      });
+      for (const rfq of rfqs) chatFiles.push(...rfq.attachments.map((file) => file.storageKey));
+      deleted.rfqRequests = (
+        await tx.rfqRequest.deleteMany({
+          where: { customerProfileId: profile.id, buyerCompanyId: null },
+        })
+      ).count;
+
       /**
        * Their place in a buyer organisation.
        *

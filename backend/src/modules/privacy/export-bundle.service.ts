@@ -98,6 +98,12 @@ export const SECTIONS = Object.freeze({
     'preorderRequests',
     // The versions of the bulk preorder note they acknowledged, and when.
     'preorderAcknowledgements',
+    // Requests for quotation this person raised: every version of what they
+    // asked for, which sellers were asked and how each answered, the files'
+    // names, and the timeline they were shown. A negotiation a named
+    // individual started, so disclosed whole. Which member of a seller's
+    // staff acted is that person's data, so only the seller's name is given.
+    'rfqRequests',
     // Their preorder chats with the operator's team: every message, card and
     // proposal they were shown, the files' names, how far they read, and a
     // block if there is one. Staff are named as "the team", as they were in
@@ -1397,6 +1403,93 @@ export async function buildCustomerBundle(
             to: entry.toStatus,
             at: iso(entry.createdAt),
             reason: entry.reason,
+          })),
+        })),
+      };
+    })(),
+
+    rfqRequests: await (async () => {
+      const LIMIT = 100;
+      const where = { customerProfileId: profile?.id ?? '' };
+      const [rows, total] = await Promise.all([
+        prisma.rfqRequest.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+          take: LIMIT,
+          include: {
+            requirementVersions: { orderBy: { versionNumber: 'asc' } },
+            invitations: {
+              orderBy: { invitedAt: 'asc' },
+              include: { sellerAccount: { select: { displayName: true } } },
+            },
+            attachments: {
+              orderBy: { createdAt: 'asc' },
+              select: { fileName: true, contentType: true, byteSize: true, purpose: true, createdAt: true },
+            },
+            events: { orderBy: { createdAt: 'asc' }, take: 1_000 },
+          },
+        }),
+        prisma.rfqRequest.count({ where }),
+      ]);
+      return {
+        total,
+        disclosed: rows.length,
+        ...(total > rows.length
+          ? { note: `The ${String(LIMIT)} most recent are listed. Ask for the rest and they will be sent.` }
+          : {}),
+        requests: rows.map((request) => ({
+          reference: request.reference,
+          status: request.status,
+          raisedFor: request.buyerCompanyId === null ? 'Yourself' : 'A company you belong to',
+          title: request.title,
+          specification: request.specification,
+          specs: request.specsJson,
+          quantity: request.quantity?.toString() ?? null,
+          unitOfMeasure: request.unitOfMeasure,
+          annualVolume: request.annualVolume?.toString() ?? null,
+          targetUnitPriceMinor: money(request.targetUnitPriceMinor),
+          targetCurrency: request.targetCurrency,
+          destinationCountry: request.destinationCountry,
+          destinationAddress: request.destinationAddress,
+          destinationPort: request.destinationPort,
+          incoterm: request.incoterm,
+          certifications: request.certificationsJson,
+          sampleRequirement: request.sampleRequirement,
+          inspectionRequirement: request.inspectionRequirement,
+          responseDeadline: iso(request.responseDeadline),
+          deliveryTargetDate: iso(request.deliveryTargetDate),
+          notes: request.notes,
+          createdAt: iso(request.createdAt),
+          submittedAt: iso(request.submittedAt),
+          closedAt: iso(request.closedAt),
+          cancelledAt: iso(request.cancelledAt),
+          reason: request.statusReason,
+          requirementVersions: request.requirementVersions.map((version) => ({
+            version: version.versionNumber,
+            requirement: version.snapshotJson,
+            changedFields: version.changedFieldsJson,
+            summary: version.changeSummary,
+            at: iso(version.createdAt),
+          })),
+          sellersAsked: request.invitations.map((invitation) => ({
+            seller: invitation.sellerAccount.displayName,
+            how: invitation.source,
+            status: invitation.status,
+            invitedAt: iso(invitation.invitedAt),
+            answeredAt: iso(invitation.respondedAt),
+            declineReason: invitation.declineReason,
+          })),
+          files: request.attachments.map((file) => ({
+            name: file.fileName,
+            type: file.contentType,
+            bytes: file.byteSize,
+            purpose: file.purpose,
+            at: iso(file.createdAt),
+          })),
+          timeline: request.events.map((event) => ({
+            what: event.kind,
+            by: event.actorParty,
+            at: iso(event.createdAt),
           })),
         })),
       };

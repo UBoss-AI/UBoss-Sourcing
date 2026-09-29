@@ -142,6 +142,12 @@ export interface StorefrontConfig {
     customerErp?: boolean;
     /** Whether buyers and sellers are offered two-step sign-in. */
     customerMfa?: boolean;
+    /**
+     * Whether requests for quotation are offered: "Request quotes" on
+     * category and product pages, the account's RFQ pages and the Seller Hub
+     * inbox. Optional and absent means off, like the fields above.
+     */
+    rfq?: boolean;
   };
 
   /**

@@ -1870,6 +1870,37 @@ export const ErrorCode = {
   CUSTOMER_KYC_INCOMPLETE: 'CUSTOMER_KYC_INCOMPLETE',
   /// The identity check cannot move that way from where it is. 409.
   CUSTOMER_KYC_TRANSITION_INVALID: 'CUSTOMER_KYC_TRANSITION_INVALID',
+
+  // --- Requests for quotation (Master rows 16-19) ---
+  /// The request cannot move that way from where it is - or it changed
+  /// while the screen was open (`details[0].code` STALE). 409.
+  RFQ_TRANSITION_NOT_ALLOWED: 'RFQ_TRANSITION_NOT_ALLOWED',
+  /// Only a draft can be edited in place or deleted. A submitted request
+  /// changes through a new requirement version. 409.
+  RFQ_NOT_EDITABLE: 'RFQ_NOT_EDITABLE',
+  /// The request cannot be submitted yet. `details` names every field that
+  /// is missing or wrong (`REQUIRED`, `IN_PAST`, `TOO_FAR`, `DESTINATION_NEEDED`,
+  /// `BEFORE_DEADLINE`, `UNKNOWN`). 400.
+  RFQ_INCOMPLETE: 'RFQ_INCOMPLETE',
+  /// The marketplace does not sell this category into the destination
+  /// country (a market rule blocks it), so no seller may be asked to. 409.
+  RFQ_DESTINATION_BLOCKED: 'RFQ_DESTINATION_BLOCKED',
+  /// That seller cannot be invited: not approved to trade, the buyer's own
+  /// business, or unknown. 409.
+  RFQ_SUPPLIER_NOT_ELIGIBLE: 'RFQ_SUPPLIER_NOT_ELIGIBLE',
+  /// The request is already sent to as many sellers as this marketplace
+  /// allows (RFQ_MAX_INVITED_SUPPLIERS). 409.
+  RFQ_INVITATION_LIMIT_REACHED: 'RFQ_INVITATION_LIMIT_REACHED',
+  /// Files cannot be attached on this installation: no malware scanner and
+  /// unscanned files not accepted. 409.
+  RFQ_ATTACHMENTS_UNAVAILABLE: 'RFQ_ATTACHMENTS_UNAVAILABLE',
+  /// The request already carries as many files as it may
+  /// (RFQ_ATTACHMENTS_PER_RFQ). 409.
+  RFQ_ATTACHMENT_LIMIT_REACHED: 'RFQ_ATTACHMENT_LIMIT_REACHED',
+  /// The seller can no longer answer this request: they declined or
+  /// withdrew, the deadline passed, or the request closed. `details[0].code`
+  /// says which. 409.
+  RFQ_RESPONSE_CLOSED: 'RFQ_RESPONSE_CLOSED',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

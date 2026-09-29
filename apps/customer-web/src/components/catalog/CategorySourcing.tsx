@@ -19,7 +19,7 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { AlertIcon, InfoIcon, SparkIcon } from '@/components/icons';
+import { AlertIcon, DocumentIcon, InfoIcon, SparkIcon } from '@/components/icons';
 import { SupplierPill } from '@/components/catalog/SupplierMatches';
 import { useStorefront } from '@/app/storefront-context';
 import { api } from '@/lib/api';
@@ -40,11 +40,14 @@ const MAX_SHOWN = 6;
 
 export function CategorySourcing({
   slug,
+  categoryId,
   categoryName,
   country,
   notes,
 }: {
   slug: string;
+  /** Prefills "Request quotes". Absent, the link is not offered. */
+  categoryId?: string;
   categoryName: string;
   country: string | null;
   notes: CategoryMarketNote[];
@@ -67,7 +70,11 @@ export function CategorySourcing({
   const destination = country === null ? '' : countryName(country, language);
   const safeNotes = Array.isArray(notes) ? notes : [];
 
-  if (safeNotes.length === 0 && list.length === 0 && !features.assistant) return null;
+  const blocked = safeNotes.some((note) => note.effect === 'BLOCK');
+  // A request for quotation on a shelf closed to this destination could only be refused.
+  const canRequest = features.rfq === true && categoryId !== undefined && !blocked;
+
+  if (safeNotes.length === 0 && list.length === 0 && !features.assistant && !canRequest) return null;
 
   const askAssistant = (): void => {
     setPendingQuestion(t('catalog.sourcingQuestion', { category: categoryName }), 'compose');
@@ -133,6 +140,19 @@ export function CategorySourcing({
             ))}
           </ul>
         </div>
+      )}
+
+      {canRequest && (
+        <p className="mt-3 text-sm">
+          <Link
+            to={`/account/rfqs/new?categoryId=${encodeURIComponent(categoryId ?? "")}`}
+            className="inline-flex items-center gap-1.5 font-medium text-brand underline-offset-2 hover:text-brand-hover hover:underline
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+          >
+            <DocumentIcon className="h-4 w-4" />
+            {t('rfq.cta.requestQuotes')}
+          </Link>
+        </p>
       )}
 
       {features.assistant && (

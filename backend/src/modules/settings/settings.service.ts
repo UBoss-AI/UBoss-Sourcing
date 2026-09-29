@@ -913,6 +913,12 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
        */
       supportTickets: env.FEATURE_SUPPORT_TICKETS,
       /**
+       * Whether buyers may raise requests for quotation and sellers answer
+       * them. Off hides "Request quotes", the account's RFQ pages and the
+       * Seller Hub inbox; the backend refuses every RFQ route either way.
+       */
+      rfq: env.FEATURE_RFQ,
+      /**
        * Whether a customer can set up Autopay at `/account/autopay`. Both
        * flags, because the standing authority needs the card enrolment that
        * FEATURE_SUBSCRIPTION_AUTOPAY gates (config/env.ts refuses one without

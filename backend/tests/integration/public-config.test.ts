@@ -49,6 +49,9 @@ describe('GET /api/v1/config', () => {
       // boolean the storefront has to interpret.
       'assistant',
       'business',
+      // The storefront's bot check: which provider, and its PUBLIC site key.
+      // The secret never leaves the server.
+      'captcha',
       'features',
       // The two rules the storefront has to draw a calendar and a warehouse
       // list from rather than hard-code. Both are deployment settings, and a
@@ -122,6 +125,8 @@ describe('GET /api/v1/config', () => {
       // so its cards never lead to a feature this deployment switched off.
       'customerAutopay',
       'customerErp',
+      // Whether buyers and sellers are offered two-step sign-in. A boolean.
+      'customerMfa',
       // Whether the camera button on the search bar can do anything. Tracks
       // `assistant` today — image search is a vision call on the same provider
       // — but travels as its own field so the storefront never infers one
@@ -131,6 +136,10 @@ describe('GET /api/v1/config', () => {
       // themselves are read from their own endpoint.
       'productReviews',
       'recurringOrders',
+      // Whether requests for quotation are offered: "Request quotes" on
+      // category and product pages, the account's RFQ pages and the Seller
+      // Hub inbox. A boolean; requests themselves need a session.
+      'rfq',
       'selfRegistration',
       // Whether a confirmed sign-up still waits for a member of staff. The
       // storefront says so on the form rather than only afterwards.

@@ -592,6 +592,20 @@ export const AuditAction = {
   RETURN_FILE_UPLOADED: 'return.file_uploaded',
   RETURN_FILE_DOWNLOADED: 'return.file_downloaded',
   RETURN_SETTINGS_CHANGED: 'return.settings_changed',
+
+  // Requests for quotation (Master rows 16-19). Every step, by whoever took
+  // it: the buyer raising, sending, changing and closing a request, sellers
+  // being asked. A file by id, type and size only - never its name.
+  RFQ_CREATED: 'rfq.created',
+  RFQ_DRAFT_UPDATED: 'rfq.draft_updated',
+  RFQ_DRAFT_DELETED: 'rfq.draft_deleted',
+  RFQ_SUBMITTED: 'rfq.submitted',
+  RFQ_SUPPLIER_INVITED: 'rfq.supplier_invited',
+  RFQ_CANCELLED: 'rfq.cancelled',
+  RFQ_CLOSED: 'rfq.closed',
+  RFQ_ATTACHMENT_UPLOADED: 'rfq.attachment_uploaded',
+  RFQ_ATTACHMENT_REMOVED: 'rfq.attachment_removed',
+  RFQ_ATTACHMENT_DOWNLOADED: 'rfq.attachment_downloaded',
 } as const;
 
 export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];

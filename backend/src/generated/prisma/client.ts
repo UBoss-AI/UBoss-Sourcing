@@ -3288,3 +3288,36 @@ export type LedgerReconciliationItem = Prisma.LedgerReconciliationItemModel
  * SHA-256 (infra/key-management.ts), never the secret. See infra/secret-age.ts.
  */
 export type SecretFingerprint = Prisma.SecretFingerprintModel
+/**
+ * Model RfqRequest
+ * One request for quotation. The row holds the CURRENT requirement; every
+ * submitted version of it is also kept in `rfq_requirement_versions`.
+ */
+export type RfqRequest = Prisma.RfqRequestModel
+/**
+ * Model RfqRequirementVersion
+ * Every submitted version of a requirement. Append-only: version 1 is what
+ * was submitted, and each amendment adds one. What a seller quoted against
+ * is always recoverable.
+ */
+export type RfqRequirementVersion = Prisma.RfqRequirementVersionModel
+/**
+ * Model RfqInvitation
+ * One seller asked to quote on one request.
+ */
+export type RfqInvitation = Prisma.RfqInvitationModel
+/**
+ * Model RfqAttachment
+ * A file on a request. The bytes are private objects; who may download one
+ * is who may see its request and its purpose (see `rfq-attachment.service`).
+ */
+export type RfqAttachment = Prisma.RfqAttachmentModel
+/**
+ * Model RfqEvent
+ * The activity timeline of a request. Append-only.
+ * 
+ * `sellerAccountId` NULL and `sharedWithSuppliers` true: every invited seller
+ * sees it (submitted, amended, closed). `sellerAccountId` set: only the buyer
+ * and that seller see it. Neither: the buyer alone.
+ */
+export type RfqEvent = Prisma.RfqEventModel

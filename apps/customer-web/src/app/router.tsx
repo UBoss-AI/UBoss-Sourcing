@@ -355,6 +355,23 @@ export const router = createBrowserRouter([
               import('@/pages/PreorderDetailPage').then((m) => m.PreorderDetailPage),
             ),
           },
+          // Requests for quotation: the list, the draft form and one request.
+          {
+            path: 'rfqs',
+            ...accountPage(() => import('@/pages/rfq/RfqListPage').then((m) => m.RfqListPage)),
+          },
+          {
+            path: 'rfqs/new',
+            ...accountPage(() => import('@/pages/rfq/RfqEditPage').then((m) => m.RfqEditPage)),
+          },
+          {
+            path: 'rfqs/:id/edit',
+            ...accountPage(() => import('@/pages/rfq/RfqEditPage').then((m) => m.RfqEditPage)),
+          },
+          {
+            path: 'rfqs/:id',
+            ...accountPage(() => import('@/pages/rfq/RfqDetailPage').then((m) => m.RfqDetailPage)),
+          },
           // Preorder chats with the UBOSS team. `:id` is what the "a reply is
           // waiting" email links to.
           {

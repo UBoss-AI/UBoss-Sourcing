@@ -737,7 +737,12 @@ export const ModelName = {
   PayoutProviderEvent: 'PayoutProviderEvent',
   LedgerReconciliationRun: 'LedgerReconciliationRun',
   LedgerReconciliationItem: 'LedgerReconciliationItem',
-  SecretFingerprint: 'SecretFingerprint'
+  SecretFingerprint: 'SecretFingerprint',
+  RfqRequest: 'RfqRequest',
+  RfqRequirementVersion: 'RfqRequirementVersion',
+  RfqInvitation: 'RfqInvitation',
+  RfqAttachment: 'RfqAttachment',
+  RfqEvent: 'RfqEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -753,7 +758,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productVariantAttribute" | "productDescriptionSection" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "paymentReceipt" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "paymentProviderCustomer" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "returnRequestLine" | "returnRequestEvent" | "returnRequestFile" | "returnSettings" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "productReview" | "supportTicket" | "supportTicketEvent" | "supportTicketAttachment" | "supportSlaPolicy" | "dispute" | "disputeEvent" | "disputeAttachment" | "disputeSettings" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerProfileChange" | "logisticsPartnerDocument" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsDeliveryCode" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "platformFeeRule" | "platformFeeRuleApplication" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList" | "buyerCompany" | "buyerCompanyAddress" | "buyerCompanyIdentifier" | "buyerCompanyLocation" | "buyerCompanyMember" | "buyerCompanyInvitation" | "buyerCompanyApprovalPolicy" | "buyerCompanyOrderApproval" | "buyerCompanyVerificationCase" | "buyerCompanyCheck" | "buyerCompanyDocument" | "buyerCompanyInfoRequest" | "buyerCompanyReviewEvent" | "buyerCompanyStatusHistory" | "consentRecord" | "legalDocument" | "buyerCompanyEmailChallenge" | "commissionInvoiceSettings" | "commissionInvoice" | "commissionInvoiceLine" | "commissionCreditNote" | "commissionDocument" | "commissionInvoiceEvent" | "inspectionPolicy" | "inspectionPlan" | "inspectionRule" | "inspectionSupplierRisk" | "inspectionAgency" | "inspectionAgencyMember" | "inspectionRequirement" | "inspectionJob" | "inspectionConflictDeclaration" | "inspectionCheckResult" | "inspectionDefect" | "inspectionEvidence" | "inspectionReport" | "inspectionRelease" | "inspectionShipmentBinding" | "inspectionAgencyInvoice" | "inspectionEvent" | "trustSettings" | "sellerTrustProfile" | "sellerBeneficialOwner" | "sellerFactory" | "sellerFactoryMachine" | "sellerFactoryEvidence" | "sellerCertification" | "sellerTrustCheck" | "sellerScreeningCheck" | "sellerProfileChangeRequest" | "sellerListingTrust" | "sellerListingCertification" | "sellerOfferComplianceHold" | "marketRule" | "marketLandedCostRate" | "marketProfile" | "searchSynonym" | "searchQueryLog" | "customerKyc" | "customerKycDocument" | "customerPreference" | "sellerProductionMilestone" | "sellerProductionDelay" | "sellerOrderBuyerUpdate" | "orderTradeDocument" | "orderTradeDocumentVersion" | "orderTradeDocumentEvent" | "tradeComplianceRule" | "consignmentBookingTerms" | "logisticsTradeSettings" | "logisticsLane" | "logisticsLaneBand" | "ledgerAccount" | "ledgerEntry" | "ledgerLine" | "sellerFundHold" | "sellerFundReleaseRequest" | "payoutProviderEvent" | "ledgerReconciliationRun" | "ledgerReconciliationItem" | "secretFingerprint"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productVariantAttribute" | "productDescriptionSection" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "paymentReceipt" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "paymentProviderCustomer" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "returnRequestLine" | "returnRequestEvent" | "returnRequestFile" | "returnSettings" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "productReview" | "supportTicket" | "supportTicketEvent" | "supportTicketAttachment" | "supportSlaPolicy" | "dispute" | "disputeEvent" | "disputeAttachment" | "disputeSettings" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerProfileChange" | "logisticsPartnerDocument" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsDeliveryCode" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "platformFeeRule" | "platformFeeRuleApplication" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList" | "buyerCompany" | "buyerCompanyAddress" | "buyerCompanyIdentifier" | "buyerCompanyLocation" | "buyerCompanyMember" | "buyerCompanyInvitation" | "buyerCompanyApprovalPolicy" | "buyerCompanyOrderApproval" | "buyerCompanyVerificationCase" | "buyerCompanyCheck" | "buyerCompanyDocument" | "buyerCompanyInfoRequest" | "buyerCompanyReviewEvent" | "buyerCompanyStatusHistory" | "consentRecord" | "legalDocument" | "buyerCompanyEmailChallenge" | "commissionInvoiceSettings" | "commissionInvoice" | "commissionInvoiceLine" | "commissionCreditNote" | "commissionDocument" | "commissionInvoiceEvent" | "inspectionPolicy" | "inspectionPlan" | "inspectionRule" | "inspectionSupplierRisk" | "inspectionAgency" | "inspectionAgencyMember" | "inspectionRequirement" | "inspectionJob" | "inspectionConflictDeclaration" | "inspectionCheckResult" | "inspectionDefect" | "inspectionEvidence" | "inspectionReport" | "inspectionRelease" | "inspectionShipmentBinding" | "inspectionAgencyInvoice" | "inspectionEvent" | "trustSettings" | "sellerTrustProfile" | "sellerBeneficialOwner" | "sellerFactory" | "sellerFactoryMachine" | "sellerFactoryEvidence" | "sellerCertification" | "sellerTrustCheck" | "sellerScreeningCheck" | "sellerProfileChangeRequest" | "sellerListingTrust" | "sellerListingCertification" | "sellerOfferComplianceHold" | "marketRule" | "marketLandedCostRate" | "marketProfile" | "searchSynonym" | "searchQueryLog" | "customerKyc" | "customerKycDocument" | "customerPreference" | "sellerProductionMilestone" | "sellerProductionDelay" | "sellerOrderBuyerUpdate" | "orderTradeDocument" | "orderTradeDocumentVersion" | "orderTradeDocumentEvent" | "tradeComplianceRule" | "consignmentBookingTerms" | "logisticsTradeSettings" | "logisticsLane" | "logisticsLaneBand" | "ledgerAccount" | "ledgerEntry" | "ledgerLine" | "sellerFundHold" | "sellerFundReleaseRequest" | "payoutProviderEvent" | "ledgerReconciliationRun" | "ledgerReconciliationItem" | "secretFingerprint" | "rfqRequest" | "rfqRequirementVersion" | "rfqInvitation" | "rfqAttachment" | "rfqEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -23263,6 +23268,336 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    RfqRequest: {
+      payload: Prisma.$RfqRequestPayload<ExtArgs>
+      fields: Prisma.RfqRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RfqRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RfqRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.RfqRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RfqRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequestPayload>
+        }
+        findMany: {
+          args: Prisma.RfqRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequestPayload>[]
+        }
+        create: {
+          args: Prisma.RfqRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequestPayload>
+        }
+        createMany: {
+          args: Prisma.RfqRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.RfqRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequestPayload>
+        }
+        update: {
+          args: Prisma.RfqRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.RfqRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RfqRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.RfqRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.RfqRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRfqRequest>
+        }
+        groupBy: {
+          args: Prisma.RfqRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RfqRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RfqRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RfqRequestCountAggregateOutputType> | number
+        }
+      }
+    }
+    RfqRequirementVersion: {
+      payload: Prisma.$RfqRequirementVersionPayload<ExtArgs>
+      fields: Prisma.RfqRequirementVersionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RfqRequirementVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequirementVersionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RfqRequirementVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequirementVersionPayload>
+        }
+        findFirst: {
+          args: Prisma.RfqRequirementVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequirementVersionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RfqRequirementVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequirementVersionPayload>
+        }
+        findMany: {
+          args: Prisma.RfqRequirementVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequirementVersionPayload>[]
+        }
+        create: {
+          args: Prisma.RfqRequirementVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequirementVersionPayload>
+        }
+        createMany: {
+          args: Prisma.RfqRequirementVersionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.RfqRequirementVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequirementVersionPayload>
+        }
+        update: {
+          args: Prisma.RfqRequirementVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequirementVersionPayload>
+        }
+        deleteMany: {
+          args: Prisma.RfqRequirementVersionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RfqRequirementVersionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.RfqRequirementVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqRequirementVersionPayload>
+        }
+        aggregate: {
+          args: Prisma.RfqRequirementVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRfqRequirementVersion>
+        }
+        groupBy: {
+          args: Prisma.RfqRequirementVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RfqRequirementVersionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RfqRequirementVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RfqRequirementVersionCountAggregateOutputType> | number
+        }
+      }
+    }
+    RfqInvitation: {
+      payload: Prisma.$RfqInvitationPayload<ExtArgs>
+      fields: Prisma.RfqInvitationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RfqInvitationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqInvitationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RfqInvitationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqInvitationPayload>
+        }
+        findFirst: {
+          args: Prisma.RfqInvitationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqInvitationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RfqInvitationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqInvitationPayload>
+        }
+        findMany: {
+          args: Prisma.RfqInvitationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqInvitationPayload>[]
+        }
+        create: {
+          args: Prisma.RfqInvitationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqInvitationPayload>
+        }
+        createMany: {
+          args: Prisma.RfqInvitationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.RfqInvitationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqInvitationPayload>
+        }
+        update: {
+          args: Prisma.RfqInvitationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqInvitationPayload>
+        }
+        deleteMany: {
+          args: Prisma.RfqInvitationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RfqInvitationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.RfqInvitationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqInvitationPayload>
+        }
+        aggregate: {
+          args: Prisma.RfqInvitationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRfqInvitation>
+        }
+        groupBy: {
+          args: Prisma.RfqInvitationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RfqInvitationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RfqInvitationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RfqInvitationCountAggregateOutputType> | number
+        }
+      }
+    }
+    RfqAttachment: {
+      payload: Prisma.$RfqAttachmentPayload<ExtArgs>
+      fields: Prisma.RfqAttachmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RfqAttachmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqAttachmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RfqAttachmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqAttachmentPayload>
+        }
+        findFirst: {
+          args: Prisma.RfqAttachmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqAttachmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RfqAttachmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqAttachmentPayload>
+        }
+        findMany: {
+          args: Prisma.RfqAttachmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqAttachmentPayload>[]
+        }
+        create: {
+          args: Prisma.RfqAttachmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqAttachmentPayload>
+        }
+        createMany: {
+          args: Prisma.RfqAttachmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.RfqAttachmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqAttachmentPayload>
+        }
+        update: {
+          args: Prisma.RfqAttachmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqAttachmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.RfqAttachmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RfqAttachmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.RfqAttachmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqAttachmentPayload>
+        }
+        aggregate: {
+          args: Prisma.RfqAttachmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRfqAttachment>
+        }
+        groupBy: {
+          args: Prisma.RfqAttachmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RfqAttachmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RfqAttachmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RfqAttachmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    RfqEvent: {
+      payload: Prisma.$RfqEventPayload<ExtArgs>
+      fields: Prisma.RfqEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RfqEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RfqEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqEventPayload>
+        }
+        findFirst: {
+          args: Prisma.RfqEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RfqEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqEventPayload>
+        }
+        findMany: {
+          args: Prisma.RfqEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqEventPayload>[]
+        }
+        create: {
+          args: Prisma.RfqEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqEventPayload>
+        }
+        createMany: {
+          args: Prisma.RfqEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.RfqEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqEventPayload>
+        }
+        update: {
+          args: Prisma.RfqEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.RfqEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RfqEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.RfqEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RfqEventPayload>
+        }
+        aggregate: {
+          args: Prisma.RfqEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRfqEvent>
+        }
+        groupBy: {
+          args: Prisma.RfqEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RfqEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RfqEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RfqEventCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -31180,6 +31515,117 @@ export const SecretFingerprintScalarFieldEnum = {
 export type SecretFingerprintScalarFieldEnum = (typeof SecretFingerprintScalarFieldEnum)[keyof typeof SecretFingerprintScalarFieldEnum]
 
 
+export const RfqRequestScalarFieldEnum = {
+  id: 'id',
+  reference: 'reference',
+  status: 'status',
+  version: 'version',
+  customerProfileId: 'customerProfileId',
+  buyerCompanyId: 'buyerCompanyId',
+  createdByUserId: 'createdByUserId',
+  categoryId: 'categoryId',
+  title: 'title',
+  specification: 'specification',
+  specsJson: 'specsJson',
+  quantity: 'quantity',
+  unitOfMeasure: 'unitOfMeasure',
+  annualVolume: 'annualVolume',
+  targetUnitPriceMinor: 'targetUnitPriceMinor',
+  targetCurrency: 'targetCurrency',
+  destinationCountry: 'destinationCountry',
+  destinationAddress: 'destinationAddress',
+  destinationPort: 'destinationPort',
+  incoterm: 'incoterm',
+  certificationsJson: 'certificationsJson',
+  sampleRequirement: 'sampleRequirement',
+  inspectionRequirement: 'inspectionRequirement',
+  responseDeadline: 'responseDeadline',
+  deliveryTargetDate: 'deliveryTargetDate',
+  notes: 'notes',
+  includeSellerIdsJson: 'includeSellerIdsJson',
+  excludeSellerIdsJson: 'excludeSellerIdsJson',
+  matchedSupplierCount: 'matchedSupplierCount',
+  matchOutcome: 'matchOutcome',
+  currentRequirementVersion: 'currentRequirementVersion',
+  submittedAt: 'submittedAt',
+  closedAt: 'closedAt',
+  cancelledAt: 'cancelledAt',
+  statusReason: 'statusReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqRequestScalarFieldEnum = (typeof RfqRequestScalarFieldEnum)[keyof typeof RfqRequestScalarFieldEnum]
+
+
+export const RfqRequirementVersionScalarFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  versionNumber: 'versionNumber',
+  snapshotJson: 'snapshotJson',
+  changedFieldsJson: 'changedFieldsJson',
+  changeSummary: 'changeSummary',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type RfqRequirementVersionScalarFieldEnum = (typeof RfqRequirementVersionScalarFieldEnum)[keyof typeof RfqRequirementVersionScalarFieldEnum]
+
+
+export const RfqInvitationScalarFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  source: 'source',
+  status: 'status',
+  invitedAt: 'invitedAt',
+  viewedAt: 'viewedAt',
+  respondedAt: 'respondedAt',
+  declineReason: 'declineReason',
+  notifiedVersion: 'notifiedVersion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqInvitationScalarFieldEnum = (typeof RfqInvitationScalarFieldEnum)[keyof typeof RfqInvitationScalarFieldEnum]
+
+
+export const RfqAttachmentScalarFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  purpose: 'purpose',
+  sellerAccountId: 'sellerAccountId',
+  requirementVersion: 'requirementVersion',
+  quoteVersionId: 'quoteVersionId',
+  uploadedByParty: 'uploadedByParty',
+  uploadedByUserId: 'uploadedByUserId',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  byteSize: 'byteSize',
+  contentHash: 'contentHash',
+  scanState: 'scanState',
+  createdAt: 'createdAt'
+} as const
+
+export type RfqAttachmentScalarFieldEnum = (typeof RfqAttachmentScalarFieldEnum)[keyof typeof RfqAttachmentScalarFieldEnum]
+
+
+export const RfqEventScalarFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  kind: 'kind',
+  sellerAccountId: 'sellerAccountId',
+  sharedWithSuppliers: 'sharedWithSuppliers',
+  actorParty: 'actorParty',
+  actorUserId: 'actorUserId',
+  metaJson: 'metaJson',
+  createdAt: 'createdAt'
+} as const
+
+export type RfqEventScalarFieldEnum = (typeof RfqEventScalarFieldEnum)[keyof typeof RfqEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -36119,6 +36565,78 @@ export const SecretFingerprintOrderByRelevanceFieldEnum = {
 export type SecretFingerprintOrderByRelevanceFieldEnum = (typeof SecretFingerprintOrderByRelevanceFieldEnum)[keyof typeof SecretFingerprintOrderByRelevanceFieldEnum]
 
 
+export const RfqRequestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reference: 'reference',
+  customerProfileId: 'customerProfileId',
+  buyerCompanyId: 'buyerCompanyId',
+  createdByUserId: 'createdByUserId',
+  categoryId: 'categoryId',
+  title: 'title',
+  specification: 'specification',
+  unitOfMeasure: 'unitOfMeasure',
+  targetCurrency: 'targetCurrency',
+  destinationCountry: 'destinationCountry',
+  destinationAddress: 'destinationAddress',
+  destinationPort: 'destinationPort',
+  incoterm: 'incoterm',
+  sampleRequirement: 'sampleRequirement',
+  inspectionRequirement: 'inspectionRequirement',
+  notes: 'notes',
+  matchOutcome: 'matchOutcome',
+  statusReason: 'statusReason'
+} as const
+
+export type RfqRequestOrderByRelevanceFieldEnum = (typeof RfqRequestOrderByRelevanceFieldEnum)[keyof typeof RfqRequestOrderByRelevanceFieldEnum]
+
+
+export const RfqRequirementVersionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  changeSummary: 'changeSummary',
+  createdByUserId: 'createdByUserId'
+} as const
+
+export type RfqRequirementVersionOrderByRelevanceFieldEnum = (typeof RfqRequirementVersionOrderByRelevanceFieldEnum)[keyof typeof RfqRequirementVersionOrderByRelevanceFieldEnum]
+
+
+export const RfqInvitationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  declineReason: 'declineReason'
+} as const
+
+export type RfqInvitationOrderByRelevanceFieldEnum = (typeof RfqInvitationOrderByRelevanceFieldEnum)[keyof typeof RfqInvitationOrderByRelevanceFieldEnum]
+
+
+export const RfqAttachmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  quoteVersionId: 'quoteVersionId',
+  uploadedByUserId: 'uploadedByUserId',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  contentHash: 'contentHash',
+  scanState: 'scanState'
+} as const
+
+export type RfqAttachmentOrderByRelevanceFieldEnum = (typeof RfqAttachmentOrderByRelevanceFieldEnum)[keyof typeof RfqAttachmentOrderByRelevanceFieldEnum]
+
+
+export const RfqEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  kind: 'kind',
+  sellerAccountId: 'sellerAccountId',
+  actorUserId: 'actorUserId'
+} as const
+
+export type RfqEventOrderByRelevanceFieldEnum = (typeof RfqEventOrderByRelevanceFieldEnum)[keyof typeof RfqEventOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -38408,6 +38926,41 @@ export type EnumLedgerReconciliationItemKindFieldRefInput<$PrismaModel> = FieldR
 
 
 /**
+ * Reference to a field of type 'RfqStatus'
+ */
+export type EnumRfqStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RfqStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'RfqInvitationSource'
+ */
+export type EnumRfqInvitationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RfqInvitationSource'>
+    
+
+
+/**
+ * Reference to a field of type 'RfqInvitationStatus'
+ */
+export type EnumRfqInvitationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RfqInvitationStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'RfqAttachmentPurpose'
+ */
+export type EnumRfqAttachmentPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RfqAttachmentPurpose'>
+    
+
+
+/**
+ * Reference to a field of type 'RfqParty'
+ */
+export type EnumRfqPartyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RfqParty'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -38905,6 +39458,11 @@ export type GlobalOmitConfig = {
   ledgerReconciliationRun?: Prisma.LedgerReconciliationRunOmit
   ledgerReconciliationItem?: Prisma.LedgerReconciliationItemOmit
   secretFingerprint?: Prisma.SecretFingerprintOmit
+  rfqRequest?: Prisma.RfqRequestOmit
+  rfqRequirementVersion?: Prisma.RfqRequirementVersionOmit
+  rfqInvitation?: Prisma.RfqInvitationOmit
+  rfqAttachment?: Prisma.RfqAttachmentOmit
+  rfqEvent?: Prisma.RfqEventOmit
 }
 
 /* Types for Logging */
