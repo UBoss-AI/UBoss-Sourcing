@@ -3315,3 +3315,10 @@ export type RfqAttachment = Prisma.RfqAttachmentModel
  * and that seller see it. Neither: the buyer alone.
  */
 export type RfqEvent = Prisma.RfqEventModel
+/**
+ * Model RfqMessage
+ * A question or an answer in one seller's thread on a request (Master row
+ * 17). A seller sees only its own thread; the buyer sees each thread. Kept
+ * for as long as the request is.
+ */
+export type RfqMessage = Prisma.RfqMessageModel

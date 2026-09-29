@@ -19,6 +19,7 @@ import {
 } from '@/components/rfq/RfqParts';
 import { formatUtc } from '@/lib/rfq-format';
 import { SupplierPicker } from '@/components/rfq/SupplierPicker';
+import { RfqThread } from '@/components/rfq/RfqThread';
 import { useToast } from '@/components/toast-context';
 import { Tabs } from '@/components/ui/Tabs';
 import { Button, ButtonLink, Card, ErrorState, LoadingState, PageHeader, Textarea } from '@/components/ui';
@@ -27,7 +28,47 @@ import { errorMessage } from '@/lib/errors';
 import { endRfq, fetchRfq, inviteRfqSupplier, rfqAttachmentUrl, type BuyerRfq } from '@/lib/rfq';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
-type TabKey = 'requirement' | 'suppliers' | 'files' | 'timeline';
+/** One thread per invited seller; the buyer picks whose. */
+function QuestionsPanel({ rfq }: { rfq: BuyerRfq }): React.JSX.Element {
+  const { t } = useI18n();
+  const [invitationId, setInvitationId] = useState(rfq.invitations[0]?.id ?? '');
+  const invitation = rfq.invitations.find((entry) => entry.id === invitationId);
+  if (invitation === undefined) {
+    return (
+      <Card bodyClassName="px-6 py-5">
+        <p className="text-sm text-ink-muted">{t('rfq.detail.noThreads')}</p>
+      </Card>
+    );
+  }
+  return (
+    <Card bodyClassName="space-y-4 px-6 py-5">
+      <label className="block max-w-sm text-sm font-medium text-ink">
+        {t('rfq.detail.threadWith')}
+        <select
+          className="select-chevron mt-1 block h-10 w-full rounded-md border border-border-strong bg-surface px-3 pr-9 text-sm"
+          value={invitationId}
+          onChange={(event) => {
+            setInvitationId(event.target.value);
+          }}
+        >
+          {rfq.invitations.map((entry) => (
+            <option key={entry.id} value={entry.id}>
+              {entry.supplier.displayName}
+            </option>
+          ))}
+        </select>
+      </label>
+      <RfqThread
+        key={invitation.id}
+        path={`/rfqs/${rfq.id}/invitations/${invitation.id}/messages`}
+        canWrite={rfq.status === 'OPEN' && ['INVITED', 'VIEWED', 'QUOTED'].includes(invitation.status)}
+        otherPartyName={invitation.supplier.displayName}
+      />
+    </Card>
+  );
+}
+
+type TabKey = 'requirement' | 'suppliers' | 'questions' | 'files' | 'timeline';
 
 export function RfqDetailPage(): React.JSX.Element {
   const { id = '' } = useParams<{ id: string }>();
@@ -91,6 +132,7 @@ function RfqWorkspace({ rfq }: { rfq: BuyerRfq }): React.JSX.Element {
   const tabs = [
     { key: 'requirement' as const, label: t('rfq.detail.tab.requirement') },
     { key: 'suppliers' as const, label: t('rfq.detail.tab.suppliers', { invited: String(rfq.invitations.length) }) },
+    { key: 'questions' as const, label: t('rfq.detail.tab.questions') },
     { key: 'files' as const, label: t('rfq.detail.tab.files') },
     { key: 'timeline' as const, label: t('rfq.detail.tab.timeline') },
   ];
@@ -104,6 +146,7 @@ function RfqWorkspace({ rfq }: { rfq: BuyerRfq }): React.JSX.Element {
           <>
             <RfqStatusBadge status={rfq.status} />
             {rfq.actions.canEdit && <ButtonLink to={`/account/rfqs/${rfq.id}/edit`}>{t('rfq.detail.editDraft')}</ButtonLink>}
+            {rfq.actions.canAmend && <ButtonLink to={`/account/rfqs/${rfq.id}/amend`}>{t('rfq.detail.amend')}</ButtonLink>}
             {rfq.actions.canClose && (
               <Button
                 onClick={() => {
@@ -249,6 +292,8 @@ function RfqWorkspace({ rfq }: { rfq: BuyerRfq }): React.JSX.Element {
             )}
           </Card>
         )}
+
+        {tab === 'questions' && <QuestionsPanel rfq={rfq} />}
 
         {tab === 'files' && (
           <Card bodyClassName="space-y-3 px-6 py-5">

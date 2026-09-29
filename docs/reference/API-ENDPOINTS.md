@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1126 endpoints** in 98 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1135 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -29,9 +29,9 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 |---|---|
 | [Admin panel (staff)](#admin-panel-staff) | 452 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 274 |
+| [Seller Hub](#seller-hub) | 280 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 248 |
+| [Customer account](#customer-account) | 251 |
 | [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
@@ -1663,6 +1663,19 @@ Defined in `backend/src/http/routes/returns.ts`.
 | POST | `/api/v1/seller/returns/:id/files/:fileId/link` | Seller | Seller + Seller(ORDER_READ) | A five-minute, single-use link to one file of a return of your goods. |
 | GET | `/api/v1/seller/returns/:id/files/:fileId/download` | Seller | Seller + Seller(ORDER_READ) | Download a file of a return of your goods with a link from the route above. |
 
+### `seller/rfqs`
+
+Defined in `backend/src/http/routes/rfq.seller.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/rfqs` | Seller | Feature + Seller(ORDER_READ) | Requests for quotation this seller was asked to answer, with a count per filter. |
+| GET | `/api/v1/seller/rfqs/:id` | Seller | Feature + Seller(ORDER_READ) | One request this seller was invited to. Opening it marks the invitation viewed. |
+| POST | `/api/v1/seller/rfqs/:id/decline` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Decline to quote, with a reason the buyer reads. Writes an audit entry. |
+| GET | `/api/v1/seller/rfqs/:id/messages` | Seller | Feature + Seller(ORDER_READ) | This seller's questions and the buyer's answers, oldest first; `?after=` for only new ones. |
+| POST | `/api/v1/seller/rfqs/:id/messages` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Ask the buyer a question. A resend with the same clientMessageId is not a second message. |
+| GET | `/api/v1/seller/rfqs/:id/attachments/:attachmentId/download` | Seller | Feature + Seller(ORDER_READ) | Download a file this seller may see on the request. Served as a download, never inline. |
+
 ### `seller/settlements`
 
 Defined in `backend/src/http/routes/seller.operations.ts`, `backend/src/http/routes/seller.logistics.ts`.
@@ -2278,6 +2291,9 @@ Defined in `backend/src/http/routes/rfq.customer.ts`.
 | POST | `/api/v1/rfqs/:id/attachments` | Customer | Feature + Customer | Attach a PDF or image to the requirement. Checked by its contents, scanned and stored privately. On a sent request it waits for the next version. |
 | DELETE | `/api/v1/rfqs/:id/attachments/:attachmentId` | Customer | Feature + Customer | Remove a requirement file that is not yet part of any version sent to sellers. |
 | GET | `/api/v1/rfqs/:id/attachments/:attachmentId/download` | Customer | Feature + Customer | Download a file on your request. Served as a download, never inline. |
+| POST | `/api/v1/rfqs/:id/versions` | Customer | Feature + Customer | Publish a new version of a sent requirement, with what changed and why. Every seller still taking part is told. Writes an audit entry. |
+| GET | `/api/v1/rfqs/:id/invitations/:invitationId/messages` | Customer | Feature + Customer | The thread with one invited seller, oldest first; `?after=` for only new ones. |
+| POST | `/api/v1/rfqs/:id/invitations/:invitationId/messages` | Customer | Feature + Customer | Write to one invited seller. A resend with the same clientMessageId is not a second message. |
 
 ### `support`
 

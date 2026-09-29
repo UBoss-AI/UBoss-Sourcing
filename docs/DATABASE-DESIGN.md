@@ -4742,6 +4742,7 @@ Migration `20261021100000_rfq_requests` (checklist Master row 16).
 | `rfq_requirement_versions` | Every submitted version of the requirement, whole (`snapshotJson`), with the fields that changed. Append-only; `UNIQUE (rfqId, versionNumber)` |
 | `rfq_invitations` | One seller asked to quote. `UNIQUE (rfqId, sellerAccountId)`: a seller is asked once per request. `source` MATCHED or BUYER_SELECTED |
 | `rfq_attachments` | A private file. `purpose` REQUIREMENT, QUOTE or NEGOTIATION; `requirementVersion` NULL until frozen into a version; `sellerAccountId` names the thread for quote and negotiation files |
+| `rfq_messages` | A question or answer in one seller's thread (`sellerAccountId`). `UNIQUE (rfqId, sellerAccountId, clientMessageId)` makes a resend find the first message (NULL ids are never deduplicated). Migration `20261021200000_rfq_messages` (row 17) |
 | `rfq_events` | The timeline. `sellerAccountId` and `sharedWithSuppliers` decide which seller may see a row |
 
 **Rules the database holds.** `chk_rfq_target_price_pair`: a target price is

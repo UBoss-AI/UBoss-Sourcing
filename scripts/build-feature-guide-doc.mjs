@@ -622,6 +622,9 @@ bullets([
   'Files are checked by their content, scanned and kept private. A file becomes part of the request once it is sent and cannot be removed afterwards.',
   'A company buyer needs a role that may buy, and a verified company, to send a request. A draft can be written while the company is still being checked.',
   'A buyer can cancel a request, or close it without choosing anybody; every supplier still taking part is told.',
+  'After sending, the buyer sees each supplier asked and where they stand: invited, opened, quoted, declined (with their reason), or out of time.',
+  'The buyer and each supplier can ask and answer questions in a conversation of their own; no supplier sees another’s.',
+  'A sent request is never changed silently. Changing it publishes a new version, says what changed and why, and tells every supplier still taking part. Earlier versions stay readable.',
 ]);
 
 h2('5.4b Asking the team about a preorder');
@@ -1133,6 +1136,20 @@ bullets([
   'A seller sees requests only on products they actually list. Somebody else’s products are not shown, and not reachable.',
   'A listing that is paused still shows them. The seller whose listing is off sale is exactly the one who needs to know why nobody was buying it.',
   'A product several businesses sell shows its requests to all of them. A customer asking whether something comes in 8 mm is asking the marketplace, not a company whose name they have never seen.',
+]);
+
+h2('6a.8g Answering requests for quotation');
+p('When a buyer asks for quotes in a category the seller sells in, the seller is told by email and in Seller Hub, and the request appears under Requests for quotation.');
+table(['Step', 'What the seller does', 'What the system does back'], [
+  ['1', 'Opens the request.', 'Shows everything the buyer asked for, every earlier version with what changed, the buyer’s files, and the deadline in UTC. It tells the buyer the seller has opened it.'],
+  ['2', 'Asks the buyer a question, if something is unclear.', 'Keeps the question and the answer in a conversation that only this seller and the buyer can see. Other sellers never see it.'],
+  ['3', 'Or declines, with a reason.', 'Tells the buyer, with the reason, and takes the request off the seller’s to-do list.'],
+]);
+bullets([
+  'A seller only ever sees requests it was invited to.',
+  'If the buyer changes the request, the seller is told and sees exactly which details changed.',
+  'Once the deadline passes without an answer, the invitation lapses. If the buyer gives more time, it comes back.',
+  'Only members allowed to handle orders can answer, and only while the business is approved to sell.',
 ]);
 
 h2('6a.8e Seeing exactly what a customer ordered');

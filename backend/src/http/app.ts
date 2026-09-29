@@ -123,6 +123,7 @@ import { registerPreorderRoutes } from './routes/preorders.js';
 import { registerAdminPreorderRoutes } from './routes/preorders.admin.js';
 import { registerPreorderChatRoutes } from './routes/preorder-chats.js';
 import { registerCustomerRfqRoutes } from './routes/rfq.customer.js';
+import { registerSellerRfqRoutes } from './routes/rfq.seller.js';
 import { registerAdminPreorderChatRoutes } from './routes/preorder-chats.admin.js';
 import { registerChatRuntime } from '../modules/preorder-chat/realtime/runtime.js';
 import { registerSellerDocumentRoutes } from './routes/seller.documents.js';
@@ -836,6 +837,7 @@ export async function buildApp() {
   // sellers the marketplace invites answering it. The buyer's side here; the
   // seller's side sits under /seller with the rest of the Hub.
   await app.register(registerCustomerRfqRoutes, { prefix: `${API_PREFIX}/rfqs` });
+  await app.register(registerSellerRfqRoutes, { prefix: `${API_PREFIX}/seller` });
   // Seller invoices and packing lists: the seller's side, the buyer's and the
   // public check, and read-only for the operator.
   await app.register(registerSellerDocumentRoutes, { prefix: `${API_PREFIX}/seller` });

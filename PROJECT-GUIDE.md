@@ -13145,6 +13145,19 @@ APPROVED company to send.
 only through the signed-in routes. A draft's files become part of version 1
 when it is sent and can no longer be removed.
 
+**After it is sent (row 17).** Each seller asked sees it in **Seller Hub →
+Requests for quotation** (`/seller/rfqs`), reached only through its own
+invitation - any other request is a 404. Opening it marks the invitation
+VIEWED; a seller can decline with a reason the buyer reads. Questions go in a
+thread per seller (`rfq_messages`): a seller only ever sees its own, a resend
+with the same message id is one message, and polling asks only for what is
+newer. The buyer changes a sent request by publishing a **new version**
+(`/account/rfqs/:id/amend`, `POST /rfqs/:id/versions`): the old one stays,
+the changed fields and the buyer's reason are recorded, the category is
+locked, and every seller still taking part is told. The deadline is an instant
+in UTC; unanswered invitations become EXPIRED when the request is next read
+after it, and come back if the deadline is moved later.
+
 ## 9.5.4 Seller invoices and packing lists
 
 ### Whose document it is

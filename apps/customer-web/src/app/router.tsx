@@ -372,6 +372,10 @@ export const router = createBrowserRouter([
             path: 'rfqs/:id',
             ...accountPage(() => import('@/pages/rfq/RfqDetailPage').then((m) => m.RfqDetailPage)),
           },
+          {
+            path: 'rfqs/:id/amend',
+            ...accountPage(() => import('@/pages/rfq/RfqEditPage').then((m) => m.RfqAmendPage)),
+          },
           // Preorder chats with the UBOSS team. `:id` is what the "a reply is
           // waiting" email links to.
           {
@@ -791,6 +795,14 @@ export const router = createBrowserRouter([
         ...accountPage(() =>
           import('@/pages/seller/SellerPreorderDetailPage').then((m) => m.SellerPreorderDetailPage),
         ),
+      },
+      {
+        path: 'rfqs',
+        ...accountPage(() => import('@/pages/seller/SellerRfqsPage').then((m) => m.SellerRfqsPage)),
+      },
+      {
+        path: 'rfqs/:id',
+        ...accountPage(() => import('@/pages/seller/SellerRfqDetailPage').then((m) => m.SellerRfqDetailPage)),
       },
       {
         path: 'payments',

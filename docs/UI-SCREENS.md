@@ -395,6 +395,8 @@ flowchart TD
   SOrders --> SOrder["/seller/orders/:id"]
   HubHome --> SPre["/seller/preorders"]
   SPre --> SPreOne["/seller/preorders/:id"]
+  HubHome --> SRfqs["/seller/rfqs Requests for quotation"]
+  SRfqs --> SRfq["/seller/rfqs/:id"]
   SPreOne --> SOrder
   HubHome --> Logi["/seller/logistics"]
   Logi --> Fulfil["/seller/fulfilment Carrier accounts"]
@@ -2443,6 +2445,12 @@ field, missing ones as "Not provided", and the version history),
 an optional reason. **Calls** `GET /rfqs/:id`, `POST /rfqs/:id/invitations`,
 `POST /rfqs/:id/cancel`, `POST /rfqs/:id/close`.
 
+A **Questions** tab picks an invited seller and shows that thread
+(`components/rfq/RfqThread.tsx`, polling every 15 s with `?after=`); **Change
+the requirement** opens `/account/rfqs/:id/amend` - the same form with the
+category locked, a required "What changed and why" and **Publish the new
+version** (`POST /rfqs/:id/versions`).
+
 **Entry points.** Account menu and sidebar ("Requests for quotation"), "Request
 quotes from suppliers" in the category page's sourcing block, and "Need a
 different quantity or terms? Request quotes" under a product's sourcing panel.
@@ -3892,6 +3900,36 @@ pieces, delivery date, value, status, and "Answer by …". A request for more
 than is available carries a **More than available** badge.
 
 **API call:** `GET /api/v1/seller/preorders?filter=…`
+
+#### `/seller/rfqs` — Requests for quotation
+
+| | |
+|---|---|
+| **Who** | Seller member with `seller.order.read`; account approved; `features.rfq` on |
+| **File** | `pages/seller/SellerRfqsPage.tsx` |
+
+**On the screen.** Filters with counts - **Needs your answer** (invited or
+viewed, open, before the deadline; the default), **Quoted**, **Closed**,
+**All** - and a card per request this seller was invited to (and no other):
+title, reference, category, requirement version, quantity, destination,
+deadline (UTC), the request's status and this seller's invitation status.
+**Calls** `GET /seller/rfqs?filter=`.
+
+#### `/seller/rfqs/:id` — One request
+
+| | |
+|---|---|
+| **Who** | The same; answering needs `seller.order.fulfil` |
+| **File** | `pages/seller/SellerRfqDetailPage.tsx`, `components/rfq/RfqThread.tsx` |
+
+**On the screen.** The buyer (company name, or "An individual buyer"), the
+deadline in UTC (or that it passed), a notice when the requirement has a
+newer version, and tabs: **Requirement** (every field and every version with
+what changed), **Questions** (this seller's own thread only), **Files** (the
+requirement's files and this seller's own), **Timeline**. **Decline to
+quote** asks for a reason first. Opening the page marks the invitation
+viewed. **Calls** `GET /seller/rfqs/:id`, `GET|POST /seller/rfqs/:id/messages`,
+`POST /seller/rfqs/:id/decline`, `GET /seller/rfqs/:id/attachments/:attachmentId/download`.
 
 #### `/seller/preorders/:id` — One preorder
 

@@ -3096,6 +3096,36 @@ status write is conditional on the status and version that were read.
      longer be removed.
 - **Status.** Built (checklist Master row 16).
 
+### FR-RFQ-002 — After sending: versions, sellers, questions (checklist Master row 17)
+
+- **Statement.** The buyer follows who was asked and where each stands, asks
+  and answers questions per seller, and changes a sent requirement only by
+  publishing a new version. Each seller works its invitations in Seller Hub.
+- **Rules.**
+  1. A seller reaches a request only through its own invitation; any other
+     request is a 404. It sees the current requirement, every version with
+     the fields that changed, the requirement's files, its own thread and its
+     own files - never another seller's name, answer or messages.
+  2. Invitation status: INVITED, VIEWED (first open), QUOTED, DECLINED (with a
+     reason the buyer reads), WITHDRAWN, EXPIRED (the UTC deadline passed with
+     no answer; materialised when the request is next read). Moving the
+     deadline later gives expired invitations back (INVITED).
+  3. A change to a sent request is `POST /rfqs/:id/versions`: a new
+     `rfq_requirement_versions` row with the changed fields and the buyer's
+     summary; nothing is overwritten silently. The category is locked;
+     no difference is refused (`RFQ_NO_CHANGE`); pending files join the new
+     version; every seller still taking part is told (Seller Hub + email).
+  4. Questions: one thread per invited seller, persisted. A resend with the
+     same `clientMessageId` is one message; polling with `?after=` returns
+     only newer messages. Closed once the request is no longer OPEN or the
+     seller declined.
+  5. Reading needs the seller permission ORDER_READ; declining and writing
+     need ORDER_FULFIL on an account approved to trade (`SELLER_NOT_APPROVED`).
+  6. Files are streamed only through signed-in routes that apply the rules in
+     rule 1; every download is audited.
+- **Status.** Built (checklist Master row 17). Not built: attaching a file to
+  a question (files go with the requirement or with an offer).
+
 ## 5.12 Buying by the carton, pallet or container; freight (BULK)
 
 ### FR-BULK-001 — Seller packaging per listing

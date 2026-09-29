@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**502 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**503 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -66,7 +66,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Pre-shipment inspection and the dispatch gate](#pre-shipment-inspection-and-the-dispatch-gate) | 17 |
 | [Returns](#returns) | 5 |
 | [The buyer experience: cart, checkout, account, alerts, reviews](#the-buyer-experience-cart-checkout-account-alerts-reviews) | 27 |
-| [Requests for quotation (Master rows 16-19)](#requests-for-quotation-master-rows-16-19) | 16 |
+| [Requests for quotation (Master rows 16-19)](#requests-for-quotation-master-rows-16-19) | 17 |
 
 ## Generic
 
@@ -777,6 +777,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `RFQ_ATTACHMENTS_UNAVAILABLE` | Files cannot be attached on this installation: no malware scanner and unscanned files not accepted. 409. |
 | `RFQ_ATTACHMENT_LIMIT_REACHED` | The request already carries as many files as it may (RFQ_ATTACHMENTS_PER_RFQ). 409. |
 | `RFQ_RESPONSE_CLOSED` | The seller can no longer answer this request: they declined or withdrew, the deadline passed, or the request closed. `details[0].code` says which. 409. |
+| `RFQ_NO_CHANGE` | A new requirement version was asked for with nothing different from the current one. 409. |
 | `FACTORY_NOT_EDITABLE` | A factory cannot be changed now: it is with a reviewer. 409. (Master row 13) |
 | `FACTORY_INCOMPLETE` | A factory cannot be sent for review, or verified, yet: it has no evidence attached. `details` names what is missing. 400 for the seller, 409 for a reviewer. |
 | `FACTORY_TRANSITION_INVALID` | The factory's verification cannot move that way from where it is - including a reviewer deciding a check a colleague already decided (`details[0].code` is `STALE`). 409. |

@@ -2855,7 +2855,11 @@ deadline and files - saves it as a draft and sends it from
 **Account → Requests for quotation** (`/account/rfqs`). The marketplace sends
 it to the approved sellers of that category who may sell into the
 destination; the buyer can leave some out and add others by name. When
-nobody matches, the request says so. Switched by `FEATURE_RFQ` (default on).
+nobody matches, the request says so. Sellers answer in **Seller Hub →
+Requests for quotation**: each sees only the requests it was invited to and
+only its own questions thread, and can decline with a reason. A sent request
+changes only by publishing a new version that every seller is told about.
+Switched by `FEATURE_RFQ` (default on).
 
 ## Preorder chat
 

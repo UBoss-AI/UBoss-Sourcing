@@ -1427,6 +1427,7 @@ export async function buildCustomerBundle(
               select: { fileName: true, contentType: true, byteSize: true, purpose: true, createdAt: true },
             },
             events: { orderBy: { createdAt: 'asc' }, take: 1_000 },
+            messages: { orderBy: { id: 'asc' }, take: 2_000 },
           },
         }),
         prisma.rfqRequest.count({ where }),
@@ -1485,6 +1486,15 @@ export async function buildCustomerBundle(
             bytes: file.byteSize,
             purpose: file.purpose,
             at: iso(file.createdAt),
+          })),
+          // Questions and answers with each seller. Which member of the
+          // seller's staff wrote is theirs, so only the side is given.
+          messages: request.messages.map((message) => ({
+            seller: request.invitations.find((entry) => entry.sellerAccountId === message.sellerAccountId)
+              ?.sellerAccount.displayName ?? null,
+            from: message.authorParty,
+            text: message.body,
+            at: iso(message.createdAt),
           })),
           timeline: request.events.map((event) => ({
             what: event.kind,

@@ -397,7 +397,8 @@ export const ModelName = {
   RfqRequirementVersion: 'RfqRequirementVersion',
   RfqInvitation: 'RfqInvitation',
   RfqAttachment: 'RfqAttachment',
-  RfqEvent: 'RfqEvent'
+  RfqEvent: 'RfqEvent',
+  RfqMessage: 'RfqMessage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -8461,6 +8462,21 @@ export const RfqEventScalarFieldEnum = {
 export type RfqEventScalarFieldEnum = (typeof RfqEventScalarFieldEnum)[keyof typeof RfqEventScalarFieldEnum]
 
 
+export const RfqMessageScalarFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  authorParty: 'authorParty',
+  authorUserId: 'authorUserId',
+  body: 'body',
+  clientMessageId: 'clientMessageId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqMessageScalarFieldEnum = (typeof RfqMessageScalarFieldEnum)[keyof typeof RfqMessageScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -13483,4 +13499,16 @@ export const RfqEventOrderByRelevanceFieldEnum = {
 } as const
 
 export type RfqEventOrderByRelevanceFieldEnum = (typeof RfqEventOrderByRelevanceFieldEnum)[keyof typeof RfqEventOrderByRelevanceFieldEnum]
+
+
+export const RfqMessageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  authorUserId: 'authorUserId',
+  body: 'body',
+  clientMessageId: 'clientMessageId'
+} as const
+
+export type RfqMessageOrderByRelevanceFieldEnum = (typeof RfqMessageOrderByRelevanceFieldEnum)[keyof typeof RfqMessageOrderByRelevanceFieldEnum]
 

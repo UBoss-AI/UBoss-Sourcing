@@ -32,10 +32,12 @@ import {
   RFQ_SAMPLE_REQUIREMENTS,
   RFQ_UNITS_OF_MEASURE,
   isQuantity,
+  changedRequirementFields,
   normaliseQuantity,
   type RfqRequirement,
 } from '../../domain/rfq.js';
 import {
+  assertInvitationTransition,
   assertRfqTransition,
   type RfqStatusName,
 } from '../../domain/rfq-state.js';
@@ -53,6 +55,7 @@ import { storage } from '../../infra/storage/index.js';
 import { SellerPermission, sellerRoleHas } from '../../domain/seller-permissions.js';
 import { buyerScopeWhere, companyOf, rfqNotFound, type RfqBuyer } from './access.js';
 import {
+  categoryBlockedFor,
   eligibleForInvitation,
   matchSuppliers,
   supplierCards,
@@ -667,7 +670,8 @@ function money(minor: bigint | null, currency: string | null) {
 /** One of the buyer's requests, in full. */
 export async function getBuyerRfq(buyer: RfqBuyer, id: string): Promise<BuyerRfqView> {
   const row = await loadForBuyer(buyer, id);
-  return buyerView(row);
+  await expireLapsedInvitations(row);
+  return buyerView(await loadForBuyer(buyer, id));
 }
 
 export async function buyerView(row: RfqRow): Promise<BuyerRfqView> {
@@ -1250,4 +1254,217 @@ export async function individualRfqIds(customerProfileId: string): Promise<strin
     select: { id: true },
   });
   return rows.map((row) => row.id);
+}
+
+// ---------------------------------------------------------------------------
+// The deadline, and changing a request already sent (Master row 17)
+// ---------------------------------------------------------------------------
+
+/**
+ * Invitations still unanswered when the deadline passes become EXPIRED.
+ *
+ * Materialised when the request is next read, by either side - there is no
+ * timer that has to be running for it to be true. The deadline is an instant
+ * in UTC and compared as one.
+ */
+export async function expireLapsedInvitations(row: {
+  id: string;
+  status: RfqStatusName;
+  responseDeadline: Date | null;
+}): Promise<void> {
+  if (row.status !== 'OPEN' || row.responseDeadline === null || row.responseDeadline.getTime() > Date.now()) return;
+  const lapsed = await prisma.rfqInvitation.findMany({
+    where: { rfqId: row.id, status: { in: ['INVITED', 'VIEWED'] } },
+    select: { id: true, status: true, sellerAccountId: true },
+  });
+  if (lapsed.length === 0) return;
+  for (const invitation of lapsed) {
+    assertInvitationTransition({ from: invitation.status, to: 'EXPIRED', actor: 'SYSTEM' });
+  }
+  const expired: string[] = [];
+  await prisma.$transaction(async (tx) => {
+    for (const invitation of lapsed) {
+      const moved = await tx.rfqInvitation.updateMany({
+        where: { id: invitation.id, status: invitation.status },
+        data: { status: 'EXPIRED' },
+      });
+      if (moved.count !== 1) continue;
+      expired.push(invitation.sellerAccountId);
+      await recordEvent(tx, {
+        rfqId: row.id,
+        kind: 'INVITATION_EXPIRED',
+        actorParty: 'SYSTEM',
+        actorUserId: null,
+        sellerAccountId: invitation.sellerAccountId,
+      });
+    }
+  });
+  for (const sellerAccountId of expired) {
+    await resolveSellerNotifications({
+      resolutionKey: invitationResolutionKey(row.id, sellerAccountId),
+      note: 'Deadline passed',
+    });
+  }
+}
+
+export const rfqAmendSchema = rfqDraftSchema
+  .omit({ includeSellerIds: true, excludeSellerIds: true })
+  .extend({
+    expectedVersion: z.number().int().min(0),
+    changeSummary: z.string().trim().min(3).max(1000),
+  })
+  .strict();
+
+/**
+ * Publish a new version of a sent requirement.
+ *
+ * Never an overwrite: the old version stays readable, the new one names the
+ * fields that changed and the buyer's own words about why, and every seller
+ * still taking part is told. Files added since the last version become part
+ * of this one. Moving the deadline later gives sellers whose time ran out
+ * their invitation back. The category cannot change - the sellers were
+ * chosen for it; a different category is a new request.
+ */
+export async function amendRfq(
+  buyer: RfqBuyer,
+  id: string,
+  input: z.infer<typeof rfqAmendSchema>,
+): Promise<BuyerRfqView> {
+  const row = await loadForBuyer(buyer, id);
+  if (row.status !== 'OPEN') {
+    throw conflict(ErrorCode.RFQ_TRANSITION_NOT_ALLOWED, 'Only an open request can be changed.', [{ code: row.status }]);
+  }
+  if (row.version !== input.expectedVersion) throw stale();
+  const now = new Date();
+  await assertWellFormed({ ...input, includeSellerIds: [], excludeSellerIds: [] }, now);
+
+  const before = requirementOf(row);
+  const after = requirementFromInput({ ...input, includeSellerIds: [], excludeSellerIds: [] });
+  if (after.categoryId !== before.categoryId) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'The category of a sent request cannot change.', [
+      { field: 'categoryId', code: 'CATEGORY_LOCKED' },
+    ]);
+  }
+  const pendingFiles = await prisma.rfqAttachment.count({
+    where: { rfqId: row.id, purpose: 'REQUIREMENT', requirementVersion: null },
+  });
+  const changed: string[] = [...changedRequirementFields(before, after), ...(pendingFiles > 0 ? ['attachments'] : [])];
+  if (changed.length === 0) {
+    throw conflict(ErrorCode.RFQ_NO_CHANGE, 'Nothing in the requirement is different from the current version.');
+  }
+  const problems = submissionProblems(after, now);
+  if (problems.length > 0) {
+    throw new AppError({
+      statusCode: 400,
+      code: ErrorCode.RFQ_INCOMPLETE,
+      message: 'This version is missing details a seller needs.',
+      details: problems,
+    });
+  }
+  if (after.destinationCountry !== null && after.destinationCountry !== before.destinationCountry && after.categoryId !== null) {
+    const blocked = await categoryBlockedFor(after.categoryId, after.destinationCountry);
+    if (blocked !== null) {
+      throw conflict(ErrorCode.RFQ_DESTINATION_BLOCKED, blocked, [{ field: 'destinationCountry', code: 'BLOCKED' }]);
+    }
+  }
+
+  const versionNumber = row.currentRequirementVersion + 1;
+  const reopen =
+    after.responseDeadline !== null && new Date(after.responseDeadline).getTime() > now.getTime();
+  const invitations = await prisma.rfqInvitation.findMany({
+    where: { rfqId: row.id, status: { in: ['INVITED', 'VIEWED', 'QUOTED', 'EXPIRED'] } },
+    select: { id: true, status: true, sellerAccountId: true },
+  });
+
+  await prisma.$transaction(async (tx) => {
+    const updated = await tx.rfqRequest.updateMany({
+      where: { id: row.id, status: 'OPEN', version: row.version },
+      data: {
+        ...(requirementColumns(after) as Prisma.RfqRequestUncheckedUpdateManyInput),
+        currentRequirementVersion: versionNumber,
+        version: { increment: 1 },
+      },
+    });
+    if (updated.count !== 1) throw stale();
+    await tx.rfqRequirementVersion.create({
+      data: {
+        id: newId(),
+        rfqId: row.id,
+        versionNumber,
+        snapshotJson: after as unknown as Prisma.InputJsonValue,
+        changedFieldsJson: changed,
+        changeSummary: input.changeSummary,
+        createdByUserId: buyer.userId,
+      },
+    });
+    await tx.rfqAttachment.updateMany({
+      where: { rfqId: row.id, purpose: 'REQUIREMENT', requirementVersion: null },
+      data: { requirementVersion: versionNumber },
+    });
+    for (const invitation of invitations) {
+      if (invitation.status === 'EXPIRED' && reopen) {
+        assertInvitationTransition({ from: 'EXPIRED', to: 'INVITED', actor: 'SYSTEM' });
+        await tx.rfqInvitation.updateMany({
+          where: { id: invitation.id, status: 'EXPIRED' },
+          data: { status: 'INVITED', notifiedVersion: versionNumber },
+        });
+      } else if (invitation.status !== 'EXPIRED') {
+        await tx.rfqInvitation.update({ where: { id: invitation.id }, data: { notifiedVersion: versionNumber } });
+      } else {
+        continue;
+      }
+      await notifySeller({
+        sellerAccountId: invitation.sellerAccountId,
+        kind: 'RFQ_UPDATE',
+        title: `Request ${row.reference} changed: version ${String(versionNumber)}`,
+        body: `The buyer published version ${String(versionNumber)} of "${after.title}". Read what changed before you quote.`,
+        linkPath: `/seller/rfqs/${row.id}`,
+        subjectType: 'rfq_request',
+        subjectId: row.id,
+        dedupeKey: `rfq:${row.id}:v${String(versionNumber)}:${invitation.sellerAccountId}`,
+        tx,
+      });
+      for (const email of await sellerResponderEmails(invitation.sellerAccountId)) {
+        await enqueueNotification(
+          {
+            eventKey: NotificationEvent.RFQ_UPDATE_FOR_SELLER,
+            recipientEmail: email,
+            variables: {
+              rfqReference: row.reference,
+              title: after.title,
+              step: `version ${String(versionNumber)} of the requirement was published`,
+              sellerUrl: sellerRfqUrl(row.id),
+            },
+            dedupeKey: `rfq:${row.id}:v${String(versionNumber)}:${invitation.sellerAccountId}:${email}`,
+            relatedType: 'rfq_request',
+            relatedId: row.id,
+          },
+          tx,
+        );
+      }
+    }
+    await recordEvent(tx, {
+      rfqId: row.id,
+      kind: 'AMENDED',
+      actorParty: 'BUYER',
+      actorUserId: buyer.userId,
+      sharedWithSuppliers: true,
+      meta: { versionNumber, changedFields: changed },
+    });
+    await recordAudit(
+      {
+        action: AuditAction.RFQ_AMENDED,
+        resourceType: 'rfq_request',
+        resourceId: row.id,
+        actorType: 'CUSTOMER',
+        actorUserId: buyer.userId,
+        actorEmail: buyer.email,
+        before: { requirementVersion: row.currentRequirementVersion },
+        after: { requirementVersion: versionNumber, changedFields: changed },
+      },
+      tx,
+    );
+  });
+  await dispatchPendingNotifications();
+  return getBuyerRfq(buyer, id);
 }

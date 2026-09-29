@@ -1924,6 +1924,9 @@ export const ErrorCode = {
   /// withdrew, the deadline passed, or the request closed. `details[0].code`
   /// says which. 409.
   RFQ_RESPONSE_CLOSED: 'RFQ_RESPONSE_CLOSED',
+  /// A new requirement version was asked for with nothing different from
+  /// the current one. 409.
+  RFQ_NO_CHANGE: 'RFQ_NO_CHANGE',
   /// A factory cannot be changed now: it is with a reviewer. 409. (Master row 13)
   FACTORY_NOT_EDITABLE: 'FACTORY_NOT_EDITABLE',
   /// A factory cannot be sent for review, or verified, yet: it has no

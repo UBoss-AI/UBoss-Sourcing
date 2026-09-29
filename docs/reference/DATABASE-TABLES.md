@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**347 tables · 324 enums · 798 extra indexes and unique keys**, in 55 groups. The groups follow the section banners in the schema file.
+**348 tables · 324 enums · 800 extra indexes and unique keys**, in 55 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -79,7 +79,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.](#group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts) | 14 | 11 |
 | [/ what a ledger account represents. balances are never stored; they are the / sum of the account's lines.](#group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines) | 8 | 7 |
 | [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
-| [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 5 | 5 |
+| [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 6 | 5 |
 
 <a id="group-identity-access"></a>
 
@@ -20319,7 +20319,7 @@ Table `secret_fingerprints`
 
 ## Requests for quotation (rfq) - checklist master rows 16-19
 
-[RfqRequest](#model-rfqrequest) · [RfqRequirementVersion](#model-rfqrequirementversion) · [RfqInvitation](#model-rfqinvitation) · [RfqAttachment](#model-rfqattachment) · [RfqEvent](#model-rfqevent)
+[RfqRequest](#model-rfqrequest) · [RfqRequirementVersion](#model-rfqrequirementversion) · [RfqInvitation](#model-rfqinvitation) · [RfqAttachment](#model-rfqattachment) · [RfqEvent](#model-rfqevent) · [RfqMessage](#model-rfqmessage)
 
 ```mermaid
 erDiagram
@@ -20331,6 +20331,7 @@ erDiagram
     SellerAccount ||--o{ RfqInvitation : "sellerAccount"
     RfqRequest ||--o{ RfqAttachment : "rfq"
     RfqRequest ||--o{ RfqEvent : "rfq"
+    RfqRequest ||--o{ RfqMessage : "rfq"
     RfqRequest {
         String id PK
         RfqStatus status
@@ -20354,6 +20355,10 @@ erDiagram
         String rfqId FK
     }
     RfqEvent {
+        String id PK
+        String rfqId FK
+    }
+    RfqMessage {
         String id PK
         String rfqId FK
     }
@@ -20416,6 +20421,7 @@ One request for quotation. The row holds the CURRENT requirement; every submitte
 - `invitations` ← [RfqInvitation](#model-rfqinvitation) - has many
 - `attachments` ← [RfqAttachment](#model-rfqattachment) - has many
 - `events` ← [RfqEvent](#model-rfqevent) - has many
+- `messages` ← [RfqMessage](#model-rfqmessage) - has many
 
 **Indexes and keys**
 
@@ -20549,6 +20555,35 @@ The activity timeline of a request. Append-only.
 **Indexes and keys**
 
 - `@@index([rfqId, createdAt], map: "ix_rfq_event_rfq")`
+
+<a id="model-rfqmessage"></a>
+
+### RfqMessage
+
+Table `rfq_messages`
+
+A question or an answer in one seller's thread on a request (Master row 17). A seller sees only its own thread; the buyer sees each thread. Kept for as long as the request is.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `rfqId` | String · Char(26) |  | FK → [RfqRequest](#model-rfqrequest) |  | (on delete: Cascade) |
+| `sellerAccountId` | String · Char(26) |  |  |  | The thread: every message is between the buyer and this seller. |
+| `authorParty` | [enum RfqParty](#enum-rfqparty) |  |  |  |  |
+| `authorUserId` | String · Char(26) |  |  |  |  |
+| `body` | String · Text |  |  |  |  |
+| `clientMessageId` | String · VarChar(64) | yes |  |  | The sender's own id for this message. A resend with the same id finds the first one rather than writing a second (NULLs are distinct, so a message sent without one is never deduplicated). |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `rfq` → [RfqRequest](#model-rfqrequest) via `rfqId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([rfqId, sellerAccountId, clientMessageId], map: "uq_rfq_message_client")`
+- `@@index([rfqId, sellerAccountId, id], map: "ix_rfq_message_thread")`
 
 ### Enums in Requests for quotation (rfq) - checklist master rows 16-19
 

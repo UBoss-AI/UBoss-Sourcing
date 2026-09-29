@@ -23982,6 +23982,7 @@ model RfqRequest {
   invitations         RfqInvitation[]
   attachments         RfqAttachment[]
   events              RfqEvent[]
+  messages            RfqMessage[]
 
   @@index([customerProfileId, buyerCompanyId, updatedAt], map: "ix_rfq_request_owner")
   @@index([buyerCompanyId, updatedAt], map: "ix_rfq_request_company")
@@ -24107,4 +24108,30 @@ model RfqEvent {
 
   @@index([rfqId, createdAt], map: "ix_rfq_event_rfq")
   @@map("rfq_events")
+}
+
+/// A question or an answer in one seller's thread on a request (Master row
+/// 17). A seller sees only its own thread; the buyer sees each thread. Kept
+/// for as long as the request is.
+model RfqMessage {
+  id              String   @id @db.Char(26)
+  rfqId           String   @db.Char(26)
+  /// The thread: every message is between the buyer and this seller.
+  sellerAccountId String   @db.Char(26)
+  authorParty     RfqParty
+  authorUserId    String   @db.Char(26)
+  body            String   @db.Text
+  /// The sender's own id for this message. A resend with the same id finds
+  /// the first one rather than writing a second (NULLs are distinct, so a
+  /// message sent without one is never deduplicated).
+  clientMessageId String?  @db.VarChar(64)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  rfq RfqRequest @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_message_rfq")
+
+  @@unique([rfqId, sellerAccountId, clientMessageId], map: "uq_rfq_message_client")
+  @@index([rfqId, sellerAccountId, id], map: "ix_rfq_message_thread")
+  @@map("rfq_messages")
 }

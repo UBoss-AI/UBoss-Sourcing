@@ -39,6 +39,8 @@ import { countryOptions } from '@/lib/iso-countries';
 import {
   EMPTY_REQUIREMENT,
   INCOTERMS_NEEDING_DESTINATION,
+  amendRfqRequirement,
+  requirementOnly,
   createRfqDraft,
   deleteRfqDraft,
   draftFrom,
@@ -116,16 +118,46 @@ export function RfqEditPage(): React.JSX.Element {
   if (existing.data !== undefined && existing.data.status !== 'DRAFT') {
     return <ErrorState error={new Error(t('rfq.form.notDraft'))} />;
   }
-  return <RfqForm key={existing.data?.id ?? 'new'} rfq={existing.data ?? null} options={options.data} />;
+  return <RfqForm key={existing.data?.id ?? 'new'} rfq={existing.data ?? null} options={options.data} mode="draft" />;
+}
+
+/**
+ * `/account/rfqs/:id/amend`: the same form for a request already sent, which
+ * publishes a new, visible version of the requirement instead of saving over
+ * it. The category is fixed; the buyer says what changed and why.
+ */
+export function RfqAmendPage(): React.JSX.Element {
+  const { id = '' } = useParams<{ id: string }>();
+  const { t } = useI18n();
+  const existing = useQuery({ queryKey: ['rfq', id], queryFn: () => fetchRfq(id) });
+  const options = useQuery({ queryKey: ['rfq', 'form-options'], queryFn: fetchRfqFormOptions, staleTime: 5 * 60_000 });
+  if (options.isPending || existing.isPending) return <LoadingState label={t('rfq.form.loading')} />;
+  if (options.isError || existing.isError) {
+    return (
+      <ErrorState
+        error={options.error ?? existing.error}
+        onRetry={() => {
+          void options.refetch();
+          void existing.refetch();
+        }}
+      />
+    );
+  }
+  if (!existing.data.actions.canAmend) return <ErrorState error={new Error(t('errors.rfq.RFQ_TRANSITION_NOT_ALLOWED'))} />;
+  return <RfqForm key={existing.data.id} rfq={existing.data} options={options.data} mode="amend" />;
 }
 
 function RfqForm({
   rfq,
   options,
+  mode,
 }: {
   rfq: BuyerRfq | null;
   options: Awaited<ReturnType<typeof fetchRfqFormOptions>>;
+  mode: 'draft' | 'amend';
 }): React.JSX.Element {
+  const amending = mode === 'amend';
+  const [changeSummary, setChangeSummary] = useState('');
   const { t, language } = useI18n();
   const toast = useToast();
   const navigate = useNavigate();
@@ -245,6 +277,9 @@ function RfqForm({
 
   const send = useMutation({
     mutationFn: async (): Promise<BuyerRfq> => {
+      if (amending && rfq !== null) {
+        return amendRfqRequirement(rfq.id, requirementOnly(payload()), rfq.version, changeSummary.trim());
+      }
       const saved = rfqId === null ? await createRfqDraft(payload(), createKey.current) : await saveRfqDraft(rfqId, payload(), version);
       setVersion(saved.version);
       return submitRfq(saved.id, saved.version, submitKey.current);
@@ -252,7 +287,7 @@ function RfqForm({
     onSuccess: (sent) => {
       queryClient.setQueryData(['rfq', sent.id], sent);
       void queryClient.invalidateQueries({ queryKey: ['rfqs'] });
-      toast.success(t('rfq.form.sent'));
+      toast.success(amending ? t('rfq.form.published') : t('rfq.form.sent'));
       void navigate(`/account/rfqs/${sent.id}`);
     },
     onError: (error) => {
@@ -308,8 +343,14 @@ function RfqForm({
       className="space-y-6"
     >
       <PageHeader
-        title={rfq === null ? t('rfq.form.newTitle') : t('rfq.form.editTitle')}
-        description={rfq === null ? t('rfq.form.description') : `${rfq.reference} · ${t('rfq.status.DRAFT')}`}
+        title={amending ? t('rfq.form.amendTitle') : rfq === null ? t('rfq.form.newTitle') : t('rfq.form.editTitle')}
+        description={
+          amending && rfq !== null
+            ? `${rfq.reference} · ${t('rfq.form.amendDescription')}`
+            : rfq === null
+              ? t('rfq.form.description')
+              : `${rfq.reference} · ${t('rfq.status.DRAFT')}`
+        }
       />
 
       <ErrorSummary title={t('rfq.form.problemsTitle')} errors={summary} />
@@ -321,6 +362,7 @@ function RfqForm({
               id={inputId}
               aria-describedby={describedBy}
               invalid={errors['categoryId'] !== undefined}
+              disabled={amending}
               value={draft.categoryId ?? ''}
               onChange={(event) => {
                 set('categoryId', event.target.value.length === 0 ? null : event.target.value);
@@ -720,6 +762,25 @@ function RfqForm({
         )}
       </Card>
 
+      {amending ? (
+        <Card title={t('rfq.form.changeSummary')} bodyClassName="px-6 py-5">
+          <Field label={t('rfq.form.changeSummary')} required hint={t('rfq.form.changeSummaryHint')} error={errors['changeSummary']}>
+            {({ inputId, describedBy }) => (
+              <Textarea
+                id={inputId}
+                aria-describedby={describedBy}
+                invalid={errors['changeSummary'] !== undefined}
+                rows={3}
+                maxLength={1000}
+                value={changeSummary}
+                onChange={(event) => {
+                  setChangeSummary(event.target.value);
+                }}
+              />
+            )}
+          </Field>
+        </Card>
+      ) : (
       <Card title={t('rfq.form.section.suppliers')} description={t('rfq.form.suppliersHint')} bodyClassName="space-y-4 px-6 py-5">
         {rfqId === null || draft.categoryId === null || draft.destinationCountry === null ? (
           <p className="text-sm text-ink-muted">{t('rfq.form.matchesNeedSave')}</p>
@@ -777,9 +838,11 @@ function RfqForm({
           }}
         />
       </Card>
+      )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2">
+          {!amending && (
           <Button
             type="button"
             disabled={busy}
@@ -790,7 +853,8 @@ function RfqForm({
           >
             {t('rfq.form.saveDraft')}
           </Button>
-          {rfqId !== null && (
+          )}
+          {rfqId !== null && !amending && (
             <Button
               type="button"
               variant="ghost"
@@ -804,7 +868,7 @@ function RfqForm({
           )}
         </div>
         <Button type="submit" variant="primary" disabled={busy} isLoading={send.isPending}>
-          {t('rfq.form.send')}
+          {amending ? t('rfq.form.publish') : t('rfq.form.send')}
         </Button>
       </div>
 

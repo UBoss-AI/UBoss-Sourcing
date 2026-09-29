@@ -28,6 +28,7 @@ import { useIsFetching, useMutation, useQuery, useQueryClient } from '@tanstack/
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { takeExpiredNotice } from '@/lib/seller-session';
 import { SellerSessionGuard } from './SellerSessionGuard';
+import { useStorefront } from '@/app/storefront-context';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import { Badge, Button, ErrorState, Field, Input, LoadingState } from '@/components/ui';
@@ -339,6 +340,8 @@ interface NavItem {
   needsApproval: boolean;
   /** Shown only to members holding this permission. The server refuses anyway. */
   permission?: string;
+  /** Shown only where the deployment offers this feature. */
+  feature?: 'rfq';
 }
 
 const NAV_ITEMS: readonly NavItem[] = Object.freeze([
@@ -379,6 +382,9 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
   // can make a quantity by a date. Beside Orders, because an accepted and paid
   // preorder becomes one.
   { to: '/seller/preorders', labelKey: 'seller.nav.preorders', icon: PreordersIcon, needsApproval: true },
+  // Buyers asking this seller to quote. Beside preorders: both are an answer
+  // before an order exists.
+  { to: '/seller/rfqs', labelKey: 'seller.nav.rfqs', icon: DocumentIcon, needsApproval: true, feature: 'rfq' },
   // Beside orders, because that is where a seller is standing when they need
   // it: a paid order is the reason to go looking for who will carry it.
   {
@@ -895,6 +901,7 @@ function SellerLockGate({
 
 export function SellerLayout(): React.JSX.Element {
   const { t } = useI18n();
+  const { features } = useStorefront();
   const location = useLocation();
   const client = useQueryClient();
 
@@ -1011,7 +1018,9 @@ export function SellerLayout(): React.JSX.Element {
           className="flex items-stretch justify-around gap-1 px-2 py-2 lg:flex-col lg:justify-start lg:gap-0.5 lg:px-3 lg:py-0"
         >
           {NAV_ITEMS.filter(
-            (item) => item.permission === undefined || seller.permissions.includes(item.permission),
+            (item) =>
+              (item.permission === undefined || seller.permissions.includes(item.permission)) &&
+              (item.feature !== 'rfq' || features.rfq === true),
           ).map((item) => (
             <RailLink
               key={item.to}

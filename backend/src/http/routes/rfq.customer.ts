@@ -22,7 +22,9 @@ import {
   RFQ_SAMPLE_REQUIREMENTS,
   RFQ_UNITS_OF_MEASURE,
 } from '../../domain/rfq.js';
-import type { RfqBuyer } from '../../modules/rfq/access.js';
+import { rfqNotFound, type RfqBuyer } from '../../modules/rfq/access.js';
+import { listThread, messageBodySchema, postMessage, threadQuerySchema } from '../../modules/rfq/message.service.js';
+import { prisma } from '../../infra/prisma.js';
 import {
   readRfqAttachment,
   removePendingAttachment,
@@ -31,6 +33,7 @@ import {
 } from '../../modules/rfq/attachment.service.js';
 import { searchSuppliers } from '../../modules/rfq/matching.service.js';
 import {
+  amendRfq,
   createDraft,
   deleteDraft,
   endRfq,
@@ -41,6 +44,7 @@ import {
   previewMatches,
   rfqDraftSchema,
   rfqInviteSchema,
+  rfqAmendSchema,
   rfqListQuerySchema,
   rfqReasonSchema,
   rfqSaveSchema,
@@ -311,5 +315,64 @@ export function registerCustomerRfqRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Publish a new version of a sent requirement, with what changed and why.
+   * Every seller still taking part is told. Writes an audit entry.
+   */
+  app.post(
+    '/:id/versions',
+    { preHandler: requireCustomer, config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      assertPurchasing(request);
+      const { id } = idParams.parse(request.params);
+      const input = rfqAmendSchema.parse(request.body);
+      return reply.status(200).send({ rfq: await amendRfq(buyerOf(request), id, input) });
+    },
+  );
+
+  /** The thread with one invited seller, oldest first; `?after=` for only new ones. */
+  app.get('/:id/invitations/:invitationId/messages', { preHandler: requireCustomer }, async (request, reply) => {
+    const { id, invitationId } = invitationParams.parse(request.params);
+    const { after } = threadQuerySchema.parse(request.query);
+    const invitation = await invitationForBuyer(buyerOf(request), id, invitationId);
+    return reply
+      .header('Cache-Control', 'no-store')
+      .status(200)
+      .send({ messages: await listThread(id, invitation.sellerAccountId, 'BUYER', after) });
+  });
+
+  /** Write to one invited seller. A resend with the same clientMessageId is not a second message. */
+  app.post(
+    '/:id/invitations/:invitationId/messages',
+    { preHandler: requireCustomer, config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      assertDrafting(request);
+      const { id, invitationId } = invitationParams.parse(request.params);
+      const body = messageBodySchema.parse(request.body);
+      const buyer = buyerOf(request);
+      const invitation = await invitationForBuyer(buyer, id, invitationId);
+      const rfq = await loadRfqForBuyer(buyer, id);
+      const message = await postMessage({
+        rfq,
+        sellerAccountId: invitation.sellerAccountId,
+        invitationStatus: invitation.status,
+        party: 'BUYER',
+        userId: buyer.userId,
+        body,
+      });
+      return reply.status(201).send({ message });
+    },
+  );
+
   return Promise.resolve();
+}
+
+const invitationParams = z.object({ id: z.string().length(26), invitationId: z.string().length(26) });
+
+/** An invitation on one of the buyer's own requests; anything else is "not found". */
+async function invitationForBuyer(buyer: RfqBuyer, rfqId: string, invitationId: string) {
+  const rfq = await loadRfqForBuyer(buyer, rfqId);
+  const invitation = await prisma.rfqInvitation.findFirst({ where: { id: invitationId, rfqId: rfq.id } });
+  if (invitation === null) rfqNotFound();
+  return invitation;
 }

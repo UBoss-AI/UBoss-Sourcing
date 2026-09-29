@@ -1,0 +1,114 @@
+/**
+ * Requests for quotation: the seller's side. Seller Hub -> Requests for
+ * quotation (checklist Master rows 17-19).
+ *
+ * The seller is resolved from the session's membership; there is no seller id
+ * in any path. A request this seller was not invited to answers 404.
+ * Reading needs ORDER_READ; answering (declining, asking, quoting,
+ * negotiating) needs ORDER_FULFIL on an account approved to trade.
+ */
+import type { FastifyInstance, FastifyRequest } from 'fastify';
+import { z } from 'zod';
+import { SellerPermission } from '../../domain/seller-permissions.js';
+import { supplierFromMembership, type RfqSupplier } from '../../modules/rfq/access.js';
+import { readRfqAttachment, supplierAttachmentWhere } from '../../modules/rfq/attachment.service.js';
+import { listThread, messageBodySchema, postMessage, threadQuerySchema } from '../../modules/rfq/message.service.js';
+import {
+  declineRfq,
+  declineSchema,
+  getSupplierRfq,
+  listSupplierRfqs,
+  loadInvitation,
+  supplierListQuerySchema,
+} from '../../modules/rfq/supplier.service.js';
+import { currentUser } from '../plugins/auth.js';
+import { currentSeller, requireSeller, requireTradingSeller } from '../plugins/seller.js';
+import { sendAttachment } from './preorder-chats.js';
+import { requireFeature } from './rfq.customer.js';
+
+const idParams = z.object({ id: z.string().length(26) });
+const attachmentParams = z.object({ id: z.string().length(26), attachmentId: z.string().length(26) });
+const WRITE_RATE_LIMIT = { max: 60, timeWindow: '1 minute' } as const;
+
+export function supplierOf(request: FastifyRequest): RfqSupplier {
+  return supplierFromMembership(currentSeller(request), currentUser(request).id);
+}
+
+export function registerSellerRfqRoutes(app: FastifyInstance): Promise<void> {
+  app.addHook('onRequest', requireFeature);
+
+  /** Requests for quotation this seller was asked to answer, with a count per filter. */
+  app.get('/rfqs', { preHandler: requireSeller(SellerPermission.ORDER_READ) }, async (request, reply) => {
+    const { filter } = supplierListQuerySchema.parse(request.query);
+    return reply.header('Cache-Control', 'no-store').status(200).send(await listSupplierRfqs(supplierOf(request), filter));
+  });
+
+  /** One request this seller was invited to. Opening it marks the invitation viewed. */
+  app.get('/rfqs/:id', { preHandler: requireSeller(SellerPermission.ORDER_READ) }, async (request, reply) => {
+    const { id } = idParams.parse(request.params);
+    return reply.header('Cache-Control', 'no-store').status(200).send({ rfq: await getSupplierRfq(supplierOf(request), id) });
+  });
+
+  /** Decline to quote, with a reason the buyer reads. Writes an audit entry. */
+  app.post(
+    '/rfqs/:id/decline',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const input = declineSchema.parse(request.body);
+      return reply.status(200).send({ rfq: await declineRfq(supplierOf(request), id, input) });
+    },
+  );
+
+  /** This seller's questions and the buyer's answers, oldest first; `?after=` for only new ones. */
+  app.get('/rfqs/:id/messages', { preHandler: requireSeller(SellerPermission.ORDER_READ) }, async (request, reply) => {
+    const { id } = idParams.parse(request.params);
+    const { after } = threadQuerySchema.parse(request.query);
+    const supplier = supplierOf(request);
+    await loadInvitation(supplier, id);
+    return reply
+      .header('Cache-Control', 'no-store')
+      .status(200)
+      .send({ messages: await listThread(id, supplier.sellerAccountId, 'SUPPLIER', after) });
+  });
+
+  /** Ask the buyer a question. A resend with the same clientMessageId is not a second message. */
+  app.post(
+    '/rfqs/:id/messages',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const body = messageBodySchema.parse(request.body);
+      const supplier = supplierOf(request);
+      const invitation = await loadInvitation(supplier, id);
+      const message = await postMessage({
+        rfq: invitation.rfq,
+        sellerAccountId: supplier.sellerAccountId,
+        invitationStatus: invitation.status,
+        party: 'SUPPLIER',
+        userId: supplier.userId,
+        body,
+      });
+      return reply.status(201).send({ message });
+    },
+  );
+
+  /** Download a file this seller may see on the request. Served as a download, never inline. */
+  app.get(
+    '/rfqs/:id/attachments/:attachmentId/download',
+    { preHandler: requireSeller(SellerPermission.ORDER_READ) },
+    async (request, reply) => {
+      const { id, attachmentId } = attachmentParams.parse(request.params);
+      const supplier = supplierOf(request);
+      await loadInvitation(supplier, id);
+      const file = await readRfqAttachment(id, attachmentId, supplierAttachmentWhere(id, supplier.sellerAccountId), {
+        party: 'SUPPLIER',
+        userId: supplier.userId,
+        email: null,
+      });
+      return sendAttachment(reply, file);
+    },
+  );
+
+  return Promise.resolve();
+}

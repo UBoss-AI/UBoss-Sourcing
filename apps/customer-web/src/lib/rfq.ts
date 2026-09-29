@@ -206,6 +206,13 @@ export function draftFrom(rfq: BuyerRfq): RfqDraftInput {
   };
 }
 
+/** The requirement alone, without the draft's supplier choices. */
+export function requirementOnly(input: RfqDraftInput): RfqRequirement {
+  return Object.fromEntries(
+    Object.entries(input).filter(([field]) => field !== 'includeSellerIds' && field !== 'excludeSellerIds'),
+  ) as unknown as RfqRequirement;
+}
+
 export async function fetchRfqFormOptions(): Promise<RfqFormOptions> {
   return api.get<RfqFormOptions>('/rfqs/form-options');
 }
@@ -234,6 +241,16 @@ export async function deleteRfqDraft(id: string): Promise<void> {
 
 export async function submitRfq(id: string, expectedVersion: number, idempotencyKey: string): Promise<BuyerRfq> {
   return (await api.post<{ rfq: BuyerRfq }>(`/rfqs/${id}/submit`, { expectedVersion }, { idempotencyKey })).rfq;
+}
+
+/** Publish a new version of a sent requirement, with what changed and why. */
+export async function amendRfqRequirement(
+  id: string,
+  requirement: RfqRequirement,
+  expectedVersion: number,
+  changeSummary: string,
+): Promise<BuyerRfq> {
+  return (await api.post<{ rfq: BuyerRfq }>(`/rfqs/${id}/versions`, { ...requirement, expectedVersion, changeSummary })).rfq;
 }
 
 export async function previewRfqMatches(id: string): Promise<MatchResult> {
