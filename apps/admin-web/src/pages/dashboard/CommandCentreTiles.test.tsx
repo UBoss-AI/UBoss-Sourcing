@@ -17,7 +17,8 @@ import { MemoryRouter } from 'react-router-dom';
 import { SessionContext, type SessionState } from '@/auth/session-context';
 import { i18n } from '@/i18n/config';
 import type { DashboardResponse, Money } from '@/lib/types';
-import { CommandCentreTiles, changeBetween, changeBetweenCounts } from './CommandCentreTiles';
+import { changeBetween, changeBetweenCounts } from '@/lib/command-centre';
+import { CommandCentreTiles } from './CommandCentreTiles';
 
 vi.mock('@/lib/api', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/lib/api')>();
@@ -159,7 +160,7 @@ describe('CommandCentreTiles', () => {
     );
     renderTiles(['report.read']);
 
-    const health = (await screen.findByText('System health')).closest('section')!;
+    const health = (await screen.findByText('System health')).closest('section') as HTMLElement;
     const dead = within(health).getByRole('link', { name: 'Background jobs that gave up: 2' });
     expect(dead.getAttribute('href')).toBe('/operations/dead-jobs');
     const mail = within(health).getByRole('link', { name: 'Emails that could not be sent: 4' });
@@ -174,7 +175,7 @@ describe('CommandCentreTiles', () => {
     get.mockResolvedValue(dashboard());
     renderTiles(['report.read']);
 
-    const health = (await screen.findByText('System health')).closest('section')!;
+    const health = (await screen.findByText('System health')).closest('section') as HTMLElement;
     expect(within(health).getAllByText('OK').length).toBe(5);
     expect(within(health).getByRole('status').textContent).toBe('Nothing is stuck.');
   });

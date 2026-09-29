@@ -271,7 +271,7 @@ describe('one ticket: service level and how it ended', () => {
     expect(replyToTicket).not.toHaveBeenCalled();
 
     const codes = screen.getAllByLabelText('How it ended');
-    fireEvent.change(codes[0]!, { target: { value: 'ANSWERED' } });
+    fireEvent.change(codes[0] as HTMLElement, { target: { value: 'ANSWERED' } });
     fireEvent.click(screen.getByRole('button', { name: 'Send reply' }));
 
     await waitFor(() => {

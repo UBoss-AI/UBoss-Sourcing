@@ -220,7 +220,7 @@ describe('FeeRulesPage', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'Send back' }));
     const dialog = await screen.findByRole('dialog');
-    const confirm = within(dialog).getByRole('button', { name: 'Send back' }) as HTMLButtonElement;
+    const confirm = within(dialog).getByRole<HTMLButtonElement>('button', { name: 'Send back' });
     expect(confirm.disabled).toBe(true);
 
     fireEvent.change(within(dialog).getByLabelText('Reason'), { target: { value: 'too short' } });

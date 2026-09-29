@@ -42,7 +42,8 @@ import { RangeTabs, RefreshButton } from '@/components/dashboard/controls';
 import { useDashboardParams } from '@/lib/use-dashboard-params';
 import { OPERATIONS_QUERY_KEY } from '@/lib/operations';
 import { OperationsHero } from './dashboard/OperationsHero';
-import { CommandCentreTiles, KPI_QUERY_KEY } from './dashboard/CommandCentreTiles';
+import { CommandCentreTiles } from './dashboard/CommandCentreTiles';
+import { KPI_QUERY_KEY } from '@/lib/command-centre';
 import { useI18n } from '@/i18n/i18n-context';
 
 export function DashboardPage(): React.JSX.Element {
