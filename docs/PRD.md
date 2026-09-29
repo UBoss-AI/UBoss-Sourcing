@@ -1621,6 +1621,23 @@ all absent (`BUYER_COMPANIES_DISABLED`).
   profile and factory verification screens (Master rows 13 and 34), not
   built yet; until then those sections stay hidden.
 
+### FR-SRCH-014 — Compare products and suppliers
+
+- **Statement.** A visitor can pick up to four products and up to four
+  suppliers ("Compare" beside a product's title and on a supplier's page) and
+  see them side by side at `/compare`.
+- **Rules.**
+  1. The list is kept in this browser only (slug and name); no account, no
+     server state.
+  2. Every value is read fresh from the product and supplier reads, for the
+     shopper's current country, currency and language — never a remembered
+     price. An item that has gone says so once in its column.
+  3. A fifth item is refused with a message; a tampered stored list is
+     ignored.
+  4. It is a real table (row and column headers, caption), scrolling inside
+     its own frame on a phone.
+- **Status.** Built (29 Sep 2026, checklist Master row 6).
+
 ### FR-SRCH-009 — The About page
 
 - **Statement.** `/about` is a public page explaining what the marketplace

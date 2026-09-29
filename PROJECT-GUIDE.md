@@ -1662,6 +1662,15 @@ response body. A website is kept only if it parses as http(s). Every supplier
 card, pill and the product page's seller name now open this page; the
 category page's pills keep their category filter.
 
+**Compare.** `lib/compare.ts` keeps up to four product and four supplier
+slugs in `localStorage` (guarded; memory when storage is blocked) and nothing
+else — `ComparePage` reads every column fresh with the same queries the
+product and supplier pages use, so a price or a delivery answer is never a
+remembered one. The Compare button sits beside the product title because the
+buy panel below changes shape with variants and quote mode; in the first
+version it lived in the panel and was missing from exactly the products with
+sizes.
+
 The bar carries four controls:
 
 | Control | What it does |

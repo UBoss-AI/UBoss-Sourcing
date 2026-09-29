@@ -815,6 +815,38 @@ category shows an empty list, not an error.
 - `GET` and `POST /api/v1/account/wishlist`, `DELETE /api/v1/account/wishlist/:id`
   (customers)
 
+#### `/compare` — Products or suppliers side by side
+
+| | |
+|---|---|
+| **Who** | Anybody |
+| **File** | `pages/ComparePage.tsx`, `components/compare/CompareButton.tsx`, `lib/compare.ts` |
+
+**Purpose.** Weigh up to four products, or four suppliers, against each other.
+
+**On the screen.** "Compare", the sentence that everything is read now, and
+two links: **Products (N)** and **Suppliers (N)** (`?tab=`). Products: a
+column per product (picture, name, **Remove**) and rows Price, Minimum order,
+Ordered in, Sold by, Delivery, Prepared for dispatch in, Country of origin,
+Inspection before dispatch and every specification any of them lists.
+Suppliers: Kind of business, Registered in, Verified since, Years in business,
+Products here, Main categories, Verified certifications, Factories, Monthly
+capacity (stated), Exports to (stated), Aims to reply within. **Clear this
+comparison** under the table.
+
+**States.** Empty: "Nothing to compare yet" with how to add. One item: "Add
+at least one more…". A column whose item has gone: "No longer available
+here." in its header and dashes below.
+
+**The Compare button** (beside a product's title; in a supplier page's
+header) toggles in and out (`aria-pressed`), offers "Compare N items" once
+there are two, and says "You can compare up to 4 at a time…" when full.
+
+**API calls**
+
+- `GET /api/v1/catalog/products/:slug` per product column
+- `GET /api/v1/catalog/suppliers/:slug` per supplier column
+
 #### `/suppliers/:slug` — One verified supplier
 
 | | |

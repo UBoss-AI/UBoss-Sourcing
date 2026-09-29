@@ -24,6 +24,7 @@ import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { SupplierProfile } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 import { NotFoundPage } from './NotFoundPage';
+import { CompareButton } from '@/components/compare/CompareButton';
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }): React.JSX.Element {
   return (
@@ -113,6 +114,7 @@ export function SupplierPage(): React.JSX.Element {
           <p className="mt-1 text-xs text-ink-muted">{t('supplier.verificationMeaning')}</p>
         </div>
         <div className="flex shrink-0 flex-col gap-2 sm:items-end">
+          <CompareButton kind="suppliers" slug={profile.slug} name={profile.displayName} />
           <ButtonLink to={productsHref} variant="primary">
             {t('supplier.seeProducts', { count: profile.productCount, products: formatNumber(profile.productCount) })}
           </ButtonLink>

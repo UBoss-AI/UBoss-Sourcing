@@ -217,6 +217,7 @@ h1('3. Customer Features — Product Discovery and AI');
 h2('3.1 Home page and catalogue');
 table(['Customer action', 'What the system provides'], [
   ['Open the home page', 'The business name, one sentence saying what the marketplace offers, a large search bar, a sideways row of department cards, the verified suppliers, latest / featured catalogue items, cart access and account access.'],
+  ['Compare products or suppliers', 'Pressing Compare beside a product\'s title, or on a supplier\'s page, adds it to a comparison of up to four. The comparison page shows them side by side — price, minimum order, seller, delivery to the buyer\'s country, lead time, origin, inspection and specifications for products; kind of business, country, verification, certifications, factories, capacity and exports for suppliers — all read at that moment, so no figure is out of date.'],
   ['Press a verified supplier', 'The supplier\'s own page: who they are, since when the marketplace has verified them, what they sell here by category, the certificates the marketplace has checked and that are still valid, their factories by city and country, and what they say about their capabilities and exports. A button opens the catalogue showing only that supplier\'s products.'],
   ['Press a department card', 'A panel naming everything inside that department with a count beside each one, and a button into the department itself.'],
   ['Browse all products', 'A list of published products available for the selected market, with a row of every department across the top.'],

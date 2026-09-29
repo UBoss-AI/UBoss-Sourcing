@@ -110,6 +110,7 @@ import {
 } from '@/lib/b2c-limit';
 import { usePointerZoom } from '@/lib/pointer-zoom';
 import { ProductSourcingPanel } from '@/components/product/ProductSourcingPanel';
+import { CompareButton } from '@/components/compare/CompareButton';
 
 /**
  * The image gallery.
@@ -1594,6 +1595,13 @@ export function ProductPage(): React.JSX.Element {
         <div className="min-w-0">
           <h1 className="text-title-lg text-ink sm:text-title-xl">{product.name}</h1>
 
+          {/* Side by side with others this buyer is weighing up. Beside the
+              title, because every product page has one - the buy panel below
+              changes shape with variants and quote mode. */}
+          <div className="mt-2">
+            <CompareButton kind="products" slug={product.slug} name={product.name} />
+          </div>
+
           {/* The average and the count, pointing at the reviews at the foot of
               the page. Absent with no reviews, rather than five empty stars. */}
           {(product.rating?.count ?? 0) > 0 && (
@@ -2377,7 +2385,7 @@ export function ProductPage(): React.JSX.Element {
                    * line per option and picking one of two arbitrarily would
                    * be a guess.
                    */}
-                  <div className="border-t border-border-subtle pt-2.5">
+                  <div className="flex flex-wrap items-start gap-3 border-t border-border-subtle pt-2.5">
                     <SaveForLaterButton
                       productId={product.id}
                       productSlug={product.slug}

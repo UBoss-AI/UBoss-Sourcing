@@ -532,6 +532,8 @@ export const router = createBrowserRouter([
        * whether to buy or sell here at all.
        */
       { path: 'about', ...publicRoute(() => import('@/pages/AboutPage').then((m) => m.AboutPage)) },
+      // Products or suppliers side by side (checklist Master row 6).
+      { path: 'compare', ...publicRoute(() => import('@/pages/ComparePage').then((m) => m.ComparePage)) },
       // One verified supplier's public page (checklist Master row 5).
       {
         path: 'suppliers/:slug',
