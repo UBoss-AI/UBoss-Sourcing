@@ -51,6 +51,8 @@ export type LedgerReconciliationRunMinAggregateOutputType = {
   errorMessage: string | null
   startedAt: Date | null
   completedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LedgerReconciliationRunMaxAggregateOutputType = {
@@ -66,6 +68,8 @@ export type LedgerReconciliationRunMaxAggregateOutputType = {
   errorMessage: string | null
   startedAt: Date | null
   completedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LedgerReconciliationRunCountAggregateOutputType = {
@@ -81,6 +85,8 @@ export type LedgerReconciliationRunCountAggregateOutputType = {
   errorMessage: number
   startedAt: number
   completedAt: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -110,6 +116,8 @@ export type LedgerReconciliationRunMinAggregateInputType = {
   errorMessage?: true
   startedAt?: true
   completedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type LedgerReconciliationRunMaxAggregateInputType = {
@@ -125,6 +133,8 @@ export type LedgerReconciliationRunMaxAggregateInputType = {
   errorMessage?: true
   startedAt?: true
   completedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type LedgerReconciliationRunCountAggregateInputType = {
@@ -140,6 +150,8 @@ export type LedgerReconciliationRunCountAggregateInputType = {
   errorMessage?: true
   startedAt?: true
   completedAt?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -242,6 +254,8 @@ export type LedgerReconciliationRunGroupByOutputType = {
   errorMessage: string | null
   startedAt: Date
   completedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
   _count: LedgerReconciliationRunCountAggregateOutputType | null
   _avg: LedgerReconciliationRunAvgAggregateOutputType | null
   _sum: LedgerReconciliationRunSumAggregateOutputType | null
@@ -280,6 +294,8 @@ export type LedgerReconciliationRunWhereInput = {
   errorMessage?: Prisma.StringNullableFilter<"LedgerReconciliationRun"> | string | null
   startedAt?: Prisma.DateTimeFilter<"LedgerReconciliationRun"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"LedgerReconciliationRun"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"LedgerReconciliationRun"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LedgerReconciliationRun"> | Date | string
   items?: Prisma.LedgerReconciliationItemListRelationFilter
 }
 
@@ -296,6 +312,8 @@ export type LedgerReconciliationRunOrderByWithRelationInput = {
   errorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   items?: Prisma.LedgerReconciliationItemOrderByRelationAggregateInput
   _relevance?: Prisma.LedgerReconciliationRunOrderByRelevanceInput
 }
@@ -316,6 +334,8 @@ export type LedgerReconciliationRunWhereUniqueInput = Prisma.AtLeast<{
   errorMessage?: Prisma.StringNullableFilter<"LedgerReconciliationRun"> | string | null
   startedAt?: Prisma.DateTimeFilter<"LedgerReconciliationRun"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"LedgerReconciliationRun"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"LedgerReconciliationRun"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LedgerReconciliationRun"> | Date | string
   items?: Prisma.LedgerReconciliationItemListRelationFilter
 }, "id">
 
@@ -332,6 +352,8 @@ export type LedgerReconciliationRunOrderByWithAggregationInput = {
   errorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LedgerReconciliationRunCountOrderByAggregateInput
   _avg?: Prisma.LedgerReconciliationRunAvgOrderByAggregateInput
   _max?: Prisma.LedgerReconciliationRunMaxOrderByAggregateInput
@@ -355,6 +377,8 @@ export type LedgerReconciliationRunScalarWhereWithAggregatesInput = {
   errorMessage?: Prisma.StringNullableWithAggregatesFilter<"LedgerReconciliationRun"> | string | null
   startedAt?: Prisma.DateTimeWithAggregatesFilter<"LedgerReconciliationRun"> | Date | string
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LedgerReconciliationRun"> | Date | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"LedgerReconciliationRun"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LedgerReconciliationRun"> | Date | string
 }
 
 export type LedgerReconciliationRunCreateInput = {
@@ -370,6 +394,8 @@ export type LedgerReconciliationRunCreateInput = {
   errorMessage?: string | null
   startedAt: Date | string
   completedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   items?: Prisma.LedgerReconciliationItemCreateNestedManyWithoutRunInput
 }
 
@@ -386,6 +412,8 @@ export type LedgerReconciliationRunUncheckedCreateInput = {
   errorMessage?: string | null
   startedAt: Date | string
   completedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   items?: Prisma.LedgerReconciliationItemUncheckedCreateNestedManyWithoutRunInput
 }
 
@@ -402,6 +430,8 @@ export type LedgerReconciliationRunUpdateInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.LedgerReconciliationItemUpdateManyWithoutRunNestedInput
 }
 
@@ -418,6 +448,8 @@ export type LedgerReconciliationRunUncheckedUpdateInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.LedgerReconciliationItemUncheckedUpdateManyWithoutRunNestedInput
 }
 
@@ -434,6 +466,8 @@ export type LedgerReconciliationRunCreateManyInput = {
   errorMessage?: string | null
   startedAt: Date | string
   completedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerReconciliationRunUpdateManyMutationInput = {
@@ -449,6 +483,8 @@ export type LedgerReconciliationRunUpdateManyMutationInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerReconciliationRunUncheckedUpdateManyInput = {
@@ -464,6 +500,8 @@ export type LedgerReconciliationRunUncheckedUpdateManyInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerReconciliationRunOrderByRelevanceInput = {
@@ -485,6 +523,8 @@ export type LedgerReconciliationRunCountOrderByAggregateInput = {
   errorMessage?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LedgerReconciliationRunAvgOrderByAggregateInput = {
@@ -506,6 +546,8 @@ export type LedgerReconciliationRunMaxOrderByAggregateInput = {
   errorMessage?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LedgerReconciliationRunMinOrderByAggregateInput = {
@@ -521,6 +563,8 @@ export type LedgerReconciliationRunMinOrderByAggregateInput = {
   errorMessage?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LedgerReconciliationRunSumOrderByAggregateInput = {
@@ -565,6 +609,8 @@ export type LedgerReconciliationRunCreateWithoutItemsInput = {
   errorMessage?: string | null
   startedAt: Date | string
   completedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerReconciliationRunUncheckedCreateWithoutItemsInput = {
@@ -580,6 +626,8 @@ export type LedgerReconciliationRunUncheckedCreateWithoutItemsInput = {
   errorMessage?: string | null
   startedAt: Date | string
   completedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerReconciliationRunCreateOrConnectWithoutItemsInput = {
@@ -611,6 +659,8 @@ export type LedgerReconciliationRunUpdateWithoutItemsInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerReconciliationRunUncheckedUpdateWithoutItemsInput = {
@@ -626,6 +676,8 @@ export type LedgerReconciliationRunUncheckedUpdateWithoutItemsInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -672,6 +724,8 @@ export type LedgerReconciliationRunSelect<ExtArgs extends runtime.Types.Extensio
   errorMessage?: boolean
   startedAt?: boolean
   completedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   items?: boolean | Prisma.LedgerReconciliationRun$itemsArgs<ExtArgs>
   _count?: boolean | Prisma.LedgerReconciliationRunCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ledgerReconciliationRun"]>
@@ -691,9 +745,11 @@ export type LedgerReconciliationRunSelectScalar = {
   errorMessage?: boolean
   startedAt?: boolean
   completedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LedgerReconciliationRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "provider" | "periodStart" | "periodEnd" | "status" | "providerTransactionCount" | "matchedCount" | "mismatchCount" | "startedByLabel" | "errorMessage" | "startedAt" | "completedAt", ExtArgs["result"]["ledgerReconciliationRun"]>
+export type LedgerReconciliationRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "provider" | "periodStart" | "periodEnd" | "status" | "providerTransactionCount" | "matchedCount" | "mismatchCount" | "startedByLabel" | "errorMessage" | "startedAt" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["ledgerReconciliationRun"]>
 export type LedgerReconciliationRunInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   items?: boolean | Prisma.LedgerReconciliationRun$itemsArgs<ExtArgs>
   _count?: boolean | Prisma.LedgerReconciliationRunCountOutputTypeDefaultArgs<ExtArgs>
@@ -717,6 +773,8 @@ export type $LedgerReconciliationRunPayload<ExtArgs extends runtime.Types.Extens
     errorMessage: string | null
     startedAt: Date
     completedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["ledgerReconciliationRun"]>
   composites: {}
 }
@@ -1099,6 +1157,8 @@ export interface LedgerReconciliationRunFieldRefs {
   readonly errorMessage: Prisma.FieldRef<"LedgerReconciliationRun", 'String'>
   readonly startedAt: Prisma.FieldRef<"LedgerReconciliationRun", 'DateTime'>
   readonly completedAt: Prisma.FieldRef<"LedgerReconciliationRun", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"LedgerReconciliationRun", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LedgerReconciliationRun", 'DateTime'>
 }
     
 

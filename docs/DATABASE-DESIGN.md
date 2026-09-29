@@ -151,6 +151,13 @@ green test run on a laptop proves nothing about the strict server, which is why
 - **Every instant is UTC, stored as `DATETIME(3)`** (millisecond precision).
   There are **no `TIMESTAMP` columns**: `TIMESTAMP` is re-interpreted against
   the session time zone when read, and `DATETIME` is not. Do not add one.
+- **Every table has `createdAt` and `updatedAt`** (when the row appeared, and
+  when it last changed), both `DATETIME(3)` with a database default, beside
+  any domain timestamps such as `receivedAt` or `decidedAt`.
+  `backend/tests/unit/row-timestamps.test.ts` fails for a model without them.
+  Migrations `20261017200000_created_updated_timestamps` and
+  `20261019200000_row_timestamps` added them to the tables that lacked them,
+  filling existing rows from the row's own timestamps where it had any.
 - The production server runs at `+00:00`; the XAMPP server runs at the
   machine's zone (Asia/Calcutta), so the driver pins its session to UTC in
   `backend/src/infra/prisma.ts`.

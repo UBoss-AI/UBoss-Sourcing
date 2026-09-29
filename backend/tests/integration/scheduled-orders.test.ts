@@ -1135,7 +1135,13 @@ describe('when a delivery cannot go ahead', () => {
 
     const outcome = await runOccurrence(scheduleId, slot);
 
-    expect(outcome.result).toBe('SKIPPED');
+    // Held for the customer to confirm the new total, not skipped outright:
+    // they can accept it and have this delivery go ahead, and it is skipped
+    // only if the confirmation deadline passes unanswered.
+    expect(outcome.result).toBe('AWAITING_CONFIRMATION');
+    const held = await prisma.scheduleOccurrence.findFirstOrThrow({ where: { scheduleId, plannedRunAt: slot } });
+    expect(held.status).toBe('AWAITING_CONFIRMATION');
+    expect(held.confirmationDueAt).not.toBeNull();
     // The whole point: nothing charged.
     expect(world.chargeCalls).toHaveLength(0);
     expect(await prisma.order.count()).toBe(0);

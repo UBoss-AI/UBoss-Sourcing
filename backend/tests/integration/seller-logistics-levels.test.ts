@@ -45,8 +45,9 @@ import {
 } from '../../src/modules/logistics/shipment-leg.service.js';
 import {
   createDraftPolicy,
-  publishPolicy as publishFeePolicy,
+  publishPolicy as approveFeePolicy,
   retirePolicy,
+  submitPolicy,
 } from '../../src/modules/settings/platform-fee.service.js';
 
 const SLUG_A = 'lvl-seller-a';
@@ -66,6 +67,8 @@ let customerProfileId = '';
 let otherCustomerProfileId = '';
 let addressId = '';
 let adminUserId = '';
+/** A second member of finance staff: a fee policy is approved by somebody other than its maker. */
+let approverUserId = '';
 let feePolicyId = '';
 let createdBusinessProfile: string | null = null;
 let createdLocation: string | null = null;
@@ -248,7 +251,11 @@ beforeAll(async () => {
     data: { id: newId(), type: 'ADMIN', email: `ops${EMAIL_DOMAIN}`, emailNormalized: `ops${EMAIL_DOMAIN}`, status: 'ACTIVE' },
   });
   adminUserId = admin.id;
-  uboss = { kind: 'UBOSS', userId: adminUserId, email: `ops${EMAIL_DOMAIN}` };
+  const approver = await prisma.user.create({
+    data: { id: newId(), type: 'ADMIN', email: `approver${EMAIL_DOMAIN}`, emailNormalized: `approver${EMAIL_DOMAIN}`, status: 'ACTIVE' },
+  });
+  approverUserId = approver.id;
+  uboss ={ kind: 'UBOSS', userId: adminUserId, email: `ops${EMAIL_DOMAIN}` };
 
   const location = await prisma.sellerLocation.create({
     data: {
@@ -545,6 +552,12 @@ describe('what the buyer pays', () => {
 });
 
 // --- Platform fee ------------------------------------------------------------
+
+/** Maker-checker: the maker submits, a different member of finance staff approves. */
+async function publishFeePolicy(maker: { userId: string; email: string }, policyId: string) {
+  await submitPolicy(maker, policyId);
+  return approveFeePolicy({ userId: approverUserId, email: `approver${EMAIL_DOMAIN}` }, policyId);
+}
 
 describe('the platform fee and the tax on it', () => {
   it('settles the order on the policy in force: 10,000 - 1,000 fee - 150 tax', async () => {

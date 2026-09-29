@@ -1469,7 +1469,8 @@ export const PaymentReceiptScalarFieldEnum = {
   currency: 'currency',
   snapshotJson: 'snapshotJson',
   issuedAt: 'issuedAt',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type PaymentReceiptScalarFieldEnum = (typeof PaymentReceiptScalarFieldEnum)[keyof typeof PaymentReceiptScalarFieldEnum]
@@ -5969,7 +5970,8 @@ export const PlatformFeeRuleApplicationScalarFieldEnum = {
   kind: 'kind',
   effectMinor: 'effectMinor',
   currency: 'currency',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type PlatformFeeRuleApplicationScalarFieldEnum = (typeof PlatformFeeRuleApplicationScalarFieldEnum)[keyof typeof PlatformFeeRuleApplicationScalarFieldEnum]
@@ -6719,7 +6721,8 @@ export const BuyerCompanyOrderApprovalScalarFieldEnum = {
   decidedByUserId: 'decidedByUserId',
   decidedAt: 'decidedAt',
   reason: 'reason',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type BuyerCompanyOrderApprovalScalarFieldEnum = (typeof BuyerCompanyOrderApprovalScalarFieldEnum)[keyof typeof BuyerCompanyOrderApprovalScalarFieldEnum]
@@ -7540,7 +7543,8 @@ export const TrustSettingsScalarFieldEnum = {
   inspectionFeeBasisPoints: 'inspectionFeeBasisPoints',
   buyerServiceFeeBasisPoints: 'buyerServiceFeeBasisPoints',
   updatedById: 'updatedById',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
 } as const
 
 export type TrustSettingsScalarFieldEnum = (typeof TrustSettingsScalarFieldEnum)[keyof typeof TrustSettingsScalarFieldEnum]
@@ -7617,7 +7621,9 @@ export const SellerFactoryMachineScalarFieldEnum = {
   name: 'name',
   quantity: 'quantity',
   capacityNote: 'capacityNote',
-  sortOrder: 'sortOrder'
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SellerFactoryMachineScalarFieldEnum = (typeof SellerFactoryMachineScalarFieldEnum)[keyof typeof SellerFactoryMachineScalarFieldEnum]
@@ -7630,7 +7636,8 @@ export const SellerFactoryEvidenceScalarFieldEnum = {
   caption: 'caption',
   capturedLatitude: 'capturedLatitude',
   capturedLongitude: 'capturedLongitude',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SellerFactoryEvidenceScalarFieldEnum = (typeof SellerFactoryEvidenceScalarFieldEnum)[keyof typeof SellerFactoryEvidenceScalarFieldEnum]
@@ -7746,7 +7753,9 @@ export type SellerListingTrustScalarFieldEnum = (typeof SellerListingTrustScalar
 export const SellerListingCertificationScalarFieldEnum = {
   id: 'id',
   listingTrustId: 'listingTrustId',
-  certificationId: 'certificationId'
+  certificationId: 'certificationId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SellerListingCertificationScalarFieldEnum = (typeof SellerListingCertificationScalarFieldEnum)[keyof typeof SellerListingCertificationScalarFieldEnum]
@@ -7758,7 +7767,9 @@ export const SellerOfferComplianceHoldScalarFieldEnum = {
   certificationId: 'certificationId',
   previousStatus: 'previousStatus',
   heldAt: 'heldAt',
-  releasedAt: 'releasedAt'
+  releasedAt: 'releasedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SellerOfferComplianceHoldScalarFieldEnum = (typeof SellerOfferComplianceHoldScalarFieldEnum)[keyof typeof SellerOfferComplianceHoldScalarFieldEnum]
@@ -7819,7 +7830,8 @@ export const MarketProfileScalarFieldEnum = {
   featuredCategoriesJson: 'featuredCategoriesJson',
   isPublished: 'isPublished',
   updatedById: 'updatedById',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
 } as const
 
 export type MarketProfileScalarFieldEnum = (typeof MarketProfileScalarFieldEnum)[keyof typeof MarketProfileScalarFieldEnum]
@@ -7846,7 +7858,8 @@ export const SearchQueryLogScalarFieldEnum = {
   correctedTo: 'correctedTo',
   countryCode: 'countryCode',
   language: 'language',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SearchQueryLogScalarFieldEnum = (typeof SearchQueryLogScalarFieldEnum)[keyof typeof SearchQueryLogScalarFieldEnum]
@@ -7948,7 +7961,9 @@ export const SellerProductionDelayScalarFieldEnum = {
   raisedByLabel: 'raisedByLabel',
   resolvedAt: 'resolvedAt',
   resolvedByLabel: 'resolvedByLabel',
-  resolutionNote: 'resolutionNote'
+  resolutionNote: 'resolutionNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SellerProductionDelayScalarFieldEnum = (typeof SellerProductionDelayScalarFieldEnum)[keyof typeof SellerProductionDelayScalarFieldEnum]
@@ -7963,7 +7978,8 @@ export const SellerOrderBuyerUpdateScalarFieldEnum = {
   reason: 'reason',
   expectedDate: 'expectedDate',
   message: 'message',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SellerOrderBuyerUpdateScalarFieldEnum = (typeof SellerOrderBuyerUpdateScalarFieldEnum)[keyof typeof SellerOrderBuyerUpdateScalarFieldEnum]
@@ -8007,7 +8023,8 @@ export const OrderTradeDocumentVersionScalarFieldEnum = {
   validationNote: 'validationNote',
   supersededAt: 'supersededAt',
   createdByLabel: 'createdByLabel',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type OrderTradeDocumentVersionScalarFieldEnum = (typeof OrderTradeDocumentVersionScalarFieldEnum)[keyof typeof OrderTradeDocumentVersionScalarFieldEnum]
@@ -8021,7 +8038,8 @@ export const OrderTradeDocumentEventScalarFieldEnum = {
   actorType: 'actorType',
   actorLabel: 'actorLabel',
   note: 'note',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type OrderTradeDocumentEventScalarFieldEnum = (typeof OrderTradeDocumentEventScalarFieldEnum)[keyof typeof OrderTradeDocumentEventScalarFieldEnum]
@@ -8079,7 +8097,8 @@ export const LogisticsTradeSettingsScalarFieldEnum = {
   maxInsuredBasisPoints: 'maxInsuredBasisPoints',
   requireTermsCrossBorder: 'requireTermsCrossBorder',
   updatedByUserId: 'updatedByUserId',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
 } as const
 
 export type LogisticsTradeSettingsScalarFieldEnum = (typeof LogisticsTradeSettingsScalarFieldEnum)[keyof typeof LogisticsTradeSettingsScalarFieldEnum]
@@ -8123,7 +8142,9 @@ export const LogisticsLaneBandScalarFieldEnum = {
   maxWeightGrams: 'maxWeightGrams',
   amountMinor: 'amountMinor',
   perKgMinor: 'perKgMinor',
-  sortOrder: 'sortOrder'
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type LogisticsLaneBandScalarFieldEnum = (typeof LogisticsLaneBandScalarFieldEnum)[keyof typeof LogisticsLaneBandScalarFieldEnum]
@@ -8135,7 +8156,8 @@ export const LedgerAccountScalarFieldEnum = {
   ownerKey: 'ownerKey',
   sellerAccountId: 'sellerAccountId',
   currency: 'currency',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type LedgerAccountScalarFieldEnum = (typeof LedgerAccountScalarFieldEnum)[keyof typeof LedgerAccountScalarFieldEnum]
@@ -8158,7 +8180,8 @@ export const LedgerEntryScalarFieldEnum = {
   memo: 'memo',
   actorLabel: 'actorLabel',
   occurredAt: 'occurredAt',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type LedgerEntryScalarFieldEnum = (typeof LedgerEntryScalarFieldEnum)[keyof typeof LedgerEntryScalarFieldEnum]
@@ -8169,7 +8192,9 @@ export const LedgerLineScalarFieldEnum = {
   entryId: 'entryId',
   accountId: 'accountId',
   amountMinor: 'amountMinor',
-  currency: 'currency'
+  currency: 'currency',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type LedgerLineScalarFieldEnum = (typeof LedgerLineScalarFieldEnum)[keyof typeof LedgerLineScalarFieldEnum]
@@ -8219,7 +8244,8 @@ export const SellerFundReleaseRequestScalarFieldEnum = {
   decidedAt: 'decidedAt',
   decisionNote: 'decisionNote',
   pendingKey: 'pendingKey',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SellerFundReleaseRequestScalarFieldEnum = (typeof SellerFundReleaseRequestScalarFieldEnum)[keyof typeof SellerFundReleaseRequestScalarFieldEnum]
@@ -8234,7 +8260,9 @@ export const PayoutProviderEventScalarFieldEnum = {
   status: 'status',
   note: 'note',
   receivedAt: 'receivedAt',
-  processedAt: 'processedAt'
+  processedAt: 'processedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type PayoutProviderEventScalarFieldEnum = (typeof PayoutProviderEventScalarFieldEnum)[keyof typeof PayoutProviderEventScalarFieldEnum]
@@ -8252,7 +8280,9 @@ export const LedgerReconciliationRunScalarFieldEnum = {
   startedByLabel: 'startedByLabel',
   errorMessage: 'errorMessage',
   startedAt: 'startedAt',
-  completedAt: 'completedAt'
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type LedgerReconciliationRunScalarFieldEnum = (typeof LedgerReconciliationRunScalarFieldEnum)[keyof typeof LedgerReconciliationRunScalarFieldEnum]
@@ -8269,7 +8299,8 @@ export const LedgerReconciliationItemScalarFieldEnum = {
   currency: 'currency',
   ledgerEntryId: 'ledgerEntryId',
   note: 'note',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type LedgerReconciliationItemScalarFieldEnum = (typeof LedgerReconciliationItemScalarFieldEnum)[keyof typeof LedgerReconciliationItemScalarFieldEnum]

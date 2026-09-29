@@ -43,6 +43,7 @@ export type LogisticsTradeSettingsMinAggregateOutputType = {
   requireTermsCrossBorder: boolean | null
   updatedByUserId: string | null
   updatedAt: Date | null
+  createdAt: Date | null
 }
 
 export type LogisticsTradeSettingsMaxAggregateOutputType = {
@@ -52,6 +53,7 @@ export type LogisticsTradeSettingsMaxAggregateOutputType = {
   requireTermsCrossBorder: boolean | null
   updatedByUserId: string | null
   updatedAt: Date | null
+  createdAt: Date | null
 }
 
 export type LogisticsTradeSettingsCountAggregateOutputType = {
@@ -61,6 +63,7 @@ export type LogisticsTradeSettingsCountAggregateOutputType = {
   requireTermsCrossBorder: number
   updatedByUserId: number
   updatedAt: number
+  createdAt: number
   _all: number
 }
 
@@ -82,6 +85,7 @@ export type LogisticsTradeSettingsMinAggregateInputType = {
   requireTermsCrossBorder?: true
   updatedByUserId?: true
   updatedAt?: true
+  createdAt?: true
 }
 
 export type LogisticsTradeSettingsMaxAggregateInputType = {
@@ -91,6 +95,7 @@ export type LogisticsTradeSettingsMaxAggregateInputType = {
   requireTermsCrossBorder?: true
   updatedByUserId?: true
   updatedAt?: true
+  createdAt?: true
 }
 
 export type LogisticsTradeSettingsCountAggregateInputType = {
@@ -100,6 +105,7 @@ export type LogisticsTradeSettingsCountAggregateInputType = {
   requireTermsCrossBorder?: true
   updatedByUserId?: true
   updatedAt?: true
+  createdAt?: true
   _all?: true
 }
 
@@ -196,6 +202,7 @@ export type LogisticsTradeSettingsGroupByOutputType = {
   requireTermsCrossBorder: boolean
   updatedByUserId: string | null
   updatedAt: Date
+  createdAt: Date
   _count: LogisticsTradeSettingsCountAggregateOutputType | null
   _avg: LogisticsTradeSettingsAvgAggregateOutputType | null
   _sum: LogisticsTradeSettingsSumAggregateOutputType | null
@@ -228,6 +235,7 @@ export type LogisticsTradeSettingsWhereInput = {
   requireTermsCrossBorder?: Prisma.BoolFilter<"LogisticsTradeSettings"> | boolean
   updatedByUserId?: Prisma.StringNullableFilter<"LogisticsTradeSettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"LogisticsTradeSettings"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"LogisticsTradeSettings"> | Date | string
 }
 
 export type LogisticsTradeSettingsOrderByWithRelationInput = {
@@ -237,6 +245,7 @@ export type LogisticsTradeSettingsOrderByWithRelationInput = {
   requireTermsCrossBorder?: Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _relevance?: Prisma.LogisticsTradeSettingsOrderByRelevanceInput
 }
 
@@ -250,6 +259,7 @@ export type LogisticsTradeSettingsWhereUniqueInput = Prisma.AtLeast<{
   requireTermsCrossBorder?: Prisma.BoolFilter<"LogisticsTradeSettings"> | boolean
   updatedByUserId?: Prisma.StringNullableFilter<"LogisticsTradeSettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"LogisticsTradeSettings"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"LogisticsTradeSettings"> | Date | string
 }, "id">
 
 export type LogisticsTradeSettingsOrderByWithAggregationInput = {
@@ -259,6 +269,7 @@ export type LogisticsTradeSettingsOrderByWithAggregationInput = {
   requireTermsCrossBorder?: Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _count?: Prisma.LogisticsTradeSettingsCountOrderByAggregateInput
   _avg?: Prisma.LogisticsTradeSettingsAvgOrderByAggregateInput
   _max?: Prisma.LogisticsTradeSettingsMaxOrderByAggregateInput
@@ -276,6 +287,7 @@ export type LogisticsTradeSettingsScalarWhereWithAggregatesInput = {
   requireTermsCrossBorder?: Prisma.BoolWithAggregatesFilter<"LogisticsTradeSettings"> | boolean
   updatedByUserId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsTradeSettings"> | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsTradeSettings"> | Date | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsTradeSettings"> | Date | string
 }
 
 export type LogisticsTradeSettingsCreateInput = {
@@ -285,6 +297,7 @@ export type LogisticsTradeSettingsCreateInput = {
   requireTermsCrossBorder?: boolean
   updatedByUserId?: string | null
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type LogisticsTradeSettingsUncheckedCreateInput = {
@@ -294,6 +307,7 @@ export type LogisticsTradeSettingsUncheckedCreateInput = {
   requireTermsCrossBorder?: boolean
   updatedByUserId?: string | null
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type LogisticsTradeSettingsUpdateInput = {
@@ -303,6 +317,7 @@ export type LogisticsTradeSettingsUpdateInput = {
   requireTermsCrossBorder?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsTradeSettingsUncheckedUpdateInput = {
@@ -312,6 +327,7 @@ export type LogisticsTradeSettingsUncheckedUpdateInput = {
   requireTermsCrossBorder?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsTradeSettingsCreateManyInput = {
@@ -321,6 +337,7 @@ export type LogisticsTradeSettingsCreateManyInput = {
   requireTermsCrossBorder?: boolean
   updatedByUserId?: string | null
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type LogisticsTradeSettingsUpdateManyMutationInput = {
@@ -330,6 +347,7 @@ export type LogisticsTradeSettingsUpdateManyMutationInput = {
   requireTermsCrossBorder?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsTradeSettingsUncheckedUpdateManyInput = {
@@ -339,6 +357,7 @@ export type LogisticsTradeSettingsUncheckedUpdateManyInput = {
   requireTermsCrossBorder?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogisticsTradeSettingsOrderByRelevanceInput = {
@@ -354,6 +373,7 @@ export type LogisticsTradeSettingsCountOrderByAggregateInput = {
   requireTermsCrossBorder?: Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type LogisticsTradeSettingsAvgOrderByAggregateInput = {
@@ -368,6 +388,7 @@ export type LogisticsTradeSettingsMaxOrderByAggregateInput = {
   requireTermsCrossBorder?: Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type LogisticsTradeSettingsMinOrderByAggregateInput = {
@@ -377,6 +398,7 @@ export type LogisticsTradeSettingsMinOrderByAggregateInput = {
   requireTermsCrossBorder?: Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type LogisticsTradeSettingsSumOrderByAggregateInput = {
@@ -393,6 +415,7 @@ export type LogisticsTradeSettingsSelect<ExtArgs extends runtime.Types.Extension
   requireTermsCrossBorder?: boolean
   updatedByUserId?: boolean
   updatedAt?: boolean
+  createdAt?: boolean
 }, ExtArgs["result"]["logisticsTradeSettings"]>
 
 
@@ -404,9 +427,10 @@ export type LogisticsTradeSettingsSelectScalar = {
   requireTermsCrossBorder?: boolean
   updatedByUserId?: boolean
   updatedAt?: boolean
+  createdAt?: boolean
 }
 
-export type LogisticsTradeSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "insuranceBasisPoints" | "maxInsuredBasisPoints" | "requireTermsCrossBorder" | "updatedByUserId" | "updatedAt", ExtArgs["result"]["logisticsTradeSettings"]>
+export type LogisticsTradeSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "insuranceBasisPoints" | "maxInsuredBasisPoints" | "requireTermsCrossBorder" | "updatedByUserId" | "updatedAt" | "createdAt", ExtArgs["result"]["logisticsTradeSettings"]>
 
 export type $LogisticsTradeSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LogisticsTradeSettings"
@@ -430,6 +454,7 @@ export type $LogisticsTradeSettingsPayload<ExtArgs extends runtime.Types.Extensi
     requireTermsCrossBorder: boolean
     updatedByUserId: string | null
     updatedAt: Date
+    createdAt: Date
   }, ExtArgs["result"]["logisticsTradeSettings"]>
   composites: {}
 }
@@ -805,6 +830,7 @@ export interface LogisticsTradeSettingsFieldRefs {
   readonly requireTermsCrossBorder: Prisma.FieldRef<"LogisticsTradeSettings", 'Boolean'>
   readonly updatedByUserId: Prisma.FieldRef<"LogisticsTradeSettings", 'String'>
   readonly updatedAt: Prisma.FieldRef<"LogisticsTradeSettings", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"LogisticsTradeSettings", 'DateTime'>
 }
     
 

@@ -2574,6 +2574,7 @@ The receipt number issued for one captured payment or one succeeded refund.
 | `snapshotJson` | Json |  |  |  |  |
 | `issuedAt` | DateTime · DateTime(3) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -14274,6 +14275,7 @@ Which fee rule changed which seller order's fee, and by how much. Written once, 
 | `effectMinor` | BigInt |  |  |  | What the fee would have been minus what it was: positive is a saving to the seller, negative a higher fee. |
 | `currency` | String · Char(3) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -16248,6 +16250,7 @@ One sign-off an order needs from inside the buyer company.
 | `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `reason` | String · VarChar(1000) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -18492,6 +18495,7 @@ Single row, id 'default'. Every threshold here is the operator's setting.
 | `buyerServiceFeeBasisPoints` | Int · SmallInt | yes |  |  |  |
 | `updatedById` | String · Char(26) | yes |  |  |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 
 <a id="model-sellertrustprofile"></a>
 
@@ -18614,6 +18618,8 @@ Table `seller_factory_machines`
 | `quantity` | Int |  |  | 1 |  |
 | `capacityNote` | String · VarChar(255) | yes |  |  |  |
 | `sortOrder` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -18640,6 +18646,7 @@ A document (a `SellerDocument`, through the existing upload pipeline) offered as
 | `capturedLatitude` | Decimal · Decimal(10, 7) | yes |  |  | Where the photograph says it was taken, when the seller supplied it. |
 | `capturedLongitude` | Decimal · Decimal(10, 7) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -18842,6 +18849,8 @@ Table `seller_listing_certifications`
 | `id` | String · Char(26) |  | PK |  |  |
 | `listingTrustId` | String · Char(26) |  | FK → [SellerListingTrust](#model-sellerlistingtrust) |  | (on delete: Cascade) |
 | `certificationId` | String · Char(26) |  | FK → [SellerCertification](#model-sellercertification) |  | (on delete: Cascade) |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -18869,6 +18878,8 @@ An offer paused because a certificate it relies on expired. Released - and the o
 | `previousStatus` | [enum SellerOfferStatus](#enum-sellerofferstatus) |  |  |  |  |
 | `heldAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `releasedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -18970,6 +18981,7 @@ Operator-written content for one destination's landing page.
 | `isPublished` | Boolean |  |  | false |  |
 | `updatedById` | String · Char(26) | yes |  |  |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 
 <a id="model-searchsynonym"></a>
 
@@ -19007,6 +19019,7 @@ One search, anonymously. No user, no session, no address - the analytics only ne
 | `countryCode` | String · Char(2) | yes |  |  |  |
 | `language` | String · VarChar(10) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Indexes and keys**
 
@@ -19342,6 +19355,8 @@ A production delay or exception, raised and later resolved. Kept for ever: "how 
 | `resolvedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `resolvedByLabel` | String · VarChar(160) | yes |  |  |  |
 | `resolutionNote` | String · VarChar(1000) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19371,6 +19386,7 @@ What a buyer is told about a seller's part of their order, as it happens.
 | `expectedDate` | DateTime · Date | yes |  |  |  |
 | `message` | String · VarChar(1000) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19446,6 +19462,7 @@ One version of a trade document. Never edited: a correction is a new version, an
 | `supersededAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdByLabel` | String · VarChar(160) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19474,6 +19491,7 @@ Everything that happened to a trade document, for its audit history.
 | `actorLabel` | String · VarChar(160) |  |  |  |  |
 | `note` | String · VarChar(1000) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19567,6 +19585,7 @@ The operator's booking settings. One row, id 'default'.
 | `requireTermsCrossBorder` | Boolean |  |  | true | Whether a cross-border consignment must state its Incoterm, mode and ports before it can be booked. |
 | `updatedByUserId` | String · Char(26) | yes |  |  |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 
 <a id="model-logisticslane"></a>
 
@@ -19629,6 +19648,8 @@ One weight break of a lane: from `minWeightGrams` (inclusive) to `maxWeightGrams
 | `amountMinor` | BigInt |  |  |  |  |
 | `perKgMinor` | BigInt |  |  | 0 |  |
 | `sortOrder` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19849,6 +19870,7 @@ One account in the ledger, per owner and currency.
 | `sellerAccountId` | String · Char(26) | yes |  |  |  |
 | `currency` | String · Char(3) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19886,6 +19908,7 @@ One journal entry: a balanced set of lines, written once.
 | `actorLabel` | String · VarChar(160) |  |  |  | 'System', or the staff member's email. |
 | `occurredAt` | DateTime · DateTime(3) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19916,6 +19939,8 @@ One side of an entry. Signed minor units: a debit is positive, a credit negative
 | `accountId` | String · Char(26) |  | FK → [LedgerAccount](#model-ledgeraccount) |  | (on delete: Restrict) |
 | `amountMinor` | BigInt |  |  |  |  |
 | `currency` | String · Char(3) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -19994,6 +20019,7 @@ A manual, early release of held funds: asked for by one member of staff with a r
 | `decisionNote` | String · VarChar(1000) | yes |  |  |  |
 | `pendingKey` | String · Char(26) | yes |  |  | The hold's id while PENDING, null once decided: one open request per hold, because a UNIQUE index ignores NULLs. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Indexes and keys**
 
@@ -20020,6 +20046,8 @@ A signed event from the payout provider, recorded once.
 | `note` | String · VarChar(512) | yes |  |  |  |
 | `receivedAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `processedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Indexes and keys**
 
@@ -20048,6 +20076,8 @@ One comparison of the ledger with the provider's balance transactions.
 | `errorMessage` | String · VarChar(1000) | yes |  |  |  |
 | `startedAt` | DateTime · DateTime(3) |  |  |  |  |
 | `completedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 
@@ -20078,6 +20108,7 @@ One finding of a run: a match, or a difference finance must look at.
 | `ledgerEntryId` | String · Char(26) | yes |  |  |  |
 | `note` | String · VarChar(512) |  |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Relations**
 

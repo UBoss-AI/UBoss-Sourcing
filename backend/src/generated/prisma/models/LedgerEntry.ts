@@ -42,6 +42,7 @@ export type LedgerEntryMinAggregateOutputType = {
   actorLabel: string | null
   occurredAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LedgerEntryMaxAggregateOutputType = {
@@ -62,6 +63,7 @@ export type LedgerEntryMaxAggregateOutputType = {
   actorLabel: string | null
   occurredAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LedgerEntryCountAggregateOutputType = {
@@ -82,6 +84,7 @@ export type LedgerEntryCountAggregateOutputType = {
   actorLabel: number
   occurredAt: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -104,6 +107,7 @@ export type LedgerEntryMinAggregateInputType = {
   actorLabel?: true
   occurredAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LedgerEntryMaxAggregateInputType = {
@@ -124,6 +128,7 @@ export type LedgerEntryMaxAggregateInputType = {
   actorLabel?: true
   occurredAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LedgerEntryCountAggregateInputType = {
@@ -144,6 +149,7 @@ export type LedgerEntryCountAggregateInputType = {
   actorLabel?: true
   occurredAt?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -237,6 +243,7 @@ export type LedgerEntryGroupByOutputType = {
   actorLabel: string
   occurredAt: Date
   createdAt: Date
+  updatedAt: Date
   _count: LedgerEntryCountAggregateOutputType | null
   _min: LedgerEntryMinAggregateOutputType | null
   _max: LedgerEntryMaxAggregateOutputType | null
@@ -278,6 +285,7 @@ export type LedgerEntryWhereInput = {
   actorLabel?: Prisma.StringFilter<"LedgerEntry"> | string
   occurredAt?: Prisma.DateTimeFilter<"LedgerEntry"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"LedgerEntry"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LedgerEntry"> | Date | string
   lines?: Prisma.LedgerLineListRelationFilter
 }
 
@@ -299,6 +307,7 @@ export type LedgerEntryOrderByWithRelationInput = {
   actorLabel?: Prisma.SortOrder
   occurredAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   lines?: Prisma.LedgerLineOrderByRelationAggregateInput
   _relevance?: Prisma.LedgerEntryOrderByRelevanceInput
 }
@@ -324,6 +333,7 @@ export type LedgerEntryWhereUniqueInput = Prisma.AtLeast<{
   actorLabel?: Prisma.StringFilter<"LedgerEntry"> | string
   occurredAt?: Prisma.DateTimeFilter<"LedgerEntry"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"LedgerEntry"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LedgerEntry"> | Date | string
   lines?: Prisma.LedgerLineListRelationFilter
 }, "id" | "idempotencyKey" | "reversesEntryId">
 
@@ -345,6 +355,7 @@ export type LedgerEntryOrderByWithAggregationInput = {
   actorLabel?: Prisma.SortOrder
   occurredAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LedgerEntryCountOrderByAggregateInput
   _max?: Prisma.LedgerEntryMaxOrderByAggregateInput
   _min?: Prisma.LedgerEntryMinOrderByAggregateInput
@@ -371,6 +382,7 @@ export type LedgerEntryScalarWhereWithAggregatesInput = {
   actorLabel?: Prisma.StringWithAggregatesFilter<"LedgerEntry"> | string
   occurredAt?: Prisma.DateTimeWithAggregatesFilter<"LedgerEntry"> | Date | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LedgerEntry"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LedgerEntry"> | Date | string
 }
 
 export type LedgerEntryCreateInput = {
@@ -391,6 +403,7 @@ export type LedgerEntryCreateInput = {
   actorLabel: string
   occurredAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   lines?: Prisma.LedgerLineCreateNestedManyWithoutEntryInput
 }
 
@@ -412,6 +425,7 @@ export type LedgerEntryUncheckedCreateInput = {
   actorLabel: string
   occurredAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
   lines?: Prisma.LedgerLineUncheckedCreateNestedManyWithoutEntryInput
 }
 
@@ -433,6 +447,7 @@ export type LedgerEntryUpdateInput = {
   actorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.LedgerLineUpdateManyWithoutEntryNestedInput
 }
 
@@ -454,6 +469,7 @@ export type LedgerEntryUncheckedUpdateInput = {
   actorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.LedgerLineUncheckedUpdateManyWithoutEntryNestedInput
 }
 
@@ -475,6 +491,7 @@ export type LedgerEntryCreateManyInput = {
   actorLabel: string
   occurredAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerEntryUpdateManyMutationInput = {
@@ -495,6 +512,7 @@ export type LedgerEntryUpdateManyMutationInput = {
   actorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerEntryUncheckedUpdateManyInput = {
@@ -515,6 +533,7 @@ export type LedgerEntryUncheckedUpdateManyInput = {
   actorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerEntryOrderByRelevanceInput = {
@@ -541,6 +560,7 @@ export type LedgerEntryCountOrderByAggregateInput = {
   actorLabel?: Prisma.SortOrder
   occurredAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LedgerEntryMaxOrderByAggregateInput = {
@@ -561,6 +581,7 @@ export type LedgerEntryMaxOrderByAggregateInput = {
   actorLabel?: Prisma.SortOrder
   occurredAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LedgerEntryMinOrderByAggregateInput = {
@@ -581,6 +602,7 @@ export type LedgerEntryMinOrderByAggregateInput = {
   actorLabel?: Prisma.SortOrder
   occurredAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LedgerEntryScalarRelationFilter = {
@@ -624,6 +646,7 @@ export type LedgerEntryCreateWithoutLinesInput = {
   actorLabel: string
   occurredAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerEntryUncheckedCreateWithoutLinesInput = {
@@ -644,6 +667,7 @@ export type LedgerEntryUncheckedCreateWithoutLinesInput = {
   actorLabel: string
   occurredAt: Date | string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerEntryCreateOrConnectWithoutLinesInput = {
@@ -680,6 +704,7 @@ export type LedgerEntryUpdateWithoutLinesInput = {
   actorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerEntryUncheckedUpdateWithoutLinesInput = {
@@ -700,6 +725,7 @@ export type LedgerEntryUncheckedUpdateWithoutLinesInput = {
   actorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -751,6 +777,7 @@ export type LedgerEntrySelect<ExtArgs extends runtime.Types.Extensions.InternalA
   actorLabel?: boolean
   occurredAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   lines?: boolean | Prisma.LedgerEntry$linesArgs<ExtArgs>
   _count?: boolean | Prisma.LedgerEntryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ledgerEntry"]>
@@ -775,9 +802,10 @@ export type LedgerEntrySelectScalar = {
   actorLabel?: boolean
   occurredAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LedgerEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "idempotencyKey" | "currency" | "orderId" | "sellerOrderGroupId" | "sellerAccountId" | "paymentTransactionId" | "refundId" | "payoutId" | "disputeId" | "providerReference" | "reversesEntryId" | "memo" | "actorLabel" | "occurredAt" | "createdAt", ExtArgs["result"]["ledgerEntry"]>
+export type LedgerEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "idempotencyKey" | "currency" | "orderId" | "sellerOrderGroupId" | "sellerAccountId" | "paymentTransactionId" | "refundId" | "payoutId" | "disputeId" | "providerReference" | "reversesEntryId" | "memo" | "actorLabel" | "occurredAt" | "createdAt" | "updatedAt", ExtArgs["result"]["ledgerEntry"]>
 export type LedgerEntryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lines?: boolean | Prisma.LedgerEntry$linesArgs<ExtArgs>
   _count?: boolean | Prisma.LedgerEntryCountOutputTypeDefaultArgs<ExtArgs>
@@ -821,6 +849,7 @@ export type $LedgerEntryPayload<ExtArgs extends runtime.Types.Extensions.Interna
     actorLabel: string
     occurredAt: Date
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["ledgerEntry"]>
   composites: {}
 }
@@ -1208,6 +1237,7 @@ export interface LedgerEntryFieldRefs {
   readonly actorLabel: Prisma.FieldRef<"LedgerEntry", 'String'>
   readonly occurredAt: Prisma.FieldRef<"LedgerEntry", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"LedgerEntry", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LedgerEntry", 'DateTime'>
 }
     
 

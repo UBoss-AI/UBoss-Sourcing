@@ -34,6 +34,8 @@ export type PayoutProviderEventMinAggregateOutputType = {
   note: string | null
   receivedAt: Date | null
   processedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PayoutProviderEventMaxAggregateOutputType = {
@@ -46,6 +48,8 @@ export type PayoutProviderEventMaxAggregateOutputType = {
   note: string | null
   receivedAt: Date | null
   processedAt: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PayoutProviderEventCountAggregateOutputType = {
@@ -58,6 +62,8 @@ export type PayoutProviderEventCountAggregateOutputType = {
   note: number
   receivedAt: number
   processedAt: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -72,6 +78,8 @@ export type PayoutProviderEventMinAggregateInputType = {
   note?: true
   receivedAt?: true
   processedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type PayoutProviderEventMaxAggregateInputType = {
@@ -84,6 +92,8 @@ export type PayoutProviderEventMaxAggregateInputType = {
   note?: true
   receivedAt?: true
   processedAt?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type PayoutProviderEventCountAggregateInputType = {
@@ -96,6 +106,8 @@ export type PayoutProviderEventCountAggregateInputType = {
   note?: true
   receivedAt?: true
   processedAt?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -181,6 +193,8 @@ export type PayoutProviderEventGroupByOutputType = {
   note: string | null
   receivedAt: Date
   processedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
   _count: PayoutProviderEventCountAggregateOutputType | null
   _min: PayoutProviderEventMinAggregateOutputType | null
   _max: PayoutProviderEventMaxAggregateOutputType | null
@@ -214,6 +228,8 @@ export type PayoutProviderEventWhereInput = {
   note?: Prisma.StringNullableFilter<"PayoutProviderEvent"> | string | null
   receivedAt?: Prisma.DateTimeFilter<"PayoutProviderEvent"> | Date | string
   processedAt?: Prisma.DateTimeNullableFilter<"PayoutProviderEvent"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"PayoutProviderEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PayoutProviderEvent"> | Date | string
 }
 
 export type PayoutProviderEventOrderByWithRelationInput = {
@@ -226,6 +242,8 @@ export type PayoutProviderEventOrderByWithRelationInput = {
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
   processedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _relevance?: Prisma.PayoutProviderEventOrderByRelevanceInput
 }
 
@@ -243,6 +261,8 @@ export type PayoutProviderEventWhereUniqueInput = Prisma.AtLeast<{
   note?: Prisma.StringNullableFilter<"PayoutProviderEvent"> | string | null
   receivedAt?: Prisma.DateTimeFilter<"PayoutProviderEvent"> | Date | string
   processedAt?: Prisma.DateTimeNullableFilter<"PayoutProviderEvent"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"PayoutProviderEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PayoutProviderEvent"> | Date | string
 }, "id" | "provider_providerEventId">
 
 export type PayoutProviderEventOrderByWithAggregationInput = {
@@ -255,6 +275,8 @@ export type PayoutProviderEventOrderByWithAggregationInput = {
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
   processedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PayoutProviderEventCountOrderByAggregateInput
   _max?: Prisma.PayoutProviderEventMaxOrderByAggregateInput
   _min?: Prisma.PayoutProviderEventMinOrderByAggregateInput
@@ -273,6 +295,8 @@ export type PayoutProviderEventScalarWhereWithAggregatesInput = {
   note?: Prisma.StringNullableWithAggregatesFilter<"PayoutProviderEvent"> | string | null
   receivedAt?: Prisma.DateTimeWithAggregatesFilter<"PayoutProviderEvent"> | Date | string
   processedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PayoutProviderEvent"> | Date | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"PayoutProviderEvent"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PayoutProviderEvent"> | Date | string
 }
 
 export type PayoutProviderEventCreateInput = {
@@ -285,6 +309,8 @@ export type PayoutProviderEventCreateInput = {
   note?: string | null
   receivedAt?: Date | string
   processedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PayoutProviderEventUncheckedCreateInput = {
@@ -297,6 +323,8 @@ export type PayoutProviderEventUncheckedCreateInput = {
   note?: string | null
   receivedAt?: Date | string
   processedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PayoutProviderEventUpdateInput = {
@@ -309,6 +337,8 @@ export type PayoutProviderEventUpdateInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PayoutProviderEventUncheckedUpdateInput = {
@@ -321,6 +351,8 @@ export type PayoutProviderEventUncheckedUpdateInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PayoutProviderEventCreateManyInput = {
@@ -333,6 +365,8 @@ export type PayoutProviderEventCreateManyInput = {
   note?: string | null
   receivedAt?: Date | string
   processedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PayoutProviderEventUpdateManyMutationInput = {
@@ -345,6 +379,8 @@ export type PayoutProviderEventUpdateManyMutationInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PayoutProviderEventUncheckedUpdateManyInput = {
@@ -357,6 +393,8 @@ export type PayoutProviderEventUncheckedUpdateManyInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PayoutProviderEventOrderByRelevanceInput = {
@@ -380,6 +418,8 @@ export type PayoutProviderEventCountOrderByAggregateInput = {
   note?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
   processedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PayoutProviderEventMaxOrderByAggregateInput = {
@@ -392,6 +432,8 @@ export type PayoutProviderEventMaxOrderByAggregateInput = {
   note?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
   processedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PayoutProviderEventMinOrderByAggregateInput = {
@@ -404,6 +446,8 @@ export type PayoutProviderEventMinOrderByAggregateInput = {
   note?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
   processedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 
@@ -418,6 +462,8 @@ export type PayoutProviderEventSelect<ExtArgs extends runtime.Types.Extensions.I
   note?: boolean
   receivedAt?: boolean
   processedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["payoutProviderEvent"]>
 
 
@@ -432,9 +478,11 @@ export type PayoutProviderEventSelectScalar = {
   note?: boolean
   receivedAt?: boolean
   processedAt?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PayoutProviderEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "provider" | "providerEventId" | "eventType" | "accountRef" | "status" | "note" | "receivedAt" | "processedAt", ExtArgs["result"]["payoutProviderEvent"]>
+export type PayoutProviderEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "provider" | "providerEventId" | "eventType" | "accountRef" | "status" | "note" | "receivedAt" | "processedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["payoutProviderEvent"]>
 
 export type $PayoutProviderEventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PayoutProviderEvent"
@@ -455,6 +503,8 @@ export type $PayoutProviderEventPayload<ExtArgs extends runtime.Types.Extensions
     note: string | null
     receivedAt: Date
     processedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["payoutProviderEvent"]>
   composites: {}
 }
@@ -833,6 +883,8 @@ export interface PayoutProviderEventFieldRefs {
   readonly note: Prisma.FieldRef<"PayoutProviderEvent", 'String'>
   readonly receivedAt: Prisma.FieldRef<"PayoutProviderEvent", 'DateTime'>
   readonly processedAt: Prisma.FieldRef<"PayoutProviderEvent", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"PayoutProviderEvent", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"PayoutProviderEvent", 'DateTime'>
 }
     
 

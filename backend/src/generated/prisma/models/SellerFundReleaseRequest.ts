@@ -40,6 +40,7 @@ export type SellerFundReleaseRequestMinAggregateOutputType = {
   decisionNote: string | null
   pendingKey: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerFundReleaseRequestMaxAggregateOutputType = {
@@ -57,6 +58,7 @@ export type SellerFundReleaseRequestMaxAggregateOutputType = {
   decisionNote: string | null
   pendingKey: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SellerFundReleaseRequestCountAggregateOutputType = {
@@ -74,6 +76,7 @@ export type SellerFundReleaseRequestCountAggregateOutputType = {
   decisionNote: number
   pendingKey: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -93,6 +96,7 @@ export type SellerFundReleaseRequestMinAggregateInputType = {
   decisionNote?: true
   pendingKey?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerFundReleaseRequestMaxAggregateInputType = {
@@ -110,6 +114,7 @@ export type SellerFundReleaseRequestMaxAggregateInputType = {
   decisionNote?: true
   pendingKey?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type SellerFundReleaseRequestCountAggregateInputType = {
@@ -127,6 +132,7 @@ export type SellerFundReleaseRequestCountAggregateInputType = {
   decisionNote?: true
   pendingKey?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -217,6 +223,7 @@ export type SellerFundReleaseRequestGroupByOutputType = {
   decisionNote: string | null
   pendingKey: string | null
   createdAt: Date
+  updatedAt: Date
   _count: SellerFundReleaseRequestCountAggregateOutputType | null
   _min: SellerFundReleaseRequestMinAggregateOutputType | null
   _max: SellerFundReleaseRequestMaxAggregateOutputType | null
@@ -255,6 +262,7 @@ export type SellerFundReleaseRequestWhereInput = {
   decisionNote?: Prisma.StringNullableFilter<"SellerFundReleaseRequest"> | string | null
   pendingKey?: Prisma.StringNullableFilter<"SellerFundReleaseRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerFundReleaseRequest"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerFundReleaseRequest"> | Date | string
 }
 
 export type SellerFundReleaseRequestOrderByWithRelationInput = {
@@ -272,6 +280,7 @@ export type SellerFundReleaseRequestOrderByWithRelationInput = {
   decisionNote?: Prisma.SortOrderInput | Prisma.SortOrder
   pendingKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _relevance?: Prisma.SellerFundReleaseRequestOrderByRelevanceInput
 }
 
@@ -293,6 +302,7 @@ export type SellerFundReleaseRequestWhereUniqueInput = Prisma.AtLeast<{
   decidedAt?: Prisma.DateTimeNullableFilter<"SellerFundReleaseRequest"> | Date | string | null
   decisionNote?: Prisma.StringNullableFilter<"SellerFundReleaseRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerFundReleaseRequest"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SellerFundReleaseRequest"> | Date | string
 }, "id" | "pendingKey">
 
 export type SellerFundReleaseRequestOrderByWithAggregationInput = {
@@ -310,6 +320,7 @@ export type SellerFundReleaseRequestOrderByWithAggregationInput = {
   decisionNote?: Prisma.SortOrderInput | Prisma.SortOrder
   pendingKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerFundReleaseRequestCountOrderByAggregateInput
   _max?: Prisma.SellerFundReleaseRequestMaxOrderByAggregateInput
   _min?: Prisma.SellerFundReleaseRequestMinOrderByAggregateInput
@@ -333,6 +344,7 @@ export type SellerFundReleaseRequestScalarWhereWithAggregatesInput = {
   decisionNote?: Prisma.StringNullableWithAggregatesFilter<"SellerFundReleaseRequest"> | string | null
   pendingKey?: Prisma.StringNullableWithAggregatesFilter<"SellerFundReleaseRequest"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerFundReleaseRequest"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerFundReleaseRequest"> | Date | string
 }
 
 export type SellerFundReleaseRequestCreateInput = {
@@ -350,6 +362,7 @@ export type SellerFundReleaseRequestCreateInput = {
   decisionNote?: string | null
   pendingKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerFundReleaseRequestUncheckedCreateInput = {
@@ -367,6 +380,7 @@ export type SellerFundReleaseRequestUncheckedCreateInput = {
   decisionNote?: string | null
   pendingKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerFundReleaseRequestUpdateInput = {
@@ -384,6 +398,7 @@ export type SellerFundReleaseRequestUpdateInput = {
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerFundReleaseRequestUncheckedUpdateInput = {
@@ -401,6 +416,7 @@ export type SellerFundReleaseRequestUncheckedUpdateInput = {
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerFundReleaseRequestCreateManyInput = {
@@ -418,6 +434,7 @@ export type SellerFundReleaseRequestCreateManyInput = {
   decisionNote?: string | null
   pendingKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SellerFundReleaseRequestUpdateManyMutationInput = {
@@ -435,6 +452,7 @@ export type SellerFundReleaseRequestUpdateManyMutationInput = {
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerFundReleaseRequestUncheckedUpdateManyInput = {
@@ -452,6 +470,7 @@ export type SellerFundReleaseRequestUncheckedUpdateManyInput = {
   decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerFundReleaseRequestOrderByRelevanceInput = {
@@ -475,6 +494,7 @@ export type SellerFundReleaseRequestCountOrderByAggregateInput = {
   decisionNote?: Prisma.SortOrder
   pendingKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerFundReleaseRequestMaxOrderByAggregateInput = {
@@ -492,6 +512,7 @@ export type SellerFundReleaseRequestMaxOrderByAggregateInput = {
   decisionNote?: Prisma.SortOrder
   pendingKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SellerFundReleaseRequestMinOrderByAggregateInput = {
@@ -509,6 +530,7 @@ export type SellerFundReleaseRequestMinOrderByAggregateInput = {
   decisionNote?: Prisma.SortOrder
   pendingKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type EnumSellerFundReleaseRequestStatusFieldUpdateOperationsInput = {
@@ -532,6 +554,7 @@ export type SellerFundReleaseRequestSelect<ExtArgs extends runtime.Types.Extensi
   decisionNote?: boolean
   pendingKey?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["sellerFundReleaseRequest"]>
 
 
@@ -551,9 +574,10 @@ export type SellerFundReleaseRequestSelectScalar = {
   decisionNote?: boolean
   pendingKey?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SellerFundReleaseRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fundHoldId" | "sellerOrderGroupId" | "status" | "reason" | "requestedById" | "requestedByLabel" | "requestedAt" | "decidedById" | "decidedByLabel" | "decidedAt" | "decisionNote" | "pendingKey" | "createdAt", ExtArgs["result"]["sellerFundReleaseRequest"]>
+export type SellerFundReleaseRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fundHoldId" | "sellerOrderGroupId" | "status" | "reason" | "requestedById" | "requestedByLabel" | "requestedAt" | "decidedById" | "decidedByLabel" | "decidedAt" | "decisionNote" | "pendingKey" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerFundReleaseRequest"]>
 
 export type $SellerFundReleaseRequestPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SellerFundReleaseRequest"
@@ -577,6 +601,7 @@ export type $SellerFundReleaseRequestPayload<ExtArgs extends runtime.Types.Exten
      */
     pendingKey: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["sellerFundReleaseRequest"]>
   composites: {}
 }
@@ -960,6 +985,7 @@ export interface SellerFundReleaseRequestFieldRefs {
   readonly decisionNote: Prisma.FieldRef<"SellerFundReleaseRequest", 'String'>
   readonly pendingKey: Prisma.FieldRef<"SellerFundReleaseRequest", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerFundReleaseRequest", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SellerFundReleaseRequest", 'DateTime'>
 }
     
 

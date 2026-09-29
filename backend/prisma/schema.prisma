@@ -3452,6 +3452,7 @@ model PaymentReceipt {
   snapshotJson Json
   issuedAt     DateTime @db.DateTime(3)
   createdAt    DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_payment_receipt_order")
 
@@ -18419,6 +18420,7 @@ model PlatformFeeRuleApplication {
   effectMinor  BigInt
   currency     String @db.Char(3)
   createdAt    DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   settlement SellerOrderSettlement @relation(fields: [settlementId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_fee_rule_app_settlement")
   rule       PlatformFeeRule       @relation(fields: [ruleId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_fee_rule_app_rule")
@@ -20570,6 +20572,7 @@ model BuyerCompanyOrderApproval {
   decidedAt         DateTime?                    @db.DateTime(3)
   reason            String?                      @db.VarChar(1000)
   createdAt         DateTime                     @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   order   Order        @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_buyer_company_order_approval_order")
   company BuyerCompany @relation(fields: [companyId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_buyer_company_order_approval_company")
@@ -22331,6 +22334,7 @@ model TrustSettings {
 
   updatedById String?  @db.Char(26)
   updatedAt   DateTime @updatedAt @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
 
   @@map("trust_settings")
 }
@@ -22442,6 +22446,8 @@ model SellerFactoryMachine {
   quantity     Int     @default(1)
   capacityNote String? @db.VarChar(255)
   sortOrder    Int     @default(0)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   factory SellerFactory @relation(fields: [factoryId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_seller_factory_machine_factory")
 
@@ -22462,6 +22468,7 @@ model SellerFactoryEvidence {
   capturedLongitude Decimal? @db.Decimal(10, 7)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   factory SellerFactory @relation(fields: [factoryId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_seller_factory_evidence_factory")
 
@@ -22636,6 +22643,8 @@ model SellerListingCertification {
   id              String @id @db.Char(26)
   listingTrustId  String @db.Char(26)
   certificationId String @db.Char(26)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   listingTrust  SellerListingTrust  @relation(fields: [listingTrustId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_seller_listing_cert_listing")
   certification SellerCertification @relation(fields: [certificationId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_seller_listing_cert_certification")
@@ -22654,6 +22663,8 @@ model SellerOfferComplianceHold {
   previousStatus  SellerOfferStatus
   heldAt          DateTime          @default(now()) @db.DateTime(3)
   releasedAt      DateTime?         @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   offer         SellerOffer         @relation(fields: [offerId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_offer_compliance_hold_offer")
   certification SellerCertification @relation(fields: [certificationId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_offer_compliance_hold_certification")
@@ -22744,6 +22755,7 @@ model MarketProfile {
 
   updatedById String?  @db.Char(26)
   updatedAt   DateTime @updatedAt @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
 
   @@map("market_profiles")
 }
@@ -22774,6 +22786,7 @@ model SearchQueryLog {
   countryCode     String? @db.Char(2)
   language        String? @db.VarChar(10)
   createdAt       DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   @@index([createdAt], map: "ix_search_query_log_created")
   @@index([queryNormalized, createdAt], map: "ix_search_query_log_query")
@@ -23006,6 +23019,8 @@ model SellerProductionDelay {
   resolvedAt      DateTime? @db.DateTime(3)
   resolvedByLabel String?   @db.VarChar(160)
   resolutionNote  String?   @db.VarChar(1000)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   orderGroup SellerOrderGroup @relation(fields: [orderGroupId], references: [id], onDelete: Cascade)
 
@@ -23034,6 +23049,7 @@ model SellerOrderBuyerUpdate {
   message      String?                @db.VarChar(1000)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   orderGroup SellerOrderGroup @relation(fields: [orderGroupId], references: [id], onDelete: Cascade)
 
@@ -23125,6 +23141,7 @@ model OrderTradeDocumentVersion {
   supersededAt   DateTime? @db.DateTime(3)
   createdByLabel String    @db.VarChar(160)
   createdAt      DateTime  @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   document OrderTradeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
@@ -23146,6 +23163,7 @@ model OrderTradeDocumentEvent {
   actorLabel String  @db.VarChar(160)
   note       String? @db.VarChar(1000)
   createdAt  DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   document OrderTradeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
@@ -23271,6 +23289,7 @@ model LogisticsTradeSettings {
 
   updatedByUserId String?  @db.Char(26)
   updatedAt       DateTime @updatedAt @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
 
   @@map("logistics_trade_settings")
 }
@@ -23333,6 +23352,8 @@ model LogisticsLaneBand {
   amountMinor    BigInt
   perKgMinor     BigInt @default(0)
   sortOrder      Int    @default(0)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   lane LogisticsLane @relation(fields: [laneId], references: [id], onDelete: Cascade)
 
@@ -23415,6 +23436,7 @@ model LedgerAccount {
   sellerAccountId String?           @db.Char(26)
   currency        String            @db.Char(3)
   createdAt       DateTime          @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   lines LedgerLine[]
 
@@ -23454,6 +23476,7 @@ model LedgerEntry {
   actorLabel String   @db.VarChar(160)
   occurredAt DateTime @db.DateTime(3)
   createdAt  DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   lines LedgerLine[]
 
@@ -23475,6 +23498,8 @@ model LedgerLine {
   accountId   String @db.Char(26)
   amountMinor BigInt
   currency    String @db.Char(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   entry   LedgerEntry   @relation(fields: [entryId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_ledger_line_entry")
   account LedgerAccount @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_ledger_line_account")
@@ -23578,6 +23603,7 @@ model SellerFundReleaseRequest {
   pendingKey String? @db.Char(26)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   @@unique([pendingKey], map: "uq_seller_fund_release_pending")
   @@index([fundHoldId, requestedAt], map: "ix_seller_fund_release_hold")
@@ -23598,6 +23624,8 @@ model PayoutProviderEvent {
   note            String?   @db.VarChar(512)
   receivedAt      DateTime  @default(now()) @db.DateTime(3)
   processedAt     DateTime? @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   @@unique([provider, providerEventId], map: "uq_payout_provider_event")
   @@index([eventType, receivedAt], map: "ix_payout_provider_event_type")
@@ -23636,6 +23664,8 @@ model LedgerReconciliationRun {
   errorMessage   String?   @db.VarChar(1000)
   startedAt      DateTime  @db.DateTime(3)
   completedAt    DateTime? @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   items LedgerReconciliationItem[]
 
@@ -23656,6 +23686,7 @@ model LedgerReconciliationItem {
   ledgerEntryId       String?                      @db.Char(26)
   note                String                       @db.VarChar(512)
   createdAt           DateTime                     @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   run LedgerReconciliationRun @relation(fields: [runId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_ledger_recon_item_run")
 

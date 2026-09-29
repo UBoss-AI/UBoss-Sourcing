@@ -59,6 +59,7 @@ export type OrderTradeDocumentVersionMinAggregateOutputType = {
   supersededAt: Date | null
   createdByLabel: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type OrderTradeDocumentVersionMaxAggregateOutputType = {
@@ -83,6 +84,7 @@ export type OrderTradeDocumentVersionMaxAggregateOutputType = {
   supersededAt: Date | null
   createdByLabel: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type OrderTradeDocumentVersionCountAggregateOutputType = {
@@ -107,6 +109,7 @@ export type OrderTradeDocumentVersionCountAggregateOutputType = {
   supersededAt: number
   createdByLabel: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -143,6 +146,7 @@ export type OrderTradeDocumentVersionMinAggregateInputType = {
   supersededAt?: true
   createdByLabel?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type OrderTradeDocumentVersionMaxAggregateInputType = {
@@ -167,6 +171,7 @@ export type OrderTradeDocumentVersionMaxAggregateInputType = {
   supersededAt?: true
   createdByLabel?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type OrderTradeDocumentVersionCountAggregateInputType = {
@@ -191,6 +196,7 @@ export type OrderTradeDocumentVersionCountAggregateInputType = {
   supersededAt?: true
   createdByLabel?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -302,6 +308,7 @@ export type OrderTradeDocumentVersionGroupByOutputType = {
   supersededAt: Date | null
   createdByLabel: string
   createdAt: Date
+  updatedAt: Date
   _count: OrderTradeDocumentVersionCountAggregateOutputType | null
   _avg: OrderTradeDocumentVersionAvgAggregateOutputType | null
   _sum: OrderTradeDocumentVersionSumAggregateOutputType | null
@@ -349,6 +356,7 @@ export type OrderTradeDocumentVersionWhereInput = {
   supersededAt?: Prisma.DateTimeNullableFilter<"OrderTradeDocumentVersion"> | Date | string | null
   createdByLabel?: Prisma.StringFilter<"OrderTradeDocumentVersion"> | string
   createdAt?: Prisma.DateTimeFilter<"OrderTradeDocumentVersion"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderTradeDocumentVersion"> | Date | string
   document?: Prisma.XOR<Prisma.OrderTradeDocumentScalarRelationFilter, Prisma.OrderTradeDocumentWhereInput>
 }
 
@@ -374,6 +382,7 @@ export type OrderTradeDocumentVersionOrderByWithRelationInput = {
   supersededAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   document?: Prisma.OrderTradeDocumentOrderByWithRelationInput
   _relevance?: Prisma.OrderTradeDocumentVersionOrderByRelevanceInput
 }
@@ -404,6 +413,7 @@ export type OrderTradeDocumentVersionWhereUniqueInput = Prisma.AtLeast<{
   supersededAt?: Prisma.DateTimeNullableFilter<"OrderTradeDocumentVersion"> | Date | string | null
   createdByLabel?: Prisma.StringFilter<"OrderTradeDocumentVersion"> | string
   createdAt?: Prisma.DateTimeFilter<"OrderTradeDocumentVersion"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderTradeDocumentVersion"> | Date | string
   document?: Prisma.XOR<Prisma.OrderTradeDocumentScalarRelationFilter, Prisma.OrderTradeDocumentWhereInput>
 }, "id" | "documentId_version">
 
@@ -429,6 +439,7 @@ export type OrderTradeDocumentVersionOrderByWithAggregationInput = {
   supersededAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrderTradeDocumentVersionCountOrderByAggregateInput
   _avg?: Prisma.OrderTradeDocumentVersionAvgOrderByAggregateInput
   _max?: Prisma.OrderTradeDocumentVersionMaxOrderByAggregateInput
@@ -461,6 +472,7 @@ export type OrderTradeDocumentVersionScalarWhereWithAggregatesInput = {
   supersededAt?: Prisma.DateTimeNullableWithAggregatesFilter<"OrderTradeDocumentVersion"> | Date | string | null
   createdByLabel?: Prisma.StringWithAggregatesFilter<"OrderTradeDocumentVersion"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OrderTradeDocumentVersion"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"OrderTradeDocumentVersion"> | Date | string
 }
 
 export type OrderTradeDocumentVersionCreateInput = {
@@ -484,6 +496,7 @@ export type OrderTradeDocumentVersionCreateInput = {
   supersededAt?: Date | string | null
   createdByLabel: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   document: Prisma.OrderTradeDocumentCreateNestedOneWithoutVersionsInput
 }
 
@@ -509,6 +522,7 @@ export type OrderTradeDocumentVersionUncheckedCreateInput = {
   supersededAt?: Date | string | null
   createdByLabel: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderTradeDocumentVersionUpdateInput = {
@@ -532,6 +546,7 @@ export type OrderTradeDocumentVersionUpdateInput = {
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   document?: Prisma.OrderTradeDocumentUpdateOneRequiredWithoutVersionsNestedInput
 }
 
@@ -557,6 +572,7 @@ export type OrderTradeDocumentVersionUncheckedUpdateInput = {
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderTradeDocumentVersionCreateManyInput = {
@@ -581,6 +597,7 @@ export type OrderTradeDocumentVersionCreateManyInput = {
   supersededAt?: Date | string | null
   createdByLabel: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderTradeDocumentVersionUpdateManyMutationInput = {
@@ -604,6 +621,7 @@ export type OrderTradeDocumentVersionUpdateManyMutationInput = {
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderTradeDocumentVersionUncheckedUpdateManyInput = {
@@ -628,6 +646,7 @@ export type OrderTradeDocumentVersionUncheckedUpdateManyInput = {
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderTradeDocumentVersionListRelationFilter = {
@@ -673,6 +692,7 @@ export type OrderTradeDocumentVersionCountOrderByAggregateInput = {
   supersededAt?: Prisma.SortOrder
   createdByLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderTradeDocumentVersionAvgOrderByAggregateInput = {
@@ -702,6 +722,7 @@ export type OrderTradeDocumentVersionMaxOrderByAggregateInput = {
   supersededAt?: Prisma.SortOrder
   createdByLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderTradeDocumentVersionMinOrderByAggregateInput = {
@@ -726,6 +747,7 @@ export type OrderTradeDocumentVersionMinOrderByAggregateInput = {
   supersededAt?: Prisma.SortOrder
   createdByLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderTradeDocumentVersionSumOrderByAggregateInput = {
@@ -804,6 +826,7 @@ export type OrderTradeDocumentVersionCreateWithoutDocumentInput = {
   supersededAt?: Date | string | null
   createdByLabel: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderTradeDocumentVersionUncheckedCreateWithoutDocumentInput = {
@@ -827,6 +850,7 @@ export type OrderTradeDocumentVersionUncheckedCreateWithoutDocumentInput = {
   supersededAt?: Date | string | null
   createdByLabel: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderTradeDocumentVersionCreateOrConnectWithoutDocumentInput = {
@@ -880,6 +904,7 @@ export type OrderTradeDocumentVersionScalarWhereInput = {
   supersededAt?: Prisma.DateTimeNullableFilter<"OrderTradeDocumentVersion"> | Date | string | null
   createdByLabel?: Prisma.StringFilter<"OrderTradeDocumentVersion"> | string
   createdAt?: Prisma.DateTimeFilter<"OrderTradeDocumentVersion"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderTradeDocumentVersion"> | Date | string
 }
 
 export type OrderTradeDocumentVersionCreateManyDocumentInput = {
@@ -903,6 +928,7 @@ export type OrderTradeDocumentVersionCreateManyDocumentInput = {
   supersededAt?: Date | string | null
   createdByLabel: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OrderTradeDocumentVersionUpdateWithoutDocumentInput = {
@@ -926,6 +952,7 @@ export type OrderTradeDocumentVersionUpdateWithoutDocumentInput = {
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderTradeDocumentVersionUncheckedUpdateWithoutDocumentInput = {
@@ -949,6 +976,7 @@ export type OrderTradeDocumentVersionUncheckedUpdateWithoutDocumentInput = {
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderTradeDocumentVersionUncheckedUpdateManyWithoutDocumentInput = {
@@ -972,6 +1000,7 @@ export type OrderTradeDocumentVersionUncheckedUpdateManyWithoutDocumentInput = {
   supersededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByLabel?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -998,6 +1027,7 @@ export type OrderTradeDocumentVersionSelect<ExtArgs extends runtime.Types.Extens
   supersededAt?: boolean
   createdByLabel?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   document?: boolean | Prisma.OrderTradeDocumentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["orderTradeDocumentVersion"]>
 
@@ -1025,9 +1055,10 @@ export type OrderTradeDocumentVersionSelectScalar = {
   supersededAt?: boolean
   createdByLabel?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type OrderTradeDocumentVersionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "documentId" | "version" | "source" | "referenceNumber" | "issuerName" | "issuedOn" | "expiresOn" | "storageKey" | "fileName" | "contentType" | "sizeBytes" | "sha256" | "scanState" | "validation" | "validatedAt" | "validatedByUserId" | "validationNote" | "supersededAt" | "createdByLabel" | "createdAt", ExtArgs["result"]["orderTradeDocumentVersion"]>
+export type OrderTradeDocumentVersionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "documentId" | "version" | "source" | "referenceNumber" | "issuerName" | "issuedOn" | "expiresOn" | "storageKey" | "fileName" | "contentType" | "sizeBytes" | "sha256" | "scanState" | "validation" | "validatedAt" | "validatedByUserId" | "validationNote" | "supersededAt" | "createdByLabel" | "createdAt" | "updatedAt", ExtArgs["result"]["orderTradeDocumentVersion"]>
 export type OrderTradeDocumentVersionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   document?: boolean | Prisma.OrderTradeDocumentDefaultArgs<ExtArgs>
 }
@@ -1065,6 +1096,7 @@ export type $OrderTradeDocumentVersionPayload<ExtArgs extends runtime.Types.Exte
     supersededAt: Date | null
     createdByLabel: string
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["orderTradeDocumentVersion"]>
   composites: {}
 }
@@ -1456,6 +1488,7 @@ export interface OrderTradeDocumentVersionFieldRefs {
   readonly supersededAt: Prisma.FieldRef<"OrderTradeDocumentVersion", 'DateTime'>
   readonly createdByLabel: Prisma.FieldRef<"OrderTradeDocumentVersion", 'String'>
   readonly createdAt: Prisma.FieldRef<"OrderTradeDocumentVersion", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"OrderTradeDocumentVersion", 'DateTime'>
 }
     
 

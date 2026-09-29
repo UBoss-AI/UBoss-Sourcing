@@ -6,8 +6,9 @@
  *   - an order manager (logistics read and assign, no finance) cannot read or
  *     change a platform fee, and cannot price a UBOSS level - pricing is a
  *     contract decision (`logistics.write`), not daily dispatch;
- *   - a finance approver drafts, publishes and verifies a fee policy, and is
- *     the only one of the three who can;
+ *   - a finance approver drafts, submits and verifies a fee policy, a second
+ *     finance approver publishes it (maker-checker), and finance is the only
+ *     one of the three who can;
  *   - a catalogue manager reaches none of it.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -22,11 +23,14 @@ let app: Awaited<ReturnType<typeof buildApp>>;
 
 const DOMAIN = '@levels-http.test.local';
 const FINANCE = { email: `finance${DOMAIN}`, password: 'LevelsFinance!2026' };
+/** A second finance approver: a fee policy is approved by somebody other than its maker. */
+const CHECKER = { email: `checker${DOMAIN}`, password: 'LevelsChecker!2026' };
 const ORDERS = { email: `orders${DOMAIN}`, password: 'LevelsOrders!2026' };
 const CATALOG = { email: `catalog${DOMAIN}`, password: 'LevelsCatalog!2026' };
 const SELLER_SLUG = 'lvl-http-seller';
 
 let finance = { cookies: '', csrfToken: '' };
+let checker = { cookies: '', csrfToken: '' };
 let orders = { cookies: '', csrfToken: '' };
 let catalog = { cookies: '', csrfToken: '' };
 let sellerId = '';
@@ -83,6 +87,7 @@ beforeAll(async () => {
   await cleanUp();
 
   await makeStaff(FINANCE.email, FINANCE.password, Role.FINANCE_APPROVER);
+  await makeStaff(CHECKER.email, CHECKER.password, Role.FINANCE_APPROVER);
   await makeStaff(ORDERS.email, ORDERS.password, Role.ORDER_MANAGER);
   await makeStaff(CATALOG.email, CATALOG.password, Role.CATALOG_MANAGER);
 
@@ -101,6 +106,7 @@ beforeAll(async () => {
   });
 
   finance = await signInAdmin(app, { ...FINANCE, ip: '10.91.0.1' });
+  checker = await signInAdmin(app, { ...CHECKER, ip: '10.91.0.4' });
   orders = await signInAdmin(app, { ...ORDERS, ip: '10.91.0.2' });
   catalog = await signInAdmin(app, { ...CATALOG, ip: '10.91.0.3' });
 });
@@ -133,7 +139,11 @@ describe('platform fees are finance’s alone', () => {
     expect(created.statusCode).toBe(201);
     const policyId = created.json<{ policy: { id: string } }>().policy.id;
 
-    const published = await call(finance, 'POST', `/platform-fees/${policyId}/publish`);
+    expect((await call(finance, 'POST', `/platform-fees/${policyId}/submit`)).statusCode).toBe(200);
+    // Maker-checker: whoever drafted and submitted it cannot approve it.
+    expect((await call(finance, 'POST', `/platform-fees/${policyId}/publish`)).statusCode).toBe(403);
+
+    const published = await call(checker, 'POST', `/platform-fees/${policyId}/publish`);
     expect(published.statusCode).toBe(200);
     const view = published.json<{ policy: { isTaxRuleVerified: boolean; taxDisplayLabel: string } }>().policy;
     expect(view.isTaxRuleVerified).toBe(false);

@@ -48,6 +48,7 @@ export type LedgerReconciliationItemMinAggregateOutputType = {
   ledgerEntryId: string | null
   note: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LedgerReconciliationItemMaxAggregateOutputType = {
@@ -62,6 +63,7 @@ export type LedgerReconciliationItemMaxAggregateOutputType = {
   ledgerEntryId: string | null
   note: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LedgerReconciliationItemCountAggregateOutputType = {
@@ -76,6 +78,7 @@ export type LedgerReconciliationItemCountAggregateOutputType = {
   ledgerEntryId: number
   note: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -102,6 +105,7 @@ export type LedgerReconciliationItemMinAggregateInputType = {
   ledgerEntryId?: true
   note?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LedgerReconciliationItemMaxAggregateInputType = {
@@ -116,6 +120,7 @@ export type LedgerReconciliationItemMaxAggregateInputType = {
   ledgerEntryId?: true
   note?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LedgerReconciliationItemCountAggregateInputType = {
@@ -130,6 +135,7 @@ export type LedgerReconciliationItemCountAggregateInputType = {
   ledgerEntryId?: true
   note?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -231,6 +237,7 @@ export type LedgerReconciliationItemGroupByOutputType = {
   ledgerEntryId: string | null
   note: string
   createdAt: Date
+  updatedAt: Date
   _count: LedgerReconciliationItemCountAggregateOutputType | null
   _avg: LedgerReconciliationItemAvgAggregateOutputType | null
   _sum: LedgerReconciliationItemSumAggregateOutputType | null
@@ -268,6 +275,7 @@ export type LedgerReconciliationItemWhereInput = {
   ledgerEntryId?: Prisma.StringNullableFilter<"LedgerReconciliationItem"> | string | null
   note?: Prisma.StringFilter<"LedgerReconciliationItem"> | string
   createdAt?: Prisma.DateTimeFilter<"LedgerReconciliationItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LedgerReconciliationItem"> | Date | string
   run?: Prisma.XOR<Prisma.LedgerReconciliationRunScalarRelationFilter, Prisma.LedgerReconciliationRunWhereInput>
 }
 
@@ -283,6 +291,7 @@ export type LedgerReconciliationItemOrderByWithRelationInput = {
   ledgerEntryId?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   run?: Prisma.LedgerReconciliationRunOrderByWithRelationInput
   _relevance?: Prisma.LedgerReconciliationItemOrderByRelevanceInput
 }
@@ -302,6 +311,7 @@ export type LedgerReconciliationItemWhereUniqueInput = Prisma.AtLeast<{
   ledgerEntryId?: Prisma.StringNullableFilter<"LedgerReconciliationItem"> | string | null
   note?: Prisma.StringFilter<"LedgerReconciliationItem"> | string
   createdAt?: Prisma.DateTimeFilter<"LedgerReconciliationItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LedgerReconciliationItem"> | Date | string
   run?: Prisma.XOR<Prisma.LedgerReconciliationRunScalarRelationFilter, Prisma.LedgerReconciliationRunWhereInput>
 }, "id">
 
@@ -317,6 +327,7 @@ export type LedgerReconciliationItemOrderByWithAggregationInput = {
   ledgerEntryId?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LedgerReconciliationItemCountOrderByAggregateInput
   _avg?: Prisma.LedgerReconciliationItemAvgOrderByAggregateInput
   _max?: Prisma.LedgerReconciliationItemMaxOrderByAggregateInput
@@ -339,6 +350,7 @@ export type LedgerReconciliationItemScalarWhereWithAggregatesInput = {
   ledgerEntryId?: Prisma.StringNullableWithAggregatesFilter<"LedgerReconciliationItem"> | string | null
   note?: Prisma.StringWithAggregatesFilter<"LedgerReconciliationItem"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LedgerReconciliationItem"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LedgerReconciliationItem"> | Date | string
 }
 
 export type LedgerReconciliationItemCreateInput = {
@@ -352,6 +364,7 @@ export type LedgerReconciliationItemCreateInput = {
   ledgerEntryId?: string | null
   note: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   run: Prisma.LedgerReconciliationRunCreateNestedOneWithoutItemsInput
 }
 
@@ -367,6 +380,7 @@ export type LedgerReconciliationItemUncheckedCreateInput = {
   ledgerEntryId?: string | null
   note: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerReconciliationItemUpdateInput = {
@@ -380,6 +394,7 @@ export type LedgerReconciliationItemUpdateInput = {
   ledgerEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   run?: Prisma.LedgerReconciliationRunUpdateOneRequiredWithoutItemsNestedInput
 }
 
@@ -395,6 +410,7 @@ export type LedgerReconciliationItemUncheckedUpdateInput = {
   ledgerEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerReconciliationItemCreateManyInput = {
@@ -409,6 +425,7 @@ export type LedgerReconciliationItemCreateManyInput = {
   ledgerEntryId?: string | null
   note: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerReconciliationItemUpdateManyMutationInput = {
@@ -422,6 +439,7 @@ export type LedgerReconciliationItemUpdateManyMutationInput = {
   ledgerEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerReconciliationItemUncheckedUpdateManyInput = {
@@ -436,6 +454,7 @@ export type LedgerReconciliationItemUncheckedUpdateManyInput = {
   ledgerEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerReconciliationItemListRelationFilter = {
@@ -466,6 +485,7 @@ export type LedgerReconciliationItemCountOrderByAggregateInput = {
   ledgerEntryId?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LedgerReconciliationItemAvgOrderByAggregateInput = {
@@ -485,6 +505,7 @@ export type LedgerReconciliationItemMaxOrderByAggregateInput = {
   ledgerEntryId?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LedgerReconciliationItemMinOrderByAggregateInput = {
@@ -499,6 +520,7 @@ export type LedgerReconciliationItemMinOrderByAggregateInput = {
   ledgerEntryId?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LedgerReconciliationItemSumOrderByAggregateInput = {
@@ -563,6 +585,7 @@ export type LedgerReconciliationItemCreateWithoutRunInput = {
   ledgerEntryId?: string | null
   note: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerReconciliationItemUncheckedCreateWithoutRunInput = {
@@ -576,6 +599,7 @@ export type LedgerReconciliationItemUncheckedCreateWithoutRunInput = {
   ledgerEntryId?: string | null
   note: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerReconciliationItemCreateOrConnectWithoutRunInput = {
@@ -619,6 +643,7 @@ export type LedgerReconciliationItemScalarWhereInput = {
   ledgerEntryId?: Prisma.StringNullableFilter<"LedgerReconciliationItem"> | string | null
   note?: Prisma.StringFilter<"LedgerReconciliationItem"> | string
   createdAt?: Prisma.DateTimeFilter<"LedgerReconciliationItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LedgerReconciliationItem"> | Date | string
 }
 
 export type LedgerReconciliationItemCreateManyRunInput = {
@@ -632,6 +657,7 @@ export type LedgerReconciliationItemCreateManyRunInput = {
   ledgerEntryId?: string | null
   note: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LedgerReconciliationItemUpdateWithoutRunInput = {
@@ -645,6 +671,7 @@ export type LedgerReconciliationItemUpdateWithoutRunInput = {
   ledgerEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerReconciliationItemUncheckedUpdateWithoutRunInput = {
@@ -658,6 +685,7 @@ export type LedgerReconciliationItemUncheckedUpdateWithoutRunInput = {
   ledgerEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LedgerReconciliationItemUncheckedUpdateManyWithoutRunInput = {
@@ -671,6 +699,7 @@ export type LedgerReconciliationItemUncheckedUpdateManyWithoutRunInput = {
   ledgerEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -687,6 +716,7 @@ export type LedgerReconciliationItemSelect<ExtArgs extends runtime.Types.Extensi
   ledgerEntryId?: boolean
   note?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   run?: boolean | Prisma.LedgerReconciliationRunDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ledgerReconciliationItem"]>
 
@@ -704,9 +734,10 @@ export type LedgerReconciliationItemSelectScalar = {
   ledgerEntryId?: boolean
   note?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LedgerReconciliationItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "runId" | "kind" | "providerReference" | "providerType" | "providerAmountMinor" | "ledgerAmountMinor" | "currency" | "ledgerEntryId" | "note" | "createdAt", ExtArgs["result"]["ledgerReconciliationItem"]>
+export type LedgerReconciliationItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "runId" | "kind" | "providerReference" | "providerType" | "providerAmountMinor" | "ledgerAmountMinor" | "currency" | "ledgerEntryId" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["ledgerReconciliationItem"]>
 export type LedgerReconciliationItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   run?: boolean | Prisma.LedgerReconciliationRunDefaultArgs<ExtArgs>
 }
@@ -728,6 +759,7 @@ export type $LedgerReconciliationItemPayload<ExtArgs extends runtime.Types.Exten
     ledgerEntryId: string | null
     note: string
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["ledgerReconciliationItem"]>
   composites: {}
 }
@@ -1109,6 +1141,7 @@ export interface LedgerReconciliationItemFieldRefs {
   readonly ledgerEntryId: Prisma.FieldRef<"LedgerReconciliationItem", 'String'>
   readonly note: Prisma.FieldRef<"LedgerReconciliationItem", 'String'>
   readonly createdAt: Prisma.FieldRef<"LedgerReconciliationItem", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"LedgerReconciliationItem", 'DateTime'>
 }
     
 

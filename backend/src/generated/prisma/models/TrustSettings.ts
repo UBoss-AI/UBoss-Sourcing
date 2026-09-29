@@ -52,6 +52,7 @@ export type TrustSettingsMinAggregateOutputType = {
   buyerServiceFeeBasisPoints: number | null
   updatedById: string | null
   updatedAt: Date | null
+  createdAt: Date | null
 }
 
 export type TrustSettingsMaxAggregateOutputType = {
@@ -66,6 +67,7 @@ export type TrustSettingsMaxAggregateOutputType = {
   buyerServiceFeeBasisPoints: number | null
   updatedById: string | null
   updatedAt: Date | null
+  createdAt: Date | null
 }
 
 export type TrustSettingsCountAggregateOutputType = {
@@ -80,6 +82,7 @@ export type TrustSettingsCountAggregateOutputType = {
   buyerServiceFeeBasisPoints: number
   updatedById: number
   updatedAt: number
+  createdAt: number
   _all: number
 }
 
@@ -110,6 +113,7 @@ export type TrustSettingsMinAggregateInputType = {
   buyerServiceFeeBasisPoints?: true
   updatedById?: true
   updatedAt?: true
+  createdAt?: true
 }
 
 export type TrustSettingsMaxAggregateInputType = {
@@ -124,6 +128,7 @@ export type TrustSettingsMaxAggregateInputType = {
   buyerServiceFeeBasisPoints?: true
   updatedById?: true
   updatedAt?: true
+  createdAt?: true
 }
 
 export type TrustSettingsCountAggregateInputType = {
@@ -138,6 +143,7 @@ export type TrustSettingsCountAggregateInputType = {
   buyerServiceFeeBasisPoints?: true
   updatedById?: true
   updatedAt?: true
+  createdAt?: true
   _all?: true
 }
 
@@ -239,6 +245,7 @@ export type TrustSettingsGroupByOutputType = {
   buyerServiceFeeBasisPoints: number | null
   updatedById: string | null
   updatedAt: Date
+  createdAt: Date
   _count: TrustSettingsCountAggregateOutputType | null
   _avg: TrustSettingsAvgAggregateOutputType | null
   _sum: TrustSettingsSumAggregateOutputType | null
@@ -276,6 +283,7 @@ export type TrustSettingsWhereInput = {
   buyerServiceFeeBasisPoints?: Prisma.IntNullableFilter<"TrustSettings"> | number | null
   updatedById?: Prisma.StringNullableFilter<"TrustSettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"TrustSettings"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"TrustSettings"> | Date | string
 }
 
 export type TrustSettingsOrderByWithRelationInput = {
@@ -290,6 +298,7 @@ export type TrustSettingsOrderByWithRelationInput = {
   buyerServiceFeeBasisPoints?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _relevance?: Prisma.TrustSettingsOrderByRelevanceInput
 }
 
@@ -308,6 +317,7 @@ export type TrustSettingsWhereUniqueInput = Prisma.AtLeast<{
   buyerServiceFeeBasisPoints?: Prisma.IntNullableFilter<"TrustSettings"> | number | null
   updatedById?: Prisma.StringNullableFilter<"TrustSettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"TrustSettings"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"TrustSettings"> | Date | string
 }, "id">
 
 export type TrustSettingsOrderByWithAggregationInput = {
@@ -322,6 +332,7 @@ export type TrustSettingsOrderByWithAggregationInput = {
   buyerServiceFeeBasisPoints?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _count?: Prisma.TrustSettingsCountOrderByAggregateInput
   _avg?: Prisma.TrustSettingsAvgOrderByAggregateInput
   _max?: Prisma.TrustSettingsMaxOrderByAggregateInput
@@ -344,6 +355,7 @@ export type TrustSettingsScalarWhereWithAggregatesInput = {
   buyerServiceFeeBasisPoints?: Prisma.IntNullableWithAggregatesFilter<"TrustSettings"> | number | null
   updatedById?: Prisma.StringNullableWithAggregatesFilter<"TrustSettings"> | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"TrustSettings"> | Date | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"TrustSettings"> | Date | string
 }
 
 export type TrustSettingsCreateInput = {
@@ -358,6 +370,7 @@ export type TrustSettingsCreateInput = {
   buyerServiceFeeBasisPoints?: number | null
   updatedById?: string | null
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type TrustSettingsUncheckedCreateInput = {
@@ -372,6 +385,7 @@ export type TrustSettingsUncheckedCreateInput = {
   buyerServiceFeeBasisPoints?: number | null
   updatedById?: string | null
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type TrustSettingsUpdateInput = {
@@ -386,6 +400,7 @@ export type TrustSettingsUpdateInput = {
   buyerServiceFeeBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TrustSettingsUncheckedUpdateInput = {
@@ -400,6 +415,7 @@ export type TrustSettingsUncheckedUpdateInput = {
   buyerServiceFeeBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TrustSettingsCreateManyInput = {
@@ -414,6 +430,7 @@ export type TrustSettingsCreateManyInput = {
   buyerServiceFeeBasisPoints?: number | null
   updatedById?: string | null
   updatedAt?: Date | string
+  createdAt?: Date | string
 }
 
 export type TrustSettingsUpdateManyMutationInput = {
@@ -428,6 +445,7 @@ export type TrustSettingsUpdateManyMutationInput = {
   buyerServiceFeeBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TrustSettingsUncheckedUpdateManyInput = {
@@ -442,6 +460,7 @@ export type TrustSettingsUncheckedUpdateManyInput = {
   buyerServiceFeeBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TrustSettingsOrderByRelevanceInput = {
@@ -462,6 +481,7 @@ export type TrustSettingsCountOrderByAggregateInput = {
   buyerServiceFeeBasisPoints?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type TrustSettingsAvgOrderByAggregateInput = {
@@ -483,6 +503,7 @@ export type TrustSettingsMaxOrderByAggregateInput = {
   buyerServiceFeeBasisPoints?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type TrustSettingsMinOrderByAggregateInput = {
@@ -497,6 +518,7 @@ export type TrustSettingsMinOrderByAggregateInput = {
   buyerServiceFeeBasisPoints?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type TrustSettingsSumOrderByAggregateInput = {
@@ -524,6 +546,7 @@ export type TrustSettingsSelect<ExtArgs extends runtime.Types.Extensions.Interna
   buyerServiceFeeBasisPoints?: boolean
   updatedById?: boolean
   updatedAt?: boolean
+  createdAt?: boolean
 }, ExtArgs["result"]["trustSettings"]>
 
 
@@ -540,9 +563,10 @@ export type TrustSettingsSelectScalar = {
   buyerServiceFeeBasisPoints?: boolean
   updatedById?: boolean
   updatedAt?: boolean
+  createdAt?: boolean
 }
 
-export type TrustSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "certificateExpiryPolicy" | "expiryWarningDays" | "reverificationDays" | "badgeRequiresTaxRegistration" | "badgeRequiresScreening" | "badgeRequiresFactory" | "inspectionFeeBasisPoints" | "buyerServiceFeeBasisPoints" | "updatedById" | "updatedAt", ExtArgs["result"]["trustSettings"]>
+export type TrustSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "certificateExpiryPolicy" | "expiryWarningDays" | "reverificationDays" | "badgeRequiresTaxRegistration" | "badgeRequiresScreening" | "badgeRequiresFactory" | "inspectionFeeBasisPoints" | "buyerServiceFeeBasisPoints" | "updatedById" | "updatedAt" | "createdAt", ExtArgs["result"]["trustSettings"]>
 
 export type $TrustSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "TrustSettings"
@@ -573,6 +597,7 @@ export type $TrustSettingsPayload<ExtArgs extends runtime.Types.Extensions.Inter
     buyerServiceFeeBasisPoints: number | null
     updatedById: string | null
     updatedAt: Date
+    createdAt: Date
   }, ExtArgs["result"]["trustSettings"]>
   composites: {}
 }
@@ -953,6 +978,7 @@ export interface TrustSettingsFieldRefs {
   readonly buyerServiceFeeBasisPoints: Prisma.FieldRef<"TrustSettings", 'Int'>
   readonly updatedById: Prisma.FieldRef<"TrustSettings", 'String'>
   readonly updatedAt: Prisma.FieldRef<"TrustSettings", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"TrustSettings", 'DateTime'>
 }
     
 
