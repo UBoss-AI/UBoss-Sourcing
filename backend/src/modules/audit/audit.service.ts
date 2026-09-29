@@ -323,6 +323,11 @@ export const AuditAction = {
   /// The worker sent an approved seller back to ACTION_REQUIRED because a
   /// required document expired.
   SELLER_APPLICATION_LAPSED: 'seller_application.lapsed',
+  /// The marketplace took a seller's listing off sale (BLOCKED), with a
+  /// reason, and later lifted the block. On the operator's trail as well as
+  /// the seller's: this is staff overriding what a seller may sell.
+  SELLER_OFFER_BLOCKED: 'seller_offer.blocked',
+  SELLER_OFFER_UNBLOCKED: 'seller_offer.unblocked',
 
   /// Which carriers a seller may hand a parcel to.
   ///

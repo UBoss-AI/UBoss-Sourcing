@@ -6555,5 +6555,8 @@
   "seller.offers.archiveNoteOffSale": "It disappears from search and cannot be added to a basket.",
   "seller.offers.archiveNoteOrders": "Orders already placed are not affected. You still need to pack and ship them.",
   "seller.offers.archiveNoteKept": "Its history is kept. It is not deleted.",
-  "seller.offers.archived": "Listing archived."
+  "seller.offers.archived": "Listing archived.",
+  "seller.offers.statusBlocked": "Blocked",
+  "seller.offers.blockedNote": "Taken off sale by {{marketplace}}. Only {{marketplace}} can lift this.",
+  "errors.listingBlocked": "{{marketplace}} has blocked this listing. Only {{marketplace}} can lift the block."
 }

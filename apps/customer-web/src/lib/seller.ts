@@ -448,7 +448,13 @@ export function fetchDashboard(range: string): Promise<SellerDashboard> {
 // Listings
 // ---------------------------------------------------------------------------
 
-export type OfferStatus = 'INACTIVE' | 'ACTIVE' | 'PAUSED' | 'NEEDS_CHANGES' | 'ARCHIVED';
+export type OfferStatus =
+  | 'INACTIVE'
+  | 'ACTIVE'
+  | 'PAUSED'
+  | 'NEEDS_CHANGES'
+  | 'ARCHIVED'
+  | 'BLOCKED';
 
 export interface OfferRow {
   id: string;
@@ -1933,6 +1939,8 @@ export function offerStatusTone(
       return 'success';
     case 'NEEDS_CHANGES':
       return 'warning';
+    case 'BLOCKED':
+      return 'danger';
     case 'PAUSED':
       return 'neutral';
     case 'ARCHIVED':

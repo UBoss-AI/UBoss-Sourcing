@@ -6555,5 +6555,8 @@
   "seller.offers.archiveNoteOffSale": "Εξαφανίζεται από την αναζήτηση και δεν μπορεί να προστεθεί στο καλάθι.",
   "seller.offers.archiveNoteOrders": "Οι παραγγελίες που έχουν ήδη γίνει δεν επηρεάζονται. Πρέπει να τις συσκευάσετε και να τις αποστείλετε.",
   "seller.offers.archiveNoteKept": "Το ιστορικό διατηρείται. Δεν διαγράφεται.",
-  "seller.offers.archived": "Η καταχώριση αρχειοθετήθηκε."
+  "seller.offers.archived": "Η καταχώριση αρχειοθετήθηκε.",
+  "seller.offers.statusBlocked": "Αποκλεισμένη",
+  "seller.offers.blockedNote": "Αποσύρθηκε από την πώληση από το {{marketplace}}. Μόνο το {{marketplace}} μπορεί να το άρει.",
+  "errors.listingBlocked": "Το {{marketplace}} έχει αποκλείσει αυτή την καταχώριση. Μόνο το {{marketplace}} μπορεί να άρει τον αποκλεισμό."
 }

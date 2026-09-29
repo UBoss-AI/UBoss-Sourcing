@@ -150,11 +150,13 @@ export async function readOfferVariants(membership: SellerMembership, offerId: s
      * the reason is returned rather than left for the seller to deduce from a
      * disabled button.
      */
-    isEditable: offer.status !== 'ACTIVE',
+    isEditable: offer.status !== 'ACTIVE' && offer.status !== 'BLOCKED',
     blockedReason:
       offer.status === 'ACTIVE'
         ? 'Pause this listing before adding versions. Buyers may have it open right now.'
-        : null,
+        : offer.status === 'BLOCKED'
+          ? 'The marketplace has blocked this listing. Only the marketplace can lift it.'
+          : null,
     template:
       template === null
         ? null

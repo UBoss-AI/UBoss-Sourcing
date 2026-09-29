@@ -24,6 +24,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AccessReviewCard } from '@/components/AccessReviewCard';
 import { Modal } from '@/components/Modal';
 import { SellerFactoriesPanel } from '@/pages/seller/SellerFactoriesPanel';
+import { SellerOffersPanel } from '@/pages/seller/SellerOffersPanel';
 import { useToast } from '@/components/toast-context';
 import {
   Badge,
@@ -356,6 +357,8 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
         <DocumentsCard sellerId={seller.id} documents={seller.documents} />
 
         <SellerFactoriesPanel sellerId={seller.id} />
+
+        <SellerOffersPanel sellerId={seller.id} />
 
         <Card
           title="Where they ship from"

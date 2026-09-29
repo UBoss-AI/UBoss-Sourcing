@@ -6664,5 +6664,8 @@
   "seller.offers.archiveNoteOffSale": "Desaparece de la búsqueda y no se puede añadir a una cesta.",
   "seller.offers.archiveNoteOrders": "Los pedidos ya realizados no se ven afectados. Aún debe embalarlos y enviarlos.",
   "seller.offers.archiveNoteKept": "Se conserva su historial. No se elimina.",
-  "seller.offers.archived": "Anuncio archivado."
+  "seller.offers.archived": "Anuncio archivado.",
+  "seller.offers.statusBlocked": "Bloqueado",
+  "seller.offers.blockedNote": "Retirado de la venta por {{marketplace}}. Solo {{marketplace}} puede levantarlo.",
+  "errors.listingBlocked": "{{marketplace}} ha bloqueado este anuncio. Solo {{marketplace}} puede quitar el bloqueo."
 }

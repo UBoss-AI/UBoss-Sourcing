@@ -933,6 +933,7 @@ table(['Decision', 'What happens'], [
   ['Reject', 'Refuses the application with a reason. Staff choose whether the business may apply again.'],
   ['Suspend', 'Stops an already approved seller. New listings and new orders stop at once; orders they have already accepted still have to be fulfilled and money already owed is still owed.'],
 ], [2200, 7800]);
+p('Stopping one listing is different from stopping the whole seller. On the seller’s page, staff can see every listing the seller has. A member of staff who is allowed to publish can press Block on a listing that is not archived. They must write a reason, and the seller reads it exactly as written. The listing leaves search and baskets at once. The seller is told, and the block is recorded. The seller cannot put it back on sale, edit it or archive it. Orders already placed still have to be shipped. Later, staff can press Lift block. A listing that was on sale then comes back paused, so the seller’s own checks run before it sells again.');
 note('Reasons are written for the seller', 'Every refusal needs a reason, and that reason appears on the seller’s own screen. A separate box holds private staff notes, which are never sent to the seller. The two are kept apart on purpose.', C.blue);
 note('Two people, one application', 'A decision is recorded against the version of the application the reviewer was looking at. If somebody else decided it in the meantime, the second decision is refused rather than quietly overwriting the first.', C.purple);
 

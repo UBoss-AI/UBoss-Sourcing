@@ -6773,5 +6773,8 @@
   "seller.offers.archiveNoteOffSale": "Znika z wyszukiwania i nie można go dodać do koszyka.",
   "seller.offers.archiveNoteOrders": "Złożone już zamówienia nie są objęte zmianą. Nadal musisz je spakować i wysłać.",
   "seller.offers.archiveNoteKept": "Historia zostaje zachowana. Oferta nie jest usuwana.",
-  "seller.offers.archived": "Oferta zarchiwizowana."
+  "seller.offers.archived": "Oferta zarchiwizowana.",
+  "seller.offers.statusBlocked": "Zablokowana",
+  "seller.offers.blockedNote": "Wycofana ze sprzedaży przez {{marketplace}}. Tylko {{marketplace}} może to zdjąć.",
+  "errors.listingBlocked": "{{marketplace}} zablokował tę ofertę. Tylko {{marketplace}} może zdjąć blokadę."
 }

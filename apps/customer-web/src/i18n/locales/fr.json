@@ -6664,5 +6664,8 @@
   "seller.offers.archiveNoteOffSale": "Il disparaît de la recherche et ne peut plus être ajouté à un panier.",
   "seller.offers.archiveNoteOrders": "Les commandes déjà passées ne sont pas affectées. Vous devez toujours les préparer et les expédier.",
   "seller.offers.archiveNoteKept": "Son historique est conservé. Il n’est pas supprimé.",
-  "seller.offers.archived": "Annonce archivée."
+  "seller.offers.archived": "Annonce archivée.",
+  "seller.offers.statusBlocked": "Bloquée",
+  "seller.offers.blockedNote": "Retirée de la vente par {{marketplace}}. Seul {{marketplace}} peut lever ce blocage.",
+  "errors.listingBlocked": "{{marketplace}} a bloqué cette annonce. Seul {{marketplace}} peut lever le blocage."
 }

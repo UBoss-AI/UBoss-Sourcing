@@ -3204,6 +3204,7 @@ selling involves) is public.
   4. The storefront price row is a projection of the cheapest live offer written in the same transaction; pausing the last offer takes the product off the shelf.
   5. The edit page shows the B2C Maximum Order Quantity and lets the seller change it while live, but not remove it once set. A listing with none shows **B2C limit not configured** with a link to set it. Each change is audited (`seller.offer.b2c_limit_changed`).
   6. **Archive** is a button on every listing row that is not already archived. It asks first, takes the product off the shelf in the same transaction, sets `archivedAt` and writes a `seller.offer.archived` audit entry. The listing is kept, not deleted.
+  7. **The marketplace can block a listing** (`POST /admin/seller-offers/:id/block`, needs `product.publish`) with a required reason. Status becomes `BLOCKED`, the product leaves the shelf in the same transaction, both audit trails record it and the seller is notified. The seller cannot resume, pause, archive or edit it (`LISTING_BLOCKED`). `POST /admin/seller-offers/:id/unblock` returns it to where it was, except that a listing that was on sale comes back **paused** so the resume checks run. The seller-page card "Their listings" is where staff do this.
 - **Rules.** A **product** is the thing; an **offer** is one seller's price and stock for it. Ten sellers on one product = one product row, ten offers.
 - **Status.** Built. `npm run marketplace:sync` builds rows for installations that approved listings before the projection existed.
 

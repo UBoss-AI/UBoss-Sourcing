@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1111 endpoints** in 97 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1114 endpoints** in 97 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,7 +27,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 452 |
+| [Admin panel (staff)](#admin-panel-staff) | 455 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 274 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
@@ -781,6 +781,15 @@ Defined in `backend/src/http/routes/sellers.admin.ts`.
 | GET | `/api/v1/admin/seller-listings/:id` | Staff | Admin(PRODUCT_READ) | One submitted listing, in full. |
 | POST | `/api/v1/admin/seller-listings/:id/decision` | Staff | Admin(PRODUCT_PUBLISH) | Approve, refuse or send back a listing. |
 
+### `admin/seller-offers`
+
+Defined in `backend/src/http/routes/sellers.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/admin/seller-offers/:id/block` | Staff | Admin(PRODUCT_PUBLISH) | Take a seller's listing off sale. A reason is required: the seller reads it. Writes an audit entry and tells the seller. `PRODUCT_PUBLISH`, the same authority that puts a listing on sale in the first place. |
+| POST | `/api/v1/admin/seller-offers/:id/unblock` | Staff | Admin(PRODUCT_PUBLISH) | Lift a block. The listing returns to where it was; one that was on sale comes back paused so the seller's own checks run before it sells again. |
+
 ### `admin/seller-orders`
 
 Defined in `backend/src/http/routes/commission-invoices.admin.ts`.
@@ -804,6 +813,7 @@ Defined in `backend/src/http/routes/sellers.admin.ts`, `backend/src/http/routes/
 | GET | `/api/v1/admin/sellers/:id/approval-readiness` | Staff | Admin(CUSTOMER_READ) | What approving this seller is still waiting for: unfinished required steps, required documents not accepted or expired, and missing or unclear screenings. Empty means the seller can be approved. |
 | PATCH | `/api/v1/admin/sellers/:id/commission` | Staff | Admin(SETTINGS_WRITE) | One seller's own commission rate. |
 | GET | `/api/v1/admin/sellers/:id/documents` | Staff | Admin(CUSTOMER_READ) | The current certificates and licences a seller has uploaded, with the review status of each. |
+| GET | `/api/v1/admin/sellers/:id/offers` | Staff | Admin(PRODUCT_READ) | One seller's listings as staff see them, with the block reason where there is one. Optional `status` filter, a page at a time. |
 | GET | `/api/v1/admin/sellers/:id/factories` | Staff | Admin(CUSTOMER_READ) | One seller's factories (machines, evidence metadata, current status and every check with its reviewer and reason) and certificates. |
 
 ### `admin/settings`

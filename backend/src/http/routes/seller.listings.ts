@@ -280,7 +280,9 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
   app.get('/listings', async (request, reply) => {
     const query = z
       .object({
-        status: z.enum(['INACTIVE', 'ACTIVE', 'PAUSED', 'NEEDS_CHANGES', 'ARCHIVED']).nullish(),
+        status: z
+          .enum(['INACTIVE', 'ACTIVE', 'PAUSED', 'NEEDS_CHANGES', 'ARCHIVED', 'BLOCKED'])
+          .nullish(),
         search: z.string().trim().max(200).nullish(),
         categoryId: z.string().length(26).nullish(),
         brandId: z.string().length(26).nullish(),

@@ -540,6 +540,13 @@ export async function pauseForEdit(
     );
   }
 
+  if (offer.status === 'BLOCKED') {
+    throw conflict(
+      ErrorCode.LISTING_BLOCKED,
+      'The marketplace has blocked this listing. Only the marketplace can lift it.',
+    );
+  }
+
   if (offer.status !== 'ACTIVE') {
     return { status: offer.status, version: offer.version };
   }
@@ -640,6 +647,13 @@ export async function saveListingEdit(
     throw conflict(
       ErrorCode.LISTING_TRANSITION_NOT_ALLOWED,
       'This listing has been withdrawn and cannot be edited.',
+    );
+  }
+
+  if (current.status === 'BLOCKED') {
+    throw conflict(
+      ErrorCode.LISTING_BLOCKED,
+      'The marketplace has blocked this listing. Only the marketplace can lift it.',
     );
   }
 

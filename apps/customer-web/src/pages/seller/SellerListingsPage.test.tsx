@@ -135,3 +135,22 @@ describe('archiving a listing', () => {
     expect(screen.getAllByText('Archived').length).toBeGreaterThan(0);
   });
 });
+
+describe('a listing the marketplace has blocked', () => {
+  it('shows Blocked with the reason, and offers no way round it', async () => {
+    serve([
+      row({
+        status: 'BLOCKED',
+        statusReason: 'Safety alert: batch recalled.',
+      }),
+    ]);
+    render('/seller/listings?tab=BLOCKED');
+
+    await screen.findAllByText('VALVE-001');
+    expect(screen.getAllByText('Blocked').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Safety alert: batch recalled.').length).toBeGreaterThan(0);
+    expect(screen.queryByRole('button', { name: 'Archive' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Put on sale' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Pause' })).toBeNull();
+  });
+});

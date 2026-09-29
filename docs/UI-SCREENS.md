@@ -3576,6 +3576,7 @@ link to its edit page to set one; until then it has no individual limit.
 | Pause | Asks first, and explains: it leaves search, baskets are told, orders already placed are not affected. An optional reason only your team sees |
 | Put on sale | Puts a paused or ready listing on sale |
 | Copy | Makes a paused copy under a new code |
+| (Blocked) | A listing the marketplace has blocked has its own **Blocked** tab and status. It shows the marketplace's reason and offers no Pause, Put on sale, Archive or Edit: only the marketplace can lift it |
 | Archive | Asks first, then takes the listing off sale for good. It moves to the **Archived** tab and is not deleted. Orders already placed are not affected. Hidden on a listing that is already archived |
 
 **Drafts.** A row per draft with its title, code, brand, when it was last
@@ -5297,6 +5298,14 @@ type, file, dates, virus-scan state, decision; **Open**, **Accept**, **Send
 back** with a reason); **Where they ship from**; **What they have accepted**
 (agreements, version, who, when, from which IP).
 
+**Their listings** (main column, `product.read`): every listing this seller
+has, a page of 25, with its code, product, last change and status. Staff with
+`product.publish` see **Block** on a listing that is not archived. It asks for a
+**Reason** (required, at least five characters, the seller reads it as written).
+A blocked listing shows its reason and **Lift block** (optional private note).
+The server takes it off the shelf at once and the seller cannot resume, pause,
+archive or edit it.
+
 **Side column:** **Where it stands** (dates), **Application progress** (eight
 steps: contact verification, business identity, identity and documents, store
 details, pickup and returns, payout account, compliance, agreements),
@@ -5328,6 +5337,8 @@ somebody else decided first, the server refuses the stale decision.
 - `PATCH /api/v1/admin/sellers/:id/commission`
 - `POST /api/v1/admin/seller-documents/:documentId/link`
 - `POST /api/v1/admin/seller-documents/:documentId/decision`
+- `GET /api/v1/admin/sellers/:id/offers?page=…&pageSize=25`
+- `POST /api/v1/admin/seller-offers/:id/block`, `POST /api/v1/admin/seller-offers/:id/unblock`
 
 #### `/seller-carriers` — Carrier arrangements
 

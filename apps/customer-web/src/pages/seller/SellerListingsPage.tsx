@@ -66,6 +66,7 @@ const TABS = [
   { key: 'PENDING_REVIEW', label: 'In review', source: 'drafts' },
   { key: 'ACTION_REQUIRED', label: 'Sent back', source: 'drafts' },
   { key: 'ARCHIVED', label: 'Archived', source: 'offers' },
+  { key: 'BLOCKED', label: 'Blocked', source: 'offers' },
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
@@ -268,7 +269,11 @@ function TabStrip({
                   : 'border-transparent text-ink-muted hover:border-border-strong hover:text-ink',
               )}
             >
-              {tab.key === 'ARCHIVED' ? t('seller.offers.statusArchived') : tab.label}
+              {tab.key === 'ARCHIVED'
+                ? t('seller.offers.statusArchived')
+                : tab.key === 'BLOCKED'
+                  ? t('seller.offers.statusBlocked')
+                  : tab.label}
               {count !== null && count > 0 && (
                 <span
                   className={cx(
@@ -411,7 +416,7 @@ function OfferTable({
                     <QualityCell score={row.qualityScore} />
                   </td>
                   <td className="px-4 py-3">
-                    <Badge tone={offerStatusTone(row.status)}>{offerStatusLabel(row.status, t('seller.offers.statusArchived'))}</Badge>
+                    <Badge tone={offerStatusTone(row.status)}>{offerStatusLabel(row.status, t('seller.offers.statusArchived'), t('seller.offers.statusBlocked'))}</Badge>
                     <B2cNotConfigured row={row} />
                     {row.statusReason !== null && (
                       <p className="mt-1 max-w-xs text-xxs leading-relaxed text-ink-muted">
@@ -450,7 +455,7 @@ function OfferTable({
                   {formatMinor(row.priceMinor, row.currency)}
                 </p>
                 <StockCell row={row} />
-                <Badge tone={offerStatusTone(row.status)}>{offerStatusLabel(row.status, t('seller.offers.statusArchived'))}</Badge>
+                <Badge tone={offerStatusTone(row.status)}>{offerStatusLabel(row.status, t('seller.offers.statusArchived'), t('seller.offers.statusBlocked'))}</Badge>
                 <B2cNotConfigured row={row} />
               </div>
               <RowActions
@@ -815,6 +820,8 @@ function RowActions({
   onPause: (reason: string | null) => void;
   onArchive: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
       <EditButton row={row} isBusy={isBusy} />
@@ -857,7 +864,11 @@ function RowActions({
       */}
       <DuplicateButton row={row} />
 
-      {row.status !== 'ARCHIVED' && <ArchiveButton row={row} isBusy={isBusy} onArchive={onArchive} />}
+      {row.status === 'BLOCKED' && (
+        <span className="text-xxs text-ink-subtle">{t('seller.offers.blockedNote')}</span>
+      )}
+
+      {row.status !== 'ARCHIVED' && row.status !== 'BLOCKED' && <ArchiveButton row={row} isBusy={isBusy} onArchive={onArchive} />}
     </div>
   );
 }
@@ -1022,7 +1033,11 @@ function DuplicateButton({ row }: { row: OfferRow }): React.JSX.Element {
   );
 }
 
-function offerStatusLabel(status: OfferRow['status'], archivedLabel: string): string {
+function offerStatusLabel(
+  status: OfferRow['status'],
+  archivedLabel: string,
+  blockedLabel: string,
+): string {
   switch (status) {
     case 'ACTIVE':
       return 'On sale';
@@ -1034,6 +1049,8 @@ function offerStatusLabel(status: OfferRow['status'], archivedLabel: string): st
       return 'Needs changes';
     case 'ARCHIVED':
       return archivedLabel;
+    case 'BLOCKED':
+      return blockedLabel;
   }
 }
 

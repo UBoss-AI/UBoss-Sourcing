@@ -4168,6 +4168,18 @@ That state exists to stop something being sold — an expired certificate, a
 withdrawn brand — and a button that overrode it would make the state
 decorative.
 
+**Blocking is the marketplace's pause.** `BLOCKED` is the one status a seller can
+never set. Staff with `product.publish` block a listing from the seller's page
+(`POST /admin/seller-offers/:id/block`, a reason is required and the seller
+reads it). `offer-block.service.ts` sets the status, re-projects the shelf in the
+same transaction, remembers the status it had (`statusBeforeBlock`), writes an
+admin and a seller audit entry (`seller_offer.blocked`) and notifies the seller.
+While blocked, the seller cannot resume, pause, archive or edit it
+(`LISTING_BLOCKED`, 409). `POST /admin/seller-offers/:id/unblock` restores the
+previous status, except that a listing that was on sale returns **paused**, so
+the seller's own resume checks run. A `GET /admin/sellers/:id/offers` list feeds
+the "Their listings" card.
+
 **Archiving is not pausing.** An archived listing is kept for history, hidden
 from selling, and never hard-deleted while an order references it. Every row in
 the Seller Hub listings table that is not already archived has an **Archive**

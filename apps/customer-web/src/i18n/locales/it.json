@@ -6664,5 +6664,8 @@
   "seller.offers.archiveNoteOffSale": "Scompare dalla ricerca e non può essere aggiunto a un carrello.",
   "seller.offers.archiveNoteOrders": "Gli ordini già effettuati non sono interessati. Devi comunque imballarli e spedirli.",
   "seller.offers.archiveNoteKept": "La cronologia viene conservata. Non viene eliminato.",
-  "seller.offers.archived": "Annuncio archiviato."
+  "seller.offers.archived": "Annuncio archiviato.",
+  "seller.offers.statusBlocked": "Bloccato",
+  "seller.offers.blockedNote": "Tolto dalla vendita da {{marketplace}}. Solo {{marketplace}} può rimuovere il blocco.",
+  "errors.listingBlocked": "{{marketplace}} ha bloccato questo annuncio. Solo {{marketplace}} può rimuovere il blocco."
 }

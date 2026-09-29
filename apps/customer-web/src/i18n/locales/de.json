@@ -6555,5 +6555,8 @@
   "seller.offers.archiveNoteOffSale": "Es verschwindet aus der Suche und kann nicht mehr in den Warenkorb gelegt werden.",
   "seller.offers.archiveNoteOrders": "Bereits aufgegebene Bestellungen bleiben unberührt. Sie müssen sie weiterhin verpacken und versenden.",
   "seller.offers.archiveNoteKept": "Der Verlauf bleibt erhalten. Es wird nicht gelöscht.",
-  "seller.offers.archived": "Angebot archiviert."
+  "seller.offers.archived": "Angebot archiviert.",
+  "seller.offers.statusBlocked": "Gesperrt",
+  "seller.offers.blockedNote": "Von {{marketplace}} aus dem Verkauf genommen. Nur {{marketplace}} kann das aufheben.",
+  "errors.listingBlocked": "{{marketplace}} hat dieses Angebot gesperrt. Nur {{marketplace}} kann die Sperre aufheben."
 }

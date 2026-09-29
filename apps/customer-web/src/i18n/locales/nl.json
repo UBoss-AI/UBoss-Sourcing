@@ -6555,5 +6555,8 @@
   "seller.offers.archiveNoteOffSale": "Het verdwijnt uit de zoekresultaten en kan niet meer in een winkelmand worden gelegd.",
   "seller.offers.archiveNoteOrders": "Reeds geplaatste bestellingen blijven ongewijzigd. U moet ze nog steeds inpakken en verzenden.",
   "seller.offers.archiveNoteKept": "De geschiedenis blijft bewaard. Het wordt niet verwijderd.",
-  "seller.offers.archived": "Advertentie gearchiveerd."
+  "seller.offers.archived": "Advertentie gearchiveerd.",
+  "seller.offers.statusBlocked": "Geblokkeerd",
+  "seller.offers.blockedNote": "Door {{marketplace}} uit de verkoop gehaald. Alleen {{marketplace}} kan dit opheffen.",
+  "errors.listingBlocked": "{{marketplace}} heeft deze advertentie geblokkeerd. Alleen {{marketplace}} kan de blokkade opheffen."
 }
