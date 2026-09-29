@@ -4960,5 +4960,18 @@
   "commandCentre.health.schedulesNeedingAttention": "Repeat-order plans needing attention",
   "commandCentre.health.ok": "OK",
   "commandCentre.health.allClear": "Nothing is stuck.",
-  "commandCentre.health.needAttention": "Something is stuck. Open the number to see what."
+  "commandCentre.health.needAttention": "Something is stuck. Open the number to see what.",
+  "logistics.shipment.documents": "Documents",
+  "logistics.shipment.documentsHint": "Every file on this consignment, including those only the marketplace can see. Files are opened in the carrier portal, not here.",
+  "logistics.shipment.documentsLoading": "Loading documents",
+  "logistics.shipment.documentsNone": "No documents have been added to this consignment yet.",
+  "logistics.shipment.documentAudience.PARTNER": "Carrier",
+  "logistics.shipment.documentAudience.OPERATOR": "Marketplace only",
+  "logistics.shipment.documentAudience.BOTH": "Carrier and marketplace",
+  "logistics.shipment.documentScan.CLEAN": "Scanned, clean",
+  "logistics.shipment.documentScan.GENERATED": "Made by the system",
+  "logistics.shipment.documentScan.PENDING": "Scan not finished",
+  "logistics.shipment.documentScan.SKIPPED": "Not scanned",
+  "logistics.shipment.documentScan.INFECTED": "Malware found",
+  "logistics.shipment.documentScan.FAILED": "Scan failed"
 }

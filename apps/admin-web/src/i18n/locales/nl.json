@@ -4960,5 +4960,18 @@
   "commandCentre.health.schedulesNeedingAttention": "Terugkerende bestelplannen die aandacht nodig hebben",
   "commandCentre.health.ok": "In orde",
   "commandCentre.health.allClear": "Er zit niets vast.",
-  "commandCentre.health.needAttention": "Er zit iets vast. Open het getal om te zien wat."
+  "commandCentre.health.needAttention": "Er zit iets vast. Open het getal om te zien wat.",
+  "logistics.shipment.documents": "Documenten",
+  "logistics.shipment.documentsHint": "Alle bestanden bij deze zending, ook die alleen de marktplaats kan zien. Bestanden worden geopend in het vervoerdersportaal, niet hier.",
+  "logistics.shipment.documentsLoading": "Documenten laden",
+  "logistics.shipment.documentsNone": "Er zijn nog geen documenten aan deze zending toegevoegd.",
+  "logistics.shipment.documentAudience.PARTNER": "Vervoerder",
+  "logistics.shipment.documentAudience.OPERATOR": "Alleen marktplaats",
+  "logistics.shipment.documentAudience.BOTH": "Vervoerder en marktplaats",
+  "logistics.shipment.documentScan.CLEAN": "Gescand, schoon",
+  "logistics.shipment.documentScan.GENERATED": "Door het systeem gemaakt",
+  "logistics.shipment.documentScan.PENDING": "Scan niet voltooid",
+  "logistics.shipment.documentScan.SKIPPED": "Niet gescand",
+  "logistics.shipment.documentScan.INFECTED": "Malware gevonden",
+  "logistics.shipment.documentScan.FAILED": "Scan mislukt"
 }

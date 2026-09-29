@@ -5026,5 +5026,18 @@
   "commandCentre.health.schedulesNeedingAttention": "Plany zamówień cyklicznych wymagające uwagi",
   "commandCentre.health.ok": "W porządku",
   "commandCentre.health.allClear": "Nic nie utknęło.",
-  "commandCentre.health.needAttention": "Coś utknęło. Otwórz liczbę, aby zobaczyć, co."
+  "commandCentre.health.needAttention": "Coś utknęło. Otwórz liczbę, aby zobaczyć, co.",
+  "logistics.shipment.documents": "Dokumenty",
+  "logistics.shipment.documentsHint": "Wszystkie pliki tej przesyłki, także te widoczne tylko dla marketplace. Pliki otwiera się w portalu przewoźnika, nie tutaj.",
+  "logistics.shipment.documentsLoading": "Ładowanie dokumentów",
+  "logistics.shipment.documentsNone": "Do tej przesyłki nie dodano jeszcze żadnych dokumentów.",
+  "logistics.shipment.documentAudience.PARTNER": "Przewoźnik",
+  "logistics.shipment.documentAudience.OPERATOR": "Tylko marketplace",
+  "logistics.shipment.documentAudience.BOTH": "Przewoźnik i marketplace",
+  "logistics.shipment.documentScan.CLEAN": "Przeskanowano, czysty",
+  "logistics.shipment.documentScan.GENERATED": "Utworzony przez system",
+  "logistics.shipment.documentScan.PENDING": "Skanowanie niezakończone",
+  "logistics.shipment.documentScan.SKIPPED": "Nieprzeskanowany",
+  "logistics.shipment.documentScan.INFECTED": "Wykryto złośliwe oprogramowanie",
+  "logistics.shipment.documentScan.FAILED": "Skanowanie nie powiodło się"
 }

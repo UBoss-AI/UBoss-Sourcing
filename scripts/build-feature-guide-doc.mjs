@@ -2234,7 +2234,7 @@ bullets([
 h2('12a.6 What the business sees');
 table(['Screen', 'What it is for'], [
   ['Consignments', 'Every delivery, whoever is carrying it — including the ones nobody is carrying yet, and which person at the haulage company is driving each one.'],
-  ['One consignment', 'Offer it to a carrier, take it back, correct a status that was recorded wrongly, and read the whole history — including every driver who has held it and why it changed hands. From here the operations desk can also put one of the carrier’s drivers on it, name the vehicle, move it to somebody else, take them off, and send it on the way.'],
+  ['One consignment', 'Offer it to a carrier, take it back, correct a status that was recorded wrongly, and read the whole history — including every driver who has held it and why it changed hands. The page also lists every document attached to the delivery — labels, packing lists, invoices, photographs — including those meant only for the business, with who may see each one and whether it passed the virus check. The files themselves are opened in the carrier’s portal, not on this page. From here the operations desk can also put one of the carrier’s drivers on it, name the vehicle, move it to somebody else, take them off, and send it on the way.'],
   ['Delivery problems', 'The queue across every carrier, worst first and then oldest first.'],
   ['Carriers', 'Add a haulage company, invite its first person, and see how much each one has on.'],
   ['One carrier', 'Its registration and contract, where it operates, what it is approved to carry, the delivery times it has promised, its people — and its fleet, where a driver or a vehicle can be added on their behalf. It is also where staff check the company’s profile changes and documents.'],

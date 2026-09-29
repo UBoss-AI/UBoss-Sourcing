@@ -4960,5 +4960,18 @@
   "commandCentre.health.schedulesNeedingAttention": "Προγράμματα επαναλαμβανόμενων παραγγελιών που χρειάζονται προσοχή",
   "commandCentre.health.ok": "Εντάξει",
   "commandCentre.health.allClear": "Τίποτα δεν έχει κολλήσει.",
-  "commandCentre.health.needAttention": "Κάτι έχει κολλήσει. Ανοίξτε τον αριθμό για να δείτε τι."
+  "commandCentre.health.needAttention": "Κάτι έχει κολλήσει. Ανοίξτε τον αριθμό για να δείτε τι.",
+  "logistics.shipment.documents": "Έγγραφα",
+  "logistics.shipment.documentsHint": "Όλα τα αρχεία αυτής της αποστολής, συμπεριλαμβανομένων εκείνων που βλέπει μόνο η αγορά. Τα αρχεία ανοίγουν στην πύλη του μεταφορέα, όχι εδώ.",
+  "logistics.shipment.documentsLoading": "Φόρτωση εγγράφων",
+  "logistics.shipment.documentsNone": "Δεν έχουν προστεθεί ακόμη έγγραφα σε αυτή την αποστολή.",
+  "logistics.shipment.documentAudience.PARTNER": "Μεταφορέας",
+  "logistics.shipment.documentAudience.OPERATOR": "Μόνο η αγορά",
+  "logistics.shipment.documentAudience.BOTH": "Μεταφορέας και αγορά",
+  "logistics.shipment.documentScan.CLEAN": "Σαρώθηκε, καθαρό",
+  "logistics.shipment.documentScan.GENERATED": "Δημιουργήθηκε από το σύστημα",
+  "logistics.shipment.documentScan.PENDING": "Η σάρωση δεν ολοκληρώθηκε",
+  "logistics.shipment.documentScan.SKIPPED": "Δεν σαρώθηκε",
+  "logistics.shipment.documentScan.INFECTED": "Βρέθηκε κακόβουλο λογισμικό",
+  "logistics.shipment.documentScan.FAILED": "Η σάρωση απέτυχε"
 }

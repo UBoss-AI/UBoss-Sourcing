@@ -4993,5 +4993,18 @@
   "commandCentre.health.schedulesNeedingAttention": "Piani di ordini ricorrenti che richiedono attenzione",
   "commandCentre.health.ok": "OK",
   "commandCentre.health.allClear": "Niente è bloccato.",
-  "commandCentre.health.needAttention": "Qualcosa è bloccato. Apri il numero per vedere cosa."
+  "commandCentre.health.needAttention": "Qualcosa è bloccato. Apri il numero per vedere cosa.",
+  "logistics.shipment.documents": "Documenti",
+  "logistics.shipment.documentsHint": "Tutti i file di questa spedizione, compresi quelli visibili solo al marketplace. I file si aprono nel portale del corriere, non qui.",
+  "logistics.shipment.documentsLoading": "Caricamento dei documenti",
+  "logistics.shipment.documentsNone": "Non è ancora stato aggiunto alcun documento a questa spedizione.",
+  "logistics.shipment.documentAudience.PARTNER": "Corriere",
+  "logistics.shipment.documentAudience.OPERATOR": "Solo marketplace",
+  "logistics.shipment.documentAudience.BOTH": "Corriere e marketplace",
+  "logistics.shipment.documentScan.CLEAN": "Scansionato, pulito",
+  "logistics.shipment.documentScan.GENERATED": "Creato dal sistema",
+  "logistics.shipment.documentScan.PENDING": "Scansione non terminata",
+  "logistics.shipment.documentScan.SKIPPED": "Non scansionato",
+  "logistics.shipment.documentScan.INFECTED": "Malware rilevato",
+  "logistics.shipment.documentScan.FAILED": "Scansione non riuscita"
 }

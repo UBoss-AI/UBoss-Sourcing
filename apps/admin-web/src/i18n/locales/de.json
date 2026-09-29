@@ -4960,5 +4960,18 @@
   "commandCentre.health.schedulesNeedingAttention": "Wiederkehrende Bestellpläne mit Handlungsbedarf",
   "commandCentre.health.ok": "In Ordnung",
   "commandCentre.health.allClear": "Nichts hängt fest.",
-  "commandCentre.health.needAttention": "Etwas hängt fest. Öffnen Sie die Zahl, um zu sehen, was."
+  "commandCentre.health.needAttention": "Etwas hängt fest. Öffnen Sie die Zahl, um zu sehen, was.",
+  "logistics.shipment.documents": "Dokumente",
+  "logistics.shipment.documentsHint": "Alle Dateien zu dieser Sendung, auch die, die nur der Marktplatz sehen kann. Dateien werden im Frachtführer-Portal geöffnet, nicht hier.",
+  "logistics.shipment.documentsLoading": "Dokumente werden geladen",
+  "logistics.shipment.documentsNone": "Zu dieser Sendung wurden noch keine Dokumente hinzugefügt.",
+  "logistics.shipment.documentAudience.PARTNER": "Frachtführer",
+  "logistics.shipment.documentAudience.OPERATOR": "Nur Marktplatz",
+  "logistics.shipment.documentAudience.BOTH": "Frachtführer und Marktplatz",
+  "logistics.shipment.documentScan.CLEAN": "Geprüft, unbedenklich",
+  "logistics.shipment.documentScan.GENERATED": "Vom System erstellt",
+  "logistics.shipment.documentScan.PENDING": "Prüfung nicht abgeschlossen",
+  "logistics.shipment.documentScan.SKIPPED": "Nicht geprüft",
+  "logistics.shipment.documentScan.INFECTED": "Schadsoftware gefunden",
+  "logistics.shipment.documentScan.FAILED": "Prüfung fehlgeschlagen"
 }

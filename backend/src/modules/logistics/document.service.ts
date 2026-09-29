@@ -312,6 +312,45 @@ export async function listShipmentDocuments(
   return rows.map((row) => ({ ...row, isDownloadable: isServable(row.scanState) }));
 }
 
+export interface StaffDocumentRow extends DocumentRow {
+  /** Who may see it: the carrier, the marketplace only, or both. */
+  audience: 'PARTNER' | 'OPERATOR' | 'BOTH';
+}
+
+/**
+ * Every document on one consignment, as the marketplace's staff see them.
+ *
+ * The carrier's list (`listShipmentDocuments`) leaves out what is meant for the
+ * marketplace only; staff need the whole picture, so this one includes it and
+ * says which audience each file has. Metadata only - opening a file is not
+ * offered to staff here, and nothing about a file's bytes leaves this function.
+ */
+export async function listShipmentDocumentsForStaff(shipmentId: string): Promise<StaffDocumentRow[]> {
+  const shipment = await prisma.logisticsShipment.findUnique({
+    where: { id: shipmentId },
+    select: { id: true },
+  });
+
+  if (shipment === null) throw notFound('Shipment');
+
+  const rows = await prisma.logisticsShipmentDocument.findMany({
+    where: { shipmentId, deletedAt: null },
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      kind: true,
+      audience: true,
+      fileName: true,
+      contentType: true,
+      sizeBytes: true,
+      scanState: true,
+      createdAt: true,
+    },
+  });
+
+  return rows.map((row) => ({ ...row, isDownloadable: isServable(row.scanState) }));
+}
+
 /**
  * May this file be handed to somebody?
  *

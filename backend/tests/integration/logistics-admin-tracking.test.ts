@@ -598,3 +598,58 @@ describe('a delivery that failed', () => {
     expect(closed?.resolutionSource).toBe('DOMAIN_EVENT');
   });
 });
+
+describe('the documents on a consignment (staff view)', () => {
+  it('lists every file, including those for the marketplace only, and leaves out deleted ones', async () => {
+    const shipmentId = shipments.get([...shipments.keys()][0] ?? '') ?? '';
+    const make = (fileName: string, audience: 'PARTNER' | 'OPERATOR' | 'BOTH', deletedAt: Date | null = null) =>
+      prisma.logisticsShipmentDocument.create({
+        data: {
+          id: newId(),
+          shipmentId,
+          kind: audience === 'OPERATOR' ? 'COMMERCIAL_INVOICE' : 'SHIPPING_LABEL',
+          audience,
+          fileName,
+          contentType: 'application/pdf',
+          sizeBytes: 2048,
+          storageKey: `private/test/${newId()}.pdf`,
+          scanState: 'CLEAN',
+          deletedAt,
+        },
+      });
+    await make('label.pdf', 'PARTNER');
+    await make('invoice-for-marketplace.pdf', 'OPERATOR');
+    await make('removed.pdf', 'BOTH', new Date());
+
+    const response = await app.inject({
+      method: 'GET',
+      url: `/api/v1/admin/logistics/shipments/${shipmentId}/documents`,
+      headers: { cookie: cookies },
+    });
+    expect(response.statusCode, response.body).toBe(200);
+    const documents = response.json<{
+      documents: { fileName: string; audience: string; scanState: string; isDownloadable: boolean; storageKey?: string }[];
+    }>().documents;
+
+    expect(documents.map((row) => row.fileName).sort()).toEqual(['invoice-for-marketplace.pdf', 'label.pdf']);
+    expect(documents.find((row) => row.fileName === 'invoice-for-marketplace.pdf')?.audience).toBe('OPERATOR');
+    expect(documents.every((row) => row.isDownloadable)).toBe(true);
+    // Names and sizes only: where a file is stored never leaves the server.
+    expect(JSON.stringify(documents)).not.toContain('private/test');
+
+    // The carrier's own list, by contrast, never includes the marketplace-only file.
+    const carrierList = await prisma.logisticsShipmentDocument.findMany({
+      where: { shipmentId, deletedAt: null, audience: { in: ['PARTNER', 'BOTH'] } },
+    });
+    expect(carrierList.map((row) => row.fileName)).toEqual(['label.pdf']);
+  });
+
+  it('answers 404 for a shipment that does not exist', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: `/api/v1/admin/logistics/shipments/${'0'.repeat(26)}/documents`,
+      headers: { cookie: cookies },
+    });
+    expect(response.statusCode).toBe(404);
+  });
+});

@@ -4993,5 +4993,18 @@
   "commandCentre.health.schedulesNeedingAttention": "Plans de commandes récurrentes à surveiller",
   "commandCentre.health.ok": "OK",
   "commandCentre.health.allClear": "Rien n’est bloqué.",
-  "commandCentre.health.needAttention": "Quelque chose est bloqué. Ouvrez le chiffre pour voir quoi."
+  "commandCentre.health.needAttention": "Quelque chose est bloqué. Ouvrez le chiffre pour voir quoi.",
+  "logistics.shipment.documents": "Documents",
+  "logistics.shipment.documentsHint": "Tous les fichiers de cet envoi, y compris ceux que seule la place de marché voit. Les fichiers s’ouvrent dans le portail du transporteur, pas ici.",
+  "logistics.shipment.documentsLoading": "Chargement des documents",
+  "logistics.shipment.documentsNone": "Aucun document n’a encore été ajouté à cet envoi.",
+  "logistics.shipment.documentAudience.PARTNER": "Transporteur",
+  "logistics.shipment.documentAudience.OPERATOR": "Place de marché uniquement",
+  "logistics.shipment.documentAudience.BOTH": "Transporteur et place de marché",
+  "logistics.shipment.documentScan.CLEAN": "Analysé, sain",
+  "logistics.shipment.documentScan.GENERATED": "Généré par le système",
+  "logistics.shipment.documentScan.PENDING": "Analyse non terminée",
+  "logistics.shipment.documentScan.SKIPPED": "Non analysé",
+  "logistics.shipment.documentScan.INFECTED": "Logiciel malveillant détecté",
+  "logistics.shipment.documentScan.FAILED": "Échec de l’analyse"
 }

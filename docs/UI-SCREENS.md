@@ -5680,11 +5680,21 @@ be, and why).
 (cold chain, sterile, dangerous goods, fragile); **The seller's side** (with
 **Save the tracking number** for a hand booking); **The carrier's feed**;
 problems; who it was offered to; **Who has carried this** (assign, move or take
-off a driver, and **Send on the way**); **What has happened**.
+off a driver, and **Send on the way**); **Documents**; **What has happened**.
+
+**Documents.** Every file on the consignment, newest first, including those
+meant for the marketplace only (which the carrier's own list leaves out). Each
+shows its name, type, size, when it was added, **who may see it** (Carrier,
+Marketplace only, Carrier and marketplace) and its **malware-scan state**
+(Scanned, clean; Made by the system; Scan not finished; Not scanned; Malware
+found; Scan failed). Names and states only: staff cannot open a file from this
+page, and a deleted file is not listed. Empty: "No documents have been added to
+this consignment yet."
 
 **API calls**
 
 - `GET /api/v1/admin/logistics/shipments/:id`
+- `GET /api/v1/admin/logistics/shipments/:id/documents`
 - `GET /api/v1/admin/logistics/shipments/:id/eligible-partners`
 - `POST /api/v1/admin/logistics/shipments/:id/assign`
 - `POST /api/v1/admin/logistics/shipments/:id/withdraw`

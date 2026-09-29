@@ -3711,6 +3711,8 @@ carrier can be created, and the Logistics group is absent from the console.
 - **Rules.** A paid order raises one consignment per despatching building (operator warehouse or each seller's pickup place); raising is idempotent and can never fail a paid order. Nothing is assigned at creation; staff choose the carrier at **Logistics → Shipments**. Statuses follow §7.9.
 - **Status.** Behind a flag.
 
+The marketplace's staff (`logistics.read`) see every document on a consignment on its admin page, including those whose audience is the marketplace only, with each file's audience and scan state (`GET /admin/logistics/shipments/:id/documents`). It returns names and states, never the file or where it is stored; a deleted file is not listed. Opening a file is a carrier-portal action (FR-LOG-003).
+
 ### FR-LOG-004 — Collections and dispatch manifests
 
 - **Statement.** A dispatcher schedules collections and builds dispatch manifests.

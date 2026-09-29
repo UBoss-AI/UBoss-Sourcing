@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1114 endpoints** in 97 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1115 endpoints** in 97 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,7 +27,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 455 |
+| [Admin panel (staff)](#admin-panel-staff) | 456 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 274 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
@@ -418,6 +418,7 @@ Defined in `backend/src/http/routes/logistics.admin.ts`, `backend/src/http/route
 | GET | `/api/v1/admin/logistics/shipments` | Staff | Admin(LOGISTICS_READ) | Every consignment, across every carrier, narrowed the way an operations desk actually thinks about them. |
 | GET | `/api/v1/admin/logistics/tracking-filters` | Staff | Admin(LOGISTICS_READ) | What there is to filter the tracking list BY. |
 | GET | `/api/v1/admin/logistics/shipments/:id` | Staff | Admin(LOGISTICS_READ) | One consignment, as the operator sees it. |
+| GET | `/api/v1/admin/logistics/shipments/:id/documents` | Staff | Admin(LOGISTICS_READ) | The files on one consignment, including those meant for the marketplace only, with each file's audience and malware-scan state. Names and sizes, never the files themselves. |
 | PATCH | `/api/v1/admin/logistics/shipments/:id/manual-booking` | Staff | Admin(LOGISTICS_ASSIGN) | Enter what a seller's outside carrier gave them, on the seller's behalf. |
 | POST | `/api/v1/admin/logistics/orders/:id/shipments` | Staff | Admin(LOGISTICS_ASSIGN) | Raise the consignments for an order. |
 | GET | `/api/v1/admin/logistics/shipments/:id/eligible-partners` | Staff | Admin(LOGISTICS_ASSIGN) | Which carriers could take this shipment, and for those that cannot, the reason (no coverage, missing approval, over capacity and so on). |

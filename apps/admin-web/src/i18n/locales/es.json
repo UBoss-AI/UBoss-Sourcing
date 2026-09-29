@@ -4993,5 +4993,18 @@
   "commandCentre.health.schedulesNeedingAttention": "Planes de pedidos recurrentes que requieren atención",
   "commandCentre.health.ok": "Correcto",
   "commandCentre.health.allClear": "Nada está atascado.",
-  "commandCentre.health.needAttention": "Algo está atascado. Abra el número para ver qué."
+  "commandCentre.health.needAttention": "Algo está atascado. Abra el número para ver qué.",
+  "logistics.shipment.documents": "Documentos",
+  "logistics.shipment.documentsHint": "Todos los archivos de este envío, incluidos los que solo ve el mercado. Los archivos se abren en el portal del transportista, no aquí.",
+  "logistics.shipment.documentsLoading": "Cargando documentos",
+  "logistics.shipment.documentsNone": "Aún no se ha añadido ningún documento a este envío.",
+  "logistics.shipment.documentAudience.PARTNER": "Transportista",
+  "logistics.shipment.documentAudience.OPERATOR": "Solo el mercado",
+  "logistics.shipment.documentAudience.BOTH": "Transportista y mercado",
+  "logistics.shipment.documentScan.CLEAN": "Analizado, limpio",
+  "logistics.shipment.documentScan.GENERATED": "Generado por el sistema",
+  "logistics.shipment.documentScan.PENDING": "Análisis sin terminar",
+  "logistics.shipment.documentScan.SKIPPED": "Sin analizar",
+  "logistics.shipment.documentScan.INFECTED": "Malware detectado",
+  "logistics.shipment.documentScan.FAILED": "Falló el análisis"
 }

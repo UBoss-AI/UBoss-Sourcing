@@ -8112,6 +8112,17 @@ operator nothing. Drivers are listed with their carrier, because two carriers
 can employ an Ilse Maes and a list of bare names is a list nobody can choose
 from.
 
+### The documents on a consignment, as staff see them
+
+The carrier's list (`listShipmentDocuments`) filters by audience in the query, so
+a marketplace-only file is never loaded for a carrier. Staff need the whole
+picture, so `listShipmentDocumentsForStaff` returns every non-deleted file with
+its `audience` and scan state, behind `GET
+/admin/logistics/shipments/:id/documents` (`logistics.read`). It selects names,
+types, sizes and states only — `storageKey` is never in the select — and the
+admin shipment page shows it as a **Documents** card. There is deliberately no
+staff download link here: opening a file is the carrier portal's audited action.
+
 ### Where a consignment comes from
 
 **A paid order raises its own.** `transitionOrder` calls
