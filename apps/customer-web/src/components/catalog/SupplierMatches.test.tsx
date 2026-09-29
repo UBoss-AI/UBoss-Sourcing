@@ -45,13 +45,13 @@ async function settled(): Promise<void> {
 }
 
 describe('SupplierMatches', () => {
-  it('lists the matching verified suppliers, each opening their products', async () => {
+  it('lists the matching verified suppliers, each opening their supplier page', async () => {
     answer(['Acme Precision Castings']);
     renderWithProviders(<SupplierMatches q="acme" />);
 
     expect(await screen.findByRole('region', { name: 'Verified suppliers matching “acme”' })).toBeInTheDocument();
     const link = screen.getByRole('link', { name: /Acme Precision Castings/ });
-    expect(link).toHaveAttribute('href', '/products?seller=supplier-0');
+    expect(link).toHaveAttribute('href', '/suppliers/supplier-0');
     expect(link).toHaveTextContent('India');
     // The shield is decoration; its meaning is read out as text.
     expect(link).toHaveTextContent(/Verified by/);

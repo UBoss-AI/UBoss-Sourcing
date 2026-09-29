@@ -106,7 +106,7 @@ export function ProductSourcingPanel({ sourcing }: { sourcing: ProductSourcing |
           ) : (
             <>
               <Link
-                to={`/products?seller=${encodeURIComponent(seller.slug)}`}
+                to={`/suppliers/${encodeURIComponent(seller.slug)}`}
                 className="font-medium text-brand underline-offset-2 hover:text-brand-hover hover:underline
                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
               >

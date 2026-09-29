@@ -1597,6 +1597,30 @@ all absent (`BUYER_COMPANIES_DISABLED`).
      29 Sep 2026 a suspended seller's ACTIVE offers were still buyable.
 - **Status.** Built (29 Sep 2026, checklist Master row 4).
 
+### FR-SRCH-013 — Supplier page
+
+- **Statement.** `/suppliers/:slug` is a verified supplier's public page:
+  company, what they sell here, verified certifications, factories and
+  stated capabilities. `GET /api/v1/catalog/suppliers/:slug`.
+- **Rules.**
+  1. Only a listed supplier has a page (approved, not suspended, not
+     archived, something live to sell). Anyone else is the same 404 as an
+     unknown slug.
+  2. Certifications appear only when the operator VERIFIED them and they are
+     in date; pending, rejected and expired ones are not shown at all.
+  3. Factories are published by name, city, region and country with the
+     capacity facts; never street address, postcode or coordinates.
+  4. Never published: legal name, registration/tax/Udyam/IEC numbers,
+     contact people, internal notes, verification documents.
+  5. The website is linked only when it is http(s), with `rel="noopener
+     noreferrer nofollow"`. What the marketplace did not verify is labelled
+     "As stated by the supplier".
+  6. Supplier cards, pills and the product page's seller link open this page.
+- **Status.** Built (29 Sep 2026, checklist Master row 5). The data behind
+  factories, certifications and capabilities is entered through the seller
+  profile and factory verification screens (Master rows 13 and 34), not
+  built yet; until then those sections stay hidden.
+
 ### FR-SRCH-009 — The About page
 
 - **Statement.** `/about` is a public page explaining what the marketplace

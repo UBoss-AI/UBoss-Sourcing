@@ -532,6 +532,11 @@ export const router = createBrowserRouter([
        * whether to buy or sell here at all.
        */
       { path: 'about', ...publicRoute(() => import('@/pages/AboutPage').then((m) => m.AboutPage)) },
+      // One verified supplier's public page (checklist Master row 5).
+      {
+        path: 'suppliers/:slug',
+        ...publicRoute(() => import('@/pages/SupplierPage').then((m) => m.SupplierPage)),
+      },
 
       /*
        * The Terms and Conditions: the version in force, and any one exact

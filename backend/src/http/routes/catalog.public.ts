@@ -100,6 +100,7 @@ import {
   type SerialisedPackaging,
 } from '../../modules/catalog/packaging.service.js';
 import { productSourcingFor } from '../../modules/catalog/product-sourcing.service.js';
+import { supplierProfile } from '../../modules/catalog/supplier-profile.service.js';
 import {
   categoryMarketNotes,
   marketEligibleWhere,
@@ -1343,6 +1344,18 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
     }
 
     return reply.status(200).send(await listVerifiedSuppliers({ ...query, categoryIds }));
+  });
+
+  // One verified supplier's public profile: company, factories, verified certifications, what they sell.
+  app.get('/suppliers/:slug', async (request, reply) => {
+    const { slug } = z
+      .object({ slug: z.string().trim().max(180).regex(/^[a-z0-9-]+$/) })
+      .parse(request.params);
+
+    // A seller's own shop front shows its own profile only.
+    if (request.storefront !== null && request.storefront.slug !== slug) throw notFound('Supplier');
+
+    return reply.status(200).send({ supplier: await supplierProfile(slug) });
   });
 
   /** Storefront navigation. Inactive categories are excluded by default. */

@@ -815,6 +815,35 @@ category shows an empty list, not an error.
 - `GET` and `POST /api/v1/account/wishlist`, `DELETE /api/v1/account/wishlist/:id`
   (customers)
 
+#### `/suppliers/:slug` — One verified supplier
+
+| | |
+|---|---|
+| **Who** | Anybody |
+| **File** | `pages/SupplierPage.tsx` |
+
+**Purpose.** Who a supplier is, what they sell here and what the marketplace
+has verified about them.
+
+**On the screen.** A breadcrumb; a header with the logo (or a building mark),
+the name, kind, country and years in business, "Verified since …" and the
+sentence saying the marketplace reviewed the business, **See its N products**
+(`/products?seller=…`) and **Website** (new tab). Then, each only when it has
+something: **About the supplier**, **What they sell here** (category pills
+with counts, each opening that category narrowed to the supplier),
+**Verified certifications** (standard, issuer, number, valid until, scope),
+**Factories** (name, city/region/country, established, workforce, monthly
+capacity, what is made there) and **Capabilities and export**. Sections the
+marketplace did not verify end with "As stated by the supplier."
+
+**States.** Loading; an unknown or unlisted supplier is the not-found page;
+any other failure shows the error with **Try again**. A malformed address is
+not sent to the API.
+
+**API calls**
+
+- `GET /api/v1/catalog/suppliers/:slug`
+
 #### `/product/:slug` — One product
 
 | | |

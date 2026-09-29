@@ -56,12 +56,13 @@ export function SupplierMatches({ q }: { q: string }): React.JSX.Element | null 
 }
 
 /**
- * One supplier as a pill: name, country, the verified mark. Opens the
- * catalogue filtered to what they sell. Shared with the category page.
+ * One supplier as a pill: name, country, the verified mark. Opens their
+ * supplier page; the category page passes its own link, which keeps the
+ * category.
  */
 export function SupplierPill({
   supplier,
-  href = `/products?seller=${encodeURIComponent(supplier.slug)}`,
+  href = `/suppliers/${encodeURIComponent(supplier.slug)}`,
 }: {
   supplier: VerifiedSupplier;
   href?: string;

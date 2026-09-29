@@ -217,7 +217,7 @@ h1('3. Customer Features — Product Discovery and AI');
 h2('3.1 Home page and catalogue');
 table(['Customer action', 'What the system provides'], [
   ['Open the home page', 'The business name, one sentence saying what the marketplace offers, a large search bar, a sideways row of department cards, the verified suppliers, latest / featured catalogue items, cart access and account access.'],
-  ['Press a verified supplier', 'The catalogue, showing only the products that supplier sells, with the supplier named at the top so the filter can be taken off in one press.'],
+  ['Press a verified supplier', 'The supplier\'s own page: who they are, since when the marketplace has verified them, what they sell here by category, the certificates the marketplace has checked and that are still valid, their factories by city and country, and what they say about their capabilities and exports. A button opens the catalogue showing only that supplier\'s products.'],
   ['Press a department card', 'A panel naming everything inside that department with a count beside each one, and a button into the department itself.'],
   ['Browse all products', 'A list of published products available for the selected market, with a row of every department across the top.'],
   ['Press a department in the row', 'That department opens as its own page, the row stays where it is with that department marked, and what is filed inside it is shown as large picture cards.'],

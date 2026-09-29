@@ -1649,6 +1649,19 @@ all use it, and `transitionApplication` re-projects a seller's products when
 they are suspended or reinstated. Before this, a suspended seller's ACTIVE
 offers stayed on the shelf and in baskets.
 
+**The supplier page.** `/suppliers/:slug` reads
+`GET /catalog/suppliers/:slug` (`modules/catalog/supplier-profile.service.ts`).
+Only a supplier the home page would list has one; anyone else gets the same
+404 as a slug that never existed, so the page cannot reveal a pending or
+refused application. Certifications are shown only when `VERIFIED` and in
+date — a pending one with a caveat would still put the claim on the page —
+and factories only by city, never by street, postcode or coordinates. The
+legal name, identifiers, contacts and notes are never selected at all, which
+`tests/integration/catalog-supplier-profile.test.ts` asserts against the raw
+response body. A website is kept only if it parses as http(s). Every supplier
+card, pill and the product page's seller name now open this page; the
+category page's pills keep their category filter.
+
 The bar carries four controls:
 
 | Control | What it does |

@@ -99,7 +99,7 @@ function SupplierCard({ supplier }: { supplier: VerifiedSupplier }): React.JSX.E
 
   return (
     <Link
-      to={`/products?seller=${encodeURIComponent(supplier.slug)}`}
+      to={`/suppliers/${encodeURIComponent(supplier.slug)}`}
       className="group flex h-full flex-col gap-3 rounded-2xl border border-line bg-surface p-4
                  shadow-sm transition-colors hover:border-brand/40
                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"

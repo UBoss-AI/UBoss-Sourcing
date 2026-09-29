@@ -271,6 +271,44 @@ export interface VerifiedSupplier {
   logoUrl: string | null;
 }
 
+/** One verified supplier's public page. `GET /catalog/suppliers/:slug`. */
+export interface SupplierProfile extends Omit<VerifiedSupplier, 'productCount'> {
+  description: string | null;
+  /** http(s) only; anything else is dropped by the API. */
+  websiteUrl: string | null;
+  yearsInBusiness: number | null;
+  productCount: number;
+  categories: { slug: string; name: string; productCount: number }[];
+  exportCapable: boolean;
+  /** ISO 3166-1 alpha-2. */
+  exportMarkets: string[];
+  yearsExporting: number | null;
+  responseSlaHours: number | null;
+  capabilities: string[];
+  /** By city and country only. */
+  factories: {
+    name: string;
+    city: string;
+    region: string | null;
+    countryCode: string;
+    establishedYear: number | null;
+    workforceCount: number | null;
+    monthlyCapacity: number | null;
+    capacityUnit: string | null;
+    productsMade: string | null;
+  }[];
+  /** Verified by the operator and in date. `YYYY-MM-DD` dates. */
+  certifications: {
+    standard: string;
+    issuer: string;
+    certificateNumber: string | null;
+    scope: string | null;
+    issuedOn: string | null;
+    expiresOn: string | null;
+    verifiedAt: string | null;
+  }[];
+}
+
 export interface SupplierListResponse {
   suppliers: VerifiedSupplier[];
   /** Every verified supplier's country, whatever the page size. */

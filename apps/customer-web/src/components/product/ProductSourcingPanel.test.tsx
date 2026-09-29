@@ -32,7 +32,7 @@ describe('ProductSourcingPanel', () => {
     renderWithProviders(<ProductSourcingPanel sourcing={sourcing()} />);
 
     expect(screen.getByRole('region', { name: 'Who sells it and how it reaches you' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Acme Castings' })).toHaveAttribute('href', '/products?seller=acme-castings');
+    expect(screen.getByRole('link', { name: 'Acme Castings' })).toHaveAttribute('href', '/suppliers/acme-castings');
     expect(screen.getByText('Manufacturer · India')).toBeInTheDocument();
     expect(screen.getByText('Verified since March 2026')).toBeInTheDocument();
   });

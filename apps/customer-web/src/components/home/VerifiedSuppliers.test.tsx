@@ -123,7 +123,7 @@ describe('verified suppliers on the home page', () => {
     renderHome();
 
     const acme = await screen.findByRole('link', { name: /Acme Industries/ });
-    expect(acme).toHaveAttribute('href', '/products?seller=acme-industries');
+    expect(acme).toHaveAttribute('href', '/suppliers/acme-industries');
     expect(acme).toHaveTextContent('Manufacturer · India');
     expect(acme).toHaveTextContent('Verified since January 2026');
     expect(acme).toHaveTextContent('12 products');
