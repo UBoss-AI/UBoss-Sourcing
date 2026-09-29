@@ -2445,6 +2445,17 @@ field, missing ones as "Not provided", and the version history),
 an optional reason. **Calls** `GET /rfqs/:id`, `POST /rfqs/:id/invitations`,
 `POST /rfqs/:id/cancel`, `POST /rfqs/:id/close`.
 
+A **Samples** tab (`components/rfq/SamplesPanel.tsx`, also on the seller's
+request page) asks a supplier taking part for a sample (supplier, quantity,
+address, needed-by date, approval criteria) and lists every sample with its
+status, cost (and that payment is not collected here), courier and tracking,
+decision, reference-sample code and evidence files; each side sees only the
+buttons for the steps it may take (buyer: Cancel, It has arrived, Approve,
+Reject; seller: Accept with cost, Decline, Mark as shipped with courier and
+tracking). **Calls** `GET|POST /rfqs/:id/samples`,
+`POST /rfqs/:id/samples/:sampleId/{cancel,receive,approve,reject,attachments}`,
+`POST /seller/rfqs/:id/samples/:sampleId/{accept,decline,ship,attachments}`.
+
 A **Questions** tab picks an invited seller and shows that thread
 (`components/rfq/RfqThread.tsx`, polling every 15 s with `?after=`); **Change
 the requirement** opens `/account/rfqs/:id/amend` - the same form with the

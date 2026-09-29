@@ -632,6 +632,8 @@ bullets([
   'From a quote, the buyer and that supplier can negotiate: either sends a counter-offer with a new price, quantity, minimum order, lead time, Incoterm, payment or inspection terms, a comment and how long it stands. Each offer is kept exactly as it was sent.',
   'The side that did not make an offer can accept or reject it. An offer that has run out of time cannot be accepted, but either side can send a new one.',
   'Accepting awards the request to that supplier, closes every other quote and locks the agreed terms, with a fingerprint that any later order must match. Two people pressing accept at the same moment cannot both win. Turning agreed terms into a purchase order is not available yet.',
+  'Under Samples, the buyer can ask any supplier taking part for a sample: how many, where to send it, by when, and what it must show to be approved. The supplier accepts (saying what it costs, if anything) or declines with a reason, and marks it shipped by entering the courier and tracking number. The buyer confirms it arrived, then approves it or rejects it with a reason. Photos and reports can be attached by either side.',
+  'Nothing about a sample is marked done before it happens: it is not shipped until there is a tracking number, not delivered until the buyer says so, and never shown as paid - paying for samples through the marketplace is not available yet. An approved sample becomes the reference sample for later inspection.',
 ]);
 
 h2('5.4b Asking the team about a preorder');

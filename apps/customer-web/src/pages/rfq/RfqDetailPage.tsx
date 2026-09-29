@@ -20,6 +20,7 @@ import {
 import { formatUtc } from '@/lib/rfq-format';
 import { SupplierPicker } from '@/components/rfq/SupplierPicker';
 import { RfqThread } from '@/components/rfq/RfqThread';
+import { SamplesPanel } from '@/components/rfq/SamplesPanel';
 import { useToast } from '@/components/toast-context';
 import { Tabs } from '@/components/ui/Tabs';
 import { Button, ButtonLink, Card, ErrorState, LoadingState, PageHeader, Textarea } from '@/components/ui';
@@ -68,7 +69,7 @@ function QuestionsPanel({ rfq }: { rfq: BuyerRfq }): React.JSX.Element {
   );
 }
 
-type TabKey = 'requirement' | 'suppliers' | 'questions' | 'files' | 'timeline';
+type TabKey = 'requirement' | 'suppliers' | 'questions' | 'samples' | 'files' | 'timeline';
 
 export function RfqDetailPage(): React.JSX.Element {
   const { id = '' } = useParams<{ id: string }>();
@@ -133,6 +134,7 @@ function RfqWorkspace({ rfq }: { rfq: BuyerRfq }): React.JSX.Element {
     { key: 'requirement' as const, label: t('rfq.detail.tab.requirement') },
     { key: 'suppliers' as const, label: t('rfq.detail.tab.suppliers', { invited: String(rfq.invitations.length) }) },
     { key: 'questions' as const, label: t('rfq.detail.tab.questions') },
+    { key: 'samples' as const, label: t('rfq.sample.tab') },
     { key: 'files' as const, label: t('rfq.detail.tab.files') },
     { key: 'timeline' as const, label: t('rfq.detail.tab.timeline') },
   ];
@@ -299,6 +301,18 @@ function RfqWorkspace({ rfq }: { rfq: BuyerRfq }): React.JSX.Element {
         )}
 
         {tab === 'questions' && <QuestionsPanel rfq={rfq} />}
+
+        {tab === 'samples' && (
+          <SamplesPanel
+            party="BUYER"
+            rfqId={rfq.id}
+            canRequest={rfq.status === 'OPEN' || rfq.status === 'AWARDED'}
+            filesAvailable={rfq.attachmentPolicy.available}
+            suppliers={rfq.invitations
+              .filter((invitation) => ['INVITED', 'VIEWED', 'QUOTED'].includes(invitation.status))
+              .map((invitation) => invitation.supplier)}
+          />
+        )}
 
         {tab === 'files' && (
           <Card bodyClassName="space-y-3 px-6 py-5">

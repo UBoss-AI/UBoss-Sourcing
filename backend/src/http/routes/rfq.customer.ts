@@ -27,6 +27,15 @@ import { listThread, messageBodySchema, postMessage, threadQuerySchema } from '.
 import { prisma } from '../../infra/prisma.js';
 import { buildComparison, comparisonCsv, comparisonQuerySchema } from '../../modules/rfq/comparison.service.js';
 import {
+  attachEvidence,
+  buyerMoveSample,
+  listBuyerSamples,
+  requestSample,
+  sampleCreateSchema,
+  sampleForEvidence,
+  sampleReasonSchema,
+} from '../../modules/rfq/sample.service.js';
+import {
   acceptOffer,
   acceptSchema,
   acceptedTerms,
@@ -450,6 +459,96 @@ export function registerCustomerRfqRoutes(app: FastifyInstance): Promise<void> {
     return reply.header('Cache-Control', 'no-store').status(200).send({ acceptedTerms: await acceptedTerms(rfq.id) });
   });
 
+  /** The samples asked for on your request, with their status, evidence and what you may do next. */
+  app.get('/:id/samples', { preHandler: requireCustomer }, async (request, reply) => {
+    const { id } = idParams.parse(request.params);
+    return reply.header('Cache-Control', 'no-store').status(200).send({ samples: await listBuyerSamples(buyerOf(request), id) });
+  });
+
+  /**
+   * Ask a supplier taking part for a sample: quantity, address, date and
+   * approval criteria. Needs an Idempotency-Key. Tells the supplier; audited.
+   */
+  app.post(
+    '/:id/samples',
+    { preHandler: requireCustomer, config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      assertPurchasing(request);
+      const { id } = idParams.parse(request.params);
+      const input = sampleCreateSchema.parse(request.body);
+      return reply.status(201).send({ sample: await requestSample(buyerOf(request), id, input) });
+    },
+  );
+
+  /** Cancel a sample request before it is shipped. The supplier is told; audited. */
+  app.post(
+    '/:id/samples/:sampleId/cancel',
+    { preHandler: requireCustomer, config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      assertPurchasing(request);
+      const { id, sampleId } = sampleParams.parse(request.params);
+      const input = sampleReasonSchema.parse(request.body);
+      return reply.status(200).send({ sample: await buyerMoveSample(buyerOf(request), id, sampleId, 'CANCELLED', input) });
+    },
+  );
+
+  /** Confirm a shipped sample arrived. Only you can say it did; audited. */
+  app.post(
+    '/:id/samples/:sampleId/receive',
+    { preHandler: requireCustomer, config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      assertPurchasing(request);
+      const { id, sampleId } = sampleParams.parse(request.params);
+      const input = sampleReasonSchema.parse(request.body);
+      return reply.status(200).send({ sample: await buyerMoveSample(buyerOf(request), id, sampleId, 'DELIVERED', input) });
+    },
+  );
+
+  /** Approve a delivered sample against its criteria; it becomes the reference sample. Audited. */
+  app.post(
+    '/:id/samples/:sampleId/approve',
+    { preHandler: requireCustomer, config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      assertPurchasing(request);
+      const { id, sampleId } = sampleParams.parse(request.params);
+      const input = sampleReasonSchema.parse(request.body);
+      return reply.status(200).send({ sample: await buyerMoveSample(buyerOf(request), id, sampleId, 'APPROVED', input) });
+    },
+  );
+
+  /** Reject a delivered sample, with a reason the supplier reads. Audited. */
+  app.post(
+    '/:id/samples/:sampleId/reject',
+    { preHandler: requireCustomer, config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      assertPurchasing(request);
+      const { id, sampleId } = sampleParams.parse(request.params);
+      const input = sampleReasonSchema.parse(request.body);
+      return reply.status(200).send({ sample: await buyerMoveSample(buyerOf(request), id, sampleId, 'REJECTED', input) });
+    },
+  );
+
+  /** Attach evidence about a sample: a photograph, a test report. Seen by you and that supplier. */
+  app.post(
+    '/:id/samples/:sampleId/attachments',
+    { preHandler: requireCustomer, config: { rateLimit: { max: 30, timeWindow: '10 minutes' } } },
+    async (request, reply) => {
+      assertDrafting(request);
+      const { id, sampleId } = sampleParams.parse(request.params);
+      const buyer = buyerOf(request);
+      const rfq = await loadRfqForBuyer(buyer, id);
+      const sample = await sampleForEvidence(rfq.id, sampleId);
+      const file = await readUpload(request);
+      const attachment = await storeRfqAttachment(
+        rfq.id,
+        { ...file, purpose: 'SAMPLE', sellerAccountId: sample.sellerAccountId },
+        { party: 'BUYER', userId: buyer.userId, email: buyer.email },
+      );
+      await attachEvidence(attachment.id, sample.id);
+      return reply.status(201).send({ attachment });
+    },
+  );
+
   /** The thread with one invited seller, oldest first; `?after=` for only new ones. */
   app.get('/:id/invitations/:invitationId/messages', { preHandler: requireCustomer }, async (request, reply) => {
     const { id, invitationId } = invitationParams.parse(request.params);
@@ -490,6 +589,8 @@ export function registerCustomerRfqRoutes(app: FastifyInstance): Promise<void> {
 function negotiatorOf(buyer: RfqBuyer): Negotiator {
   return { party: 'BUYER', userId: buyer.userId, email: buyer.email };
 }
+
+const sampleParams = z.object({ id: z.string().length(26), sampleId: z.string().length(26) });
 
 const quoteParams = z.object({ id: z.string().length(26), quoteId: z.string().length(26) });
 

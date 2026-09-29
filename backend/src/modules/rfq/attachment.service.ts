@@ -162,7 +162,7 @@ export function supplierAttachmentWhere(
     OR: [
       { purpose: 'REQUIREMENT', requirementVersion: { not: null } },
       {
-        purpose: { in: ['QUOTE', 'NEGOTIATION'] },
+        purpose: { in: ['QUOTE', 'NEGOTIATION', 'SAMPLE'] },
         sellerAccountId,
         // Its own uploads at once; the buyer's only once they were sent.
         OR: [{ uploadedByParty: 'SUPPLIER' }, { quoteVersionId: { not: null } }],

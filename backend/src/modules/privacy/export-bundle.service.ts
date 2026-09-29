@@ -1428,6 +1428,7 @@ export async function buildCustomerBundle(
             },
             events: { orderBy: { createdAt: 'asc' }, take: 1_000 },
             messages: { orderBy: { id: 'asc' }, take: 2_000 },
+            samples: { orderBy: { createdAt: 'asc' } },
             quotes: {
               include: {
                 sellerAccount: { select: { displayName: true } },
@@ -1510,6 +1511,18 @@ export async function buildCustomerBundle(
               termsHash: version.termsHash,
               at: iso(version.createdAt),
             })),
+          })),
+          // Samples asked for, where they were sent and what was decided.
+          samples: request.samples.map((sample) => ({
+            reference: sample.reference,
+            status: sample.status,
+            quantity: sample.quantity.toString(),
+            deliveryAddress: sample.deliveryAddress,
+            approvalCriteria: sample.approvalCriteria,
+            courier: sample.courier,
+            trackingNumber: sample.trackingNumber,
+            decision: sample.decisionReason,
+            at: iso(sample.createdAt),
           })),
           // Questions and answers with each seller. Which member of the
           // seller's staff wrote is theirs, so only the side is given.

@@ -400,7 +400,8 @@ export const ModelName = {
   RfqEvent: 'RfqEvent',
   RfqMessage: 'RfqMessage',
   RfqQuote: 'RfqQuote',
-  RfqQuoteVersion: 'RfqQuoteVersion'
+  RfqQuoteVersion: 'RfqQuoteVersion',
+  RfqSample: 'RfqSample'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -8435,6 +8436,7 @@ export const RfqAttachmentScalarFieldEnum = {
   sellerAccountId: 'sellerAccountId',
   requirementVersion: 'requirementVersion',
   quoteVersionId: 'quoteVersionId',
+  sampleId: 'sampleId',
   uploadedByParty: 'uploadedByParty',
   uploadedByUserId: 'uploadedByUserId',
   storageKey: 'storageKey',
@@ -8542,6 +8544,39 @@ export const RfqQuoteVersionScalarFieldEnum = {
 } as const
 
 export type RfqQuoteVersionScalarFieldEnum = (typeof RfqQuoteVersionScalarFieldEnum)[keyof typeof RfqQuoteVersionScalarFieldEnum]
+
+
+export const RfqSampleScalarFieldEnum = {
+  id: 'id',
+  reference: 'reference',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  quoteId: 'quoteId',
+  status: 'status',
+  version: 'version',
+  quantity: 'quantity',
+  unitOfMeasure: 'unitOfMeasure',
+  deliveryAddress: 'deliveryAddress',
+  requestedByDate: 'requestedByDate',
+  approvalCriteria: 'approvalCriteria',
+  notes: 'notes',
+  costMinor: 'costMinor',
+  currency: 'currency',
+  paymentStatus: 'paymentStatus',
+  supplierNote: 'supplierNote',
+  courier: 'courier',
+  trackingNumber: 'trackingNumber',
+  shippedAt: 'shippedAt',
+  deliveredAt: 'deliveredAt',
+  decidedAt: 'decidedAt',
+  decisionReason: 'decisionReason',
+  referenceCode: 'referenceCode',
+  requestedByUserId: 'requestedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqSampleScalarFieldEnum = (typeof RfqSampleScalarFieldEnum)[keyof typeof RfqSampleScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -13547,6 +13582,7 @@ export const RfqAttachmentOrderByRelevanceFieldEnum = {
   rfqId: 'rfqId',
   sellerAccountId: 'sellerAccountId',
   quoteVersionId: 'quoteVersionId',
+  sampleId: 'sampleId',
   uploadedByUserId: 'uploadedByUserId',
   storageKey: 'storageKey',
   fileName: 'fileName',
@@ -13616,4 +13652,26 @@ export const RfqQuoteVersionOrderByRelevanceFieldEnum = {
 } as const
 
 export type RfqQuoteVersionOrderByRelevanceFieldEnum = (typeof RfqQuoteVersionOrderByRelevanceFieldEnum)[keyof typeof RfqQuoteVersionOrderByRelevanceFieldEnum]
+
+
+export const RfqSampleOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reference: 'reference',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  quoteId: 'quoteId',
+  unitOfMeasure: 'unitOfMeasure',
+  deliveryAddress: 'deliveryAddress',
+  approvalCriteria: 'approvalCriteria',
+  notes: 'notes',
+  currency: 'currency',
+  supplierNote: 'supplierNote',
+  courier: 'courier',
+  trackingNumber: 'trackingNumber',
+  decisionReason: 'decisionReason',
+  referenceCode: 'referenceCode',
+  requestedByUserId: 'requestedByUserId'
+} as const
+
+export type RfqSampleOrderByRelevanceFieldEnum = (typeof RfqSampleOrderByRelevanceFieldEnum)[keyof typeof RfqSampleOrderByRelevanceFieldEnum]
 

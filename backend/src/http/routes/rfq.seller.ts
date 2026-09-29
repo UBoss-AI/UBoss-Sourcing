@@ -11,6 +11,17 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import { prisma } from '../../infra/prisma.js';
+import {
+  acceptSample,
+  attachEvidence,
+  declineSample,
+  listSupplierSamples,
+  sampleAcceptSchema,
+  sampleForEvidence,
+  sampleReasonSchema,
+  sampleShipSchema,
+  shipSample,
+} from '../../modules/rfq/sample.service.js';
 import { rfqNotFound, supplierFromMembership, type RfqSupplier } from '../../modules/rfq/access.js';
 import {
   acceptOffer,
@@ -42,6 +53,7 @@ import { readRfqUpload, requireFeature } from './rfq.customer.js';
 
 const idParams = z.object({ id: z.string().length(26) });
 const attachmentParams = z.object({ id: z.string().length(26), attachmentId: z.string().length(26) });
+const sampleParams = z.object({ id: z.string().length(26), sampleId: z.string().length(26) });
 const WRITE_RATE_LIMIT = { max: 60, timeWindow: '1 minute' } as const;
 
 function sellerNegotiator(supplier: RfqSupplier): Negotiator {
@@ -187,6 +199,65 @@ export function registerSellerRfqRoutes(app: FastifyInstance): Promise<void> {
       const { id } = idParams.parse(request.params);
       const supplier = supplierOf(request);
       return reply.status(200).send({ quote: await withdrawQuote(sellerNegotiator(supplier), await ownQuoteId(supplier, id)) });
+    },
+  );
+
+  /** The samples the buyer asked this seller for on the request. */
+  app.get('/rfqs/:id/samples', { preHandler: requireSeller(SellerPermission.ORDER_READ) }, async (request, reply) => {
+    const { id } = idParams.parse(request.params);
+    return reply.header('Cache-Control', 'no-store').status(200).send({ samples: await listSupplierSamples(supplierOf(request), id) });
+  });
+
+  /** Accept a sample request, saying what it costs (none is free). Payment is never marked paid here. */
+  app.post(
+    '/rfqs/:id/samples/:sampleId/accept',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      const { id, sampleId } = sampleParams.parse(request.params);
+      const input = sampleAcceptSchema.parse(request.body);
+      return reply.status(200).send({ sample: await acceptSample(supplierOf(request), id, sampleId, input) });
+    },
+  );
+
+  /** Decline a sample request, with a reason the buyer reads. */
+  app.post(
+    '/rfqs/:id/samples/:sampleId/decline',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      const { id, sampleId } = sampleParams.parse(request.params);
+      const input = sampleReasonSchema.parse(request.body);
+      return reply.status(200).send({ sample: await declineSample(supplierOf(request), id, sampleId, input) });
+    },
+  );
+
+  /** Record that the sample was sent: courier and tracking number are required. */
+  app.post(
+    '/rfqs/:id/samples/:sampleId/ship',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      const { id, sampleId } = sampleParams.parse(request.params);
+      const input = sampleShipSchema.parse(request.body);
+      return reply.status(200).send({ sample: await shipSample(supplierOf(request), id, sampleId, input) });
+    },
+  );
+
+  /** Attach evidence about a sample, such as a certificate of analysis. Seen by the buyer and this seller. */
+  app.post(
+    '/rfqs/:id/samples/:sampleId/attachments',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: { max: 30, timeWindow: '10 minutes' } } },
+    async (request, reply) => {
+      const { id, sampleId } = sampleParams.parse(request.params);
+      const supplier = supplierOf(request);
+      await loadInvitation(supplier, id);
+      const sample = await sampleForEvidence(id, sampleId, supplier.sellerAccountId);
+      const file = await readRfqUpload(request);
+      const attachment = await storeRfqAttachment(
+        id,
+        { ...file, purpose: 'SAMPLE', sellerAccountId: supplier.sellerAccountId },
+        { party: 'SUPPLIER', userId: supplier.userId, email: null },
+      );
+      await attachEvidence(attachment.id, sample.id);
+      return reply.status(201).send({ attachment });
     },
   );
 

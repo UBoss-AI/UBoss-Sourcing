@@ -3192,6 +3192,38 @@ status write is conditional on the status and version that were read.
   purchase order or order from accepted terms - the read endpoint returns
   `purchaseOrder.status = NOT_BUILT`.
 
+### FR-RFQ-005 — Sample requests (checklist Master row 20)
+
+- **Statement.** On an open or awarded request the buyer asks a supplier
+  taking part (optionally against its quote) for a sample; both sides follow
+  it to a decision.
+- **Fields.** Quantity, unit, delivery address, needed-by date, approval
+  criteria, notes; the supplier's cost (minor units + currency, or free) and
+  note; courier and tracking number; the decision and its reason; evidence
+  files; the reference-sample code.
+- **Rules.**
+  1. Creating needs an Idempotency-Key; a repeat is one request. Only a
+     supplier with a live invitation can be asked (`RFQ_SUPPLIER_NOT_ELIGIBLE`).
+  2. Status (`domain/rfq-sample-state.ts`), each step by one side only and
+     conditional on the status and version read: REQUESTED -> ACCEPTED or
+     DECLINED (supplier, with a reason) or CANCELLED (buyer); ACCEPTED ->
+     SHIPPED (supplier, courier and tracking required) or CANCELLED; SHIPPED ->
+     DELIVERED (buyer confirms receipt); DELIVERED -> APPROVED or REJECTED
+     (buyer, rejection with a reason). Anything else is
+     `RFQ_SAMPLE_TRANSITION_NOT_ALLOWED`.
+  3. Nothing is marked done without its event: shipped needs the tracking
+     details, delivered needs the buyer, and payment is never marked PAID -
+     a sample with a cost stays PAYMENT_PENDING and the screens say payment
+     is not collected here.
+  4. Approval sets a reference-sample code (`REF-<reference>`), the sample a
+     later inspection is measured against.
+  5. Evidence files (purpose SAMPLE) are seen only by the buyer and that
+     supplier. Every step is on the timeline, told to the other side and
+     audited.
+- **Status.** Built (checklist Master row 20). **Not built:** collecting
+  payment for a sample; linking a reference sample into an inspection
+  booking (the code is recorded for that).
+
 ## 5.12 Buying by the carton, pallet or container; freight (BULK)
 
 ### FR-BULK-001 — Seller packaging per listing

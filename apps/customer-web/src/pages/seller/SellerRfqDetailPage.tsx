@@ -19,6 +19,7 @@ import {
 } from '@/components/rfq/RfqParts';
 import { RfqThread } from '@/components/rfq/RfqThread';
 import { NegotiationPanel } from '@/components/rfq/NegotiationPanel';
+import { SamplesPanel } from '@/components/rfq/SamplesPanel';
 import { QuoteForm } from '@/components/rfq/QuoteForm';
 import { fetchSellerQuote } from '@/lib/rfq-quote';
 import { useToast } from '@/components/toast-context';
@@ -65,7 +66,7 @@ function SellerQuotePanel({ rfq }: { rfq: SellerRfq }): React.JSX.Element {
   );
 }
 
-type TabKey = 'requirement' | 'quote' | 'questions' | 'files' | 'timeline';
+type TabKey = 'requirement' | 'quote' | 'questions' | 'samples' | 'files' | 'timeline';
 
 export function SellerRfqDetailPage(): React.JSX.Element {
   const { id = '' } = useParams<{ id: string }>();
@@ -150,6 +151,7 @@ function SellerRfqWorkspace({ rfq }: { rfq: SellerRfq }): React.JSX.Element {
           { key: 'requirement', label: t('rfq.detail.tab.requirement') },
           { key: 'quote', label: t('sellerRfq.tab.quote') },
           { key: 'questions', label: t('sellerRfq.tab.questions') },
+          { key: 'samples', label: t('rfq.sample.tab') },
           { key: 'files', label: t('rfq.detail.tab.files') },
           { key: 'timeline', label: t('rfq.detail.tab.timeline') },
         ]}
@@ -185,6 +187,7 @@ function SellerRfqWorkspace({ rfq }: { rfq: SellerRfq }): React.JSX.Element {
           </div>
         )}
         {tab === 'quote' && <SellerQuotePanel rfq={rfq} />}
+        {tab === 'samples' && <SamplesPanel party="SUPPLIER" rfqId={rfq.id} filesAvailable={rfq.attachmentPolicy.available} />}
         {tab === 'questions' && (
           <Card bodyClassName="px-6 py-5">
             <RfqThread path={`/seller/rfqs/${rfq.id}/messages`} canWrite={rfq.actions.canAsk} otherPartyName={buyerName} />

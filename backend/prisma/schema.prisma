@@ -23908,6 +23908,9 @@ enum RfqAttachmentPurpose {
   /// Sent with a counter-offer, by either side. Seen by the buyer and that
   /// seller.
   NEGOTIATION
+  /// Evidence about a sample (a photograph, a test report). Seen by the
+  /// buyer and that seller.
+  SAMPLE
 }
 
 /// One request for quotation. The row holds the CURRENT requirement; every
@@ -23991,6 +23994,7 @@ model RfqRequest {
   events              RfqEvent[]
   messages            RfqMessage[]
   quotes              RfqQuote[]
+  samples             RfqSample[]
 
   @@index([customerProfileId, buyerCompanyId, updatedAt], map: "ix_rfq_request_owner")
   @@index([buyerCompanyId, updatedAt], map: "ix_rfq_request_company")
@@ -24066,6 +24070,8 @@ model RfqAttachment {
   /// The quote or offer version a QUOTE or NEGOTIATION file was sent with.
   /// NULL until it is sent; until then only its uploader can see it.
   quoteVersionId     String? @db.Char(26)
+  /// The sample a SAMPLE file is evidence about.
+  sampleId           String? @db.Char(26)
 
   uploadedByParty  RfqParty
   uploadedByUserId String  @db.Char(26)
@@ -24252,4 +24258,72 @@ model RfqQuoteVersion {
   @@unique([quoteId, versionNumber], map: "uq_rfq_quote_version")
   @@index([rfqId], map: "ix_rfq_quote_version_rfq")
   @@map("rfq_quote_versions")
+}
+
+enum RfqSampleStatus {
+  REQUESTED
+  ACCEPTED
+  DECLINED
+  SHIPPED
+  DELIVERED
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+/// Whether a sample costs anything, and whether it is paid. PAID is only
+/// ever set by a real payment event; collecting sample payments is not
+/// built yet, so a sample with a cost stays PAYMENT_PENDING.
+enum RfqSamplePaymentStatus {
+  NOT_REQUIRED
+  PAYMENT_PENDING
+  PAID
+}
+
+/// A sample asked of one seller on a request (Master row 20), optionally
+/// against its quote. Status is only changed through
+/// `domain/rfq-sample-state.ts`, conditionally on the status read.
+model RfqSample {
+  id              String          @id @db.Char(26)
+  /// SMP-2026-000123.
+  reference       String          @unique(map: "uq_rfq_sample_reference") @db.VarChar(32)
+  rfqId           String          @db.Char(26)
+  sellerAccountId String          @db.Char(26)
+  quoteId         String?         @db.Char(26)
+  status          RfqSampleStatus @default(REQUESTED)
+  version         Int             @default(0)
+
+  quantity          Decimal   @db.Decimal(15, 3)
+  unitOfMeasure     String?   @db.VarChar(16)
+  deliveryAddress   String    @db.VarChar(500)
+  requestedByDate   DateTime? @db.Date
+  /// What the sample must show to be approved, in the buyer's words.
+  approvalCriteria  String    @db.Text
+  notes             String?   @db.Text
+
+  /// What the supplier charges for it; NULL for free. Both or neither.
+  costMinor     BigInt?
+  currency      String?                @db.Char(3)
+  paymentStatus RfqSamplePaymentStatus @default(NOT_REQUIRED)
+  supplierNote  String?                @db.VarChar(1000)
+
+  courier        String?   @db.VarChar(80)
+  trackingNumber String?   @db.VarChar(80)
+  shippedAt      DateTime? @db.DateTime(3)
+  deliveredAt    DateTime? @db.DateTime(3)
+  decidedAt      DateTime? @db.DateTime(3)
+  decisionReason String?   @db.VarChar(1000)
+  /// Set when the buyer approves: the reference sample a later inspection is
+  /// measured against. Unique across the deployment.
+  referenceCode  String?   @unique(map: "uq_rfq_sample_reference_code") @db.VarChar(40)
+
+  requestedByUserId String @db.Char(26)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  rfq RfqRequest @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_sample_rfq")
+
+  @@index([rfqId, sellerAccountId], map: "ix_rfq_sample_rfq")
+  @@index([sellerAccountId, status], map: "ix_rfq_sample_seller")
+  @@map("rfq_samples")
 }

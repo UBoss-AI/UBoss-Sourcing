@@ -94,6 +94,7 @@ const REQUIRED_CENTRAL: Record<string, string> = {
   [`POST ${P}/admin/orders/:id/shipments`]: 'Creates a shipment for an order.',
   [`POST ${P}/admin/orders/:id/returns`]: 'Books a return against an order.',
   [`POST ${P}/rfqs`]: 'Starts a draft request for quotation; a double press must not start two.',
+  [`POST ${P}/rfqs/:id/samples`]: 'Asks a seller for a sample; a double press must not ask twice.',
   [`POST ${P}/rfqs/:id/submit`]:
     'Sends a request for quotation to sellers, writing their invitations and telling each of them.',
 };
@@ -133,6 +134,7 @@ const TRANSITION_VERBS = new Set([
   'unassign-driver', 'unblock', 'unhide', 'unlock', 'unpublish', 'verify', 'void',
   'withdraw', 'regenerate', 'reset', 'sync', 'refresh', 'reconcile', 'collection',
   'link', 'unlink', 'handoff', 'moderate', 'feature', 'unfeature', 'answer', 'close-out',
+  'receive', 'ship',
 ]);
 
 /** Final path segments that compute an answer without changing business state. */

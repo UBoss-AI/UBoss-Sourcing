@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1152 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1164 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -29,9 +29,9 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 |---|---|
 | [Admin panel (staff)](#admin-panel-staff) | 452 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 288 |
+| [Seller Hub](#seller-hub) | 293 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 260 |
+| [Customer account](#customer-account) | 267 |
 | [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
@@ -1680,6 +1680,11 @@ Defined in `backend/src/http/routes/rfq.seller.ts`.
 | POST | `/api/v1/seller/rfqs/:id/quote/accept` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Accept the buyer's counter-offer on the table. Awards the request and freezes the terms. |
 | POST | `/api/v1/seller/rfqs/:id/quote/reject` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Reject the buyer's counter-offer on the table. |
 | POST | `/api/v1/seller/rfqs/:id/quote/withdraw` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Withdraw this seller's quote while it is open. The buyer is told. |
+| GET | `/api/v1/seller/rfqs/:id/samples` | Seller | Feature + Seller(ORDER_READ) | The samples the buyer asked this seller for on the request. |
+| POST | `/api/v1/seller/rfqs/:id/samples/:sampleId/accept` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Accept a sample request, saying what it costs (none is free). Payment is never marked paid here. |
+| POST | `/api/v1/seller/rfqs/:id/samples/:sampleId/decline` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Decline a sample request, with a reason the buyer reads. |
+| POST | `/api/v1/seller/rfqs/:id/samples/:sampleId/ship` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Record that the sample was sent: courier and tracking number are required. |
+| POST | `/api/v1/seller/rfqs/:id/samples/:sampleId/attachments` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Attach evidence about a sample, such as a certificate of analysis. Seen by the buyer and this seller. |
 | GET | `/api/v1/seller/rfqs/:id/accepted-terms` | Seller | Feature + Seller(ORDER_READ) | The terms agreed with this seller, frozen at acceptance. Not found unless its quote won. |
 | POST | `/api/v1/seller/rfqs/:id/attachments` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Upload a PDF or image to send with this seller's quote or next offer. Seen by nobody else until it is sent with one. |
 | GET | `/api/v1/seller/rfqs/:id/attachments/:attachmentId/download` | Seller | Feature + Seller(ORDER_READ) | Download a file this seller may see on the request. Served as a download, never inline. |
@@ -2309,6 +2314,13 @@ Defined in `backend/src/http/routes/rfq.customer.ts`.
 | POST | `/api/v1/rfqs/:id/quotes/:quoteId/accept` | Customer | Feature + Customer | Accept the supplier's offer on the table, naming its terms hash. Awards the request, closes every other quote and freezes the terms. Repeating it is answered with the same result. Writes an audit entry. |
 | POST | `/api/v1/rfqs/:id/quotes/:quoteId/reject` | Customer | Feature + Customer | Reject the supplier's offer on the table; the quote closes as rejected. |
 | GET | `/api/v1/rfqs/:id/accepted-terms` | Customer | Feature + Customer | The terms both sides agreed to, frozen at acceptance, with their hash. |
+| GET | `/api/v1/rfqs/:id/samples` | Customer | Feature + Customer | The samples asked for on your request, with their status, evidence and what you may do next. |
+| POST | `/api/v1/rfqs/:id/samples` | Customer | Feature + Customer | Ask a supplier taking part for a sample: quantity, address, date and approval criteria. Needs an Idempotency-Key. Tells the supplier; audited. |
+| POST | `/api/v1/rfqs/:id/samples/:sampleId/cancel` | Customer | Feature + Customer | Cancel a sample request before it is shipped. The supplier is told; audited. |
+| POST | `/api/v1/rfqs/:id/samples/:sampleId/receive` | Customer | Feature + Customer | Confirm a shipped sample arrived. Only you can say it did; audited. |
+| POST | `/api/v1/rfqs/:id/samples/:sampleId/approve` | Customer | Feature + Customer | Approve a delivered sample against its criteria; it becomes the reference sample. Audited. |
+| POST | `/api/v1/rfqs/:id/samples/:sampleId/reject` | Customer | Feature + Customer | Reject a delivered sample, with a reason the supplier reads. Audited. |
+| POST | `/api/v1/rfqs/:id/samples/:sampleId/attachments` | Customer | Feature + Customer | Attach evidence about a sample: a photograph, a test report. Seen by you and that supplier. |
 | GET | `/api/v1/rfqs/:id/invitations/:invitationId/messages` | Customer | Feature + Customer | The thread with one invited seller, oldest first; `?after=` for only new ones. |
 | POST | `/api/v1/rfqs/:id/invitations/:invitationId/messages` | Customer | Feature + Customer | Write to one invited seller. A resend with the same clientMessageId is not a second message. |
 

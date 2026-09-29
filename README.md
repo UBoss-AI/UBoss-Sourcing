@@ -2867,7 +2867,11 @@ and never hiding the figure as quoted - shortlists, and downloads the
 comparison as CSV. Buyer and seller then negotiate in counter-offers, each an
 unchangeable version; accepting one awards the request once, closes the other
 quotes and locks the agreed terms (with a fingerprint an order would have to
-match). Turning agreed terms into a purchase order is not built yet.
+match). Turning agreed terms into a purchase order is not built yet. The
+buyer can also ask any supplier taking part for a sample and follow it from
+request to shipped (courier and tracking), delivered and approved or rejected
+against written criteria; an approved sample becomes the reference sample.
+Sample payments are not collected by the marketplace.
 Switched by `FEATURE_RFQ` (default on).
 
 ## Preorder chat

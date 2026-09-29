@@ -44,6 +44,7 @@ export type RfqAttachmentMinAggregateOutputType = {
   sellerAccountId: string | null
   requirementVersion: number | null
   quoteVersionId: string | null
+  sampleId: string | null
   uploadedByParty: $Enums.RfqParty | null
   uploadedByUserId: string | null
   storageKey: string | null
@@ -63,6 +64,7 @@ export type RfqAttachmentMaxAggregateOutputType = {
   sellerAccountId: string | null
   requirementVersion: number | null
   quoteVersionId: string | null
+  sampleId: string | null
   uploadedByParty: $Enums.RfqParty | null
   uploadedByUserId: string | null
   storageKey: string | null
@@ -82,6 +84,7 @@ export type RfqAttachmentCountAggregateOutputType = {
   sellerAccountId: number
   requirementVersion: number
   quoteVersionId: number
+  sampleId: number
   uploadedByParty: number
   uploadedByUserId: number
   storageKey: number
@@ -113,6 +116,7 @@ export type RfqAttachmentMinAggregateInputType = {
   sellerAccountId?: true
   requirementVersion?: true
   quoteVersionId?: true
+  sampleId?: true
   uploadedByParty?: true
   uploadedByUserId?: true
   storageKey?: true
@@ -132,6 +136,7 @@ export type RfqAttachmentMaxAggregateInputType = {
   sellerAccountId?: true
   requirementVersion?: true
   quoteVersionId?: true
+  sampleId?: true
   uploadedByParty?: true
   uploadedByUserId?: true
   storageKey?: true
@@ -151,6 +156,7 @@ export type RfqAttachmentCountAggregateInputType = {
   sellerAccountId?: true
   requirementVersion?: true
   quoteVersionId?: true
+  sampleId?: true
   uploadedByParty?: true
   uploadedByUserId?: true
   storageKey?: true
@@ -257,6 +263,7 @@ export type RfqAttachmentGroupByOutputType = {
   sellerAccountId: string | null
   requirementVersion: number | null
   quoteVersionId: string | null
+  sampleId: string | null
   uploadedByParty: $Enums.RfqParty
   uploadedByUserId: string
   storageKey: string
@@ -299,6 +306,7 @@ export type RfqAttachmentWhereInput = {
   sellerAccountId?: Prisma.StringNullableFilter<"RfqAttachment"> | string | null
   requirementVersion?: Prisma.IntNullableFilter<"RfqAttachment"> | number | null
   quoteVersionId?: Prisma.StringNullableFilter<"RfqAttachment"> | string | null
+  sampleId?: Prisma.StringNullableFilter<"RfqAttachment"> | string | null
   uploadedByParty?: Prisma.EnumRfqPartyFilter<"RfqAttachment"> | $Enums.RfqParty
   uploadedByUserId?: Prisma.StringFilter<"RfqAttachment"> | string
   storageKey?: Prisma.StringFilter<"RfqAttachment"> | string
@@ -319,6 +327,7 @@ export type RfqAttachmentOrderByWithRelationInput = {
   sellerAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   requirementVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   quoteVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sampleId?: Prisma.SortOrderInput | Prisma.SortOrder
   uploadedByParty?: Prisma.SortOrder
   uploadedByUserId?: Prisma.SortOrder
   storageKey?: Prisma.SortOrder
@@ -343,6 +352,7 @@ export type RfqAttachmentWhereUniqueInput = Prisma.AtLeast<{
   sellerAccountId?: Prisma.StringNullableFilter<"RfqAttachment"> | string | null
   requirementVersion?: Prisma.IntNullableFilter<"RfqAttachment"> | number | null
   quoteVersionId?: Prisma.StringNullableFilter<"RfqAttachment"> | string | null
+  sampleId?: Prisma.StringNullableFilter<"RfqAttachment"> | string | null
   uploadedByParty?: Prisma.EnumRfqPartyFilter<"RfqAttachment"> | $Enums.RfqParty
   uploadedByUserId?: Prisma.StringFilter<"RfqAttachment"> | string
   storageKey?: Prisma.StringFilter<"RfqAttachment"> | string
@@ -363,6 +373,7 @@ export type RfqAttachmentOrderByWithAggregationInput = {
   sellerAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   requirementVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   quoteVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sampleId?: Prisma.SortOrderInput | Prisma.SortOrder
   uploadedByParty?: Prisma.SortOrder
   uploadedByUserId?: Prisma.SortOrder
   storageKey?: Prisma.SortOrder
@@ -390,6 +401,7 @@ export type RfqAttachmentScalarWhereWithAggregatesInput = {
   sellerAccountId?: Prisma.StringNullableWithAggregatesFilter<"RfqAttachment"> | string | null
   requirementVersion?: Prisma.IntNullableWithAggregatesFilter<"RfqAttachment"> | number | null
   quoteVersionId?: Prisma.StringNullableWithAggregatesFilter<"RfqAttachment"> | string | null
+  sampleId?: Prisma.StringNullableWithAggregatesFilter<"RfqAttachment"> | string | null
   uploadedByParty?: Prisma.EnumRfqPartyWithAggregatesFilter<"RfqAttachment"> | $Enums.RfqParty
   uploadedByUserId?: Prisma.StringWithAggregatesFilter<"RfqAttachment"> | string
   storageKey?: Prisma.StringWithAggregatesFilter<"RfqAttachment"> | string
@@ -408,6 +420,7 @@ export type RfqAttachmentCreateInput = {
   sellerAccountId?: string | null
   requirementVersion?: number | null
   quoteVersionId?: string | null
+  sampleId?: string | null
   uploadedByParty: $Enums.RfqParty
   uploadedByUserId: string
   storageKey: string
@@ -428,6 +441,7 @@ export type RfqAttachmentUncheckedCreateInput = {
   sellerAccountId?: string | null
   requirementVersion?: number | null
   quoteVersionId?: string | null
+  sampleId?: string | null
   uploadedByParty: $Enums.RfqParty
   uploadedByUserId: string
   storageKey: string
@@ -446,6 +460,7 @@ export type RfqAttachmentUpdateInput = {
   sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requirementVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quoteVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedByParty?: Prisma.EnumRfqPartyFieldUpdateOperationsInput | $Enums.RfqParty
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   storageKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -466,6 +481,7 @@ export type RfqAttachmentUncheckedUpdateInput = {
   sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requirementVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quoteVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedByParty?: Prisma.EnumRfqPartyFieldUpdateOperationsInput | $Enums.RfqParty
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   storageKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -485,6 +501,7 @@ export type RfqAttachmentCreateManyInput = {
   sellerAccountId?: string | null
   requirementVersion?: number | null
   quoteVersionId?: string | null
+  sampleId?: string | null
   uploadedByParty: $Enums.RfqParty
   uploadedByUserId: string
   storageKey: string
@@ -503,6 +520,7 @@ export type RfqAttachmentUpdateManyMutationInput = {
   sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requirementVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quoteVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedByParty?: Prisma.EnumRfqPartyFieldUpdateOperationsInput | $Enums.RfqParty
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   storageKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -522,6 +540,7 @@ export type RfqAttachmentUncheckedUpdateManyInput = {
   sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requirementVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quoteVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedByParty?: Prisma.EnumRfqPartyFieldUpdateOperationsInput | $Enums.RfqParty
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   storageKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -557,6 +576,7 @@ export type RfqAttachmentCountOrderByAggregateInput = {
   sellerAccountId?: Prisma.SortOrder
   requirementVersion?: Prisma.SortOrder
   quoteVersionId?: Prisma.SortOrder
+  sampleId?: Prisma.SortOrder
   uploadedByParty?: Prisma.SortOrder
   uploadedByUserId?: Prisma.SortOrder
   storageKey?: Prisma.SortOrder
@@ -581,6 +601,7 @@ export type RfqAttachmentMaxOrderByAggregateInput = {
   sellerAccountId?: Prisma.SortOrder
   requirementVersion?: Prisma.SortOrder
   quoteVersionId?: Prisma.SortOrder
+  sampleId?: Prisma.SortOrder
   uploadedByParty?: Prisma.SortOrder
   uploadedByUserId?: Prisma.SortOrder
   storageKey?: Prisma.SortOrder
@@ -600,6 +621,7 @@ export type RfqAttachmentMinOrderByAggregateInput = {
   sellerAccountId?: Prisma.SortOrder
   requirementVersion?: Prisma.SortOrder
   quoteVersionId?: Prisma.SortOrder
+  sampleId?: Prisma.SortOrder
   uploadedByParty?: Prisma.SortOrder
   uploadedByUserId?: Prisma.SortOrder
   storageKey?: Prisma.SortOrder
@@ -673,6 +695,7 @@ export type RfqAttachmentCreateWithoutRfqInput = {
   sellerAccountId?: string | null
   requirementVersion?: number | null
   quoteVersionId?: string | null
+  sampleId?: string | null
   uploadedByParty: $Enums.RfqParty
   uploadedByUserId: string
   storageKey: string
@@ -691,6 +714,7 @@ export type RfqAttachmentUncheckedCreateWithoutRfqInput = {
   sellerAccountId?: string | null
   requirementVersion?: number | null
   quoteVersionId?: string | null
+  sampleId?: string | null
   uploadedByParty: $Enums.RfqParty
   uploadedByUserId: string
   storageKey: string
@@ -739,6 +763,7 @@ export type RfqAttachmentScalarWhereInput = {
   sellerAccountId?: Prisma.StringNullableFilter<"RfqAttachment"> | string | null
   requirementVersion?: Prisma.IntNullableFilter<"RfqAttachment"> | number | null
   quoteVersionId?: Prisma.StringNullableFilter<"RfqAttachment"> | string | null
+  sampleId?: Prisma.StringNullableFilter<"RfqAttachment"> | string | null
   uploadedByParty?: Prisma.EnumRfqPartyFilter<"RfqAttachment"> | $Enums.RfqParty
   uploadedByUserId?: Prisma.StringFilter<"RfqAttachment"> | string
   storageKey?: Prisma.StringFilter<"RfqAttachment"> | string
@@ -757,6 +782,7 @@ export type RfqAttachmentCreateManyRfqInput = {
   sellerAccountId?: string | null
   requirementVersion?: number | null
   quoteVersionId?: string | null
+  sampleId?: string | null
   uploadedByParty: $Enums.RfqParty
   uploadedByUserId: string
   storageKey: string
@@ -775,6 +801,7 @@ export type RfqAttachmentUpdateWithoutRfqInput = {
   sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requirementVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quoteVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedByParty?: Prisma.EnumRfqPartyFieldUpdateOperationsInput | $Enums.RfqParty
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   storageKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -793,6 +820,7 @@ export type RfqAttachmentUncheckedUpdateWithoutRfqInput = {
   sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requirementVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quoteVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedByParty?: Prisma.EnumRfqPartyFieldUpdateOperationsInput | $Enums.RfqParty
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   storageKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -811,6 +839,7 @@ export type RfqAttachmentUncheckedUpdateManyWithoutRfqInput = {
   sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requirementVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quoteVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedByParty?: Prisma.EnumRfqPartyFieldUpdateOperationsInput | $Enums.RfqParty
   uploadedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   storageKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -832,6 +861,7 @@ export type RfqAttachmentSelect<ExtArgs extends runtime.Types.Extensions.Interna
   sellerAccountId?: boolean
   requirementVersion?: boolean
   quoteVersionId?: boolean
+  sampleId?: boolean
   uploadedByParty?: boolean
   uploadedByUserId?: boolean
   storageKey?: boolean
@@ -854,6 +884,7 @@ export type RfqAttachmentSelectScalar = {
   sellerAccountId?: boolean
   requirementVersion?: boolean
   quoteVersionId?: boolean
+  sampleId?: boolean
   uploadedByParty?: boolean
   uploadedByUserId?: boolean
   storageKey?: boolean
@@ -866,7 +897,7 @@ export type RfqAttachmentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type RfqAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rfqId" | "purpose" | "sellerAccountId" | "requirementVersion" | "quoteVersionId" | "uploadedByParty" | "uploadedByUserId" | "storageKey" | "fileName" | "contentType" | "byteSize" | "contentHash" | "scanState" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqAttachment"]>
+export type RfqAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rfqId" | "purpose" | "sellerAccountId" | "requirementVersion" | "quoteVersionId" | "sampleId" | "uploadedByParty" | "uploadedByUserId" | "storageKey" | "fileName" | "contentType" | "byteSize" | "contentHash" | "scanState" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqAttachment"]>
 export type RfqAttachmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
 }
@@ -896,6 +927,10 @@ export type $RfqAttachmentPayload<ExtArgs extends runtime.Types.Extensions.Inter
      * NULL until it is sent; until then only its uploader can see it.
      */
     quoteVersionId: string | null
+    /**
+     * The sample a SAMPLE file is evidence about.
+     */
+    sampleId: string | null
     uploadedByParty: $Enums.RfqParty
     uploadedByUserId: string
     storageKey: string
@@ -1289,6 +1324,7 @@ export interface RfqAttachmentFieldRefs {
   readonly sellerAccountId: Prisma.FieldRef<"RfqAttachment", 'String'>
   readonly requirementVersion: Prisma.FieldRef<"RfqAttachment", 'Int'>
   readonly quoteVersionId: Prisma.FieldRef<"RfqAttachment", 'String'>
+  readonly sampleId: Prisma.FieldRef<"RfqAttachment", 'String'>
   readonly uploadedByParty: Prisma.FieldRef<"RfqAttachment", 'RfqParty'>
   readonly uploadedByUserId: Prisma.FieldRef<"RfqAttachment", 'String'>
   readonly storageKey: Prisma.FieldRef<"RfqAttachment", 'String'>

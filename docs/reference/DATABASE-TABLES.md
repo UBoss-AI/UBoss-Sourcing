@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**350 tables · 326 enums · 804 extra indexes and unique keys**, in 55 groups. The groups follow the section banners in the schema file.
+**351 tables · 328 enums · 806 extra indexes and unique keys**, in 55 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -79,7 +79,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.](#group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts) | 14 | 11 |
 | [/ what a ledger account represents. balances are never stored; they are the / sum of the account's lines.](#group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines) | 8 | 7 |
 | [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
-| [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 8 | 7 |
+| [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 9 | 9 |
 
 <a id="group-identity-access"></a>
 
@@ -20320,7 +20320,7 @@ Table `secret_fingerprints`
 
 ## Requests for quotation (rfq) - checklist master rows 16-19
 
-[RfqRequest](#model-rfqrequest) · [RfqRequirementVersion](#model-rfqrequirementversion) · [RfqInvitation](#model-rfqinvitation) · [RfqAttachment](#model-rfqattachment) · [RfqEvent](#model-rfqevent) · [RfqMessage](#model-rfqmessage) · [RfqQuote](#model-rfqquote) · [RfqQuoteVersion](#model-rfqquoteversion)
+[RfqRequest](#model-rfqrequest) · [RfqRequirementVersion](#model-rfqrequirementversion) · [RfqInvitation](#model-rfqinvitation) · [RfqAttachment](#model-rfqattachment) · [RfqEvent](#model-rfqevent) · [RfqMessage](#model-rfqmessage) · [RfqQuote](#model-rfqquote) · [RfqQuoteVersion](#model-rfqquoteversion) · [RfqSample](#model-rfqsample)
 
 ```mermaid
 erDiagram
@@ -20336,6 +20336,7 @@ erDiagram
     RfqRequest ||--o{ RfqQuote : "rfq"
     SellerAccount ||--o{ RfqQuote : "sellerAccount"
     RfqQuote ||--o{ RfqQuoteVersion : "quote"
+    RfqRequest ||--o{ RfqSample : "rfq"
     RfqRequest {
         String id PK
         RfqStatus status
@@ -20379,6 +20380,13 @@ erDiagram
         BigInt toolingMinor
         BigInt sampleCostMinor
         BigInt shippingEstimateMinor
+    }
+    RfqSample {
+        String id PK
+        String rfqId FK
+        RfqSampleStatus status
+        BigInt costMinor
+        RfqSamplePaymentStatus paymentStatus
     }
 ```
 
@@ -20443,6 +20451,7 @@ One request for quotation. The row holds the CURRENT requirement; every submitte
 - `events` ← [RfqEvent](#model-rfqevent) - has many
 - `messages` ← [RfqMessage](#model-rfqmessage) - has many
 - `quotes` ← [RfqQuote](#model-rfqquote) - has many
+- `samples` ← [RfqSample](#model-rfqsample) - has many
 
 **Indexes and keys**
 
@@ -20528,6 +20537,7 @@ A file on a request. The bytes are private objects; who may download one is who 
 | `sellerAccountId` | String · Char(26) | yes |  |  | The seller thread a QUOTE or NEGOTIATION file belongs to. NULL for a requirement file, which every invited seller may see. |
 | `requirementVersion` | Int | yes |  |  | The requirement version a REQUIREMENT file was frozen into. NULL while it sits on a draft or waits for the next amendment - and while NULL no seller can see it and the buyer may still remove it. |
 | `quoteVersionId` | String · Char(26) | yes |  |  | The quote or offer version a QUOTE or NEGOTIATION file was sent with. NULL until it is sent; until then only its uploader can see it. |
+| `sampleId` | String · Char(26) | yes |  |  | The sample a SAMPLE file is evidence about. |
 | `uploadedByParty` | [enum RfqParty](#enum-rfqparty) |  |  |  |  |
 | `uploadedByUserId` | String · Char(26) |  |  |  |  |
 | `storageKey` | String · VarChar(512) |  |  |  |  |
@@ -20699,6 +20709,53 @@ One immutable set of terms in a quote. Version 1 is the seller's quote; each cou
 - `@@unique([quoteId, versionNumber], map: "uq_rfq_quote_version")`
 - `@@index([rfqId], map: "ix_rfq_quote_version_rfq")`
 
+<a id="model-rfqsample"></a>
+
+### RfqSample
+
+Table `rfq_samples`
+
+A sample asked of one seller on a request (Master row 20), optionally against its quote. Status is only changed through `domain/rfq-sample-state.ts`, conditionally on the status read.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `reference` | String · VarChar(32) |  | UNIQUE |  | SMP-2026-000123. |
+| `rfqId` | String · Char(26) |  | FK → [RfqRequest](#model-rfqrequest) |  | (on delete: Cascade) |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `quoteId` | String · Char(26) | yes |  |  |  |
+| `status` | [enum RfqSampleStatus](#enum-rfqsamplestatus) |  |  | REQUESTED |  |
+| `version` | Int |  |  | 0 |  |
+| `quantity` | Decimal · Decimal(15, 3) |  |  |  |  |
+| `unitOfMeasure` | String · VarChar(16) | yes |  |  |  |
+| `deliveryAddress` | String · VarChar(500) |  |  |  |  |
+| `requestedByDate` | DateTime · Date | yes |  |  |  |
+| `approvalCriteria` | String · Text |  |  |  | What the sample must show to be approved, in the buyer's words. |
+| `notes` | String · Text | yes |  |  |  |
+| `costMinor` | BigInt | yes |  |  | What the supplier charges for it; NULL for free. Both or neither. |
+| `currency` | String · Char(3) | yes |  |  |  |
+| `paymentStatus` | [enum RfqSamplePaymentStatus](#enum-rfqsamplepaymentstatus) |  |  | NOT_REQUIRED |  |
+| `supplierNote` | String · VarChar(1000) | yes |  |  |  |
+| `courier` | String · VarChar(80) | yes |  |  |  |
+| `trackingNumber` | String · VarChar(80) | yes |  |  |  |
+| `shippedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `deliveredAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `decisionReason` | String · VarChar(1000) | yes |  |  |  |
+| `referenceCode` | String · VarChar(40) | yes | UNIQUE |  | Set when the buyer approves: the reference sample a later inspection is measured against. Unique across the deployment. |
+| `requestedByUserId` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `rfq` → [RfqRequest](#model-rfqrequest) via `rfqId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([rfqId, sellerAccountId], map: "ix_rfq_sample_rfq")`
+- `@@index([sellerAccountId, status], map: "ix_rfq_sample_seller")`
+
 ### Enums in Requests for quotation (rfq) - checklist master rows 16-19
 
 <a id="enum-rfqstatus"></a>
@@ -20758,6 +20815,7 @@ How a seller came to be asked: matched on category and destination, or picked by
 | `REQUIREMENT` | Part of the requirement. Seen by every invited seller once it is in a requirement version. |
 | `QUOTE` | Sent with a seller's quote. Seen by the buyer and that seller. |
 | `NEGOTIATION` | Sent with a counter-offer, by either side. Seen by the buyer and that seller. |
+| `SAMPLE` | Evidence about a sample (a photograph, a test report). Seen by the buyer and that seller. |
 
 <a id="enum-rfqquotestatus"></a>
 
@@ -20783,4 +20841,31 @@ How a seller came to be asked: matched on category and destination, or picked by
 | `REJECTED` |  |
 | `WITHDRAWN` |  |
 | `CLOSED` |  |
+
+<a id="enum-rfqsamplestatus"></a>
+
+#### enum RfqSampleStatus
+
+| Value | Meaning |
+|---|---|
+| `REQUESTED` |  |
+| `ACCEPTED` |  |
+| `DECLINED` |  |
+| `SHIPPED` |  |
+| `DELIVERED` |  |
+| `APPROVED` |  |
+| `REJECTED` |  |
+| `CANCELLED` |  |
+
+<a id="enum-rfqsamplepaymentstatus"></a>
+
+#### enum RfqSamplePaymentStatus
+
+Whether a sample costs anything, and whether it is paid. PAID is only ever set by a real payment event; collecting sample payments is not built yet, so a sample with a cost stays PAYMENT_PENDING.
+
+| Value | Meaning |
+|---|---|
+| `NOT_REQUIRED` |  |
+| `PAYMENT_PENDING` |  |
+| `PAID` |  |
 

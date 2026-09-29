@@ -502,6 +502,7 @@ export type RfqRequestWhereInput = {
   events?: Prisma.RfqEventListRelationFilter
   messages?: Prisma.RfqMessageListRelationFilter
   quotes?: Prisma.RfqQuoteListRelationFilter
+  samples?: Prisma.RfqSampleListRelationFilter
 }
 
 export type RfqRequestOrderByWithRelationInput = {
@@ -553,6 +554,7 @@ export type RfqRequestOrderByWithRelationInput = {
   events?: Prisma.RfqEventOrderByRelationAggregateInput
   messages?: Prisma.RfqMessageOrderByRelationAggregateInput
   quotes?: Prisma.RfqQuoteOrderByRelationAggregateInput
+  samples?: Prisma.RfqSampleOrderByRelationAggregateInput
   _relevance?: Prisma.RfqRequestOrderByRelevanceInput
 }
 
@@ -608,6 +610,7 @@ export type RfqRequestWhereUniqueInput = Prisma.AtLeast<{
   events?: Prisma.RfqEventListRelationFilter
   messages?: Prisma.RfqMessageListRelationFilter
   quotes?: Prisma.RfqQuoteListRelationFilter
+  samples?: Prisma.RfqSampleListRelationFilter
 }, "id" | "reference" | "awardedQuoteId">
 
 export type RfqRequestOrderByWithAggregationInput = {
@@ -748,6 +751,7 @@ export type RfqRequestCreateInput = {
   events?: Prisma.RfqEventCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestUncheckedCreateInput = {
@@ -796,6 +800,7 @@ export type RfqRequestUncheckedCreateInput = {
   events?: Prisma.RfqEventUncheckedCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageUncheckedCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleUncheckedCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestUpdateInput = {
@@ -844,6 +849,7 @@ export type RfqRequestUpdateInput = {
   events?: Prisma.RfqEventUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestUncheckedUpdateInput = {
@@ -892,6 +898,7 @@ export type RfqRequestUncheckedUpdateInput = {
   events?: Prisma.RfqEventUncheckedUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUncheckedUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUncheckedUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestCreateManyInput = {
@@ -1388,6 +1395,20 @@ export type RfqRequestUpdateOneRequiredWithoutQuotesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RfqRequestUpdateToOneWithWhereWithoutQuotesInput, Prisma.RfqRequestUpdateWithoutQuotesInput>, Prisma.RfqRequestUncheckedUpdateWithoutQuotesInput>
 }
 
+export type RfqRequestCreateNestedOneWithoutSamplesInput = {
+  create?: Prisma.XOR<Prisma.RfqRequestCreateWithoutSamplesInput, Prisma.RfqRequestUncheckedCreateWithoutSamplesInput>
+  connectOrCreate?: Prisma.RfqRequestCreateOrConnectWithoutSamplesInput
+  connect?: Prisma.RfqRequestWhereUniqueInput
+}
+
+export type RfqRequestUpdateOneRequiredWithoutSamplesNestedInput = {
+  create?: Prisma.XOR<Prisma.RfqRequestCreateWithoutSamplesInput, Prisma.RfqRequestUncheckedCreateWithoutSamplesInput>
+  connectOrCreate?: Prisma.RfqRequestCreateOrConnectWithoutSamplesInput
+  upsert?: Prisma.RfqRequestUpsertWithoutSamplesInput
+  connect?: Prisma.RfqRequestWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RfqRequestUpdateToOneWithWhereWithoutSamplesInput, Prisma.RfqRequestUpdateWithoutSamplesInput>, Prisma.RfqRequestUncheckedUpdateWithoutSamplesInput>
+}
+
 export type RfqRequestCreateWithoutCategoryInput = {
   id: string
   reference: string
@@ -1433,6 +1454,7 @@ export type RfqRequestCreateWithoutCategoryInput = {
   events?: Prisma.RfqEventCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestUncheckedCreateWithoutCategoryInput = {
@@ -1480,6 +1502,7 @@ export type RfqRequestUncheckedCreateWithoutCategoryInput = {
   events?: Prisma.RfqEventUncheckedCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageUncheckedCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleUncheckedCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestCreateOrConnectWithoutCategoryInput = {
@@ -1598,6 +1621,7 @@ export type RfqRequestCreateWithoutCustomerProfileInput = {
   events?: Prisma.RfqEventCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestUncheckedCreateWithoutCustomerProfileInput = {
@@ -1645,6 +1669,7 @@ export type RfqRequestUncheckedCreateWithoutCustomerProfileInput = {
   events?: Prisma.RfqEventUncheckedCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageUncheckedCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleUncheckedCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestCreateOrConnectWithoutCustomerProfileInput = {
@@ -1718,6 +1743,7 @@ export type RfqRequestCreateWithoutBuyerCompanyInput = {
   events?: Prisma.RfqEventCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestUncheckedCreateWithoutBuyerCompanyInput = {
@@ -1765,6 +1791,7 @@ export type RfqRequestUncheckedCreateWithoutBuyerCompanyInput = {
   events?: Prisma.RfqEventUncheckedCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageUncheckedCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleUncheckedCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestCreateOrConnectWithoutBuyerCompanyInput = {
@@ -1838,6 +1865,7 @@ export type RfqRequestCreateWithoutRequirementVersionsInput = {
   events?: Prisma.RfqEventCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestUncheckedCreateWithoutRequirementVersionsInput = {
@@ -1885,6 +1913,7 @@ export type RfqRequestUncheckedCreateWithoutRequirementVersionsInput = {
   events?: Prisma.RfqEventUncheckedCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageUncheckedCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleUncheckedCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestCreateOrConnectWithoutRequirementVersionsInput = {
@@ -1948,6 +1977,7 @@ export type RfqRequestUpdateWithoutRequirementVersionsInput = {
   events?: Prisma.RfqEventUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestUncheckedUpdateWithoutRequirementVersionsInput = {
@@ -1995,6 +2025,7 @@ export type RfqRequestUncheckedUpdateWithoutRequirementVersionsInput = {
   events?: Prisma.RfqEventUncheckedUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUncheckedUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUncheckedUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestCreateWithoutInvitationsInput = {
@@ -2042,6 +2073,7 @@ export type RfqRequestCreateWithoutInvitationsInput = {
   events?: Prisma.RfqEventCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestUncheckedCreateWithoutInvitationsInput = {
@@ -2089,6 +2121,7 @@ export type RfqRequestUncheckedCreateWithoutInvitationsInput = {
   events?: Prisma.RfqEventUncheckedCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageUncheckedCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleUncheckedCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestCreateOrConnectWithoutInvitationsInput = {
@@ -2152,6 +2185,7 @@ export type RfqRequestUpdateWithoutInvitationsInput = {
   events?: Prisma.RfqEventUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestUncheckedUpdateWithoutInvitationsInput = {
@@ -2199,6 +2233,7 @@ export type RfqRequestUncheckedUpdateWithoutInvitationsInput = {
   events?: Prisma.RfqEventUncheckedUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUncheckedUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUncheckedUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestCreateWithoutAttachmentsInput = {
@@ -2246,6 +2281,7 @@ export type RfqRequestCreateWithoutAttachmentsInput = {
   events?: Prisma.RfqEventCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestUncheckedCreateWithoutAttachmentsInput = {
@@ -2293,6 +2329,7 @@ export type RfqRequestUncheckedCreateWithoutAttachmentsInput = {
   events?: Prisma.RfqEventUncheckedCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageUncheckedCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleUncheckedCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestCreateOrConnectWithoutAttachmentsInput = {
@@ -2356,6 +2393,7 @@ export type RfqRequestUpdateWithoutAttachmentsInput = {
   events?: Prisma.RfqEventUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestUncheckedUpdateWithoutAttachmentsInput = {
@@ -2403,6 +2441,7 @@ export type RfqRequestUncheckedUpdateWithoutAttachmentsInput = {
   events?: Prisma.RfqEventUncheckedUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUncheckedUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUncheckedUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestCreateWithoutEventsInput = {
@@ -2450,6 +2489,7 @@ export type RfqRequestCreateWithoutEventsInput = {
   attachments?: Prisma.RfqAttachmentCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestUncheckedCreateWithoutEventsInput = {
@@ -2497,6 +2537,7 @@ export type RfqRequestUncheckedCreateWithoutEventsInput = {
   attachments?: Prisma.RfqAttachmentUncheckedCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageUncheckedCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleUncheckedCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestCreateOrConnectWithoutEventsInput = {
@@ -2560,6 +2601,7 @@ export type RfqRequestUpdateWithoutEventsInput = {
   attachments?: Prisma.RfqAttachmentUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestUncheckedUpdateWithoutEventsInput = {
@@ -2607,6 +2649,7 @@ export type RfqRequestUncheckedUpdateWithoutEventsInput = {
   attachments?: Prisma.RfqAttachmentUncheckedUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUncheckedUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUncheckedUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestCreateWithoutMessagesInput = {
@@ -2654,6 +2697,7 @@ export type RfqRequestCreateWithoutMessagesInput = {
   attachments?: Prisma.RfqAttachmentCreateNestedManyWithoutRfqInput
   events?: Prisma.RfqEventCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestUncheckedCreateWithoutMessagesInput = {
@@ -2701,6 +2745,7 @@ export type RfqRequestUncheckedCreateWithoutMessagesInput = {
   attachments?: Prisma.RfqAttachmentUncheckedCreateNestedManyWithoutRfqInput
   events?: Prisma.RfqEventUncheckedCreateNestedManyWithoutRfqInput
   quotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleUncheckedCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestCreateOrConnectWithoutMessagesInput = {
@@ -2764,6 +2809,7 @@ export type RfqRequestUpdateWithoutMessagesInput = {
   attachments?: Prisma.RfqAttachmentUpdateManyWithoutRfqNestedInput
   events?: Prisma.RfqEventUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestUncheckedUpdateWithoutMessagesInput = {
@@ -2811,6 +2857,7 @@ export type RfqRequestUncheckedUpdateWithoutMessagesInput = {
   attachments?: Prisma.RfqAttachmentUncheckedUpdateManyWithoutRfqNestedInput
   events?: Prisma.RfqEventUncheckedUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUncheckedUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestCreateWithoutQuotesInput = {
@@ -2858,6 +2905,7 @@ export type RfqRequestCreateWithoutQuotesInput = {
   attachments?: Prisma.RfqAttachmentCreateNestedManyWithoutRfqInput
   events?: Prisma.RfqEventCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestUncheckedCreateWithoutQuotesInput = {
@@ -2905,6 +2953,7 @@ export type RfqRequestUncheckedCreateWithoutQuotesInput = {
   attachments?: Prisma.RfqAttachmentUncheckedCreateNestedManyWithoutRfqInput
   events?: Prisma.RfqEventUncheckedCreateNestedManyWithoutRfqInput
   messages?: Prisma.RfqMessageUncheckedCreateNestedManyWithoutRfqInput
+  samples?: Prisma.RfqSampleUncheckedCreateNestedManyWithoutRfqInput
 }
 
 export type RfqRequestCreateOrConnectWithoutQuotesInput = {
@@ -2968,6 +3017,7 @@ export type RfqRequestUpdateWithoutQuotesInput = {
   attachments?: Prisma.RfqAttachmentUpdateManyWithoutRfqNestedInput
   events?: Prisma.RfqEventUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestUncheckedUpdateWithoutQuotesInput = {
@@ -3015,6 +3065,215 @@ export type RfqRequestUncheckedUpdateWithoutQuotesInput = {
   attachments?: Prisma.RfqAttachmentUncheckedUpdateManyWithoutRfqNestedInput
   events?: Prisma.RfqEventUncheckedUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUncheckedUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUncheckedUpdateManyWithoutRfqNestedInput
+}
+
+export type RfqRequestCreateWithoutSamplesInput = {
+  id: string
+  reference: string
+  status?: $Enums.RfqStatus
+  version?: number
+  createdByUserId: string
+  title?: string
+  specification?: string | null
+  specsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  quantity?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unitOfMeasure?: string | null
+  annualVolume?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  targetUnitPriceMinor?: bigint | number | null
+  targetCurrency?: string | null
+  destinationCountry?: string | null
+  destinationAddress?: string | null
+  destinationPort?: string | null
+  incoterm?: string | null
+  certificationsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sampleRequirement?: string
+  inspectionRequirement?: string
+  responseDeadline?: Date | string | null
+  deliveryTargetDate?: Date | string | null
+  notes?: string | null
+  includeSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  excludeSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matchedSupplierCount?: number
+  matchOutcome?: string | null
+  currentRequirementVersion?: number
+  submittedAt?: Date | string | null
+  closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  statusReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutRfqRequestsInput
+  buyerCompany?: Prisma.BuyerCompanyCreateNestedOneWithoutRfqRequestsInput
+  category?: Prisma.CategoryCreateNestedOneWithoutRfqRequestsInput
+  requirementVersions?: Prisma.RfqRequirementVersionCreateNestedManyWithoutRfqInput
+  invitations?: Prisma.RfqInvitationCreateNestedManyWithoutRfqInput
+  attachments?: Prisma.RfqAttachmentCreateNestedManyWithoutRfqInput
+  events?: Prisma.RfqEventCreateNestedManyWithoutRfqInput
+  messages?: Prisma.RfqMessageCreateNestedManyWithoutRfqInput
+  quotes?: Prisma.RfqQuoteCreateNestedManyWithoutRfqInput
+}
+
+export type RfqRequestUncheckedCreateWithoutSamplesInput = {
+  id: string
+  reference: string
+  status?: $Enums.RfqStatus
+  version?: number
+  customerProfileId: string
+  buyerCompanyId?: string | null
+  createdByUserId: string
+  categoryId?: string | null
+  title?: string
+  specification?: string | null
+  specsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  quantity?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unitOfMeasure?: string | null
+  annualVolume?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  targetUnitPriceMinor?: bigint | number | null
+  targetCurrency?: string | null
+  destinationCountry?: string | null
+  destinationAddress?: string | null
+  destinationPort?: string | null
+  incoterm?: string | null
+  certificationsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sampleRequirement?: string
+  inspectionRequirement?: string
+  responseDeadline?: Date | string | null
+  deliveryTargetDate?: Date | string | null
+  notes?: string | null
+  includeSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  excludeSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matchedSupplierCount?: number
+  matchOutcome?: string | null
+  currentRequirementVersion?: number
+  submittedAt?: Date | string | null
+  closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  statusReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  requirementVersions?: Prisma.RfqRequirementVersionUncheckedCreateNestedManyWithoutRfqInput
+  invitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutRfqInput
+  attachments?: Prisma.RfqAttachmentUncheckedCreateNestedManyWithoutRfqInput
+  events?: Prisma.RfqEventUncheckedCreateNestedManyWithoutRfqInput
+  messages?: Prisma.RfqMessageUncheckedCreateNestedManyWithoutRfqInput
+  quotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutRfqInput
+}
+
+export type RfqRequestCreateOrConnectWithoutSamplesInput = {
+  where: Prisma.RfqRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.RfqRequestCreateWithoutSamplesInput, Prisma.RfqRequestUncheckedCreateWithoutSamplesInput>
+}
+
+export type RfqRequestUpsertWithoutSamplesInput = {
+  update: Prisma.XOR<Prisma.RfqRequestUpdateWithoutSamplesInput, Prisma.RfqRequestUncheckedUpdateWithoutSamplesInput>
+  create: Prisma.XOR<Prisma.RfqRequestCreateWithoutSamplesInput, Prisma.RfqRequestUncheckedCreateWithoutSamplesInput>
+  where?: Prisma.RfqRequestWhereInput
+}
+
+export type RfqRequestUpdateToOneWithWhereWithoutSamplesInput = {
+  where?: Prisma.RfqRequestWhereInput
+  data: Prisma.XOR<Prisma.RfqRequestUpdateWithoutSamplesInput, Prisma.RfqRequestUncheckedUpdateWithoutSamplesInput>
+}
+
+export type RfqRequestUpdateWithoutSamplesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRfqStatusFieldUpdateOperationsInput | $Enums.RfqStatus
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  specification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  specsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  quantity?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unitOfMeasure?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  annualVolume?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  targetUnitPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  targetCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destinationCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destinationAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destinationPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incoterm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  certificationsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sampleRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  inspectionRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  responseDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryTargetDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  includeSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  excludeSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matchedSupplierCount?: Prisma.IntFieldUpdateOperationsInput | number
+  matchOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutRfqRequestsNestedInput
+  buyerCompany?: Prisma.BuyerCompanyUpdateOneWithoutRfqRequestsNestedInput
+  category?: Prisma.CategoryUpdateOneWithoutRfqRequestsNestedInput
+  requirementVersions?: Prisma.RfqRequirementVersionUpdateManyWithoutRfqNestedInput
+  invitations?: Prisma.RfqInvitationUpdateManyWithoutRfqNestedInput
+  attachments?: Prisma.RfqAttachmentUpdateManyWithoutRfqNestedInput
+  events?: Prisma.RfqEventUpdateManyWithoutRfqNestedInput
+  messages?: Prisma.RfqMessageUpdateManyWithoutRfqNestedInput
+  quotes?: Prisma.RfqQuoteUpdateManyWithoutRfqNestedInput
+}
+
+export type RfqRequestUncheckedUpdateWithoutSamplesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRfqStatusFieldUpdateOperationsInput | $Enums.RfqStatus
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  buyerCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  specification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  specsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  quantity?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unitOfMeasure?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  annualVolume?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  targetUnitPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  targetCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destinationCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destinationAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destinationPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incoterm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  certificationsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sampleRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  inspectionRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  responseDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryTargetDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  includeSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  excludeSellerIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  matchedSupplierCount?: Prisma.IntFieldUpdateOperationsInput | number
+  matchOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requirementVersions?: Prisma.RfqRequirementVersionUncheckedUpdateManyWithoutRfqNestedInput
+  invitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutRfqNestedInput
+  attachments?: Prisma.RfqAttachmentUncheckedUpdateManyWithoutRfqNestedInput
+  events?: Prisma.RfqEventUncheckedUpdateManyWithoutRfqNestedInput
+  messages?: Prisma.RfqMessageUncheckedUpdateManyWithoutRfqNestedInput
+  quotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestCreateManyCategoryInput = {
@@ -3103,6 +3362,7 @@ export type RfqRequestUpdateWithoutCategoryInput = {
   events?: Prisma.RfqEventUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestUncheckedUpdateWithoutCategoryInput = {
@@ -3150,6 +3410,7 @@ export type RfqRequestUncheckedUpdateWithoutCategoryInput = {
   events?: Prisma.RfqEventUncheckedUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUncheckedUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUncheckedUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestUncheckedUpdateManyWithoutCategoryInput = {
@@ -3279,6 +3540,7 @@ export type RfqRequestUpdateWithoutCustomerProfileInput = {
   events?: Prisma.RfqEventUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestUncheckedUpdateWithoutCustomerProfileInput = {
@@ -3326,6 +3588,7 @@ export type RfqRequestUncheckedUpdateWithoutCustomerProfileInput = {
   events?: Prisma.RfqEventUncheckedUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUncheckedUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUncheckedUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestUncheckedUpdateManyWithoutCustomerProfileInput = {
@@ -3455,6 +3718,7 @@ export type RfqRequestUpdateWithoutBuyerCompanyInput = {
   events?: Prisma.RfqEventUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestUncheckedUpdateWithoutBuyerCompanyInput = {
@@ -3502,6 +3766,7 @@ export type RfqRequestUncheckedUpdateWithoutBuyerCompanyInput = {
   events?: Prisma.RfqEventUncheckedUpdateManyWithoutRfqNestedInput
   messages?: Prisma.RfqMessageUncheckedUpdateManyWithoutRfqNestedInput
   quotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutRfqNestedInput
+  samples?: Prisma.RfqSampleUncheckedUpdateManyWithoutRfqNestedInput
 }
 
 export type RfqRequestUncheckedUpdateManyWithoutBuyerCompanyInput = {
@@ -3557,6 +3822,7 @@ export type RfqRequestCountOutputType = {
   events: number
   messages: number
   quotes: number
+  samples: number
 }
 
 export type RfqRequestCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3566,6 +3832,7 @@ export type RfqRequestCountOutputTypeSelect<ExtArgs extends runtime.Types.Extens
   events?: boolean | RfqRequestCountOutputTypeCountEventsArgs
   messages?: boolean | RfqRequestCountOutputTypeCountMessagesArgs
   quotes?: boolean | RfqRequestCountOutputTypeCountQuotesArgs
+  samples?: boolean | RfqRequestCountOutputTypeCountSamplesArgs
 }
 
 /**
@@ -3620,6 +3887,13 @@ export type RfqRequestCountOutputTypeCountQuotesArgs<ExtArgs extends runtime.Typ
   where?: Prisma.RfqQuoteWhereInput
 }
 
+/**
+ * RfqRequestCountOutputType without action
+ */
+export type RfqRequestCountOutputTypeCountSamplesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RfqSampleWhereInput
+}
+
 
 export type RfqRequestSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3670,6 +3944,7 @@ export type RfqRequestSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   events?: boolean | Prisma.RfqRequest$eventsArgs<ExtArgs>
   messages?: boolean | Prisma.RfqRequest$messagesArgs<ExtArgs>
   quotes?: boolean | Prisma.RfqRequest$quotesArgs<ExtArgs>
+  samples?: boolean | Prisma.RfqRequest$samplesArgs<ExtArgs>
   _count?: boolean | Prisma.RfqRequestCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["rfqRequest"]>
 
@@ -3728,6 +4003,7 @@ export type RfqRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   events?: boolean | Prisma.RfqRequest$eventsArgs<ExtArgs>
   messages?: boolean | Prisma.RfqRequest$messagesArgs<ExtArgs>
   quotes?: boolean | Prisma.RfqRequest$quotesArgs<ExtArgs>
+  samples?: boolean | Prisma.RfqRequest$samplesArgs<ExtArgs>
   _count?: boolean | Prisma.RfqRequestCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -3743,6 +4019,7 @@ export type $RfqRequestPayload<ExtArgs extends runtime.Types.Extensions.Internal
     events: Prisma.$RfqEventPayload<ExtArgs>[]
     messages: Prisma.$RfqMessagePayload<ExtArgs>[]
     quotes: Prisma.$RfqQuotePayload<ExtArgs>[]
+    samples: Prisma.$RfqSamplePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -4183,6 +4460,7 @@ export interface Prisma__RfqRequestClient<T, Null = never, ExtArgs extends runti
   events<T extends Prisma.RfqRequest$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RfqRequest$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RfqEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   messages<T extends Prisma.RfqRequest$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RfqRequest$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RfqMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   quotes<T extends Prisma.RfqRequest$quotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RfqRequest$quotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RfqQuotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  samples<T extends Prisma.RfqRequest$samplesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RfqRequest$samplesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RfqSamplePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4778,6 +5056,30 @@ export type RfqRequest$quotesArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.RfqQuoteScalarFieldEnum | Prisma.RfqQuoteScalarFieldEnum[]
+}
+
+/**
+ * RfqRequest.samples
+ */
+export type RfqRequest$samplesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RfqSample
+   */
+  select?: Prisma.RfqSampleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RfqSample
+   */
+  omit?: Prisma.RfqSampleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RfqSampleInclude<ExtArgs> | null
+  where?: Prisma.RfqSampleWhereInput
+  orderBy?: Prisma.RfqSampleOrderByWithRelationInput | Prisma.RfqSampleOrderByWithRelationInput[]
+  cursor?: Prisma.RfqSampleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RfqSampleScalarFieldEnum | Prisma.RfqSampleScalarFieldEnum[]
 }
 
 /**

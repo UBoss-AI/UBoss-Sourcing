@@ -3360,3 +3360,10 @@ export type RfqQuote = Prisma.RfqQuoteModel
  * for its state and the answer to it.
  */
 export type RfqQuoteVersion = Prisma.RfqQuoteVersionModel
+/**
+ * Model RfqSample
+ * A sample asked of one seller on a request (Master row 20), optionally
+ * against its quote. Status is only changed through
+ * `domain/rfq-sample-state.ts`, conditionally on the status read.
+ */
+export type RfqSample = Prisma.RfqSampleModel

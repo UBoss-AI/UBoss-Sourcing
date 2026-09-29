@@ -13182,6 +13182,16 @@ The accepted terms and hash are frozen on the quote and read back from
 `GET /rfqs/:id/accepted-terms`. Creating a purchase order from them is not
 built yet (`purchaseOrder.status = NOT_BUILT`).
 
+**Samples (row 20).** On an open or awarded request the buyer asks a supplier
+taking part for a sample (`rfq_samples`, Idempotency-Key required): quantity,
+address, date and approval criteria. The supplier accepts (with a cost, or
+free) or declines with a reason, and marks it shipped only by entering the
+courier and tracking number; the buyer confirms it arrived, then approves or
+rejects it (with a reason). Payment is never marked paid - collecting it is
+not built, so a charged sample stays PAYMENT_PENDING. An approved sample gets
+a reference code for later inspection. Evidence files are seen by the two
+parties only; every step is on the timeline, notified and audited.
+
 ## 9.5.4 Seller invoices and packing lists
 
 ### Whose document it is

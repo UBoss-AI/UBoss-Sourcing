@@ -6358,6 +6358,40 @@ export type EnumRfqOfferStateWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumRfqOfferStateFilter<$PrismaModel>
 }
 
+export type EnumRfqSampleStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSampleStatus | Prisma.EnumRfqSampleStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSampleStatus[]
+  notIn?: $Enums.RfqSampleStatus[]
+  not?: Prisma.NestedEnumRfqSampleStatusFilter<$PrismaModel> | $Enums.RfqSampleStatus
+}
+
+export type EnumRfqSamplePaymentStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSamplePaymentStatus | Prisma.EnumRfqSamplePaymentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSamplePaymentStatus[]
+  notIn?: $Enums.RfqSamplePaymentStatus[]
+  not?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel> | $Enums.RfqSamplePaymentStatus
+}
+
+export type EnumRfqSampleStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSampleStatus | Prisma.EnumRfqSampleStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSampleStatus[]
+  notIn?: $Enums.RfqSampleStatus[]
+  not?: Prisma.NestedEnumRfqSampleStatusWithAggregatesFilter<$PrismaModel> | $Enums.RfqSampleStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqSampleStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqSampleStatusFilter<$PrismaModel>
+}
+
+export type EnumRfqSamplePaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSamplePaymentStatus | Prisma.EnumRfqSamplePaymentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSamplePaymentStatus[]
+  notIn?: $Enums.RfqSamplePaymentStatus[]
+  not?: Prisma.NestedEnumRfqSamplePaymentStatusWithAggregatesFilter<$PrismaModel> | $Enums.RfqSamplePaymentStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[]
@@ -12663,6 +12697,40 @@ export type NestedEnumRfqOfferStateWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumRfqOfferStateFilter<$PrismaModel>
   _max?: Prisma.NestedEnumRfqOfferStateFilter<$PrismaModel>
+}
+
+export type NestedEnumRfqSampleStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSampleStatus | Prisma.EnumRfqSampleStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSampleStatus[]
+  notIn?: $Enums.RfqSampleStatus[]
+  not?: Prisma.NestedEnumRfqSampleStatusFilter<$PrismaModel> | $Enums.RfqSampleStatus
+}
+
+export type NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSamplePaymentStatus | Prisma.EnumRfqSamplePaymentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSamplePaymentStatus[]
+  notIn?: $Enums.RfqSamplePaymentStatus[]
+  not?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel> | $Enums.RfqSamplePaymentStatus
+}
+
+export type NestedEnumRfqSampleStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSampleStatus | Prisma.EnumRfqSampleStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSampleStatus[]
+  notIn?: $Enums.RfqSampleStatus[]
+  not?: Prisma.NestedEnumRfqSampleStatusWithAggregatesFilter<$PrismaModel> | $Enums.RfqSampleStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqSampleStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqSampleStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumRfqSamplePaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSamplePaymentStatus | Prisma.EnumRfqSamplePaymentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSamplePaymentStatus[]
+  notIn?: $Enums.RfqSamplePaymentStatus[]
+  not?: Prisma.NestedEnumRfqSamplePaymentStatusWithAggregatesFilter<$PrismaModel> | $Enums.RfqSamplePaymentStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel>
 }
 
 

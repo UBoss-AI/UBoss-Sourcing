@@ -3553,7 +3553,8 @@ export type RfqInvitationSource = (typeof RfqInvitationSource)[keyof typeof RfqI
 export const RfqAttachmentPurpose = {
   REQUIREMENT: 'REQUIREMENT',
   QUOTE: 'QUOTE',
-  NEGOTIATION: 'NEGOTIATION'
+  NEGOTIATION: 'NEGOTIATION',
+  SAMPLE: 'SAMPLE'
 } as const
 
 export type RfqAttachmentPurpose = (typeof RfqAttachmentPurpose)[keyof typeof RfqAttachmentPurpose]
@@ -3580,3 +3581,26 @@ export const RfqOfferState = {
 } as const
 
 export type RfqOfferState = (typeof RfqOfferState)[keyof typeof RfqOfferState]
+
+
+export const RfqSampleStatus = {
+  REQUESTED: 'REQUESTED',
+  ACCEPTED: 'ACCEPTED',
+  DECLINED: 'DECLINED',
+  SHIPPED: 'SHIPPED',
+  DELIVERED: 'DELIVERED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type RfqSampleStatus = (typeof RfqSampleStatus)[keyof typeof RfqSampleStatus]
+
+
+export const RfqSamplePaymentStatus = {
+  NOT_REQUIRED: 'NOT_REQUIRED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  PAID: 'PAID'
+} as const
+
+export type RfqSamplePaymentStatus = (typeof RfqSamplePaymentStatus)[keyof typeof RfqSamplePaymentStatus]
