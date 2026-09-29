@@ -83,6 +83,8 @@ const PUBLIC: string[] = [
   'POST /api/v1/partner-invitations/describe',
   'POST /api/v1/payments/links/:token/pay',
   'POST /api/v1/payments/webhooks/:provider',
+  // A buyer's own ERP calls this; it proves itself by HMAC signature, not a session.
+  'POST /api/v1/integrations/erp/webhooks/:slug',
   'POST /api/v1/preorder-chats/assistant',
   'POST /api/v1/preorder-chats/assistant/answer',
 ];
