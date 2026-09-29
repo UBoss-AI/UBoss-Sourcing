@@ -6297,5 +6297,20 @@
   "security.stepUp.failed": "Nie udało nam się potwierdzić, że to właśnie Pan/Pani. Proszę spróbować ponownie.",
   "security.stepUp.setupBody": "Wymaga to dwuetapowego logowania na Państwa koncie. Proszę skonfigurować tę funkcję teraz za pomocą aplikacji do uwierzytelniania, a zmiana zostanie wprowadzona po zakończeniu tej procedury.",
   "security.stepUp.setupTitle": "Najpierw proszę włączyć logowanie dwuetapowe",
-  "security.stepUp.title": "Proszę potwierdzić, że to właśnie Pan/Pani"
+  "security.stepUp.title": "Proszę potwierdzić, że to właśnie Pan/Pani",
+  "security.panel.title": "Logowanie dwuetapowe",
+  "security.panel.description": "Po haśle kod z aplikacji uwierzytelniającej na telefonie. Ktoś, kto pozna Twoje hasło, nadal się nie zaloguje.",
+  "security.panel.on": "Logowanie dwuetapowe jest włączone.",
+  "security.panel.off": "Logowanie dwuetapowe jest wyłączone. Konto chroni tylko hasło.",
+  "security.panel.codesLeft_one": "Pozostał {{codes}} kod odzyskiwania.",
+  "security.panel.codesLeft_few": "Pozostały {{codes}} kody odzyskiwania.",
+  "security.panel.codesLeft_many": "Pozostało {{codes}} kodów odzyskiwania.",
+  "security.panel.codesLeft_other": "Pozostało {{codes}} kodu odzyskiwania.",
+  "security.panel.replaceCodes": "Wymień kody odzyskiwania",
+  "security.panel.turnOff": "Wyłącz logowanie dwuetapowe",
+  "security.panel.turnedOn": "Logowanie dwuetapowe zostało włączone.",
+  "security.panel.turnedOff": "Logowanie dwuetapowe zostało wyłączone.",
+  "security.panel.failed": "Nie udało się. Spróbuj ponownie.",
+  "security.panel.requiredOwner": "Pozostaje włączone, dopóki masz konto sprzedawcy: sprzedaż tutaj tego wymaga.",
+  "security.panel.requiredFinance": "Pozostaje włączone, dopóki obsługujesz płatności sprzedawcy: ta rola tego wymaga."
 }

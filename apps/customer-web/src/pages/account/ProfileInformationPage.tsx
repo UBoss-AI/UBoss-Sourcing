@@ -67,6 +67,7 @@ import { AccountPanel, PanelRow } from './AccountPanel';
 import { CloseAccountPanel } from './CloseAccountPanel';
 import { ContactFaqPanel } from './ContactFaqPanel';
 import { PasswordPanel } from './PasswordPanel';
+import { TwoStepSignInPanel } from './TwoStepSignInPanel';
 import { PurchasingLimitsPanel } from './PurchasingLimitsPanel';
 
 const ACCOUNT_PROFILE_KEY = ['account-profile'];
@@ -690,6 +691,8 @@ export function ProfileInformationPage(): React.JSX.Element {
         <MarketPanel account={account} />
 
         <PasswordPanel />
+        {/* Beside the password: the second half of how this account signs in. */}
+        <TwoStepSignInPanel />
         <PurchasingLimitsPanel account={account} />
 
         {/* Small print about the two changes above, in the operator's own

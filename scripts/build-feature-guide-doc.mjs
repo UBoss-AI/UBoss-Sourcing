@@ -2163,6 +2163,7 @@ table(['Tab', 'What the company finds there'], [
   ['Logistics capabilities', 'What the marketplace has approved it to carry, what its fleet shows, the kinds of transport it says it offers, its time zone and its opening hours for each day.'],
   ['Compliance and documents', 'Its licence, insurance and permit documents, and whether each one has been accepted.'],
   ['Integration status', 'Whether its DHL, FedEx, India Post, GPS and tracking connections are working.'],
+  ['Turn on two-step sign-in (buyer)', 'On their profile page a buyer can switch on two-step sign-in: after the password, a code from an authenticator app on their phone. They save a set of recovery codes for a lost phone, can replace those codes, and can switch it off again after confirming it is them. While they hold a seller role that requires it, it cannot be switched off. Too many wrong codes lock the account for a while and sign it out everywhere.'],
   ['Account and security', 'The person’s own role, their two-step sign-in, and — for people allowed to see it — a history of changes to the profile.'],
 ], [2800, 7200]);
 table(['What the company changes', 'What the system does'], [

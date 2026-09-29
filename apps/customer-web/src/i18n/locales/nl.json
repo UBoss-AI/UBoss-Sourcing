@@ -6081,5 +6081,18 @@
   "security.stepUp.failed": "Wij konden niet vaststellen dat u het bent. Probeer het alstublieft nogmaals.",
   "security.stepUp.setupBody": "Hiervoor is tweestapsverificatie voor uw account vereist. Stel dit nu in met uw authenticator-app; de wijziging wordt doorgevoerd zodra u klaar bent.",
   "security.stepUp.setupTitle": "Schakel eerst de tweestapsverificatie in",
-  "security.stepUp.title": "Bevestig dat u het bent"
+  "security.stepUp.title": "Bevestig dat u het bent",
+  "security.panel.title": "Inloggen in twee stappen",
+  "security.panel.description": "Na uw wachtwoord een code uit een authenticator-app op uw telefoon. Wie uw wachtwoord kent, kan dan nog steeds niet inloggen.",
+  "security.panel.on": "Inloggen in twee stappen staat aan.",
+  "security.panel.off": "Inloggen in twee stappen staat uit. Uw account is alleen beveiligd met uw wachtwoord.",
+  "security.panel.codesLeft_one": "Nog {{codes}} herstelcode over.",
+  "security.panel.codesLeft_other": "Nog {{codes}} herstelcodes over.",
+  "security.panel.replaceCodes": "Herstelcodes vervangen",
+  "security.panel.turnOff": "Inloggen in twee stappen uitzetten",
+  "security.panel.turnedOn": "Inloggen in twee stappen staat aan.",
+  "security.panel.turnedOff": "Inloggen in twee stappen staat uit.",
+  "security.panel.failed": "Dat is niet gelukt. Probeer het opnieuw.",
+  "security.panel.requiredOwner": "Het blijft aan zolang u een verkopersaccount bezit: verkopen hier vereist het.",
+  "security.panel.requiredFinance": "Het blijft aan zolang u de betalingen van een verkoper beheert: die rol vereist het."
 }

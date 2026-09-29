@@ -6189,5 +6189,19 @@
   "security.stepUp.failed": "Non siamo riusciti a verificare che si tratti proprio di Lei. La preghiamo di riprovare.",
   "security.stepUp.setupBody": "Per questa operazione è necessario l'accesso in due passaggi sul Suo account. Lo configuri ora utilizzando la Sua app di autenticazione; la modifica avrà effetto al termine della procedura.",
   "security.stepUp.setupTitle": "Attivi innanzitutto l'accesso in due passaggi",
-  "security.stepUp.title": "Confermi che sia proprio lei"
+  "security.stepUp.title": "Confermi che sia proprio lei",
+  "security.panel.title": "Accesso in due passaggi",
+  "security.panel.description": "Dopo la password, un codice da un’app di autenticazione sul telefono. Chi conosce la tua password non può comunque accedere.",
+  "security.panel.on": "L’accesso in due passaggi è attivo.",
+  "security.panel.off": "L’accesso in due passaggi è disattivato. Il tuo account è protetto solo dalla password.",
+  "security.panel.codesLeft_one": "Resta {{codes}} codice di recupero.",
+  "security.panel.codesLeft_many": "Restano {{codes}} codici di recupero.",
+  "security.panel.codesLeft_other": "Restano {{codes}} codici di recupero.",
+  "security.panel.replaceCodes": "Sostituisci i codici di recupero",
+  "security.panel.turnOff": "Disattiva l’accesso in due passaggi",
+  "security.panel.turnedOn": "Accesso in due passaggi attivato.",
+  "security.panel.turnedOff": "Accesso in due passaggi disattivato.",
+  "security.panel.failed": "Non è stato possibile. Riprova.",
+  "security.panel.requiredOwner": "Resta attivo finché possiedi un account venditore: vendere qui lo richiede.",
+  "security.panel.requiredFinance": "Resta attivo finché gestisci i pagamenti di un venditore: quel ruolo lo richiede."
 }

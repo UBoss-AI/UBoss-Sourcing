@@ -6081,5 +6081,18 @@
   "security.stepUp.failed": "We could not confirm that it is you. Please try again.",
   "security.stepUp.setupBody": "This needs two-step sign-in on your account. Set it up now with your authenticator app, and the change goes ahead when you finish.",
   "security.stepUp.setupTitle": "Turn on two-step sign-in first",
-  "security.stepUp.title": "Confirm that it is you"
+  "security.stepUp.title": "Confirm that it is you",
+  "security.panel.title": "Two-step sign-in",
+  "security.panel.description": "After your password, a code from an authenticator app on your phone. Someone who learns your password still cannot sign in.",
+  "security.panel.on": "Two-step sign-in is on.",
+  "security.panel.off": "Two-step sign-in is off. Your account is protected by your password only.",
+  "security.panel.codesLeft_one": "{{codes}} recovery code left.",
+  "security.panel.codesLeft_other": "{{codes}} recovery codes left.",
+  "security.panel.replaceCodes": "Replace recovery codes",
+  "security.panel.turnOff": "Turn off two-step sign-in",
+  "security.panel.turnedOn": "Two-step sign-in is on.",
+  "security.panel.turnedOff": "Two-step sign-in is off.",
+  "security.panel.failed": "That could not be done. Please try again.",
+  "security.panel.requiredOwner": "It stays on while you own a seller account: selling here requires it.",
+  "security.panel.requiredFinance": "It stays on while you handle a seller's payments: that role requires it."
 }

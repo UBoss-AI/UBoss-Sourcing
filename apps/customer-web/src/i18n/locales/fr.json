@@ -6189,5 +6189,19 @@
   "security.stepUp.failed": "Nous n'avons pas pu vérifier qu'il s'agissait bien de vous. Veuillez réessayer.",
   "security.stepUp.setupBody": "Cela nécessite une authentification en deux étapes sur votre compte. Configurez-la dès maintenant à l'aide de votre application d'authentification, et la modification prendra effet une fois cette opération terminée.",
   "security.stepUp.setupTitle": "Commencez par activer la connexion en deux étapes",
-  "security.stepUp.title": "Confirmez qu'il s'agit bien de vous"
+  "security.stepUp.title": "Confirmez qu'il s'agit bien de vous",
+  "security.panel.title": "Connexion en deux étapes",
+  "security.panel.description": "Après votre mot de passe, un code d’une application d’authentification sur votre téléphone. Quelqu’un qui connaît votre mot de passe ne peut toujours pas se connecter.",
+  "security.panel.on": "La connexion en deux étapes est activée.",
+  "security.panel.off": "La connexion en deux étapes est désactivée. Votre compte n’est protégé que par votre mot de passe.",
+  "security.panel.codesLeft_one": "Il reste {{codes}} code de récupération.",
+  "security.panel.codesLeft_many": "Il reste {{codes}} codes de récupération.",
+  "security.panel.codesLeft_other": "Il reste {{codes}} codes de récupération.",
+  "security.panel.replaceCodes": "Remplacer les codes de récupération",
+  "security.panel.turnOff": "Désactiver la connexion en deux étapes",
+  "security.panel.turnedOn": "Connexion en deux étapes activée.",
+  "security.panel.turnedOff": "Connexion en deux étapes désactivée.",
+  "security.panel.failed": "Impossible pour le moment. Veuillez réessayer.",
+  "security.panel.requiredOwner": "Elle reste activée tant que vous êtes titulaire d’un compte vendeur : vendre ici l’exige.",
+  "security.panel.requiredFinance": "Elle reste activée tant que vous gérez les paiements d’un vendeur : ce rôle l’exige."
 }

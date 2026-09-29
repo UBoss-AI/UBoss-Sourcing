@@ -6081,5 +6081,18 @@
   "security.stepUp.failed": "Wir konnten nicht bestätigen, dass Sie es sind. Bitte versuchen Sie es erneut.",
   "security.stepUp.setupBody": "Hierfür ist eine zweistufige Anmeldung bei Ihrem Konto erforderlich. Richten Sie diese Funktion jetzt mit Ihrer Authentifizierungs-App ein; die Änderung wird wirksam, sobald Sie den Vorgang abgeschlossen haben.",
   "security.stepUp.setupTitle": "Aktivieren Sie zunächst die zweistufige Anmeldung",
-  "security.stepUp.title": "Bitte bestätigen Sie, dass Sie es sind"
+  "security.stepUp.title": "Bitte bestätigen Sie, dass Sie es sind",
+  "security.panel.title": "Zwei-Schritt-Anmeldung",
+  "security.panel.description": "Nach Ihrem Passwort ein Code aus einer Authenticator-App auf Ihrem Telefon. Wer Ihr Passwort kennt, kann sich trotzdem nicht anmelden.",
+  "security.panel.on": "Die Zwei-Schritt-Anmeldung ist aktiv.",
+  "security.panel.off": "Die Zwei-Schritt-Anmeldung ist aus. Ihr Konto ist nur durch Ihr Passwort geschützt.",
+  "security.panel.codesLeft_one": "{{codes}} Wiederherstellungscode übrig.",
+  "security.panel.codesLeft_other": "{{codes}} Wiederherstellungscodes übrig.",
+  "security.panel.replaceCodes": "Wiederherstellungscodes ersetzen",
+  "security.panel.turnOff": "Zwei-Schritt-Anmeldung ausschalten",
+  "security.panel.turnedOn": "Die Zwei-Schritt-Anmeldung ist aktiv.",
+  "security.panel.turnedOff": "Die Zwei-Schritt-Anmeldung ist aus.",
+  "security.panel.failed": "Das hat nicht geklappt. Bitte versuchen Sie es erneut.",
+  "security.panel.requiredOwner": "Sie bleibt aktiv, solange Sie ein Verkäuferkonto besitzen: Verkaufen setzt sie voraus.",
+  "security.panel.requiredFinance": "Sie bleibt aktiv, solange Sie Zahlungen eines Verkäufers verwalten: diese Rolle setzt sie voraus."
 }

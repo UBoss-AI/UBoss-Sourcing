@@ -1701,6 +1701,17 @@ always chosen by the server, so a policy id can never satisfy a sign-up.
 names what is not published yet. `RETURNS_POLICY` was added by migration
 `20261018100000_legal_returns_policy`. The texts are the operator's to write.
 
+**Buyer two-step sign-in from the profile page.** The customer MFA API
+(`routes/security.customer.ts`) always allowed setting up, replacing recovery
+codes and switching off, but the only way into the setup was being made to by
+a step-up (AutoPay). `pages/account/TwoStepSignInPanel.tsx` puts it on the
+profile page beside the password. It reuses `MfaEnrolmentFlow`, and leaves
+step-up to `StepUpProvider`: the API answers `STEP_UP_REQUIRED`, the dialog
+collects the code, the request is retried. While making this row, the lockout
+test in `customer-mfa.test.ts` was found to inherit one wrong code from the
+case before it (the count is "in a row until a right one", correctly), so it
+locked one attempt early; the test now starts from a clean count.
+
 The bar carries four controls:
 
 | Control | What it does |

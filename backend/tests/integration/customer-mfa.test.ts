@@ -383,6 +383,9 @@ describe('two-step sign-in for a buyer', () => {
   });
 
   it('locks the account and ends every session after too many wrong codes', async () => {
+    // Wrong codes count in a row until a right one; an earlier case ends on a
+    // deliberate wrong code, so this one starts from a clean count.
+    await prisma.user.update({ where: { id: ids.buyer }, data: { mfaFailedCount: 0 } });
     const { browser } = await signIn(EMAILS.buyer);
     let last = await send(browser, 'POST', '/api/v1/auth/mfa/challenge', { code: '111111' });
     for (let attempt = 2; attempt <= env.LOGIN_LOCKOUT_THRESHOLD; attempt += 1) {

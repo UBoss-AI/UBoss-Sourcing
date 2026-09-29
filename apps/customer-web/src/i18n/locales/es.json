@@ -6189,5 +6189,19 @@
   "security.stepUp.failed": "No hemos podido confirmar que sea usted. Por favor, inténtelo de nuevo.",
   "security.stepUp.setupBody": "Para ello, es necesario que active el inicio de sesión en dos pasos en su cuenta. Configúrelo ahora con su aplicación de autenticación y el cambio se aplicará cuando haya terminado.",
   "security.stepUp.setupTitle": "En primer lugar, active el inicio de sesión en dos pasos",
-  "security.stepUp.title": "Confirme que es usted"
+  "security.stepUp.title": "Confirme que es usted",
+  "security.panel.title": "Inicio de sesión en dos pasos",
+  "security.panel.description": "Después de su contraseña, un código de una app de autenticación en su teléfono. Quien conozca su contraseña seguirá sin poder entrar.",
+  "security.panel.on": "El inicio de sesión en dos pasos está activado.",
+  "security.panel.off": "El inicio de sesión en dos pasos está desactivado. Su cuenta solo está protegida por su contraseña.",
+  "security.panel.codesLeft_one": "Queda {{codes}} código de recuperación.",
+  "security.panel.codesLeft_many": "Quedan {{codes}} códigos de recuperación.",
+  "security.panel.codesLeft_other": "Quedan {{codes}} códigos de recuperación.",
+  "security.panel.replaceCodes": "Sustituir códigos de recuperación",
+  "security.panel.turnOff": "Desactivar el inicio de sesión en dos pasos",
+  "security.panel.turnedOn": "Inicio de sesión en dos pasos activado.",
+  "security.panel.turnedOff": "Inicio de sesión en dos pasos desactivado.",
+  "security.panel.failed": "No se pudo hacer. Vuelva a intentarlo.",
+  "security.panel.requiredOwner": "Se mantiene activado mientras sea titular de una cuenta de vendedor: vender aquí lo exige.",
+  "security.panel.requiredFinance": "Se mantiene activado mientras gestione los pagos de un vendedor: esa función lo exige."
 }

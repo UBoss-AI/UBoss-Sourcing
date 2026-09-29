@@ -860,6 +860,24 @@ How each requirement is written:
   4. Production refuses to start with `FEATURE_ADMIN_MFA=false`.
 - **Status.** Built (on by default; cannot be disabled in production).
 
+### FR-IDN-019 — Buyer two-step sign-in, bot check and sign-in alerts
+
+- **Statement.** A buyer can turn on TOTP two-step sign-in from the profile
+  page, replace recovery codes and turn it off; sign-in asks for the code
+  after the password. Sign-in can require a CAPTCHA, and a sign-in from a new
+  device or place emails the account holder. Sensitive acts need a fresh
+  confirmation (step-up: the code when two-step is on, otherwise the
+  password).
+- **Rules.**
+  1. Wrong codes count in a row until a right one; at `LOGIN_LOCKOUT_THRESHOLD`
+     the account locks for `LOGIN_LOCKOUT_MINUTES` and every session ends.
+  2. Turning it off needs a fresh step-up with a code, is refused while a
+     seller owner or finance role requires it, and emails the holder.
+  3. The secret and recovery codes appear in one response each and are never
+     cached in the browser.
+- **Status.** Built (API: 29 Sep 2026 pass 3; profile panel: 29 Sep 2026,
+  checklist Master row 10).
+
 ### FR-IDN-010 — Staff sign-in location check
 
 - **Statement.** When switched on, the console asks the browser for the
