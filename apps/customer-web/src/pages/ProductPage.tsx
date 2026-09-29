@@ -2491,6 +2491,19 @@ export function ProductPage(): React.JSX.Element {
           {/* Who sells it, whether it can reach the chosen country, how soon,
               and whether it is inspected before dispatch. */}
           <ProductSourcingPanel sourcing={query.data.sourcing} />
+
+          {/* A quotation for a quantity or terms the page does not offer,
+              filed in this product's category and named after it. */}
+          {features.rfq === true && product.category !== null && (
+            <p className="mt-4 text-sm">
+              <Link
+                to={`/account/rfqs/new?categoryId=${encodeURIComponent(product.category.id)}&title=${encodeURIComponent(product.name)}`}
+                className="font-medium text-brand underline-offset-2 hover:text-brand-hover hover:underline"
+              >
+                {t('rfq.cta.requestQuotesForProduct')}
+              </Link>
+            </p>
+          )}
         </div>
       </div>
 

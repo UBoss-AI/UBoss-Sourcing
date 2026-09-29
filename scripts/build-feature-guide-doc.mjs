@@ -615,6 +615,34 @@ bullets([
   'The customer never sees which warehouse the stock is in.',
   'Anything set aside for the customer is given back if the preorder is cancelled, expires or is rejected, or if its order is cancelled.',
 ]);
+h2('5.4c Asking suppliers to quote: requests for quotation');
+p('When the product pages do not offer what a buyer needs - a quantity, a specification, a destination, a set of conditions - the buyer can describe it once and let the right suppliers answer. This is a request for quotation.');
+table(['Step', 'What the customer does', 'What the system does back'], [
+  ['1', 'Opens Requests for quotation in their account and presses New request, or presses Request quotes on a category page or a product page.', 'Opens the request form. From a category or product page, the category (and the product name as a title) are already filled in.'],
+  ['2', 'Fills in what they need: category, title, a detailed description, key details such as material or size, the quantity and its unit, a yearly volume and a target price if they want, the destination country, port and address, the Incoterm, certifications, whether a sample or an inspection is needed, the deadline for quotes, the wanted delivery date, notes and files.', 'Saves it as a draft whenever they press Save draft, so they can come back later. It checks each answer as it is saved, for example that the quantity is a positive number and the deadline is in the future.'],
+  ['3', 'Looks at the suppliers the request would go to, leaves out any they do not want, and adds others by name.', 'Shows the approved suppliers who sell in that category and may sell into the destination. If nobody matches, it says so plainly. It never invites a supplier the marketplace has not approved, and never the buyer’s own business.'],
+  ['4', 'Presses Send to suppliers.', 'Checks everything again and names every missing or wrong detail at once. Then it sends the request, records each supplier it was sent to, and tells each supplier by email and in Seller Hub. Pressing twice sends it once.'],
+]);
+bullets([
+  'The deadline is always shown in UTC, so a buyer and a supplier in different countries read the same moment.',
+  'A category the marketplace does not sell into the destination cannot be sent there.',
+  'Files are checked by their content, scanned and kept private. A file becomes part of the request once it is sent and cannot be removed afterwards.',
+  'A company buyer needs a role that may buy, and a verified company, to send a request. A draft can be written while the company is still being checked.',
+  'A buyer can cancel a request, or close it without choosing anybody; every supplier still taking part is told.',
+  'After sending, the buyer sees each supplier asked and where they stand: invited, opened, quoted, declined (with their reason), or out of time.',
+  'The buyer and each supplier can ask and answer questions in a conversation of their own; no supplier sees another’s.',
+  'A sent request is never changed silently. Changing it publishes a new version, says what changed and why, and tells every supplier still taking part. Earlier versions stay readable.',
+  'Each supplier sends one quote. The buyer presses Compare quotes to see them side by side: price, price for their quantity, total, minimum order, lead time, terms, extra costs and how long each offer stands.',
+  'The buyer can show every figure in the currency they choose. The figure the supplier quoted is always shown too; the converted one is marked as converted and says which exchange rate was used, where it came from and on what date.',
+  'Anything a supplier did not give says “Not provided”. It is never shown as zero, so a quote is never made to look cheaper by leaving something out.',
+  'The buyer can sort, keep a shortlist and download the comparison as a spreadsheet file.',
+  'From a quote, the buyer and that supplier can negotiate: either sends a counter-offer with a new price, quantity, minimum order, lead time, Incoterm, payment or inspection terms, a comment and how long it stands. Each offer is kept exactly as it was sent.',
+  'The side that did not make an offer can accept or reject it. An offer that has run out of time cannot be accepted, but either side can send a new one.',
+  'Accepting awards the request to that supplier, closes every other quote and locks the agreed terms, with a fingerprint that any later order must match. Two people pressing accept at the same moment cannot both win. Turning agreed terms into a purchase order is not available yet.',
+  'Under Samples, the buyer can ask any supplier taking part for a sample: how many, where to send it, by when, and what it must show to be approved. The supplier accepts (saying what it costs, if anything) or declines with a reason, and marks it shipped by entering the courier and tracking number. The buyer confirms it arrived, then approves it or rejects it with a reason. Photos and reports can be attached by either side.',
+  'Nothing about a sample is marked done before it happens: it is not shipped until there is a tracking number, not delivered until the buyer says so, and never shown as paid - paying for samples through the marketplace is not available yet. An approved sample becomes the reference sample for later inspection.',
+]);
+
 h2('5.4b Asking the team about a preorder');
 p('Right beside the Preorder button on every product page there is a small chat icon: a pair of speech bubbles, the same height as Preorder. Pointing at it, or moving to it with the keyboard, shows a short hint that names the business running the marketplace — for example “Ask Northwind about this preorder”. Screen readers call it “Chat with Northwind”. On a phone a single tap opens the chat. It lets a customer ask that business’s own team a question before they decide: how many fit in a container, whether a date is possible, what a bulk price might be. The seller of the product is not part of this conversation and does not see it.');
 table(['Step', 'What the customer does', 'What the system does back'], [
@@ -724,6 +752,7 @@ bullets([
 ]);
 p('There are no tiles and no lists under the ring. Spend against the period before, what is promised in the next seven days, repeat orders that cannot run without the cardholder, orders waiting for payment or an approval, and whether the buyer’s own business system is still exchanging messages were all shown here once, and each of them belongs to a screen of its own: My orders, Payments, Scheduled orders, ERP connections. A shorter copy of a screen is a copy that goes out of date.');
 p('None of that information became unavailable. The dashboard still fetches all of it, and the written summary beside the ring is worked out from the whole of it — so it can still say that three orders are waiting for payment, or that a repeat order needs a card, even though no tile shows it. Orders waiting for payment or an approval are counted however old they are, not only the ones inside the chosen period, because an unpaid order from six weeks ago needs more attention than one from this morning.');
+p('When requests for quotation are switched on, a Sourcing card sits under the ring. It counts open requests, drafts, open quotes, negotiations under way, samples in progress and awarded requests, and says how many of each are waiting on the buyer. Each figure opens the list it counts. Under it is a short list of next actions - an offer to answer, a sample to confirm or judge, a request whose deadline has passed, a draft to finish - and each one opens the page where it is done. If the sourcing figures cannot be loaded, only this card says so; the ring and the summary still work. A figure the system could not work out shows a dash, never a zero.');
 h2('6.1 Profile and company');
 table(['Account page', 'What the customer can do'], [
   ['Profile', 'Edit personal details in separate panels, change password, view purchasing limits, request contact changes, view own data and deactivate/close account.'],
@@ -1126,6 +1155,22 @@ bullets([
   'A seller sees requests only on products they actually list. Somebody else’s products are not shown, and not reachable.',
   'A listing that is paused still shows them. The seller whose listing is off sale is exactly the one who needs to know why nobody was buying it.',
   'A product several businesses sell shows its requests to all of them. A customer asking whether something comes in 8 mm is asking the marketplace, not a company whose name they have never seen.',
+]);
+
+h2('6a.8g Answering requests for quotation');
+p('When a buyer asks for quotes in a category the seller sells in, the seller is told by email and in Seller Hub, and the request appears under Requests for quotation.');
+table(['Step', 'What the seller does', 'What the system does back'], [
+  ['1', 'Opens the request.', 'Shows everything the buyer asked for, every earlier version with what changed, the buyer’s files, and the deadline in UTC. It tells the buyer the seller has opened it.'],
+  ['2', 'Asks the buyer a question, if something is unclear.', 'Keeps the question and the answer in a conversation that only this seller and the buyer can see. Other sellers never see it.'],
+  ['3', 'Or declines, with a reason.', 'Tells the buyer, with the reason, and takes the request off the seller’s to-do list.'],
+  ['4', 'Or sends a quote from the Your quote tab: price and currency, optional price steps for bigger quantities, minimum order, lead time, monthly capacity, Incoterm, payment and inspection terms, warranty, tooling, sample and shipping costs, what the price does not include, how long the offer stands, and files.', 'Checks the offer, sends it to the buyer, and keeps it as the first version. A seller sends one quote per request; changing terms later is a counter-offer.'],
+]);
+bullets([
+  'A seller only ever sees requests it was invited to.',
+  'If the buyer changes the request, the seller is told and sees exactly which details changed.',
+  'Once the deadline passes without an answer, the invitation lapses. If the buyer gives more time, it comes back.',
+  'Only members allowed to handle orders can answer, and only while the business is approved to sell.',
+  'After quoting, the seller sees every offer in the negotiation, can accept or reject the buyer’s counter-offer, send its own, or withdraw its quote while it is open.',
 ]);
 
 h2('6a.8e Seeing exactly what a customer ordered');
@@ -2455,6 +2500,7 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Company buyers', 'On by default and can be switched off by a setting. On, the sign-in page has Individual and Company tabs, buyers can apply for a company account and switch between themselves and their companies, and staff get the Buyer companies screen. Off, none of this appears and buyers buy as themselves. The business can also change how many unfinished applications one person may have, the largest document allowed, and the version of the declarations.'],
   ['Product reviews', 'On by default and can be switched off by a setting. Off, no stars or reviews appear anywhere on the shop and buyers cannot write one. Reviews already written are kept, and staff can still read and hide them, so switching it back on loses nothing.'],
   ['Support tickets', 'On by default and can be switched off by a setting. Off, the Support page shows only the business’s published email and phone number, and nobody can raise a new ticket. Tickets already raised stay readable, their senders can still reply and add files, and staff keep answering them. The business can also change how many tickets one account may raise in a day and the largest file allowed. Files can be attached only when a virus scanner is connected.'],
+  ['Requests for quotation', 'On by default and can be switched off by a setting. Off, the Request quotes links, the account’s requests pages and the Seller Hub inbox disappear, and nothing can be sent or answered. Requests already raised are kept. Files on a request appear only when a virus scanner is connected. The business sets how far ahead a deadline may be and how many suppliers one request may reach.'],
   ['Second reviewer for risky company applications', 'Off by default and turned on by a setting. The business chooses whether applications of raised risk, or only high risk, need two different reviewers to approve them.'],
   ['Order approvals', 'Enabled when the business wants certain orders to wait for an approver.'],
   ['Recurring and scheduled orders', 'Enabled when the business offers Buy Later and Subscribe & Reorder.'],

@@ -1670,8 +1670,9 @@ all absent (`BUYER_COMPANIES_DISABLED`).
      category's subtree; an unknown category has none.
   3. The assistant hand-off appears only when `features.assistant` is on, and
      parks the question for editing — it is never sent on the buyer's behalf.
-  4. There is no "Request quotes" button yet: that is the RFQ flow (Master
-     row 16), and a button with nothing behind it would mislead.
+  4. "Request quotes from suppliers" opens a new request for quotation
+     filed in this category (FR-RFQ-001), when `features.rfq` is on and the
+     category is not blocked for the destination.
 - **Status.** Built (29 Sep 2026, checklist Master row 3).
 
 ### FR-SRCH-012 — Product page: who sells it and how it reaches you
@@ -3078,6 +3079,198 @@ and has no route that reads these conversations.
   never by name.
 
 ---
+
+## 5.11b Requests for quotation (RFQ)
+
+A buyer describes what they need; the marketplace sends it to the approved
+sellers who could supply it; each seller answers. Behind `FEATURE_RFQ`
+(default on). Status is only changed through `domain/rfq-state.ts`, and every
+status write is conditional on the status and version that were read.
+
+### FR-RFQ-001 — Raise a request (checklist Master row 16)
+
+- **Statement.** A signed-in buyer, for themselves or for a company, writes a
+  request, saves it as a DRAFT as often as they like, and sends it.
+- **Fields.** Category, title, detailed specification, key/value details
+  (up to 40), quantity and unit of measure (decimal, up to 3 places), yearly
+  volume, target price (minor units + currency, both or neither), destination
+  country, port and address, Incoterm (the 11 Incoterms 2020), required
+  certifications, sample requirement, inspection requirement, response
+  deadline (an instant, UTC), wanted delivery date, notes, files.
+- **Rules.**
+  1. Every save checks format: known active category, active currency, ISO
+     country, positive quantities, a deadline in the future, a real date.
+  2. Submission checks again on the server and names every problem at once
+     (`RFQ_INCOMPLETE`): the required fields, a deadline within
+     `RFQ_MAX_RESPONSE_DAYS`, a port or address for C and D group Incoterms,
+     and a delivery date not before the deadline.
+  3. A company request needs the PURCHASE capability; a draft may be written
+     before the company is approved, but sending it needs APPROVED.
+  4. Only a draft can be edited in place or deleted (`RFQ_NOT_EDITABLE`).
+  5. Sending needs an Idempotency-Key; a repeat replays the first answer and a
+     second press finds the request no longer a draft (409).
+  6. Matching: sellers that are APPROVED, have a live offer on a public
+     product in the category or beneath it, whose product may be sold into
+     the destination (market rules), and are not the buyer's own business,
+     capped by `RFQ_MAX_MATCHED_SUPPLIERS`. The buyer may exclude matched
+     sellers and add approved ones by name; the total is capped by
+     `RFQ_MAX_INVITED_SUPPLIERS`.
+  7. A category blocked for the destination refuses submission
+     (`RFQ_DESTINATION_BLOCKED`). No match is a real outcome (`NO_MATCH`),
+     shown to the buyer, who can still invite sellers by name.
+  8. Each invitation is a row (one per seller per request); each invited
+     seller gets a Seller Hub alert and an email to members who can fulfil
+     orders. Creating, sending, inviting, cancelling and files are audited.
+  9. Files: PDF, JPEG, PNG, WebP or GIF, checked by content, malware-scanned,
+     private, up to `RFQ_ATTACHMENT_MAX_BYTES` and `RFQ_ATTACHMENTS_PER_RFQ`.
+     A file on a draft becomes part of version 1 on submission and can no
+     longer be removed.
+- **Status.** Built (checklist Master row 16).
+
+### FR-RFQ-002 — After sending: versions, sellers, questions (checklist Master row 17)
+
+- **Statement.** The buyer follows who was asked and where each stands, asks
+  and answers questions per seller, and changes a sent requirement only by
+  publishing a new version. Each seller works its invitations in Seller Hub.
+- **Rules.**
+  1. A seller reaches a request only through its own invitation; any other
+     request is a 404. It sees the current requirement, every version with
+     the fields that changed, the requirement's files, its own thread and its
+     own files - never another seller's name, answer or messages.
+  2. Invitation status: INVITED, VIEWED (first open), QUOTED, DECLINED (with a
+     reason the buyer reads), WITHDRAWN, EXPIRED (the UTC deadline passed with
+     no answer; materialised when the request is next read). Moving the
+     deadline later gives expired invitations back (INVITED).
+  3. A change to a sent request is `POST /rfqs/:id/versions`: a new
+     `rfq_requirement_versions` row with the changed fields and the buyer's
+     summary; nothing is overwritten silently. The category is locked;
+     no difference is refused (`RFQ_NO_CHANGE`); pending files join the new
+     version; every seller still taking part is told (Seller Hub + email).
+  4. Questions: one thread per invited seller, persisted. A resend with the
+     same `clientMessageId` is one message; polling with `?after=` returns
+     only newer messages. Closed once the request is no longer OPEN or the
+     seller declined.
+  5. Reading needs the seller permission ORDER_READ; declining and writing
+     need ORDER_FULFIL on an account approved to trade (`SELLER_NOT_APPROVED`).
+  6. Files are streamed only through signed-in routes that apply the rules in
+     rule 1; every download is audited.
+- **Status.** Built (checklist Master row 17). Not built: attaching a file to
+  a question (files go with the requirement or with an offer).
+
+### FR-RFQ-003 — Quotes and comparing them (checklist Master row 18)
+
+- **Statement.** Each invited seller sends one quote; the buyer compares the
+  quotes side by side, in their chosen currency, and exports the comparison.
+- **Quote fields.** Unit price (minor units) and currency, optional price
+  tiers (ascending quantities), quantity, MOQ, lead time in days, capacity
+  per month, Incoterm and place, payment terms, inspection terms, warranty,
+  tooling/NRE, sample cost, shipping estimate, taxes/duties/exclusions, a
+  comment, files, and a validity date. That is offer version 1.
+- **Rules.**
+  1. One quote per seller per request (`uq_rfq_quote_seller`,
+     `RFQ_QUOTE_EXISTS`); only while the request is open and before the
+     deadline, and not after declining (`RFQ_RESPONSE_CLOSED`). Invalid terms
+     are `RFQ_QUOTE_INVALID` with the field named.
+  2. The comparison shows every figure as quoted. When the buyer chooses
+     another currency, each figure is also converted with the project's own
+     published rate set (mid-market, no margin), labelled approximate, with
+     the rate, its provider and its as-of date. A pair with no published rate
+     is shown as quoted only and says so.
+  3. A term not given is `null` and reads "Not provided", never zero. The
+     total is the applicable tier price times the quantity, rounded half-up
+     once; the converted total converts that total.
+  4. Sort by total, unit price, lead time, MOQ or supplier (unknown figures
+     last); filter to the shortlist or by status. The shortlist is the
+     buyer's alone (audited) and changes no term.
+  5. `GET /rfqs/:id/comparison.csv` is built from the same rows; every cell
+     is written through the export's formula guard (a leading `=`, `+`, `-`,
+     `@`, tab or CR is prefixed with `'`). The export is audited.
+  6. A seller sees only its own quote; the comparison is the buyer's.
+- **Status.** Built (checklist Master row 18).
+
+### FR-RFQ-004 — Negotiation and acceptance (checklist Master row 19)
+
+- **Statement.** The buyer and the quote's seller negotiate in immutable
+  offer versions until one side accepts the other's terms, which are then
+  locked as what a later order must use.
+- **Rules.**
+  1. Version 1 is the quote. A counter-offer from either side is the next
+     version (price, quantity, MOQ, lead time, Incoterm and place, payment and
+     inspection terms, comment, files, expiry; the seller's other terms carry
+     forward; tiers belong to the first quote). It names the version it
+     answers and is refused if that moved (`RFQ_OFFER_NOT_OPEN`, STALE).
+     No version is ever edited.
+  2. Only the request's buyer and that quote's seller take part; anyone else
+     gets 404. Only the side that did not write the version on the table may
+     accept or reject it (OWN_OFFER).
+  3. Accepting names the terms hash; a different hash is refused
+     (TERMS_CHANGED); an expired version cannot be accepted
+     (`RFQ_OFFER_EXPIRED`) but can be countered.
+  4. Acceptance is three conditional updates in one transaction - request
+     OPEN -> AWARDED while `awardedQuoteId` is NULL (UNIQUE), quote OPEN ->
+     ACCEPTED while this version is current, version PROPOSED -> ACCEPTED - so
+     concurrent actions cannot produce two accepted states
+     (`RFQ_ALREADY_AWARDED`). Repeating an acceptance answers with the
+     accepted quote (idempotent). Every other open quote closes
+     (AWARDED_ELSEWHERE) and its seller is told.
+  5. The accepted terms and their hash are frozen on the quote;
+     `GET /rfqs/:id/accepted-terms` (and the seller's equivalent) returns them,
+     re-checking the hash.
+  6. Reject closes the quote (REJECTED); the seller may withdraw an open
+     quote (WITHDRAWN, invitation WITHDRAWN). Every step is audited with the
+     actor and the version.
+- **Status.** Built (checklist Master row 19). **Not built:** creating a
+  purchase order or order from accepted terms - the read endpoint returns
+  `purchaseOrder.status = NOT_BUILT`.
+
+### FR-RFQ-005 — Sample requests (checklist Master row 20)
+
+- **Statement.** On an open or awarded request the buyer asks a supplier
+  taking part (optionally against its quote) for a sample; both sides follow
+  it to a decision.
+- **Fields.** Quantity, unit, delivery address, needed-by date, approval
+  criteria, notes; the supplier's cost (minor units + currency, or free) and
+  note; courier and tracking number; the decision and its reason; evidence
+  files; the reference-sample code.
+- **Rules.**
+  1. Creating needs an Idempotency-Key; a repeat is one request. Only a
+     supplier with a live invitation can be asked (`RFQ_SUPPLIER_NOT_ELIGIBLE`).
+  2. Status (`domain/rfq-sample-state.ts`), each step by one side only and
+     conditional on the status and version read: REQUESTED -> ACCEPTED or
+     DECLINED (supplier, with a reason) or CANCELLED (buyer); ACCEPTED ->
+     SHIPPED (supplier, courier and tracking required) or CANCELLED; SHIPPED ->
+     DELIVERED (buyer confirms receipt); DELIVERED -> APPROVED or REJECTED
+     (buyer, rejection with a reason). Anything else is
+     `RFQ_SAMPLE_TRANSITION_NOT_ALLOWED`.
+  3. Nothing is marked done without its event: shipped needs the tracking
+     details, delivered needs the buyer, and payment is never marked PAID -
+     a sample with a cost stays PAYMENT_PENDING and the screens say payment
+     is not collected here.
+  4. Approval sets a reference-sample code (`REF-<reference>`), the sample a
+     later inspection is measured against.
+  5. Evidence files (purpose SAMPLE) are seen only by the buyer and that
+     supplier. Every step is on the timeline, told to the other side and
+     audited.
+- **Status.** Built (checklist Master row 20). **Not built:** collecting
+  payment for a sample; linking a reference sample into an inspection
+  booking (the code is recorded for that).
+
+### FR-RFQ-006 — Sourcing on the buyer dashboard (checklist Master row 15)
+
+- **Statement.** With `FEATURE_RFQ` on, the buyer dashboard shows counts of
+  requests (open, draft, awarded), open quotes, negotiations (a quote past its
+  first offer) and samples in progress, each with how many wait on the buyer,
+  and up to six next actions. Every figure links to the filtered list; every
+  action to the page where it is done.
+- **Rules.**
+  1. Everything is counted from the buyer's own rows (the same scope as the
+     request list); nothing is estimated. "Waiting on you" means the current
+     offer is the supplier's and still open, or a sample is shipped (confirm
+     receipt) or delivered (approve or reject).
+  2. Each block is measured on its own; a block that fails is `null` and
+     named in `unavailable`, and the screen shows a dash, never 0.
+  3. The card has its own request; its failure never blanks the order ring.
+- **Status.** Built.
 
 ## 5.12 Buying by the carton, pallet or container; freight (BULK)
 
@@ -5659,6 +5852,7 @@ Remove-Item Env:\DATABASE_URL
 | `PREORDER_OPEN_TO_ALL` | `true` | Preorders on every product (platform default terms; staff answer the operator's own) |
 | `FEATURE_PREORDER_CHAT` | `true` | **Chat with {marketplace}** on product pages and the **Preorder Chats** inbox (FR-PCH). Tuning: `REALTIME_BUS_DRIVER` (`memory`; `database` for several API processes), `PREORDER_CHAT_TYPICAL_RESPONSE`, `OPERATOR_TEAM_NAME` (the operator team's name in chat and delivery levels; empty = the marketplace name), `PREORDER_CHAT_SLA_MINUTES` (240), `PREORDER_CHAT_EMAIL_DELAY_MINUTES` (10), `PREORDER_CHAT_MESSAGES_PER_MINUTE` (20), `PREORDER_CHAT_CONVERSATIONS_PER_HOUR` (10), `PREORDER_CHAT_MAX_MESSAGE_CHARS` (4000), `PREORDER_CHAT_ATTACHMENTS_ENABLED` (`true`), `PREORDER_CHAT_ATTACHMENT_MAX_BYTES` (10 MB), `PREORDER_CHAT_ALLOW_UNSCANNED_ATTACHMENTS` (`false`, refused in production), `PREORDER_CHAT_RETENTION_DAYS` (0 = keep) |
 | `FEATURE_PRODUCT_REVIEWS` | `true` | **Product reviews** (FR-CAT-018): stars on cards and product pages, the review form, **Rate this product** on delivered orders and **Account → My reviews**. Reported as `features.productReviews` in the public config. Off refuses the storefront review routes; the console screen stays |
+| `FEATURE_RFQ` | `true` | **Requests for quotation** (§5.11b): the account's RFQ pages, "Request quotes" on category and product pages, and the Seller Hub inbox. Reported as `features.rfq`. Off refuses every RFQ route with `404 FEATURE_DISABLED` on both sides; nothing is deleted. Tuning: `RFQ_MAX_RESPONSE_DAYS` (90), `RFQ_MAX_MATCHED_SUPPLIERS` (25), `RFQ_MAX_INVITED_SUPPLIERS` (50), `RFQ_ATTACHMENT_MAX_BYTES` (10 MB), `RFQ_ATTACHMENTS_PER_RFQ` (40), `RFQ_ALLOW_UNSCANNED_ATTACHMENTS` (`false`; refused in production) |
 | `FEATURE_SUPPORT_TICKETS` | `true` | **Support tickets** (§5.19a): the **Raise a ticket** form on the Support page in the storefront, Seller Hub and the portal. Reported as `features.supportTickets` in the public config. Off shows only the published contacts and refuses new tickets with `403 FEATURE_DISABLED`; existing tickets stay readable, senders can still reply and add files, and the console inbox keeps working. Settings in §10.12 |
 | `PAYMENT_MOCK_SUCCESS` | `false` | Development-only "Mark this order as paid" test path |
 | `ENABLE_DEMO_CATALOG` | `true` outside production, `false` in production | Shows the demonstration catalogue |

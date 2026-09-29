@@ -392,7 +392,16 @@ export const ModelName = {
   PayoutProviderEvent: 'PayoutProviderEvent',
   LedgerReconciliationRun: 'LedgerReconciliationRun',
   LedgerReconciliationItem: 'LedgerReconciliationItem',
-  SecretFingerprint: 'SecretFingerprint'
+  SecretFingerprint: 'SecretFingerprint',
+  RfqRequest: 'RfqRequest',
+  RfqRequirementVersion: 'RfqRequirementVersion',
+  RfqInvitation: 'RfqInvitation',
+  RfqAttachment: 'RfqAttachment',
+  RfqEvent: 'RfqEvent',
+  RfqMessage: 'RfqMessage',
+  RfqQuote: 'RfqQuote',
+  RfqQuoteVersion: 'RfqQuoteVersion',
+  RfqSample: 'RfqSample'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -8342,6 +8351,234 @@ export const SecretFingerprintScalarFieldEnum = {
 export type SecretFingerprintScalarFieldEnum = (typeof SecretFingerprintScalarFieldEnum)[keyof typeof SecretFingerprintScalarFieldEnum]
 
 
+export const RfqRequestScalarFieldEnum = {
+  id: 'id',
+  reference: 'reference',
+  status: 'status',
+  version: 'version',
+  customerProfileId: 'customerProfileId',
+  buyerCompanyId: 'buyerCompanyId',
+  createdByUserId: 'createdByUserId',
+  categoryId: 'categoryId',
+  title: 'title',
+  specification: 'specification',
+  specsJson: 'specsJson',
+  quantity: 'quantity',
+  unitOfMeasure: 'unitOfMeasure',
+  annualVolume: 'annualVolume',
+  targetUnitPriceMinor: 'targetUnitPriceMinor',
+  targetCurrency: 'targetCurrency',
+  destinationCountry: 'destinationCountry',
+  destinationAddress: 'destinationAddress',
+  destinationPort: 'destinationPort',
+  incoterm: 'incoterm',
+  certificationsJson: 'certificationsJson',
+  sampleRequirement: 'sampleRequirement',
+  inspectionRequirement: 'inspectionRequirement',
+  responseDeadline: 'responseDeadline',
+  deliveryTargetDate: 'deliveryTargetDate',
+  notes: 'notes',
+  includeSellerIdsJson: 'includeSellerIdsJson',
+  excludeSellerIdsJson: 'excludeSellerIdsJson',
+  matchedSupplierCount: 'matchedSupplierCount',
+  matchOutcome: 'matchOutcome',
+  currentRequirementVersion: 'currentRequirementVersion',
+  submittedAt: 'submittedAt',
+  closedAt: 'closedAt',
+  awardedQuoteId: 'awardedQuoteId',
+  awardedAt: 'awardedAt',
+  cancelledAt: 'cancelledAt',
+  statusReason: 'statusReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqRequestScalarFieldEnum = (typeof RfqRequestScalarFieldEnum)[keyof typeof RfqRequestScalarFieldEnum]
+
+
+export const RfqRequirementVersionScalarFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  versionNumber: 'versionNumber',
+  snapshotJson: 'snapshotJson',
+  changedFieldsJson: 'changedFieldsJson',
+  changeSummary: 'changeSummary',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqRequirementVersionScalarFieldEnum = (typeof RfqRequirementVersionScalarFieldEnum)[keyof typeof RfqRequirementVersionScalarFieldEnum]
+
+
+export const RfqInvitationScalarFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  source: 'source',
+  status: 'status',
+  invitedAt: 'invitedAt',
+  viewedAt: 'viewedAt',
+  respondedAt: 'respondedAt',
+  declineReason: 'declineReason',
+  notifiedVersion: 'notifiedVersion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqInvitationScalarFieldEnum = (typeof RfqInvitationScalarFieldEnum)[keyof typeof RfqInvitationScalarFieldEnum]
+
+
+export const RfqAttachmentScalarFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  purpose: 'purpose',
+  sellerAccountId: 'sellerAccountId',
+  requirementVersion: 'requirementVersion',
+  quoteVersionId: 'quoteVersionId',
+  sampleId: 'sampleId',
+  uploadedByParty: 'uploadedByParty',
+  uploadedByUserId: 'uploadedByUserId',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  byteSize: 'byteSize',
+  contentHash: 'contentHash',
+  scanState: 'scanState',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqAttachmentScalarFieldEnum = (typeof RfqAttachmentScalarFieldEnum)[keyof typeof RfqAttachmentScalarFieldEnum]
+
+
+export const RfqEventScalarFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  kind: 'kind',
+  sellerAccountId: 'sellerAccountId',
+  sharedWithSuppliers: 'sharedWithSuppliers',
+  actorParty: 'actorParty',
+  actorUserId: 'actorUserId',
+  metaJson: 'metaJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqEventScalarFieldEnum = (typeof RfqEventScalarFieldEnum)[keyof typeof RfqEventScalarFieldEnum]
+
+
+export const RfqMessageScalarFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  authorParty: 'authorParty',
+  authorUserId: 'authorUserId',
+  body: 'body',
+  clientMessageId: 'clientMessageId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqMessageScalarFieldEnum = (typeof RfqMessageScalarFieldEnum)[keyof typeof RfqMessageScalarFieldEnum]
+
+
+export const RfqQuoteScalarFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  invitationId: 'invitationId',
+  status: 'status',
+  currency: 'currency',
+  currentVersionId: 'currentVersionId',
+  currentVersionNumber: 'currentVersionNumber',
+  basedOnRequirementVersion: 'basedOnRequirementVersion',
+  shortlisted: 'shortlisted',
+  shortlistedAt: 'shortlistedAt',
+  acceptedVersionId: 'acceptedVersionId',
+  acceptedTermsHash: 'acceptedTermsHash',
+  acceptedTermsJson: 'acceptedTermsJson',
+  acceptedAt: 'acceptedAt',
+  acceptedByParty: 'acceptedByParty',
+  acceptedByUserId: 'acceptedByUserId',
+  closedReason: 'closedReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqQuoteScalarFieldEnum = (typeof RfqQuoteScalarFieldEnum)[keyof typeof RfqQuoteScalarFieldEnum]
+
+
+export const RfqQuoteVersionScalarFieldEnum = {
+  id: 'id',
+  quoteId: 'quoteId',
+  rfqId: 'rfqId',
+  versionNumber: 'versionNumber',
+  authorParty: 'authorParty',
+  authorUserId: 'authorUserId',
+  state: 'state',
+  currency: 'currency',
+  unitPriceMinor: 'unitPriceMinor',
+  quantity: 'quantity',
+  moq: 'moq',
+  leadTimeDays: 'leadTimeDays',
+  capacityPerMonth: 'capacityPerMonth',
+  incoterm: 'incoterm',
+  incotermPlace: 'incotermPlace',
+  paymentTerms: 'paymentTerms',
+  inspectionTerms: 'inspectionTerms',
+  warranty: 'warranty',
+  toolingMinor: 'toolingMinor',
+  sampleCostMinor: 'sampleCostMinor',
+  shippingEstimateMinor: 'shippingEstimateMinor',
+  taxesDisclosure: 'taxesDisclosure',
+  tiersJson: 'tiersJson',
+  comment: 'comment',
+  expiresAt: 'expiresAt',
+  termsHash: 'termsHash',
+  respondedAt: 'respondedAt',
+  respondedByUserId: 'respondedByUserId',
+  responseNote: 'responseNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqQuoteVersionScalarFieldEnum = (typeof RfqQuoteVersionScalarFieldEnum)[keyof typeof RfqQuoteVersionScalarFieldEnum]
+
+
+export const RfqSampleScalarFieldEnum = {
+  id: 'id',
+  reference: 'reference',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  quoteId: 'quoteId',
+  status: 'status',
+  version: 'version',
+  quantity: 'quantity',
+  unitOfMeasure: 'unitOfMeasure',
+  deliveryAddress: 'deliveryAddress',
+  requestedByDate: 'requestedByDate',
+  approvalCriteria: 'approvalCriteria',
+  notes: 'notes',
+  costMinor: 'costMinor',
+  currency: 'currency',
+  paymentStatus: 'paymentStatus',
+  supplierNote: 'supplierNote',
+  courier: 'courier',
+  trackingNumber: 'trackingNumber',
+  shippedAt: 'shippedAt',
+  deliveredAt: 'deliveredAt',
+  decidedAt: 'decidedAt',
+  decisionReason: 'decisionReason',
+  referenceCode: 'referenceCode',
+  requestedByUserId: 'requestedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqSampleScalarFieldEnum = (typeof RfqSampleScalarFieldEnum)[keyof typeof RfqSampleScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -13292,4 +13529,149 @@ export const SecretFingerprintOrderByRelevanceFieldEnum = {
 } as const
 
 export type SecretFingerprintOrderByRelevanceFieldEnum = (typeof SecretFingerprintOrderByRelevanceFieldEnum)[keyof typeof SecretFingerprintOrderByRelevanceFieldEnum]
+
+
+export const RfqRequestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reference: 'reference',
+  customerProfileId: 'customerProfileId',
+  buyerCompanyId: 'buyerCompanyId',
+  createdByUserId: 'createdByUserId',
+  categoryId: 'categoryId',
+  title: 'title',
+  specification: 'specification',
+  unitOfMeasure: 'unitOfMeasure',
+  targetCurrency: 'targetCurrency',
+  destinationCountry: 'destinationCountry',
+  destinationAddress: 'destinationAddress',
+  destinationPort: 'destinationPort',
+  incoterm: 'incoterm',
+  sampleRequirement: 'sampleRequirement',
+  inspectionRequirement: 'inspectionRequirement',
+  notes: 'notes',
+  matchOutcome: 'matchOutcome',
+  awardedQuoteId: 'awardedQuoteId',
+  statusReason: 'statusReason'
+} as const
+
+export type RfqRequestOrderByRelevanceFieldEnum = (typeof RfqRequestOrderByRelevanceFieldEnum)[keyof typeof RfqRequestOrderByRelevanceFieldEnum]
+
+
+export const RfqRequirementVersionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  changeSummary: 'changeSummary',
+  createdByUserId: 'createdByUserId'
+} as const
+
+export type RfqRequirementVersionOrderByRelevanceFieldEnum = (typeof RfqRequirementVersionOrderByRelevanceFieldEnum)[keyof typeof RfqRequirementVersionOrderByRelevanceFieldEnum]
+
+
+export const RfqInvitationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  declineReason: 'declineReason'
+} as const
+
+export type RfqInvitationOrderByRelevanceFieldEnum = (typeof RfqInvitationOrderByRelevanceFieldEnum)[keyof typeof RfqInvitationOrderByRelevanceFieldEnum]
+
+
+export const RfqAttachmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  quoteVersionId: 'quoteVersionId',
+  sampleId: 'sampleId',
+  uploadedByUserId: 'uploadedByUserId',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  contentHash: 'contentHash',
+  scanState: 'scanState'
+} as const
+
+export type RfqAttachmentOrderByRelevanceFieldEnum = (typeof RfqAttachmentOrderByRelevanceFieldEnum)[keyof typeof RfqAttachmentOrderByRelevanceFieldEnum]
+
+
+export const RfqEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  kind: 'kind',
+  sellerAccountId: 'sellerAccountId',
+  actorUserId: 'actorUserId'
+} as const
+
+export type RfqEventOrderByRelevanceFieldEnum = (typeof RfqEventOrderByRelevanceFieldEnum)[keyof typeof RfqEventOrderByRelevanceFieldEnum]
+
+
+export const RfqMessageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  authorUserId: 'authorUserId',
+  body: 'body',
+  clientMessageId: 'clientMessageId'
+} as const
+
+export type RfqMessageOrderByRelevanceFieldEnum = (typeof RfqMessageOrderByRelevanceFieldEnum)[keyof typeof RfqMessageOrderByRelevanceFieldEnum]
+
+
+export const RfqQuoteOrderByRelevanceFieldEnum = {
+  id: 'id',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  invitationId: 'invitationId',
+  currency: 'currency',
+  currentVersionId: 'currentVersionId',
+  acceptedVersionId: 'acceptedVersionId',
+  acceptedTermsHash: 'acceptedTermsHash',
+  acceptedByUserId: 'acceptedByUserId',
+  closedReason: 'closedReason'
+} as const
+
+export type RfqQuoteOrderByRelevanceFieldEnum = (typeof RfqQuoteOrderByRelevanceFieldEnum)[keyof typeof RfqQuoteOrderByRelevanceFieldEnum]
+
+
+export const RfqQuoteVersionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  quoteId: 'quoteId',
+  rfqId: 'rfqId',
+  authorUserId: 'authorUserId',
+  currency: 'currency',
+  incoterm: 'incoterm',
+  incotermPlace: 'incotermPlace',
+  paymentTerms: 'paymentTerms',
+  inspectionTerms: 'inspectionTerms',
+  warranty: 'warranty',
+  taxesDisclosure: 'taxesDisclosure',
+  comment: 'comment',
+  termsHash: 'termsHash',
+  respondedByUserId: 'respondedByUserId',
+  responseNote: 'responseNote'
+} as const
+
+export type RfqQuoteVersionOrderByRelevanceFieldEnum = (typeof RfqQuoteVersionOrderByRelevanceFieldEnum)[keyof typeof RfqQuoteVersionOrderByRelevanceFieldEnum]
+
+
+export const RfqSampleOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reference: 'reference',
+  rfqId: 'rfqId',
+  sellerAccountId: 'sellerAccountId',
+  quoteId: 'quoteId',
+  unitOfMeasure: 'unitOfMeasure',
+  deliveryAddress: 'deliveryAddress',
+  approvalCriteria: 'approvalCriteria',
+  notes: 'notes',
+  currency: 'currency',
+  supplierNote: 'supplierNote',
+  courier: 'courier',
+  trackingNumber: 'trackingNumber',
+  decisionReason: 'decisionReason',
+  referenceCode: 'referenceCode',
+  requestedByUserId: 'requestedByUserId'
+} as const
+
+export type RfqSampleOrderByRelevanceFieldEnum = (typeof RfqSampleOrderByRelevanceFieldEnum)[keyof typeof RfqSampleOrderByRelevanceFieldEnum]
 

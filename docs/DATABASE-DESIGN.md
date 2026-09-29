@@ -4732,6 +4732,39 @@ buyer sends a preorder request from it: the proposal becomes `SUBMITTED` with th
 request's id, the conversation's `preorderRequestId` and `activeKey` take it, and
 a system card says so. The request itself is untouched and goes to the supplier.
 
+### 5.23b Requests for quotation
+
+Migration `20261021100000_rfq_requests` (checklist Master row 16).
+
+| Table | What one row is |
+|---|---|
+| `rfq_requests` | One request. Holds the CURRENT requirement (category, title, specification, `specsJson`, `quantity` and `annualVolume` as `DECIMAL(15,3)`, `targetUnitPriceMinor` BIGINT + `targetCurrency`, destination, Incoterm, certifications, sample and inspection choices, `responseDeadline` in UTC, `deliveryTargetDate`, notes), the draft's supplier choices, the match outcome, `currentRequirementVersion`, `status` and `version` |
+| `rfq_requirement_versions` | Every submitted version of the requirement, whole (`snapshotJson`), with the fields that changed. Append-only; `UNIQUE (rfqId, versionNumber)` |
+| `rfq_invitations` | One seller asked to quote. `UNIQUE (rfqId, sellerAccountId)`: a seller is asked once per request. `source` MATCHED or BUYER_SELECTED |
+| `rfq_attachments` | A private file. `purpose` REQUIREMENT, QUOTE or NEGOTIATION; `requirementVersion` NULL until frozen into a version; `sellerAccountId` names the thread for quote and negotiation files |
+| `rfq_messages` | A question or answer in one seller's thread (`sellerAccountId`). `UNIQUE (rfqId, sellerAccountId, clientMessageId)` makes a resend find the first message (NULL ids are never deduplicated). Migration `20261021200000_rfq_messages` (row 17) |
+| `rfq_quotes` | One seller's quote. `UNIQUE (rfqId, sellerAccountId)`; `status` OPEN / ACCEPTED / REJECTED / WITHDRAWN / CLOSED; the current version, the requirement version it answered, the shortlist flag, and (row 19) the accepted version, its terms hash and frozen terms. Migration `20261021300000_rfq_quotes` |
+| `rfq_quote_versions` | One immutable offer: every commercial term, money as BIGINT minor units (NULL = not provided), tiers, `expiresAt`, `termsHash` (SHA-256 of the canonical terms). `UNIQUE (quoteId, versionNumber)`. Only `state` and the answer to it ever change |
+| `rfq_samples` | A sample asked of one seller (row 20, migration `20261021500000_rfq_samples`): quantity, address, date, approval criteria, cost (`chk_rfq_sample_cost_pair`), `paymentStatus` (PAID only from a real payment; not built), courier and tracking, decision and reason, `referenceCode` (UNIQUE) once approved. Status REQUESTED / ACCEPTED / DECLINED / SHIPPED / DELIVERED / APPROVED / REJECTED / CANCELLED (`domain/rfq-sample-state.ts`). Evidence is `rfq_attachments` with purpose SAMPLE and `sampleId` |
+| `rfq_events` | The timeline. `sellerAccountId` and `sharedWithSuppliers` decide which seller may see a row |
+
+`rfq_requests.awardedQuoteId` (UNIQUE, migration `20261021400000_rfq_award`)
+is written only by the acceptance transaction, conditionally on being NULL.
+Quote states: OPEN -> ACCEPTED / REJECTED / WITHDRAWN (seller) / CLOSED
+(system); version states: PROPOSED -> SUPERSEDED / ACCEPTED / REJECTED /
+WITHDRAWN / CLOSED (`domain/rfq-quote.ts`).
+
+**Rules the database holds.** `chk_rfq_target_price_pair`: a target price is
+an amount and a currency, or neither. The request belongs to
+`customer_profiles` (cascade) and optionally `buyer_companies` (restrict).
+
+**State models** (`domain/rfq-state.ts`). Request: DRAFT → OPEN (buyer) →
+AWARDED (system, on acceptance) / CLOSED / CANCELLED (buyer); DRAFT →
+CANCELLED. Invitation: INVITED → VIEWED → QUOTED → WITHDRAWN; INVITED or
+VIEWED → DECLINED, or → EXPIRED (system, deadline passed) → INVITED again if
+the deadline moves later. Every write is conditional on the status and
+`version` read.
+
 ### 5.24 Seller documents: invoices and packing lists
 
 **Purpose.** A marketplace seller is the supplier of their goods, so the tax

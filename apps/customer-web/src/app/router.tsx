@@ -355,6 +355,35 @@ export const router = createBrowserRouter([
               import('@/pages/PreorderDetailPage').then((m) => m.PreorderDetailPage),
             ),
           },
+          // Requests for quotation: the list, the draft form and one request.
+          {
+            path: 'rfqs',
+            ...accountPage(() => import('@/pages/rfq/RfqListPage').then((m) => m.RfqListPage)),
+          },
+          {
+            path: 'rfqs/new',
+            ...accountPage(() => import('@/pages/rfq/RfqEditPage').then((m) => m.RfqEditPage)),
+          },
+          {
+            path: 'rfqs/:id/edit',
+            ...accountPage(() => import('@/pages/rfq/RfqEditPage').then((m) => m.RfqEditPage)),
+          },
+          {
+            path: 'rfqs/:id',
+            ...accountPage(() => import('@/pages/rfq/RfqDetailPage').then((m) => m.RfqDetailPage)),
+          },
+          {
+            path: 'rfqs/:id/compare',
+            ...accountPage(() => import('@/pages/rfq/RfqComparePage').then((m) => m.RfqComparePage)),
+          },
+          {
+            path: 'rfqs/:id/quotes/:quoteId',
+            ...accountPage(() => import('@/pages/rfq/RfqQuotePage').then((m) => m.RfqQuotePage)),
+          },
+          {
+            path: 'rfqs/:id/amend',
+            ...accountPage(() => import('@/pages/rfq/RfqEditPage').then((m) => m.RfqAmendPage)),
+          },
           // Preorder chats with the UBOSS team. `:id` is what the "a reply is
           // waiting" email links to.
           {
@@ -774,6 +803,14 @@ export const router = createBrowserRouter([
         ...accountPage(() =>
           import('@/pages/seller/SellerPreorderDetailPage').then((m) => m.SellerPreorderDetailPage),
         ),
+      },
+      {
+        path: 'rfqs',
+        ...accountPage(() => import('@/pages/seller/SellerRfqsPage').then((m) => m.SellerRfqsPage)),
+      },
+      {
+        path: 'rfqs/:id',
+        ...accountPage(() => import('@/pages/seller/SellerRfqDetailPage').then((m) => m.SellerRfqDetailPage)),
       },
       {
         path: 'payments',

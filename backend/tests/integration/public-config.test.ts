@@ -142,6 +142,10 @@ describe('GET /api/v1/config', () => {
       // themselves are read from their own endpoint.
       'productReviews',
       'recurringOrders',
+      // Whether requests for quotation are offered: "Request quotes" on
+      // category and product pages, the account's RFQ pages and the Seller
+      // Hub inbox. A boolean; requests themselves need a session.
+      'rfq',
       'selfRegistration',
       // Whether a confirmed sign-up still waits for a member of staff. The
       // storefront says so on the form rather than only afterwards.

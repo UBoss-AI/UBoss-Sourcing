@@ -622,6 +622,31 @@ export const AuditAction = {
   RETURN_FILE_UPLOADED: 'return.file_uploaded',
   RETURN_FILE_DOWNLOADED: 'return.file_downloaded',
   RETURN_SETTINGS_CHANGED: 'return.settings_changed',
+
+  // Requests for quotation (Master rows 16-19). Every step, by whoever took
+  // it: the buyer raising, sending, changing and closing a request, sellers
+  // being asked. A file by id, type and size only - never its name.
+  RFQ_CREATED: 'rfq.created',
+  RFQ_DRAFT_UPDATED: 'rfq.draft_updated',
+  RFQ_DRAFT_DELETED: 'rfq.draft_deleted',
+  RFQ_SUBMITTED: 'rfq.submitted',
+  RFQ_SUPPLIER_INVITED: 'rfq.supplier_invited',
+  RFQ_CANCELLED: 'rfq.cancelled',
+  RFQ_CLOSED: 'rfq.closed',
+  RFQ_ATTACHMENT_UPLOADED: 'rfq.attachment_uploaded',
+  RFQ_ATTACHMENT_REMOVED: 'rfq.attachment_removed',
+  RFQ_ATTACHMENT_DOWNLOADED: 'rfq.attachment_downloaded',
+  RFQ_AMENDED: 'rfq.amended',
+  RFQ_INVITATION_DECLINED: 'rfq.invitation_declined',
+  RFQ_QUOTE_SUBMITTED: 'rfq.quote_submitted',
+  RFQ_QUOTE_SHORTLISTED: 'rfq.quote_shortlisted',
+  RFQ_COMPARISON_EXPORTED: 'rfq.comparison_exported',
+  RFQ_OFFER_COUNTERED: 'rfq.offer_countered',
+  RFQ_OFFER_ACCEPTED: 'rfq.offer_accepted',
+  RFQ_OFFER_REJECTED: 'rfq.offer_rejected',
+  RFQ_QUOTE_WITHDRAWN: 'rfq.quote_withdrawn',
+  RFQ_SAMPLE_REQUESTED: 'rfq.sample_requested',
+  RFQ_SAMPLE_UPDATED: 'rfq.sample_updated',
 } as const;
 
 export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];

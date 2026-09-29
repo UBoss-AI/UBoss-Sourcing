@@ -98,6 +98,12 @@ export const SECTIONS = Object.freeze({
     'preorderRequests',
     // The versions of the bulk preorder note they acknowledged, and when.
     'preorderAcknowledgements',
+    // Requests for quotation this person raised: every version of what they
+    // asked for, which sellers were asked and how each answered, the files'
+    // names, and the timeline they were shown. A negotiation a named
+    // individual started, so disclosed whole. Which member of a seller's
+    // staff acted is that person's data, so only the seller's name is given.
+    'rfqRequests',
     // Their preorder chats with the operator's team: every message, card and
     // proposal they were shown, the files' names, how far they read, and a
     // block if there is one. Staff are named as "the team", as they were in
@@ -1397,6 +1403,140 @@ export async function buildCustomerBundle(
             to: entry.toStatus,
             at: iso(entry.createdAt),
             reason: entry.reason,
+          })),
+        })),
+      };
+    })(),
+
+    rfqRequests: await (async () => {
+      const LIMIT = 100;
+      const where = { customerProfileId: profile?.id ?? '' };
+      const [rows, total] = await Promise.all([
+        prisma.rfqRequest.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+          take: LIMIT,
+          include: {
+            requirementVersions: { orderBy: { versionNumber: 'asc' } },
+            invitations: {
+              orderBy: { invitedAt: 'asc' },
+              include: { sellerAccount: { select: { displayName: true } } },
+            },
+            attachments: {
+              orderBy: { createdAt: 'asc' },
+              select: { fileName: true, contentType: true, byteSize: true, purpose: true, createdAt: true },
+            },
+            events: { orderBy: { createdAt: 'asc' }, take: 1_000 },
+            messages: { orderBy: { id: 'asc' }, take: 2_000 },
+            samples: { orderBy: { createdAt: 'asc' } },
+            quotes: {
+              include: {
+                sellerAccount: { select: { displayName: true } },
+                versions: { orderBy: { versionNumber: 'asc' } },
+              },
+            },
+          },
+        }),
+        prisma.rfqRequest.count({ where }),
+      ]);
+      return {
+        total,
+        disclosed: rows.length,
+        ...(total > rows.length
+          ? { note: `The ${String(LIMIT)} most recent are listed. Ask for the rest and they will be sent.` }
+          : {}),
+        requests: rows.map((request) => ({
+          reference: request.reference,
+          status: request.status,
+          raisedFor: request.buyerCompanyId === null ? 'Yourself' : 'A company you belong to',
+          title: request.title,
+          specification: request.specification,
+          specs: request.specsJson,
+          quantity: request.quantity?.toString() ?? null,
+          unitOfMeasure: request.unitOfMeasure,
+          annualVolume: request.annualVolume?.toString() ?? null,
+          targetUnitPriceMinor: money(request.targetUnitPriceMinor),
+          targetCurrency: request.targetCurrency,
+          destinationCountry: request.destinationCountry,
+          destinationAddress: request.destinationAddress,
+          destinationPort: request.destinationPort,
+          incoterm: request.incoterm,
+          certifications: request.certificationsJson,
+          sampleRequirement: request.sampleRequirement,
+          inspectionRequirement: request.inspectionRequirement,
+          responseDeadline: iso(request.responseDeadline),
+          deliveryTargetDate: iso(request.deliveryTargetDate),
+          notes: request.notes,
+          createdAt: iso(request.createdAt),
+          submittedAt: iso(request.submittedAt),
+          closedAt: iso(request.closedAt),
+          cancelledAt: iso(request.cancelledAt),
+          reason: request.statusReason,
+          requirementVersions: request.requirementVersions.map((version) => ({
+            version: version.versionNumber,
+            requirement: version.snapshotJson,
+            changedFields: version.changedFieldsJson,
+            summary: version.changeSummary,
+            at: iso(version.createdAt),
+          })),
+          sellersAsked: request.invitations.map((invitation) => ({
+            seller: invitation.sellerAccount.displayName,
+            how: invitation.source,
+            status: invitation.status,
+            invitedAt: iso(invitation.invitedAt),
+            answeredAt: iso(invitation.respondedAt),
+            declineReason: invitation.declineReason,
+          })),
+          files: request.attachments.map((file) => ({
+            name: file.fileName,
+            type: file.contentType,
+            bytes: file.byteSize,
+            purpose: file.purpose,
+            at: iso(file.createdAt),
+          })),
+          // Every quote and offer put to this person, and what became of it.
+          quotes: request.quotes.map((quote) => ({
+            seller: quote.sellerAccount.displayName,
+            status: quote.status,
+            acceptedTermsHash: quote.acceptedTermsHash,
+            acceptedAt: iso(quote.acceptedAt),
+            offers: quote.versions.map((version) => ({
+              version: version.versionNumber,
+              from: version.authorParty,
+              state: version.state,
+              currency: version.currency,
+              unitPriceMinor: money(version.unitPriceMinor),
+              quantity: version.quantity.toString(),
+              expiresAt: iso(version.expiresAt),
+              termsHash: version.termsHash,
+              at: iso(version.createdAt),
+            })),
+          })),
+          // Samples asked for, where they were sent and what was decided.
+          samples: request.samples.map((sample) => ({
+            reference: sample.reference,
+            status: sample.status,
+            quantity: sample.quantity.toString(),
+            deliveryAddress: sample.deliveryAddress,
+            approvalCriteria: sample.approvalCriteria,
+            courier: sample.courier,
+            trackingNumber: sample.trackingNumber,
+            decision: sample.decisionReason,
+            at: iso(sample.createdAt),
+          })),
+          // Questions and answers with each seller. Which member of the
+          // seller's staff wrote is theirs, so only the side is given.
+          messages: request.messages.map((message) => ({
+            seller: request.invitations.find((entry) => entry.sellerAccountId === message.sellerAccountId)
+              ?.sellerAccount.displayName ?? null,
+            from: message.authorParty,
+            text: message.body,
+            at: iso(message.createdAt),
+          })),
+          timeline: request.events.map((event) => ({
+            what: event.kind,
+            by: event.actorParty,
+            at: iso(event.createdAt),
           })),
         })),
       };

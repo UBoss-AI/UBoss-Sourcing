@@ -42,6 +42,26 @@ const LOGISTICS_CODES = new Set([
   'LOGISTICS_PARTNER_NOT_ELIGIBLE',
 ]);
 
+/** Requests for quotation. Each has its own sentence under `errors.rfq.*`. */
+const RFQ_CODES = new Set([
+  'RFQ_TRANSITION_NOT_ALLOWED',
+  'RFQ_NOT_EDITABLE',
+  'RFQ_INCOMPLETE',
+  'RFQ_DESTINATION_BLOCKED',
+  'RFQ_SUPPLIER_NOT_ELIGIBLE',
+  'RFQ_INVITATION_LIMIT_REACHED',
+  'RFQ_ATTACHMENTS_UNAVAILABLE',
+  'RFQ_ATTACHMENT_LIMIT_REACHED',
+  'RFQ_RESPONSE_CLOSED',
+  'RFQ_NO_CHANGE',
+  'RFQ_QUOTE_EXISTS',
+  'RFQ_QUOTE_INVALID',
+  'RFQ_OFFER_NOT_OPEN',
+  'RFQ_OFFER_EXPIRED',
+  'RFQ_ALREADY_AWARDED',
+  'RFQ_SAMPLE_TRANSITION_NOT_ALLOWED',
+]);
+
 const PREORDER_CODES = new Set([
   'PREORDER_NOT_AVAILABLE',
   'PREORDER_BUYER_NOT_ELIGIBLE',
@@ -294,6 +314,12 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
     // Pressed Save on a review form for a product not yet delivered to them -
     // a page left open, or an order that was cancelled in the meantime.
     if (error.code === 'REVIEW_NOT_ELIGIBLE') return t('reviews.error.notEligible');
+
+    // Requests for quotation. A stale screen is told to reload, whatever the code.
+    if (RFQ_CODES.has(error.code)) {
+      if (error.details.some((detail) => detail.code === 'STALE')) return t('errors.rfq.STALE');
+      return t(`errors.rfq.${error.code}` as TranslationKey);
+    }
 
     if (PREORDER_CHAT_CODES.has(error.code)) {
       return t(`errors.preorderChat.${error.code}` as TranslationKey);

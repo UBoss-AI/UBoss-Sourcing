@@ -171,6 +171,14 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   PreorderRequest: 'preorderRequests',
   // The versions of the bulk preorder note this person said they read.
   CustomerAcknowledgement: 'preorderAcknowledgements',
+  // A request for quotation this person raised, with every version of it,
+  // the sellers asked, the files' names and the timeline. `rfqRequests`.
+  RfqRequest: 'rfqRequests',
+  RfqEvent:
+    'Who did what on a request for quotation. The timeline itself is disclosed inside ' +
+    '`rfqRequests` (what happened, which side, when); `actorUserId` names whoever acted - the ' +
+    'buyer themselves or a member of a seller’s staff - and a seller employee’s identity is ' +
+    'their data rather than the buyer’s.',
   // Their preorder chats with the operator's team, their own read position in
   // each, and a messaging block if there is one - all under `preorderChats`.
   PreorderChatConversation: 'preorderChats',

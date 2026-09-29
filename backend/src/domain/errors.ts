@@ -1893,6 +1893,58 @@ export const ErrorCode = {
   CUSTOMER_KYC_INCOMPLETE: 'CUSTOMER_KYC_INCOMPLETE',
   /// The identity check cannot move that way from where it is. 409.
   CUSTOMER_KYC_TRANSITION_INVALID: 'CUSTOMER_KYC_TRANSITION_INVALID',
+
+  // --- Requests for quotation (Master rows 16-19) ---
+  /// The request cannot move that way from where it is - or it changed
+  /// while the screen was open (`details[0].code` STALE). 409.
+  RFQ_TRANSITION_NOT_ALLOWED: 'RFQ_TRANSITION_NOT_ALLOWED',
+  /// Only a draft can be edited in place or deleted. A submitted request
+  /// changes through a new requirement version. 409.
+  RFQ_NOT_EDITABLE: 'RFQ_NOT_EDITABLE',
+  /// The request cannot be submitted yet. `details` names every field that
+  /// is missing or wrong (`REQUIRED`, `IN_PAST`, `TOO_FAR`, `DESTINATION_NEEDED`,
+  /// `BEFORE_DEADLINE`, `UNKNOWN`). 400.
+  RFQ_INCOMPLETE: 'RFQ_INCOMPLETE',
+  /// The marketplace does not sell this category into the destination
+  /// country (a market rule blocks it), so no seller may be asked to. 409.
+  RFQ_DESTINATION_BLOCKED: 'RFQ_DESTINATION_BLOCKED',
+  /// That seller cannot be invited: not approved to trade, the buyer's own
+  /// business, or unknown. 409.
+  RFQ_SUPPLIER_NOT_ELIGIBLE: 'RFQ_SUPPLIER_NOT_ELIGIBLE',
+  /// The request is already sent to as many sellers as this marketplace
+  /// allows (RFQ_MAX_INVITED_SUPPLIERS). 409.
+  RFQ_INVITATION_LIMIT_REACHED: 'RFQ_INVITATION_LIMIT_REACHED',
+  /// Files cannot be attached on this installation: no malware scanner and
+  /// unscanned files not accepted. 409.
+  RFQ_ATTACHMENTS_UNAVAILABLE: 'RFQ_ATTACHMENTS_UNAVAILABLE',
+  /// The request already carries as many files as it may
+  /// (RFQ_ATTACHMENTS_PER_RFQ). 409.
+  RFQ_ATTACHMENT_LIMIT_REACHED: 'RFQ_ATTACHMENT_LIMIT_REACHED',
+  /// The seller can no longer answer this request: they declined or
+  /// withdrew, the deadline passed, or the request closed. `details[0].code`
+  /// says which. 409.
+  RFQ_RESPONSE_CLOSED: 'RFQ_RESPONSE_CLOSED',
+  /// A new requirement version was asked for with nothing different from
+  /// the current one. 409.
+  RFQ_NO_CHANGE: 'RFQ_NO_CHANGE',
+  /// This seller has already quoted on the request. A changed price is a
+  /// counter-offer on that quote, never a second quote. 409.
+  RFQ_QUOTE_EXISTS: 'RFQ_QUOTE_EXISTS',
+  /// Some terms of an offer are not valid - an unknown currency, an expiry
+  /// already past, tiers that do not climb, a file that cannot be sent.
+  /// `details` names each. 400.
+  RFQ_QUOTE_INVALID: 'RFQ_QUOTE_INVALID',
+  /// That quote or offer version cannot be answered: it is no longer the one
+  /// on the table, it is your own, or the quote is no longer open.
+  /// `details[0].code` says which. 409.
+  RFQ_OFFER_NOT_OPEN: 'RFQ_OFFER_NOT_OPEN',
+  /// The offer's validity passed. It can be countered, never accepted. 409.
+  RFQ_OFFER_EXPIRED: 'RFQ_OFFER_EXPIRED',
+  /// Another quote on this request was accepted first. 409.
+  RFQ_ALREADY_AWARDED: 'RFQ_ALREADY_AWARDED',
+  /// A sample request cannot move that way from where it is, by that side -
+  /// or it changed while the screen was open (`STALE`). 409. (Master row 20)
+  RFQ_SAMPLE_TRANSITION_NOT_ALLOWED: 'RFQ_SAMPLE_TRANSITION_NOT_ALLOWED',
   /// A factory cannot be changed now: it is with a reviewer. 409. (Master row 13)
   FACTORY_NOT_EDITABLE: 'FACTORY_NOT_EDITABLE',
   /// A factory cannot be sent for review, or verified, yet: it has no

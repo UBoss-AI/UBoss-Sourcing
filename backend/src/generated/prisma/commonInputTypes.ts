@@ -6222,6 +6222,176 @@ export type EnumLedgerReconciliationItemKindWithAggregatesFilter<$PrismaModel = 
   _max?: Prisma.NestedEnumLedgerReconciliationItemKindFilter<$PrismaModel>
 }
 
+export type EnumRfqStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqStatus | Prisma.EnumRfqStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqStatus[]
+  notIn?: $Enums.RfqStatus[]
+  not?: Prisma.NestedEnumRfqStatusFilter<$PrismaModel> | $Enums.RfqStatus
+}
+
+export type EnumRfqStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqStatus | Prisma.EnumRfqStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqStatus[]
+  notIn?: $Enums.RfqStatus[]
+  not?: Prisma.NestedEnumRfqStatusWithAggregatesFilter<$PrismaModel> | $Enums.RfqStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqStatusFilter<$PrismaModel>
+}
+
+export type EnumRfqInvitationSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqInvitationSource | Prisma.EnumRfqInvitationSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqInvitationSource[]
+  notIn?: $Enums.RfqInvitationSource[]
+  not?: Prisma.NestedEnumRfqInvitationSourceFilter<$PrismaModel> | $Enums.RfqInvitationSource
+}
+
+export type EnumRfqInvitationStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqInvitationStatus | Prisma.EnumRfqInvitationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqInvitationStatus[]
+  notIn?: $Enums.RfqInvitationStatus[]
+  not?: Prisma.NestedEnumRfqInvitationStatusFilter<$PrismaModel> | $Enums.RfqInvitationStatus
+}
+
+export type EnumRfqInvitationSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqInvitationSource | Prisma.EnumRfqInvitationSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqInvitationSource[]
+  notIn?: $Enums.RfqInvitationSource[]
+  not?: Prisma.NestedEnumRfqInvitationSourceWithAggregatesFilter<$PrismaModel> | $Enums.RfqInvitationSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqInvitationSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqInvitationSourceFilter<$PrismaModel>
+}
+
+export type EnumRfqInvitationStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqInvitationStatus | Prisma.EnumRfqInvitationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqInvitationStatus[]
+  notIn?: $Enums.RfqInvitationStatus[]
+  not?: Prisma.NestedEnumRfqInvitationStatusWithAggregatesFilter<$PrismaModel> | $Enums.RfqInvitationStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqInvitationStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqInvitationStatusFilter<$PrismaModel>
+}
+
+export type EnumRfqAttachmentPurposeFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqAttachmentPurpose | Prisma.EnumRfqAttachmentPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqAttachmentPurpose[]
+  notIn?: $Enums.RfqAttachmentPurpose[]
+  not?: Prisma.NestedEnumRfqAttachmentPurposeFilter<$PrismaModel> | $Enums.RfqAttachmentPurpose
+}
+
+export type EnumRfqPartyFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqParty | Prisma.EnumRfqPartyFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqParty[]
+  notIn?: $Enums.RfqParty[]
+  not?: Prisma.NestedEnumRfqPartyFilter<$PrismaModel> | $Enums.RfqParty
+}
+
+export type EnumRfqAttachmentPurposeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqAttachmentPurpose | Prisma.EnumRfqAttachmentPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqAttachmentPurpose[]
+  notIn?: $Enums.RfqAttachmentPurpose[]
+  not?: Prisma.NestedEnumRfqAttachmentPurposeWithAggregatesFilter<$PrismaModel> | $Enums.RfqAttachmentPurpose
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqAttachmentPurposeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqAttachmentPurposeFilter<$PrismaModel>
+}
+
+export type EnumRfqPartyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqParty | Prisma.EnumRfqPartyFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqParty[]
+  notIn?: $Enums.RfqParty[]
+  not?: Prisma.NestedEnumRfqPartyWithAggregatesFilter<$PrismaModel> | $Enums.RfqParty
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqPartyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqPartyFilter<$PrismaModel>
+}
+
+export type EnumRfqQuoteStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqQuoteStatus | Prisma.EnumRfqQuoteStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqQuoteStatus[]
+  notIn?: $Enums.RfqQuoteStatus[]
+  not?: Prisma.NestedEnumRfqQuoteStatusFilter<$PrismaModel> | $Enums.RfqQuoteStatus
+}
+
+export type EnumRfqPartyNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqParty | Prisma.EnumRfqPartyFieldRefInput<$PrismaModel> | null
+  in?: $Enums.RfqParty[] | null
+  notIn?: $Enums.RfqParty[] | null
+  not?: Prisma.NestedEnumRfqPartyNullableFilter<$PrismaModel> | $Enums.RfqParty | null
+}
+
+export type EnumRfqQuoteStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqQuoteStatus | Prisma.EnumRfqQuoteStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqQuoteStatus[]
+  notIn?: $Enums.RfqQuoteStatus[]
+  not?: Prisma.NestedEnumRfqQuoteStatusWithAggregatesFilter<$PrismaModel> | $Enums.RfqQuoteStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqQuoteStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqQuoteStatusFilter<$PrismaModel>
+}
+
+export type EnumRfqPartyNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqParty | Prisma.EnumRfqPartyFieldRefInput<$PrismaModel> | null
+  in?: $Enums.RfqParty[] | null
+  notIn?: $Enums.RfqParty[] | null
+  not?: Prisma.NestedEnumRfqPartyNullableWithAggregatesFilter<$PrismaModel> | $Enums.RfqParty | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqPartyNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqPartyNullableFilter<$PrismaModel>
+}
+
+export type EnumRfqOfferStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqOfferState | Prisma.EnumRfqOfferStateFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqOfferState[]
+  notIn?: $Enums.RfqOfferState[]
+  not?: Prisma.NestedEnumRfqOfferStateFilter<$PrismaModel> | $Enums.RfqOfferState
+}
+
+export type EnumRfqOfferStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqOfferState | Prisma.EnumRfqOfferStateFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqOfferState[]
+  notIn?: $Enums.RfqOfferState[]
+  not?: Prisma.NestedEnumRfqOfferStateWithAggregatesFilter<$PrismaModel> | $Enums.RfqOfferState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqOfferStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqOfferStateFilter<$PrismaModel>
+}
+
+export type EnumRfqSampleStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSampleStatus | Prisma.EnumRfqSampleStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSampleStatus[]
+  notIn?: $Enums.RfqSampleStatus[]
+  not?: Prisma.NestedEnumRfqSampleStatusFilter<$PrismaModel> | $Enums.RfqSampleStatus
+}
+
+export type EnumRfqSamplePaymentStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSamplePaymentStatus | Prisma.EnumRfqSamplePaymentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSamplePaymentStatus[]
+  notIn?: $Enums.RfqSamplePaymentStatus[]
+  not?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel> | $Enums.RfqSamplePaymentStatus
+}
+
+export type EnumRfqSampleStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSampleStatus | Prisma.EnumRfqSampleStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSampleStatus[]
+  notIn?: $Enums.RfqSampleStatus[]
+  not?: Prisma.NestedEnumRfqSampleStatusWithAggregatesFilter<$PrismaModel> | $Enums.RfqSampleStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqSampleStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqSampleStatusFilter<$PrismaModel>
+}
+
+export type EnumRfqSamplePaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSamplePaymentStatus | Prisma.EnumRfqSamplePaymentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSamplePaymentStatus[]
+  notIn?: $Enums.RfqSamplePaymentStatus[]
+  not?: Prisma.NestedEnumRfqSamplePaymentStatusWithAggregatesFilter<$PrismaModel> | $Enums.RfqSamplePaymentStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[]
@@ -12391,6 +12561,176 @@ export type NestedEnumLedgerReconciliationItemKindWithAggregatesFilter<$PrismaMo
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumLedgerReconciliationItemKindFilter<$PrismaModel>
   _max?: Prisma.NestedEnumLedgerReconciliationItemKindFilter<$PrismaModel>
+}
+
+export type NestedEnumRfqStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqStatus | Prisma.EnumRfqStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqStatus[]
+  notIn?: $Enums.RfqStatus[]
+  not?: Prisma.NestedEnumRfqStatusFilter<$PrismaModel> | $Enums.RfqStatus
+}
+
+export type NestedEnumRfqStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqStatus | Prisma.EnumRfqStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqStatus[]
+  notIn?: $Enums.RfqStatus[]
+  not?: Prisma.NestedEnumRfqStatusWithAggregatesFilter<$PrismaModel> | $Enums.RfqStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumRfqInvitationSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqInvitationSource | Prisma.EnumRfqInvitationSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqInvitationSource[]
+  notIn?: $Enums.RfqInvitationSource[]
+  not?: Prisma.NestedEnumRfqInvitationSourceFilter<$PrismaModel> | $Enums.RfqInvitationSource
+}
+
+export type NestedEnumRfqInvitationStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqInvitationStatus | Prisma.EnumRfqInvitationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqInvitationStatus[]
+  notIn?: $Enums.RfqInvitationStatus[]
+  not?: Prisma.NestedEnumRfqInvitationStatusFilter<$PrismaModel> | $Enums.RfqInvitationStatus
+}
+
+export type NestedEnumRfqInvitationSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqInvitationSource | Prisma.EnumRfqInvitationSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqInvitationSource[]
+  notIn?: $Enums.RfqInvitationSource[]
+  not?: Prisma.NestedEnumRfqInvitationSourceWithAggregatesFilter<$PrismaModel> | $Enums.RfqInvitationSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqInvitationSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqInvitationSourceFilter<$PrismaModel>
+}
+
+export type NestedEnumRfqInvitationStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqInvitationStatus | Prisma.EnumRfqInvitationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqInvitationStatus[]
+  notIn?: $Enums.RfqInvitationStatus[]
+  not?: Prisma.NestedEnumRfqInvitationStatusWithAggregatesFilter<$PrismaModel> | $Enums.RfqInvitationStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqInvitationStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqInvitationStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumRfqAttachmentPurposeFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqAttachmentPurpose | Prisma.EnumRfqAttachmentPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqAttachmentPurpose[]
+  notIn?: $Enums.RfqAttachmentPurpose[]
+  not?: Prisma.NestedEnumRfqAttachmentPurposeFilter<$PrismaModel> | $Enums.RfqAttachmentPurpose
+}
+
+export type NestedEnumRfqPartyFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqParty | Prisma.EnumRfqPartyFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqParty[]
+  notIn?: $Enums.RfqParty[]
+  not?: Prisma.NestedEnumRfqPartyFilter<$PrismaModel> | $Enums.RfqParty
+}
+
+export type NestedEnumRfqAttachmentPurposeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqAttachmentPurpose | Prisma.EnumRfqAttachmentPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqAttachmentPurpose[]
+  notIn?: $Enums.RfqAttachmentPurpose[]
+  not?: Prisma.NestedEnumRfqAttachmentPurposeWithAggregatesFilter<$PrismaModel> | $Enums.RfqAttachmentPurpose
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqAttachmentPurposeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqAttachmentPurposeFilter<$PrismaModel>
+}
+
+export type NestedEnumRfqPartyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqParty | Prisma.EnumRfqPartyFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqParty[]
+  notIn?: $Enums.RfqParty[]
+  not?: Prisma.NestedEnumRfqPartyWithAggregatesFilter<$PrismaModel> | $Enums.RfqParty
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqPartyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqPartyFilter<$PrismaModel>
+}
+
+export type NestedEnumRfqQuoteStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqQuoteStatus | Prisma.EnumRfqQuoteStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqQuoteStatus[]
+  notIn?: $Enums.RfqQuoteStatus[]
+  not?: Prisma.NestedEnumRfqQuoteStatusFilter<$PrismaModel> | $Enums.RfqQuoteStatus
+}
+
+export type NestedEnumRfqPartyNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqParty | Prisma.EnumRfqPartyFieldRefInput<$PrismaModel> | null
+  in?: $Enums.RfqParty[] | null
+  notIn?: $Enums.RfqParty[] | null
+  not?: Prisma.NestedEnumRfqPartyNullableFilter<$PrismaModel> | $Enums.RfqParty | null
+}
+
+export type NestedEnumRfqQuoteStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqQuoteStatus | Prisma.EnumRfqQuoteStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqQuoteStatus[]
+  notIn?: $Enums.RfqQuoteStatus[]
+  not?: Prisma.NestedEnumRfqQuoteStatusWithAggregatesFilter<$PrismaModel> | $Enums.RfqQuoteStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqQuoteStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqQuoteStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumRfqPartyNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqParty | Prisma.EnumRfqPartyFieldRefInput<$PrismaModel> | null
+  in?: $Enums.RfqParty[] | null
+  notIn?: $Enums.RfqParty[] | null
+  not?: Prisma.NestedEnumRfqPartyNullableWithAggregatesFilter<$PrismaModel> | $Enums.RfqParty | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqPartyNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqPartyNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumRfqOfferStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqOfferState | Prisma.EnumRfqOfferStateFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqOfferState[]
+  notIn?: $Enums.RfqOfferState[]
+  not?: Prisma.NestedEnumRfqOfferStateFilter<$PrismaModel> | $Enums.RfqOfferState
+}
+
+export type NestedEnumRfqOfferStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqOfferState | Prisma.EnumRfqOfferStateFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqOfferState[]
+  notIn?: $Enums.RfqOfferState[]
+  not?: Prisma.NestedEnumRfqOfferStateWithAggregatesFilter<$PrismaModel> | $Enums.RfqOfferState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqOfferStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqOfferStateFilter<$PrismaModel>
+}
+
+export type NestedEnumRfqSampleStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSampleStatus | Prisma.EnumRfqSampleStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSampleStatus[]
+  notIn?: $Enums.RfqSampleStatus[]
+  not?: Prisma.NestedEnumRfqSampleStatusFilter<$PrismaModel> | $Enums.RfqSampleStatus
+}
+
+export type NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSamplePaymentStatus | Prisma.EnumRfqSamplePaymentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSamplePaymentStatus[]
+  notIn?: $Enums.RfqSamplePaymentStatus[]
+  not?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel> | $Enums.RfqSamplePaymentStatus
+}
+
+export type NestedEnumRfqSampleStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSampleStatus | Prisma.EnumRfqSampleStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSampleStatus[]
+  notIn?: $Enums.RfqSampleStatus[]
+  not?: Prisma.NestedEnumRfqSampleStatusWithAggregatesFilter<$PrismaModel> | $Enums.RfqSampleStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqSampleStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqSampleStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumRfqSamplePaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RfqSamplePaymentStatus | Prisma.EnumRfqSamplePaymentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RfqSamplePaymentStatus[]
+  notIn?: $Enums.RfqSamplePaymentStatus[]
+  not?: Prisma.NestedEnumRfqSamplePaymentStatusWithAggregatesFilter<$PrismaModel> | $Enums.RfqSamplePaymentStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel>
 }
 
 

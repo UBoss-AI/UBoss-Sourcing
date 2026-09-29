@@ -254,6 +254,13 @@ export const NotificationEvent = {
   RETURN_COMPLETED: 'return.completed',
   RETURN_NEW_FOR_SELLER: 'return.new_for_seller',
   RETURN_UPDATE_FOR_SELLER: 'return.update_for_seller',
+  /// Requests for quotation. Told to the SELLER's owners and order managers
+  /// when they are asked to quote and when the request changes; told to the
+  /// BUYER when a seller answers. The reference, what moved and a link - the
+  /// details open after sign-in.
+  RFQ_INVITATION: 'rfq.invitation',
+  RFQ_UPDATE_FOR_SELLER: 'rfq.update_for_seller',
+  RFQ_UPDATE_FOR_BUYER: 'rfq.update_for_buyer',
 } as const;
 
 export type NotificationEventKey = (typeof NotificationEvent)[keyof typeof NotificationEvent];
@@ -1115,6 +1122,30 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'The return {{returnReference}} on your order {{sellerOrderNumber}} has moved on: {{step}}.\n\n' +
         '{{detail}}\n\n' +
         'Open it in Seller Hub:\n{{sellerUrl}}\n',
+    },
+    [NotificationEvent.RFQ_INVITATION]: {
+      subject: 'Request for quotation {{rfqReference}}: {{title}}',
+      body:
+        'Hello,\n\n' +
+        'A buyer on {{businessName}} has asked you to quote on {{rfqReference}}: {{title}}.\n\n' +
+        'Quantity: {{quantity}}\n' +
+        'Destination: {{destination}}\n' +
+        'Quotes are accepted until {{deadline}}.\n\n' +
+        'Read the requirement, ask a question, quote or decline in Seller Hub:\n{{sellerUrl}}\n',
+    },
+    [NotificationEvent.RFQ_UPDATE_FOR_SELLER]: {
+      subject: 'Request for quotation {{rfqReference}}: {{step}}',
+      body:
+        'Hello,\n\n' +
+        'The request for quotation {{rfqReference}} ({{title}}) has moved on: {{step}}.\n\n' +
+        'Open it in Seller Hub:\n{{sellerUrl}}\n',
+    },
+    [NotificationEvent.RFQ_UPDATE_FOR_BUYER]: {
+      subject: 'Your request {{rfqReference}}: {{step}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your request for quotation {{rfqReference}} ({{title}}) has moved on: {{step}}.\n\n' +
+        'Open it here:\n{{rfqUrl}}\n',
     },
   });
 

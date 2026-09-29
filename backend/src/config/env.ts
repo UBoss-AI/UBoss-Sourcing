@@ -1729,6 +1729,37 @@ const envSchema = z
     /// moderate them, so turning it back on loses nothing.
     FEATURE_PRODUCT_REVIEWS: booleanFromString.default(true),
 
+    // --- Requests for quotation (RFQ) ---
+    //
+    // A buyer describes what they need, the marketplace invites the approved
+    // sellers of that category, and those sellers quote and negotiate. See
+    // the REQUESTS FOR QUOTATION section of schema.prisma.
+
+    /// Whether buyers may raise requests for quotation and sellers may answer
+    /// them. Off hides every RFQ screen and entry point and refuses every RFQ
+    /// route on both sides; requests already raised are kept, untouched, and
+    /// come back when it is switched on again.
+    FEATURE_RFQ: booleanFromString.default(true),
+    /// The latest a response deadline may be set, in days from now. A request
+    /// open for a year is not a request; it is a listing nobody maintains.
+    RFQ_MAX_RESPONSE_DAYS: intFromString(1, 365).default(90),
+    /// The most sellers matching may invite on its own. A buyer can still add
+    /// sellers by hand up to RFQ_MAX_INVITED_SUPPLIERS in total.
+    RFQ_MAX_MATCHED_SUPPLIERS: intFromString(1, 500).default(25),
+    /// The most sellers one request may be sent to, matched and hand-picked
+    /// together.
+    RFQ_MAX_INVITED_SUPPLIERS: intFromString(1, 500).default(50),
+    /// Largest single file on a request, a quote or an offer, in bytes. 10 MB
+    /// by default - a drawing or a specification sheet.
+    RFQ_ATTACHMENT_MAX_BYTES: intFromString(1024, 104_857_600).default(10_485_760),
+    /// Most files one request may carry, across the buyer and every seller.
+    RFQ_ATTACHMENTS_PER_RFQ: intFromString(1, 200).default(40),
+    /// Accept request files no malware scanner has looked at. Development
+    /// only - refused in production, the same line support attachments draw.
+    /// With no scanner and this false, the request says files cannot be
+    /// added rather than storing something nobody may ever open.
+    RFQ_ALLOW_UNSCANNED_ATTACHMENTS: booleanFromString.default(false),
+
     // --- Support requests ---
     //
     // A signed-in buyer, seller or logistics partner sends a support request
@@ -2442,6 +2473,13 @@ const envSchema = z
           code: z.ZodIssueCode.custom,
           path: ['SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS'],
           message: 'unscanned support ticket attachments cannot be accepted in production',
+        });
+      }
+      if (value.RFQ_ALLOW_UNSCANNED_ATTACHMENTS) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['RFQ_ALLOW_UNSCANNED_ATTACHMENTS'],
+          message: 'unscanned request-for-quotation files cannot be accepted in production',
         });
       }
       if (value.RETURN_ALLOW_UNSCANNED_FILES) {

@@ -30,6 +30,7 @@ import {
   CardIcon,
   ChatBubblesIcon,
   ChartIcon,
+  DocumentIcon,
   GlobeIcon,
   HeadsetIcon,
   HeartIcon,
@@ -50,6 +51,7 @@ export type AccountNavId =
   | 'orders'
   | 'schedules'
   | 'preorders'
+  | 'rfqs'
   | 'messages'
   | 'profile'
   | 'identity'
@@ -83,7 +85,7 @@ export interface AccountNavItem {
    * `recurringOrders`, `buyerCompanies` and `productReviews`. Everything else here is either
    * core to buying or an explanation, and an explanation is never switched off.
    */
-  feature?: 'recurringOrders' | 'buyerCompanies' | 'productReviews';
+  feature?: 'recurringOrders' | 'buyerCompanies' | 'productReviews' | 'rfq';
 }
 
 /** Every destination, by id. The two orderings below index into this. */
@@ -124,6 +126,16 @@ export const ACCOUNT_NAV: Readonly<Record<AccountNavId, AccountNavItem>> = {
     labelKey: 'account.nav.preorders',
     menuLabelKey: 'account.nav.preorders',
     icon: LayersIcon,
+  },
+  // Requests for quotation: what the buyer asked sellers to quote on, and
+  // their answers. Beside preorders - both are a negotiation before an order.
+  rfqs: {
+    id: 'rfqs',
+    to: '/account/rfqs',
+    labelKey: 'rfq.nav',
+    menuLabelKey: 'rfq.nav',
+    icon: DocumentIcon,
+    feature: 'rfq',
   },
   // Preorder chats with the UBOSS team. Beside preorders, because that is what
   // they are about; not behind a flag the storefront reads, because the chat
@@ -302,6 +314,8 @@ export interface AccountNavFlags {
   buyerCompanies?: boolean;
   /** Optional so an older caller still compiles; absent means off. */
   productReviews?: boolean;
+  /** Optional so an older caller still compiles; absent means off. */
+  rfq?: boolean;
 }
 
 function include(ids: readonly AccountNavId[], flags: AccountNavFlags): AccountNavItem[] {
@@ -309,7 +323,8 @@ function include(ids: readonly AccountNavId[], flags: AccountNavFlags): AccountN
     .map((id) => ACCOUNT_NAV[id])
     .filter((item) => item.feature !== 'recurringOrders' || flags.recurringOrders)
     .filter((item) => item.feature !== 'buyerCompanies' || flags.buyerCompanies === true)
-    .filter((item) => item.feature !== 'productReviews' || flags.productReviews === true);
+    .filter((item) => item.feature !== 'productReviews' || flags.productReviews === true)
+    .filter((item) => item.feature !== 'rfq' || flags.rfq === true);
 }
 
 /**
@@ -325,7 +340,7 @@ export function accountNavGroups(flags: AccountNavFlags): AccountNavGroup[] {
   const groups: AccountNavGroup[] = [
     {
       titleKey: 'account.group.orders',
-      items: include(['dashboard', 'orders', 'schedules', 'preorders', 'messages'], flags),
+      items: include(['dashboard', 'orders', 'schedules', 'preorders', 'rfqs', 'messages'], flags),
     },
     {
       titleKey: 'account.group.accountSettings',
@@ -359,7 +374,7 @@ export function accountNavGroups(flags: AccountNavFlags): AccountNavGroup[] {
 export function accountMenuGroups(flags: AccountNavFlags): AccountNavGroup[] {
   const groups: AccountNavGroup[] = [
     { titleKey: 'account.group.yourAccount', items: include(['dashboard', 'profile', 'security'], flags) },
-    { titleKey: 'account.group.orders', items: include(['orders', 'schedules', 'preorders', 'messages'], flags) },
+    { titleKey: 'account.group.orders', items: include(['orders', 'schedules', 'preorders', 'rfqs', 'messages'], flags) },
     {
       titleKey: 'account.group.payments',
       items: include(['paymentMethods', 'autopay', 'coupons'], flags),

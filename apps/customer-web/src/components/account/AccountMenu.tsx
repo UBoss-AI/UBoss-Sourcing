@@ -126,6 +126,7 @@ export function AccountMenu(): React.JSX.Element {
     recurringOrders: features.recurringOrders,
     buyerCompanies: features.buyerCompanies === true,
     productReviews: features.productReviews === true,
+    rfq: features.rfq === true,
   });
 
   return (

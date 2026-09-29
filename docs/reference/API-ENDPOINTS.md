@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1118 endpoints** in 97 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1172 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -29,9 +29,9 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 |---|---|
 | [Admin panel (staff)](#admin-panel-staff) | 456 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 274 |
+| [Seller Hub](#seller-hub) | 293 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 236 |
+| [Customer account](#customer-account) | 271 |
 | [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
@@ -1674,6 +1674,32 @@ Defined in `backend/src/http/routes/returns.ts`.
 | POST | `/api/v1/seller/returns/:id/files/:fileId/link` | Seller | Seller + Seller(ORDER_READ) | A five-minute, single-use link to one file of a return of your goods. |
 | GET | `/api/v1/seller/returns/:id/files/:fileId/download` | Seller | Seller + Seller(ORDER_READ) | Download a file of a return of your goods with a link from the route above. |
 
+### `seller/rfqs`
+
+Defined in `backend/src/http/routes/rfq.seller.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/rfqs` | Seller | Feature + Seller(ORDER_READ) | Requests for quotation this seller was asked to answer, with a count per filter. |
+| GET | `/api/v1/seller/rfqs/:id` | Seller | Feature + Seller(ORDER_READ) | One request this seller was invited to. Opening it marks the invitation viewed. |
+| POST | `/api/v1/seller/rfqs/:id/decline` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Decline to quote, with a reason the buyer reads. Writes an audit entry. |
+| GET | `/api/v1/seller/rfqs/:id/messages` | Seller | Feature + Seller(ORDER_READ) | This seller's questions and the buyer's answers, oldest first; `?after=` for only new ones. |
+| POST | `/api/v1/seller/rfqs/:id/messages` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Ask the buyer a question. A resend with the same clientMessageId is not a second message. |
+| POST | `/api/v1/seller/rfqs/:id/quotes` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Quote on a request: a unit price, optional tiers and the commercial terms, with files uploaded first. One quote per seller; before the deadline only. Tells the buyer and writes an audit entry. |
+| GET | `/api/v1/seller/rfqs/:id/quote` | Seller | Feature + Seller(ORDER_READ) | This seller's own quote on the request, with every offer version; null before it quoted. |
+| POST | `/api/v1/seller/rfqs/:id/quote/offers` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Send a counter-offer on this seller's quote. Names the version being answered. |
+| POST | `/api/v1/seller/rfqs/:id/quote/accept` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Accept the buyer's counter-offer on the table. Awards the request and freezes the terms. |
+| POST | `/api/v1/seller/rfqs/:id/quote/reject` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Reject the buyer's counter-offer on the table. |
+| POST | `/api/v1/seller/rfqs/:id/quote/withdraw` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Withdraw this seller's quote while it is open. The buyer is told. |
+| GET | `/api/v1/seller/rfqs/:id/samples` | Seller | Feature + Seller(ORDER_READ) | The samples the buyer asked this seller for on the request. |
+| POST | `/api/v1/seller/rfqs/:id/samples/:sampleId/accept` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Accept a sample request, saying what it costs (none is free). Payment is never marked paid here. |
+| POST | `/api/v1/seller/rfqs/:id/samples/:sampleId/decline` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Decline a sample request, with a reason the buyer reads. |
+| POST | `/api/v1/seller/rfqs/:id/samples/:sampleId/ship` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Record that the sample was sent: courier and tracking number are required. |
+| POST | `/api/v1/seller/rfqs/:id/samples/:sampleId/attachments` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Attach evidence about a sample, such as a certificate of analysis. Seen by the buyer and this seller. |
+| GET | `/api/v1/seller/rfqs/:id/accepted-terms` | Seller | Feature + Seller(ORDER_READ) | The terms agreed with this seller, frozen at acceptance. Not found unless its quote won. |
+| POST | `/api/v1/seller/rfqs/:id/attachments` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Upload a PDF or image to send with this seller's quote or next offer. Seen by nobody else until it is sent with one. |
+| GET | `/api/v1/seller/rfqs/:id/attachments/:attachmentId/download` | Seller | Feature + Seller(ORDER_READ) | Download a file this seller may see on the request. Served as a download, never inline. |
+
 ### `seller/settlements`
 
 Defined in `backend/src/http/routes/seller.operations.ts`, `backend/src/http/routes/seller.logistics.ts`.
@@ -2270,6 +2296,48 @@ Defined in `backend/src/http/routes/returns.ts`.
 | POST | `/api/v1/returns/:id/files` | Customer | Customer | Add one more photograph or video to your open return. Checked by its contents, scanned, stored privately. |
 | POST | `/api/v1/returns/:id/files/:fileId/link` | Customer | Customer | A five-minute, single-use link to one file of your return. |
 | GET | `/api/v1/returns/:id/files/:fileId/download` | Customer | Customer | Download a file of your return with a link from the route above. Spent on first use. |
+
+### `rfqs`
+
+Defined in `backend/src/http/routes/rfq.customer.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/rfqs/form-options` | Customer | Feature + Customer | What the request form offers: units of measure, Incoterms, sample and inspection choices, the deadline limit and the file rules. |
+| GET | `/api/v1/rfqs/summary` | Customer | Feature + Customer | Sourcing figures and next actions for the buyer dashboard. A failed block is null, never an error. |
+| GET | `/api/v1/rfqs` | Customer | Feature + Customer | Your requests for quotation, newest activity first, with a count per status. |
+| POST | `/api/v1/rfqs` | Customer | Feature + Customer | Start a draft request for quotation. Needs an Idempotency-Key. Writes an audit entry. |
+| GET | `/api/v1/rfqs/suppliers` | Customer | Feature + Customer | Approved sellers a buyer may pick by name, with whether each would match the category and destination given. |
+| GET | `/api/v1/rfqs/:id` | Customer | Feature + Customer | One of your requests: requirement, versions, sellers asked, files and timeline. |
+| PUT | `/api/v1/rfqs/:id` | Customer | Feature + Customer | Save a draft again, whole. Conditional on the version it was opened at. |
+| DELETE | `/api/v1/rfqs/:id` | Customer | Feature + Customer | Delete a draft and its files. A request already sent cannot be deleted. |
+| GET | `/api/v1/rfqs/:id/matches` | Customer | Feature + Customer | Which sellers a draft would be sent to now, and whether any match. |
+| POST | `/api/v1/rfqs/:id/submit` | Customer | Feature + Customer | Send a draft to the matching sellers and any picked by name. Validated again on the server; needs an Idempotency-Key. Writes an audit entry and tells every invited seller. |
+| POST | `/api/v1/rfqs/:id/invitations` | Customer | Feature + Customer | Ask one more approved seller, by name, on a request already sent. |
+| POST | `/api/v1/rfqs/:id/cancel` | Customer | Feature + Customer | Cancel a draft or an open request. Every seller still taking part is told. |
+| POST | `/api/v1/rfqs/:id/close` | Customer | Feature + Customer | Close an open request without choosing any quote. |
+| POST | `/api/v1/rfqs/:id/attachments` | Customer | Feature + Customer | Attach a PDF or image to the requirement. Checked by its contents, scanned and stored privately. On a sent request it waits for the next version. |
+| DELETE | `/api/v1/rfqs/:id/attachments/:attachmentId` | Customer | Feature + Customer | Remove a requirement file that is not yet part of any version sent to sellers. |
+| GET | `/api/v1/rfqs/:id/attachments/:attachmentId/download` | Customer | Feature + Customer | Download a file on your request. Served as a download, never inline. |
+| POST | `/api/v1/rfqs/:id/versions` | Customer | Feature + Customer | Publish a new version of a sent requirement, with what changed and why. Every seller still taking part is told. Writes an audit entry. |
+| GET | `/api/v1/rfqs/:id/quotes` | Customer | Feature + Customer | Every quote on your request, each with its current offer and its history. |
+| GET | `/api/v1/rfqs/:id/quotes/:quoteId` | Customer | Feature + Customer | One quote on your request, with every offer version. |
+| PUT | `/api/v1/rfqs/:id/quotes/:quoteId/shortlist` | Customer | Feature + Customer | Put a quote on your shortlist, or take it off. Writes an audit entry. |
+| GET | `/api/v1/rfqs/:id/comparison` | Customer | Feature + Customer | The quotes side by side, sortable and filterable, with every figure as quoted and, beside it, converted into `?currency=` at the published rate (source and date given). Missing terms are null, never zero. |
+| GET | `/api/v1/rfqs/:id/comparison.csv` | Customer | Feature + Customer | The same comparison as a CSV file, spreadsheet formulas neutralised. Writes an audit entry. |
+| POST | `/api/v1/rfqs/:id/quotes/:quoteId/offers` | Customer | Feature + Customer | Send a counter-offer on a quote: new terms as a new, immutable version. Names the version being answered; refused if it moved. Writes an audit entry. |
+| POST | `/api/v1/rfqs/:id/quotes/:quoteId/accept` | Customer | Feature + Customer | Accept the supplier's offer on the table, naming its terms hash. Awards the request, closes every other quote and freezes the terms. Repeating it is answered with the same result. Writes an audit entry. |
+| POST | `/api/v1/rfqs/:id/quotes/:quoteId/reject` | Customer | Feature + Customer | Reject the supplier's offer on the table; the quote closes as rejected. |
+| GET | `/api/v1/rfqs/:id/accepted-terms` | Customer | Feature + Customer | The terms both sides agreed to, frozen at acceptance, with their hash. |
+| GET | `/api/v1/rfqs/:id/samples` | Customer | Feature + Customer | The samples asked for on your request, with their status, evidence and what you may do next. |
+| POST | `/api/v1/rfqs/:id/samples` | Customer | Feature + Customer | Ask a supplier taking part for a sample: quantity, address, date and approval criteria. Needs an Idempotency-Key. Tells the supplier; audited. |
+| POST | `/api/v1/rfqs/:id/samples/:sampleId/cancel` | Customer | Feature + Customer | Cancel a sample request before it is shipped. The supplier is told; audited. |
+| POST | `/api/v1/rfqs/:id/samples/:sampleId/receive` | Customer | Feature + Customer | Confirm a shipped sample arrived. Only you can say it did; audited. |
+| POST | `/api/v1/rfqs/:id/samples/:sampleId/approve` | Customer | Feature + Customer | Approve a delivered sample against its criteria; it becomes the reference sample. Audited. |
+| POST | `/api/v1/rfqs/:id/samples/:sampleId/reject` | Customer | Feature + Customer | Reject a delivered sample, with a reason the supplier reads. Audited. |
+| POST | `/api/v1/rfqs/:id/samples/:sampleId/attachments` | Customer | Feature + Customer | Attach evidence about a sample: a photograph, a test report. Seen by you and that supplier. |
+| GET | `/api/v1/rfqs/:id/invitations/:invitationId/messages` | Customer | Feature + Customer | The thread with one invited seller, oldest first; `?after=` for only new ones. |
+| POST | `/api/v1/rfqs/:id/invitations/:invitationId/messages` | Customer | Feature + Customer | Write to one invited seller. A resend with the same clientMessageId is not a second message. |
 
 ### `support`
 

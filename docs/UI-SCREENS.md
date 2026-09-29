@@ -346,6 +346,9 @@ flowchart TD
     Sched["/account/schedules/:id"]
     Pre["/account/preorders"]
     PreOne["/account/preorders/:id"]
+    Rfqs["/account/rfqs"]
+    RfqNew["/account/rfqs/new, /account/rfqs/:id/edit"]
+    RfqOne["/account/rfqs/:id"]
     Settings["profile, company, addresses, region"]
     Payments["payment-methods, autopay, billing"]
     Erp["/account/integrations/erp and its pages"]
@@ -392,6 +395,8 @@ flowchart TD
   SOrders --> SOrder["/seller/orders/:id"]
   HubHome --> SPre["/seller/preorders"]
   SPre --> SPreOne["/seller/preorders/:id"]
+  HubHome --> SRfqs["/seller/rfqs Requests for quotation"]
+  SRfqs --> SRfq["/seller/rfqs/:id"]
   SPreOne --> SOrder
   HubHome --> Logi["/seller/logistics"]
   Logi --> Fulfil["/seller/fulfilment Carrier accounts"]
@@ -2438,6 +2443,115 @@ is needed by …" when the seller is waiting on you.
 
 **API call:** `GET /api/v1/preorders`
 
+#### `/account/rfqs` — Requests for quotation
+
+| | |
+|---|---|
+| **Who** | Activated customer; `features.rfq` on |
+| **File** | `pages/rfq/RfqListPage.tsx` |
+
+**On the screen.** "New request", status filters with a count each (in the
+address as `?status=`), and a card per request: title, reference, category,
+quantity, destination, deadline (UTC) and "n of m suppliers" answered. A draft
+opens its form; anything else opens the request. Loading, empty and
+error-with-retry states. **Calls** `GET /rfqs`.
+
+#### `/account/rfqs/new` and `/account/rfqs/:id/edit` — Write a request
+
+| | |
+|---|---|
+| **Who** | Activated customer; a company member needs PURCHASE |
+| **File** | `pages/rfq/RfqEditPage.tsx`, `components/rfq/SupplierPicker.tsx` |
+
+**On the screen.** One form in sections: what you need (category, title,
+specification, key details), quantity and price, where it goes (country,
+Incoterm, port, address), conditions (certifications, sample, inspection),
+timing (deadline in UTC, delivery date, notes), files (after the first save),
+and suppliers (the matches for the category and destination, each with a
+tick box to leave out, and a search to add an approved seller by name).
+`?categoryId=` and `?title=` prefill it. **Save draft**, **Delete draft**,
+**Send to suppliers**. The browser checks quantities, price and the deadline
+first; the server's refusal marks each field (`aria-invalid`,
+`aria-describedby`) and lists them in a focused summary. **Calls**
+`GET /rfqs/form-options`, `POST /rfqs`, `PUT /rfqs/:id`, `DELETE /rfqs/:id`,
+`GET /rfqs/:id/matches`, `GET /rfqs/suppliers`, `POST /rfqs/:id/attachments`,
+`POST /rfqs/:id/submit`.
+
+#### `/account/rfqs/:id` — One request
+
+| | |
+|---|---|
+| **Who** | The buyer who owns it, or a member of the company it belongs to |
+| **File** | `pages/rfq/RfqDetailPage.tsx`, `components/rfq/RfqParts.tsx` |
+
+**On the screen.** Status, deadline (UTC; says when it has passed), the
+requirement version and how many sellers answered. Tabs: **Requirement** (every
+field, missing ones as "Not provided", and the version history),
+**Suppliers** (a table of who was asked, how they were chosen and their status;
+"no match" said plainly; ask another seller by name while open), **Files**,
+**Timeline**. **Close request** and **Cancel request** ask for confirmation and
+an optional reason. **Calls** `GET /rfqs/:id`, `POST /rfqs/:id/invitations`,
+`POST /rfqs/:id/cancel`, `POST /rfqs/:id/close`.
+
+A **Samples** tab (`components/rfq/SamplesPanel.tsx`, also on the seller's
+request page) asks a supplier taking part for a sample (supplier, quantity,
+address, needed-by date, approval criteria) and lists every sample with its
+status, cost (and that payment is not collected here), courier and tracking,
+decision, reference-sample code and evidence files; each side sees only the
+buttons for the steps it may take (buyer: Cancel, It has arrived, Approve,
+Reject; seller: Accept with cost, Decline, Mark as shipped with courier and
+tracking). **Calls** `GET|POST /rfqs/:id/samples`,
+`POST /rfqs/:id/samples/:sampleId/{cancel,receive,approve,reject,attachments}`,
+`POST /seller/rfqs/:id/samples/:sampleId/{accept,decline,ship,attachments}`.
+
+A **Questions** tab picks an invited seller and shows that thread
+(`components/rfq/RfqThread.tsx`, polling every 15 s with `?after=`); **Change
+the requirement** opens `/account/rfqs/:id/amend` - the same form with the
+category locked, a required "What changed and why" and **Publish the new
+version** (`POST /rfqs/:id/versions`).
+
+**Entry points.** Account menu and sidebar ("Requests for quotation"), "Request
+quotes from suppliers" in the category page's sourcing block, and "Need a
+different quantity or terms? Request quotes" under a product's sourcing panel.
+
+#### `/account/rfqs/:id/compare` — Compare quotes
+
+| | |
+|---|---|
+| **Who** | The buyer who owns the request, or a member of its company |
+| **File** | `pages/rfq/RfqComparePage.tsx` |
+
+**On the screen.** "Show in" (currency), "Sort by" and "Shortlisted only",
+a note giving each conversion's rate, source and date, and a table with one
+column per supplier (name, "Verified by the marketplace", Shortlist toggle)
+and one row per term: status, offer version (and whether it answered an older
+requirement version), unit price, unit price for your quantity, total, tiers,
+MOQ, lead time, capacity, Incoterm, payment, inspection, warranty, tooling,
+sample, shipping estimate, taxes and exclusions, valid until. Each money cell
+shows the quoted figure and, beneath, "≈ … (converted)". Missing terms read
+"Not provided". **Download as CSV** exports the same view. Scrolls sideways
+on a phone. **Calls** `GET /rfqs/:id/comparison`,
+`PUT /rfqs/:id/quotes/:quoteId/shortlist`, `GET /rfqs/:id/comparison.csv`.
+
+#### `/account/rfqs/:id/quotes/:quoteId` — One quote and its negotiation
+
+| | |
+|---|---|
+| **Who** | The buyer who owns the request; accepting, rejecting and countering need PURCHASE |
+| **File** | `pages/rfq/RfqQuotePage.tsx`, `components/rfq/NegotiationPanel.tsx` |
+
+**On the screen.** "The offer on the table" (version, unit price, quantity,
+valid until; expired said plainly), **Accept these terms** and **Reject**
+only when the supplier wrote it and it has not expired (each confirmed in a
+dialog), a counter-offer form (unit price in the quote's currency, quantity,
+MOQ, lead time, Incoterm and place, validity in UTC, payment and inspection
+terms, comment), and every offer so far, newest first. Once accepted: "Agreed
+terms" with the date, the terms fingerprint (hash) and that turning them
+into a purchase order is not available yet. The seller's **Your quote** tab
+uses the same panel, with **Withdraw the quote**. **Calls**
+`GET /rfqs/:id/quotes/:quoteId`, `POST …/offers`, `POST …/accept`,
+`POST …/reject`; seller `POST /seller/rfqs/:id/quote/{offers,accept,reject,withdraw}`.
+
 #### `/account/preorders/:id` — One preorder
 
 | | |
@@ -2660,6 +2774,16 @@ on me, and where have my other orders got to?"
   press **Ask**. The answer is written word by word as it arrives. A line under
   it says the figures come from your own data, never from the model. Nothing is
   sent until you press a button.
+- **Sourcing** card (only when `FEATURE_RFQ` is on;
+  `components/rfq/SourcingSummaryCard.tsx`, checklist Master row 15). Tiles:
+  Open requests, Drafts, Open quotes, Negotiations, Samples in progress,
+  Awarded - each with "N waiting on you" where it applies and each a link to
+  `/account/rfqs?status=…`. **Next actions** lists up to six items (answer an
+  offer, confirm or judge a sample, a passed deadline, a draft to finish), each
+  linking to the quote, the Samples tab (`?tab=samples`), the comparison or the
+  draft. It has its own request (`GET /rfqs/summary`): if that fails the card
+  says so with **Try again** and the ring is untouched; a block the server
+  could not measure shows "–", not 0.
 
 **What the system does.** The period, the dates and the chosen slice are kept
 in the address bar, so a view can be shared or reloaded. The page refreshes
@@ -3899,6 +4023,41 @@ pieces, delivery date, value, status, and "Answer by …". A request for more
 than is available carries a **More than available** badge.
 
 **API call:** `GET /api/v1/seller/preorders?filter=…`
+
+#### `/seller/rfqs` — Requests for quotation
+
+| | |
+|---|---|
+| **Who** | Seller member with `seller.order.read`; account approved; `features.rfq` on |
+| **File** | `pages/seller/SellerRfqsPage.tsx` |
+
+**On the screen.** Filters with counts - **Needs your answer** (invited or
+viewed, open, before the deadline; the default), **Quoted**, **Closed**,
+**All** - and a card per request this seller was invited to (and no other):
+title, reference, category, requirement version, quantity, destination,
+deadline (UTC), the request's status and this seller's invitation status.
+**Calls** `GET /seller/rfqs?filter=`.
+
+#### `/seller/rfqs/:id` — One request
+
+| | |
+|---|---|
+| **Who** | The same; answering needs `seller.order.fulfil` |
+| **File** | `pages/seller/SellerRfqDetailPage.tsx`, `components/rfq/RfqThread.tsx` |
+
+**On the screen.** The buyer (company name, or "An individual buyer"), the
+deadline in UTC (or that it passed), a notice when the requirement has a
+newer version, and tabs: **Requirement** (every field and every version with
+what changed), **Questions** (this seller's own thread only), **Files** (the
+requirement's files and this seller's own), **Timeline**. **Decline to
+quote** asks for a reason first. The **Your quote** tab holds the quote
+form (`components/rfq/QuoteForm.tsx`: currency, unit price, quantity, MOQ,
+lead time, capacity, Incoterm and place, validity in UTC, payment,
+inspection, warranty, taxes and exclusions, tooling, sample, shipping,
+comment, price tiers, files) until the seller has quoted, then every offer
+version (`components/rfq/OfferHistory.tsx`). Opening the page marks the invitation
+viewed. **Calls** `GET /seller/rfqs/:id`, `GET|POST /seller/rfqs/:id/messages`,
+`POST /seller/rfqs/:id/decline`, `GET /seller/rfqs/:id/attachments/:attachmentId/download`.
 
 #### `/seller/preorders/:id` — One preorder
 
