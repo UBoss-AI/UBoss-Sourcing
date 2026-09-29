@@ -20,7 +20,8 @@ import { ButtonLink, ErrorState, LoadingState } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { countryName } from '@/lib/iso-countries';
 import { formatNumber } from '@/lib/format';
-import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { useDocumentMeta, useJsonLd } from '@/lib/useDocumentMeta';
+import { canonicalUrl, supplierJsonLd } from '@/lib/seo';
 import type { SupplierProfile } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 import { NotFoundPage } from './NotFoundPage';
@@ -53,6 +54,19 @@ export function SupplierPage(): React.JSX.Element {
   useDocumentMeta(
     { title: supplier?.displayName ?? '', description: supplier?.description ?? '' },
     supplier?.displayName ?? '',
+  );
+  useJsonLd(
+    'supplier',
+    supplier === undefined
+      ? null
+      : supplierJsonLd({
+          name: supplier.displayName,
+          description: supplier.description,
+          url: canonicalUrl(`/suppliers/${supplier.slug}`),
+          websiteUrl: supplier.websiteUrl,
+          countryCode: supplier.registrationCountry,
+          logoUrl: supplier.logoUrl,
+        }),
   );
 
   if (!valid) return <NotFoundPage />;

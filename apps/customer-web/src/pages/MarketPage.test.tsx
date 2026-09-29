@@ -34,6 +34,37 @@ afterEach(() => {
 });
 
 describe('MarketPage', () => {
+  it('shows the market language and its shipping lanes when the API has them', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        ...body(),
+        country: { code: 'DE', name: 'Germany', currencyCode: 'EUR', languageCode: 'de' },
+        lanes: [
+          { originCountry: 'IN', mode: 'AIR', transitDaysMin: 4, transitDaysMax: 7 },
+          { originCountry: 'IN', mode: 'SEA', transitDaysMin: 20, transitDaysMax: 20 },
+        ],
+      }),
+    );
+    render('/markets/de');
+
+    expect(await screen.findByText('Language for buyers in Germany: German.')).toBeInTheDocument();
+    const shipping = screen.getByRole('region', { name: 'Shipping routes to Germany' });
+    expect(shipping).toHaveTextContent('India · Air: 4–7 days');
+    expect(shipping).toHaveTextContent('India · Sea: 20 days');
+    expect(shipping).toHaveTextContent('not a delivery promise');
+  });
+
+  it('shows no language line and no shipping section when there is no such data', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ ...body(), country: { code: 'DE', name: 'Germany', currencyCode: 'EUR', languageCode: null }, lanes: [] }),
+    );
+    render('/markets/de');
+
+    await screen.findByText('Buyers in Germany are quoted in EUR.');
+    expect(screen.queryByText(/Language for buyers/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: /Shipping routes/ })).not.toBeInTheDocument();
+  });
+
   it('shows the currency and says when nothing is restricted, with no operator text unpublished', async () => {
     fetchMock.mockResolvedValue(jsonResponse(body()));
     render('/markets/de');

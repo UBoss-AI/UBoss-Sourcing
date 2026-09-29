@@ -35,7 +35,7 @@
  * to one of the two.
  */
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -70,6 +70,25 @@ import { PasswordPanel } from './PasswordPanel';
 import { TwoStepSignInPanel } from './TwoStepSignInPanel';
 import { MarketingChoicesPanel } from './MarketingChoicesPanel';
 import { PurchasingLimitsPanel } from './PurchasingLimitsPanel';
+
+/**
+ * Brings the password and two-step panels into view when the page is opened
+ * from the account menu's Security entry (`/account/profile#security`).
+ *
+ * The panels only exist once the account has loaded, so the browser's own
+ * jump-to-anchor has nothing to land on; this runs once they are mounted.
+ */
+function ScrollToSecurity(): null {
+  const { hash, key } = useLocation();
+  useEffect(() => {
+    if (hash !== '#security') return;
+    const target = document.getElementById('security');
+    if (target !== null && typeof target.scrollIntoView === 'function') {
+      target.scrollIntoView({ block: 'start' });
+    }
+  }, [hash, key]);
+  return null;
+}
 
 const ACCOUNT_PROFILE_KEY = ['account-profile'];
 
@@ -691,9 +710,12 @@ export function ProfileInformationPage(): React.JSX.Element {
         <PhonePanel account={account} />
         <MarketPanel account={account} />
 
-        <PasswordPanel />
-        {/* Beside the password: the second half of how this account signs in. */}
-        <TwoStepSignInPanel />
+        <div id="security" className="scroll-mt-28 space-y-6">
+          <ScrollToSecurity />
+          <PasswordPanel />
+          {/* Beside the password: the second half of how this account signs in. */}
+          <TwoStepSignInPanel />
+        </div>
         <MarketingChoicesPanel />
         <PurchasingLimitsPanel account={account} />
 

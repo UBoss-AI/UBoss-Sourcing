@@ -55,6 +55,7 @@ import { formatMoney, formatMoneyMinor, formatNumber } from '@/lib/format';
 import { formatBasisPoints } from '@/lib/bulk-pricing';
 import { cartonPriceMinor, lineIsSoldByThePiece } from '@/lib/packaging';
 import { useI18n } from '@/i18n/i18n-context';
+import { SaveForLaterButton } from '@/components/SaveForLaterButton';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { Cart, CartIssue, CartLine, PurchaseRules } from '@/lib/types';
 import { errorMessage } from '@/lib/errors';
@@ -469,6 +470,10 @@ function LineRow({
               <p className="mt-1 text-sm font-medium text-ink-muted">{line.variantName}</p>
             )}
 
+            {line.sellerName !== null && line.sellerName !== '' && (
+              <p className="mt-1 text-xs text-ink-muted">{t('cart.soldBy', { seller: line.sellerName })}</p>
+            )}
+
             <p className="mt-1 font-mono text-xxs text-ink-subtle">{line.sku}</p>
 
             {/*
@@ -633,6 +638,7 @@ function LineRow({
               your cart
             </span>
           </Button>
+          <SaveForLaterButton productId={line.productId} productSlug={line.slug} variantId={line.variantId} />
         </div>
 
         {/* Under the line it belongs to and above its problems, because a
@@ -1209,6 +1215,8 @@ export function CartPage(): React.JSX.Element {
                 note="Confirmed at checkout once delivery is chosen."
               />
             </dl>
+
+            <p className="mt-3 text-xs text-ink-muted">{t('cart.dutiesNote')}</p>
 
             <CouponPanel cart={cart} />
 

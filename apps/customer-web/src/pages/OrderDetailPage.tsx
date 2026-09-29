@@ -52,6 +52,14 @@ import type { OrderAddress, OrderDetail, OrderItem } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 
+/** One order line's outcome when the customer orders it again. */
+interface ReorderLineResult {
+  id: string;
+  label: string;
+  /** Null when the line went into the cart; otherwise the server's reason. */
+  refusal: string | null;
+}
+
 function AddressBlock({
   title,
   address,
@@ -184,10 +192,13 @@ export function OrderDetailPage(): React.JSX.Element {
     },
   });
 
+  const [reorderResults, setReorderResults] = useState<ReorderLineResult[] | null>(null);
+
   const reorder = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (): Promise<ReorderLineResult[]> => {
       const order = query.data?.order;
-      if (order === undefined) return;
+      if (order === undefined) return [];
+      const results: ReorderLineResult[] = [];
 
       // Added one at a time at *today's* price. The server prices every add,
       // so a reorder cannot resurrect a historical price even by accident.
@@ -216,18 +227,44 @@ export function OrderDetailPage(): React.JSX.Element {
             ? { orderingUnit: ordering.unit, unitQuantity: ordering.unitQuantity }
             : {};
 
-        await api.post('/cart/items', {
-          productId: item.productId,
-          variantId: item.variantId,
-          ...asBought,
-          quantity: item.quantity,
-        });
+        const label = item.variantName === null ? item.name : `${item.name} ${item.variantName}`;
+
+        // One refused line must not stop the lines after it: each is tried,
+        // and each reports its own outcome.
+        try {
+          await api.post('/cart/items', {
+            productId: item.productId,
+            variantId: item.variantId,
+            ...asBought,
+            quantity: item.quantity,
+          });
+          results.push({ id: item.id, label, refusal: null });
+        } catch (error) {
+          results.push({
+            id: item.id,
+            label,
+            refusal: errorMessage(t, error, t('orderDetail.someItemsCouldNotBeAdded')),
+          });
+        }
       }
+
+      return results;
     },
-    onSuccess: async () => {
+    onSuccess: async (results) => {
       await queryClient.invalidateQueries({ queryKey: ['cart'] });
-      toast.success(t('orderDetail.addedAtCurrentPrices'));
-      void navigate('/cart');
+      const added = results.filter((result) => result.refusal === null).length;
+
+      // Everything went in: straight to the cart, as before. Anything else
+      // stays here with a line-by-line account of what happened.
+      if (added === results.length) {
+        setReorderResults(null);
+        toast.success(t('orderDetail.addedAtCurrentPrices'));
+        void navigate('/cart');
+        return;
+      }
+
+      setReorderResults(results);
+      if (added === 0) toast.error(t('orderDetail.someItemsCouldNotBeAdded'));
     },
     onError: (error) => {
       toast.error(
@@ -594,6 +631,33 @@ export function OrderDetailPage(): React.JSX.Element {
                 Adds the same products to your cart at today&rsquo;s prices, not the prices on this
                 order.
               </p>
+
+              {reorderResults !== null && (
+                <div role="status" className="space-y-2 rounded-md border border-border bg-surface-sunken p-3">
+                  <p className="text-sm font-medium text-ink">
+                    {t('orderDetail.reorderSummary', {
+                      added: formatNumber(reorderResults.filter((result) => result.refusal === null).length),
+                      total: formatNumber(reorderResults.length),
+                    })}
+                  </p>
+                  <ul className="space-y-1.5 text-xs">
+                    {reorderResults.map((result) => (
+                      <li key={result.id} className={result.refusal === null ? 'text-ink-muted' : 'text-danger'}>
+                        <span className="font-medium text-ink">{result.label}</span>
+                        {' — '}
+                        {result.refusal === null
+                          ? t('orderDetail.reorderLineAdded')
+                          : t('orderDetail.reorderLineRefused', { reason: result.refusal })}
+                      </li>
+                    ))}
+                  </ul>
+                  {reorderResults.some((result) => result.refusal === null) && (
+                    <Link to="/cart" className="inline-block text-sm font-medium text-brand hover:underline">
+                      {t('orderDetail.reorderGoToCart')}
+                    </Link>
+                  )}
+                </div>
+              )}
 
               <Button
                 fullWidth

@@ -58,6 +58,7 @@ export function makeCartLine(overrides: Partial<CartLine> = {}): CartLine {
     itemId: 'line-1',
     productId: 'product-1',
     variantId: null,
+    sellerName: null,
     name: 'Hex Bolt M12 x 60mm',
     variantName: null,
     slug: 'hex-bolt-m12-x-60mm',

@@ -108,6 +108,26 @@ describe('CartPage', () => {
     expect(screen.getByText('₹455.00')).toBeInTheDocument();
   });
 
+  it('says which seller sells each line, and that duties are not in the total', async () => {
+    serveCart(
+      makeCart({
+        lines: [
+          makeCartLine({ itemId: 'a', sellerName: 'Northwind Fastenings' }),
+          makeCartLine({ itemId: 'b', productId: 'product-2', slug: 'nut', sellerName: 'Acme Medical' }),
+          makeCartLine({ itemId: 'c', productId: 'product-3', slug: 'washer', sellerName: null }),
+        ],
+      }),
+    );
+
+    renderWithProviders(<CartPage />);
+
+    expect(await screen.findByText('Sold by Northwind Fastenings')).toBeInTheDocument();
+    expect(screen.getByText('Sold by Acme Medical')).toBeInTheDocument();
+    // A line with no seller name shows no "Sold by" at all.
+    expect(screen.getAllByText(/^Sold by /)).toHaveLength(2);
+    expect(screen.getByText(/import duties and customs charges are not included/i)).toBeInTheDocument();
+  });
+
   it('blocks checkout when the server says the cart is not ready', async () => {
     serveCart(
       makeCart({

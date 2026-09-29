@@ -11,11 +11,13 @@
  * pass a rendering test and still be broken.
  */
 import { screen, waitFor, within } from '@testing-library/react';
+import { useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CatalogPage } from './CatalogPage';
-import { jsonResponse, renderWithProviders } from '@/test/harness';
+import { LocaleContext } from '@/app/locale-context';
+import { jsonResponse, makeLocale, renderWithProviders } from '@/test/harness';
 import { makeProduct } from '@/test/fixtures';
 
 const fetchMock = vi.fn();
@@ -292,6 +294,65 @@ describe('CatalogPage filters', () => {
       expect(params.getAll('attr')).toEqual([]);
       // The search is the shopper's intent, not a filter. Clearing filters
       // must not throw away what they were looking for.
+      expect(params.get('q')).toBe('bandage');
+    });
+  });
+});
+
+/**
+ * A guest changing market on a search result: the catalogue asks again for the
+ * new country and currency, and the search term is still there.
+ *
+ * The harness's locale is a fixed value, so this wraps the page in one whose
+ * `choose` really changes the market - the same thing the header menu does.
+ */
+function SwitchableMarket(): React.JSX.Element {
+  const [market, setMarket] = useState({ country: 'IN', currency: 'INR' });
+  const locale = makeLocale({
+    ...market,
+    choose: (country, currency) => {
+      setMarket({ country, currency: currency ?? market.currency });
+      return Promise.resolve();
+    },
+  });
+
+  return (
+    <LocaleContext.Provider value={locale}>
+      <button
+        type="button"
+        onClick={() => {
+          void locale.choose('DE', 'EUR');
+        }}
+      >
+        Switch to Germany
+      </button>
+      <CatalogPage />
+    </LocaleContext.Provider>
+  );
+}
+
+describe('CatalogPage market switch', () => {
+  it('refetches the catalogue for DE / EUR and keeps the search term', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<SwitchableMarket />, { route: '/products?q=bandage' });
+
+    await waitFor(() => {
+      const params = lastListingParams();
+      expect(params.get('country')).toBe('IN');
+      expect(params.get('currency')).toBe('INR');
+      expect(params.get('q')).toBe('bandage');
+    });
+    const before = requestedUrls().filter((url) => url.includes('/catalog/products')).length;
+
+    await user.click(screen.getByRole('button', { name: 'Switch to Germany' }));
+
+    await waitFor(() => {
+      const listings = requestedUrls().filter((url) => url.includes('/catalog/products'));
+      expect(listings.length).toBeGreaterThan(before);
+      const params = lastListingParams();
+      expect(params.get('country')).toBe('DE');
+      expect(params.get('currency')).toBe('EUR');
+      // The switch changes where they are buying from, not what they searched for.
       expect(params.get('q')).toBe('bandage');
     });
   });

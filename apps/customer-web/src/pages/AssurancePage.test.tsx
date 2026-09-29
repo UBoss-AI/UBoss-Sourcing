@@ -3,7 +3,7 @@
  * API reports, says when a protection is not in use, and always states its
  * limits.
  */
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AssurancePage } from './AssurancePage';
 import { errorResponse, jsonResponse, renderWithProviders } from '@/test/harness';
@@ -41,6 +41,40 @@ describe('AssurancePage', () => {
     expect(screen.getByText(/aims to decide within 7 days\./)).toBeInTheDocument();
     expect(screen.getByText('You can appeal the decision within 7 days.')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Contact support' })).toHaveAttribute('href', '/support');
+  });
+
+  it('lays the protections out as an ordered timeline from order to claim', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(facts()));
+    renderWithProviders(<AssurancePage />);
+
+    await screen.findByRole('heading', { name: 'From order to delivery' });
+    const timeline = screen.getByRole('list', { name: 'From order to delivery' });
+    const headings = within(timeline)
+      .getAllByRole('heading', { level: 2 })
+      .map((heading) => heading.textContent);
+    expect(headings).toEqual(['Verified suppliers', 'Paying', 'Inspection before dispatch', 'Returns', 'If something goes wrong']);
+  });
+
+  it('says who is responsible for what, using the configured windows', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(facts()));
+    renderWithProviders(<AssurancePage />);
+
+    const section = (await screen.findByRole('heading', { name: 'Who is responsible for what' })).closest('section');
+    expect(section).not.toBeNull();
+    const scope = within(section as HTMLElement);
+    expect(scope.getByRole('heading', { name: 'The buyer' })).toBeInTheDocument();
+    expect(scope.getByText(/raises any claim within 30 days of delivery/)).toBeInTheDocument();
+    expect(scope.getByRole('heading', { name: 'The seller' })).toBeInTheDocument();
+    expect(scope.getByText('Responds to a claim within 72 hours.')).toBeInTheDocument();
+    // Inspection is not in use, so the seller is not told to wait for one.
+    expect(scope.queryByText(/inspection/i)).not.toBeInTheDocument();
+  });
+
+  it('tells the seller to wait for inspection only when inspection rules are in force', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(facts({ inspection: { inUse: true, mandatoryRules: 1 } })));
+    renderWithProviders(<AssurancePage />);
+
+    expect(await screen.findByText(/Does not dispatch goods that the inspection rules cover/)).toBeInTheDocument();
   });
 
   it('says inspection is not in use rather than implying it', async () => {

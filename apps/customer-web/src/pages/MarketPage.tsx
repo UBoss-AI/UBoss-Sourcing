@@ -23,12 +23,25 @@ import { useLocale } from '@/app/locale-context';
 import { useStorefront } from '@/app/storefront-context';
 import { ApiError, api } from '@/lib/api';
 import { countryName } from '@/lib/iso-countries';
+import { formatDayRange } from '@/lib/duration';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useI18n } from '@/i18n/i18n-context';
 import { NotFoundPage } from './NotFoundPage';
 
+/** A shipping mode's label, from the fixed set the API can send. */
+const MODE_LABEL = {
+  ROAD: 'market.mode.ROAD',
+  AIR: 'market.mode.AIR',
+  SEA: 'market.mode.SEA',
+  RAIL: 'market.mode.RAIL',
+  COURIER: 'market.mode.COURIER',
+  MULTIMODAL: 'market.mode.MULTIMODAL',
+} as const;
+
 interface MarketPageData {
-  country: { code: string; name: string; currencyCode: string };
+  country: { code: string; name: string; currencyCode: string; languageCode?: string | null };
+  /** Absent from an older API, and empty when no shipping route is in force. */
+  lanes?: { originCountry: string; mode: string; transitDaysMin: number; transitDaysMax: number }[];
   profile: {
     headline: string | null;
     intro: string | null;
@@ -94,6 +107,18 @@ export function MarketPage(): React.JSX.Element {
   const blocks = data.restrictions.filter((rule) => rule.effect === 'BLOCK');
   const documents = data.restrictions.filter((rule) => rule.effect === 'DOCUMENTS_REQUIRED');
   const profile = data.profile;
+  const lanes = Array.isArray(data.lanes) ? data.lanes : [];
+  const languageCode = data.country.languageCode ?? null;
+  const languageLabel =
+    languageCode === null || languageCode === ''
+      ? null
+      : (() => {
+          try {
+            return new Intl.DisplayNames([language], { type: 'language' }).of(languageCode) ?? null;
+          } catch {
+            return null;
+          }
+        })();
 
   const switchHere = async (): Promise<void> => {
     setSwitching(true);
@@ -126,6 +151,9 @@ export function MarketPage(): React.JSX.Element {
           {t('market.pricesTitle')}
         </h2>
         <p className="mt-2 text-sm text-ink">{t('market.pricesIn', { country: name, currency: data.country.currencyCode })}</p>
+        {languageLabel !== null && (
+          <p className="mt-1 text-sm text-ink">{t('market.languageLine', { country: name, language: languageLabel })}</p>
+        )}
         <div className="mt-3">
           {isCurrent ? (
             <p className="text-sm font-medium text-success">{t('market.youAreShoppingHere', { country: name })}</p>
@@ -142,6 +170,27 @@ export function MarketPage(): React.JSX.Element {
           )}
         </div>
       </section>
+
+      {lanes.length > 0 && (
+        <section aria-labelledby="market-shipping" className="mt-4 rounded-lg border border-border bg-surface p-5 shadow-card">
+          <h2 id="market-shipping" className="flex items-center gap-2 text-title-sm text-ink">
+            <GlobeIcon className="h-5 w-5 text-brand" />
+            {t('market.shippingTitle', { country: name })}
+          </h2>
+          <ul className="mt-2 space-y-1 text-sm text-ink">
+            {lanes.map((lane) => (
+              <li key={`${lane.originCountry}:${lane.mode}`}>
+                {t('market.shippingLane', {
+                  origin: countryName(lane.originCountry, language),
+                  mode: lane.mode in MODE_LABEL ? t(MODE_LABEL[lane.mode as keyof typeof MODE_LABEL]) : lane.mode,
+                  transit: formatDayRange(lane.transitDaysMin, lane.transitDaysMax, language),
+                })}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-ink-muted">{t('market.shippingNote')}</p>
+        </section>
+      )}
 
       <section aria-labelledby="market-restrictions" className="mt-4 rounded-lg border border-border bg-surface p-5 shadow-card">
         <h2 id="market-restrictions" className="flex items-center gap-2 text-title-sm text-ink">

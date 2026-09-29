@@ -19,6 +19,7 @@ import { ErrorState, LoadingState } from '@/components/ui';
 import { useStorefront } from '@/app/storefront-context';
 import { api } from '@/lib/api';
 import { formatNumber } from '@/lib/format';
+import { formatDays, formatHours } from '@/lib/duration';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useI18n } from '@/i18n/i18n-context';
 
@@ -48,6 +49,26 @@ function Section({
       </h2>
       <div className="mt-2 space-y-2 text-sm leading-relaxed text-ink">{children}</div>
     </section>
+  );
+}
+
+/**
+ * One milestone on the order-to-delivery timeline: a numbered marker on the
+ * rail, and the section that says what is protected at that point.
+ */
+function Milestone({ step, children }: { step: number; children: React.ReactNode }): React.JSX.Element {
+  const { t } = useI18n();
+  return (
+    <li className="relative">
+      <span
+        aria-hidden="true"
+        className="absolute -left-[2.35rem] top-5 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-semibold text-white"
+      >
+        {step}
+      </span>
+      <span className="sr-only">{t('assurance.step', { step: formatNumber(step) })}</span>
+      {children}
+    </li>
   );
 }
 
@@ -93,7 +114,11 @@ export function AssurancePage(): React.JSX.Element {
       <h1 className="text-title-xl text-ink">{t('assurance.title')}</h1>
       <p className="mt-2 text-sm leading-relaxed text-ink-muted">{t('assurance.intro')}</p>
 
-      <div className="mt-6 space-y-4">
+      <h2 id="assurance-timeline" className="mt-6 text-title-md text-ink">{t('assurance.timelineTitle')}</h2>
+      <p className="mt-1 text-sm text-ink-muted">{t('assurance.timelineIntro')}</p>
+
+      <ol aria-labelledby="assurance-timeline" className="mt-4 space-y-4 border-l-2 border-border pl-8">
+        <Milestone step={1}>
         <Section id="assurance-verified" icon={<ShieldIcon className="h-5 w-5" />} title={t('assurance.verifiedTitle')}>
           <p>
             {t('assurance.verifiedBody', {
@@ -103,7 +128,15 @@ export function AssurancePage(): React.JSX.Element {
           </p>
           <p className="text-ink-muted">{t('assurance.verifiedLimit')}</p>
         </Section>
+        </Milestone>
 
+        <Milestone step={2}>
+        <Section id="assurance-payment" icon={<CardIcon className="h-5 w-5" />} title={t('assurance.paymentTitle')}>
+          <p>{t('assurance.paymentBody')}</p>
+        </Section>
+        </Milestone>
+
+        <Milestone step={3}>
         <Section id="assurance-inspection" icon={<ShieldIcon className="h-5 w-5" />} title={t('assurance.inspectionTitle')}>
           {facts.inspection.inUse ? (
             <>
@@ -114,11 +147,9 @@ export function AssurancePage(): React.JSX.Element {
             <p>{t('assurance.inspectionNotInUse')}</p>
           )}
         </Section>
+        </Milestone>
 
-        <Section id="assurance-payment" icon={<CardIcon className="h-5 w-5" />} title={t('assurance.paymentTitle')}>
-          <p>{t('assurance.paymentBody')}</p>
-        </Section>
-
+        <Milestone step={4}>
         <Section id="assurance-returns" icon={<RepeatIcon className="h-5 w-5" />} title={t('assurance.returnsTitle')}>
           {facts.returns.windowDays > 0 ? (
             <p>
@@ -129,7 +160,9 @@ export function AssurancePage(): React.JSX.Element {
             <p>{t('assurance.returnsNone')}</p>
           )}
         </Section>
+        </Milestone>
 
+        <Milestone step={5}>
         <Section id="assurance-claims" icon={<ChatBubblesIcon className="h-5 w-5" />} title={t('assurance.claimsTitle')}>
           <p>
             {t('assurance.claimsWindow', {
@@ -158,6 +191,29 @@ export function AssurancePage(): React.JSX.Element {
               {t('assurance.contactSupport')}
             </Link>
           </p>
+        </Section>
+        </Milestone>
+      </ol>
+
+      <div className="mt-4 space-y-4">
+        <Section
+          id="assurance-responsibilities"
+          icon={<ShieldIcon className="h-5 w-5" />}
+          title={t('assurance.responsibilitiesTitle')}
+        >
+          <h3 className="font-semibold text-ink">{t('assurance.buyerTitle')}</h3>
+          <ul className="list-disc space-y-1 pl-5">
+            <li>{t('assurance.buyerAddress')}</li>
+            <li>{t('assurance.buyerCheck', { window: formatDays(facts.claims.claimWindowDays, language) })}</li>
+            <li>{t('assurance.buyerDetails')}</li>
+          </ul>
+          <h3 className="pt-1 font-semibold text-ink">{t('assurance.sellerTitle')}</h3>
+          <ul className="list-disc space-y-1 pl-5">
+            <li>{t('assurance.sellerAccurate')}</li>
+            {facts.inspection.inUse && <li>{t('assurance.sellerInspection')}</li>}
+            <li>{t('assurance.sellerRespond', { window: formatHours(facts.claims.sellerResponseHours, language) })}</li>
+          </ul>
+          <p className="pt-1 text-ink-muted">{t('assurance.responsibilitiesMarketplace')}</p>
         </Section>
 
         {policies.length > 0 && (

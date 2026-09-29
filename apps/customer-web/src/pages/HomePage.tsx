@@ -48,6 +48,7 @@ import { useStorefront } from '@/app/storefront-context';
 import { HeroSearch } from '@/components/hero-search/HeroSearch';
 import { CollectionShelves } from '@/components/home/CollectionShelves';
 import { InlineProducts } from '@/components/home/InlineProducts';
+import { AssuranceExplainer, NewlyVerifiedSuppliers, YourMarketBlock } from '@/components/home/HomeTrustBlocks';
 import { ValueProposition, VerifiedSuppliers } from '@/components/home/VerifiedSuppliers';
 import { HeroStage } from '@/components/greeting/HeroStage';
 import { FlipWords } from '@/components/ui/flip-words';
@@ -563,6 +564,9 @@ export function HomePage(): React.JSX.Element {
             there are none, so a deployment never claims suppliers it lacks. */}
         <VerifiedSuppliers />
 
+        {/* Suppliers approved in the last 90 days; absent when there are none. */}
+        <NewlyVerifiedSuppliers />
+
         {/*
         Curated shelves, between the department rail and the full catalogue.
 
@@ -578,6 +582,12 @@ export function HomePage(): React.JSX.Element {
         why none of these headings claims popularity.
       */}
         <CollectionShelves />
+
+        {/* What buying from the shopper's selected country means, and how the
+            marketplace protects a purchase. Both read live settings and are
+            absent when there is nothing to report. */}
+        <YourMarketBlock />
+        <AssuranceExplainer />
 
         <InlineProducts />
       </div>

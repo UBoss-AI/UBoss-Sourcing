@@ -53,6 +53,7 @@ export type AccountNavId =
   | 'messages'
   | 'profile'
   | 'identity'
+  | 'security'
   | 'company'
   | 'companies'
   | 'addresses'
@@ -149,6 +150,17 @@ export const ACCOUNT_NAV: Readonly<Record<AccountNavId, AccountNavItem>> = {
     to: '/account/identity',
     labelKey: 'account.nav.identity',
     menuLabelKey: 'account.nav.identity',
+    icon: ShieldIcon,
+  },
+  // Password and two-step sign-in. They live in panels on the profile page, so
+  // this goes there and lands on them; it is offered in the dropdown only, where
+  // "Security" is a thing people look for, and not as a second sidebar row that
+  // would light up together with Profile.
+  security: {
+    id: 'security',
+    to: '/account/profile#security',
+    labelKey: 'account.nav.security',
+    menuLabelKey: 'account.nav.security',
     icon: ShieldIcon,
   },
   company: {
@@ -346,7 +358,7 @@ export function accountNavGroups(flags: AccountNavFlags): AccountNavGroup[] {
  */
 export function accountMenuGroups(flags: AccountNavFlags): AccountNavGroup[] {
   const groups: AccountNavGroup[] = [
-    { titleKey: 'account.group.yourAccount', items: include(['dashboard', 'profile'], flags) },
+    { titleKey: 'account.group.yourAccount', items: include(['dashboard', 'profile', 'security'], flags) },
     { titleKey: 'account.group.orders', items: include(['orders', 'schedules', 'preorders', 'messages'], flags) },
     {
       titleKey: 'account.group.payments',

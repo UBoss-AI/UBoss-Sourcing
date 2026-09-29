@@ -279,6 +279,41 @@ export function productJsonLd(input: ProductJsonLdInput): Record<string, unknown
   };
 }
 
+export interface SupplierJsonLdInput {
+  name: string;
+  description: string | null;
+  /** The supplier page's own canonical address. */
+  url: string;
+  /** The supplier's own website. Only http(s) is passed through. */
+  websiteUrl: string | null;
+  /** ISO 3166-1 alpha-2. */
+  countryCode: string | null;
+  /** Only an absolute http(s) address is published; a relative one is left out. */
+  logoUrl: string | null;
+}
+
+/**
+ * An `Organization` for a supplier's public page.
+ *
+ * Says only what the page itself shows: a name, the address of the page, and
+ * the optional facts the supplier's profile already publishes. It makes no
+ * rating or trust claim, because structured data is read as a commitment.
+ */
+export function supplierJsonLd(input: SupplierJsonLdInput): Record<string, unknown> {
+  const isWebAddress = (value: string | null): value is string => value !== null && /^https?:\/\//i.test(value);
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: input.name,
+    url: input.url,
+    ...(input.description === null || input.description === '' ? {} : { description: input.description }),
+    ...(isWebAddress(input.logoUrl) ? { logo: input.logoUrl } : {}),
+    ...(isWebAddress(input.websiteUrl) ? { sameAs: [input.websiteUrl] } : {}),
+    ...(input.countryCode === null ? {} : { address: { '@type': 'PostalAddress', addressCountry: input.countryCode } }),
+  };
+}
+
 export interface BreadcrumbEntry {
   name: string;
   path: string;

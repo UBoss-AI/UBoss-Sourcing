@@ -906,6 +906,8 @@ export interface CartLine {
   itemId: string;
   productId: string;
   variantId: string | null;
+  /** The seller's trading name, so a basket with two sellers is not two identical rows. */
+  sellerName: string | null;
   name: string;
   /**
    * The chosen option's own name — "3 ml", "Box of 100" — or null where the

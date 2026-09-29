@@ -87,7 +87,7 @@ function kindLabel(
   }
 }
 
-function SupplierCard({ supplier }: { supplier: VerifiedSupplier }): React.JSX.Element {
+export function SupplierCard({ supplier }: { supplier: VerifiedSupplier }): React.JSX.Element {
   const { t, language } = useI18n();
 
   const verifiedOn =

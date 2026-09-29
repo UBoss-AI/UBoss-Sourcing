@@ -192,7 +192,8 @@ describe('verified suppliers on the home page', () => {
     renderHome();
 
     await screen.findByRole('region', { name: 'Verified suppliers from India' });
-    const reads = fetchMock.mock.calls.filter((call) => String(call[0]).includes('/catalog/suppliers'));
+    const reads = fetchMock.mock.calls.filter((call) => String(call[0]).includes('/catalog/suppliers') && !String(call[0]).includes('sort=newest'),
+    );
     expect(reads).toHaveLength(1);
     expect(String(reads[0]?.[0])).toContain('limit=8');
   });

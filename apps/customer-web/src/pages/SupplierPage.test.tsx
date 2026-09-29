@@ -77,6 +77,22 @@ afterEach(() => {
 });
 
 describe('SupplierPage', () => {
+  it('publishes an Organization for the supplier, without any rating claim', async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ supplier: profile() }));
+    render();
+    await screen.findByRole('heading', { level: 1, name: 'Acme Castings' });
+
+    const script = document.head.querySelector('script[type="application/ld+json"][data-seo-jsonld="supplier"]');
+    expect(script).not.toBeNull();
+    const data = JSON.parse(script?.textContent ?? '{}') as Record<string, unknown>;
+    expect(data['@type']).toBe('Organization');
+    expect(data['name']).toBe('Acme Castings');
+    expect(String(data['url'])).toMatch(/\/suppliers\/acme-castings$/);
+    expect(data['sameAs']).toEqual(['https://acme.example.com/']);
+    expect(data['address']).toEqual({ '@type': 'PostalAddress', addressCountry: 'IN' });
+    expect(data['aggregateRating']).toBeUndefined();
+  });
+
   it('shows the company, what the marketplace verified, and what the supplier states', async () => {
     fetchMock.mockResolvedValue(jsonResponse({ supplier: profile() }));
     render();

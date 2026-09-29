@@ -229,6 +229,12 @@ describe('the account control', () => {
       'href',
       '/account/profile',
     );
+    // Password and two-step sign-in sit on the profile page; the menu links
+    // straight to them.
+    expect(within(panel).getByRole('link', { name: 'Security' })).toHaveAttribute(
+      'href',
+      '/account/profile#security',
+    );
     expect(within(panel).getByRole('link', { name: 'Scheduled orders' })).toBeInTheDocument();
     expect(within(panel).getByRole('link', { name: 'ERP integrations' })).toBeInTheDocument();
 
