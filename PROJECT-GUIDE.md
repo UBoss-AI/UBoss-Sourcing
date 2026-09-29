@@ -4169,7 +4169,12 @@ withdrawn brand — and a button that overrode it would make the state
 decorative.
 
 **Archiving is not pausing.** An archived listing is kept for history, hidden
-from selling, and never hard-deleted while an order references it.
+from selling, and never hard-deleted while an order references it. Every row in
+the Seller Hub listings table that is not already archived has an **Archive**
+button. It asks first (`PATCH /seller/listings/:id/status` with `ARCHIVED`),
+takes the product off the shelf in the same transaction, stamps `archivedAt`
+and writes a `seller.offer.archived` audit entry. The row then shows under the
+**Archived** tab; the tab and status labels are translated.
 
 ## What makes two variants different: the option signature
 

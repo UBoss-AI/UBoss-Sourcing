@@ -6545,5 +6545,15 @@
   "errors.factory.CERTIFICATION_TRANSITION_INVALID": "Dieses Zertifikat kann in seinem jetzigen Stand nicht zur Prüfung gesendet werden. Laden Sie die Seite neu.",
   "errors.factory.TRUST_EVIDENCE_UNUSABLE": "Dieses Dokument wurde ersetzt, zurückgezogen oder hat die Sicherheitsprüfung nicht bestanden. Wählen Sie ein anderes oder laden Sie eines hoch.",
   "errors.factory.TRUST_EVIDENCE_IN_USE": "Dieses Dokument ist ein Nachweis für ein Werk oder ein Zertifikat. Entfernen Sie es zuerst dort.",
-  "errors.factory.STALE": "Das hat sich geändert, während die Seite geöffnet war. Laden Sie sie neu, um den aktuellen Stand zu sehen."
+  "errors.factory.STALE": "Das hat sich geändert, während die Seite geöffnet war. Laden Sie sie neu, um den aktuellen Stand zu sehen.",
+  "seller.offers.statusArchived": "Archiviert",
+  "seller.offers.archive": "Archivieren",
+  "seller.offers.archiveTitle": "{{code}} archivieren?",
+  "seller.offers.archiveDescription": "Käufer können es nicht mehr sehen oder bestellen. Es wechselt in den Tab „Archiviert“.",
+  "seller.offers.archiveKeep": "Behalten",
+  "seller.offers.archiveConfirm": "Dieses Angebot archivieren",
+  "seller.offers.archiveNoteOffSale": "Es verschwindet aus der Suche und kann nicht mehr in den Warenkorb gelegt werden.",
+  "seller.offers.archiveNoteOrders": "Bereits aufgegebene Bestellungen bleiben unberührt. Sie müssen sie weiterhin verpacken und versenden.",
+  "seller.offers.archiveNoteKept": "Der Verlauf bleibt erhalten. Es wird nicht gelöscht.",
+  "seller.offers.archived": "Angebot archiviert."
 }

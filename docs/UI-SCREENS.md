@@ -3576,6 +3576,7 @@ link to its edit page to set one; until then it has no individual limit.
 | Pause | Asks first, and explains: it leaves search, baskets are told, orders already placed are not affected. An optional reason only your team sees |
 | Put on sale | Puts a paused or ready listing on sale |
 | Copy | Makes a paused copy under a new code |
+| Archive | Asks first, then takes the listing off sale for good. It moves to the **Archived** tab and is not deleted. Orders already placed are not affected. Hidden on a listing that is already archived |
 
 **Drafts.** A row per draft with its title, code, brand, when it was last
 saved, progress dots per section and how many issues it has. It opens the

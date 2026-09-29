@@ -6545,5 +6545,15 @@
   "errors.factory.CERTIFICATION_TRANSITION_INVALID": "Το πιστοποιητικό δεν μπορεί να σταλεί για έλεγχο από την τρέχουσα κατάστασή του. Ανανεώστε τη σελίδα.",
   "errors.factory.TRUST_EVIDENCE_UNUSABLE": "Το έγγραφο αντικαταστάθηκε, αποσύρθηκε ή απέτυχε στον έλεγχο ασφαλείας. Επιλέξτε ή ανεβάστε άλλο.",
   "errors.factory.TRUST_EVIDENCE_IN_USE": "Το έγγραφο είναι αποδεικτικό για εργοστάσιο ή πιστοποιητικό. Αφαιρέστε το πρώτα από εκεί.",
-  "errors.factory.STALE": "Άλλαξε ενώ η σελίδα ήταν ανοιχτή. Ανανεώστε την για να δείτε την τρέχουσα κατάσταση."
+  "errors.factory.STALE": "Άλλαξε ενώ η σελίδα ήταν ανοιχτή. Ανανεώστε την για να δείτε την τρέχουσα κατάσταση.",
+  "seller.offers.statusArchived": "Αρχειοθετημένο",
+  "seller.offers.archive": "Αρχειοθέτηση",
+  "seller.offers.archiveTitle": "Αρχειοθέτηση του {{code}};",
+  "seller.offers.archiveDescription": "Οι αγοραστές δεν θα μπορούν πλέον να το δουν ή να το παραγγείλουν. Μεταφέρεται στην καρτέλα «Αρχειοθετημένα».",
+  "seller.offers.archiveKeep": "Διατήρηση",
+  "seller.offers.archiveConfirm": "Αρχειοθέτηση αυτής της καταχώρισης",
+  "seller.offers.archiveNoteOffSale": "Εξαφανίζεται από την αναζήτηση και δεν μπορεί να προστεθεί στο καλάθι.",
+  "seller.offers.archiveNoteOrders": "Οι παραγγελίες που έχουν ήδη γίνει δεν επηρεάζονται. Πρέπει να τις συσκευάσετε και να τις αποστείλετε.",
+  "seller.offers.archiveNoteKept": "Το ιστορικό διατηρείται. Δεν διαγράφεται.",
+  "seller.offers.archived": "Η καταχώριση αρχειοθετήθηκε."
 }

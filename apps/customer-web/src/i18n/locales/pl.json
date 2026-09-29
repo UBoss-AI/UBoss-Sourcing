@@ -6763,5 +6763,15 @@
   "errors.factory.CERTIFICATION_TRANSITION_INVALID": "Tego certyfikatu nie można wysłać do weryfikacji w obecnym stanie. Odśwież stronę.",
   "errors.factory.TRUST_EVIDENCE_UNUSABLE": "Ten dokument został zastąpiony, wycofany albo nie przeszedł kontroli bezpieczeństwa. Wybierz lub prześlij inny.",
   "errors.factory.TRUST_EVIDENCE_IN_USE": "Ten dokument jest dowodem dla zakładu lub certyfikatu. Najpierw usuń go stamtąd.",
-  "errors.factory.STALE": "To się zmieniło, gdy strona była otwarta. Odśwież ją, aby zobaczyć aktualny stan."
+  "errors.factory.STALE": "To się zmieniło, gdy strona była otwarta. Odśwież ją, aby zobaczyć aktualny stan.",
+  "seller.offers.statusArchived": "Zarchiwizowane",
+  "seller.offers.archive": "Zarchiwizuj",
+  "seller.offers.archiveTitle": "Zarchiwizować {{code}}?",
+  "seller.offers.archiveDescription": "Kupujący nie będą już mogli go zobaczyć ani zamówić. Trafia na kartę „Zarchiwizowane”.",
+  "seller.offers.archiveKeep": "Zostaw",
+  "seller.offers.archiveConfirm": "Zarchiwizuj tę ofertę",
+  "seller.offers.archiveNoteOffSale": "Znika z wyszukiwania i nie można go dodać do koszyka.",
+  "seller.offers.archiveNoteOrders": "Złożone już zamówienia nie są objęte zmianą. Nadal musisz je spakować i wysłać.",
+  "seller.offers.archiveNoteKept": "Historia zostaje zachowana. Oferta nie jest usuwana.",
+  "seller.offers.archived": "Oferta zarchiwizowana."
 }

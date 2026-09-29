@@ -6545,5 +6545,15 @@
   "errors.factory.CERTIFICATION_TRANSITION_INVALID": "Dit certificaat kan in de huidige stand niet worden ingestuurd. Laad de pagina opnieuw.",
   "errors.factory.TRUST_EVIDENCE_UNUSABLE": "Dat document is vervangen, ingetrokken of niet door de beveiligingscontrole gekomen. Kies of upload een ander.",
   "errors.factory.TRUST_EVIDENCE_IN_USE": "Dit document is bewijs voor een fabriek of een certificaat. Verwijder het daar eerst.",
-  "errors.factory.STALE": "Dit is gewijzigd terwijl de pagina openstond. Laad haar opnieuw om de huidige stand te zien."
+  "errors.factory.STALE": "Dit is gewijzigd terwijl de pagina openstond. Laad haar opnieuw om de huidige stand te zien.",
+  "seller.offers.statusArchived": "Gearchiveerd",
+  "seller.offers.archive": "Archiveren",
+  "seller.offers.archiveTitle": "{{code}} archiveren?",
+  "seller.offers.archiveDescription": "Kopers kunnen het niet meer zien of bestellen. Het gaat naar het tabblad Gearchiveerd.",
+  "seller.offers.archiveKeep": "Behouden",
+  "seller.offers.archiveConfirm": "Deze advertentie archiveren",
+  "seller.offers.archiveNoteOffSale": "Het verdwijnt uit de zoekresultaten en kan niet meer in een winkelmand worden gelegd.",
+  "seller.offers.archiveNoteOrders": "Reeds geplaatste bestellingen blijven ongewijzigd. U moet ze nog steeds inpakken en verzenden.",
+  "seller.offers.archiveNoteKept": "De geschiedenis blijft bewaard. Het wordt niet verwijderd.",
+  "seller.offers.archived": "Advertentie gearchiveerd."
 }
