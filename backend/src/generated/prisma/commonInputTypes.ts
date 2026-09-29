@@ -5899,6 +5899,57 @@ export type EnumMarketRuleEffectWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumMarketRuleEffectFilter<$PrismaModel>
 }
 
+export type EnumCustomerKycStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerKycStatus | Prisma.EnumCustomerKycStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerKycStatus[]
+  notIn?: $Enums.CustomerKycStatus[]
+  not?: Prisma.NestedEnumCustomerKycStatusFilter<$PrismaModel> | $Enums.CustomerKycStatus
+}
+
+export type EnumCustomerKycStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerKycStatus | Prisma.EnumCustomerKycStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerKycStatus[]
+  notIn?: $Enums.CustomerKycStatus[]
+  not?: Prisma.NestedEnumCustomerKycStatusWithAggregatesFilter<$PrismaModel> | $Enums.CustomerKycStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerKycStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerKycStatusFilter<$PrismaModel>
+}
+
+export type EnumCustomerKycDocumentKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerKycDocumentKind | Prisma.EnumCustomerKycDocumentKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerKycDocumentKind[]
+  notIn?: $Enums.CustomerKycDocumentKind[]
+  not?: Prisma.NestedEnumCustomerKycDocumentKindFilter<$PrismaModel> | $Enums.CustomerKycDocumentKind
+}
+
+export type EnumCustomerKycDocumentStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerKycDocumentStatus | Prisma.EnumCustomerKycDocumentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerKycDocumentStatus[]
+  notIn?: $Enums.CustomerKycDocumentStatus[]
+  not?: Prisma.NestedEnumCustomerKycDocumentStatusFilter<$PrismaModel> | $Enums.CustomerKycDocumentStatus
+}
+
+export type EnumCustomerKycDocumentKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerKycDocumentKind | Prisma.EnumCustomerKycDocumentKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerKycDocumentKind[]
+  notIn?: $Enums.CustomerKycDocumentKind[]
+  not?: Prisma.NestedEnumCustomerKycDocumentKindWithAggregatesFilter<$PrismaModel> | $Enums.CustomerKycDocumentKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerKycDocumentKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerKycDocumentKindFilter<$PrismaModel>
+}
+
+export type EnumCustomerKycDocumentStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerKycDocumentStatus | Prisma.EnumCustomerKycDocumentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerKycDocumentStatus[]
+  notIn?: $Enums.CustomerKycDocumentStatus[]
+  not?: Prisma.NestedEnumCustomerKycDocumentStatusWithAggregatesFilter<$PrismaModel> | $Enums.CustomerKycDocumentStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerKycDocumentStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerKycDocumentStatusFilter<$PrismaModel>
+}
+
 export type EnumProductionStageFilter<$PrismaModel = never> = {
   equals?: $Enums.ProductionStage | Prisma.EnumProductionStageFieldRefInput<$PrismaModel>
   in?: $Enums.ProductionStage[]
@@ -12000,6 +12051,57 @@ export type NestedEnumMarketRuleEffectWithAggregatesFilter<$PrismaModel = never>
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumMarketRuleEffectFilter<$PrismaModel>
   _max?: Prisma.NestedEnumMarketRuleEffectFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerKycStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerKycStatus | Prisma.EnumCustomerKycStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerKycStatus[]
+  notIn?: $Enums.CustomerKycStatus[]
+  not?: Prisma.NestedEnumCustomerKycStatusFilter<$PrismaModel> | $Enums.CustomerKycStatus
+}
+
+export type NestedEnumCustomerKycStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerKycStatus | Prisma.EnumCustomerKycStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerKycStatus[]
+  notIn?: $Enums.CustomerKycStatus[]
+  not?: Prisma.NestedEnumCustomerKycStatusWithAggregatesFilter<$PrismaModel> | $Enums.CustomerKycStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerKycStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerKycStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerKycDocumentKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerKycDocumentKind | Prisma.EnumCustomerKycDocumentKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerKycDocumentKind[]
+  notIn?: $Enums.CustomerKycDocumentKind[]
+  not?: Prisma.NestedEnumCustomerKycDocumentKindFilter<$PrismaModel> | $Enums.CustomerKycDocumentKind
+}
+
+export type NestedEnumCustomerKycDocumentStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerKycDocumentStatus | Prisma.EnumCustomerKycDocumentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerKycDocumentStatus[]
+  notIn?: $Enums.CustomerKycDocumentStatus[]
+  not?: Prisma.NestedEnumCustomerKycDocumentStatusFilter<$PrismaModel> | $Enums.CustomerKycDocumentStatus
+}
+
+export type NestedEnumCustomerKycDocumentKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerKycDocumentKind | Prisma.EnumCustomerKycDocumentKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerKycDocumentKind[]
+  notIn?: $Enums.CustomerKycDocumentKind[]
+  not?: Prisma.NestedEnumCustomerKycDocumentKindWithAggregatesFilter<$PrismaModel> | $Enums.CustomerKycDocumentKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerKycDocumentKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerKycDocumentKindFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerKycDocumentStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerKycDocumentStatus | Prisma.EnumCustomerKycDocumentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerKycDocumentStatus[]
+  notIn?: $Enums.CustomerKycDocumentStatus[]
+  not?: Prisma.NestedEnumCustomerKycDocumentStatusWithAggregatesFilter<$PrismaModel> | $Enums.CustomerKycDocumentStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerKycDocumentStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerKycDocumentStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumProductionStageFilter<$PrismaModel = never> = {

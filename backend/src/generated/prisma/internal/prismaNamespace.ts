@@ -662,6 +662,7 @@ export const ModelName = {
   BuyerCompanyIdentifier: 'BuyerCompanyIdentifier',
   BuyerCompanyLocation: 'BuyerCompanyLocation',
   BuyerCompanyMember: 'BuyerCompanyMember',
+  BuyerCompanyInvitation: 'BuyerCompanyInvitation',
   BuyerCompanyApprovalPolicy: 'BuyerCompanyApprovalPolicy',
   BuyerCompanyOrderApproval: 'BuyerCompanyOrderApproval',
   BuyerCompanyVerificationCase: 'BuyerCompanyVerificationCase',
@@ -714,6 +715,9 @@ export const ModelName = {
   MarketProfile: 'MarketProfile',
   SearchSynonym: 'SearchSynonym',
   SearchQueryLog: 'SearchQueryLog',
+  CustomerKyc: 'CustomerKyc',
+  CustomerKycDocument: 'CustomerKycDocument',
+  CustomerPreference: 'CustomerPreference',
   SellerProductionMilestone: 'SellerProductionMilestone',
   SellerProductionDelay: 'SellerProductionDelay',
   SellerOrderBuyerUpdate: 'SellerOrderBuyerUpdate',
@@ -749,7 +753,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productVariantAttribute" | "productDescriptionSection" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "paymentReceipt" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "paymentProviderCustomer" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "returnRequestLine" | "returnRequestEvent" | "returnRequestFile" | "returnSettings" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "productReview" | "supportTicket" | "supportTicketEvent" | "supportTicketAttachment" | "supportSlaPolicy" | "dispute" | "disputeEvent" | "disputeAttachment" | "disputeSettings" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerProfileChange" | "logisticsPartnerDocument" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsDeliveryCode" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "platformFeeRule" | "platformFeeRuleApplication" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList" | "buyerCompany" | "buyerCompanyAddress" | "buyerCompanyIdentifier" | "buyerCompanyLocation" | "buyerCompanyMember" | "buyerCompanyApprovalPolicy" | "buyerCompanyOrderApproval" | "buyerCompanyVerificationCase" | "buyerCompanyCheck" | "buyerCompanyDocument" | "buyerCompanyInfoRequest" | "buyerCompanyReviewEvent" | "buyerCompanyStatusHistory" | "consentRecord" | "legalDocument" | "buyerCompanyEmailChallenge" | "commissionInvoiceSettings" | "commissionInvoice" | "commissionInvoiceLine" | "commissionCreditNote" | "commissionDocument" | "commissionInvoiceEvent" | "inspectionPolicy" | "inspectionPlan" | "inspectionRule" | "inspectionSupplierRisk" | "inspectionAgency" | "inspectionAgencyMember" | "inspectionRequirement" | "inspectionJob" | "inspectionConflictDeclaration" | "inspectionCheckResult" | "inspectionDefect" | "inspectionEvidence" | "inspectionReport" | "inspectionRelease" | "inspectionShipmentBinding" | "inspectionAgencyInvoice" | "inspectionEvent" | "trustSettings" | "sellerTrustProfile" | "sellerBeneficialOwner" | "sellerFactory" | "sellerFactoryMachine" | "sellerFactoryEvidence" | "sellerCertification" | "sellerTrustCheck" | "sellerScreeningCheck" | "sellerProfileChangeRequest" | "sellerListingTrust" | "sellerListingCertification" | "sellerOfferComplianceHold" | "marketRule" | "marketLandedCostRate" | "marketProfile" | "searchSynonym" | "searchQueryLog" | "sellerProductionMilestone" | "sellerProductionDelay" | "sellerOrderBuyerUpdate" | "orderTradeDocument" | "orderTradeDocumentVersion" | "orderTradeDocumentEvent" | "tradeComplianceRule" | "consignmentBookingTerms" | "logisticsTradeSettings" | "logisticsLane" | "logisticsLaneBand" | "ledgerAccount" | "ledgerEntry" | "ledgerLine" | "sellerFundHold" | "sellerFundReleaseRequest" | "payoutProviderEvent" | "ledgerReconciliationRun" | "ledgerReconciliationItem" | "secretFingerprint"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productVariantAttribute" | "productDescriptionSection" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "paymentReceipt" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "paymentProviderCustomer" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "returnRequestLine" | "returnRequestEvent" | "returnRequestFile" | "returnSettings" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "productReview" | "supportTicket" | "supportTicketEvent" | "supportTicketAttachment" | "supportSlaPolicy" | "dispute" | "disputeEvent" | "disputeAttachment" | "disputeSettings" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerProfileChange" | "logisticsPartnerDocument" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsDeliveryCode" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "platformFeeRule" | "platformFeeRuleApplication" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList" | "buyerCompany" | "buyerCompanyAddress" | "buyerCompanyIdentifier" | "buyerCompanyLocation" | "buyerCompanyMember" | "buyerCompanyInvitation" | "buyerCompanyApprovalPolicy" | "buyerCompanyOrderApproval" | "buyerCompanyVerificationCase" | "buyerCompanyCheck" | "buyerCompanyDocument" | "buyerCompanyInfoRequest" | "buyerCompanyReviewEvent" | "buyerCompanyStatusHistory" | "consentRecord" | "legalDocument" | "buyerCompanyEmailChallenge" | "commissionInvoiceSettings" | "commissionInvoice" | "commissionInvoiceLine" | "commissionCreditNote" | "commissionDocument" | "commissionInvoiceEvent" | "inspectionPolicy" | "inspectionPlan" | "inspectionRule" | "inspectionSupplierRisk" | "inspectionAgency" | "inspectionAgencyMember" | "inspectionRequirement" | "inspectionJob" | "inspectionConflictDeclaration" | "inspectionCheckResult" | "inspectionDefect" | "inspectionEvidence" | "inspectionReport" | "inspectionRelease" | "inspectionShipmentBinding" | "inspectionAgencyInvoice" | "inspectionEvent" | "trustSettings" | "sellerTrustProfile" | "sellerBeneficialOwner" | "sellerFactory" | "sellerFactoryMachine" | "sellerFactoryEvidence" | "sellerCertification" | "sellerTrustCheck" | "sellerScreeningCheck" | "sellerProfileChangeRequest" | "sellerListingTrust" | "sellerListingCertification" | "sellerOfferComplianceHold" | "marketRule" | "marketLandedCostRate" | "marketProfile" | "searchSynonym" | "searchQueryLog" | "customerKyc" | "customerKycDocument" | "customerPreference" | "sellerProductionMilestone" | "sellerProductionDelay" | "sellerOrderBuyerUpdate" | "orderTradeDocument" | "orderTradeDocumentVersion" | "orderTradeDocumentEvent" | "tradeComplianceRule" | "consignmentBookingTerms" | "logisticsTradeSettings" | "logisticsLane" | "logisticsLaneBand" | "ledgerAccount" | "ledgerEntry" | "ledgerLine" | "sellerFundHold" | "sellerFundReleaseRequest" | "payoutProviderEvent" | "ledgerReconciliationRun" | "ledgerReconciliationItem" | "secretFingerprint"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -18243,6 +18247,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BuyerCompanyInvitation: {
+      payload: Prisma.$BuyerCompanyInvitationPayload<ExtArgs>
+      fields: Prisma.BuyerCompanyInvitationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BuyerCompanyInvitationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerCompanyInvitationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BuyerCompanyInvitationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerCompanyInvitationPayload>
+        }
+        findFirst: {
+          args: Prisma.BuyerCompanyInvitationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerCompanyInvitationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BuyerCompanyInvitationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerCompanyInvitationPayload>
+        }
+        findMany: {
+          args: Prisma.BuyerCompanyInvitationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerCompanyInvitationPayload>[]
+        }
+        create: {
+          args: Prisma.BuyerCompanyInvitationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerCompanyInvitationPayload>
+        }
+        createMany: {
+          args: Prisma.BuyerCompanyInvitationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.BuyerCompanyInvitationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerCompanyInvitationPayload>
+        }
+        update: {
+          args: Prisma.BuyerCompanyInvitationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerCompanyInvitationPayload>
+        }
+        deleteMany: {
+          args: Prisma.BuyerCompanyInvitationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BuyerCompanyInvitationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.BuyerCompanyInvitationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerCompanyInvitationPayload>
+        }
+        aggregate: {
+          args: Prisma.BuyerCompanyInvitationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBuyerCompanyInvitation>
+        }
+        groupBy: {
+          args: Prisma.BuyerCompanyInvitationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BuyerCompanyInvitationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BuyerCompanyInvitationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BuyerCompanyInvitationCountAggregateOutputType> | number
+        }
+      }
+    }
     BuyerCompanyApprovalPolicy: {
       payload: Prisma.$BuyerCompanyApprovalPolicyPayload<ExtArgs>
       fields: Prisma.BuyerCompanyApprovalPolicyFieldRefs
@@ -21672,6 +21742,204 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.SearchQueryLogCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.SearchQueryLogCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerKyc: {
+      payload: Prisma.$CustomerKycPayload<ExtArgs>
+      fields: Prisma.CustomerKycFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerKycFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerKycFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerKycFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerKycFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerKycFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerKycCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerKycCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerKycDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycPayload>
+        }
+        update: {
+          args: Prisma.CustomerKycUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerKycDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerKycUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerKycUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerKycAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerKyc>
+        }
+        groupBy: {
+          args: Prisma.CustomerKycGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerKycGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerKycCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerKycCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerKycDocument: {
+      payload: Prisma.$CustomerKycDocumentPayload<ExtArgs>
+      fields: Prisma.CustomerKycDocumentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerKycDocumentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycDocumentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerKycDocumentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycDocumentPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerKycDocumentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycDocumentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerKycDocumentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycDocumentPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerKycDocumentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycDocumentPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerKycDocumentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycDocumentPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerKycDocumentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerKycDocumentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycDocumentPayload>
+        }
+        update: {
+          args: Prisma.CustomerKycDocumentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycDocumentPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerKycDocumentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerKycDocumentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerKycDocumentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerKycDocumentPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerKycDocumentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerKycDocument>
+        }
+        groupBy: {
+          args: Prisma.CustomerKycDocumentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerKycDocumentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerKycDocumentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerKycDocumentCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerPreference: {
+      payload: Prisma.$CustomerPreferencePayload<ExtArgs>
+      fields: Prisma.CustomerPreferenceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerPreferenceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerPreferenceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerPreferenceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerPreferenceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>
+        }
+        findMany: {
+          args: Prisma.CustomerPreferenceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>[]
+        }
+        create: {
+          args: Prisma.CustomerPreferenceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>
+        }
+        createMany: {
+          args: Prisma.CustomerPreferenceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerPreferenceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>
+        }
+        update: {
+          args: Prisma.CustomerPreferenceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerPreferenceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerPreferenceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerPreferenceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerPreferenceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerPreference>
+        }
+        groupBy: {
+          args: Prisma.CustomerPreferenceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerPreferenceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerPreferenceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerPreferenceCountAggregateOutputType> | number
         }
       }
     }
@@ -29293,6 +29561,29 @@ export const BuyerCompanyMemberScalarFieldEnum = {
 export type BuyerCompanyMemberScalarFieldEnum = (typeof BuyerCompanyMemberScalarFieldEnum)[keyof typeof BuyerCompanyMemberScalarFieldEnum]
 
 
+export const BuyerCompanyInvitationScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  email: 'email',
+  emailNormalized: 'emailNormalized',
+  role: 'role',
+  tokenHash: 'tokenHash',
+  liveKey: 'liveKey',
+  expiresAt: 'expiresAt',
+  sendCount: 'sendCount',
+  lastSentAt: 'lastSentAt',
+  invitedByUserId: 'invitedByUserId',
+  acceptedAt: 'acceptedAt',
+  acceptedByUserId: 'acceptedByUserId',
+  revokedAt: 'revokedAt',
+  revokedByUserId: 'revokedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BuyerCompanyInvitationScalarFieldEnum = (typeof BuyerCompanyInvitationScalarFieldEnum)[keyof typeof BuyerCompanyInvitationScalarFieldEnum]
+
+
 export const BuyerCompanyApprovalPolicyScalarFieldEnum = {
   id: 'id',
   companyId: 'companyId',
@@ -30451,6 +30742,72 @@ export const SearchQueryLogScalarFieldEnum = {
 } as const
 
 export type SearchQueryLogScalarFieldEnum = (typeof SearchQueryLogScalarFieldEnum)[keyof typeof SearchQueryLogScalarFieldEnum]
+
+
+export const CustomerKycScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  legalName: 'legalName',
+  dateOfBirth: 'dateOfBirth',
+  nationality: 'nationality',
+  residenceCountry: 'residenceCountry',
+  idDocumentType: 'idDocumentType',
+  idDocumentNumberMasked: 'idDocumentNumberMasked',
+  idDocumentExpiresOn: 'idDocumentExpiresOn',
+  status: 'status',
+  submittedAt: 'submittedAt',
+  reviewedAt: 'reviewedAt',
+  reviewedById: 'reviewedById',
+  reviewNote: 'reviewNote',
+  isImporter: 'isImporter',
+  importerName: 'importerName',
+  eoriNumber: 'eoriNumber',
+  importerTaxId: 'importerTaxId',
+  importLicenceNumber: 'importLicenceNumber',
+  customsBrokerName: 'customsBrokerName',
+  customsBrokerEmail: 'customsBrokerEmail',
+  preferredIncoterm: 'preferredIncoterm',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerKycScalarFieldEnum = (typeof CustomerKycScalarFieldEnum)[keyof typeof CustomerKycScalarFieldEnum]
+
+
+export const CustomerKycDocumentScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  kind: 'kind',
+  status: 'status',
+  fileName: 'fileName',
+  storageKey: 'storageKey',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  sha256: 'sha256',
+  scanState: 'scanState',
+  reviewNote: 'reviewNote',
+  reviewedAt: 'reviewedAt',
+  reviewedById: 'reviewedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerKycDocumentScalarFieldEnum = (typeof CustomerKycDocumentScalarFieldEnum)[keyof typeof CustomerKycDocumentScalarFieldEnum]
+
+
+export const CustomerPreferenceScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  marketingEmailOptIn: 'marketingEmailOptIn',
+  marketingSmsOptIn: 'marketingSmsOptIn',
+  productNewsOptIn: 'productNewsOptIn',
+  marketingUpdatedAt: 'marketingUpdatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerPreferenceScalarFieldEnum = (typeof CustomerPreferenceScalarFieldEnum)[keyof typeof CustomerPreferenceScalarFieldEnum]
 
 
 export const SellerProductionMilestoneScalarFieldEnum = {
@@ -34684,6 +35041,21 @@ export const BuyerCompanyMemberOrderByRelevanceFieldEnum = {
 export type BuyerCompanyMemberOrderByRelevanceFieldEnum = (typeof BuyerCompanyMemberOrderByRelevanceFieldEnum)[keyof typeof BuyerCompanyMemberOrderByRelevanceFieldEnum]
 
 
+export const BuyerCompanyInvitationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  email: 'email',
+  emailNormalized: 'emailNormalized',
+  tokenHash: 'tokenHash',
+  liveKey: 'liveKey',
+  invitedByUserId: 'invitedByUserId',
+  acceptedByUserId: 'acceptedByUserId',
+  revokedByUserId: 'revokedByUserId'
+} as const
+
+export type BuyerCompanyInvitationOrderByRelevanceFieldEnum = (typeof BuyerCompanyInvitationOrderByRelevanceFieldEnum)[keyof typeof BuyerCompanyInvitationOrderByRelevanceFieldEnum]
+
+
 export const BuyerCompanyApprovalPolicyOrderByRelevanceFieldEnum = {
   id: 'id',
   companyId: 'companyId',
@@ -35434,6 +35806,51 @@ export const SearchQueryLogOrderByRelevanceFieldEnum = {
 } as const
 
 export type SearchQueryLogOrderByRelevanceFieldEnum = (typeof SearchQueryLogOrderByRelevanceFieldEnum)[keyof typeof SearchQueryLogOrderByRelevanceFieldEnum]
+
+
+export const CustomerKycOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  legalName: 'legalName',
+  nationality: 'nationality',
+  residenceCountry: 'residenceCountry',
+  idDocumentType: 'idDocumentType',
+  idDocumentNumberMasked: 'idDocumentNumberMasked',
+  reviewedById: 'reviewedById',
+  reviewNote: 'reviewNote',
+  importerName: 'importerName',
+  eoriNumber: 'eoriNumber',
+  importerTaxId: 'importerTaxId',
+  importLicenceNumber: 'importLicenceNumber',
+  customsBrokerName: 'customsBrokerName',
+  customsBrokerEmail: 'customsBrokerEmail',
+  preferredIncoterm: 'preferredIncoterm'
+} as const
+
+export type CustomerKycOrderByRelevanceFieldEnum = (typeof CustomerKycOrderByRelevanceFieldEnum)[keyof typeof CustomerKycOrderByRelevanceFieldEnum]
+
+
+export const CustomerKycDocumentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  fileName: 'fileName',
+  storageKey: 'storageKey',
+  mimeType: 'mimeType',
+  sha256: 'sha256',
+  scanState: 'scanState',
+  reviewNote: 'reviewNote',
+  reviewedById: 'reviewedById'
+} as const
+
+export type CustomerKycDocumentOrderByRelevanceFieldEnum = (typeof CustomerKycDocumentOrderByRelevanceFieldEnum)[keyof typeof CustomerKycDocumentOrderByRelevanceFieldEnum]
+
+
+export const CustomerPreferenceOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId'
+} as const
+
+export type CustomerPreferenceOrderByRelevanceFieldEnum = (typeof CustomerPreferenceOrderByRelevanceFieldEnum)[keyof typeof CustomerPreferenceOrderByRelevanceFieldEnum]
 
 
 export const SellerProductionMilestoneOrderByRelevanceFieldEnum = {
@@ -37872,6 +38289,27 @@ export type EnumMarketRuleEffectFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'CustomerKycStatus'
+ */
+export type EnumCustomerKycStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerKycStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerKycDocumentKind'
+ */
+export type EnumCustomerKycDocumentKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerKycDocumentKind'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerKycDocumentStatus'
+ */
+export type EnumCustomerKycDocumentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerKycDocumentStatus'>
+    
+
+
+/**
  * Reference to a field of type 'ProductionStage'
  */
 export type EnumProductionStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductionStage'>
@@ -38391,6 +38829,7 @@ export type GlobalOmitConfig = {
   buyerCompanyIdentifier?: Prisma.BuyerCompanyIdentifierOmit
   buyerCompanyLocation?: Prisma.BuyerCompanyLocationOmit
   buyerCompanyMember?: Prisma.BuyerCompanyMemberOmit
+  buyerCompanyInvitation?: Prisma.BuyerCompanyInvitationOmit
   buyerCompanyApprovalPolicy?: Prisma.BuyerCompanyApprovalPolicyOmit
   buyerCompanyOrderApproval?: Prisma.BuyerCompanyOrderApprovalOmit
   buyerCompanyVerificationCase?: Prisma.BuyerCompanyVerificationCaseOmit
@@ -38443,6 +38882,9 @@ export type GlobalOmitConfig = {
   marketProfile?: Prisma.MarketProfileOmit
   searchSynonym?: Prisma.SearchSynonymOmit
   searchQueryLog?: Prisma.SearchQueryLogOmit
+  customerKyc?: Prisma.CustomerKycOmit
+  customerKycDocument?: Prisma.CustomerKycDocumentOmit
+  customerPreference?: Prisma.CustomerPreferenceOmit
   sellerProductionMilestone?: Prisma.SellerProductionMilestoneOmit
   sellerProductionDelay?: Prisma.SellerProductionDelayOmit
   sellerOrderBuyerUpdate?: Prisma.SellerOrderBuyerUpdateOmit

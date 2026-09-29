@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1061 endpoints** in 91 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1081 endpoints** in 93 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,11 +27,11 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 441 |
+| [Admin panel (staff)](#admin-panel-staff) | 445 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 252 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 216 |
+| [Customer account](#customer-account) | 232 |
 | [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
@@ -190,7 +190,7 @@ Defined in `backend/src/http/routes/customer-erp.admin.ts`.
 
 ### `admin/customers`
 
-Defined in `backend/src/http/routes/customers.admin.ts`, `backend/src/http/routes/vat.admin.ts`.
+Defined in `backend/src/http/routes/customers.admin.ts`, `backend/src/http/routes/customer-kyc.ts`, `backend/src/http/routes/vat.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -206,6 +206,10 @@ Defined in `backend/src/http/routes/customers.admin.ts`, `backend/src/http/route
 | POST | `/api/v1/admin/customers/:id/addresses` | Staff | Admin(CUSTOMER_WRITE) | Add a saved address to a customer's account. Their first address becomes the default for both billing and shipping. Writes an audit entry. |
 | PATCH | `/api/v1/admin/customers/:id/addresses/:addressId` | Staff | Admin(CUSTOMER_WRITE) | Change one of a customer's saved addresses, or make it their default billing or shipping address. Moving the address looks up its map position again where a geocoder is set up. |
 | DELETE | `/api/v1/admin/customers/:id/addresses/:addressId` | Staff | Admin(CUSTOMER_WRITE) | Remove one of a customer's saved addresses. Refused while an active or paused recurring schedule still delivers to or bills it. |
+| GET | `/api/v1/admin/customers/:id/kyc` | Staff | Admin(CUSTOMER_READ) | One buyer's identity check, importer details and documents. |
+| POST | `/api/v1/admin/customers/:id/kyc/decision` | Staff | Admin(BUYER_COMPANY_REVIEW) | Verify or refuse a submitted identity check. Refusing needs a reason the buyer sees; verifying needs an accepted identity document. |
+| POST | `/api/v1/admin/customers/:id/kyc/documents/:documentId/decision` | Staff | Admin(BUYER_COMPANY_REVIEW) | Accept or refuse one uploaded document. |
+| GET | `/api/v1/admin/customers/:id/kyc/documents/:documentId/file` | Staff | Admin(BUYER_COMPANY_REVIEW) | Open one uploaded document. Every opening is audited. |
 | POST | `/api/v1/admin/customers/:id/vat-number/check` | Staff | Admin(CUSTOMER_WRITE) | Check this customer’s VAT number against VIES |
 
 ### `admin/dashboard`
@@ -1824,6 +1828,19 @@ Defined in `backend/src/http/routes/customer-erp.customer.ts`.
 | GET | `/api/v1/account/integrations/erp/audit` | Customer | Customer | Your organisation’s own audit trail |
 | GET | `/api/v1/account/integrations/erp/connections/:id/links` | Customer | Customer | Orders and invoices this connection has linked |
 
+### `account/kyc`
+
+Defined in `backend/src/http/routes/customer-kyc.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/account/kyc` | Customer | Customer | Your identity check, importer details and uploaded documents. |
+| PUT | `/api/v1/account/kyc/identity` | Customer | Customer | Change your identity details. Refused while with a reviewer or verified; the document number is kept masked. |
+| PUT | `/api/v1/account/kyc/importer` | Customer | Customer | Change your importer-of-record details. Always editable; never "verified". |
+| POST | `/api/v1/account/kyc/submit` | Customer | Customer | Send your identity check for review. Every detail and an identity document are required. |
+| POST | `/api/v1/account/kyc/documents` | Customer | Customer | Upload a document (PDF, JPEG, PNG, WebP): multipart, the `kind` field before the file. Scanned and stored privately. |
+| DELETE | `/api/v1/account/kyc/documents/:id` | Customer | Customer | Withdraw a document nobody has decided on yet. |
+
 ### `account/locale`
 
 Defined in `backend/src/http/routes/account.customer.ts`.
@@ -1862,6 +1879,15 @@ Defined in `backend/src/http/routes/account.customer.ts`.
 | POST | `/api/v1/account/phone-change` | Customer | Customer | Ask to change the telephone number on the account |
 | POST | `/api/v1/account/phone-change/confirm` | Customer | Customer | Confirm a new telephone number |
 | DELETE | `/api/v1/account/phone-change` | Customer | Customer | Abandon a pending telephone change |
+
+### `account/preferences`
+
+Defined in `backend/src/http/routes/customer-kyc.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/account/preferences/marketing` | Customer | Customer | Your marketing choices: email, SMS and product news. All off until you switch them on. |
+| PUT | `/api/v1/account/preferences/marketing` | Customer | Customer | Change your marketing choices. Each change is recorded with its time. |
 
 ### `account/product-instructions`
 
@@ -1955,6 +1981,14 @@ Defined in `backend/src/http/routes/buyer-companies.customer.ts`.
 | POST | `/api/v1/buyer-companies/:id/reopen` | Customer | Customer | Take a rejected application back to a draft to correct it, where the reviewer allowed that. |
 | POST | `/api/v1/buyer-companies/:id/documents` | Customer | Customer | Upload a supporting document. PDF, JPEG, PNG or WebP, decided from the file's own bytes; scanned for malware and stored privately under a generated name. Send the `kind` field before the file. |
 | DELETE | `/api/v1/buyer-companies/:id/documents/:documentId` | Customer | Customer | Withdraw a document nobody has decided on yet. |
+| GET | `/api/v1/buyer-companies/:id/team` | Customer | Customer | The company's active members and their roles; live invitations for the owner and administrators. |
+| POST | `/api/v1/buyer-companies/:id/invitations` | Customer | Customer | Invite somebody by email in one role. Owner or administrator of a verified company; only the owner gives the administrator role. |
+| POST | `/api/v1/buyer-companies/:id/invitations/:invitationId/resend` | Customer | Customer | Send an invitation again with a new link and a new expiry; the old link stops working. |
+| DELETE | `/api/v1/buyer-companies/:id/invitations/:invitationId` | Customer | Customer | Withdraw an invitation nobody has accepted yet. |
+| PATCH | `/api/v1/buyer-companies/:id/members/:memberId` | Customer | Customer | Change a member's role. Never the owner, never yourself; only the owner changes an administrator. |
+| DELETE | `/api/v1/buyer-companies/:id/members/:memberId` | Customer | Customer | Remove a member. Their access ends on their next request. |
+| POST | `/api/v1/buyer-companies/invitations/preview` | Customer | Customer | What an invitation link asks you to join. Only for the signed-in account it was sent to. |
+| POST | `/api/v1/buyer-companies/invitations/accept` | Customer | Customer | Accept an invitation. Your verified email must be the one it was sent to. |
 
 ### `cart`
 

@@ -3297,6 +3297,39 @@ export const MarketRuleEffect = {
 export type MarketRuleEffect = (typeof MarketRuleEffect)[keyof typeof MarketRuleEffect]
 
 
+export const CustomerKycStatus = {
+  NOT_STARTED: 'NOT_STARTED',
+  SUBMITTED: 'SUBMITTED',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type CustomerKycStatus = (typeof CustomerKycStatus)[keyof typeof CustomerKycStatus]
+
+
+export const CustomerKycDocumentKind = {
+  IDENTITY: 'IDENTITY',
+  PROOF_OF_ADDRESS: 'PROOF_OF_ADDRESS',
+  IMPORT_LICENCE: 'IMPORT_LICENCE',
+  TAX_REGISTRATION: 'TAX_REGISTRATION',
+  OTHER: 'OTHER'
+} as const
+
+export type CustomerKycDocumentKind = (typeof CustomerKycDocumentKind)[keyof typeof CustomerKycDocumentKind]
+
+
+export const CustomerKycDocumentStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  EXPIRED: 'EXPIRED',
+  WITHDRAWN: 'WITHDRAWN'
+} as const
+
+export type CustomerKycDocumentStatus = (typeof CustomerKycDocumentStatus)[keyof typeof CustomerKycDocumentStatus]
+
+
 export const ProductionStage = {
   RAW_MATERIAL: 'RAW_MATERIAL',
   IN_PRODUCTION: 'IN_PRODUCTION',

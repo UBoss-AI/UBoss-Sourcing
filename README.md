@@ -1395,6 +1395,7 @@ What these do is explained in
 |---|---|
 | `FEATURE_BUYER_COMPANIES` | The whole feature: the Company sign-in tab, the application, the context switcher and the console's Company verification screen. Default `true` |
 | `BUYER_COMPANY_MAX_OPEN_APPLICATIONS` | How many unfinished applications one person may have at once. Default `3` |
+| `BUYER_COMPANY_INVITE_TTL_HOURS` | How many hours an invitation to join a company can be accepted. Resending starts it again. Default `168` (a week) |
 | `BUYER_COMPANY_DOCUMENT_MAX_BYTES` | The largest document an applicant may upload. Default `10000000` (10 MB) |
 | `BUYER_COMPANY_DOCUMENT_MAX_PAGES` | The most pages a PDF may have. Default `50` |
 | `BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS` | Whether a document no malware scanner has cleared may be opened. Default `false`. Development only: production refuses to start with it on |
@@ -2965,6 +2966,34 @@ before anybody can buy for it.
 This is not the "buyer organisation" used by a buyer's own purchasing system
 (ERP). A buyer company is a verified business somebody buys for. The two are
 separate and not linked.
+
+### An individual buyer's identity check
+
+Somebody buying as themselves can confirm who they are on **Identity and
+import** (`/account/identity`): identity details, a copy of their identity
+document, then **Send for review**. Staff decide it on the customer page, and
+it cannot be verified before the identity document is accepted. The document
+number is stored masked, never whole. The same page records importer-of-record
+details (EORI, customs broker, usual Incoterm), which are the buyer's own
+statement and never "verified". Marketing choices (email, SMS, product news)
+are on the profile page and are all off until the buyer turns one on.
+
+A verified check lapses to **Expired** once the identity document's expiry
+date passes, and the buyer sends it again with a valid document. A reviewer's
+decision is refused if the check changed while they had it open, so one
+reviewer never silently overturns another.
+
+### A company's team
+
+The owner and administrators of a verified company invite colleagues from the
+**Team** panel on the company page: an email address and a role (Company
+admin, Buyer, Order approver, Finance, Viewer). The person invited follows the
+emailed link, signs in with that address, sees the company and the role, and
+accepts. Invitations can be resent or withdrawn; members can have their role
+changed or be removed, and a removal takes effect at once. The owner cannot be
+changed or removed, only the owner manages administrators, and nobody changes
+themselves. A link works for a week by default and only for the address it
+was sent to.
 
 ### What happens, in order
 

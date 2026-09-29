@@ -118,6 +118,17 @@ const BUYER_COMPANY_CODES = new Set([
   'BUYER_COMPANY_EMAIL_CODE_INVALID',
   'BUYER_COMPANY_DOCUMENT_REJECTED',
   'BUYER_COMPANY_LIMIT_REACHED',
+  'BUYER_COMPANY_INVITATION_EXISTS',
+  'BUYER_COMPANY_INVITATION_INVALID',
+  'BUYER_COMPANY_ALREADY_MEMBER',
+  'BUYER_COMPANY_MEMBER_PROTECTED',
+]);
+
+/** An individual's identity check, on Identity and import. */
+const CUSTOMER_KYC_CODES = new Set([
+  'CUSTOMER_KYC_NOT_EDITABLE',
+  'CUSTOMER_KYC_INCOMPLETE',
+  'CUSTOMER_KYC_TRANSITION_INVALID',
 ]);
 
 /**
@@ -266,6 +277,12 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
       return t(`errors.sellerDocument.${error.code}` as TranslationKey);
     }
 
+    if (CUSTOMER_KYC_CODES.has(error.code)) {
+      // "Fill in every detail" would send a buyer whose passport lapsed looking for a blank field.
+      if (error.details.some((detail) => detail.code === 'EXPIRED')) return t('errors.customerKyc.DOCUMENT_EXPIRED');
+      return t(`errors.customerKyc.${error.code}` as TranslationKey);
+    }
+
     if (BUYER_COMPANY_CODES.has(error.code)) {
       // A refused upload says which rule it broke - type, size, pages,
       // scripts - because "that file was refused" leaves nothing to fix.
@@ -273,6 +290,15 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
       if (error.code === 'BUYER_COMPANY_DOCUMENT_REJECTED' && detail !== undefined) {
         return t(`errors.buyerCompany.document.${detail}` as TranslationKey, {
           defaultValue: t('errors.buyerCompany.BUYER_COMPANY_DOCUMENT_REJECTED'),
+        });
+      }
+      // The team says which rule protects a member, and a resend cap is not an application limit.
+      if (
+        detail !== undefined &&
+        (error.code === 'BUYER_COMPANY_MEMBER_PROTECTED' || (error.code === 'BUYER_COMPANY_LIMIT_REACHED' && detail === 'MAX_SENDS'))
+      ) {
+        return t(`errors.buyerCompany.team.${detail}` as TranslationKey, {
+          defaultValue: t(`errors.buyerCompany.${error.code}` as TranslationKey),
         });
       }
       return t(`errors.buyerCompany.${error.code}` as TranslationKey);

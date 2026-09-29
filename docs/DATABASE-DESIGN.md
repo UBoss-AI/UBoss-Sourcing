@@ -1311,6 +1311,20 @@ product, and reviews of products they received.
 | [`WishlistItem`](reference/DATABASE-TABLES.md#model-wishlistitem) | `wishlist_items` | "saved for later": a person, a product, a `variantKey`, a time. No quantity |
 | [`ProductInstruction`](reference/DATABASE-TABLES.md#model-productinstruction) | `product_instructions` | a note a shopper left on a product without buying it |
 | [`ProductReview`](reference/DATABASE-TABLES.md#model-productreview) | `product_reviews` | one buyer's review of one product they received: four 1–5 scores (quality, delivery, experience, support) and whether staff hid it |
+| [`CustomerKyc`](reference/DATABASE-TABLES.md#model-customerkyc) | `customer_kyc` | one individual buyer's identity check (status, identity details, the document number **masked only**, importer-of-record details, review note). One per profile |
+| [`CustomerKycDocument`](reference/DATABASE-TABLES.md#model-customerkycdocument) | `customer_kyc_documents` | one uploaded file for that check: kind, status (PENDING, ACCEPTED, REJECTED, WITHDRAWN), private storage key, SHA-256, scan state |
+| [`CustomerPreference`](reference/DATABASE-TABLES.md#model-customerpreference) | `customer_preferences` | a buyer's marketing choices (email, SMS, product news), all false by default, with when they last changed. One per profile |
+
+The identity check's status is changed only through
+`domain/customer-kyc-state.ts`, the same rule as order status. Identity
+details are editable only in NOT_STARTED, REJECTED and EXPIRED. The three
+tables cascade from `customer_profiles`, are in the GDPR export
+(`identityCheck`, `marketingPreferences`) and are removed by erasure, with
+the stored files. Migration `20261018200000_customer_kyc_and_preferences`.
+A VERIFIED check becomes EXPIRED once its identity document's expiry date has
+passed (on the next read, written by the system and audited). Every status
+change is conditional on the status and `version` read, so two decisions at
+once give one winner.
 
 ```mermaid
 erDiagram
@@ -2950,6 +2964,7 @@ Two design decisions shape the tables:
 | [`BuyerCompanyIdentifier`](reference/DATABASE-TABLES.md#model-buyercompanyidentifier) | `buyer_company_identifiers` | one tax or trade number (GSTIN, NIP, EU VAT, LEI...), or a declaration that it does not apply, with a reason |
 | [`BuyerCompanyLocation`](reference/DATABASE-TABLES.md#model-buyercompanylocation) | `buyer_company_locations` | a branch, plant or warehouse, with its own tax number (an Indian company has one GSTIN per state). Modelled for later; no screen writes it yet |
 | [`BuyerCompanyMember`](reference/DATABASE-TABLES.md#model-buyercompanymember) | `buyer_company_members` | one person's place in one company, with a company role and a status |
+| [`BuyerCompanyInvitation`](reference/DATABASE-TABLES.md#model-buyercompanyinvitation) | `buyer_company_invitations` | one invitation to join a company in a role: the address, the SHA-256 of the link's token (never the token), expiry, how often it was sent, who sent it, and who accepted or withdrew it and when. Never deleted. `liveKey` (`companyId:email` while usable, null after) has a UNIQUE index, so one address has one live invitation per company while the retired rows stay; MariaDB lets the NULLs through. Migration `20261019100000_buyer_company_invitations` |
 | [`BuyerCompanyVerificationCase`](reference/DATABASE-TABLES.md#model-buyercompanyverificationcase) | `buyer_company_verification_cases` | one round of review (first submission, resubmission or re-verification): who is assigned, whether a second reviewer is needed, the first approval, the outcome |
 | [`BuyerCompanyCheck`](reference/DATABASE-TABLES.md#model-buyercompanycheck) | `buyer_company_checks` | what one registry or rule said, and when. Written once; a re-run is a new row |
 | [`BuyerCompanyDocument`](reference/DATABASE-TABLES.md#model-buyercompanydocument) | `buyer_company_documents` | one uploaded file: kind, review status, private storage key, type decided from its bytes, size, pages, SHA-256 hash, scan state |

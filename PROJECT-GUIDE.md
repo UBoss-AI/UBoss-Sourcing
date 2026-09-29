@@ -1712,6 +1712,58 @@ test in `customer-mfa.test.ts` was found to inherit one wrong code from the
 case before it (the count is "in a row until a right one", correctly), so it
 locked one attempt early; the test now starts from a clean count.
 
+**Individual buyer identity check, importer details and marketing choices.**
+Company buyers already had a full verification (the company application);
+an individual had nothing. Migration `20261018200000_customer_kyc_and_preferences`
+adds `customer_kyc`, `customer_kyc_documents` and `customer_preferences`.
+The status moves only through `domain/customer-kyc-state.ts`; the service is
+`modules/customers/customer-kyc.service.ts` and the routes
+`http/routes/customer-kyc.ts` (`/account/kyc…`, `/account/preferences/marketing`,
+`/admin/customers/:id/kyc…`). Identity details lock while SUBMITTED or
+VERIFIED; importer details never do and are never "verified". The document
+number is masked before it is stored (`maskDocumentNumber`), so the whole
+number exists only in the one request that typed it. Files reuse the
+buyer-company upload path: sniffed, scanned, private storage, and
+`BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS` / `BUYER_COMPANY_DOCUMENT_MAX_BYTES`
+apply. Reading needs `customer.read`; deciding and opening files need
+`buyer_company.review`, and every opening is audited. New error codes:
+`CUSTOMER_KYC_NOT_EDITABLE`, `CUSTOMER_KYC_INCOMPLETE`,
+`CUSTOMER_KYC_TRANSITION_INVALID`. The GDPR export gains `identityCheck` and
+`marketingPreferences`; erasure deletes the rows and the stored files.
+Screens: `pages/account/IdentityPage.tsx` (`/account/identity`),
+`MarketingChoicesPanel.tsx` on the profile page, and
+`pages/customer/CustomerKycPanel.tsx` on the admin customer page.
+
+A VERIFIED check lapses to EXPIRED on the first read after the identity
+document's expiry date (system actor, audited as `customer_kyc.expired`), and
+a lapsed document is refused at submit and at verify (detail `EXPIRED`).
+Every status change is a conditional `updateMany` on the status and version
+that were read (`moveStatus`), and the staff decision body must carry
+`expectedStatus`; a stale screen gets 409 with detail `STALE`, and the admin
+panel reloads the check. The staff file download sends an ASCII-only file name
+and `content-security-policy: sandbox`.
+
+**A company's team (invitations, roles, removal).** Migration
+`20261019100000_buyer_company_invitations` adds `buyer_company_invitations`:
+the token is stored only as SHA-256, and `liveKey` (`companyId:email` while
+the invitation can be accepted, null afterwards) carries a UNIQUE index so an
+address has one live invitation per company while retired rows stay. The
+service is `modules/buyer-companies/team.service.ts`; routes are on
+`/buyer-companies/:id/team`, `/:id/invitations` (+ `/:invitationId/resend`,
+DELETE to withdraw), `/:id/members/:memberId` (PATCH role, DELETE) and
+`/buyer-companies/invitations/preview|accept` (token in the body). Managing
+needs `MANAGE_MEMBERS` in an approved company. OWNER is never assignable and
+never changeable; only the owner touches COMPANY_ADMIN; nobody changes
+themselves. Accepting needs the signed-in account's verified email to equal
+the invited one, and every unusable link gets one answer. The email
+(`buyer_company.invitation`) is worded in the inviter's language by
+`invitation-email.ts`. `BUYER_COMPANY_INVITE_TTL_HOURS` (default 168) sets
+the expiry; one invitation is sent at most five times. New error codes:
+`BUYER_COMPANY_INVITATION_EXISTS`, `BUYER_COMPANY_INVITATION_INVALID`,
+`BUYER_COMPANY_ALREADY_MEMBER`, `BUYER_COMPANY_MEMBER_PROTECTED`. Screens:
+`pages/company/CompanyTeamPanel.tsx` on the company page and
+`pages/company/JoinCompanyPage.tsx` (`/account/join-company`).
+
 The bar carries four controls:
 
 | Control | What it does |
@@ -10084,6 +10136,7 @@ that is wanted is a legal and policy question for the operator.
 |---|---|---|
 | `FEATURE_BUYER_COMPANIES` | `true` | The Company tab, the application, the switcher and the console screens. Published as `features.buyerCompanies` in `/config` |
 | `BUYER_COMPANY_MAX_OPEN_APPLICATIONS` | `3` | Unfinished applications per person |
+| `BUYER_COMPANY_INVITE_TTL_HOURS` | `168` | Hours an invitation to join a company stays usable |
 | `BUYER_COMPANY_DOCUMENT_MAX_BYTES` | `10000000` | Largest upload |
 | `BUYER_COMPANY_DOCUMENT_MAX_PAGES` | `50` | Most PDF pages |
 | `BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS` | `false` | Serve documents the scanner has not cleared. Refused in production |
@@ -18832,7 +18885,7 @@ the carrier portal does not sign a member of staff out of the console.
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `false` | Ask staff's browser for its location at sign-in only after a documented privacy and employment-law assessment |
 | `PAYMENT_MOCK_SUCCESS` | `false` | Settles any order awaiting payment on request, with no gateway and no webhook, through the same code a real capture runs. **Development only — `env.ts` refuses to start a production process with it on, and refuses to start at all beside a live payment key**, because it confirms orders nobody has paid for |
 | `FEATURE_LOGISTICS_PORTAL` | `false` | The whole of section 5a. Off means every guarded `/api/v1/logistics/*` route refuses with `FEATURE_DISABLED`, so the third application has nothing a carrier can use, and carrier webhooks are refused. The admin panel's Logistics group **stays**, and staff can still create carriers and prepare them before the switch is turned on |
-| `FEATURE_BUYER_COMPANIES` | `true` | **Individual and Company buyers** (section 9.1a): the Company sign-in tab, `/register/company`, the company application, the context switcher, and the console's **Company verification** screens. Published as `features.buyerCompanies`. Tuning lives beside it: `BUYER_COMPANY_MAX_OPEN_APPLICATIONS`, `BUYER_COMPANY_DOCUMENT_MAX_BYTES`, `BUYER_COMPANY_DOCUMENT_MAX_PAGES`, `BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS` (development only; refused in production), `BUYER_COMPANY_SECOND_REVIEW_RISK`, `BUYER_COMPANY_CONSENT_VERSION`, the three register addresses `BUYER_COMPANY_GLEIF_URL`, `BUYER_COMPANY_PL_VAT_URL`, `BUYER_COMPANY_PL_KRS_URL` (blank makes that check manual) and `BUYER_COMPANY_REGISTRY_TIMEOUT_MS`. The EU VAT check reuses `VIES_CHECK_URL` |
+| `FEATURE_BUYER_COMPANIES` | `true` | **Individual and Company buyers** (section 9.1a): the Company sign-in tab, `/register/company`, the company application, the context switcher, and the console's **Company verification** screens. Published as `features.buyerCompanies`. Tuning lives beside it: `BUYER_COMPANY_MAX_OPEN_APPLICATIONS`, `BUYER_COMPANY_INVITE_TTL_HOURS`, `BUYER_COMPANY_DOCUMENT_MAX_BYTES`, `BUYER_COMPANY_DOCUMENT_MAX_PAGES`, `BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS` (development only; refused in production), `BUYER_COMPANY_SECOND_REVIEW_RISK`, `BUYER_COMPANY_CONSENT_VERSION`, the three register addresses `BUYER_COMPANY_GLEIF_URL`, `BUYER_COMPANY_PL_VAT_URL`, `BUYER_COMPANY_PL_KRS_URL` (blank makes that check manual) and `BUYER_COMPANY_REGISTRY_TIMEOUT_MS`. The EU VAT check reuses `VIES_CHECK_URL` |
 | `FEATURE_PRODUCT_REVIEWS` | `true` | **Product reviews** (section 9.12): the stars on every product card and product page, the review form, a delivered order's **Rate this product** and **Account → My reviews**. Published as `features.productReviews`. Off refuses the storefront review routes; written reviews are kept and the console's **Product reviews** screen still works |
 | `FEATURE_SUPPORT_TICKETS` | `true` | **Support tickets** (section 9.13): the **Raise a ticket** form on the Support page in the storefront, Seller Hub and the logistics portal. Published as `features.supportTickets`. Off, the Support page shows only the published contacts and a new ticket is refused with `403 FEATURE_DISABLED`; existing tickets stay readable, senders can still reply and add files, and staff keep working in the console. Tuning lives beside it: `SUPPORT_TICKETS_PER_DAY` (10; 1 to 200), `SUPPORT_ATTACHMENTS_ENABLED` (`true`), `SUPPORT_ATTACHMENT_MAX_BYTES` (26214400, which is 25 MB) and `SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS` (`false`; development only, refused in production) |
 | `FEATURE_PREORDER_CHAT` | `true` | **Chat with {marketplace}** on every product page, **Account → Messages** and the console's **Preorder Chats** (section 9.5.3b). Off answers every chat route 404 and hides the button. Tuning lives beside it: `REALTIME_BUS_DRIVER` (`memory`; `database` for several API processes), `PREORDER_CHAT_TYPICAL_RESPONSE`, `OPERATOR_TEAM_NAME` (the name the operator's own team works under - `{{team}}` in the translations, used in chat and in every "who manages this delivery level" sentence; empty = the marketplace name), `PREORDER_CHAT_SLA_MINUTES`, `PREORDER_CHAT_EMAIL_DELAY_MINUTES`, the rate and size limits, the attachment settings and `PREORDER_CHAT_RETENTION_DAYS` |

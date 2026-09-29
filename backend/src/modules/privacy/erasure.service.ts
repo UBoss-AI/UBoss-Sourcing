@@ -349,6 +349,26 @@ export async function executeErasure(input: {
       // Carts cascade to their items and reservations.
       deleted.carts = (await tx.cart.deleteMany({ where: { customerProfileId: profile.id } })).count;
 
+      /*
+       * The identity check, its files and the marketing choices (Master row
+       * 11). Identity documents are the most sensitive files a buyer gives us
+       * and nothing requires keeping them once erasure is asked for; the
+       * bytes go after commit with the other files, and the audit trail keeps
+       * only that each one existed.
+       */
+      const kycFiles = await tx.customerKycDocument.findMany({
+        where: { customerProfileId: profile.id },
+        select: { storageKey: true },
+      });
+      chatFiles.push(...kycFiles.map((file) => file.storageKey));
+      deleted.customerKycDocuments = (
+        await tx.customerKycDocument.deleteMany({ where: { customerProfileId: profile.id } })
+      ).count;
+      deleted.customerKyc = (await tx.customerKyc.deleteMany({ where: { customerProfileId: profile.id } })).count;
+      deleted.customerPreferences = (
+        await tx.customerPreference.deleteMany({ where: { customerProfileId: profile.id } })
+      ).count;
+
       // Saved lines. Nothing legally requires a record of what somebody was
       // thinking of ordering, and every row names the subject directly.
       deleted.wishlistItems = (

@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**474 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**481 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -60,12 +60,12 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Seller commission invoices](#seller-commission-invoices) | 8 |
 | [Terms and Conditions](#terms-and-conditions) | 5 |
 | [Quantity price bands](#quantity-price-bands) | 2 |
-| [Buyer companies](#buyer-companies) | 14 |
+| [Buyer companies](#buyer-companies) | 18 |
 | [Product reviews](#product-reviews) | 1 |
 | [B2C maximum order quantity](#b2c-maximum-order-quantity) | 1 |
 | [Pre-shipment inspection and the dispatch gate](#pre-shipment-inspection-and-the-dispatch-gate) | 17 |
 | [Returns](#returns) | 5 |
-| [The buyer experience: cart, checkout, account, alerts, reviews](#the-buyer-experience-cart-checkout-account-alerts-reviews) | 24 |
+| [The buyer experience: cart, checkout, account, alerts, reviews](#the-buyer-experience-cart-checkout-account-alerts-reviews) | 27 |
 
 ## Generic
 
@@ -676,6 +676,10 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `BUYER_COMPANY_SECOND_REVIEW_REQUIRED` | The approval needs a second reviewer, and the caller gave the first one. |
 | `BUYER_COMPANY_DOCUMENT_REJECTED` | The uploaded file is not one we accept for company documents - wrong type by its own bytes, too large, too many pages, or not readable. |
 | `BUYER_COMPANY_LIMIT_REACHED` | The person already has as many company applications in progress as a deployment allows. |
+| `BUYER_COMPANY_INVITATION_EXISTS` | That address already has an invitation to this company that can still be accepted. Resend it rather than sending a second one. |
+| `BUYER_COMPANY_INVITATION_INVALID` | The invitation cannot be used: unknown, expired, revoked, already used, or addressed to another email. One answer for all five, on purpose. |
+| `BUYER_COMPANY_ALREADY_MEMBER` | That person is already an active member of the company. |
+| `BUYER_COMPANY_MEMBER_PROTECTED` | That member cannot be changed by the caller: the owner, the caller themselves, or an administrator when the caller is not the owner. `details[0].code` is OWNER, SELF or ADMIN_NEEDS_OWNER. |
 | `BUYER_CONTEXT_UNSUPPORTED` | This feature works for the person's own account only, not while buying for a company - recurring orders are the one today. The storefront offers to switch to the individual context. |
 
 ## Product reviews
@@ -750,4 +754,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `BOOKING_TERMS_INVALID` | Booking terms are not acceptable: unknown Incoterm, a port that is not a UN/LOCODE, an insured value above what the settings allow. 400. |
 | `SHIPMENT_INSURANCE_NOT_OFFERED` | Cargo insurance is not offered on this installation. 409. |
 | `LOGISTICS_LANE_INVALID` | A lane rate card is not acceptable: overlapping weight bands, transit days out of order, validity ending before it starts. 400. |
+| `CUSTOMER_KYC_NOT_EDITABLE` | An individual buyer's identity details cannot be changed now: they are with a reviewer or already verified. 409. (Master row 11) |
+| `CUSTOMER_KYC_INCOMPLETE` | An identity check cannot be sent yet: a required detail or the identity document is missing. `details` names what. 400. |
+| `CUSTOMER_KYC_TRANSITION_INVALID` | The identity check cannot move that way from where it is. 409. |
 

@@ -2371,6 +2371,9 @@ model CustomerProfile {
   /// connection. At most one - see `BuyerOrganizationMember`, where the
   /// uniqueness is enforced and the reason for it is written down.
   organizationMembership BuyerOrganizationMember?
+  kyc                    CustomerKyc?
+  kycDocuments           CustomerKycDocument[]
+  preferences            CustomerPreference?
 
   /// Their place in a SELLER organisation, if they sell here as well as buy.
   /// At most one, on the same reasoning as the line above - see
@@ -20312,6 +20315,7 @@ model BuyerCompany {
   identifiers      BuyerCompanyIdentifier[]
   locations        BuyerCompanyLocation[]
   members          BuyerCompanyMember[]
+  invitations      BuyerCompanyInvitation[]
   cases            BuyerCompanyVerificationCase[]
   checks           BuyerCompanyCheck[]
   documents        BuyerCompanyDocument[]
@@ -20455,6 +20459,53 @@ model BuyerCompanyMember {
   @@unique([companyId, userId], map: "uq_buyer_company_member")
   @@index([userId, status], map: "ix_buyer_company_member_user")
   @@map("buyer_company_members")
+}
+
+/// An invitation to join a buyer company in one role (Master rows 11 and 14).
+///
+/// Sent by an OWNER or COMPANY_ADMIN of an APPROVED company. The raw token goes
+/// into exactly one email; only its SHA-256 is kept, so a copy of this table is
+/// a list of hashes, not a set of working links. Accepting needs a signed-in
+/// account whose verified email is the one invited, so a forwarded link does
+/// not let somebody else in.
+///
+/// Rows are never deleted: accepted, revoked and replaced invitations stay as
+/// the record of who asked whom in, as what, and when.
+model BuyerCompanyInvitation {
+  id              String           @id @db.Char(26)
+  companyId       String           @db.Char(26)
+  /// As typed, for display. `emailNormalized` is what is compared.
+  email           String           @db.VarChar(320)
+  emailNormalized String           @db.VarChar(320)
+  /// Never OWNER: ownership is not handed out by invitation.
+  role            BuyerCompanyRole
+
+  tokenHash String  @unique(map: "uq_buyer_company_invitation_token") @db.Char(64)
+  /// `companyId:emailNormalized` while the invitation can still be accepted;
+  /// null once it is accepted, revoked or replaced. UNIQUE, so an address has
+  /// at most one live invitation per company. MariaDB lets any number of NULLs
+  /// through a UNIQUE index, which is what lets the retired rows stay.
+  liveKey   String? @unique(map: "uq_buyer_company_invitation_live") @db.VarChar(360)
+
+  expiresAt  DateTime @db.DateTime(3)
+  /// How many times the email has gone out: 1 when invited, +1 per resend.
+  sendCount  Int      @default(1)
+  lastSentAt DateTime @db.DateTime(3)
+
+  invitedByUserId  String    @db.Char(26)
+  acceptedAt       DateTime? @db.DateTime(3)
+  acceptedByUserId String?   @db.Char(26)
+  revokedAt        DateTime? @db.DateTime(3)
+  revokedByUserId  String?   @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  company BuyerCompany @relation(fields: [companyId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_buyer_company_invitation_company")
+
+  @@index([companyId, createdAt], map: "ix_buyer_company_invitation_company")
+  @@index([emailNormalized], map: "ix_buyer_company_invitation_email")
+  @@map("buyer_company_invitations")
 }
 
 /// A buyer company's own rule for who must sign an order off before it can be
@@ -22741,6 +22792,132 @@ model SearchQueryLog {
 // Every table with a `customerProfileId` is in the Art. 15 export (see
 // `modules/privacy/export-bundle.ts`) and cascades when the profile is erased.
 // ===========================================================================
+
+/// Where an individual buyer's identity check stands (Master row 11). Moves
+/// only through `domain/customer-kyc-state.ts`.
+enum CustomerKycStatus {
+  /// Nothing sent for review yet. Editable.
+  NOT_STARTED
+  /// Sent; staff are reviewing. The identity fields are locked.
+  SUBMITTED
+  /// Staff checked the documents against the details.
+  VERIFIED
+  /// Refused, with a reason the buyer sees. Editable again.
+  REJECTED
+  /// Was verified; the identity document has since expired. Editable again.
+  EXPIRED
+}
+
+/// An individual buyer's identity and importer details.
+///
+/// The identity-document NUMBER is never stored whole: only a masked form
+/// ending in its last four characters. The document itself is a
+/// `CustomerKycDocument`. Importer details are the buyer's own statement and
+/// are never part of what staff verify.
+model CustomerKyc {
+  id                String @id @db.Char(26)
+  customerProfileId String @unique(map: "uq_customer_kyc_profile") @db.Char(26)
+
+  legalName              String?   @db.VarChar(255)
+  dateOfBirth            DateTime? @db.Date
+  nationality            String?   @db.Char(2)
+  residenceCountry       String?   @db.Char(2)
+  /// PASSPORT, NATIONAL_ID or DRIVING_LICENCE.
+  idDocumentType         String?   @db.VarChar(24)
+  idDocumentNumberMasked String?   @db.VarChar(32)
+  idDocumentExpiresOn    DateTime? @db.Date
+
+  status       CustomerKycStatus @default(NOT_STARTED)
+  submittedAt  DateTime?         @db.DateTime(3)
+  reviewedAt   DateTime?         @db.DateTime(3)
+  reviewedById String?           @db.Char(26)
+  /// Shown to the buyer when refused.
+  reviewNote   String?           @db.VarChar(500)
+
+  /// Importer of record: who clears the goods through customs.
+  isImporter          Boolean @default(false)
+  importerName        String? @db.VarChar(255)
+  /// EU Economic Operators Registration and Identification number.
+  eoriNumber          String? @db.VarChar(32)
+  importerTaxId       String? @db.VarChar(64)
+  importLicenceNumber String? @db.VarChar(64)
+  customsBrokerName   String? @db.VarChar(255)
+  customsBrokerEmail  String? @db.VarChar(320)
+  preferredIncoterm   String? @db.VarChar(8)
+
+  version   Int      @default(0)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_customer_kyc_profile")
+
+  @@index([status, submittedAt], map: "ix_customer_kyc_status")
+  @@map("customer_kyc")
+}
+
+enum CustomerKycDocumentKind {
+  IDENTITY
+  PROOF_OF_ADDRESS
+  IMPORT_LICENCE
+  TAX_REGISTRATION
+  OTHER
+}
+
+enum CustomerKycDocumentStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  /// Taken back by the buyer before anybody decided on it.
+  WITHDRAWN
+}
+
+/// A file an individual buyer uploaded to prove who they are or that they may
+/// import. Stored privately, scanned before it is kept, reviewed by staff.
+model CustomerKycDocument {
+  id                String                    @id @db.Char(26)
+  customerProfileId String                    @db.Char(26)
+  kind              CustomerKycDocumentKind
+  status            CustomerKycDocumentStatus @default(PENDING)
+  fileName          String                    @db.VarChar(255)
+  storageKey        String                    @db.VarChar(512)
+  mimeType          String                    @db.VarChar(100)
+  sizeBytes         Int
+  sha256            String                    @db.Char(64)
+  /// CLEAN, or UNSCANNED where the installation runs no scanner.
+  scanState         String                    @db.VarChar(16)
+  reviewNote        String?                   @db.VarChar(500)
+  reviewedAt        DateTime?                 @db.DateTime(3)
+  reviewedById      String?                   @db.Char(26)
+  createdAt         DateTime                  @default(now()) @db.DateTime(3)
+  updatedAt         DateTime                  @updatedAt @db.DateTime(3)
+
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_customer_kyc_document_profile")
+
+  @@index([customerProfileId, createdAt], map: "ix_customer_kyc_document_profile")
+  @@index([status, createdAt], map: "ix_customer_kyc_document_status")
+  @@map("customer_kyc_documents")
+}
+
+/// A buyer's marketing choices. Every one is off until they switch it on;
+/// `marketingUpdatedAt` is the date of the latest choice, and each change is
+/// in the audit log.
+model CustomerPreference {
+  id                String @id @db.Char(26)
+  customerProfileId String @unique(map: "uq_customer_preference_profile") @db.Char(26)
+
+  marketingEmailOptIn Boolean   @default(false)
+  marketingSmsOptIn   Boolean   @default(false)
+  productNewsOptIn    Boolean   @default(false)
+  marketingUpdatedAt  DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_customer_preference_profile")
+
+  @@map("customer_preferences")
+}
 
 // ---------------------------------------------------------------------------
 // SELLER HUB: PRODUCTION, EXPORT DOCUMENTS, TRADE RULES AND BOOKING TERMS

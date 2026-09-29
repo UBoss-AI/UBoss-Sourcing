@@ -1677,6 +1677,18 @@ export const ErrorCode = {
   /// The person already has as many company applications in progress as a
   /// deployment allows.
   BUYER_COMPANY_LIMIT_REACHED: 'BUYER_COMPANY_LIMIT_REACHED',
+  /// That address already has an invitation to this company that can still be
+  /// accepted. Resend it rather than sending a second one.
+  BUYER_COMPANY_INVITATION_EXISTS: 'BUYER_COMPANY_INVITATION_EXISTS',
+  /// The invitation cannot be used: unknown, expired, revoked, already used,
+  /// or addressed to another email. One answer for all five, on purpose.
+  BUYER_COMPANY_INVITATION_INVALID: 'BUYER_COMPANY_INVITATION_INVALID',
+  /// That person is already an active member of the company.
+  BUYER_COMPANY_ALREADY_MEMBER: 'BUYER_COMPANY_ALREADY_MEMBER',
+  /// That member cannot be changed by the caller: the owner, the caller
+  /// themselves, or an administrator when the caller is not the owner.
+  /// `details[0].code` is OWNER, SELF or ADMIN_NEEDS_OWNER.
+  BUYER_COMPANY_MEMBER_PROTECTED: 'BUYER_COMPANY_MEMBER_PROTECTED',
   /// This feature works for the person's own account only, not while buying
   /// for a company - recurring orders are the one today. The storefront offers
   /// to switch to the individual context.
@@ -1850,6 +1862,14 @@ export const ErrorCode = {
   /// A lane rate card is not acceptable: overlapping weight bands, transit
   /// days out of order, validity ending before it starts. 400.
   LOGISTICS_LANE_INVALID: 'LOGISTICS_LANE_INVALID',
+  /// An individual buyer's identity details cannot be changed now: they are
+  /// with a reviewer or already verified. 409. (Master row 11)
+  CUSTOMER_KYC_NOT_EDITABLE: 'CUSTOMER_KYC_NOT_EDITABLE',
+  /// An identity check cannot be sent yet: a required detail or the identity
+  /// document is missing. `details` names what. 400.
+  CUSTOMER_KYC_INCOMPLETE: 'CUSTOMER_KYC_INCOMPLETE',
+  /// The identity check cannot move that way from where it is. 409.
+  CUSTOMER_KYC_TRANSITION_INVALID: 'CUSTOMER_KYC_TRANSITION_INVALID',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

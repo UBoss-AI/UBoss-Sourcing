@@ -46,6 +46,17 @@ import {
   withdrawCompanyDocument,
 } from '../../modules/buyer-companies/documents.service.js';
 import { assertCompaniesEnabled, type Actor } from '../../modules/buyer-companies/shared.js';
+import {
+  ASSIGNABLE_ROLES,
+  acceptInvitation,
+  changeMemberRole,
+  inviteMember,
+  previewInvitation,
+  readTeam,
+  removeMember,
+  resendInvitation,
+  revokeInvitation,
+} from '../../modules/buyer-companies/team.service.js';
 import { currentUser, requireCustomer } from '../plugins/auth.js';
 
 const idParam = z.object({ id: z.string().length(26) });
@@ -150,6 +161,11 @@ const codeSchema = z.object({
     .regex(/^\d{6}$/, 'Enter the six-digit code.'),
 });
 const answerSchema = z.object({ message: z.string().trim().min(1).max(5000) });
+const inviteSchema = z.object({ email: z.string().trim().email().max(320), role: z.enum(ASSIGNABLE_ROLES) });
+const roleSchema = z.object({ role: z.enum(ASSIGNABLE_ROLES) });
+const tokenSchema = z.object({ token: z.string().trim().min(20).max(100) });
+const invitationParam = z.object({ id: z.string().length(26), invitationId: z.string().length(26) });
+const memberParam = z.object({ id: z.string().length(26), memberId: z.string().length(26) });
 
 function actorOf(request: FastifyRequest): Actor & { userAgent: string | null } {
   const auth = currentUser(request);
@@ -362,6 +378,88 @@ export function registerBuyerCompanyRoutes(app: FastifyInstance): Promise<void> 
     await withdrawCompanyDocument(actor.userId ?? '', params.id, params.documentId, actor);
     return reply.status(200).send(await readApplication(actor.userId ?? '', params.id));
   });
+
+  // --- The team: who acts for the company, and as what (Master rows 11, 14) ---
+
+  /** The company's active members and their roles; live invitations for the owner and administrators. */
+  app.get('/:id/team', async (request, reply) => {
+    assertCompaniesEnabled();
+    const { id } = idParam.parse(request.params);
+    return reply.header('cache-control', 'no-store').send(await readTeam(currentUser(request).id, id));
+  });
+
+  /** Invite somebody by email in one role. Owner or administrator of a verified company; only the owner gives the administrator role. */
+  app.post(
+    '/:id/invitations',
+    { config: { rateLimit: { max: 30, timeWindow: '1 hour' } } },
+    async (request, reply) => {
+      assertCompaniesEnabled();
+      const { id } = idParam.parse(request.params);
+      const body = inviteSchema.parse(request.body);
+      const actor = actorOf(request);
+      return reply.status(201).send(await inviteMember({ ...actor, userId: currentUser(request).id }, id, body));
+    },
+  );
+
+  /** Send an invitation again with a new link and a new expiry; the old link stops working. */
+  app.post(
+    '/:id/invitations/:invitationId/resend',
+    { config: { rateLimit: { max: 20, timeWindow: '1 hour' } } },
+    async (request, reply) => {
+      assertCompaniesEnabled();
+      const params = invitationParam.parse(request.params);
+      const actor = actorOf(request);
+      return reply.send(await resendInvitation({ ...actor, userId: currentUser(request).id }, params.id, params.invitationId));
+    },
+  );
+
+  /** Withdraw an invitation nobody has accepted yet. */
+  app.delete('/:id/invitations/:invitationId', async (request, reply) => {
+    assertCompaniesEnabled();
+    const params = invitationParam.parse(request.params);
+    const actor = actorOf(request);
+    return reply.send(await revokeInvitation({ ...actor, userId: currentUser(request).id }, params.id, params.invitationId));
+  });
+
+  /** Change a member's role. Never the owner, never yourself; only the owner changes an administrator. */
+  app.patch('/:id/members/:memberId', async (request, reply) => {
+    assertCompaniesEnabled();
+    const params = memberParam.parse(request.params);
+    const { role } = roleSchema.parse(request.body);
+    const actor = actorOf(request);
+    return reply.send(await changeMemberRole({ ...actor, userId: currentUser(request).id }, params.id, params.memberId, role));
+  });
+
+  /** Remove a member. Their access ends on their next request. */
+  app.delete('/:id/members/:memberId', async (request, reply) => {
+    assertCompaniesEnabled();
+    const params = memberParam.parse(request.params);
+    const actor = actorOf(request);
+    return reply.send(await removeMember({ ...actor, userId: currentUser(request).id }, params.id, params.memberId));
+  });
+
+  /** What an invitation link asks you to join. Only for the signed-in account it was sent to. */
+  app.post(
+    '/invitations/preview',
+    { config: { rateLimit: { max: 30, timeWindow: '15 minutes' } } },
+    async (request, reply) => {
+      assertCompaniesEnabled();
+      const { token } = tokenSchema.parse(request.body);
+      return reply.header('cache-control', 'no-store').send(await previewInvitation(currentUser(request).id, token));
+    },
+  );
+
+  /** Accept an invitation. Your verified email must be the one it was sent to. */
+  app.post(
+    '/invitations/accept',
+    { config: { rateLimit: { max: 10, timeWindow: '15 minutes' } } },
+    async (request, reply) => {
+      assertCompaniesEnabled();
+      const { token } = tokenSchema.parse(request.body);
+      const actor = actorOf(request);
+      return reply.send(await acceptInvitation({ ...actor, userId: currentUser(request).id }, token));
+    },
+  );
 
   return Promise.resolve();
 }

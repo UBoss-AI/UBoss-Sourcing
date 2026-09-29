@@ -47,6 +47,7 @@ import { Permission } from '@/lib/permissions';
 import { customerStatusTone } from '@/lib/customers';
 import type { CustomerLimits } from '@/lib/customers';
 import { VatNumberPanel } from '@/pages/customer/VatNumberPanel';
+import { CustomerKycPanel } from '@/pages/customer/CustomerKycPanel';
 import { useI18n } from '@/i18n/i18n-context';
 
 interface CustomerAddress {
@@ -751,6 +752,8 @@ export function CustomerDetailPage(): React.JSX.Element {
               )}
             </div>
           </Card>
+
+          <CustomerKycPanel customerId={customer.id} />
 
           <Card title={t('customerDetail.consent')}>
             <div className="px-5 py-4 text-sm">

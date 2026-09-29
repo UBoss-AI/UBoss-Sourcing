@@ -2806,6 +2806,20 @@ export type BuyerCompanyLocation = Prisma.BuyerCompanyLocationModel
  */
 export type BuyerCompanyMember = Prisma.BuyerCompanyMemberModel
 /**
+ * Model BuyerCompanyInvitation
+ * An invitation to join a buyer company in one role (Master rows 11 and 14).
+ * 
+ * Sent by an OWNER or COMPANY_ADMIN of an APPROVED company. The raw token goes
+ * into exactly one email; only its SHA-256 is kept, so a copy of this table is
+ * a list of hashes, not a set of working links. Accepting needs a signed-in
+ * account whose verified email is the one invited, so a forwarded link does
+ * not let somebody else in.
+ * 
+ * Rows are never deleted: accepted, revoked and replaced invitations stay as
+ * the record of who asked whom in, as what, and when.
+ */
+export type BuyerCompanyInvitation = Prisma.BuyerCompanyInvitationModel
+/**
  * Model BuyerCompanyApprovalPolicy
  * A buyer company's own rule for who must sign an order off before it can be
  * paid: requestor -> approver -> finance.
@@ -3125,6 +3139,29 @@ export type SearchSynonym = Prisma.SearchSynonymModel
  * only need what was asked and whether anything came back.
  */
 export type SearchQueryLog = Prisma.SearchQueryLogModel
+/**
+ * Model CustomerKyc
+ * An individual buyer's identity and importer details.
+ * 
+ * The identity-document NUMBER is never stored whole: only a masked form
+ * ending in its last four characters. The document itself is a
+ * `CustomerKycDocument`. Importer details are the buyer's own statement and
+ * are never part of what staff verify.
+ */
+export type CustomerKyc = Prisma.CustomerKycModel
+/**
+ * Model CustomerKycDocument
+ * A file an individual buyer uploaded to prove who they are or that they may
+ * import. Stored privately, scanned before it is kept, reviewed by staff.
+ */
+export type CustomerKycDocument = Prisma.CustomerKycDocumentModel
+/**
+ * Model CustomerPreference
+ * A buyer's marketing choices. Every one is off until they switch it on;
+ * `marketingUpdatedAt` is the date of the latest choice, and each change is
+ * in the audit log.
+ */
+export type CustomerPreference = Prisma.CustomerPreferenceModel
 /**
  * Model SellerProductionMilestone
  * One milestone of one seller order group. Written only by

@@ -38,6 +38,7 @@ import {
   LocationIcon,
   ReceiptIcon,
   RepeatIcon,
+  ShieldIcon,
   StarIcon,
   TicketIcon,
   UserIcon,
@@ -51,6 +52,7 @@ export type AccountNavId =
   | 'preorders'
   | 'messages'
   | 'profile'
+  | 'identity'
   | 'company'
   | 'companies'
   | 'addresses'
@@ -138,6 +140,16 @@ export const ACCOUNT_NAV: Readonly<Record<AccountNavId, AccountNavItem>> = {
     labelKey: 'account.nav.profileInformation',
     menuLabelKey: 'account.nav.myProfile',
     icon: UserIcon,
+  },
+  // An individual's identity check and importer details. Beside the profile,
+  // because it is about the same person; company buyers are checked through
+  // the company application instead.
+  identity: {
+    id: 'identity',
+    to: '/account/identity',
+    labelKey: 'account.nav.identity',
+    menuLabelKey: 'account.nav.identity',
+    icon: ShieldIcon,
   },
   company: {
     id: 'company',
@@ -305,7 +317,7 @@ export function accountNavGroups(flags: AccountNavFlags): AccountNavGroup[] {
     },
     {
       titleKey: 'account.group.accountSettings',
-      items: include(['profile', 'company', 'companies', 'addresses', 'region'], flags),
+      items: include(['profile', 'identity', 'company', 'companies', 'addresses', 'region'], flags),
     },
     {
       titleKey: 'account.group.payments',
@@ -342,7 +354,7 @@ export function accountMenuGroups(flags: AccountNavFlags): AccountNavGroup[] {
     },
     {
       titleKey: 'account.group.details',
-      items: include(['companies', 'addresses', 'wishlist', 'reviews', 'notifications', 'erp', 'support'], flags),
+      items: include(['identity', 'companies', 'addresses', 'wishlist', 'reviews', 'notifications', 'erp', 'support'], flags),
     },
   ];
 

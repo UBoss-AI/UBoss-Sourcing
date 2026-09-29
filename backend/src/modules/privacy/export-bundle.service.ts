@@ -124,6 +124,12 @@ export const SECTIONS = Object.freeze({
     // role, credentials and when their identity was checked. The agency's jobs
     // and reports are the agency's and are not included.
     'inspectionAgencyMembership',
+    // Their identity check as they entered it (the document number only ever
+    // masked), their importer details, the files they uploaded (names and
+    // types - the bytes are theirs to download from their account) and their
+    // marketing choices with the date of the latest one.
+    'identityCheck',
+    'marketingPreferences',
     // Their standing authority to be charged, and the evidence of when they
     // gave it. Disclosed in full: it is the record a subject would want if they
     // ever disputed a charge.
@@ -981,6 +987,54 @@ export async function buildCustomerBundle(
     dataRequests,
     supportTickets,
     termsAcceptances,
+
+    identityCheck: await (async () => {
+      if (profile === null) return null;
+      const kyc = await prisma.customerKyc.findUnique({ where: { customerProfileId: profile.id } });
+      const files = await prisma.customerKycDocument.findMany({
+        where: { customerProfileId: profile.id },
+        orderBy: { createdAt: 'asc' },
+        select: { kind: true, status: true, fileName: true, mimeType: true, sizeBytes: true, reviewNote: true, createdAt: true },
+      });
+      if (kyc === null && files.length === 0) return null;
+      return {
+        status: kyc?.status ?? 'NOT_STARTED',
+        legalName: kyc?.legalName ?? null,
+        dateOfBirth: kyc?.dateOfBirth?.toISOString().slice(0, 10) ?? null,
+        nationality: kyc?.nationality ?? null,
+        residenceCountry: kyc?.residenceCountry ?? null,
+        idDocumentType: kyc?.idDocumentType ?? null,
+        idDocumentNumberMasked: kyc?.idDocumentNumberMasked ?? null,
+        idDocumentExpiresOn: kyc?.idDocumentExpiresOn?.toISOString().slice(0, 10) ?? null,
+        submittedAt: iso(kyc?.submittedAt),
+        reviewedAt: iso(kyc?.reviewedAt),
+        reviewNote: kyc?.reviewNote ?? null,
+        importer: {
+          isImporter: kyc?.isImporter ?? false,
+          importerName: kyc?.importerName ?? null,
+          eoriNumber: kyc?.eoriNumber ?? null,
+          importerTaxId: kyc?.importerTaxId ?? null,
+          importLicenceNumber: kyc?.importLicenceNumber ?? null,
+          customsBrokerName: kyc?.customsBrokerName ?? null,
+          customsBrokerEmail: kyc?.customsBrokerEmail ?? null,
+          preferredIncoterm: kyc?.preferredIncoterm ?? null,
+        },
+        files: files.map((file) => ({ ...file, createdAt: iso(file.createdAt) })),
+      };
+    })(),
+
+    marketingPreferences: await (async () => {
+      if (profile === null) return null;
+      const row = await prisma.customerPreference.findUnique({ where: { customerProfileId: profile.id } });
+      return row === null
+        ? null
+        : {
+            marketingEmail: row.marketingEmailOptIn,
+            marketingSms: row.marketingSmsOptIn,
+            productNews: row.productNewsOptIn,
+            lastChangedAt: iso(row.marketingUpdatedAt),
+          };
+    })(),
 
     /*
      * Their claims and chargebacks.

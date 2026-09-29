@@ -350,3 +350,83 @@ export function statusTone(status: BuyerCompanyStatus): 'success' | 'warning' | 
       return 'brand';
   }
 }
+
+// ---------------------------------------------------------------------------
+// The team (Master rows 11 and 14). The backend decides every rule - who may
+// invite, which roles they may give, who is protected - and says so in the
+// view; this file only carries it.
+// ---------------------------------------------------------------------------
+
+export type AssignableRole = Exclude<BuyerCompanyRole, 'OWNER'>;
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  role: BuyerCompanyRole;
+  joinedAt: string;
+  isYou: boolean;
+  canChange: boolean;
+}
+
+export interface TeamInvitation {
+  id: string;
+  email: string;
+  role: BuyerCompanyRole;
+  expiresAt: string;
+  expired: boolean;
+  sendCount: number;
+  lastSentAt: string;
+  canChange: boolean;
+}
+
+export interface CompanyTeam {
+  companyStatus: BuyerCompanyStatus;
+  yourRole: BuyerCompanyRole;
+  manageBlocked: 'ROLE' | 'NOT_APPROVED' | null;
+  assignableRoles: AssignableRole[];
+  members: TeamMember[];
+  invitations: TeamInvitation[];
+}
+
+export const teamQueryKey = (id: string): readonly unknown[] => ['buyer-company', id, 'team'];
+
+export function fetchTeam(id: string): Promise<CompanyTeam> {
+  return api.get(`/buyer-companies/${id}/team`);
+}
+
+export function inviteToTeam(id: string, input: { email: string; role: AssignableRole }): Promise<CompanyTeam> {
+  return api.post(`/buyer-companies/${id}/invitations`, input);
+}
+
+export function resendTeamInvitation(id: string, invitationId: string): Promise<CompanyTeam> {
+  return api.post(`/buyer-companies/${id}/invitations/${invitationId}/resend`);
+}
+
+export function revokeTeamInvitation(id: string, invitationId: string): Promise<CompanyTeam> {
+  return api.delete(`/buyer-companies/${id}/invitations/${invitationId}`);
+}
+
+export function changeTeamRole(id: string, memberId: string, role: AssignableRole): Promise<CompanyTeam> {
+  return api.patch(`/buyer-companies/${id}/members/${memberId}`, { role });
+}
+
+export function removeFromTeam(id: string, memberId: string): Promise<CompanyTeam> {
+  return api.delete(`/buyer-companies/${id}/members/${memberId}`);
+}
+
+export interface InvitationPreview {
+  companyName: string;
+  role: BuyerCompanyRole;
+  expiresAt: string;
+  inviterName: string;
+}
+
+/** The token travels in the body, never in a URL the server logs. */
+export function previewCompanyInvitation(token: string): Promise<InvitationPreview> {
+  return api.post('/buyer-companies/invitations/preview', { token });
+}
+
+export function acceptCompanyInvitation(token: string): Promise<{ companyId: string }> {
+  return api.post('/buyer-companies/invitations/accept', { token });
+}

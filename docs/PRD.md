@@ -356,10 +356,9 @@ These are deliberately **not** what this product is trying to be.
   | `VIEWER` | See the company's orders, application and status |
 
   Only `OWNER` and `COMPANY_ADMIN` may edit the application. `OWNER`,
-  `COMPANY_ADMIN` and `BUYER` may buy. **Inviting other members is not built**: the roles and the
-  capability model exist, but there is no invitation screen or endpoint, so
-  today a company has one member, its owner. Gap **M1** is therefore
-  **Partial**.
+  `COMPANY_ADMIN` and `BUYER` may buy. The owner and administrators of an
+  approved company invite colleagues by email and change or remove them
+  (FR-BCO-019). Gap **M1** stays **Partial** for the parts listed under it.
 - **Buyer companies are not buyer organisations.** The **buyer's ERP
   integration** has its own **buyer organisation** with three nested roles
   (Owner, Integration manager, Member) joined by single-use invitation. That
@@ -878,6 +877,49 @@ How each requirement is written:
 - **Status.** Built (API: 29 Sep 2026 pass 3; profile panel: 29 Sep 2026,
   checklist Master row 10).
 
+### FR-IDN-020 — Individual buyer identity check, importer details and marketing choices
+
+- **Statement.** An individual buyer can fill in their identity details
+  (legal name, date of birth, nationality, country of residence, identity
+  document type, number and expiry), upload documents (identity document,
+  proof of address, import licence, tax registration, other) and send the
+  check for review, on **Identity and import** (`/account/identity`). They
+  can record importer-of-record details (EORI, tax number, import licence,
+  customs broker, preferred Incoterm) and choose three marketing options on
+  the profile page. Staff read the check on the customer page and decide it.
+- **Rules.**
+  1. The check moves only through `domain/customer-kyc-state.ts`:
+     NOT_STARTED → SUBMITTED (buyer) → VERIFIED or REJECTED (staff);
+     REJECTED or EXPIRED → SUBMITTED (buyer); VERIFIED → REJECTED (staff
+     withdraws it) or EXPIRED.
+  2. Identity details and identity documents are locked while SUBMITTED or
+     VERIFIED. Importer details are always editable and never "verified".
+  3. Sending needs every identity detail and an identity document waiting
+     or accepted (`CUSTOMER_KYC_INCOMPLETE`). Verifying needs an accepted
+     identity document. Refusing a document or the check needs a reason,
+     which the buyer sees.
+  4. The document number is stored masked (last characters only); the whole
+     number is never kept or returned.
+  5. Files are sniffed, malware-scanned and stored privately (at most ten
+     active). Staff open them with `buyer_company.review`; every opening is
+     audited. Reading the check needs `customer.read`.
+  6. Marketing choices (email, SMS, product news) are all off until the
+     buyer turns one on; every change is audited with its time.
+  7. All three records are in the GDPR export and removed by erasure.
+  8. A VERIFIED check whose identity document has passed its expiry date
+     becomes EXPIRED the first time it is read after that date, written by
+     the system and audited (`customer_kyc.expired`). A lapsed document is
+     refused when the buyer sends the check and when staff verify it.
+  9. A staff decision states the status the reviewer saw
+     (`expectedStatus`). If the check moved on meanwhile - a colleague
+     decided, or it expired - the decision is refused (409, detail
+     `STALE`) instead of overturning what happened. Every status change is
+     conditional on the version read, so two decisions at once give one
+     winner.
+- **Status.** Built (29 Sep 2026, checklist Master row 11). Company buyers
+  are checked through the company application (FR on buyer companies)
+  instead.
+
 ### FR-IDN-010 — Staff sign-in location check
 
 - **Statement.** When switched on, the console asks the browser for the
@@ -1184,8 +1226,49 @@ all absent (`BUYER_COMPANIES_DISABLED`).
 - **Not built.**
   - **Recurring and scheduled orders in company context** are refused (`403 BUYER_CONTEXT_UNSUPPORTED`), because the scheduling worker only knows a person's profile.
   - **Company tax treatment:** tax and VAT pricing in company context still use the person's own profile (for example, the VAT number used for zero-rating).
-  - **Approving another member's order** (`ORDER_APPROVER`), company finance screens (`FINANCE`) and **inviting and removing members** (`MANAGE_MEMBERS`): the capabilities are defined, nothing uses them yet.
+  - **Approving another member's order** (`ORDER_APPROVER`) and company finance screens (`FINANCE`): the capabilities are defined, nothing uses them yet. Inviting and removing members (`MANAGE_MEMBERS`) is built: FR-BCO-019.
 - **Status.** Behind a flag, with the gaps above **Not built**.
+
+### FR-BCO-019 — A company's team: invitations, roles and removal
+
+- **Statement.** The owner and administrators of an approved company invite
+  colleagues by email in one role, resend or withdraw an invitation, change a
+  member's role and remove a member, in the **Team** panel on the company page
+  (`/account/companies/:id`). The person invited opens the emailed link,
+  signs in (or creates an account) with that address, sees the company, the
+  inviter and the role, and presses **Accept and join**
+  (`/account/join-company`). Every member sees who else is in the company.
+- **Rules.**
+  1. Managing the team needs `MANAGE_MEMBERS` (OWNER, COMPANY_ADMIN) and an
+     approved company; before approval the panel says why
+     (`BUYER_COMPANY_NOT_APPROVED`).
+  2. OWNER is never given by invitation or role change, and the owner cannot
+     be changed or removed, so a company always keeps the person who can
+     manage it. Only the owner gives, changes or removes COMPANY_ADMIN. Nobody
+     changes or removes themselves (`BUYER_COMPANY_MEMBER_PROTECTED`, detail
+     OWNER, SELF or ADMIN_NEEDS_OWNER).
+  3. One live invitation per address per company
+     (`BUYER_COMPANY_INVITATION_EXISTS`); an existing member is refused
+     (`BUYER_COMPANY_ALREADY_MEMBER`). An expired invitation is replaced by
+     a new one.
+  4. The link carries a single-use token; only its SHA-256 is stored. It
+     works for `BUYER_COMPANY_INVITE_TTL_HOURS` (default a week). Resending
+     sends a new link, restarts the period and stops the old link; one
+     invitation is sent at most five times.
+  5. Accepting needs a signed-in account whose verified email is the one
+     invited. Unknown, expired, withdrawn, used and misaddressed links all get
+     the same answer (`BUYER_COMPANY_INVITATION_INVALID`). Two clicks make
+     one membership. A former member is restored on the same record.
+  6. A removal or role change takes effect on the member's next request,
+     because the buyer context is re-read on every request.
+  7. Everything is scoped to the caller's membership: another company's
+     team, invitation or member reads as not found. Every act is audited
+     (`buyer_company.member_invited`, `invitation_resent`,
+     `invitation_revoked`, `invitation_accepted`, `member_role_changed`,
+     `member_removed`).
+  8. The email is written in the inviter's language, because the person
+     invited may have no account yet.
+- **Status.** Built (29 Sep 2026, checklist Master rows 11 and 14).
 
 ### FR-BCO-016 — Notifications
 
@@ -5685,6 +5768,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 |---|---|---|
 | `FEATURE_BUYER_COMPANIES` | `true` | The whole feature (§10.1). The public config reports it as `features.buyerCompanies` |
 | `BUYER_COMPANY_MAX_OPEN_APPLICATIONS` | 3 | Unfinished applications per person |
+| `BUYER_COMPANY_INVITE_TTL_HOURS` | 168 | Hours an invitation to join a company can be accepted; resending restarts it |
 | `BUYER_COMPANY_DOCUMENT_MAX_BYTES` | 10,000,000 | Largest document upload |
 | `BUYER_COMPANY_DOCUMENT_MAX_PAGES` | 50 | Most pages in a PDF |
 | `BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS` | `false` | Serve documents no scanner has cleared. Development only; refused in production |
@@ -5764,7 +5848,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 
 | # | Gap | What it blocks | Source |
 |---|---|---|---|
-| M1 | **More than one buyer per buying business** (shared ordering, shared limits). **Partial:** verified buyer companies with company roles and a server-held buyer context are built (§5.1a); **inviting members, approving another member's order, company finance screens and shared limits are not built** | Procurement teams | PRODUCT-READINESS §4 |
+| M1 | **More than one buyer per buying business** (shared ordering, shared limits). **Partial:** verified buyer companies with company roles, a server-held buyer context and member invitations (FR-BCO-019) are built (§5.1a); **approving another member's order, company finance screens and shared limits are not built** | Procurement teams | PRODUCT-READINESS §4 |
 | M8 | **Recurring and scheduled orders in company context** (refused with `BUYER_CONTEXT_UNSUPPORTED`) | Standing orders bought for a company | FR-BCO-015 |
 | M9 | **Company tax treatment** — tax and VAT in company context still use the person's own profile | Zero-rating on the company's own VAT number | FR-BCO-015 |
 | M10 | **Live CEIDG, REGON and Indian registry checks** — manual with official links | Faster review for Polish sole traders and Indian businesses | FR-BCO-008 |
@@ -5811,7 +5895,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 
 - The operator runs MariaDB 11.4 in production and has HTTPS for every surface.
 - The operator configures at least one payment gateway with a webhook secret, SMTP, S3-compatible storage and ClamAV before going live.
-- Buyers are businesses; one person per buying account (and one member, its owner, per buyer company) is acceptable until member invitations (M1) are built.
+- Buyers are businesses; one person per individual buying account is acceptable. A buyer company may have many members (FR-BCO-019).
 - The operator enters a real price per currency for every market it sells in.
 - Tax rates, thresholds and filings are checked with the operator's accountant.
 - Sellers who want API carriers hold their own commercial carrier accounts.

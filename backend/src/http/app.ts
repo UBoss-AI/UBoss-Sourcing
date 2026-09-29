@@ -51,6 +51,7 @@ import { registerAdminCatalogRoutes } from './routes/catalog.admin.js';
 import { registerAdminTranslationRoutes } from './routes/translations.admin.js';
 import { registerCartRoutes } from './routes/cart.customer.js';
 import { registerAdminCustomerRoutes } from './routes/customers.admin.js';
+import { registerAdminCustomerKycRoutes, registerCustomerKycRoutes } from './routes/customer-kyc.js';
 import { registerAdminDirectoryRoutes } from './routes/directory.admin.js';
 import { registerAdminInventoryRoutes } from './routes/inventory.admin.js';
 import { registerAdminSettingsRoutes } from './routes/settings.admin.js';
@@ -679,6 +680,7 @@ export async function buildApp() {
   await app.register(registerAdminCatalogRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminTranslationRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminCustomerRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerAdminCustomerKycRoutes, { prefix: `${API_PREFIX}/admin` });
   /*
    * Every company that reaches this marketplace, in one tree: who buys, who
    * sells, who carries, and which accounts belong to the same business. Read
@@ -699,6 +701,8 @@ export async function buildApp() {
   // Customer self-service. Every handler derives the profile from the session,
   // so there is no id-taking endpoint to forget an ownership check on.
   await app.register(registerCustomerAccountRoutes, { prefix: `${API_PREFIX}/account` });
+  // An individual buyer's identity check, importer details and marketing choices (Master row 11).
+  await app.register(registerCustomerKycRoutes, { prefix: `${API_PREFIX}/account` });
   await app.register(registerCartRoutes, { prefix: `${API_PREFIX}/cart` });
 
   // Which warehouse will send this order, when it arrives, and what it costs.

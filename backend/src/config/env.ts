@@ -1762,6 +1762,9 @@ const envSchema = z
     /// Applications one person may have open (not approved, not rejected) at
     /// once. Stops a single account filling the review queue.
     BUYER_COMPANY_MAX_OPEN_APPLICATIONS: intFromString(1, 50).default(3),
+    /// How long an invitation to join a company can be accepted, in hours.
+    /// A week by default; resending starts the period again.
+    BUYER_COMPANY_INVITE_TTL_HOURS: intFromString(1, 720).default(168),
 
     /// Largest company document accepted, in bytes. 10 MB by default.
     BUYER_COMPANY_DOCUMENT_MAX_BYTES: intFromString(100_000, 50_000_000).default(10_000_000),

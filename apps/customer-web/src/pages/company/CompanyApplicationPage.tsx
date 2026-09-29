@@ -42,6 +42,7 @@ import { errorMessage } from '@/lib/errors';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { formatDate } from './application-logic';
 import { FormAlert } from './application-parts';
+import { CompanyTeamPanel } from './CompanyTeamPanel';
 import { CompanyWizard, DocumentRequirementBlock } from './CompanyWizard';
 
 export function CompanyApplicationPage(): React.JSX.Element {
@@ -100,6 +101,8 @@ function ApplicationView({ application }: { application: CompanyApplication }): 
       {showWizard ? <CompanyWizard application={application} /> : <SubmittedSummary application={application} />}
 
       {sentBack && application.actions.resubmit && <ResubmitBar application={application} />}
+
+      <CompanyTeamPanel companyId={application.id} />
 
       <Timeline application={application} />
     </div>

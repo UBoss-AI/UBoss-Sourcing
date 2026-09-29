@@ -394,6 +394,9 @@ export type CustomerProfileWhereInput = {
   preorderChats?: Prisma.PreorderChatConversationListRelationFilter
   preorderChatBlock?: Prisma.XOR<Prisma.PreorderChatCustomerBlockNullableScalarRelationFilter, Prisma.PreorderChatCustomerBlockWhereInput> | null
   organizationMembership?: Prisma.XOR<Prisma.BuyerOrganizationMemberNullableScalarRelationFilter, Prisma.BuyerOrganizationMemberWhereInput> | null
+  kyc?: Prisma.XOR<Prisma.CustomerKycNullableScalarRelationFilter, Prisma.CustomerKycWhereInput> | null
+  kycDocuments?: Prisma.CustomerKycDocumentListRelationFilter
+  preferences?: Prisma.XOR<Prisma.CustomerPreferenceNullableScalarRelationFilter, Prisma.CustomerPreferenceWhereInput> | null
   sellerMembership?: Prisma.XOR<Prisma.SellerMemberNullableScalarRelationFilter, Prisma.SellerMemberWhereInput> | null
   disputes?: Prisma.DisputeListRelationFilter
 }
@@ -448,6 +451,9 @@ export type CustomerProfileOrderByWithRelationInput = {
   preorderChats?: Prisma.PreorderChatConversationOrderByRelationAggregateInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockOrderByWithRelationInput
   organizationMembership?: Prisma.BuyerOrganizationMemberOrderByWithRelationInput
+  kyc?: Prisma.CustomerKycOrderByWithRelationInput
+  kycDocuments?: Prisma.CustomerKycDocumentOrderByRelationAggregateInput
+  preferences?: Prisma.CustomerPreferenceOrderByWithRelationInput
   sellerMembership?: Prisma.SellerMemberOrderByWithRelationInput
   disputes?: Prisma.DisputeOrderByRelationAggregateInput
   _relevance?: Prisma.CustomerProfileOrderByRelevanceInput
@@ -506,6 +512,9 @@ export type CustomerProfileWhereUniqueInput = Prisma.AtLeast<{
   preorderChats?: Prisma.PreorderChatConversationListRelationFilter
   preorderChatBlock?: Prisma.XOR<Prisma.PreorderChatCustomerBlockNullableScalarRelationFilter, Prisma.PreorderChatCustomerBlockWhereInput> | null
   organizationMembership?: Prisma.XOR<Prisma.BuyerOrganizationMemberNullableScalarRelationFilter, Prisma.BuyerOrganizationMemberWhereInput> | null
+  kyc?: Prisma.XOR<Prisma.CustomerKycNullableScalarRelationFilter, Prisma.CustomerKycWhereInput> | null
+  kycDocuments?: Prisma.CustomerKycDocumentListRelationFilter
+  preferences?: Prisma.XOR<Prisma.CustomerPreferenceNullableScalarRelationFilter, Prisma.CustomerPreferenceWhereInput> | null
   sellerMembership?: Prisma.XOR<Prisma.SellerMemberNullableScalarRelationFilter, Prisma.SellerMemberWhereInput> | null
   disputes?: Prisma.DisputeListRelationFilter
 }, "id" | "userId" | "customerCode">
@@ -629,6 +638,9 @@ export type CustomerProfileCreateInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -682,6 +694,9 @@ export type CustomerProfileUncheckedCreateInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -735,6 +750,9 @@ export type CustomerProfileUpdateInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -788,6 +806,9 @@ export type CustomerProfileUncheckedUpdateInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -1337,6 +1358,48 @@ export type CustomerProfileUpdateOneRequiredWithoutPreorderChatBlockNestedInput 
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutPreorderChatBlockInput, Prisma.CustomerProfileUpdateWithoutPreorderChatBlockInput>, Prisma.CustomerProfileUncheckedUpdateWithoutPreorderChatBlockInput>
 }
 
+export type CustomerProfileCreateNestedOneWithoutKycInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutKycInput, Prisma.CustomerProfileUncheckedCreateWithoutKycInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutKycInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+}
+
+export type CustomerProfileUpdateOneRequiredWithoutKycNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutKycInput, Prisma.CustomerProfileUncheckedCreateWithoutKycInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutKycInput
+  upsert?: Prisma.CustomerProfileUpsertWithoutKycInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutKycInput, Prisma.CustomerProfileUpdateWithoutKycInput>, Prisma.CustomerProfileUncheckedUpdateWithoutKycInput>
+}
+
+export type CustomerProfileCreateNestedOneWithoutKycDocumentsInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutKycDocumentsInput, Prisma.CustomerProfileUncheckedCreateWithoutKycDocumentsInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutKycDocumentsInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+}
+
+export type CustomerProfileUpdateOneRequiredWithoutKycDocumentsNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutKycDocumentsInput, Prisma.CustomerProfileUncheckedCreateWithoutKycDocumentsInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutKycDocumentsInput
+  upsert?: Prisma.CustomerProfileUpsertWithoutKycDocumentsInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutKycDocumentsInput, Prisma.CustomerProfileUpdateWithoutKycDocumentsInput>, Prisma.CustomerProfileUncheckedUpdateWithoutKycDocumentsInput>
+}
+
+export type CustomerProfileCreateNestedOneWithoutPreferencesInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutPreferencesInput, Prisma.CustomerProfileUncheckedCreateWithoutPreferencesInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutPreferencesInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+}
+
+export type CustomerProfileUpdateOneRequiredWithoutPreferencesNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutPreferencesInput, Prisma.CustomerProfileUncheckedCreateWithoutPreferencesInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutPreferencesInput
+  upsert?: Prisma.CustomerProfileUpsertWithoutPreferencesInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutPreferencesInput, Prisma.CustomerProfileUpdateWithoutPreferencesInput>, Prisma.CustomerProfileUncheckedUpdateWithoutPreferencesInput>
+}
+
 export type CustomerProfileCreateWithoutUserInput = {
   id: string
   fullName: string
@@ -1385,6 +1448,9 @@ export type CustomerProfileCreateWithoutUserInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -1437,6 +1503,9 @@ export type CustomerProfileUncheckedCreateWithoutUserInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -1505,6 +1574,9 @@ export type CustomerProfileUpdateWithoutUserInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -1557,6 +1629,9 @@ export type CustomerProfileUncheckedUpdateWithoutUserInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -1609,6 +1684,9 @@ export type CustomerProfileCreateWithoutAddressesInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -1661,6 +1739,9 @@ export type CustomerProfileUncheckedCreateWithoutAddressesInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -1729,6 +1810,9 @@ export type CustomerProfileUpdateWithoutAddressesInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -1781,6 +1865,9 @@ export type CustomerProfileUncheckedUpdateWithoutAddressesInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -1833,6 +1920,9 @@ export type CustomerProfileCreateWithoutCartsInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -1885,6 +1975,9 @@ export type CustomerProfileUncheckedCreateWithoutCartsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -1953,6 +2046,9 @@ export type CustomerProfileUpdateWithoutCartsInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -2005,6 +2101,9 @@ export type CustomerProfileUncheckedUpdateWithoutCartsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -2057,6 +2156,9 @@ export type CustomerProfileCreateWithoutOrdersInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -2109,6 +2211,9 @@ export type CustomerProfileUncheckedCreateWithoutOrdersInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -2177,6 +2282,9 @@ export type CustomerProfileUpdateWithoutOrdersInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -2229,6 +2337,9 @@ export type CustomerProfileUncheckedUpdateWithoutOrdersInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -2281,6 +2392,9 @@ export type CustomerProfileCreateWithoutSchedulesInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -2333,6 +2447,9 @@ export type CustomerProfileUncheckedCreateWithoutSchedulesInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -2401,6 +2518,9 @@ export type CustomerProfileUpdateWithoutSchedulesInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -2453,6 +2573,9 @@ export type CustomerProfileUncheckedUpdateWithoutSchedulesInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -2505,6 +2628,9 @@ export type CustomerProfileCreateWithoutPaymentMethodsInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -2557,6 +2683,9 @@ export type CustomerProfileUncheckedCreateWithoutPaymentMethodsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -2625,6 +2754,9 @@ export type CustomerProfileUpdateWithoutPaymentMethodsInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -2677,6 +2809,9 @@ export type CustomerProfileUncheckedUpdateWithoutPaymentMethodsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -2729,6 +2864,9 @@ export type CustomerProfileCreateWithoutProviderCustomersInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -2781,6 +2919,9 @@ export type CustomerProfileUncheckedCreateWithoutProviderCustomersInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -2849,6 +2990,9 @@ export type CustomerProfileUpdateWithoutProviderCustomersInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -2901,6 +3045,9 @@ export type CustomerProfileUncheckedUpdateWithoutProviderCustomersInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -2953,6 +3100,9 @@ export type CustomerProfileCreateWithoutFulfilmentQuotesInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -3005,6 +3155,9 @@ export type CustomerProfileUncheckedCreateWithoutFulfilmentQuotesInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -3073,6 +3226,9 @@ export type CustomerProfileUpdateWithoutFulfilmentQuotesInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -3125,6 +3281,9 @@ export type CustomerProfileUncheckedUpdateWithoutFulfilmentQuotesInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -3177,6 +3336,9 @@ export type CustomerProfileCreateWithoutCouponRedemptionsInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -3229,6 +3391,9 @@ export type CustomerProfileUncheckedCreateWithoutCouponRedemptionsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -3297,6 +3462,9 @@ export type CustomerProfileUpdateWithoutCouponRedemptionsInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -3349,6 +3517,9 @@ export type CustomerProfileUncheckedUpdateWithoutCouponRedemptionsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -3401,6 +3572,9 @@ export type CustomerProfileCreateWithoutLimitsInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -3453,6 +3627,9 @@ export type CustomerProfileUncheckedCreateWithoutLimitsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -3521,6 +3698,9 @@ export type CustomerProfileUpdateWithoutLimitsInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -3573,6 +3753,9 @@ export type CustomerProfileUncheckedUpdateWithoutLimitsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -3625,6 +3808,9 @@ export type CustomerProfileCreateWithoutAssistantConversationsInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -3677,6 +3863,9 @@ export type CustomerProfileUncheckedCreateWithoutAssistantConversationsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -3745,6 +3934,9 @@ export type CustomerProfileUpdateWithoutAssistantConversationsInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -3797,6 +3989,9 @@ export type CustomerProfileUncheckedUpdateWithoutAssistantConversationsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -3849,6 +4044,9 @@ export type CustomerProfileCreateWithoutAutoPaySettingInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -3901,6 +4099,9 @@ export type CustomerProfileUncheckedCreateWithoutAutoPaySettingInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -3969,6 +4170,9 @@ export type CustomerProfileUpdateWithoutAutoPaySettingInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -4021,6 +4225,9 @@ export type CustomerProfileUncheckedUpdateWithoutAutoPaySettingInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -4073,6 +4280,9 @@ export type CustomerProfileCreateWithoutWishlistItemsInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -4125,6 +4335,9 @@ export type CustomerProfileUncheckedCreateWithoutWishlistItemsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -4193,6 +4406,9 @@ export type CustomerProfileUpdateWithoutWishlistItemsInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -4245,6 +4461,9 @@ export type CustomerProfileUncheckedUpdateWithoutWishlistItemsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -4297,6 +4516,9 @@ export type CustomerProfileCreateWithoutProductInstructionsInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -4349,6 +4571,9 @@ export type CustomerProfileUncheckedCreateWithoutProductInstructionsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -4417,6 +4642,9 @@ export type CustomerProfileUpdateWithoutProductInstructionsInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -4469,6 +4697,9 @@ export type CustomerProfileUncheckedUpdateWithoutProductInstructionsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -4521,6 +4752,9 @@ export type CustomerProfileCreateWithoutProductReviewsInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -4573,6 +4807,9 @@ export type CustomerProfileUncheckedCreateWithoutProductReviewsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -4641,6 +4878,9 @@ export type CustomerProfileUpdateWithoutProductReviewsInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -4693,6 +4933,9 @@ export type CustomerProfileUncheckedUpdateWithoutProductReviewsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -4745,6 +4988,9 @@ export type CustomerProfileCreateWithoutSupportTicketsInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -4797,6 +5043,9 @@ export type CustomerProfileUncheckedCreateWithoutSupportTicketsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -4865,6 +5114,9 @@ export type CustomerProfileUpdateWithoutSupportTicketsInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -4917,6 +5169,9 @@ export type CustomerProfileUncheckedUpdateWithoutSupportTicketsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -4970,6 +5225,9 @@ export type CustomerProfileCreateWithoutDisputesInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
 }
 
@@ -5022,6 +5280,9 @@ export type CustomerProfileUncheckedCreateWithoutDisputesInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
 }
 
@@ -5090,6 +5351,9 @@ export type CustomerProfileUpdateWithoutDisputesInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
 }
 
@@ -5142,6 +5406,9 @@ export type CustomerProfileUncheckedUpdateWithoutDisputesInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
 }
 
@@ -5193,6 +5460,9 @@ export type CustomerProfileCreateWithoutOrganizationMembershipInput = {
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutCustomerProfileInput
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -5245,6 +5515,9 @@ export type CustomerProfileUncheckedCreateWithoutOrganizationMembershipInput = {
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -5313,6 +5586,9 @@ export type CustomerProfileUpdateWithoutOrganizationMembershipInput = {
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutCustomerProfileNestedInput
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -5365,6 +5641,9 @@ export type CustomerProfileUncheckedUpdateWithoutOrganizationMembershipInput = {
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -5418,6 +5697,9 @@ export type CustomerProfileCreateWithoutSellerMembershipInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -5470,6 +5752,9 @@ export type CustomerProfileUncheckedCreateWithoutSellerMembershipInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -5538,6 +5823,9 @@ export type CustomerProfileUpdateWithoutSellerMembershipInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
 
@@ -5590,6 +5878,9 @@ export type CustomerProfileUncheckedUpdateWithoutSellerMembershipInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
@@ -5641,6 +5932,9 @@ export type CustomerProfileCreateWithoutPreorderRequestsInput = {
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -5693,6 +5987,9 @@ export type CustomerProfileUncheckedCreateWithoutPreorderRequestsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -5761,6 +6058,9 @@ export type CustomerProfileUpdateWithoutPreorderRequestsInput = {
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -5813,6 +6113,9 @@ export type CustomerProfileUncheckedUpdateWithoutPreorderRequestsInput = {
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -5865,6 +6168,9 @@ export type CustomerProfileCreateWithoutPreorderChatsInput = {
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -5917,6 +6223,9 @@ export type CustomerProfileUncheckedCreateWithoutPreorderChatsInput = {
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -5985,6 +6294,9 @@ export type CustomerProfileUpdateWithoutPreorderChatsInput = {
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -6037,6 +6349,9 @@ export type CustomerProfileUncheckedUpdateWithoutPreorderChatsInput = {
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -6089,6 +6404,9 @@ export type CustomerProfileCreateWithoutPreorderChatBlockInput = {
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutCustomerProfileInput
   preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
 }
@@ -6141,6 +6459,9 @@ export type CustomerProfileUncheckedCreateWithoutPreorderChatBlockInput = {
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutCustomerProfileInput
   preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
   sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
   disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
@@ -6209,6 +6530,9 @@ export type CustomerProfileUpdateWithoutPreorderChatBlockInput = {
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutCustomerProfileNestedInput
   preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -6261,6 +6585,717 @@ export type CustomerProfileUncheckedUpdateWithoutPreorderChatBlockInput = {
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutCustomerProfileNestedInput
   preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
   organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileCreateWithoutKycInput = {
+  id: string
+  fullName: string
+  firstName?: string | null
+  lastName?: string | null
+  organization?: string | null
+  department?: string | null
+  jobTitle?: string | null
+  phone?: string | null
+  gstin?: string | null
+  customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
+  requiresOrderApproval?: boolean
+  internalNotes?: string | null
+  preferredCountry?: string | null
+  preferredCurrency?: string | null
+  localeChosenAt?: Date | string | null
+  detectedCountry?: string | null
+  detectedAt?: Date | string | null
+  consentAcceptedAt?: Date | string | null
+  consentVersion?: string | null
+  invitedById?: string | null
+  invitedAt?: Date | string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCustomerProfileInput
+  addresses?: Prisma.AddressCreateNestedManyWithoutCustomerProfileInput
+  carts?: Prisma.CartCreateNestedManyWithoutCustomerProfileInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCustomerProfileInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutCustomerProfileInput
+  paymentMethods?: Prisma.CustomerPaymentMethodCreateNestedManyWithoutCustomerProfileInput
+  providerCustomers?: Prisma.PaymentProviderCustomerCreateNestedManyWithoutCustomerProfileInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
+  couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  productInstructions?: Prisma.ProductInstructionCreateNestedManyWithoutCustomerProfileInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutCustomerProfileInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
+  assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutCustomerProfileInput
+  preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
+  preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
+  sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
+}
+
+export type CustomerProfileUncheckedCreateWithoutKycInput = {
+  id: string
+  userId: string
+  fullName: string
+  firstName?: string | null
+  lastName?: string | null
+  organization?: string | null
+  department?: string | null
+  jobTitle?: string | null
+  phone?: string | null
+  gstin?: string | null
+  customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
+  requiresOrderApproval?: boolean
+  internalNotes?: string | null
+  preferredCountry?: string | null
+  preferredCurrency?: string | null
+  localeChosenAt?: Date | string | null
+  detectedCountry?: string | null
+  detectedAt?: Date | string | null
+  consentAcceptedAt?: Date | string | null
+  consentVersion?: string | null
+  invitedById?: string | null
+  invitedAt?: Date | string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  addresses?: Prisma.AddressUncheckedCreateNestedManyWithoutCustomerProfileInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutCustomerProfileInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerProfileInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutCustomerProfileInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUncheckedCreateNestedManyWithoutCustomerProfileInput
+  providerCustomers?: Prisma.PaymentProviderCustomerUncheckedCreateNestedManyWithoutCustomerProfileInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
+  couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  productInstructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutCustomerProfileInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
+  assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
+  sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
+}
+
+export type CustomerProfileCreateOrConnectWithoutKycInput = {
+  where: Prisma.CustomerProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutKycInput, Prisma.CustomerProfileUncheckedCreateWithoutKycInput>
+}
+
+export type CustomerProfileUpsertWithoutKycInput = {
+  update: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutKycInput, Prisma.CustomerProfileUncheckedUpdateWithoutKycInput>
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutKycInput, Prisma.CustomerProfileUncheckedCreateWithoutKycInput>
+  where?: Prisma.CustomerProfileWhereInput
+}
+
+export type CustomerProfileUpdateToOneWithWhereWithoutKycInput = {
+  where?: Prisma.CustomerProfileWhereInput
+  data: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutKycInput, Prisma.CustomerProfileUncheckedUpdateWithoutKycInput>
+}
+
+export type CustomerProfileUpdateWithoutKycInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localeChosenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detectedCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCustomerProfileNestedInput
+  addresses?: Prisma.AddressUpdateManyWithoutCustomerProfileNestedInput
+  carts?: Prisma.CartUpdateManyWithoutCustomerProfileNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCustomerProfileNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutCustomerProfileNestedInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUpdateManyWithoutCustomerProfileNestedInput
+  providerCustomers?: Prisma.PaymentProviderCustomerUpdateManyWithoutCustomerProfileNestedInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
+  couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  productInstructions?: Prisma.ProductInstructionUpdateManyWithoutCustomerProfileNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutCustomerProfileNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
+  assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutCustomerProfileNestedInput
+  preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
+  preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
+  sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileUncheckedUpdateWithoutKycInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localeChosenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detectedCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  addresses?: Prisma.AddressUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  providerCustomers?: Prisma.PaymentProviderCustomerUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  productInstructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileCreateWithoutKycDocumentsInput = {
+  id: string
+  fullName: string
+  firstName?: string | null
+  lastName?: string | null
+  organization?: string | null
+  department?: string | null
+  jobTitle?: string | null
+  phone?: string | null
+  gstin?: string | null
+  customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
+  requiresOrderApproval?: boolean
+  internalNotes?: string | null
+  preferredCountry?: string | null
+  preferredCurrency?: string | null
+  localeChosenAt?: Date | string | null
+  detectedCountry?: string | null
+  detectedAt?: Date | string | null
+  consentAcceptedAt?: Date | string | null
+  consentVersion?: string | null
+  invitedById?: string | null
+  invitedAt?: Date | string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCustomerProfileInput
+  addresses?: Prisma.AddressCreateNestedManyWithoutCustomerProfileInput
+  carts?: Prisma.CartCreateNestedManyWithoutCustomerProfileInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCustomerProfileInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutCustomerProfileInput
+  paymentMethods?: Prisma.CustomerPaymentMethodCreateNestedManyWithoutCustomerProfileInput
+  providerCustomers?: Prisma.PaymentProviderCustomerCreateNestedManyWithoutCustomerProfileInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
+  couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  productInstructions?: Prisma.ProductInstructionCreateNestedManyWithoutCustomerProfileInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutCustomerProfileInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
+  assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutCustomerProfileInput
+  preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
+  preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceCreateNestedOneWithoutCustomerProfileInput
+  sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
+}
+
+export type CustomerProfileUncheckedCreateWithoutKycDocumentsInput = {
+  id: string
+  userId: string
+  fullName: string
+  firstName?: string | null
+  lastName?: string | null
+  organization?: string | null
+  department?: string | null
+  jobTitle?: string | null
+  phone?: string | null
+  gstin?: string | null
+  customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
+  requiresOrderApproval?: boolean
+  internalNotes?: string | null
+  preferredCountry?: string | null
+  preferredCurrency?: string | null
+  localeChosenAt?: Date | string | null
+  detectedCountry?: string | null
+  detectedAt?: Date | string | null
+  consentAcceptedAt?: Date | string | null
+  consentVersion?: string | null
+  invitedById?: string | null
+  invitedAt?: Date | string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  addresses?: Prisma.AddressUncheckedCreateNestedManyWithoutCustomerProfileInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutCustomerProfileInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerProfileInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutCustomerProfileInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUncheckedCreateNestedManyWithoutCustomerProfileInput
+  providerCustomers?: Prisma.PaymentProviderCustomerUncheckedCreateNestedManyWithoutCustomerProfileInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
+  couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  productInstructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutCustomerProfileInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
+  assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  preferences?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutCustomerProfileInput
+  sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
+}
+
+export type CustomerProfileCreateOrConnectWithoutKycDocumentsInput = {
+  where: Prisma.CustomerProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutKycDocumentsInput, Prisma.CustomerProfileUncheckedCreateWithoutKycDocumentsInput>
+}
+
+export type CustomerProfileUpsertWithoutKycDocumentsInput = {
+  update: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutKycDocumentsInput, Prisma.CustomerProfileUncheckedUpdateWithoutKycDocumentsInput>
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutKycDocumentsInput, Prisma.CustomerProfileUncheckedCreateWithoutKycDocumentsInput>
+  where?: Prisma.CustomerProfileWhereInput
+}
+
+export type CustomerProfileUpdateToOneWithWhereWithoutKycDocumentsInput = {
+  where?: Prisma.CustomerProfileWhereInput
+  data: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutKycDocumentsInput, Prisma.CustomerProfileUncheckedUpdateWithoutKycDocumentsInput>
+}
+
+export type CustomerProfileUpdateWithoutKycDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localeChosenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detectedCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCustomerProfileNestedInput
+  addresses?: Prisma.AddressUpdateManyWithoutCustomerProfileNestedInput
+  carts?: Prisma.CartUpdateManyWithoutCustomerProfileNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCustomerProfileNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutCustomerProfileNestedInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUpdateManyWithoutCustomerProfileNestedInput
+  providerCustomers?: Prisma.PaymentProviderCustomerUpdateManyWithoutCustomerProfileNestedInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
+  couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  productInstructions?: Prisma.ProductInstructionUpdateManyWithoutCustomerProfileNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutCustomerProfileNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
+  assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutCustomerProfileNestedInput
+  preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
+  preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUpdateOneWithoutCustomerProfileNestedInput
+  sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileUncheckedUpdateWithoutKycDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localeChosenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detectedCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  addresses?: Prisma.AddressUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  providerCustomers?: Prisma.PaymentProviderCustomerUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  productInstructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  preferences?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileCreateWithoutPreferencesInput = {
+  id: string
+  fullName: string
+  firstName?: string | null
+  lastName?: string | null
+  organization?: string | null
+  department?: string | null
+  jobTitle?: string | null
+  phone?: string | null
+  gstin?: string | null
+  customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
+  requiresOrderApproval?: boolean
+  internalNotes?: string | null
+  preferredCountry?: string | null
+  preferredCurrency?: string | null
+  localeChosenAt?: Date | string | null
+  detectedCountry?: string | null
+  detectedAt?: Date | string | null
+  consentAcceptedAt?: Date | string | null
+  consentVersion?: string | null
+  invitedById?: string | null
+  invitedAt?: Date | string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCustomerProfileInput
+  addresses?: Prisma.AddressCreateNestedManyWithoutCustomerProfileInput
+  carts?: Prisma.CartCreateNestedManyWithoutCustomerProfileInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCustomerProfileInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutCustomerProfileInput
+  paymentMethods?: Prisma.CustomerPaymentMethodCreateNestedManyWithoutCustomerProfileInput
+  providerCustomers?: Prisma.PaymentProviderCustomerCreateNestedManyWithoutCustomerProfileInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
+  couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  productInstructions?: Prisma.ProductInstructionCreateNestedManyWithoutCustomerProfileInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutCustomerProfileInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
+  assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutCustomerProfileInput
+  preorderChats?: Prisma.PreorderChatConversationCreateNestedManyWithoutCustomerProfileInput
+  preorderChatBlock?: Prisma.PreorderChatCustomerBlockCreateNestedOneWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentCreateNestedManyWithoutCustomerProfileInput
+  sellerMembership?: Prisma.SellerMemberCreateNestedOneWithoutCustomerProfileInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutCustomerProfileInput
+}
+
+export type CustomerProfileUncheckedCreateWithoutPreferencesInput = {
+  id: string
+  userId: string
+  fullName: string
+  firstName?: string | null
+  lastName?: string | null
+  organization?: string | null
+  department?: string | null
+  jobTitle?: string | null
+  phone?: string | null
+  gstin?: string | null
+  customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
+  requiresOrderApproval?: boolean
+  internalNotes?: string | null
+  preferredCountry?: string | null
+  preferredCurrency?: string | null
+  localeChosenAt?: Date | string | null
+  detectedCountry?: string | null
+  detectedAt?: Date | string | null
+  consentAcceptedAt?: Date | string | null
+  consentVersion?: string | null
+  invitedById?: string | null
+  invitedAt?: Date | string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  addresses?: Prisma.AddressUncheckedCreateNestedManyWithoutCustomerProfileInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutCustomerProfileInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerProfileInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutCustomerProfileInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUncheckedCreateNestedManyWithoutCustomerProfileInput
+  providerCustomers?: Prisma.PaymentProviderCustomerUncheckedCreateNestedManyWithoutCustomerProfileInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
+  couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  productInstructions?: Prisma.ProductInstructionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutCustomerProfileInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
+  assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preorderChats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedCreateNestedOneWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kyc?: Prisma.CustomerKycUncheckedCreateNestedOneWithoutCustomerProfileInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedCreateNestedManyWithoutCustomerProfileInput
+  sellerMembership?: Prisma.SellerMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutCustomerProfileInput
+}
+
+export type CustomerProfileCreateOrConnectWithoutPreferencesInput = {
+  where: Prisma.CustomerProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutPreferencesInput, Prisma.CustomerProfileUncheckedCreateWithoutPreferencesInput>
+}
+
+export type CustomerProfileUpsertWithoutPreferencesInput = {
+  update: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutPreferencesInput, Prisma.CustomerProfileUncheckedUpdateWithoutPreferencesInput>
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutPreferencesInput, Prisma.CustomerProfileUncheckedCreateWithoutPreferencesInput>
+  where?: Prisma.CustomerProfileWhereInput
+}
+
+export type CustomerProfileUpdateToOneWithWhereWithoutPreferencesInput = {
+  where?: Prisma.CustomerProfileWhereInput
+  data: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutPreferencesInput, Prisma.CustomerProfileUncheckedUpdateWithoutPreferencesInput>
+}
+
+export type CustomerProfileUpdateWithoutPreferencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localeChosenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detectedCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCustomerProfileNestedInput
+  addresses?: Prisma.AddressUpdateManyWithoutCustomerProfileNestedInput
+  carts?: Prisma.CartUpdateManyWithoutCustomerProfileNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCustomerProfileNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutCustomerProfileNestedInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUpdateManyWithoutCustomerProfileNestedInput
+  providerCustomers?: Prisma.PaymentProviderCustomerUpdateManyWithoutCustomerProfileNestedInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
+  couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  productInstructions?: Prisma.ProductInstructionUpdateManyWithoutCustomerProfileNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutCustomerProfileNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
+  assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutCustomerProfileNestedInput
+  preorderChats?: Prisma.PreorderChatConversationUpdateManyWithoutCustomerProfileNestedInput
+  preorderChatBlock?: Prisma.PreorderChatCustomerBlockUpdateOneWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUpdateManyWithoutCustomerProfileNestedInput
+  sellerMembership?: Prisma.SellerMemberUpdateOneWithoutCustomerProfileNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileUncheckedUpdateWithoutPreferencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localeChosenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detectedCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  addresses?: Prisma.AddressUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  providerCustomers?: Prisma.PaymentProviderCustomerUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  productInstructions?: Prisma.ProductInstructionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preorderChats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  preorderChatBlock?: Prisma.PreorderChatCustomerBlockUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kyc?: Prisma.CustomerKycUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  kycDocuments?: Prisma.CustomerKycDocumentUncheckedUpdateManyWithoutCustomerProfileNestedInput
   sellerMembership?: Prisma.SellerMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
   disputes?: Prisma.DisputeUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
@@ -6287,6 +7322,7 @@ export type CustomerProfileCountOutputType = {
   assistantConversations: number
   preorderRequests: number
   preorderChats: number
+  kycDocuments: number
   disputes: number
 }
 
@@ -6307,6 +7343,7 @@ export type CustomerProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.E
   assistantConversations?: boolean | CustomerProfileCountOutputTypeCountAssistantConversationsArgs
   preorderRequests?: boolean | CustomerProfileCountOutputTypeCountPreorderRequestsArgs
   preorderChats?: boolean | CustomerProfileCountOutputTypeCountPreorderChatsArgs
+  kycDocuments?: boolean | CustomerProfileCountOutputTypeCountKycDocumentsArgs
   disputes?: boolean | CustomerProfileCountOutputTypeCountDisputesArgs
 }
 
@@ -6435,6 +7472,13 @@ export type CustomerProfileCountOutputTypeCountPreorderChatsArgs<ExtArgs extends
 /**
  * CustomerProfileCountOutputType without action
  */
+export type CustomerProfileCountOutputTypeCountKycDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerKycDocumentWhereInput
+}
+
+/**
+ * CustomerProfileCountOutputType without action
+ */
 export type CustomerProfileCountOutputTypeCountDisputesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DisputeWhereInput
 }
@@ -6490,6 +7534,9 @@ export type CustomerProfileSelect<ExtArgs extends runtime.Types.Extensions.Inter
   preorderChats?: boolean | Prisma.CustomerProfile$preorderChatsArgs<ExtArgs>
   preorderChatBlock?: boolean | Prisma.CustomerProfile$preorderChatBlockArgs<ExtArgs>
   organizationMembership?: boolean | Prisma.CustomerProfile$organizationMembershipArgs<ExtArgs>
+  kyc?: boolean | Prisma.CustomerProfile$kycArgs<ExtArgs>
+  kycDocuments?: boolean | Prisma.CustomerProfile$kycDocumentsArgs<ExtArgs>
+  preferences?: boolean | Prisma.CustomerProfile$preferencesArgs<ExtArgs>
   sellerMembership?: boolean | Prisma.CustomerProfile$sellerMembershipArgs<ExtArgs>
   disputes?: boolean | Prisma.CustomerProfile$disputesArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerProfileCountOutputTypeDefaultArgs<ExtArgs>
@@ -6551,6 +7598,9 @@ export type CustomerProfileInclude<ExtArgs extends runtime.Types.Extensions.Inte
   preorderChats?: boolean | Prisma.CustomerProfile$preorderChatsArgs<ExtArgs>
   preorderChatBlock?: boolean | Prisma.CustomerProfile$preorderChatBlockArgs<ExtArgs>
   organizationMembership?: boolean | Prisma.CustomerProfile$organizationMembershipArgs<ExtArgs>
+  kyc?: boolean | Prisma.CustomerProfile$kycArgs<ExtArgs>
+  kycDocuments?: boolean | Prisma.CustomerProfile$kycDocumentsArgs<ExtArgs>
+  preferences?: boolean | Prisma.CustomerProfile$preferencesArgs<ExtArgs>
   sellerMembership?: boolean | Prisma.CustomerProfile$sellerMembershipArgs<ExtArgs>
   disputes?: boolean | Prisma.CustomerProfile$disputesArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerProfileCountOutputTypeDefaultArgs<ExtArgs>
@@ -6593,6 +7643,9 @@ export type $CustomerProfilePayload<ExtArgs extends runtime.Types.Extensions.Int
      * uniqueness is enforced and the reason for it is written down.
      */
     organizationMembership: Prisma.$BuyerOrganizationMemberPayload<ExtArgs> | null
+    kyc: Prisma.$CustomerKycPayload<ExtArgs> | null
+    kycDocuments: Prisma.$CustomerKycDocumentPayload<ExtArgs>[]
+    preferences: Prisma.$CustomerPreferencePayload<ExtArgs> | null
     /**
      * Their place in a SELLER organisation, if they sell here as well as buy.
      * At most one, on the same reasoning as the line above - see
@@ -7049,6 +8102,9 @@ export interface Prisma__CustomerProfileClient<T, Null = never, ExtArgs extends 
   preorderChats<T extends Prisma.CustomerProfile$preorderChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$preorderChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PreorderChatConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   preorderChatBlock<T extends Prisma.CustomerProfile$preorderChatBlockArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$preorderChatBlockArgs<ExtArgs>>): Prisma.Prisma__PreorderChatCustomerBlockClient<runtime.Types.Result.GetResult<Prisma.$PreorderChatCustomerBlockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   organizationMembership<T extends Prisma.CustomerProfile$organizationMembershipArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$organizationMembershipArgs<ExtArgs>>): Prisma.Prisma__BuyerOrganizationMemberClient<runtime.Types.Result.GetResult<Prisma.$BuyerOrganizationMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  kyc<T extends Prisma.CustomerProfile$kycArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$kycArgs<ExtArgs>>): Prisma.Prisma__CustomerKycClient<runtime.Types.Result.GetResult<Prisma.$CustomerKycPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  kycDocuments<T extends Prisma.CustomerProfile$kycDocumentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$kycDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerKycDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  preferences<T extends Prisma.CustomerProfile$preferencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$preferencesArgs<ExtArgs>>): Prisma.Prisma__CustomerPreferenceClient<runtime.Types.Result.GetResult<Prisma.$CustomerPreferencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   sellerMembership<T extends Prisma.CustomerProfile$sellerMembershipArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$sellerMembershipArgs<ExtArgs>>): Prisma.Prisma__SellerMemberClient<runtime.Types.Result.GetResult<Prisma.$SellerMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   disputes<T extends Prisma.CustomerProfile$disputesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$disputesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -7895,6 +8951,68 @@ export type CustomerProfile$organizationMembershipArgs<ExtArgs extends runtime.T
    */
   include?: Prisma.BuyerOrganizationMemberInclude<ExtArgs> | null
   where?: Prisma.BuyerOrganizationMemberWhereInput
+}
+
+/**
+ * CustomerProfile.kyc
+ */
+export type CustomerProfile$kycArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerKyc
+   */
+  select?: Prisma.CustomerKycSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerKyc
+   */
+  omit?: Prisma.CustomerKycOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerKycInclude<ExtArgs> | null
+  where?: Prisma.CustomerKycWhereInput
+}
+
+/**
+ * CustomerProfile.kycDocuments
+ */
+export type CustomerProfile$kycDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerKycDocument
+   */
+  select?: Prisma.CustomerKycDocumentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerKycDocument
+   */
+  omit?: Prisma.CustomerKycDocumentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerKycDocumentInclude<ExtArgs> | null
+  where?: Prisma.CustomerKycDocumentWhereInput
+  orderBy?: Prisma.CustomerKycDocumentOrderByWithRelationInput | Prisma.CustomerKycDocumentOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerKycDocumentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerKycDocumentScalarFieldEnum | Prisma.CustomerKycDocumentScalarFieldEnum[]
+}
+
+/**
+ * CustomerProfile.preferences
+ */
+export type CustomerProfile$preferencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerPreference
+   */
+  select?: Prisma.CustomerPreferenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerPreference
+   */
+  omit?: Prisma.CustomerPreferenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerPreferenceInclude<ExtArgs> | null
+  where?: Prisma.CustomerPreferenceWhereInput
 }
 
 /**

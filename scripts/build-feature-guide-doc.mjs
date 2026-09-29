@@ -721,6 +721,8 @@ h2('6.1 Profile and company');
 table(['Account page', 'What the customer can do'], [
   ['Profile', 'Edit personal details in separate panels, change password, view purchasing limits, request contact changes, view own data and deactivate/close account.'],
   ['Company', 'Maintain company name, department and delivery contact number.'],
+  ['Identity and import', 'An individual buyer fills in who they are (legal name, date of birth, nationality, where they live, and their identity document), uploads a copy of the document and sends it for review. While it is with a reviewer, or once it is verified, those details are locked. The document number is only ever shown as its last few characters. If it is refused, the buyer sees the reason, corrects it and sends it again. When the identity document passes its expiry date, the check shows as expired and the buyer sends it again with a valid document. Someone who clears goods through customs in their own name can also record their importer details, such as their EORI number, customs broker and usual delivery terms.'],
+  ['Marketing choices', 'On the profile page the buyer chooses whether to receive offers by email, offers by text message and news about new products. All three are off until they switch one on. Messages about their own orders and account are sent either way. Each change is recorded with its time.'],
   ['Companies', 'See each company account they belong to, its status and their role in it; open an application, answer the reviewer, or apply for another company (see 6.5).'],
   ['Addresses', 'Add, edit, select default and archive shipping/billing addresses.'],
   ['Region', 'Choose language, country and currency together.'],
@@ -803,12 +805,25 @@ bullets([
   'Each view has its own address book. When a company is first approved, the billing and shipping addresses that were checked are copied into its address book.',
   'Preorders are kept apart in the same way, and an order made from a company preorder belongs to the company.',
 ]);
-h2('6.5d Hearing back, and answering questions');
+h2('6.5d The company’s team');
+p('Once the company is verified, its owner and its administrators can bring colleagues in. They type the colleague’s email address and choose a role: company admin, buyer, order approver, finance or viewer. The colleague gets an email with a link. They open it, sign in or create an account with that same address, see which company it is, who invited them and the role, and press Accept and join. Everybody in the company can see who else is in it and in which role.');
+table(['The owner or an administrator can', 'The system does back'], [
+  ['Invite a colleague by email in a role.', 'Sends an email in the inviter’s language with a link that works for a week by default. Refuses a second invitation to the same address while one is waiting, and anybody already in the company.'],
+  ['Resend an invitation.', 'Sends a new link and starts the week again. The old link stops working. One invitation can be sent at most five times.'],
+  ['Withdraw an invitation.', 'The link stops working at once.'],
+  ['Change a member’s role, or remove them.', 'The change takes effect on the member’s very next step in the shop. A removed person can come back only through a new invitation.'],
+], [4200, 5800]);
+bullets([
+  'The owner can never be changed or removed, so a company always keeps the person who can manage it. Only the owner can give, change or remove the administrator role. Nobody can change or remove themselves.',
+  'A link only works for the account whose confirmed email address it was sent to, so a forwarded email does not let somebody else in. Every link that cannot be used gets the same message, so nobody can use it to find out who was invited where.',
+  'Every invitation, resend, withdrawal, acceptance, role change and removal is recorded with who did it and when.',
+]);
+h2('6.5e Hearing back, and answering questions');
 p('The buyer gets an email, in the language they chose, when the application is received, when a code is sent to the business email, when more information is needed, when the company is approved, rejected, suspended, asked to check its details again or restored, and when a document is refused. These emails are also listed on the account’s Notifications page.');
 p('The company page under Account → Companies shows where the application stands, a history of what has happened to it, and every question the reviewer has asked. The buyer answers a question on that page and uploads anything that was asked for, then sends the application back. A rejected application can be corrected and sent again when the reviewer allowed that.');
 note('Not built yet', 'A company account has one person in it today: the person who applied, who becomes its owner. Inviting colleagues into a company account is not built yet. Repeat and scheduled orders (Buy Later and Subscribe & Reorder) cannot be set up for a company yet, only for a person. Tax on a company order is still worked out from the person’s own billing details.', C.orange);
 
-h2('6.5e Reading about the marketplace');
+h2('6.5f Reading about the marketplace');
 p('Anybody can open the About page, without an account. There is a link to it at the bottom of every page, under the store’s name, and on a wide screen there is also a small “i” button at the top of every page.');
 p('The page explains what the marketplace is and who takes part in it: buyers, company buyers, sellers, warehouses, logistics partners and the marketplace team. It shows them around a slowly turning earth. Beside that, a few short paragraphs say how buying, bulk orders and preorders, selling and delivery work. A button takes the reader down to cards that sum up what they can do here. At the end are links to browse the products, apply to sell and contact support.');
 p('The page only talks about what this marketplace has switched on. If the AI assistant, company accounts or repeat purchases are turned off, the page does not mention them. It never shows made-up figures, such as numbers of customers or countries. It uses the business’s own name, and it has no questions and answers: those are on the Support page.');
@@ -1877,6 +1892,7 @@ h2('11.1 Customer management');
 table(['Admin area', 'What staff can do'], [
   ['Customers list', 'Find customer accounts, including accounts awaiting approval where self-registration approval is enabled.'],
   ['Customer detail', 'Review customer profile, company, addresses, orders, payment/credit context, prices and purchasing limits.'],
+  ['Identity check (customer detail)', 'Staff see an individual buyer’s identity check and importer details. The people who review company applications can open each uploaded document (every opening is recorded), accept or refuse it, then verify the check or refuse it with a reason the buyer reads. The check cannot be verified until the identity document has been accepted, and a verification that turns out wrong can be withdrawn. If a colleague decides the same check first, the second decision is refused and the screen shows what happened, so nobody overturns a decision without seeing it. A document that has expired cannot be verified.'],
   ['Customer approval', 'Approve eligible self-registered customers after their email has been confirmed.'],
   ['Customer limit management', 'Apply purchasing/credit limits according to business policy.'],
   ['Customer support context', 'Use order and account history to help the customer without asking them to repeat information.'],

@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**337 tables · 315 enums · 781 extra indexes and unique keys**, in 54 groups. The groups follow the section banners in the schema file.
+**341 tables · 318 enums · 786 extra indexes and unique keys**, in 54 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -71,12 +71,12 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ which level of the fallback chain a policy sits at. / / offer -&gt; product -&gt; seller_default -&gt; the platform's own defaults (config) / / the first one that exists wins, whole. a variant whose own policy says / "disabled" is disabled, and does not fall through to an enabled product / policy - a seller who switched one variant off meant it.](#group-which-level-of-the-fallback-chain-a-policy-sits-at-offer-product-seller-default-the-platform-s-own-defaults-config-the-first-one-that-exists-wins-whole-a-variant-whose-own-policy-says-disabled-is-disabled-and-does-not-fall-through-to-an-enabled-product-policy-a-seller-who-switched-one-variant-off-meant-it) | 9 | 14 |
 | [/ where a conversation stands. moved only by `domain/preorder-chat-state.ts`.](#group-where-a-conversation-stands-moved-only-by-domain-preorder-chat-state-ts) | 8 | 7 |
 | [Seller documents: invoices and packing lists](#group-seller-documents-invoices-and-packing-lists) | 5 | 3 |
-| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 14 | 19 |
+| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 15 | 19 |
 | [/ which agreement a document is. each account type is asked for its own.](#group-which-agreement-a-document-is-each-account-type-is-asked-for-its-own) | 2 | 2 |
 | [Seller commission invoices](#group-seller-commission-invoices) | 6 | 7 |
 | [/ how strongly an order needs inspecting, decided by the rules engine.](#group-how-strongly-an-order-needs-inspecting-decided-by-the-rules-engine) | 17 | 23 |
 | [/ where one check has got to.](#group-where-one-check-has-got-to) | 18 | 8 |
-| [--------------------------------------------------------------------------- seller hub: production, export documents, trade rules and booking terms](#group-seller-hub-production-export-documents-trade-rules-and-booking-terms) | 11 | 8 |
+| [/ where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.](#group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts) | 14 | 11 |
 | [/ what a ledger account represents. balances are never stored; they are the / sum of the account's lines.](#group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines) | 8 | 7 |
 | [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
 
@@ -1732,6 +1732,9 @@ Table `customer_profiles`
 - `preorderChats` ← [PreorderChatConversation](#model-preorderchatconversation) - has many
 - `preorderChatBlock` ← [PreorderChatCustomerBlock](#model-preorderchatcustomerblock) - has zero or one
 - `organizationMembership` ← [BuyerOrganizationMember](#model-buyerorganizationmember) - has zero or one
+- `kyc` ← [CustomerKyc](#model-customerkyc) - has zero or one
+- `kycDocuments` ← [CustomerKycDocument](#model-customerkycdocument) - has many
+- `preferences` ← [CustomerPreference](#model-customerpreference) - has zero or one
 - `sellerMembership` ← [SellerMember](#model-sellermember) - has zero or one
 - `disputes` ← [Dispute](#model-dispute) - has many
 
@@ -15846,7 +15849,7 @@ A packing list for one consignment - one vehicle, one load.
 
 ##  / which buyer the session is acting as. null on a session row means individual.
 
-[BuyerCompany](#model-buyercompany) · [BuyerCompanyAddress](#model-buyercompanyaddress) · [BuyerCompanyIdentifier](#model-buyercompanyidentifier) · [BuyerCompanyLocation](#model-buyercompanylocation) · [BuyerCompanyMember](#model-buyercompanymember) · [BuyerCompanyApprovalPolicy](#model-buyercompanyapprovalpolicy) · [BuyerCompanyOrderApproval](#model-buyercompanyorderapproval) · [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) · [BuyerCompanyCheck](#model-buyercompanycheck) · [BuyerCompanyDocument](#model-buyercompanydocument) · [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) · [BuyerCompanyReviewEvent](#model-buyercompanyreviewevent) · [BuyerCompanyStatusHistory](#model-buyercompanystatushistory) · [ConsentRecord](#model-consentrecord)
+[BuyerCompany](#model-buyercompany) · [BuyerCompanyAddress](#model-buyercompanyaddress) · [BuyerCompanyIdentifier](#model-buyercompanyidentifier) · [BuyerCompanyLocation](#model-buyercompanylocation) · [BuyerCompanyMember](#model-buyercompanymember) · [BuyerCompanyInvitation](#model-buyercompanyinvitation) · [BuyerCompanyApprovalPolicy](#model-buyercompanyapprovalpolicy) · [BuyerCompanyOrderApproval](#model-buyercompanyorderapproval) · [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) · [BuyerCompanyCheck](#model-buyercompanycheck) · [BuyerCompanyDocument](#model-buyercompanydocument) · [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) · [BuyerCompanyReviewEvent](#model-buyercompanyreviewevent) · [BuyerCompanyStatusHistory](#model-buyercompanystatushistory) · [ConsentRecord](#model-consentrecord)
 
 ```mermaid
 erDiagram
@@ -15856,6 +15859,7 @@ erDiagram
     BuyerCompany ||--o{ BuyerCompanyLocation : "company"
     BuyerCompany ||--o{ BuyerCompanyMember : "company"
     User ||--o{ BuyerCompanyMember : "user"
+    BuyerCompany ||--o{ BuyerCompanyInvitation : "company"
     BuyerCompany ||--o| BuyerCompanyApprovalPolicy : "company"
     Order ||--o{ BuyerCompanyOrderApproval : "order"
     BuyerCompany ||--o{ BuyerCompanyOrderApproval : "company"
@@ -15894,6 +15898,10 @@ erDiagram
         String companyId FK
         String userId FK
         BuyerCompanyMemberStatus status
+    }
+    BuyerCompanyInvitation {
+        String id PK
+        String companyId FK
     }
     BuyerCompanyApprovalPolicy {
         String id PK
@@ -16003,6 +16011,7 @@ Table `buyer_companies`
 - `identifiers` ← [BuyerCompanyIdentifier](#model-buyercompanyidentifier) - has many
 - `locations` ← [BuyerCompanyLocation](#model-buyercompanylocation) - has many
 - `members` ← [BuyerCompanyMember](#model-buyercompanymember) - has many
+- `invitations` ← [BuyerCompanyInvitation](#model-buyercompanyinvitation) - has many
 - `cases` ← [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) - has many
 - `checks` ← [BuyerCompanyCheck](#model-buyercompanycheck) - has many
 - `documents` ← [BuyerCompanyDocument](#model-buyercompanydocument) - has many
@@ -16155,6 +16164,43 @@ One person's place in one company. A person may hold several - unlike `buyer_org
 
 - `@@unique([companyId, userId], map: "uq_buyer_company_member")`
 - `@@index([userId, status], map: "ix_buyer_company_member_user")`
+
+<a id="model-buyercompanyinvitation"></a>
+
+### BuyerCompanyInvitation
+
+Table `buyer_company_invitations`
+
+An invitation to join a buyer company in one role (Master rows 11 and 14).
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `email` | String · VarChar(320) |  |  |  | As typed, for display. `emailNormalized` is what is compared. |
+| `emailNormalized` | String · VarChar(320) |  |  |  |  |
+| `role` | [enum BuyerCompanyRole](#enum-buyercompanyrole) |  |  |  | Never OWNER: ownership is not handed out by invitation. |
+| `tokenHash` | String · Char(64) |  | UNIQUE |  |  |
+| `liveKey` | String · VarChar(360) | yes | UNIQUE |  | `companyId:emailNormalized` while the invitation can still be accepted; null once it is accepted, revoked or replaced. UNIQUE, so an address has at most one live invitation per company. MariaDB lets any number of NULLs through a UNIQUE index, which is what lets the retired rows stay. |
+| `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
+| `sendCount` | Int |  |  | 1 | How many times the email has gone out: 1 when invited, +1 per resend. |
+| `lastSentAt` | DateTime · DateTime(3) |  |  |  |  |
+| `invitedByUserId` | String · Char(26) |  |  |  |  |
+| `acceptedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `acceptedByUserId` | String · Char(26) | yes |  |  |  |
+| `revokedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `revokedByUserId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([companyId, createdAt], map: "ix_buyer_company_invitation_company")`
+- `@@index([emailNormalized], map: "ix_buyer_company_invitation_email")`
 
 <a id="model-buyercompanyapprovalpolicy"></a>
 
@@ -19059,14 +19105,17 @@ Result of screening one subject against sanctions / restricted-party lists.
 | `BLOCK` | The product may not be sold to the destination at all. |
 | `DOCUMENTS_REQUIRED` | It may, and the buyer must hold the listed documents. Shown, not blocked. |
 
-<a id="group-seller-hub-production-export-documents-trade-rules-and-booking-terms"></a>
+<a id="group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts"></a>
 
-##  --------------------------------------------------------------------------- seller hub: production, export documents, trade rules and booking terms
+##  / where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.
 
-[SellerProductionMilestone](#model-sellerproductionmilestone) · [SellerProductionDelay](#model-sellerproductiondelay) · [SellerOrderBuyerUpdate](#model-sellerorderbuyerupdate) · [OrderTradeDocument](#model-ordertradedocument) · [OrderTradeDocumentVersion](#model-ordertradedocumentversion) · [OrderTradeDocumentEvent](#model-ordertradedocumentevent) · [TradeComplianceRule](#model-tradecompliancerule) · [ConsignmentBookingTerms](#model-consignmentbookingterms) · [LogisticsTradeSettings](#model-logisticstradesettings) · [LogisticsLane](#model-logisticslane) · [LogisticsLaneBand](#model-logisticslaneband)
+[CustomerKyc](#model-customerkyc) · [CustomerKycDocument](#model-customerkycdocument) · [CustomerPreference](#model-customerpreference) · [SellerProductionMilestone](#model-sellerproductionmilestone) · [SellerProductionDelay](#model-sellerproductiondelay) · [SellerOrderBuyerUpdate](#model-sellerorderbuyerupdate) · [OrderTradeDocument](#model-ordertradedocument) · [OrderTradeDocumentVersion](#model-ordertradedocumentversion) · [OrderTradeDocumentEvent](#model-ordertradedocumentevent) · [TradeComplianceRule](#model-tradecompliancerule) · [ConsignmentBookingTerms](#model-consignmentbookingterms) · [LogisticsTradeSettings](#model-logisticstradesettings) · [LogisticsLane](#model-logisticslane) · [LogisticsLaneBand](#model-logisticslaneband)
 
 ```mermaid
 erDiagram
+    CustomerProfile ||--o| CustomerKyc : "customerProfile"
+    CustomerProfile ||--o{ CustomerKycDocument : "customerProfile"
+    CustomerProfile ||--o| CustomerPreference : "customerProfile"
     SellerOrderGroup ||--o{ SellerProductionMilestone : "orderGroup"
     SellerOrderGroup ||--o{ SellerProductionDelay : "orderGroup"
     SellerOrderGroup ||--o{ SellerOrderBuyerUpdate : "orderGroup"
@@ -19075,6 +19124,20 @@ erDiagram
     OrderTradeDocument ||--o{ OrderTradeDocumentEvent : "document"
     LogisticsShipment ||--o| ConsignmentBookingTerms : "shipment"
     LogisticsLane ||--o{ LogisticsLaneBand : "lane"
+    CustomerKyc {
+        String id PK
+        String customerProfileId FK
+        CustomerKycStatus status
+    }
+    CustomerKycDocument {
+        String id PK
+        String customerProfileId FK
+        CustomerKycDocumentStatus status
+    }
+    CustomerPreference {
+        String id PK
+        String customerProfileId FK
+    }
     SellerProductionMilestone {
         String id PK
         String orderGroupId FK
@@ -19122,6 +19185,108 @@ erDiagram
         BigInt perKgMinor
     }
 ```
+
+<a id="model-customerkyc"></a>
+
+### CustomerKyc
+
+Table `customer_kyc`
+
+An individual buyer's identity and importer details.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `customerProfileId` | String · Char(26) |  | UNIQUE, FK → [CustomerProfile](#model-customerprofile) |  | (on delete: Cascade) |
+| `legalName` | String · VarChar(255) | yes |  |  |  |
+| `dateOfBirth` | DateTime · Date | yes |  |  |  |
+| `nationality` | String · Char(2) | yes |  |  |  |
+| `residenceCountry` | String · Char(2) | yes |  |  |  |
+| `idDocumentType` | String · VarChar(24) | yes |  |  | PASSPORT, NATIONAL_ID or DRIVING_LICENCE. |
+| `idDocumentNumberMasked` | String · VarChar(32) | yes |  |  |  |
+| `idDocumentExpiresOn` | DateTime · Date | yes |  |  |  |
+| `status` | [enum CustomerKycStatus](#enum-customerkycstatus) |  |  | NOT_STARTED |  |
+| `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reviewedById` | String · Char(26) | yes |  |  |  |
+| `reviewNote` | String · VarChar(500) | yes |  |  | Shown to the buyer when refused. |
+| `isImporter` | Boolean |  |  | false | Importer of record: who clears the goods through customs. |
+| `importerName` | String · VarChar(255) | yes |  |  |  |
+| `eoriNumber` | String · VarChar(32) | yes |  |  | EU Economic Operators Registration and Identification number. |
+| `importerTaxId` | String · VarChar(64) | yes |  |  |  |
+| `importLicenceNumber` | String · VarChar(64) | yes |  |  |  |
+| `customsBrokerName` | String · VarChar(255) | yes |  |  |  |
+| `customsBrokerEmail` | String · VarChar(320) | yes |  |  |  |
+| `preferredIncoterm` | String · VarChar(8) | yes |  |  |  |
+| `version` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - one-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([status, submittedAt], map: "ix_customer_kyc_status")`
+
+<a id="model-customerkycdocument"></a>
+
+### CustomerKycDocument
+
+Table `customer_kyc_documents`
+
+A file an individual buyer uploaded to prove who they are or that they may import. Stored privately, scanned before it is kept, reviewed by staff.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `customerProfileId` | String · Char(26) |  | FK → [CustomerProfile](#model-customerprofile) |  | (on delete: Cascade) |
+| `kind` | [enum CustomerKycDocumentKind](#enum-customerkycdocumentkind) |  |  |  |  |
+| `status` | [enum CustomerKycDocumentStatus](#enum-customerkycdocumentstatus) |  |  | PENDING |  |
+| `fileName` | String · VarChar(255) |  |  |  |  |
+| `storageKey` | String · VarChar(512) |  |  |  |  |
+| `mimeType` | String · VarChar(100) |  |  |  |  |
+| `sizeBytes` | Int |  |  |  |  |
+| `sha256` | String · Char(64) |  |  |  |  |
+| `scanState` | String · VarChar(16) |  |  |  | CLEAN, or UNSCANNED where the installation runs no scanner. |
+| `reviewNote` | String · VarChar(500) | yes |  |  |  |
+| `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reviewedById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([customerProfileId, createdAt], map: "ix_customer_kyc_document_profile")`
+- `@@index([status, createdAt], map: "ix_customer_kyc_document_status")`
+
+<a id="model-customerpreference"></a>
+
+### CustomerPreference
+
+Table `customer_preferences`
+
+A buyer's marketing choices. Every one is off until they switch it on; `marketingUpdatedAt` is the date of the latest choice, and each change is in the audit log.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `customerProfileId` | String · Char(26) |  | UNIQUE, FK → [CustomerProfile](#model-customerprofile) |  | (on delete: Cascade) |
+| `marketingEmailOptIn` | Boolean |  |  | false |  |
+| `marketingSmsOptIn` | Boolean |  |  | false |  |
+| `productNewsOptIn` | Boolean |  |  | false |  |
+| `marketingUpdatedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - one-to-one, required, on delete **Cascade**, on update **Restrict**
 
 <a id="model-sellerproductionmilestone"></a>
 
@@ -19473,7 +19638,43 @@ One weight break of a lane: from `minWeightGrams` (inclusive) to `maxWeightGrams
 
 - `@@unique([laneId, minWeightGrams], map: "uq_logistics_lane_band")`
 
-### Enums in  --------------------------------------------------------------------------- seller hub: production, export documents, trade rules and booking terms
+### Enums in  / where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.
+
+<a id="enum-customerkycstatus"></a>
+
+#### enum CustomerKycStatus
+
+| Value | Meaning |
+|---|---|
+| `NOT_STARTED` | Nothing sent for review yet. Editable. |
+| `SUBMITTED` | Sent; staff are reviewing. The identity fields are locked. |
+| `VERIFIED` | Staff checked the documents against the details. |
+| `REJECTED` | Refused, with a reason the buyer sees. Editable again. |
+| `EXPIRED` | Was verified; the identity document has since expired. Editable again. |
+
+<a id="enum-customerkycdocumentkind"></a>
+
+#### enum CustomerKycDocumentKind
+
+| Value | Meaning |
+|---|---|
+| `IDENTITY` |  |
+| `PROOF_OF_ADDRESS` |  |
+| `IMPORT_LICENCE` |  |
+| `TAX_REGISTRATION` |  |
+| `OTHER` |  |
+
+<a id="enum-customerkycdocumentstatus"></a>
+
+#### enum CustomerKycDocumentStatus
+
+| Value | Meaning |
+|---|---|
+| `PENDING` |  |
+| `ACCEPTED` |  |
+| `REJECTED` |  |
+| `EXPIRED` |  |
+| `WITHDRAWN` | Taken back by the buyer before anybody decided on it. |
 
 <a id="enum-productionstage"></a>
 

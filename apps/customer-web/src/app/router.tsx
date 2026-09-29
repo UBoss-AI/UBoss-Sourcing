@@ -378,6 +378,10 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            path: 'identity',
+            ...accountPage(() => import('@/pages/account/IdentityPage').then((m) => m.IdentityPage)),
+          },
+          {
             path: 'company',
             ...accountPage(() =>
               import('@/pages/account/CompanyInformationPage').then(
@@ -399,6 +403,14 @@ export const router = createBrowserRouter([
               import('@/pages/company/CompanyApplicationPage').then(
                 (m) => m.CompanyApplicationPage,
               ),
+            ),
+          },
+          {
+            // Where a company invitation email lands. Signed out, the account
+            // guard sends the visitor to sign in and back with the link intact.
+            path: 'join-company',
+            ...accountPage(() =>
+              import('@/pages/company/JoinCompanyPage').then((m) => m.JoinCompanyPage),
             ),
           },
           {

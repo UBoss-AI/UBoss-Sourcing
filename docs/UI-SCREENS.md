@@ -2632,6 +2632,7 @@ and closing the account. Each panel has its own **Edit**, **Save** and
 | Language and region | Country, language and currency, read-only | Link to `/account/region` | — |
 | Change your password | Current password, new password (at least 12 characters), confirm | Changes it and signs out your other sessions | `POST /api/v1/auth/password/change` |
 | Two-step sign-in | Off: "Two-step sign-in is off…" and **Turn on two-step sign-in** (scan a QR code or type the key, save the recovery codes, enter the first code). On: "N recovery codes left", **Replace recovery codes** (ten new ones shown once), **Turn off two-step sign-in** — not offered, with the reason, while a seller role requires it. Absent where the deployment does not offer it | Replacing and turning off need a fresh confirmation (the "Confirm that it is you" dialog, code when two-step is on); turning off emails the account holder | `GET /api/v1/auth/mfa`, `POST /api/v1/auth/mfa/setup`, `/confirm`, `/recovery-codes`, `/disable`, `POST /api/v1/auth/step-up` |
+| Marketing choices | Three checkboxes: **Offers by email**, **Offers by text message**, **News about new products** — all off until turned on — and when they were last changed. **Save choices** is enabled only when something changed | Saves and records the change in the audit log. Messages about orders, payments and the account are not affected | `GET` and `PUT /api/v1/account/preferences/marketing` |
 | Your purchasing limits | Minimum and maximum per order, spent this month, whether orders need approval. Read-only | These are set by the store on your account | (part of the profile) |
 | Questions about these changes | Five short questions and answers | — | — |
 | Your data | **Request a copy of my data**, **Request erasure** (asks to confirm first). A list of your requests with their status | Staff handle the request. When a copy is ready, a **Download my data (JSON)** link appears. The list checks for news every few seconds while a request is open | `GET` and `POST /api/v1/account/data-requests`; download from `/api/v1/my-data/download/:token` |
@@ -2640,6 +2641,23 @@ and closing the account. Each panel has its own **Edit**, **Save** and
 
 Deleting an account is done through **Your data** (an erasure request), not by
 a button of its own.
+
+#### `/account/identity` — Identity and import
+
+| | |
+|---|---|
+| **Who** | Any signed-in customer. Company buyers are checked through their company application instead |
+| **File** | `pages/account/IdentityPage.tsx`, `lib/customer-kyc.ts` |
+
+**Purpose.** Confirm who you are, and say how you bring goods into your
+country.
+
+| Panel | What you see and do | What the system does | API |
+|---|---|---|---|
+| Identity check | The status (Not started, With a reviewer, Verified, Needs changes, Expired), what it means, the reviewer's reason when refused. **Send for review** where you can send it | Refuses, naming what is missing, without every detail and an identity document | `GET /api/v1/account/kyc`, `POST /api/v1/account/kyc/submit` |
+| Identity details | Full legal name, date of birth, nationality, country you live in, identity document, document number, expiry. **Save identity details**. Locked (greyed, no Save) while with a reviewer or verified | The document number is typed once and shown afterwards only as its last characters | `PUT /api/v1/account/kyc/identity` |
+| Documents | Each file with its kind, status and date; **Withdraw** on one nobody has decided on. Choose what it is and pick a file (PDF, JPEG, PNG, WebP). Identity kinds are not offered while locked | Reads the file's own signature, scans it and stores it privately | `POST /api/v1/account/kyc/documents`, `DELETE /api/v1/account/kyc/documents/:id` |
+| Importer details | **I import goods in my own name**, then importer name, EORI, tax number, import licence, customs broker and email, preferred Incoterm. **Save importer details**. Always editable | Saved as the buyer's own statement; never marked verified | `PUT /api/v1/account/kyc/importer` |
 
 #### `/account/company` — Company information
 
@@ -2735,9 +2753,49 @@ reviewer. Every company email links here.
    then send the application back for review." until every request is
    answered, then "When you have answered and made any corrections, send the
    application back for review."
-6. **History** (folded): what happened and when, in the applicant's words, for
+6. **Team**: "People in this company", each with name, email, the date
+   they joined and their role, "(you)" beside yourself. For the owner and
+   administrators of a verified company: a **Role for …** list and **Remove**
+   on each member they may change (never the owner, never yourself, and an
+   administrator only for the owner); **Remove** asks first in a dialog ("Their
+   access ends straight away. Orders they placed stay with the company.");
+   below, **Email address**, **Role** and **Send invitation**; then
+   "Invitations waiting", each with its role and "Link works until …" or "Link
+   expired", **Resend** and **Withdraw**. Before the company is verified: "You
+   can invite colleagues once the company is verified." A refusal names the
+   rule (for example "Only the owner can give, change or remove the
+   administrator role.") and the list reloads. API:
+   `GET /api/v1/buyer-companies/:id/team`, `POST /:id/invitations`,
+   `POST /:id/invitations/:invitationId/resend`,
+   `DELETE /:id/invitations/:invitationId`, `PATCH`/`DELETE
+   /:id/members/:memberId`. File: `pages/company/CompanyTeamPanel.tsx`.
+7. **History** (folded): what happened and when, in the applicant's words, for
    example "Application started", "Business email confirmed", "Document
    uploaded", "Status changed to: Under review". Staff notes never appear.
+
+#### `/account/join-company` — Join a company
+
+| | |
+|---|---|
+| **Who** | Signed in. Signed out, the account guard sends you to sign in and back here with the link intact. The invitation only opens for the account whose verified email it was sent to |
+| **File** | `pages/company/JoinCompanyPage.tsx` |
+
+**Purpose.** Accept an invitation to act for a company. Reached from the
+link in the invitation email.
+
+**On the screen.** "Join a company", then "Join Acme GmbH": "Olga Owner has
+invited you to act for Acme GmbH. Your role would be: Finance.", "This
+invitation works until …", **Accept and join** and **Not now**. Nothing
+happens until **Accept and join** is pressed; then you land on the company's
+page. A link that cannot be used - expired, withdrawn, already used or sent to
+another address - shows one message for all of them ("This invitation cannot
+be used. It may have expired or been withdrawn, or it was sent to another
+email address. Ask for a new one.") and **Go to your companies**. Without a
+link: "This page opens from the link in an invitation email."
+
+**What happens.** The token is read from the address, sent in a request body
+and removed from the address bar. API:
+`POST /api/v1/buyer-companies/invitations/preview` and `…/accept`.
 
 **The six steps.** Beside the form from `lg` up, a card headed "Your
 application" with "N of 6 steps complete", a bar, and the six steps joined by
@@ -5037,8 +5095,8 @@ name, organisation, department, phone, GSTIN, and **Send an invitation now**
 
 | | |
 |---|---|
-| **Who** | `customer.read`. Limits: `customer.limits.write`. VAT number: `customer.write`. Invite: `customer.invite`. Approve, suspend, reactivate: `customer.status.write` |
-| **File** | `src/pages/CustomerDetailPage.tsx`, `src/pages/customer/VatNumberPanel.tsx` |
+| **Who** | `customer.read`. Limits: `customer.limits.write`. VAT number: `customer.write`. Invite: `customer.invite`. Approve, suspend, reactivate: `customer.status.write`. Identity check decisions and opening its files: `buyer_company.review` |
+| **File** | `src/pages/CustomerDetailPage.tsx`, `src/pages/customer/VatNumberPanel.tsx`, `src/pages/customer/CustomerKycPanel.tsx` |
 
 **Purpose.** One account: its details, what it may spend, its addresses, its
 VAT number and its status.
@@ -5054,6 +5112,16 @@ VAT number and its status.
 - **Addresses** (read-only).
 - **EU VAT number**: save it, then **Check with VIES**; shows whether it was
   confirmed and the registered name.
+- **Identity check**: the individual buyer's status, identity details (the
+  document number masked), importer details when they import, and each
+  document. With `buyer_company.review`: **Open** a file (audited),
+  **Accept** or **Refuse** a waiting document, a **Reason for the buyer**
+  (required to refuse), **Verify identity** (only once the identity document
+  is accepted), **Refuse the check**, and **Withdraw verification** on a
+  verified one. Each decision says which status it was made on; if a colleague
+  decided first or the check expired, it is refused with "Someone else decided
+  this identity check while you had it open" and the panel reloads. A check
+  whose document has expired shows **Expired**, and verifying it is refused.
 - **Status**: **Approve customer** (for a self-registered account with a
   confirmed email), **Send invitation** or **Resend invitation**, **Suspend
   customer** or **Reactivate customer**.
@@ -5066,6 +5134,10 @@ VAT number and its status.
 - `POST /api/v1/admin/customers/:id/approve`
 - `POST /api/v1/admin/customers/:id/invite`
 - `PATCH /api/v1/admin/customers/:id/status`
+- `GET /api/v1/admin/customers/:id/kyc`
+- `POST /api/v1/admin/customers/:id/kyc/decision`
+- `POST /api/v1/admin/customers/:id/kyc/documents/:documentId/decision`
+- `GET /api/v1/admin/customers/:id/kyc/documents/:documentId/file`
 - `GET /api/v1/config`
 
 #### `/buyer-companies` — Company verification

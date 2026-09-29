@@ -547,6 +547,25 @@ export const AuditAction = {
   BUYER_COMPANY_CONSENT_RECORDED: 'buyer_company.consent_recorded',
   BUYER_COMPANY_CHECKS_RUN: 'buyer_company.checks_run',
   BUYER_COMPANY_DOCUMENT_UPLOADED: 'buyer_company.document_uploaded',
+  // Who belongs to a buyer company, and as what (Master rows 11 and 14).
+  BUYER_COMPANY_MEMBER_INVITED: 'buyer_company.member_invited',
+  BUYER_COMPANY_INVITATION_RESENT: 'buyer_company.invitation_resent',
+  BUYER_COMPANY_INVITATION_REVOKED: 'buyer_company.invitation_revoked',
+  BUYER_COMPANY_INVITATION_ACCEPTED: 'buyer_company.invitation_accepted',
+  BUYER_COMPANY_MEMBER_ROLE_CHANGED: 'buyer_company.member_role_changed',
+  BUYER_COMPANY_MEMBER_REMOVED: 'buyer_company.member_removed',
+  // An individual buyer's identity check and marketing choices (Master row 11).
+  CUSTOMER_KYC_UPDATED: 'customer_kyc.updated',
+  CUSTOMER_KYC_SUBMITTED: 'customer_kyc.submitted',
+  CUSTOMER_KYC_DECIDED: 'customer_kyc.decided',
+  /// A verified check whose identity document passed its expiry date. Written by the system.
+  CUSTOMER_KYC_EXPIRED: 'customer_kyc.expired',
+  CUSTOMER_KYC_DOCUMENT_UPLOADED: 'customer_kyc.document_uploaded',
+  CUSTOMER_KYC_DOCUMENT_WITHDRAWN: 'customer_kyc.document_withdrawn',
+  CUSTOMER_KYC_DOCUMENT_DECIDED: 'customer_kyc.document_decided',
+  /// A member of staff opened a buyer's identity document. Every download is one row.
+  CUSTOMER_KYC_DOCUMENT_VIEWED: 'customer_kyc.document_viewed',
+  CUSTOMER_MARKETING_PREFERENCES_UPDATED: 'customer.marketing_preferences_updated',
   /// A member of staff opened a company document. Every download is one row.
   BUYER_COMPANY_DOCUMENT_VIEWED: 'buyer_company.document_viewed',
   BUYER_COMPANY_DOCUMENT_DECIDED: 'buyer_company.document_decided',

@@ -316,6 +316,7 @@ export const ModelName = {
   BuyerCompanyIdentifier: 'BuyerCompanyIdentifier',
   BuyerCompanyLocation: 'BuyerCompanyLocation',
   BuyerCompanyMember: 'BuyerCompanyMember',
+  BuyerCompanyInvitation: 'BuyerCompanyInvitation',
   BuyerCompanyApprovalPolicy: 'BuyerCompanyApprovalPolicy',
   BuyerCompanyOrderApproval: 'BuyerCompanyOrderApproval',
   BuyerCompanyVerificationCase: 'BuyerCompanyVerificationCase',
@@ -368,6 +369,9 @@ export const ModelName = {
   MarketProfile: 'MarketProfile',
   SearchSynonym: 'SearchSynonym',
   SearchQueryLog: 'SearchQueryLog',
+  CustomerKyc: 'CustomerKyc',
+  CustomerKycDocument: 'CustomerKycDocument',
+  CustomerPreference: 'CustomerPreference',
   SellerProductionMilestone: 'SellerProductionMilestone',
   SellerProductionDelay: 'SellerProductionDelay',
   SellerOrderBuyerUpdate: 'SellerOrderBuyerUpdate',
@@ -6665,6 +6669,29 @@ export const BuyerCompanyMemberScalarFieldEnum = {
 export type BuyerCompanyMemberScalarFieldEnum = (typeof BuyerCompanyMemberScalarFieldEnum)[keyof typeof BuyerCompanyMemberScalarFieldEnum]
 
 
+export const BuyerCompanyInvitationScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  email: 'email',
+  emailNormalized: 'emailNormalized',
+  role: 'role',
+  tokenHash: 'tokenHash',
+  liveKey: 'liveKey',
+  expiresAt: 'expiresAt',
+  sendCount: 'sendCount',
+  lastSentAt: 'lastSentAt',
+  invitedByUserId: 'invitedByUserId',
+  acceptedAt: 'acceptedAt',
+  acceptedByUserId: 'acceptedByUserId',
+  revokedAt: 'revokedAt',
+  revokedByUserId: 'revokedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BuyerCompanyInvitationScalarFieldEnum = (typeof BuyerCompanyInvitationScalarFieldEnum)[keyof typeof BuyerCompanyInvitationScalarFieldEnum]
+
+
 export const BuyerCompanyApprovalPolicyScalarFieldEnum = {
   id: 'id',
   companyId: 'companyId',
@@ -7823,6 +7850,72 @@ export const SearchQueryLogScalarFieldEnum = {
 } as const
 
 export type SearchQueryLogScalarFieldEnum = (typeof SearchQueryLogScalarFieldEnum)[keyof typeof SearchQueryLogScalarFieldEnum]
+
+
+export const CustomerKycScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  legalName: 'legalName',
+  dateOfBirth: 'dateOfBirth',
+  nationality: 'nationality',
+  residenceCountry: 'residenceCountry',
+  idDocumentType: 'idDocumentType',
+  idDocumentNumberMasked: 'idDocumentNumberMasked',
+  idDocumentExpiresOn: 'idDocumentExpiresOn',
+  status: 'status',
+  submittedAt: 'submittedAt',
+  reviewedAt: 'reviewedAt',
+  reviewedById: 'reviewedById',
+  reviewNote: 'reviewNote',
+  isImporter: 'isImporter',
+  importerName: 'importerName',
+  eoriNumber: 'eoriNumber',
+  importerTaxId: 'importerTaxId',
+  importLicenceNumber: 'importLicenceNumber',
+  customsBrokerName: 'customsBrokerName',
+  customsBrokerEmail: 'customsBrokerEmail',
+  preferredIncoterm: 'preferredIncoterm',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerKycScalarFieldEnum = (typeof CustomerKycScalarFieldEnum)[keyof typeof CustomerKycScalarFieldEnum]
+
+
+export const CustomerKycDocumentScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  kind: 'kind',
+  status: 'status',
+  fileName: 'fileName',
+  storageKey: 'storageKey',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  sha256: 'sha256',
+  scanState: 'scanState',
+  reviewNote: 'reviewNote',
+  reviewedAt: 'reviewedAt',
+  reviewedById: 'reviewedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerKycDocumentScalarFieldEnum = (typeof CustomerKycDocumentScalarFieldEnum)[keyof typeof CustomerKycDocumentScalarFieldEnum]
+
+
+export const CustomerPreferenceScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  marketingEmailOptIn: 'marketingEmailOptIn',
+  marketingSmsOptIn: 'marketingSmsOptIn',
+  productNewsOptIn: 'productNewsOptIn',
+  marketingUpdatedAt: 'marketingUpdatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerPreferenceScalarFieldEnum = (typeof CustomerPreferenceScalarFieldEnum)[keyof typeof CustomerPreferenceScalarFieldEnum]
 
 
 export const SellerProductionMilestoneScalarFieldEnum = {
@@ -12056,6 +12149,21 @@ export const BuyerCompanyMemberOrderByRelevanceFieldEnum = {
 export type BuyerCompanyMemberOrderByRelevanceFieldEnum = (typeof BuyerCompanyMemberOrderByRelevanceFieldEnum)[keyof typeof BuyerCompanyMemberOrderByRelevanceFieldEnum]
 
 
+export const BuyerCompanyInvitationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  email: 'email',
+  emailNormalized: 'emailNormalized',
+  tokenHash: 'tokenHash',
+  liveKey: 'liveKey',
+  invitedByUserId: 'invitedByUserId',
+  acceptedByUserId: 'acceptedByUserId',
+  revokedByUserId: 'revokedByUserId'
+} as const
+
+export type BuyerCompanyInvitationOrderByRelevanceFieldEnum = (typeof BuyerCompanyInvitationOrderByRelevanceFieldEnum)[keyof typeof BuyerCompanyInvitationOrderByRelevanceFieldEnum]
+
+
 export const BuyerCompanyApprovalPolicyOrderByRelevanceFieldEnum = {
   id: 'id',
   companyId: 'companyId',
@@ -12806,6 +12914,51 @@ export const SearchQueryLogOrderByRelevanceFieldEnum = {
 } as const
 
 export type SearchQueryLogOrderByRelevanceFieldEnum = (typeof SearchQueryLogOrderByRelevanceFieldEnum)[keyof typeof SearchQueryLogOrderByRelevanceFieldEnum]
+
+
+export const CustomerKycOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  legalName: 'legalName',
+  nationality: 'nationality',
+  residenceCountry: 'residenceCountry',
+  idDocumentType: 'idDocumentType',
+  idDocumentNumberMasked: 'idDocumentNumberMasked',
+  reviewedById: 'reviewedById',
+  reviewNote: 'reviewNote',
+  importerName: 'importerName',
+  eoriNumber: 'eoriNumber',
+  importerTaxId: 'importerTaxId',
+  importLicenceNumber: 'importLicenceNumber',
+  customsBrokerName: 'customsBrokerName',
+  customsBrokerEmail: 'customsBrokerEmail',
+  preferredIncoterm: 'preferredIncoterm'
+} as const
+
+export type CustomerKycOrderByRelevanceFieldEnum = (typeof CustomerKycOrderByRelevanceFieldEnum)[keyof typeof CustomerKycOrderByRelevanceFieldEnum]
+
+
+export const CustomerKycDocumentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  fileName: 'fileName',
+  storageKey: 'storageKey',
+  mimeType: 'mimeType',
+  sha256: 'sha256',
+  scanState: 'scanState',
+  reviewNote: 'reviewNote',
+  reviewedById: 'reviewedById'
+} as const
+
+export type CustomerKycDocumentOrderByRelevanceFieldEnum = (typeof CustomerKycDocumentOrderByRelevanceFieldEnum)[keyof typeof CustomerKycDocumentOrderByRelevanceFieldEnum]
+
+
+export const CustomerPreferenceOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId'
+} as const
+
+export type CustomerPreferenceOrderByRelevanceFieldEnum = (typeof CustomerPreferenceOrderByRelevanceFieldEnum)[keyof typeof CustomerPreferenceOrderByRelevanceFieldEnum]
 
 
 export const SellerProductionMilestoneOrderByRelevanceFieldEnum = {

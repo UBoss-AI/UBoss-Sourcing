@@ -75,6 +75,13 @@ const COMMISSION_CODES = new Set([
   'COMMISSION_CREDIT_INVALID',
 ]);
 
+/** An individual buyer's identity check, decided on the customer page. */
+const CUSTOMER_KYC_CODES = new Set([
+  'CUSTOMER_KYC_NOT_EDITABLE',
+  'CUSTOMER_KYC_INCOMPLETE',
+  'CUSTOMER_KYC_TRANSITION_INVALID',
+]);
+
 /** Legal documents and the Terms they govern. Said in the reader's language. */
 const LEGAL_CODES = new Set([
   'LEGAL_DOCUMENT_IMMUTABLE',
@@ -124,6 +131,12 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
     }
     if (COMMISSION_CODES.has(error.code)) {
       return t(`errors.commission.${error.code}` as TranslationKey);
+    }
+    if (CUSTOMER_KYC_CODES.has(error.code)) {
+      const detail = error.details.find((item) => item.code === 'EXPIRED' || item.code === 'STALE')?.code;
+      if (detail === 'EXPIRED') return t('errors.customerKyc.DOCUMENT_EXPIRED');
+      if (detail === 'STALE') return t('errors.customerKyc.STALE');
+      return t(`errors.customerKyc.${error.code}` as TranslationKey);
     }
     if (LEGAL_CODES.has(error.code)) {
       return t(`errors.legal.${error.code}` as TranslationKey);
