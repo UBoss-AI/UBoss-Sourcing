@@ -52,7 +52,12 @@ import { CategoryStrip } from '@/components/catalog/CategoryStrip';
 import { SubCategoryRail } from '@/components/catalog/SubCategoryRail';
 import { findCategoryInTree, rootCategorySlug } from '@/lib/category-tree';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
-import type { CatalogFilterFacets, CategoryNode, ProductListResponse } from '@/lib/types';
+import type {
+  CatalogFilterFacets,
+  CategoryNode,
+  ProductListResponse,
+  SupplierListResponse,
+} from '@/lib/types';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 
@@ -805,6 +810,16 @@ export function CatalogPage(): React.JSX.Element {
   const attrTokens = searchParams.getAll('attr');
 
   /*
+   * One supplier's products, from a supplier card on the home page.
+   *
+   * Checked here as well as by the API: a hand-edited link with something that
+   * cannot be a slug is dropped rather than sent, so it shows the whole
+   * catalogue instead of an error page.
+   */
+  const rawSeller = searchParams.get('seller');
+  const seller = rawSeller !== null && /^[a-z0-9-]{1,180}$/.test(rawSeller) ? rawSeller : null;
+
+  /*
    * Which category, or categories, this listing is narrowed to.
    *
    * The path is the primary source: `/category/:slug` is the canonical URL for
@@ -892,6 +907,18 @@ export function CatalogPage(): React.JSX.Element {
   const { currency, country } = useLocale();
   const { language } = useI18n();
 
+  // The name on the supplier chip. One small read, shared with the home page's
+  // query shape, and never an error on screen: the chip falls back to the slug.
+  const supplier = useQuery({
+    queryKey: ['supplier', seller],
+    queryFn: () =>
+      api.get<SupplierListResponse>('/catalog/suppliers', { query: { slug: seller ?? '', limit: 1 } }),
+    enabled: seller !== null,
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
+  const supplierName = supplier.data?.suppliers[0]?.displayName ?? null;
+
   const products = useQuery({
     // `currency` is part of the key: the same filters in another market are a
     // different result set, because a product priced only in INR is simply not
@@ -914,6 +941,7 @@ export function CatalogPage(): React.JSX.Element {
         onSaleOnly,
         addedWithin,
         attrTokens,
+        seller,
         currency,
         country,
         language,
@@ -937,6 +965,7 @@ export function CatalogPage(): React.JSX.Element {
           onSaleOnly: onSaleOnly ? 'true' : undefined,
           addedWithinDays: addedWithin ?? undefined,
           attr: attrTokens,
+          seller: seller ?? undefined,
         },
       }),
     // Keeps the previous page on screen while the next one loads, so paging
@@ -971,6 +1000,7 @@ export function CatalogPage(): React.JSX.Element {
         inStockOnly,
         onSaleOnly,
         addedWithin,
+        seller,
         currency,
         country,
       },
@@ -991,6 +1021,7 @@ export function CatalogPage(): React.JSX.Element {
           inStockOnly: inStockOnly ? 'true' : undefined,
           onSaleOnly: onSaleOnly ? 'true' : undefined,
           addedWithinDays: addedWithin ?? undefined,
+          seller: seller ?? undefined,
         },
       }),
     // The panel keeps the filters it already has while the next counts load.
@@ -1106,6 +1137,18 @@ export function CatalogPage(): React.JSX.Element {
    * already stated by the breadcrumb and the heading.
    */
   const applied: AppliedFilter[] = [];
+
+  if (seller !== null) {
+    applied.push({
+      key: 'seller',
+      // The supplier's name once it is known; the slug is readable enough
+      // for the moment before, and for a supplier who is no longer listed.
+      label: t('catalog.fromSupplier', { supplier: supplierName ?? seller }),
+      remove: () => {
+        setParam({ seller: null });
+      },
+    });
+  }
 
   if (minPrice !== null || maxPrice !== null) {
     const symbol = currencySymbol(currency);

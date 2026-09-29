@@ -1516,6 +1516,30 @@ all absent (`BUYER_COMPANIES_DISABLED`).
 - **Rules.** A card never links somewhere the person cannot go. A feature this deployment has switched off shows a note instead of a link, to guests and customers alike: the public config reports `features.customerAutopay` (true only when `FEATURE_CUSTOMER_AUTOPAY` and `FEATURE_SUBSCRIPTION_AUTOPAY` are both on) and `features.customerErp` (`FEATURE_CUSTOMER_ERP`); a config without them counts as off. Reduced-motion, low-power and no-WebGL fallbacks; decoration is hidden from assistive technology.
 - **Status.** Built. Until 29 Sep 2026 the Autopay and ERP cards linked to their pages even when those features were off, which left the customer at a dead end.
 
+### FR-SRCH-010 — Verified suppliers on the home page
+
+- **Statement.** The home page names the marketplace's verified suppliers and
+  says, in one sentence under the headline, what the marketplace offers.
+  `GET /api/v1/catalog/suppliers` (public, `limit` 1–24, optional `country`
+  and `slug`) lists them; each card opens `/products?seller={slug}`, and the
+  catalogue and its filter counts accept the same `seller` filter.
+- **Rules.**
+  1. A supplier is listed only when the operator approved them
+     (`APPROVED`, not suspended, not archived) **and** they have at least one
+     live offer on a product the public catalogue shows. "Verified" means
+     exactly that review; nothing else is claimed (no ratings, no rankings).
+  2. A country is named ("from India") only when every verified supplier is
+     registered in it, counted across all of them, not just the page shown.
+  3. With no verified suppliers the section is absent and the sentence is the
+     neutral "Everything your business orders, in one place".
+  4. A seller's own shop front (a seller subdomain) gets an empty list: it
+     never advertises other sellers.
+  5. The list exposes only the public name, slug, kind, country, approval
+     date, product count and logo — never the legal name or notes.
+- **Status.** Built (29 Sep 2026, checklist Master row 1). A supplier page of
+  its own (profile, factory, certifications) is Master row 5 and not built
+  yet; until then the card opens the filtered catalogue.
+
 ### FR-SRCH-009 — The About page
 
 - **Statement.** `/about` is a public page explaining what the marketplace

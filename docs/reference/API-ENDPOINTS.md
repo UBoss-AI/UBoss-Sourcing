@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1054 endpoints** in 91 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1055 endpoints** in 91 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -32,7 +32,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 | [Seller Hub](#seller-hub) | 252 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
 | [Customer account](#customer-account) | 216 |
-| [Public and storefront](#public-and-storefront) | 47 |
+| [Public and storefront](#public-and-storefront) | 48 |
 
 ## Admin panel (staff)
 
@@ -2198,6 +2198,7 @@ Defined in `backend/src/http/routes/catalog.public.ts`, `backend/src/http/routes
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/catalog/variant-axes` | Public |  | The variant axis definitions, for the whole catalogue. |
+| GET | `/api/v1/catalog/suppliers` | Public |  | Verified suppliers: sellers the operator approved who have something live to sell. |
 | GET | `/api/v1/catalog/categories` | Public |  | Category tree |
 | GET | `/api/v1/catalog/categories/:slug` | Public |  | Look up one category by its web address name and return its name and description. Hidden or archived categories answer "not found". |
 | GET | `/api/v1/catalog/products` | Public |  | List published products |

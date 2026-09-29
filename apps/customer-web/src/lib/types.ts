@@ -255,6 +255,29 @@ export interface Locale {
 // Catalogue
 // ---------------------------------------------------------------------------
 
+/**
+ * A supplier the marketplace operator reviewed and approved, with something
+ * live to sell. `GET /catalog/suppliers`.
+ */
+export interface VerifiedSupplier {
+  slug: string;
+  displayName: string;
+  kind: 'MANUFACTURER' | 'AUTHORISED_DISTRIBUTOR' | 'WHOLESALER' | 'RESELLER';
+  /** ISO 3166-1 alpha-2. */
+  registrationCountry: string;
+  /** ISO 8601, or null for an approval older than the recorded date. */
+  verifiedAt: string | null;
+  productCount: number;
+  logoUrl: string | null;
+}
+
+export interface SupplierListResponse {
+  suppliers: VerifiedSupplier[];
+  /** Every verified supplier's country, whatever the page size. */
+  countries: { country: string; count: number }[];
+  total: number;
+}
+
 export interface CategoryNode {
   id: string;
   name: string;

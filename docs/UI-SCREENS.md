@@ -679,6 +679,12 @@ browse.
      and **Products**; the search box ("Search the catalogue"); a camera
      button for **Image search** (when switched on); a microphone for **Search
      by voice** (when the browser can); and **Search**.
+   - One sentence under the strapline: "Source direct from verified suppliers
+     in {country}, priced in your currency and ordered online." when every
+     verified supplier is in one country, the same without the country when
+     they are in several, and "Everything your business orders, in one place"
+     when there are none. All three sit in one grid cell so the line never
+     changes height.
    - For a guest: "Ordering needs an account. Sign in to order".
    - Small chips: "Priced in …", "Order online, any time", "Repeat purchase
      scheduling" (when switched on).
@@ -692,6 +698,14 @@ browse.
 2. **Shop by category**: a rail of the departments that have stock. Opening
    one lists what is inside it, with **Browse …**. Hidden when nothing is
    stocked.
+   - **Verified suppliers** (or **Verified suppliers from {country}** when
+     every verified supplier is registered in one country): up to eight cards
+     of sellers the operator approved who have something live to sell. Each
+     shows the name, the kind of business, the country, "Verified since
+     {month year}" (or "Verified by {marketplace}" when no approval date was
+     recorded) and the product count, and opens `/products?seller={slug}`.
+     Not shown at all until the answer arrives, and not shown when there are
+     none or the read fails.
 3. **Shelves**: up to five rows of six products (New arrivals, Business
    essentials, Industrial and professional supplies, Technology and
    electronics, Home, lifestyle and personal care), each with **See all**. A
@@ -716,6 +730,7 @@ opens the product.
 
 - `GET /api/v1/catalog/categories`
 - `GET /api/v1/catalog/products?…` (one call per shelf, and one for the list)
+- `GET /api/v1/catalog/suppliers?limit=8` (one call, shared by the sentence and the supplier row)
 - `GET /api/v1/account/profile` (customers)
 - `POST /api/v1/catalog/image-search` (customers)
 

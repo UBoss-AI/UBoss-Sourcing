@@ -48,6 +48,7 @@ import { useStorefront } from '@/app/storefront-context';
 import { HeroSearch } from '@/components/hero-search/HeroSearch';
 import { CollectionShelves } from '@/components/home/CollectionShelves';
 import { InlineProducts } from '@/components/home/InlineProducts';
+import { ValueProposition, VerifiedSuppliers } from '@/components/home/VerifiedSuppliers';
 import { HeroStage } from '@/components/greeting/HeroStage';
 import { FlipWords } from '@/components/ui/flip-words';
 import { PRODUCT_BRAND, PRODUCT_TAGLINE } from '@/lib/brand';
@@ -383,6 +384,10 @@ function Greeting(): React.JSX.Element {
                 </span>
               </p>
 
+              {/* What this marketplace is, in one sentence - naming verified
+                  suppliers only when there are some. See VerifiedSuppliers. */}
+              <ValueProposition />
+
               {/*
                * The search module, where two call-to-action buttons used to be.
                *
@@ -552,6 +557,11 @@ export function HomePage(): React.JSX.Element {
 
       <div className="relative mx-auto max-w-content px-4 pb-6 sm:pb-8">
         <CategoryStrip />
+
+        {/* Who is selling: sellers the operator reviewed and approved, each
+            opening the catalogue filtered to what they sell. Absent when
+            there are none, so a deployment never claims suppliers it lacks. */}
+        <VerifiedSuppliers />
 
         {/*
         Curated shelves, between the department rail and the full catalogue.

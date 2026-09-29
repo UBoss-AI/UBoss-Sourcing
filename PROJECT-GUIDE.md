@@ -1569,6 +1569,34 @@ spies on `scrollIntoView` to assert that nothing scrolls on arrival, which is
 the half of the old behaviour that was always wrong and the one a re-invention
 would bring back first.
 
+**Verified suppliers, and the sentence that depends on them.** Under the
+department rail sits a row of up to eight supplier cards, read from
+`GET /api/v1/catalog/suppliers`. A supplier is listed only when the operator
+approved their application (`SellerAccount.status = APPROVED`, not suspended,
+not archived) and they have a live offer on a product the public catalogue
+shows (`modules/catalog/supplier-directory.service.ts`). Only the operator can
+move an application to `APPROVED` (`domain/seller-state.ts`), so "verified" on
+the page is exactly as true as that review, and nothing more is claimed. Each
+card opens `/products?seller={slug}`; the catalogue and its facet counts take
+the same `seller` filter, and a supplier who is later suspended leaves an old
+link showing an empty grid rather than products nobody can buy from them.
+
+The same read decides the sentence under the strapline
+(`components/home/VerifiedSuppliers.tsx`, `lib/verified-suppliers.ts`). With
+suppliers all registered in one country it reads "Source direct from verified
+suppliers in India, …"; with several countries it names none; with no
+suppliers it is the neutral "Everything your business orders, in one place".
+The API reports every verified supplier's country regardless of the page size,
+so "in India" is never said because the first eight happened to be Indian. The
+three wordings share one grid cell, so the line is the same height from the
+first frame and the search bar never moves; the two not shown are
+`aria-hidden`. The supplier row itself renders nothing until the answer
+arrives — a heading shown while loading, on a deployment that turns out to have
+no suppliers, is a claim made and withdrawn. On a seller's own shop front the
+list is empty: a seller's shop does not advertise its competitors.
+`tests/integration/catalog-suppliers.test.ts` and
+`components/home/VerifiedSuppliers.test.tsx` hold these rules.
+
 The bar carries four controls:
 
 | Control | What it does |

@@ -98,6 +98,11 @@ import {
   variantPackagingFor,
   type SerialisedPackaging,
 } from '../../modules/catalog/packaging.service.js';
+import {
+  MAX_SUPPLIERS,
+  listVerifiedSuppliers,
+  suppliedByWhere,
+} from '../../modules/catalog/supplier-directory.service.js';
 
 /**
  * The filters, shared by the listing and by the facet endpoint.
@@ -118,6 +123,16 @@ const filterQuerySchema = z.object({
   q: z.string().trim().max(120).optional(),
   /** A model or size - "14G", "3 ml" - matched against the variants. */
   model: z.string().trim().max(120).optional(),
+  /**
+   * One verified supplier's slug: only products they have a live offer on.
+   * What a supplier card on the home page links to.
+   */
+  seller: z
+    .string()
+    .trim()
+    .max(180)
+    .regex(/^[a-z0-9-]+$/)
+    .optional(),
   minPrice: z.coerce.number().int().min(0).optional(),
   maxPrice: z.coerce.number().int().min(0).optional(),
   recurringOnly: z.enum(['true', 'false']).optional(),
@@ -991,6 +1006,10 @@ async function resolveFilters(
     });
   }
 
+  if (query.seller !== undefined) {
+    conditions.push(suppliedByWhere(query.seller));
+  }
+
   if (query.recurringOnly === 'true') {
     // Empty when every product qualifies, which narrows nothing - the filter
     // then returns the whole catalogue, because the whole catalogue is
@@ -1272,6 +1291,34 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
         ]),
       ),
     });
+  });
+
+  // Verified suppliers: sellers the operator approved who have something live to sell.
+  app.get('/suppliers', async (request, reply) => {
+    const query = z
+      .object({
+        limit: z.coerce.number().int().min(1).max(MAX_SUPPLIERS).default(8),
+        country: z
+          .string()
+          .trim()
+          .regex(/^[A-Za-z]{2}$/)
+          .transform((value) => value.toUpperCase())
+          .optional(),
+        slug: z
+          .string()
+          .trim()
+          .max(180)
+          .regex(/^[a-z0-9-]+$/)
+          .optional(),
+      })
+      .parse(request.query);
+
+    // A seller's own shop front never advertises the other sellers.
+    if (request.storefront !== null) {
+      return reply.status(200).send({ suppliers: [], countries: [], total: 0 });
+    }
+
+    return reply.status(200).send(await listVerifiedSuppliers(query));
   });
 
   /** Storefront navigation. Inactive categories are excluded by default. */
