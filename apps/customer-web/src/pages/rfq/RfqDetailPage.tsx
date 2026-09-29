@@ -147,6 +147,11 @@ function RfqWorkspace({ rfq }: { rfq: BuyerRfq }): React.JSX.Element {
             <RfqStatusBadge status={rfq.status} />
             {rfq.actions.canEdit && <ButtonLink to={`/account/rfqs/${rfq.id}/edit`}>{t('rfq.detail.editDraft')}</ButtonLink>}
             {rfq.actions.canAmend && <ButtonLink to={`/account/rfqs/${rfq.id}/amend`}>{t('rfq.detail.amend')}</ButtonLink>}
+            {rfq.status !== 'DRAFT' && (
+              <ButtonLink to={`/account/rfqs/${rfq.id}/compare`} variant="primary">
+                {t('rfq.detail.compare')}
+              </ButtonLink>
+            )}
             {rfq.actions.canClose && (
               <Button
                 onClick={() => {

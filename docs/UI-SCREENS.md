@@ -2455,6 +2455,25 @@ version** (`POST /rfqs/:id/versions`).
 quotes from suppliers" in the category page's sourcing block, and "Need a
 different quantity or terms? Request quotes" under a product's sourcing panel.
 
+#### `/account/rfqs/:id/compare` — Compare quotes
+
+| | |
+|---|---|
+| **Who** | The buyer who owns the request, or a member of its company |
+| **File** | `pages/rfq/RfqComparePage.tsx` |
+
+**On the screen.** "Show in" (currency), "Sort by" and "Shortlisted only",
+a note giving each conversion's rate, source and date, and a table with one
+column per supplier (name, "Verified by the marketplace", Shortlist toggle)
+and one row per term: status, offer version (and whether it answered an older
+requirement version), unit price, unit price for your quantity, total, tiers,
+MOQ, lead time, capacity, Incoterm, payment, inspection, warranty, tooling,
+sample, shipping estimate, taxes and exclusions, valid until. Each money cell
+shows the quoted figure and, beneath, "≈ … (converted)". Missing terms read
+"Not provided". **Download as CSV** exports the same view. Scrolls sideways
+on a phone. **Calls** `GET /rfqs/:id/comparison`,
+`PUT /rfqs/:id/quotes/:quoteId/shortlist`, `GET /rfqs/:id/comparison.csv`.
+
 #### `/account/preorders/:id` — One preorder
 
 | | |
@@ -3927,7 +3946,12 @@ deadline in UTC (or that it passed), a notice when the requirement has a
 newer version, and tabs: **Requirement** (every field and every version with
 what changed), **Questions** (this seller's own thread only), **Files** (the
 requirement's files and this seller's own), **Timeline**. **Decline to
-quote** asks for a reason first. Opening the page marks the invitation
+quote** asks for a reason first. The **Your quote** tab holds the quote
+form (`components/rfq/QuoteForm.tsx`: currency, unit price, quantity, MOQ,
+lead time, capacity, Incoterm and place, validity in UTC, payment,
+inspection, warranty, taxes and exclusions, tooling, sample, shipping,
+comment, price tiers, files) until the seller has quoted, then every offer
+version (`components/rfq/OfferHistory.tsx`). Opening the page marks the invitation
 viewed. **Calls** `GET /seller/rfqs/:id`, `GET|POST /seller/rfqs/:id/messages`,
 `POST /seller/rfqs/:id/decline`, `GET /seller/rfqs/:id/attachments/:attachmentId/download`.
 

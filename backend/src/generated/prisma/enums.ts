@@ -3557,3 +3557,26 @@ export const RfqAttachmentPurpose = {
 } as const
 
 export type RfqAttachmentPurpose = (typeof RfqAttachmentPurpose)[keyof typeof RfqAttachmentPurpose]
+
+
+export const RfqQuoteStatus = {
+  OPEN: 'OPEN',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  WITHDRAWN: 'WITHDRAWN',
+  CLOSED: 'CLOSED'
+} as const
+
+export type RfqQuoteStatus = (typeof RfqQuoteStatus)[keyof typeof RfqQuoteStatus]
+
+
+export const RfqOfferState = {
+  PROPOSED: 'PROPOSED',
+  SUPERSEDED: 'SUPERSEDED',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  WITHDRAWN: 'WITHDRAWN',
+  CLOSED: 'CLOSED'
+} as const
+
+export type RfqOfferState = (typeof RfqOfferState)[keyof typeof RfqOfferState]

@@ -25,6 +25,14 @@ import {
 import { rfqNotFound, type RfqBuyer } from '../../modules/rfq/access.js';
 import { listThread, messageBodySchema, postMessage, threadQuerySchema } from '../../modules/rfq/message.service.js';
 import { prisma } from '../../infra/prisma.js';
+import { buildComparison, comparisonCsv, comparisonQuerySchema } from '../../modules/rfq/comparison.service.js';
+import {
+  listBuyerQuotes,
+  loadQuoteForBuyer,
+  quoteView,
+  setShortlist,
+  shortlistSchema,
+} from '../../modules/rfq/quote.service.js';
 import {
   readRfqAttachment,
   removePendingAttachment,
@@ -330,6 +338,52 @@ export function registerCustomerRfqRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /** Every quote on your request, each with its current offer and its history. */
+  app.get('/:id/quotes', { preHandler: requireCustomer }, async (request, reply) => {
+    const { id } = idParams.parse(request.params);
+    return reply.header('Cache-Control', 'no-store').status(200).send({ quotes: await listBuyerQuotes(buyerOf(request), id) });
+  });
+
+  /** One quote on your request, with every offer version. */
+  app.get('/:id/quotes/:quoteId', { preHandler: requireCustomer }, async (request, reply) => {
+    const { id, quoteId } = quoteParams.parse(request.params);
+    const quote = await loadQuoteForBuyer(buyerOf(request), id, quoteId);
+    return reply.header('Cache-Control', 'no-store').status(200).send({ quote: await quoteView(quote) });
+  });
+
+  /** Put a quote on your shortlist, or take it off. Writes an audit entry. */
+  app.put('/:id/quotes/:quoteId/shortlist', { preHandler: requireCustomer }, async (request, reply) => {
+    assertDrafting(request);
+    const { id, quoteId } = quoteParams.parse(request.params);
+    const input = shortlistSchema.parse(request.body);
+    return reply.status(200).send({ quote: await setShortlist(buyerOf(request), id, quoteId, input) });
+  });
+
+  /**
+   * The quotes side by side, sortable and filterable, with every figure as
+   * quoted and, beside it, converted into `?currency=` at the published rate
+   * (source and date given). Missing terms are null, never zero.
+   */
+  app.get('/:id/comparison', { preHandler: requireCustomer }, async (request, reply) => {
+    const { id } = idParams.parse(request.params);
+    const query = comparisonQuerySchema.parse(request.query);
+    return reply.header('Cache-Control', 'no-store').status(200).send({ comparison: await buildComparison(buyerOf(request), id, query) });
+  });
+
+  /** The same comparison as a CSV file, spreadsheet formulas neutralised. Writes an audit entry. */
+  app.get('/:id/comparison.csv', { preHandler: requireCustomer }, async (request, reply) => {
+    const { id } = idParams.parse(request.params);
+    const query = comparisonQuerySchema.parse(request.query);
+    const file = await comparisonCsv(buyerOf(request), id, query);
+    return reply
+      .header('content-type', 'text/csv; charset=utf-8')
+      .header('content-disposition', `attachment; filename="${file.fileName}"`)
+      .header('x-content-type-options', 'nosniff')
+      .header('cache-control', 'no-store')
+      .status(200)
+      .send(file.content);
+  });
+
   /** The thread with one invited seller, oldest first; `?after=` for only new ones. */
   app.get('/:id/invitations/:invitationId/messages', { preHandler: requireCustomer }, async (request, reply) => {
     const { id, invitationId } = invitationParams.parse(request.params);
@@ -366,6 +420,8 @@ export function registerCustomerRfqRoutes(app: FastifyInstance): Promise<void> {
 
   return Promise.resolve();
 }
+
+const quoteParams = z.object({ id: z.string().length(26), quoteId: z.string().length(26) });
 
 const invitationParams = z.object({ id: z.string().length(26), invitationId: z.string().length(26) });
 

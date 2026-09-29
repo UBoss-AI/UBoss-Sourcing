@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**348 tables · 324 enums · 800 extra indexes and unique keys**, in 55 groups. The groups follow the section banners in the schema file.
+**350 tables · 326 enums · 804 extra indexes and unique keys**, in 55 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -79,7 +79,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.](#group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts) | 14 | 11 |
 | [/ what a ledger account represents. balances are never stored; they are the / sum of the account's lines.](#group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines) | 8 | 7 |
 | [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
-| [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 6 | 5 |
+| [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 8 | 7 |
 
 <a id="group-identity-access"></a>
 
@@ -7933,6 +7933,7 @@ A seller business, as a tenant.
 - `preorderPolicies` ← [PreorderPolicy](#model-preorderpolicy) - has many
 - `preorderRequests` ← [PreorderRequest](#model-preorderrequest) - has many
 - `rfqInvitations` ← [RfqInvitation](#model-rfqinvitation) - has many
+- `rfqQuotes` ← [RfqQuote](#model-rfqquote) - has many
 - `invoiceSettings` ← [SellerInvoiceSettings](#model-sellerinvoicesettings) - has zero or one
 - `sellerInvoices` ← [SellerInvoice](#model-sellerinvoice) - has many
 - `packingLists` ← [SellerPackingList](#model-sellerpackinglist) - has many
@@ -20319,7 +20320,7 @@ Table `secret_fingerprints`
 
 ## Requests for quotation (rfq) - checklist master rows 16-19
 
-[RfqRequest](#model-rfqrequest) · [RfqRequirementVersion](#model-rfqrequirementversion) · [RfqInvitation](#model-rfqinvitation) · [RfqAttachment](#model-rfqattachment) · [RfqEvent](#model-rfqevent) · [RfqMessage](#model-rfqmessage)
+[RfqRequest](#model-rfqrequest) · [RfqRequirementVersion](#model-rfqrequirementversion) · [RfqInvitation](#model-rfqinvitation) · [RfqAttachment](#model-rfqattachment) · [RfqEvent](#model-rfqevent) · [RfqMessage](#model-rfqmessage) · [RfqQuote](#model-rfqquote) · [RfqQuoteVersion](#model-rfqquoteversion)
 
 ```mermaid
 erDiagram
@@ -20332,6 +20333,9 @@ erDiagram
     RfqRequest ||--o{ RfqAttachment : "rfq"
     RfqRequest ||--o{ RfqEvent : "rfq"
     RfqRequest ||--o{ RfqMessage : "rfq"
+    RfqRequest ||--o{ RfqQuote : "rfq"
+    SellerAccount ||--o{ RfqQuote : "sellerAccount"
+    RfqQuote ||--o{ RfqQuoteVersion : "quote"
     RfqRequest {
         String id PK
         RfqStatus status
@@ -20361,6 +20365,20 @@ erDiagram
     RfqMessage {
         String id PK
         String rfqId FK
+    }
+    RfqQuote {
+        String id PK
+        String rfqId FK
+        String sellerAccountId FK
+        RfqQuoteStatus status
+    }
+    RfqQuoteVersion {
+        String id PK
+        String quoteId FK
+        BigInt unitPriceMinor
+        BigInt toolingMinor
+        BigInt sampleCostMinor
+        BigInt shippingEstimateMinor
     }
 ```
 
@@ -20422,6 +20440,7 @@ One request for quotation. The row holds the CURRENT requirement; every submitte
 - `attachments` ← [RfqAttachment](#model-rfqattachment) - has many
 - `events` ← [RfqEvent](#model-rfqevent) - has many
 - `messages` ← [RfqMessage](#model-rfqmessage) - has many
+- `quotes` ← [RfqQuote](#model-rfqquote) - has many
 
 **Indexes and keys**
 
@@ -20585,6 +20604,99 @@ A question or an answer in one seller's thread on a request (Master row 17). A s
 - `@@unique([rfqId, sellerAccountId, clientMessageId], map: "uq_rfq_message_client")`
 - `@@index([rfqId, sellerAccountId, id], map: "ix_rfq_message_thread")`
 
+<a id="model-rfqquote"></a>
+
+### RfqQuote
+
+Table `rfq_quotes`
+
+One seller's quote on one request (Master row 18): a chain of immutable offer versions. `UNIQUE (rfqId, sellerAccountId)`: one quote per seller; changing terms is a counter-offer, never a second quote.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `rfqId` | String · Char(26) |  | FK → [RfqRequest](#model-rfqrequest) |  | (on delete: Cascade) |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `invitationId` | String · Char(26) |  |  |  |  |
+| `status` | [enum RfqQuoteStatus](#enum-rfqquotestatus) |  |  | OPEN |  |
+| `currency` | String · Char(3) |  |  |  | Every version of this quote is in this currency. |
+| `currentVersionId` | String · Char(26) | yes |  |  | The version now on the table. Moved only conditionally on the one read. |
+| `currentVersionNumber` | Int |  |  | 1 |  |
+| `basedOnRequirementVersion` | Int |  |  |  | The requirement version the seller quoted against. |
+| `shortlisted` | Boolean |  |  | false |  |
+| `shortlistedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `acceptedVersionId` | String · Char(26) | yes |  |  |  |
+| `acceptedTermsHash` | String · Char(64) | yes |  |  | SHA-256 of the accepted version's canonical terms. What a purchase order built from this quote would have to match. |
+| `acceptedTermsJson` | Json | yes |  |  |  |
+| `acceptedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `acceptedByParty` | [enum RfqParty](#enum-rfqparty) | yes |  |  |  |
+| `acceptedByUserId` | String · Char(26) | yes |  |  |  |
+| `closedReason` | String · VarChar(40) | yes |  |  | Why a quote closed without being accepted: AWARDED_ELSEWHERE, RFQ_CANCELLED, RFQ_CLOSED. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `rfq` → [RfqRequest](#model-rfqrequest) via `rfqId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `versions` ← [RfqQuoteVersion](#model-rfqquoteversion) - has many
+
+**Indexes and keys**
+
+- `@@unique([rfqId, sellerAccountId], map: "uq_rfq_quote_seller")`
+- `@@index([rfqId, status], map: "ix_rfq_quote_rfq")`
+
+<a id="model-rfqquoteversion"></a>
+
+### RfqQuoteVersion
+
+Table `rfq_quote_versions`
+
+One immutable set of terms in a quote. Version 1 is the seller's quote; each counter-offer, from either side, is the next. Never updated except for its state and the answer to it.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `quoteId` | String · Char(26) |  | FK → [RfqQuote](#model-rfqquote) |  | (on delete: Cascade) |
+| `rfqId` | String · Char(26) |  |  |  |  |
+| `versionNumber` | Int |  |  |  |  |
+| `authorParty` | [enum RfqParty](#enum-rfqparty) |  |  |  |  |
+| `authorUserId` | String · Char(26) |  |  |  |  |
+| `state` | [enum RfqOfferState](#enum-rfqofferstate) |  |  | PROPOSED |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `unitPriceMinor` | BigInt |  |  |  |  |
+| `quantity` | Decimal · Decimal(15, 3) |  |  |  |  |
+| `moq` | Decimal · Decimal(15, 3) | yes |  |  |  |
+| `leadTimeDays` | Int | yes |  |  |  |
+| `capacityPerMonth` | Decimal · Decimal(15, 3) | yes |  |  |  |
+| `incoterm` | String · VarChar(3) | yes |  |  |  |
+| `incotermPlace` | String · VarChar(120) | yes |  |  |  |
+| `paymentTerms` | String · VarChar(500) | yes |  |  |  |
+| `inspectionTerms` | String · VarChar(500) | yes |  |  |  |
+| `warranty` | String · VarChar(500) | yes |  |  |  |
+| `toolingMinor` | BigInt | yes |  |  | NULL is "not provided", never zero. |
+| `sampleCostMinor` | BigInt | yes |  |  |  |
+| `shippingEstimateMinor` | BigInt | yes |  |  |  |
+| `taxesDisclosure` | String · VarChar(1000) | yes |  |  |  |
+| `tiersJson` | Json | yes |  |  | `[{ minQuantity, unitPriceMinor }]`, ascending. |
+| `comment` | String · VarChar(2000) | yes |  |  |  |
+| `expiresAt` | DateTime · DateTime(3) |  |  |  | The offer stands until then. An expired offer can be countered, never accepted. |
+| `termsHash` | String · Char(64) |  |  |  |  |
+| `respondedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `respondedByUserId` | String · Char(26) | yes |  |  |  |
+| `responseNote` | String · VarChar(1000) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `quote` → [RfqQuote](#model-rfqquote) via `quoteId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([quoteId, versionNumber], map: "uq_rfq_quote_version")`
+- `@@index([rfqId], map: "ix_rfq_quote_version_rfq")`
+
 ### Enums in Requests for quotation (rfq) - checklist master rows 16-19
 
 <a id="enum-rfqstatus"></a>
@@ -20644,4 +20756,29 @@ How a seller came to be asked: matched on category and destination, or picked by
 | `REQUIREMENT` | Part of the requirement. Seen by every invited seller once it is in a requirement version. |
 | `QUOTE` | Sent with a seller's quote. Seen by the buyer and that seller. |
 | `NEGOTIATION` | Sent with a counter-offer, by either side. Seen by the buyer and that seller. |
+
+<a id="enum-rfqquotestatus"></a>
+
+#### enum RfqQuoteStatus
+
+| Value | Meaning |
+|---|---|
+| `OPEN` |  |
+| `ACCEPTED` |  |
+| `REJECTED` |  |
+| `WITHDRAWN` |  |
+| `CLOSED` |  |
+
+<a id="enum-rfqofferstate"></a>
+
+#### enum RfqOfferState
+
+| Value | Meaning |
+|---|---|
+| `PROPOSED` |  |
+| `SUPERSEDED` |  |
+| `ACCEPTED` |  |
+| `REJECTED` |  |
+| `WITHDRAWN` |  |
+| `CLOSED` |  |
 

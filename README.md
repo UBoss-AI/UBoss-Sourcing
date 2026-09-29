@@ -2859,6 +2859,12 @@ nobody matches, the request says so. Sellers answer in **Seller Hub →
 Requests for quotation**: each sees only the requests it was invited to and
 only its own questions thread, and can decline with a reason. A sent request
 changes only by publishing a new version that every seller is told about.
+Each seller sends one quote (price, tiers, MOQ, lead time, Incoterm, payment,
+inspection, warranty, tooling, sample and shipping costs, validity); the
+buyer compares them side by side in a chosen currency - converted at your
+published exchange rates, labelled as converted with the rate and its date,
+and never hiding the figure as quoted - shortlists, and downloads the
+comparison as CSV.
 Switched by `FEATURE_RFQ` (default on).
 
 ## Preorder chat

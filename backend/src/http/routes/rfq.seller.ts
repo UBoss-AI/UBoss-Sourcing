@@ -11,7 +11,8 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import { supplierFromMembership, type RfqSupplier } from '../../modules/rfq/access.js';
-import { readRfqAttachment, supplierAttachmentWhere } from '../../modules/rfq/attachment.service.js';
+import { readRfqAttachment, storeRfqAttachment, supplierAttachmentWhere } from '../../modules/rfq/attachment.service.js';
+import { quoteInputSchema, submitQuote, supplierQuote } from '../../modules/rfq/quote.service.js';
 import { listThread, messageBodySchema, postMessage, threadQuerySchema } from '../../modules/rfq/message.service.js';
 import {
   declineRfq,
@@ -19,12 +20,13 @@ import {
   getSupplierRfq,
   listSupplierRfqs,
   loadInvitation,
+  responseClosed,
   supplierListQuerySchema,
 } from '../../modules/rfq/supplier.service.js';
 import { currentUser } from '../plugins/auth.js';
 import { currentSeller, requireSeller, requireTradingSeller } from '../plugins/seller.js';
 import { sendAttachment } from './preorder-chats.js';
-import { requireFeature } from './rfq.customer.js';
+import { readRfqUpload, requireFeature } from './rfq.customer.js';
 
 const idParams = z.object({ id: z.string().length(26) });
 const attachmentParams = z.object({ id: z.string().length(26), attachmentId: z.string().length(26) });
@@ -90,6 +92,50 @@ export function registerSellerRfqRoutes(app: FastifyInstance): Promise<void> {
         body,
       });
       return reply.status(201).send({ message });
+    },
+  );
+
+  /**
+   * Quote on a request: a unit price, optional tiers and the commercial
+   * terms, with files uploaded first. One quote per seller; before the
+   * deadline only. Tells the buyer and writes an audit entry.
+   */
+  app.post(
+    '/rfqs/:id/quotes',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const input = quoteInputSchema.parse(request.body);
+      return reply.status(201).send({ quote: await submitQuote(supplierOf(request), id, input) });
+    },
+  );
+
+  /** This seller's own quote on the request, with every offer version; null before it quoted. */
+  app.get('/rfqs/:id/quote', { preHandler: requireSeller(SellerPermission.ORDER_READ) }, async (request, reply) => {
+    const { id } = idParams.parse(request.params);
+    return reply.header('Cache-Control', 'no-store').status(200).send({ quote: await supplierQuote(supplierOf(request), id) });
+  });
+
+  /**
+   * Upload a PDF or image to send with this seller's quote or next offer.
+   * Seen by nobody else until it is sent with one.
+   */
+  app.post(
+    '/rfqs/:id/attachments',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: { max: 30, timeWindow: '10 minutes' } } },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const { purpose } = z.object({ purpose: z.enum(['QUOTE', 'NEGOTIATION']).default('QUOTE') }).parse(request.query);
+      const supplier = supplierOf(request);
+      const invitation = await loadInvitation(supplier, id);
+      if (invitation.rfq.status !== 'OPEN') throw responseClosed(invitation.rfq.status);
+      const file = await readRfqUpload(request);
+      const attachment = await storeRfqAttachment(
+        id,
+        { ...file, purpose, sellerAccountId: supplier.sellerAccountId },
+        { party: 'SUPPLIER', userId: supplier.userId, email: null },
+      );
+      return reply.status(201).send({ attachment });
     },
   );
 

@@ -9752,6 +9752,8 @@ model SellerAccount {
   preorderRequests        PreorderRequest[]
   /// Requests for quotation this seller was asked to answer.
   rfqInvitations          RfqInvitation[]
+  /// Quotes this seller sent on requests for quotation.
+  rfqQuotes               RfqQuote[]
   /// The seller's own invoices and packing lists, and how they are numbered.
   /// See the SELLER DOCUMENTS block at the end of this file.
   invoiceSettings         SellerInvoiceSettings?
@@ -23983,6 +23985,7 @@ model RfqRequest {
   attachments         RfqAttachment[]
   events              RfqEvent[]
   messages            RfqMessage[]
+  quotes              RfqQuote[]
 
   @@index([customerProfileId, buyerCompanyId, updatedAt], map: "ix_rfq_request_owner")
   @@index([buyerCompanyId, updatedAt], map: "ix_rfq_request_company")
@@ -24134,4 +24137,114 @@ model RfqMessage {
   @@unique([rfqId, sellerAccountId, clientMessageId], map: "uq_rfq_message_client")
   @@index([rfqId, sellerAccountId, id], map: "ix_rfq_message_thread")
   @@map("rfq_messages")
+}
+
+enum RfqQuoteStatus {
+  OPEN
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+  CLOSED
+}
+
+enum RfqOfferState {
+  PROPOSED
+  SUPERSEDED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+  CLOSED
+}
+
+/// One seller's quote on one request (Master row 18): a chain of immutable
+/// offer versions. `UNIQUE (rfqId, sellerAccountId)`: one quote per seller;
+/// changing terms is a counter-offer, never a second quote.
+model RfqQuote {
+  id              String         @id @db.Char(26)
+  rfqId           String         @db.Char(26)
+  sellerAccountId String         @db.Char(26)
+  invitationId    String         @db.Char(26)
+  status          RfqQuoteStatus @default(OPEN)
+  /// Every version of this quote is in this currency.
+  currency        String         @db.Char(3)
+  /// The version now on the table. Moved only conditionally on the one read.
+  currentVersionId     String? @db.Char(26)
+  currentVersionNumber Int     @default(1)
+  /// The requirement version the seller quoted against.
+  basedOnRequirementVersion Int
+  shortlisted   Boolean   @default(false)
+  shortlistedAt DateTime? @db.DateTime(3)
+
+  // --- Acceptance (Master row 19) ------------------------------------------
+  acceptedVersionId String?   @db.Char(26)
+  /// SHA-256 of the accepted version's canonical terms. What a purchase order
+  /// built from this quote would have to match.
+  acceptedTermsHash String?   @db.Char(64)
+  acceptedTermsJson Json?
+  acceptedAt        DateTime? @db.DateTime(3)
+  acceptedByParty   RfqParty?
+  acceptedByUserId  String?   @db.Char(26)
+  /// Why a quote closed without being accepted: AWARDED_ELSEWHERE,
+  /// RFQ_CANCELLED, RFQ_CLOSED.
+  closedReason      String?   @db.VarChar(40)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  rfq           RfqRequest        @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_quote_rfq")
+  sellerAccount SellerAccount     @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_quote_seller")
+  versions      RfqQuoteVersion[]
+
+  @@unique([rfqId, sellerAccountId], map: "uq_rfq_quote_seller")
+  @@index([rfqId, status], map: "ix_rfq_quote_rfq")
+  @@map("rfq_quotes")
+}
+
+/// One immutable set of terms in a quote. Version 1 is the seller's quote;
+/// each counter-offer, from either side, is the next. Never updated except
+/// for its state and the answer to it.
+model RfqQuoteVersion {
+  id            String        @id @db.Char(26)
+  quoteId       String        @db.Char(26)
+  rfqId         String        @db.Char(26)
+  versionNumber Int
+  authorParty   RfqParty
+  authorUserId  String        @db.Char(26)
+  state         RfqOfferState @default(PROPOSED)
+
+  currency              String   @db.Char(3)
+  unitPriceMinor        BigInt
+  quantity              Decimal  @db.Decimal(15, 3)
+  moq                   Decimal? @db.Decimal(15, 3)
+  leadTimeDays          Int?
+  capacityPerMonth      Decimal? @db.Decimal(15, 3)
+  incoterm              String?  @db.VarChar(3)
+  incotermPlace         String?  @db.VarChar(120)
+  paymentTerms          String?  @db.VarChar(500)
+  inspectionTerms       String?  @db.VarChar(500)
+  warranty              String?  @db.VarChar(500)
+  /// NULL is "not provided", never zero.
+  toolingMinor          BigInt?
+  sampleCostMinor       BigInt?
+  shippingEstimateMinor BigInt?
+  taxesDisclosure       String?  @db.VarChar(1000)
+  /// `[{ minQuantity, unitPriceMinor }]`, ascending.
+  tiersJson             Json?
+  comment               String?  @db.VarChar(2000)
+  /// The offer stands until then. An expired offer can be countered, never accepted.
+  expiresAt             DateTime @db.DateTime(3)
+  termsHash             String   @db.Char(64)
+
+  respondedAt       DateTime? @db.DateTime(3)
+  respondedByUserId String?   @db.Char(26)
+  responseNote      String?   @db.VarChar(1000)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  quote RfqQuote @relation(fields: [quoteId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_quote_version_quote")
+
+  @@unique([quoteId, versionNumber], map: "uq_rfq_quote_version")
+  @@index([rfqId], map: "ix_rfq_quote_version_rfq")
+  @@map("rfq_quote_versions")
 }

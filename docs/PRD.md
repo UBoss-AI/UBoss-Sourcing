@@ -3126,6 +3126,37 @@ status write is conditional on the status and version that were read.
 - **Status.** Built (checklist Master row 17). Not built: attaching a file to
   a question (files go with the requirement or with an offer).
 
+### FR-RFQ-003 — Quotes and comparing them (checklist Master row 18)
+
+- **Statement.** Each invited seller sends one quote; the buyer compares the
+  quotes side by side, in their chosen currency, and exports the comparison.
+- **Quote fields.** Unit price (minor units) and currency, optional price
+  tiers (ascending quantities), quantity, MOQ, lead time in days, capacity
+  per month, Incoterm and place, payment terms, inspection terms, warranty,
+  tooling/NRE, sample cost, shipping estimate, taxes/duties/exclusions, a
+  comment, files, and a validity date. That is offer version 1.
+- **Rules.**
+  1. One quote per seller per request (`uq_rfq_quote_seller`,
+     `RFQ_QUOTE_EXISTS`); only while the request is open and before the
+     deadline, and not after declining (`RFQ_RESPONSE_CLOSED`). Invalid terms
+     are `RFQ_QUOTE_INVALID` with the field named.
+  2. The comparison shows every figure as quoted. When the buyer chooses
+     another currency, each figure is also converted with the project's own
+     published rate set (mid-market, no margin), labelled approximate, with
+     the rate, its provider and its as-of date. A pair with no published rate
+     is shown as quoted only and says so.
+  3. A term not given is `null` and reads "Not provided", never zero. The
+     total is the applicable tier price times the quantity, rounded half-up
+     once; the converted total converts that total.
+  4. Sort by total, unit price, lead time, MOQ or supplier (unknown figures
+     last); filter to the shortlist or by status. The shortlist is the
+     buyer's alone (audited) and changes no term.
+  5. `GET /rfqs/:id/comparison.csv` is built from the same rows; every cell
+     is written through the export's formula guard (a leading `=`, `+`, `-`,
+     `@`, tab or CR is prefixed with `'`). The export is audited.
+  6. A seller sees only its own quote; the comparison is the buyer's.
+- **Status.** Built (checklist Master row 18).
+
 ## 5.12 Buying by the carton, pallet or container; freight (BULK)
 
 ### FR-BULK-001 — Seller packaging per listing

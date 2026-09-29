@@ -3322,3 +3322,17 @@ export type RfqEvent = Prisma.RfqEventModel
  * for as long as the request is.
  */
 export type RfqMessage = Prisma.RfqMessageModel
+/**
+ * Model RfqQuote
+ * One seller's quote on one request (Master row 18): a chain of immutable
+ * offer versions. `UNIQUE (rfqId, sellerAccountId)`: one quote per seller;
+ * changing terms is a counter-offer, never a second quote.
+ */
+export type RfqQuote = Prisma.RfqQuoteModel
+/**
+ * Model RfqQuoteVersion
+ * One immutable set of terms in a quote. Version 1 is the seller's quote;
+ * each counter-offer, from either side, is the next. Never updated except
+ * for its state and the answer to it.
+ */
+export type RfqQuoteVersion = Prisma.RfqQuoteVersionModel

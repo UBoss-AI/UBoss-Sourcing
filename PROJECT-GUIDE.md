@@ -13158,6 +13158,18 @@ locked, and every seller still taking part is told. The deadline is an instant
 in UTC; unanswered invitations become EXPIRED when the request is next read
 after it, and come back if the deadline is moved later.
 
+**Quotes and the comparison (row 18).** Each invited seller sends one quote
+(`rfq_quotes`, one per seller per request) - unit price and currency, optional
+tiers, quantity, MOQ, lead time, capacity, Incoterm, payment, inspection,
+warranty, tooling, sample cost, shipping estimate, taxes and exclusions,
+validity - which is offer version 1 (`rfq_quote_versions`, immutable, with a
+SHA-256 terms hash). The buyer's comparison (`/account/rfqs/:id/compare`)
+always shows figures as quoted; converted figures are added beside them from
+the project's published rate set (`indicativeConversion`, mid-market), with
+the rate, provider and date, and labelled approximate. A term not given is
+null and reads "Not provided". Totals are tier price x quantity rounded once.
+The CSV export uses the same rows and the reports' formula guard (`csvRow`).
+
 ## 9.5.4 Seller invoices and packing lists
 
 ### Whose document it is

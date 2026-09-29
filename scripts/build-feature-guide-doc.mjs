@@ -625,6 +625,10 @@ bullets([
   'After sending, the buyer sees each supplier asked and where they stand: invited, opened, quoted, declined (with their reason), or out of time.',
   'The buyer and each supplier can ask and answer questions in a conversation of their own; no supplier sees another’s.',
   'A sent request is never changed silently. Changing it publishes a new version, says what changed and why, and tells every supplier still taking part. Earlier versions stay readable.',
+  'Each supplier sends one quote. The buyer presses Compare quotes to see them side by side: price, price for their quantity, total, minimum order, lead time, terms, extra costs and how long each offer stands.',
+  'The buyer can show every figure in the currency they choose. The figure the supplier quoted is always shown too; the converted one is marked as converted and says which exchange rate was used, where it came from and on what date.',
+  'Anything a supplier did not give says “Not provided”. It is never shown as zero, so a quote is never made to look cheaper by leaving something out.',
+  'The buyer can sort, keep a shortlist and download the comparison as a spreadsheet file.',
 ]);
 
 h2('5.4b Asking the team about a preorder');
@@ -1144,6 +1148,7 @@ table(['Step', 'What the seller does', 'What the system does back'], [
   ['1', 'Opens the request.', 'Shows everything the buyer asked for, every earlier version with what changed, the buyer’s files, and the deadline in UTC. It tells the buyer the seller has opened it.'],
   ['2', 'Asks the buyer a question, if something is unclear.', 'Keeps the question and the answer in a conversation that only this seller and the buyer can see. Other sellers never see it.'],
   ['3', 'Or declines, with a reason.', 'Tells the buyer, with the reason, and takes the request off the seller’s to-do list.'],
+  ['4', 'Or sends a quote from the Your quote tab: price and currency, optional price steps for bigger quantities, minimum order, lead time, monthly capacity, Incoterm, payment and inspection terms, warranty, tooling, sample and shipping costs, what the price does not include, how long the offer stands, and files.', 'Checks the offer, sends it to the buyer, and keeps it as the first version. A seller sends one quote per request; changing terms later is a counter-offer.'],
 ]);
 bullets([
   'A seller only ever sees requests it was invited to.',

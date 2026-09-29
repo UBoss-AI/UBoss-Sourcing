@@ -1428,6 +1428,12 @@ export async function buildCustomerBundle(
             },
             events: { orderBy: { createdAt: 'asc' }, take: 1_000 },
             messages: { orderBy: { id: 'asc' }, take: 2_000 },
+            quotes: {
+              include: {
+                sellerAccount: { select: { displayName: true } },
+                versions: { orderBy: { versionNumber: 'asc' } },
+              },
+            },
           },
         }),
         prisma.rfqRequest.count({ where }),
@@ -1486,6 +1492,24 @@ export async function buildCustomerBundle(
             bytes: file.byteSize,
             purpose: file.purpose,
             at: iso(file.createdAt),
+          })),
+          // Every quote and offer put to this person, and what became of it.
+          quotes: request.quotes.map((quote) => ({
+            seller: quote.sellerAccount.displayName,
+            status: quote.status,
+            acceptedTermsHash: quote.acceptedTermsHash,
+            acceptedAt: iso(quote.acceptedAt),
+            offers: quote.versions.map((version) => ({
+              version: version.versionNumber,
+              from: version.authorParty,
+              state: version.state,
+              currency: version.currency,
+              unitPriceMinor: money(version.unitPriceMinor),
+              quantity: version.quantity.toString(),
+              expiresAt: iso(version.expiresAt),
+              termsHash: version.termsHash,
+              at: iso(version.createdAt),
+            })),
           })),
           // Questions and answers with each seller. Which member of the
           // seller's staff wrote is theirs, so only the side is given.

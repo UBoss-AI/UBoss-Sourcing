@@ -220,6 +220,8 @@ const HARMLESS_CREATE_WORDS = new Set([
   'conversations', 'language', 'locale', 'email-change', 'phone-change', 'closure',
   'gpsr', 'translations', 'legal-documents', 'versions', 'sellers', 'companies',
   'buyer-companies', 'applications', 'registrations', 'entities', 'profile',
+  // One quote per seller per request (uq_rfq_quote_seller) refuses a repeat.
+  'quotes',
 ]);
 
 const HARMLESS_CREATE: Rule = {

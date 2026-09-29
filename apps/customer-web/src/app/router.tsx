@@ -373,6 +373,10 @@ export const router = createBrowserRouter([
             ...accountPage(() => import('@/pages/rfq/RfqDetailPage').then((m) => m.RfqDetailPage)),
           },
           {
+            path: 'rfqs/:id/compare',
+            ...accountPage(() => import('@/pages/rfq/RfqComparePage').then((m) => m.RfqComparePage)),
+          },
+          {
             path: 'rfqs/:id/amend',
             ...accountPage(() => import('@/pages/rfq/RfqEditPage').then((m) => m.RfqAmendPage)),
           },

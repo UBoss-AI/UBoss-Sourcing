@@ -633,6 +633,9 @@ export const AuditAction = {
   RFQ_ATTACHMENT_DOWNLOADED: 'rfq.attachment_downloaded',
   RFQ_AMENDED: 'rfq.amended',
   RFQ_INVITATION_DECLINED: 'rfq.invitation_declined',
+  RFQ_QUOTE_SUBMITTED: 'rfq.quote_submitted',
+  RFQ_QUOTE_SHORTLISTED: 'rfq.quote_shortlisted',
+  RFQ_COMPARISON_EXPORTED: 'rfq.comparison_exported',
 } as const;
 
 export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];

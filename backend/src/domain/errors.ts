@@ -1927,6 +1927,17 @@ export const ErrorCode = {
   /// A new requirement version was asked for with nothing different from
   /// the current one. 409.
   RFQ_NO_CHANGE: 'RFQ_NO_CHANGE',
+  /// This seller has already quoted on the request. A changed price is a
+  /// counter-offer on that quote, never a second quote. 409.
+  RFQ_QUOTE_EXISTS: 'RFQ_QUOTE_EXISTS',
+  /// Some terms of an offer are not valid - an unknown currency, an expiry
+  /// already past, tiers that do not climb, a file that cannot be sent.
+  /// `details` names each. 400.
+  RFQ_QUOTE_INVALID: 'RFQ_QUOTE_INVALID',
+  /// That quote or offer version cannot be answered: it is no longer the one
+  /// on the table, it is your own, or the quote is no longer open.
+  /// `details[0].code` says which. 409.
+  RFQ_OFFER_NOT_OPEN: 'RFQ_OFFER_NOT_OPEN',
   /// A factory cannot be changed now: it is with a reviewer. 409. (Master row 13)
   FACTORY_NOT_EDITABLE: 'FACTORY_NOT_EDITABLE',
   /// A factory cannot be sent for review, or verified, yet: it has no

@@ -18,6 +18,9 @@ import {
   RfqTimeline,
 } from '@/components/rfq/RfqParts';
 import { RfqThread } from '@/components/rfq/RfqThread';
+import { OfferHistory } from '@/components/rfq/OfferHistory';
+import { QuoteForm } from '@/components/rfq/QuoteForm';
+import { fetchSellerQuote } from '@/lib/rfq-quote';
 import { useToast } from '@/components/toast-context';
 import { Tabs } from '@/components/ui/Tabs';
 import { Button, Card, ErrorState, LoadingState, PageHeader, Textarea } from '@/components/ui';
@@ -27,7 +30,41 @@ import { rfqAttachmentUrl } from '@/lib/rfq';
 import { formatUtc } from '@/lib/rfq-format';
 import { declineSellerRfq, fetchSellerRfq, type SellerRfq } from '@/lib/rfq-seller';
 
-type TabKey = 'requirement' | 'questions' | 'files' | 'timeline';
+/** This seller's quote: the form before it quoted, then every offer version. */
+function SellerQuotePanel({ rfq }: { rfq: SellerRfq }): React.JSX.Element {
+  const { t } = useI18n();
+  const query = useQuery({ queryKey: ['seller', 'rfq-quote', rfq.id], queryFn: () => fetchSellerQuote(rfq.id) });
+  if (query.isPending) return <LoadingState label={t('rfq.quote.loading')} />;
+  if (query.isError) {
+    return (
+      <ErrorState
+        error={query.error}
+        onRetry={() => {
+          void query.refetch();
+        }}
+      />
+    );
+  }
+  const quote = query.data;
+  if (quote === null) {
+    return (
+      <Card bodyClassName="px-6 py-5">
+        {rfq.actions.canQuote ? (
+          <QuoteForm rfqId={rfq.id} requirement={rfq.requirement} filesAvailable={rfq.attachmentPolicy.available} />
+        ) : (
+          <p className="text-sm text-ink-muted">{t('rfq.quote.cannotQuote')}</p>
+        )}
+      </Card>
+    );
+  }
+  return (
+    <Card title={t('rfq.quote.yours', { status: t(`rfq.quoteStatus.${quote.status}` as TranslationKey) })} bodyClassName="px-6 py-5">
+      <OfferHistory versions={quote.versions} reader="SUPPLIER" />
+    </Card>
+  );
+}
+
+type TabKey = 'requirement' | 'quote' | 'questions' | 'files' | 'timeline';
 
 export function SellerRfqDetailPage(): React.JSX.Element {
   const { id = '' } = useParams<{ id: string }>();
@@ -110,6 +147,7 @@ function SellerRfqWorkspace({ rfq }: { rfq: SellerRfq }): React.JSX.Element {
       <Tabs
         tabs={[
           { key: 'requirement', label: t('rfq.detail.tab.requirement') },
+          { key: 'quote', label: t('sellerRfq.tab.quote') },
           { key: 'questions', label: t('sellerRfq.tab.questions') },
           { key: 'files', label: t('rfq.detail.tab.files') },
           { key: 'timeline', label: t('rfq.detail.tab.timeline') },
@@ -145,6 +183,7 @@ function SellerRfqWorkspace({ rfq }: { rfq: SellerRfq }): React.JSX.Element {
             </Card>
           </div>
         )}
+        {tab === 'quote' && <SellerQuotePanel rfq={rfq} />}
         {tab === 'questions' && (
           <Card bodyClassName="px-6 py-5">
             <RfqThread path={`/seller/rfqs/${rfq.id}/messages`} canWrite={rfq.actions.canAsk} otherPartyName={buyerName} />

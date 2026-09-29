@@ -41,6 +41,7 @@ import {
   assertRfqTransition,
   type RfqStatusName,
 } from '../../domain/rfq-state.js';
+import { assertQuoteTransition } from '../../domain/rfq-quote.js';
 import type { Prisma } from '../../generated/prisma/client.js';
 import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
@@ -1203,6 +1204,16 @@ export async function endRfq(
       ...(to === 'CANCELLED' ? { cancelledAt: now } : { closedAt: now }),
       statusReason: input.reason,
     });
+    // Every quote still on the table closes with the request.
+    const openQuotes = await tx.rfqQuote.findMany({ where: { rfqId: row.id, status: 'OPEN' }, select: { id: true } });
+    for (const quote of openQuotes) {
+      assertQuoteTransition({ from: 'OPEN', to: 'CLOSED', actor: 'SYSTEM' });
+      await tx.rfqQuote.updateMany({
+        where: { id: quote.id, status: 'OPEN' },
+        data: { status: 'CLOSED', closedReason: to === 'CANCELLED' ? 'RFQ_CANCELLED' : 'RFQ_CLOSED' },
+      });
+      await tx.rfqQuoteVersion.updateMany({ where: { quoteId: quote.id, state: 'PROPOSED' }, data: { state: 'CLOSED' } });
+    }
     await recordEvent(tx, {
       rfqId: row.id,
       kind: to,

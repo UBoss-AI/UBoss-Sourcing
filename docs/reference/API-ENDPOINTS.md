@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1135 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1143 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -29,9 +29,9 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 |---|---|
 | [Admin panel (staff)](#admin-panel-staff) | 452 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 280 |
+| [Seller Hub](#seller-hub) | 283 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 251 |
+| [Customer account](#customer-account) | 256 |
 | [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
@@ -1674,6 +1674,9 @@ Defined in `backend/src/http/routes/rfq.seller.ts`.
 | POST | `/api/v1/seller/rfqs/:id/decline` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Decline to quote, with a reason the buyer reads. Writes an audit entry. |
 | GET | `/api/v1/seller/rfqs/:id/messages` | Seller | Feature + Seller(ORDER_READ) | This seller's questions and the buyer's answers, oldest first; `?after=` for only new ones. |
 | POST | `/api/v1/seller/rfqs/:id/messages` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Ask the buyer a question. A resend with the same clientMessageId is not a second message. |
+| POST | `/api/v1/seller/rfqs/:id/quotes` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Quote on a request: a unit price, optional tiers and the commercial terms, with files uploaded first. One quote per seller; before the deadline only. Tells the buyer and writes an audit entry. |
+| GET | `/api/v1/seller/rfqs/:id/quote` | Seller | Feature + Seller(ORDER_READ) | This seller's own quote on the request, with every offer version; null before it quoted. |
+| POST | `/api/v1/seller/rfqs/:id/attachments` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Upload a PDF or image to send with this seller's quote or next offer. Seen by nobody else until it is sent with one. |
 | GET | `/api/v1/seller/rfqs/:id/attachments/:attachmentId/download` | Seller | Feature + Seller(ORDER_READ) | Download a file this seller may see on the request. Served as a download, never inline. |
 
 ### `seller/settlements`
@@ -2292,6 +2295,11 @@ Defined in `backend/src/http/routes/rfq.customer.ts`.
 | DELETE | `/api/v1/rfqs/:id/attachments/:attachmentId` | Customer | Feature + Customer | Remove a requirement file that is not yet part of any version sent to sellers. |
 | GET | `/api/v1/rfqs/:id/attachments/:attachmentId/download` | Customer | Feature + Customer | Download a file on your request. Served as a download, never inline. |
 | POST | `/api/v1/rfqs/:id/versions` | Customer | Feature + Customer | Publish a new version of a sent requirement, with what changed and why. Every seller still taking part is told. Writes an audit entry. |
+| GET | `/api/v1/rfqs/:id/quotes` | Customer | Feature + Customer | Every quote on your request, each with its current offer and its history. |
+| GET | `/api/v1/rfqs/:id/quotes/:quoteId` | Customer | Feature + Customer | One quote on your request, with every offer version. |
+| PUT | `/api/v1/rfqs/:id/quotes/:quoteId/shortlist` | Customer | Feature + Customer | Put a quote on your shortlist, or take it off. Writes an audit entry. |
+| GET | `/api/v1/rfqs/:id/comparison` | Customer | Feature + Customer | The quotes side by side, sortable and filterable, with every figure as quoted and, beside it, converted into `?currency=` at the published rate (source and date given). Missing terms are null, never zero. |
+| GET | `/api/v1/rfqs/:id/comparison.csv` | Customer | Feature + Customer | The same comparison as a CSV file, spreadsheet formulas neutralised. Writes an audit entry. |
 | GET | `/api/v1/rfqs/:id/invitations/:invitationId/messages` | Customer | Feature + Customer | The thread with one invited seller, oldest first; `?after=` for only new ones. |
 | POST | `/api/v1/rfqs/:id/invitations/:invitationId/messages` | Customer | Feature + Customer | Write to one invited seller. A resend with the same clientMessageId is not a second message. |
 
