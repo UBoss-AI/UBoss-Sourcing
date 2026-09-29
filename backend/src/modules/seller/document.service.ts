@@ -152,7 +152,7 @@ async function scanDocument(
  *
  * CLEAN always. `SCANNER_UNCONFIGURED` and `PENDING_SCAN` only where the
  * operator has said so - `SELLER_ALLOW_UNSCANNED_DOCUMENTS`, which defaults to
- * TRUE and explains itself in `config/env.ts`. INFECTED and SCAN_FAILED never,
+ * FALSE and explains itself in `config/env.ts`. INFECTED and SCAN_FAILED never,
  * and PENDING is on the permissive side of that line only because nothing in
  * this repository ever moves a file off it: "the scan has not finished" would
  * belong with the refusals the moment a scanner exists to finish one.

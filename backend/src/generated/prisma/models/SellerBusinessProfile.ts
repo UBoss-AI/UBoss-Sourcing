@@ -44,6 +44,7 @@ export type SellerBusinessProfileSumAggregateOutputType = {
 export type SellerBusinessProfileMinAggregateOutputType = {
   id: string | null
   sellerAccountId: string | null
+  legalForm: $Enums.SellerLegalForm | null
   representativeName: string | null
   representativeEmail: string | null
   representativePhone: string | null
@@ -77,6 +78,7 @@ export type SellerBusinessProfileMinAggregateOutputType = {
 export type SellerBusinessProfileMaxAggregateOutputType = {
   id: string | null
   sellerAccountId: string | null
+  legalForm: $Enums.SellerLegalForm | null
   representativeName: string | null
   representativeEmail: string | null
   representativePhone: string | null
@@ -110,6 +112,7 @@ export type SellerBusinessProfileMaxAggregateOutputType = {
 export type SellerBusinessProfileCountAggregateOutputType = {
   id: number
   sellerAccountId: number
+  legalForm: number
   representativeName: number
   representativeEmail: number
   representativePhone: number
@@ -154,6 +157,7 @@ export type SellerBusinessProfileSumAggregateInputType = {
 export type SellerBusinessProfileMinAggregateInputType = {
   id?: true
   sellerAccountId?: true
+  legalForm?: true
   representativeName?: true
   representativeEmail?: true
   representativePhone?: true
@@ -187,6 +191,7 @@ export type SellerBusinessProfileMinAggregateInputType = {
 export type SellerBusinessProfileMaxAggregateInputType = {
   id?: true
   sellerAccountId?: true
+  legalForm?: true
   representativeName?: true
   representativeEmail?: true
   representativePhone?: true
@@ -220,6 +225,7 @@ export type SellerBusinessProfileMaxAggregateInputType = {
 export type SellerBusinessProfileCountAggregateInputType = {
   id?: true
   sellerAccountId?: true
+  legalForm?: true
   representativeName?: true
   representativeEmail?: true
   representativePhone?: true
@@ -341,6 +347,7 @@ export type SellerBusinessProfileGroupByArgs<ExtArgs extends runtime.Types.Exten
 export type SellerBusinessProfileGroupByOutputType = {
   id: string
   sellerAccountId: string
+  legalForm: $Enums.SellerLegalForm | null
   representativeName: string | null
   representativeEmail: string | null
   representativePhone: string | null
@@ -398,6 +405,7 @@ export type SellerBusinessProfileWhereInput = {
   NOT?: Prisma.SellerBusinessProfileWhereInput | Prisma.SellerBusinessProfileWhereInput[]
   id?: Prisma.StringFilter<"SellerBusinessProfile"> | string
   sellerAccountId?: Prisma.StringFilter<"SellerBusinessProfile"> | string
+  legalForm?: Prisma.EnumSellerLegalFormNullableFilter<"SellerBusinessProfile"> | $Enums.SellerLegalForm | null
   representativeName?: Prisma.StringNullableFilter<"SellerBusinessProfile"> | string | null
   representativeEmail?: Prisma.StringNullableFilter<"SellerBusinessProfile"> | string | null
   representativePhone?: Prisma.StringNullableFilter<"SellerBusinessProfile"> | string | null
@@ -433,6 +441,7 @@ export type SellerBusinessProfileWhereInput = {
 export type SellerBusinessProfileOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   sellerAccountId?: Prisma.SortOrder
+  legalForm?: Prisma.SortOrderInput | Prisma.SortOrder
   representativeName?: Prisma.SortOrderInput | Prisma.SortOrder
   representativeEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   representativePhone?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -472,6 +481,7 @@ export type SellerBusinessProfileWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.SellerBusinessProfileWhereInput | Prisma.SellerBusinessProfileWhereInput[]
   OR?: Prisma.SellerBusinessProfileWhereInput[]
   NOT?: Prisma.SellerBusinessProfileWhereInput | Prisma.SellerBusinessProfileWhereInput[]
+  legalForm?: Prisma.EnumSellerLegalFormNullableFilter<"SellerBusinessProfile"> | $Enums.SellerLegalForm | null
   representativeName?: Prisma.StringNullableFilter<"SellerBusinessProfile"> | string | null
   representativeEmail?: Prisma.StringNullableFilter<"SellerBusinessProfile"> | string | null
   representativePhone?: Prisma.StringNullableFilter<"SellerBusinessProfile"> | string | null
@@ -507,6 +517,7 @@ export type SellerBusinessProfileWhereUniqueInput = Prisma.AtLeast<{
 export type SellerBusinessProfileOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   sellerAccountId?: Prisma.SortOrder
+  legalForm?: Prisma.SortOrderInput | Prisma.SortOrder
   representativeName?: Prisma.SortOrderInput | Prisma.SortOrder
   representativeEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   representativePhone?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -549,6 +560,7 @@ export type SellerBusinessProfileScalarWhereWithAggregatesInput = {
   NOT?: Prisma.SellerBusinessProfileScalarWhereWithAggregatesInput | Prisma.SellerBusinessProfileScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"SellerBusinessProfile"> | string
   sellerAccountId?: Prisma.StringWithAggregatesFilter<"SellerBusinessProfile"> | string
+  legalForm?: Prisma.EnumSellerLegalFormNullableWithAggregatesFilter<"SellerBusinessProfile"> | $Enums.SellerLegalForm | null
   representativeName?: Prisma.StringNullableWithAggregatesFilter<"SellerBusinessProfile"> | string | null
   representativeEmail?: Prisma.StringNullableWithAggregatesFilter<"SellerBusinessProfile"> | string | null
   representativePhone?: Prisma.StringNullableWithAggregatesFilter<"SellerBusinessProfile"> | string | null
@@ -582,6 +594,7 @@ export type SellerBusinessProfileScalarWhereWithAggregatesInput = {
 
 export type SellerBusinessProfileCreateInput = {
   id: string
+  legalForm?: $Enums.SellerLegalForm | null
   representativeName?: string | null
   representativeEmail?: string | null
   representativePhone?: string | null
@@ -617,6 +630,7 @@ export type SellerBusinessProfileCreateInput = {
 export type SellerBusinessProfileUncheckedCreateInput = {
   id: string
   sellerAccountId: string
+  legalForm?: $Enums.SellerLegalForm | null
   representativeName?: string | null
   representativeEmail?: string | null
   representativePhone?: string | null
@@ -650,6 +664,7 @@ export type SellerBusinessProfileUncheckedCreateInput = {
 
 export type SellerBusinessProfileUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalForm?: Prisma.NullableEnumSellerLegalFormFieldUpdateOperationsInput | $Enums.SellerLegalForm | null
   representativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   representativeEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   representativePhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -685,6 +700,7 @@ export type SellerBusinessProfileUpdateInput = {
 export type SellerBusinessProfileUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  legalForm?: Prisma.NullableEnumSellerLegalFormFieldUpdateOperationsInput | $Enums.SellerLegalForm | null
   representativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   representativeEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   representativePhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -719,6 +735,7 @@ export type SellerBusinessProfileUncheckedUpdateInput = {
 export type SellerBusinessProfileCreateManyInput = {
   id: string
   sellerAccountId: string
+  legalForm?: $Enums.SellerLegalForm | null
   representativeName?: string | null
   representativeEmail?: string | null
   representativePhone?: string | null
@@ -752,6 +769,7 @@ export type SellerBusinessProfileCreateManyInput = {
 
 export type SellerBusinessProfileUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalForm?: Prisma.NullableEnumSellerLegalFormFieldUpdateOperationsInput | $Enums.SellerLegalForm | null
   representativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   representativeEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   representativePhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -786,6 +804,7 @@ export type SellerBusinessProfileUpdateManyMutationInput = {
 export type SellerBusinessProfileUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  legalForm?: Prisma.NullableEnumSellerLegalFormFieldUpdateOperationsInput | $Enums.SellerLegalForm | null
   representativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   representativeEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   representativePhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -831,6 +850,7 @@ export type SellerBusinessProfileOrderByRelevanceInput = {
 export type SellerBusinessProfileCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   sellerAccountId?: Prisma.SortOrder
+  legalForm?: Prisma.SortOrder
   representativeName?: Prisma.SortOrder
   representativeEmail?: Prisma.SortOrder
   representativePhone?: Prisma.SortOrder
@@ -869,6 +889,7 @@ export type SellerBusinessProfileAvgOrderByAggregateInput = {
 export type SellerBusinessProfileMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   sellerAccountId?: Prisma.SortOrder
+  legalForm?: Prisma.SortOrder
   representativeName?: Prisma.SortOrder
   representativeEmail?: Prisma.SortOrder
   representativePhone?: Prisma.SortOrder
@@ -902,6 +923,7 @@ export type SellerBusinessProfileMaxOrderByAggregateInput = {
 export type SellerBusinessProfileMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   sellerAccountId?: Prisma.SortOrder
+  legalForm?: Prisma.SortOrder
   representativeName?: Prisma.SortOrder
   representativeEmail?: Prisma.SortOrder
   representativePhone?: Prisma.SortOrder
@@ -968,8 +990,13 @@ export type SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInp
   update?: Prisma.XOR<Prisma.XOR<Prisma.SellerBusinessProfileUpdateToOneWithWhereWithoutSellerAccountInput, Prisma.SellerBusinessProfileUpdateWithoutSellerAccountInput>, Prisma.SellerBusinessProfileUncheckedUpdateWithoutSellerAccountInput>
 }
 
+export type NullableEnumSellerLegalFormFieldUpdateOperationsInput = {
+  set?: $Enums.SellerLegalForm | null
+}
+
 export type SellerBusinessProfileCreateWithoutSellerAccountInput = {
   id: string
+  legalForm?: $Enums.SellerLegalForm | null
   representativeName?: string | null
   representativeEmail?: string | null
   representativePhone?: string | null
@@ -1003,6 +1030,7 @@ export type SellerBusinessProfileCreateWithoutSellerAccountInput = {
 
 export type SellerBusinessProfileUncheckedCreateWithoutSellerAccountInput = {
   id: string
+  legalForm?: $Enums.SellerLegalForm | null
   representativeName?: string | null
   representativeEmail?: string | null
   representativePhone?: string | null
@@ -1052,6 +1080,7 @@ export type SellerBusinessProfileUpdateToOneWithWhereWithoutSellerAccountInput =
 
 export type SellerBusinessProfileUpdateWithoutSellerAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalForm?: Prisma.NullableEnumSellerLegalFormFieldUpdateOperationsInput | $Enums.SellerLegalForm | null
   representativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   representativeEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   representativePhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1085,6 +1114,7 @@ export type SellerBusinessProfileUpdateWithoutSellerAccountInput = {
 
 export type SellerBusinessProfileUncheckedUpdateWithoutSellerAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalForm?: Prisma.NullableEnumSellerLegalFormFieldUpdateOperationsInput | $Enums.SellerLegalForm | null
   representativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   representativeEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   representativePhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1121,6 +1151,7 @@ export type SellerBusinessProfileUncheckedUpdateWithoutSellerAccountInput = {
 export type SellerBusinessProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   sellerAccountId?: boolean
+  legalForm?: boolean
   representativeName?: boolean
   representativeEmail?: boolean
   representativePhone?: boolean
@@ -1158,6 +1189,7 @@ export type SellerBusinessProfileSelect<ExtArgs extends runtime.Types.Extensions
 export type SellerBusinessProfileSelectScalar = {
   id?: boolean
   sellerAccountId?: boolean
+  legalForm?: boolean
   representativeName?: boolean
   representativeEmail?: boolean
   representativePhone?: boolean
@@ -1189,7 +1221,7 @@ export type SellerBusinessProfileSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SellerBusinessProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "representativeName" | "representativeEmail" | "representativePhone" | "representativeRole" | "supportEmail" | "supportPhone" | "preferredLanguage" | "timezone" | "companyRegistrationNumber" | "taxRegistrationNumber" | "eoriNumber" | "eudamedSrn" | "websiteUrl" | "yearsInBusiness" | "registeredAddressLine1" | "registeredAddressLine2" | "registeredCity" | "registeredRegion" | "registeredPostcode" | "registeredCountry" | "billingAddressLine1" | "billingAddressLine2" | "billingCity" | "billingRegion" | "billingPostcode" | "billingCountry" | "extraIdentifiersJson" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerBusinessProfile"]>
+export type SellerBusinessProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "legalForm" | "representativeName" | "representativeEmail" | "representativePhone" | "representativeRole" | "supportEmail" | "supportPhone" | "preferredLanguage" | "timezone" | "companyRegistrationNumber" | "taxRegistrationNumber" | "eoriNumber" | "eudamedSrn" | "websiteUrl" | "yearsInBusiness" | "registeredAddressLine1" | "registeredAddressLine2" | "registeredCity" | "registeredRegion" | "registeredPostcode" | "registeredCountry" | "billingAddressLine1" | "billingAddressLine2" | "billingCity" | "billingRegion" | "billingPostcode" | "billingCountry" | "extraIdentifiersJson" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerBusinessProfile"]>
 export type SellerBusinessProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }
@@ -1202,6 +1234,11 @@ export type $SellerBusinessProfilePayload<ExtArgs extends runtime.Types.Extensio
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     sellerAccountId: string
+    /**
+     * Null until the seller answers the "Ownership, registrations and exports"
+     * section. Required to submit.
+     */
+    legalForm: $Enums.SellerLegalForm | null
     /**
      * Whoever signs for the business. A person, so this row is personal data
      * and is disclosed in the Art. 15 export.
@@ -1629,6 +1666,7 @@ export interface Prisma__SellerBusinessProfileClient<T, Null = never, ExtArgs ex
 export interface SellerBusinessProfileFieldRefs {
   readonly id: Prisma.FieldRef<"SellerBusinessProfile", 'String'>
   readonly sellerAccountId: Prisma.FieldRef<"SellerBusinessProfile", 'String'>
+  readonly legalForm: Prisma.FieldRef<"SellerBusinessProfile", 'SellerLegalForm'>
   readonly representativeName: Prisma.FieldRef<"SellerBusinessProfile", 'String'>
   readonly representativeEmail: Prisma.FieldRef<"SellerBusinessProfile", 'String'>
   readonly representativePhone: Prisma.FieldRef<"SellerBusinessProfile", 'String'>

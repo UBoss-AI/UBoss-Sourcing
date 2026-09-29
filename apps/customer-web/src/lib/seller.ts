@@ -196,7 +196,8 @@ export const SELLER_DOCUMENT_KINDS = Object.freeze([
   { value: 'TAX_CERTIFICATE', label: 'Tax registration certificate' },
   { value: 'IDENTITY_PROOF', label: 'Photo identification' },
   { value: 'ADDRESS_PROOF', label: 'Proof of address' },
-  { value: 'BANK_STATEMENT', label: 'Bank statement' },
+  // Evidence a member of staff reads, not a bank verification.
+  { value: 'BANK_STATEMENT', label: 'Bank letter, statement or cancelled cheque' },
   { value: 'OTHER', label: 'Something else' },
 ] as const);
 
@@ -1480,6 +1481,13 @@ export interface PayoutAccountView {
   bankName: string | null;
   accountLast4: string | null;
   payoutCurrency: string | null;
+  /**
+   * What the payment provider last said about the bank account, verbatim.
+   * Null: it has said nothing. Never rendered as "verified" by this app.
+   */
+  bankAccountStatus: string | null;
+  detailsSubmitted: boolean;
+  lastSyncedAt: string | null;
   /**
    * Whether a payout provider exists on this deployment at all.
    *

@@ -1198,6 +1198,18 @@ export const SellerMemberRole = {
 export type SellerMemberRole = (typeof SellerMemberRole)[keyof typeof SellerMemberRole]
 
 
+export const SellerLegalForm = {
+  SOLE_PROPRIETORSHIP: 'SOLE_PROPRIETORSHIP',
+  PARTNERSHIP: 'PARTNERSHIP',
+  LIMITED_LIABILITY_PARTNERSHIP: 'LIMITED_LIABILITY_PARTNERSHIP',
+  PRIVATE_LIMITED_COMPANY: 'PRIVATE_LIMITED_COMPANY',
+  PUBLIC_LIMITED_COMPANY: 'PUBLIC_LIMITED_COMPANY',
+  OTHER: 'OTHER'
+} as const
+
+export type SellerLegalForm = (typeof SellerLegalForm)[keyof typeof SellerLegalForm]
+
+
 export const SellerVerificationKind = {
   BUSINESS_REGISTRATION: 'BUSINESS_REGISTRATION',
   REPRESENTATIVE_IDENTITY: 'REPRESENTATIVE_IDENTITY',

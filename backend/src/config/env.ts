@@ -1706,6 +1706,18 @@ const envSchema = z
     /// downloadable on a live installation.
     SELLER_ALLOW_UNSCANNED_DOCUMENTS: booleanFromString.default(false),
 
+    /// Whether approving a seller needs a current restricted-party / sanctions
+    /// screening with the result CLEAR, for the business and for every owner
+    /// it lists. True by default. The screening is recorded by a member of
+    /// staff (provider "manual", never automated) - no screening provider
+    /// ships with this product, so false means "we do not screen", not "a
+    /// machine screens for us".
+    SELLER_REQUIRE_SCREENING: booleanFromString.default(true),
+
+    /// Whether a seller application must name at least one person who owns
+    /// or controls the business before it can be submitted. True by default.
+    SELLER_REQUIRE_BENEFICIAL_OWNERS: booleanFromString.default(true),
+
     // --- Product reviews ---
     //
     // Buyers score a product they received for quality, delivery, experience

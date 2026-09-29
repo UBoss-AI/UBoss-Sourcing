@@ -38,6 +38,9 @@ import {
 import { cx } from '@/lib/cx';
 import { ApiError, api } from '@/lib/api';
 import { ATTENTION_QUERY_KEY } from '@/lib/attention';
+import { errorMessage } from '@/lib/errors';
+import { useI18n } from '@/i18n/i18n-context';
+import { SellerKybReviewPanel } from './seller/SellerKybReviewPanel';
 import {
   ONBOARDING_STEPS,
   applicationStatusLabel,
@@ -205,6 +208,7 @@ function DecisionButtons({
 }
 
 function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React.JSX.Element {
+  const { t } = useI18n();
   const profile = seller.businessProfile;
   const steps = seller.onboarding?.stepsJson ?? {};
 
@@ -304,6 +308,8 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
               </div>
             )}
         </Card>
+
+        <SellerKybReviewPanel sellerAccountId={seller.id} legalName={seller.legalName} kyb={seller.kyb} />
 
         <Card
           title="Who represents it"
@@ -540,6 +546,13 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
                     {seller.payoutAccount.bankName ?? '—'}
                     {seller.payoutAccount.accountLast4 !== null &&
                       ` ···· ${seller.payoutAccount.accountLast4}`}
+                  </dd>
+                </div>
+                {/* The provider's own word, verbatim. This product verifies no bank account. */}
+                <div className="flex justify-between gap-3">
+                  <dt className="text-ink-muted">{t('sellerReview.payout.bankStatus')}</dt>
+                  <dd className="text-right text-ink">
+                    {seller.payoutAccount.bankAccountStatus ?? t('sellerReview.payout.bankStatusNone')}
                   </dd>
                 </div>
               </dl>
@@ -1186,6 +1199,7 @@ function DecisionDialog({
   decision: DecisionKind;
   onClose: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
   const toast = useToast();
   const client = useQueryClient();
 
@@ -1215,8 +1229,14 @@ function DecisionDialog({
     onError: (error: unknown) => {
       // The server's own sentence where there is one - it knows why it
       // refused, and a stale-version conflict in particular needs to say so.
+      // The approval gate is worded here instead, pointing at the list on the
+      // page that names each missing piece.
       toast.error(
-        error instanceof ApiError ? error.message : 'That decision could not be recorded.',
+        error instanceof ApiError && error.code === 'SELLER_APPROVAL_EVIDENCE_MISSING'
+          ? errorMessage(t, error)
+          : error instanceof ApiError
+            ? error.message
+            : 'That decision could not be recorded.',
       );
     },
   });

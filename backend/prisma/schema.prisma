@@ -9961,6 +9961,19 @@ model SellerOnboardingRequirement {
   @@map("seller_onboarding_requirements")
 }
 
+/// What a seller business is, in law. Decides which registration number is
+/// asked for: in India a company has a CIN and an LLP an LLPIN, while a
+/// proprietorship or an ordinary partnership has neither. The same values as
+/// `BuyerCompanyEntityType`, less the forms a seller is not (a public body).
+enum SellerLegalForm {
+  SOLE_PROPRIETORSHIP
+  PARTNERSHIP
+  LIMITED_LIABILITY_PARTNERSHIP
+  PRIVATE_LIMITED_COMPANY
+  PUBLIC_LIMITED_COMPANY
+  OTHER
+}
+
 /// The business behind a seller account: who it is, where it is registered,
 /// what it is registered as.
 ///
@@ -9972,6 +9985,10 @@ model SellerOnboardingRequirement {
 model SellerBusinessProfile {
   id              String @id @db.Char(26)
   sellerAccountId String @unique(map: "uq_seller_business_profile_account") @db.Char(26)
+
+  /// Null until the seller answers the "Ownership, registrations and exports"
+  /// section. Required to submit.
+  legalForm SellerLegalForm?
 
   /// Whoever signs for the business. A person, so this row is personal data
   /// and is disclosed in the Art. 15 export.
@@ -22400,6 +22417,11 @@ model SellerTrustProfile {
   exportMarketsJson Json?
   yearsExporting    Int?    @db.SmallInt
 
+  /// Category ids the seller says it intends to sell in, from the application.
+  /// Checked against `categories` when saved; a reviewer sees each one against
+  /// the market rules that block it.
+  intendedCategoryIdsJson Json?
+
   /// Capability tags - OEM, PRIVATE_LABEL, CUSTOM_PACKAGING, R_AND_D,
   /// CONTRACT_MANUFACTURING, STERILE_MANUFACTURING, TESTING_LAB.
   capabilitiesJson Json?
@@ -22433,6 +22455,10 @@ model SellerBeneficialOwner {
   /// 2500 = 25.00%.
   ownershipBasisPoints Int     @db.SmallInt
   isControllingPerson  Boolean @default(false)
+  /// The seller's own declaration that this person is a politically exposed
+  /// person. A declaration, not a screening result - screening is
+  /// `SellerScreeningCheck`, recorded by the operator.
+  isPoliticallyExposed Boolean @default(false)
   role                 String? @db.VarChar(120)
 
   archivedAt DateTime? @db.DateTime(3)

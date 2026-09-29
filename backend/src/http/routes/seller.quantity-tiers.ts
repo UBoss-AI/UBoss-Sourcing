@@ -11,7 +11,7 @@ import {
   saveQuantityTiers,
   tiersInputSchema,
 } from '../../modules/seller/quantity-tier.service.js';
-import { currentSeller, requireSeller } from '../plugins/seller.js';
+import { currentSeller, requireSeller, requireTradingSeller } from '../plugins/seller.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 
@@ -37,7 +37,7 @@ export function registerSellerQuantityTierRoutes(app: FastifyInstance): Promise<
   app.put(
     '/offers/:id/quantity-tiers',
     {
-      preHandler: requireSeller(SellerPermission.LISTING_WRITE),
+      preHandler: requireTradingSeller(SellerPermission.LISTING_WRITE),
       config: { rateLimit: { max: 60, timeWindow: '1 minute' } },
     },
     async (request, reply) => {

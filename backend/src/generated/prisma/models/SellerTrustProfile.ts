@@ -80,6 +80,7 @@ export type SellerTrustProfileCountAggregateOutputType = {
   exportCapable: number
   exportMarketsJson: number
   yearsExporting: number
+  intendedCategoryIdsJson: number
   capabilitiesJson: number
   responseSlaHours: number
   about: number
@@ -144,6 +145,7 @@ export type SellerTrustProfileCountAggregateInputType = {
   exportCapable?: true
   exportMarketsJson?: true
   yearsExporting?: true
+  intendedCategoryIdsJson?: true
   capabilitiesJson?: true
   responseSlaHours?: true
   about?: true
@@ -249,6 +251,7 @@ export type SellerTrustProfileGroupByOutputType = {
   exportCapable: boolean
   exportMarketsJson: runtime.JsonValue | null
   yearsExporting: number | null
+  intendedCategoryIdsJson: runtime.JsonValue | null
   capabilitiesJson: runtime.JsonValue | null
   responseSlaHours: number | null
   about: string | null
@@ -290,6 +293,7 @@ export type SellerTrustProfileWhereInput = {
   exportCapable?: Prisma.BoolFilter<"SellerTrustProfile"> | boolean
   exportMarketsJson?: Prisma.JsonNullableFilter<"SellerTrustProfile">
   yearsExporting?: Prisma.IntNullableFilter<"SellerTrustProfile"> | number | null
+  intendedCategoryIdsJson?: Prisma.JsonNullableFilter<"SellerTrustProfile">
   capabilitiesJson?: Prisma.JsonNullableFilter<"SellerTrustProfile">
   responseSlaHours?: Prisma.IntNullableFilter<"SellerTrustProfile"> | number | null
   about?: Prisma.StringNullableFilter<"SellerTrustProfile"> | string | null
@@ -309,6 +313,7 @@ export type SellerTrustProfileOrderByWithRelationInput = {
   exportCapable?: Prisma.SortOrder
   exportMarketsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   yearsExporting?: Prisma.SortOrderInput | Prisma.SortOrder
+  intendedCategoryIdsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   capabilitiesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   responseSlaHours?: Prisma.SortOrderInput | Prisma.SortOrder
   about?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -332,6 +337,7 @@ export type SellerTrustProfileWhereUniqueInput = Prisma.AtLeast<{
   exportCapable?: Prisma.BoolFilter<"SellerTrustProfile"> | boolean
   exportMarketsJson?: Prisma.JsonNullableFilter<"SellerTrustProfile">
   yearsExporting?: Prisma.IntNullableFilter<"SellerTrustProfile"> | number | null
+  intendedCategoryIdsJson?: Prisma.JsonNullableFilter<"SellerTrustProfile">
   capabilitiesJson?: Prisma.JsonNullableFilter<"SellerTrustProfile">
   responseSlaHours?: Prisma.IntNullableFilter<"SellerTrustProfile"> | number | null
   about?: Prisma.StringNullableFilter<"SellerTrustProfile"> | string | null
@@ -351,6 +357,7 @@ export type SellerTrustProfileOrderByWithAggregationInput = {
   exportCapable?: Prisma.SortOrder
   exportMarketsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   yearsExporting?: Prisma.SortOrderInput | Prisma.SortOrder
+  intendedCategoryIdsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   capabilitiesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   responseSlaHours?: Prisma.SortOrderInput | Prisma.SortOrder
   about?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -377,6 +384,7 @@ export type SellerTrustProfileScalarWhereWithAggregatesInput = {
   exportCapable?: Prisma.BoolWithAggregatesFilter<"SellerTrustProfile"> | boolean
   exportMarketsJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerTrustProfile">
   yearsExporting?: Prisma.IntNullableWithAggregatesFilter<"SellerTrustProfile"> | number | null
+  intendedCategoryIdsJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerTrustProfile">
   capabilitiesJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerTrustProfile">
   responseSlaHours?: Prisma.IntNullableWithAggregatesFilter<"SellerTrustProfile"> | number | null
   about?: Prisma.StringNullableWithAggregatesFilter<"SellerTrustProfile"> | string | null
@@ -394,6 +402,7 @@ export type SellerTrustProfileCreateInput = {
   exportCapable?: boolean
   exportMarketsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   yearsExporting?: number | null
+  intendedCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   responseSlaHours?: number | null
   about?: string | null
@@ -413,6 +422,7 @@ export type SellerTrustProfileUncheckedCreateInput = {
   exportCapable?: boolean
   exportMarketsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   yearsExporting?: number | null
+  intendedCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   responseSlaHours?: number | null
   about?: string | null
@@ -430,6 +440,7 @@ export type SellerTrustProfileUpdateInput = {
   exportCapable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   exportMarketsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   yearsExporting?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intendedCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   responseSlaHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -449,6 +460,7 @@ export type SellerTrustProfileUncheckedUpdateInput = {
   exportCapable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   exportMarketsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   yearsExporting?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intendedCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   responseSlaHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -467,6 +479,7 @@ export type SellerTrustProfileCreateManyInput = {
   exportCapable?: boolean
   exportMarketsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   yearsExporting?: number | null
+  intendedCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   responseSlaHours?: number | null
   about?: string | null
@@ -484,6 +497,7 @@ export type SellerTrustProfileUpdateManyMutationInput = {
   exportCapable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   exportMarketsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   yearsExporting?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intendedCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   responseSlaHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -502,6 +516,7 @@ export type SellerTrustProfileUncheckedUpdateManyInput = {
   exportCapable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   exportMarketsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   yearsExporting?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intendedCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   responseSlaHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -531,6 +546,7 @@ export type SellerTrustProfileCountOrderByAggregateInput = {
   exportCapable?: Prisma.SortOrder
   exportMarketsJson?: Prisma.SortOrder
   yearsExporting?: Prisma.SortOrder
+  intendedCategoryIdsJson?: Prisma.SortOrder
   capabilitiesJson?: Prisma.SortOrder
   responseSlaHours?: Prisma.SortOrder
   about?: Prisma.SortOrder
@@ -624,6 +640,7 @@ export type SellerTrustProfileCreateWithoutSellerAccountInput = {
   exportCapable?: boolean
   exportMarketsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   yearsExporting?: number | null
+  intendedCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   responseSlaHours?: number | null
   about?: string | null
@@ -641,6 +658,7 @@ export type SellerTrustProfileUncheckedCreateWithoutSellerAccountInput = {
   exportCapable?: boolean
   exportMarketsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   yearsExporting?: number | null
+  intendedCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   responseSlaHours?: number | null
   about?: string | null
@@ -674,6 +692,7 @@ export type SellerTrustProfileUpdateWithoutSellerAccountInput = {
   exportCapable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   exportMarketsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   yearsExporting?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intendedCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   responseSlaHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -691,6 +710,7 @@ export type SellerTrustProfileUncheckedUpdateWithoutSellerAccountInput = {
   exportCapable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   exportMarketsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   yearsExporting?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intendedCategoryIdsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   capabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   responseSlaHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -711,6 +731,7 @@ export type SellerTrustProfileSelect<ExtArgs extends runtime.Types.Extensions.In
   exportCapable?: boolean
   exportMarketsJson?: boolean
   yearsExporting?: boolean
+  intendedCategoryIdsJson?: boolean
   capabilitiesJson?: boolean
   responseSlaHours?: boolean
   about?: boolean
@@ -732,6 +753,7 @@ export type SellerTrustProfileSelectScalar = {
   exportCapable?: boolean
   exportMarketsJson?: boolean
   yearsExporting?: boolean
+  intendedCategoryIdsJson?: boolean
   capabilitiesJson?: boolean
   responseSlaHours?: boolean
   about?: boolean
@@ -742,7 +764,7 @@ export type SellerTrustProfileSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SellerTrustProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "udyamNumber" | "iecNumber" | "exportCapable" | "exportMarketsJson" | "yearsExporting" | "capabilitiesJson" | "responseSlaHours" | "about" | "badgeVerified" | "badgeComputedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerTrustProfile"]>
+export type SellerTrustProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "udyamNumber" | "iecNumber" | "exportCapable" | "exportMarketsJson" | "yearsExporting" | "intendedCategoryIdsJson" | "capabilitiesJson" | "responseSlaHours" | "about" | "badgeVerified" | "badgeComputedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerTrustProfile"]>
 export type SellerTrustProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }
@@ -763,6 +785,12 @@ export type $SellerTrustProfilePayload<ExtArgs extends runtime.Types.Extensions.
      */
     exportMarketsJson: runtime.JsonValue | null
     yearsExporting: number | null
+    /**
+     * Category ids the seller says it intends to sell in, from the application.
+     * Checked against `categories` when saved; a reviewer sees each one against
+     * the market rules that block it.
+     */
+    intendedCategoryIdsJson: runtime.JsonValue | null
     /**
      * Capability tags - OEM, PRIVATE_LABEL, CUSTOM_PACKAGING, R_AND_D,
      * CONTRACT_MANUFACTURING, STERILE_MANUFACTURING, TESTING_LAB.
@@ -1158,6 +1186,7 @@ export interface SellerTrustProfileFieldRefs {
   readonly exportCapable: Prisma.FieldRef<"SellerTrustProfile", 'Boolean'>
   readonly exportMarketsJson: Prisma.FieldRef<"SellerTrustProfile", 'Json'>
   readonly yearsExporting: Prisma.FieldRef<"SellerTrustProfile", 'Int'>
+  readonly intendedCategoryIdsJson: Prisma.FieldRef<"SellerTrustProfile", 'Json'>
   readonly capabilitiesJson: Prisma.FieldRef<"SellerTrustProfile", 'Json'>
   readonly responseSlaHours: Prisma.FieldRef<"SellerTrustProfile", 'Int'>
   readonly about: Prisma.FieldRef<"SellerTrustProfile", 'String'>

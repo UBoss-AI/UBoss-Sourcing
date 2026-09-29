@@ -214,6 +214,9 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
      * order by the piece instead.
      */
     if (error.code === 'SELLER_SESSION_EXPIRED') return t('sellerSession.expired');
+    // Only staff approve sellers, so a seller meets this only if a screen
+    // they share with staff ever relays it. Worded all the same.
+    if (error.code === 'SELLER_APPROVAL_EVIDENCE_MISSING') return t('errors.sellerApprovalEvidenceMissing');
     if (error.code === 'PRODUCT_PRICE_ON_REQUEST') return t('errors.pricedOnRequest');
     if (error.code === 'PRODUCT_NOT_ORDERABLE') return t('errors.notOrderable');
     if (error.code === 'PACK_SIZE_UNKNOWN') return t('errors.packSizeUnknown');

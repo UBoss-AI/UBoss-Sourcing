@@ -26,6 +26,7 @@ import { archiveOrphanedShipmentAlerts } from '../modules/notifications/admin-no
 import { sweepExpiredReservations } from '../modules/inventory/inventory.service.js';
 import { sweepExpiredFulfilmentQuotes } from '../modules/fulfilment/warehouse-options.service.js';
 import { expirePaymentLinks } from '../modules/payments/payment-link.service.js';
+import { sweepExpiredSellerDocuments } from '../modules/seller/document-expiry.service.js';
 import { reconcileOpenCheckouts } from '../modules/payments/stripe-checkout.service.js';
 import { expireStalePreorders, flagPreorderDeliveryRisks } from '../modules/preorders/request.service.js';
 import { runPreorderChatMaintenance } from '../modules/preorder-chat/maintenance.service.js';
@@ -554,6 +555,15 @@ const buyerCompanyChecks: JobHandler = async (payload) => {
   logger.info({ companyId }, 'buyer company checks finished');
 };
 
+/**
+ * Approved sellers whose required document has expired go back to
+ * ACTION_REQUIRED, told why. See `document-expiry.service.ts`.
+ */
+const sellerDocumentExpirySweep: JobHandler = async () => {
+  const moved = await sweepExpiredSellerDocuments();
+  if (moved > 0) logger.info({ moved }, 'sellers sent back for an expired document');
+};
+
 const fulfilDataRequest: JobHandler = async (payload) => {
   const dataRequestId = requireString(payload, 'dataRequestId');
   await fulfilRequest(dataRequestId);
@@ -961,6 +971,7 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.SELLER_ERP_RECONCILE]: sellerErpReconcile,
   [JobType.SELLER_SETTLEMENT_CLOSE]: sellerSettlementClose,
   [JobType.BUYER_COMPANY_CHECKS]: buyerCompanyChecks,
+  [JobType.SELLER_DOCUMENT_EXPIRY_SWEEP]: sellerDocumentExpirySweep,
 });
 
 export function handlerFor(jobType: string): JobHandler | undefined {

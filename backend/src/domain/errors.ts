@@ -737,6 +737,15 @@ export const ErrorCode = {
   SELLER_ONBOARDING_INCOMPLETE: 'SELLER_ONBOARDING_INCOMPLETE',
   /// A rejected application whose operator closed resubmission.
   SELLER_RESUBMISSION_NOT_ALLOWED: 'SELLER_RESUBMISSION_NOT_ALLOWED',
+  /// Approval refused: the evidence a reviewer needs is not all there yet. A
+  /// required onboarding step is unfinished, a required document is not
+  /// accepted or has expired, or (with SELLER_REQUIRE_SCREENING) the business
+  /// or one of its owners has no current CLEAR screening. `details` carries
+  /// one entry per missing item: `STEP_INCOMPLETE` (field = step key),
+  /// `DOCUMENT_NOT_APPROVED` / `DOCUMENT_EXPIRED` (field = requirement key),
+  /// `SCREENING_REQUIRED` / `SCREENING_NOT_CLEAR` (field = `entity` or the
+  /// owner id).
+  SELLER_APPROVAL_EVIDENCE_MISSING: 'SELLER_APPROVAL_EVIDENCE_MISSING',
   /// Somebody else saved this application, listing or offer since it was
   /// loaded. The client reloads and shows what changed rather than
   /// overwriting it.

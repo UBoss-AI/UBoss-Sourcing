@@ -24,6 +24,7 @@ import { prisma } from '../../src/infra/prisma.js';
 import { readDraft } from '../../src/modules/seller/listing-draft.service.js';
 import { permissionsForSellerRole } from '../../src/domain/seller-permissions.js';
 import type { SellerMembership } from '../../src/modules/seller/account.service.js';
+import { recordScreening } from '../../src/modules/seller/application-review.service.js';
 import {
   decideApplication,
   decideBrandRequest,
@@ -370,6 +371,40 @@ describe('decideApplication', () => {
     await prisma.sellerAccount.update({
       where: { id: applicantId },
       data: { status: 'UNDER_REVIEW' },
+    });
+
+    // The evidence the approval gate asks for: every step finished, a legal
+    // form, an owner, and a CLEAR manual screening of each. The gate itself is
+    // covered in seller-application-review.test.ts.
+    const complete = { state: 'COMPLETE', updatedAt: new Date().toISOString(), message: null };
+    await prisma.sellerOnboardingProgress.create({
+      data: {
+        id: newId(),
+        sellerAccountId: applicantId,
+        completedSteps: 8,
+        requiredSteps: 7,
+        stepsJson: Object.fromEntries(
+          ['account_verification', 'business_identity', 'kyb_kyc', 'store_profile', 'locations', 'payout', 'compliance', 'agreements'].map(
+            (key) => [key, complete],
+          ),
+        ),
+      },
+    });
+    await prisma.sellerBusinessProfile.create({
+      data: { id: newId(), sellerAccountId: applicantId, legalForm: 'OTHER' },
+    });
+    const ownerId = newId();
+    await prisma.sellerBeneficialOwner.create({
+      data: { id: ownerId, sellerAccountId: applicantId, fullName: 'Applicant Owner', ownershipBasisPoints: 10_000 },
+    });
+    await recordScreening({ sellerAccountId: applicantId, subjectType: 'ENTITY', result: 'CLEAR', listsChecked: 'UN list', adminUserId });
+    await recordScreening({
+      sellerAccountId: applicantId,
+      subjectType: 'BENEFICIAL_OWNER',
+      beneficialOwnerId: ownerId,
+      result: 'CLEAR',
+      listsChecked: 'UN list',
+      adminUserId,
     });
 
     await decideApplication({ sellerAccountId: applicantId, to: 'APPROVED', adminUserId });

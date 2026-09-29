@@ -138,6 +138,10 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
       if (detail === 'STALE') return t('errors.customerKyc.STALE');
       return t(`errors.customerKyc.${error.code}` as TranslationKey);
     }
+    // The approval gate. The review panel lists each missing item; this is the summary.
+    if (error.code === 'SELLER_APPROVAL_EVIDENCE_MISSING') {
+      return t('errors.sellerApprovalEvidenceMissing', { total: String(error.details.length) });
+    }
     if (LEGAL_CODES.has(error.code)) {
       return t(`errors.legal.${error.code}` as TranslationKey);
     }

@@ -316,6 +316,13 @@ export const AuditAction = {
   /// director's passport, and "who looked at it" is the question asked after a
   /// complaint about how it was handled.
   SELLER_DOCUMENT_VIEWED: 'seller_document.viewed',
+  /// A member of staff recorded a restricted-party / sanctions screening of a
+  /// seller or one of its owners. Manual: the row says `automated = false`.
+  /// On the operator's trail only - telling the seller would be tipping off.
+  SELLER_SCREENING_RECORDED: 'seller_screening.recorded',
+  /// The worker sent an approved seller back to ACTION_REQUIRED because a
+  /// required document expired.
+  SELLER_APPLICATION_LAPSED: 'seller_application.lapsed',
 
   /// Which carriers a seller may hand a parcel to.
   ///

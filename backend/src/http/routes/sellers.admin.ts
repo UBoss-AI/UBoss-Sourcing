@@ -25,6 +25,7 @@ import {
 } from '../../modules/seller/document.service.js';
 import { readSellerInsight } from '../../modules/seller/insight.service.js';
 import { sellerAccessForStaff } from '../../modules/access-review/admin-access-review.service.js';
+import { approvalReadiness, recordScreening } from '../../modules/seller/application-review.service.js';
 import {
   decideApplication,
   decideBrandRequest,
@@ -187,6 +188,62 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
       });
 
       return reply.status(204).send();
+    },
+  );
+
+  /**
+   * Record a manual restricted-party / sanctions screening of the seller
+   * business or one of its owners: which lists were checked, the result
+   * (CLEAR, POTENTIAL_MATCH or CONFIRMED_MATCH) and a note. Always recorded as
+   * a manual check by a member of staff, never as an automated one. The
+   * previous screening of the same subject is kept as history. Writes an
+   * audit entry; the seller is not told.
+   */
+  app.post(
+    '/sellers/:id/screening',
+    { preHandler: requireAdmin(Permission.CUSTOMER_STATUS_WRITE) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const auth = currentUser(request);
+
+      const body = z
+        .object({
+          subjectType: z.enum(['ENTITY', 'BENEFICIAL_OWNER']),
+          beneficialOwnerId: z.string().length(26).nullable().optional(),
+          result: z.enum(['CLEAR', 'POTENTIAL_MATCH', 'CONFIRMED_MATCH']),
+          /** Which lists were consulted, in the reviewer's own words. */
+          listsChecked: z.string().trim().min(2).max(512),
+          note: z.string().trim().max(4000).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const screening = await recordScreening({
+        sellerAccountId: params.id,
+        subjectType: body.subjectType,
+        beneficialOwnerId: body.beneficialOwnerId ?? null,
+        result: body.result,
+        listsChecked: body.listsChecked,
+        note: body.note ?? null,
+        adminUserId: auth.id,
+        correlationId: request.correlationId,
+      });
+
+      return reply.header('cache-control', 'no-store').status(201).send(screening);
+    },
+  );
+
+  /**
+   * What approving this seller is still waiting for: unfinished required
+   * steps, required documents not accepted or expired, and missing or
+   * unclear screenings. Empty means the seller can be approved.
+   */
+  app.get(
+    '/sellers/:id/approval-readiness',
+    { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const readiness = await approvalReadiness(params.id);
+      return reply.header('cache-control', 'no-store').status(200).send(readiness);
     },
   );
 

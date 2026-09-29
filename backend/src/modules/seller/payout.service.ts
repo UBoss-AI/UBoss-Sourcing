@@ -178,6 +178,17 @@ export interface PayoutAccountView {
   accountLast4: string | null;
   payoutCurrency: string | null;
   /**
+   * What the payment provider last said about the bank account, verbatim
+   * (Stripe Connect's `new`, `validated`, `verified`, `errored` ...). Null
+   * means the provider has reported nothing - never that the account was
+   * checked. This product verifies no bank account itself.
+   */
+  bankAccountStatus: string | null;
+  /** Whether the provider says the seller finished its onboarding form. */
+  detailsSubmitted: boolean;
+  /** When the provider was last asked. Null: never. */
+  lastSyncedAt: string | null;
+  /**
    * Whether the marketplace can do anything here at all.
    *
    * The screen branches on this: false renders a "configuration required"
@@ -232,6 +243,9 @@ export async function readPayoutAccount(
     bankName: row?.bankName ?? null,
     accountLast4: row?.accountLast4 ?? null,
     payoutCurrency: row?.payoutCurrency ?? null,
+    bankAccountStatus: adapter.isConfigured ? (row?.bankAccountStatus ?? null) : null,
+    detailsSubmitted: adapter.isConfigured && (row?.detailsSubmitted ?? false),
+    lastSyncedAt: row?.lastSyncedAt?.toISOString() ?? null,
     isProviderConfigured: adapter.isConfigured,
     missingConfigurationKey: adapter.isConfigured ? null : 'STRIPE_CONNECT_CLIENT_ID',
   };

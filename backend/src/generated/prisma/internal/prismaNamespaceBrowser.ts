@@ -3421,6 +3421,7 @@ export type SellerOnboardingRequirementScalarFieldEnum = (typeof SellerOnboardin
 export const SellerBusinessProfileScalarFieldEnum = {
   id: 'id',
   sellerAccountId: 'sellerAccountId',
+  legalForm: 'legalForm',
   representativeName: 'representativeName',
   representativeEmail: 'representativeEmail',
   representativePhone: 'representativePhone',
@@ -7577,6 +7578,7 @@ export const SellerTrustProfileScalarFieldEnum = {
   exportCapable: 'exportCapable',
   exportMarketsJson: 'exportMarketsJson',
   yearsExporting: 'yearsExporting',
+  intendedCategoryIdsJson: 'intendedCategoryIdsJson',
   capabilitiesJson: 'capabilitiesJson',
   responseSlaHours: 'responseSlaHours',
   about: 'about',
@@ -7597,6 +7599,7 @@ export const SellerBeneficialOwnerScalarFieldEnum = {
   nationality: 'nationality',
   ownershipBasisPoints: 'ownershipBasisPoints',
   isControllingPerson: 'isControllingPerson',
+  isPoliticallyExposed: 'isPoliticallyExposed',
   role: 'role',
   archivedAt: 'archivedAt',
   createdAt: 'createdAt',

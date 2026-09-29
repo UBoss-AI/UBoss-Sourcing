@@ -195,6 +195,11 @@ export const JobType = {
   /// must not hold the applicant's browser open - and one that is down must
   /// not fail the submission.
   BUYER_COMPANY_CHECKS: 'buyer_company.checks',
+
+  /// Move an approved seller whose required document has expired to
+  /// ACTION_REQUIRED, with a reason naming it. Hourly; a seller already moved
+  /// is not APPROVED any more, so a repeat finds nothing.
+  SELLER_DOCUMENT_EXPIRY_SWEEP: 'seller_document.expiry_sweep',
 } as const;
 
 export type JobTypeValue = (typeof JobType)[keyof typeof JobType];

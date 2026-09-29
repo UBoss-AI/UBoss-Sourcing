@@ -114,6 +114,22 @@ export const REDACTED_PATHS = [
   'req.body.phone',
   'billingAddressJson',
   'shippingAddressJson',
+
+  // A seller's business and tax identifiers, and the people who own it. Not
+  // secrets, but a log line is copied to places an application's review
+  // screen is not, and none of these helps anybody debug anything.
+  'taxRegistrationNumber',
+  '*.taxRegistrationNumber',
+  'companyRegistrationNumber',
+  '*.companyRegistrationNumber',
+  'udyamNumber',
+  '*.udyamNumber',
+  'iecNumber',
+  '*.iecNumber',
+  'extraIdentifiersJson',
+  '*.extraIdentifiersJson',
+  'beneficialOwners',
+  '*.beneficialOwners',
 ] as const;
 
 /**

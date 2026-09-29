@@ -2499,6 +2499,23 @@ export type EnumSellerKindNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumSellerKindNullableFilter<$PrismaModel>
 }
 
+export type EnumSellerLegalFormNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.SellerLegalForm | Prisma.EnumSellerLegalFormFieldRefInput<$PrismaModel> | null
+  in?: $Enums.SellerLegalForm[] | null
+  notIn?: $Enums.SellerLegalForm[] | null
+  not?: Prisma.NestedEnumSellerLegalFormNullableFilter<$PrismaModel> | $Enums.SellerLegalForm | null
+}
+
+export type EnumSellerLegalFormNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SellerLegalForm | Prisma.EnumSellerLegalFormFieldRefInput<$PrismaModel> | null
+  in?: $Enums.SellerLegalForm[] | null
+  notIn?: $Enums.SellerLegalForm[] | null
+  not?: Prisma.NestedEnumSellerLegalFormNullableWithAggregatesFilter<$PrismaModel> | $Enums.SellerLegalForm | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSellerLegalFormNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSellerLegalFormNullableFilter<$PrismaModel>
+}
+
 export type EnumSellerVerificationKindFilter<$PrismaModel = never> = {
   equals?: $Enums.SellerVerificationKind | Prisma.EnumSellerVerificationKindFieldRefInput<$PrismaModel>
   in?: $Enums.SellerVerificationKind[]
@@ -8651,6 +8668,23 @@ export type NestedEnumSellerKindNullableWithAggregatesFilter<$PrismaModel = neve
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumSellerKindNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumSellerKindNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumSellerLegalFormNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.SellerLegalForm | Prisma.EnumSellerLegalFormFieldRefInput<$PrismaModel> | null
+  in?: $Enums.SellerLegalForm[] | null
+  notIn?: $Enums.SellerLegalForm[] | null
+  not?: Prisma.NestedEnumSellerLegalFormNullableFilter<$PrismaModel> | $Enums.SellerLegalForm | null
+}
+
+export type NestedEnumSellerLegalFormNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SellerLegalForm | Prisma.EnumSellerLegalFormFieldRefInput<$PrismaModel> | null
+  in?: $Enums.SellerLegalForm[] | null
+  notIn?: $Enums.SellerLegalForm[] | null
+  not?: Prisma.NestedEnumSellerLegalFormNullableWithAggregatesFilter<$PrismaModel> | $Enums.SellerLegalForm | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSellerLegalFormNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSellerLegalFormNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumSellerVerificationKindFilter<$PrismaModel = never> = {

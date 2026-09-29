@@ -351,6 +351,27 @@ const REQUIREMENTS: readonly RequirementSeed[] = Object.freeze([
     validationPattern: '^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$',
     sortOrder: 20,
   },
+  /*
+   * India's company registration number, by its own name.
+   *
+   * NOT required here, and that is deliberate: a proprietorship or an ordinary
+   * partnership is not registered with the Ministry of Corporate Affairs and
+   * has no CIN. The application requires one where the LEGAL FORM does - a
+   * company must give its CIN, an LLP its LLPIN - in `domain/seller-kyb.ts`.
+   * The same row is inserted by migration 20261019300000 for deployments
+   * seeded before it existed.
+   */
+  {
+    countryKey: 'IN',
+    stepKey: 'business_identity',
+    fieldKey: 'company_registration_number',
+    label: 'CIN (companies) or LLPIN (LLPs)',
+    helpText:
+      'Companies: the 21-character Corporate Identity Number. LLPs: the LLP Identification Number, for example AAA-1234. Proprietorships and ordinary partnerships leave this empty.',
+    isRequired: false,
+    validationPattern: '^([LU][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}|[A-Z]{3}-?[0-9]{4})$',
+    sortOrder: 10,
+  },
   {
     countryKey: 'IN',
     stepKey: 'kyb_kyc',

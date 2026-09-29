@@ -24,7 +24,8 @@ import { readListingContent, type ListingContent } from '../../domain/product-sp
 import { replaceProductContent } from '../catalog/product-content.service.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { SELLER_SELLING_UNIT } from '../../domain/ordering-unit.js';
-import { assertListingTransition } from '../../domain/seller-state.js';
+import { allowedApplicationTransitions, assertListingTransition } from '../../domain/seller-state.js';
+import { assertApprovalEvidence, readKybReview } from './application-review.service.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { storage } from '../../infra/storage/index.js';
@@ -127,17 +128,138 @@ export async function listApplications(query: ApplicationQueueQuery): Promise<{
   };
 }
 
-/** One application in full, including what the seller never sees. */
+/**
+ * One application in full, including what the seller never sees.
+ *
+ * An explicit select, never `include`, and that is the point of it. The raw
+ * rows carry things a reviewer's browser has no use for: the storage key of a
+ * drawn signature, the browser string of whoever clicked "accept", the payment
+ * provider's own account id and its raw requirement list, the logo's object
+ * key. `include` sent all of them, and every column added to those tables
+ * later would have been sent too. A bank account is never more than its last
+ * four digits and the bank's name - nothing here holds more.
+ */
 export async function readApplication(sellerAccountId: string) {
   const account = await prisma.sellerAccount.findUnique({
     where: { id: sellerAccountId },
-    include: {
-      businessProfile: true,
-      onboarding: true,
-      payoutAccount: true,
-      locations: { where: { archivedAt: null } },
-      agreements: { orderBy: { acceptedAt: 'desc' } },
-      verificationCases: { where: { isCurrent: true } },
+    select: {
+      id: true,
+      legalName: true,
+      displayName: true,
+      slug: true,
+      kind: true,
+      status: true,
+      registrationCountry: true,
+      description: true,
+      statusReason: true,
+      internalNotes: true,
+      resubmissionAllowed: true,
+      commissionBasisPoints: true,
+      feeTier: true,
+      qualityScore: true,
+      submittedAt: true,
+      reviewedAt: true,
+      approvedAt: true,
+      suspendedAt: true,
+      version: true,
+      createdAt: true,
+      updatedAt: true,
+      businessProfile: {
+        select: {
+          legalForm: true,
+          representativeName: true,
+          representativeEmail: true,
+          representativePhone: true,
+          representativeRole: true,
+          supportEmail: true,
+          supportPhone: true,
+          preferredLanguage: true,
+          timezone: true,
+          companyRegistrationNumber: true,
+          taxRegistrationNumber: true,
+          eoriNumber: true,
+          eudamedSrn: true,
+          websiteUrl: true,
+          yearsInBusiness: true,
+          registeredAddressLine1: true,
+          registeredAddressLine2: true,
+          registeredCity: true,
+          registeredRegion: true,
+          registeredPostcode: true,
+          registeredCountry: true,
+          billingAddressLine1: true,
+          billingAddressLine2: true,
+          billingCity: true,
+          billingRegion: true,
+          billingPostcode: true,
+          billingCountry: true,
+          extraIdentifiersJson: true,
+        },
+      },
+      onboarding: {
+        select: { stepsJson: true, completedSteps: true, requiredSteps: true, lastStepKey: true, updatedAt: true },
+      },
+      payoutAccount: {
+        select: {
+          provider: true,
+          state: true,
+          payoutsEnabled: true,
+          payoutsHeldByOperator: true,
+          payoutHoldReason: true,
+          bankName: true,
+          accountLast4: true,
+          payoutCurrency: true,
+          payoutCountry: true,
+          // What the provider last reported about the bank account, verbatim.
+          // Null is "nothing reported", which the screen says - never "verified".
+          bankAccountStatus: true,
+          detailsSubmitted: true,
+          lastSyncedAt: true,
+        },
+      },
+      locations: {
+        where: { archivedAt: null },
+        select: {
+          id: true,
+          code: true,
+          name: true,
+          addressLine1: true,
+          addressLine2: true,
+          city: true,
+          region: true,
+          postcode: true,
+          countryCode: true,
+          isPickupLocation: true,
+          isReturnLocation: true,
+          isOperational: true,
+          dispatchCutoff: true,
+          handlingTimeDays: true,
+        },
+      },
+      agreements: {
+        orderBy: { acceptedAt: 'desc' },
+        select: {
+          id: true,
+          kind: true,
+          version: true,
+          method: true,
+          acceptedName: true,
+          ipAddress: true,
+          acceptedAt: true,
+        },
+      },
+      verificationCases: {
+        where: { isCurrent: true },
+        select: {
+          id: true,
+          kind: true,
+          state: true,
+          provider: true,
+          failureReason: true,
+          expiresAt: true,
+          decidedAt: true,
+        },
+      },
       members: {
         where: { removedAt: null },
         select: {
@@ -161,9 +283,12 @@ export async function readApplication(sellerAccountId: string) {
    * row carries `storageKey` - the object's address in the store - and there is
    * no reason for that to be in a browser at all.
    */
-  const documents = await listDocumentsForReview(account.id);
+  const [documents, kyb] = await Promise.all([
+    listDocumentsForReview(account.id),
+    readKybReview(account.id),
+  ]);
 
-  return { ...account, documents };
+  return { ...account, documents, kyb };
 }
 
 export interface SellerCommissionInput {
@@ -296,6 +421,29 @@ export interface ApplicationDecisionInput {
 }
 
 export async function decideApplication(input: ApplicationDecisionInput): Promise<void> {
+  /*
+   * The evidence gate. Approval - first time, or lifting a suspension - is
+   * refused until every required step is finished, every required document is
+   * accepted and in date, and (SELLER_REQUIRE_SCREENING) the business and each
+   * owner has a current CLEAR screening. One refusal naming all of it, so the
+   * reviewer sees the whole list rather than meeting it one item at a time.
+   *
+   * Only where the move itself is legal: approving a DRAFT is refused by the
+   * state machine, and a list of missing evidence would be the wrong answer.
+   */
+  if (input.to === 'APPROVED') {
+    const current = await prisma.sellerAccount.findUnique({
+      where: { id: input.sellerAccountId },
+      select: { status: true },
+    });
+    if (
+      current !== null &&
+      allowedApplicationTransitions(current.status, 'OPERATOR').some((rule) => rule.to === 'APPROVED')
+    ) {
+      await assertApprovalEvidence(input.sellerAccountId);
+    }
+  }
+
   await transitionApplication({
     sellerAccountId: input.sellerAccountId,
     to: input.to,
