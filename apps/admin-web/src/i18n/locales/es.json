@@ -4979,5 +4979,19 @@
   "feeRules.field.reasonHint": "Al menos diez caracteres.",
   "errors.levels.PLATFORM_FEE_RULE_INVALID": "Revise la regla de comisión: un importe, un porcentaje, una fecha o a qué se aplica no es válido.",
   "errors.levels.PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN": "Debe aprobarlo otro miembro del equipo de finanzas. Usted lo creó, editó o envió.",
-  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "Ya no está pendiente de aprobación. Recargue para ver cómo está."
+  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "Ya no está pendiente de aprobación. Recargue para ver cómo está.",
+  "commandCentre.loading": "Cargando las cifras clave",
+  "commandCentre.orders": "Pedidos",
+  "commandCentre.change": "{{change}} frente al periodo anterior",
+  "commandCentre.lowStockHint": "Productos en o por debajo de su nivel de reposición. Abrir stock.",
+  "commandCentre.health.title": "Estado del sistema",
+  "commandCentre.health.description": "Todo lo que indica que algo está atascado. Un número abre la pantalla donde se corrige.",
+  "commandCentre.health.failedNotifications": "Correos que no se pudieron enviar",
+  "commandCentre.health.deadJobs": "Tareas en segundo plano que se rindieron",
+  "commandCentre.health.rejectedWebhooks": "Mensajes de pago rechazados",
+  "commandCentre.health.unreconciledPayments": "Pagos sin pedido asociado",
+  "commandCentre.health.schedulesNeedingAttention": "Planes de pedidos recurrentes que requieren atención",
+  "commandCentre.health.ok": "Correcto",
+  "commandCentre.health.allClear": "Nada está atascado.",
+  "commandCentre.health.needAttention": "Algo está atascado. Abra el número para ver qué."
 }

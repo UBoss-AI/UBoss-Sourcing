@@ -4946,5 +4946,19 @@
   "feeRules.field.reasonHint": "At least ten characters.",
   "errors.levels.PLATFORM_FEE_RULE_INVALID": "Check the fee rule: an amount, a rate, a date or what it applies to is not valid.",
   "errors.levels.PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN": "A different member of finance staff must approve this. You created, edited or submitted it.",
-  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "This is not waiting for approval any more. Reload to see where it stands."
+  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "This is not waiting for approval any more. Reload to see where it stands.",
+  "commandCentre.loading": "Loading key figures",
+  "commandCentre.orders": "Orders",
+  "commandCentre.change": "{{change}} vs the previous period",
+  "commandCentre.lowStockHint": "Products at or below their reorder level. Open stock.",
+  "commandCentre.health.title": "System health",
+  "commandCentre.health.description": "Anything that means something is stuck. A number opens the screen that fixes it.",
+  "commandCentre.health.failedNotifications": "Emails that could not be sent",
+  "commandCentre.health.deadJobs": "Background jobs that gave up",
+  "commandCentre.health.rejectedWebhooks": "Payment messages refused",
+  "commandCentre.health.unreconciledPayments": "Payments not matched to an order",
+  "commandCentre.health.schedulesNeedingAttention": "Repeat-order plans needing attention",
+  "commandCentre.health.ok": "OK",
+  "commandCentre.health.allClear": "Nothing is stuck.",
+  "commandCentre.health.needAttention": "Something is stuck. Open the number to see what."
 }

@@ -4946,5 +4946,19 @@
   "feeRules.field.reasonHint": "Τουλάχιστον δέκα χαρακτήρες.",
   "errors.levels.PLATFORM_FEE_RULE_INVALID": "Ελέγξτε τον κανόνα χρέωσης: ένα ποσό, ένα ποσοστό, μια ημερομηνία ή το πεδίο εφαρμογής δεν είναι έγκυρο.",
   "errors.levels.PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN": "Πρέπει να το εγκρίνει άλλο μέλος του οικονομικού προσωπικού. Εσείς το δημιουργήσατε, το επεξεργαστήκατε ή το υποβάλατε.",
-  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "Δεν αναμένει πλέον έγκριση. Ανανεώστε για να δείτε την κατάστασή του."
+  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "Δεν αναμένει πλέον έγκριση. Ανανεώστε για να δείτε την κατάστασή του.",
+  "commandCentre.loading": "Φόρτωση βασικών μεγεθών",
+  "commandCentre.orders": "Παραγγελίες",
+  "commandCentre.change": "{{change}} έναντι της προηγούμενης περιόδου",
+  "commandCentre.lowStockHint": "Προϊόντα στο ή κάτω από το όριο αναπαραγγελίας. Άνοιγμα αποθέματος.",
+  "commandCentre.health.title": "Υγεία συστήματος",
+  "commandCentre.health.description": "Ό,τι δείχνει ότι κάτι έχει κολλήσει. Ένας αριθμός ανοίγει την οθόνη όπου διορθώνεται.",
+  "commandCentre.health.failedNotifications": "Email που δεν στάλθηκαν",
+  "commandCentre.health.deadJobs": "Εργασίες παρασκηνίου που εγκαταλείφθηκαν",
+  "commandCentre.health.rejectedWebhooks": "Μηνύματα πληρωμής που απορρίφθηκαν",
+  "commandCentre.health.unreconciledPayments": "Πληρωμές χωρίς αντιστοίχιση σε παραγγελία",
+  "commandCentre.health.schedulesNeedingAttention": "Προγράμματα επαναλαμβανόμενων παραγγελιών που χρειάζονται προσοχή",
+  "commandCentre.health.ok": "Εντάξει",
+  "commandCentre.health.allClear": "Τίποτα δεν έχει κολλήσει.",
+  "commandCentre.health.needAttention": "Κάτι έχει κολλήσει. Ανοίξτε τον αριθμό για να δείτε τι."
 }

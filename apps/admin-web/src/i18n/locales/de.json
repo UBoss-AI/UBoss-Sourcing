@@ -4946,5 +4946,19 @@
   "feeRules.field.reasonHint": "Mindestens zehn Zeichen.",
   "errors.levels.PLATFORM_FEE_RULE_INVALID": "Prüfen Sie die Gebührenregel: Ein Betrag, ein Satz, ein Datum oder der Geltungsbereich ist ungültig.",
   "errors.levels.PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN": "Ein anderes Mitglied des Finanzteams muss dies genehmigen. Sie haben es erstellt, bearbeitet oder eingereicht.",
-  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "Dies wartet nicht mehr auf Genehmigung. Laden Sie neu, um den Stand zu sehen."
+  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "Dies wartet nicht mehr auf Genehmigung. Laden Sie neu, um den Stand zu sehen.",
+  "commandCentre.loading": "Kennzahlen werden geladen",
+  "commandCentre.orders": "Bestellungen",
+  "commandCentre.change": "{{change}} gegenüber dem Vorzeitraum",
+  "commandCentre.lowStockHint": "Produkte auf oder unter dem Nachbestellwert. Bestand öffnen.",
+  "commandCentre.health.title": "Systemzustand",
+  "commandCentre.health.description": "Alles, was auf ein Problem hindeutet. Eine Zahl öffnet die Seite, auf der es behoben wird.",
+  "commandCentre.health.failedNotifications": "E-Mails, die nicht gesendet werden konnten",
+  "commandCentre.health.deadJobs": "Hintergrundaufgaben, die aufgegeben wurden",
+  "commandCentre.health.rejectedWebhooks": "Abgelehnte Zahlungsnachrichten",
+  "commandCentre.health.unreconciledPayments": "Zahlungen ohne zugeordnete Bestellung",
+  "commandCentre.health.schedulesNeedingAttention": "Wiederkehrende Bestellpläne mit Handlungsbedarf",
+  "commandCentre.health.ok": "In Ordnung",
+  "commandCentre.health.allClear": "Nichts hängt fest.",
+  "commandCentre.health.needAttention": "Etwas hängt fest. Öffnen Sie die Zahl, um zu sehen, was."
 }

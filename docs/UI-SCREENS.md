@@ -4450,11 +4450,27 @@ can act on.
   provider cannot be reached, the answer says it was built straight from the
   figures.
 
-The ring refreshes every minute.
+- **Key figures** (only with `report.read`; without it nothing is shown and no
+  request is made): **Orders**, **Gross sales**, **Average order value**,
+  **Collected**, **Net revenue** and **Low stock**, each with its change against
+  the previous period of the same length ("+20.0% vs the previous period", or
+  "Nothing to compare with yet"). The change is worked out in whole minor
+  units. **Low stock** opens Stock.
+- **System health** (same permission): five rows — **Emails that could not be
+  sent**, **Background jobs that gave up**, **Payment messages refused**,
+  **Payments not matched to an order**, **Repeat-order plans needing
+  attention**. A row with something wrong shows its count as a red link to the
+  screen that fixes it (`/operations/failed-notifications`,
+  `/operations/dead-jobs`, `/payments`, `/recurring`); a row with nothing wrong
+  says **OK**. Underneath: "Nothing is stuck." or "Something is stuck. Open the
+  number to see what."
+
+The ring and the key figures refresh every minute, and **Refresh** reloads both.
 
 **API calls**
 
 - `GET /api/v1/admin/operations`
+- `GET /api/v1/admin/dashboard?from=…&to=…` (key figures and system health; `report.read`)
 - `POST /api/v1/admin/dashboard/insights/stream` (a live stream)
 
 #### `/operations/dead-jobs` and `/operations/failed-notifications` — Dead background jobs, Undeliverable emails

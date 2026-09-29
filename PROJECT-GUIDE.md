@@ -6123,8 +6123,10 @@ meantime.
 
 ## The dashboard: the morning's work, above the month's figures
 
-The admin dashboard is a ring called **Platform operations** and the insights
-panel. Nothing else — not even the queue list that used to hang under the ring,
+The admin dashboard is a ring called **Platform operations**, the insights
+panel and — for staff with `report.read` — a strip of key figures and a
+system-health tile (see *Key figures and system health* at the end of this
+section). Nothing else — not even the queue list that used to hang under the ring,
 which repeated as rows what the ring had just drawn and linked to screens that
 are in the navigation rail anyway. `queuesInGroup` still exists and the server
 still returns every queue.
@@ -6142,6 +6144,19 @@ nobody has looked at is a seller waiting four days for a decision.
 There is no request in `DashboardPage.tsx` any more, because there is nothing
 left for it to fetch. The hero owns the one query the page makes, and the
 refresh control invalidates it rather than holding a second copy.
+
+**Key figures and system health.** A command centre that cannot say whether
+sales are up or a job is stuck is half of one, so `CommandCentreTiles` puts two
+things back, plainly, without the sparklines: **key figures** (orders, gross
+sales, average order value, collected, net revenue, low stock, each against the
+previous period of the same length) and a **system-health tile** with five rows
+from the `alerts` block — failed notifications, dead jobs, refused payment
+webhooks, unreconciled payments and repeat-order plans needing attention. Both
+come from `GET /admin/dashboard` (`report.read`); a member of staff without that
+permission sees neither and the request is not made. The change figure is worked
+out in BigInt basis points, never as a float of money. A row with something
+wrong is a link to the screen that fixes it; a row with nothing wrong says OK.
+The hero's query and this one refresh together on a one-minute cadence.
 
 `GET /admin/operations` counts what is waiting, grouped five ways — approvals,
 payments, inventory, logistics, platform. It is built on the same

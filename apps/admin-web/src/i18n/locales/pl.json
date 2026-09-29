@@ -5012,5 +5012,19 @@
   "feeRules.field.reasonHint": "Co najmniej dziesięć znaków.",
   "errors.levels.PLATFORM_FEE_RULE_INVALID": "Sprawdź regułę opłaty: kwota, stawka, data lub zakres stosowania jest nieprawidłowy.",
   "errors.levels.PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN": "Musi to zatwierdzić inny członek zespołu finansowego. Ty to utworzyłeś, edytowałeś lub zgłosiłeś.",
-  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "To już nie czeka na zatwierdzenie. Odśwież, aby zobaczyć aktualny stan."
+  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "To już nie czeka na zatwierdzenie. Odśwież, aby zobaczyć aktualny stan.",
+  "commandCentre.loading": "Ładowanie kluczowych danych",
+  "commandCentre.orders": "Zamówienia",
+  "commandCentre.change": "{{change}} względem poprzedniego okresu",
+  "commandCentre.lowStockHint": "Produkty na poziomie ponownego zamówienia lub poniżej. Otwórz zapasy.",
+  "commandCentre.health.title": "Stan systemu",
+  "commandCentre.health.description": "Wszystko, co oznacza, że coś utknęło. Liczba otwiera ekran, na którym można to naprawić.",
+  "commandCentre.health.failedNotifications": "E-maile, których nie udało się wysłać",
+  "commandCentre.health.deadJobs": "Zadania w tle, które zostały porzucone",
+  "commandCentre.health.rejectedWebhooks": "Odrzucone komunikaty płatności",
+  "commandCentre.health.unreconciledPayments": "Płatności niepowiązane z zamówieniem",
+  "commandCentre.health.schedulesNeedingAttention": "Plany zamówień cyklicznych wymagające uwagi",
+  "commandCentre.health.ok": "W porządku",
+  "commandCentre.health.allClear": "Nic nie utknęło.",
+  "commandCentre.health.needAttention": "Coś utknęło. Otwórz liczbę, aby zobaczyć, co."
 }

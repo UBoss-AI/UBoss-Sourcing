@@ -1511,7 +1511,12 @@ table(['Staff role', 'Main abilities'], [
 ], [3100, 6600]);
 p('The page may hide controls a role cannot use, but the server also checks the permission on every protected request.');
 h2('7.3 Dashboard and notification bell');
-p('The console opens on the work waiting for the team this morning, and on nothing else: one ring, and beside it a short written summary of what the ring shows. The month’s trading figures used to sit underneath and were moved out, because they are read once a week and a queue nobody has looked at is a seller waiting four days for a decision. Every one of those figures is on the screen that owns it — Reports, Orders, Payments, Inventory, Recurring — all still in the menu.');
+p('The console opens on the work waiting for the team this morning, and on nothing else: one ring, and beside it a short written summary of what the ring shows. Beneath the ring, staff who are allowed to see reports also get a short strip of key figures and a health tile. The detailed trading figures live on the screens that own them — Reports, Orders, Payments, Inventory, Recurring — all still in the menu.');
+bullets([
+  'Key figures: how many orders, the gross sales, the average order value, the money collected, the net revenue, and how many products are low on stock. Each one says how it moved compared with the period just before it, for example “+20.0% vs the previous period”. If there was nothing before, it says so instead of showing a made-up figure.',
+  'System health: five lines that mean something is stuck. Emails that could not be sent. Background jobs that gave up. Payment messages the shop refused. Payments that could not be matched to an order. Repeat-order plans that need attention. A line with a problem shows how many, and pressing it opens the screen where it is fixed. A line with no problem says OK. If all five are fine the tile says nothing is stuck.',
+  'Staff who may not see reports do not see these two blocks at all.',
+]);
 bullets([
   'A ring shows everything waiting, in five groups: approvals, payments, stock, deliveries and the platform itself.',
   'Choosing a group singles it out, and the written summary beside the ring is then about that group. The screens where that work is decided are in the menu on the left.',

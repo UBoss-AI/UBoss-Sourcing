@@ -4946,5 +4946,19 @@
   "feeRules.field.reasonHint": "Minimaal tien tekens.",
   "errors.levels.PLATFORM_FEE_RULE_INVALID": "Controleer de tariefregel: een bedrag, een percentage, een datum of waarop ze van toepassing is, is ongeldig.",
   "errors.levels.PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN": "Een ander lid van het financiële team moet dit goedkeuren. U hebt het aangemaakt, bewerkt of ingediend.",
-  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "Dit wacht niet meer op goedkeuring. Laad opnieuw om de stand te zien."
+  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "Dit wacht niet meer op goedkeuring. Laad opnieuw om de stand te zien.",
+  "commandCentre.loading": "Kerncijfers laden",
+  "commandCentre.orders": "Bestellingen",
+  "commandCentre.change": "{{change}} t.o.v. de vorige periode",
+  "commandCentre.lowStockHint": "Producten op of onder hun bestelniveau. Voorraad openen.",
+  "commandCentre.health.title": "Systeemstatus",
+  "commandCentre.health.description": "Alles wat erop wijst dat iets vastzit. Een getal opent het scherm waar het wordt opgelost.",
+  "commandCentre.health.failedNotifications": "E-mails die niet verzonden konden worden",
+  "commandCentre.health.deadJobs": "Achtergrondtaken die het opgaven",
+  "commandCentre.health.rejectedWebhooks": "Geweigerde betalingsberichten",
+  "commandCentre.health.unreconciledPayments": "Betalingen zonder gekoppelde bestelling",
+  "commandCentre.health.schedulesNeedingAttention": "Terugkerende bestelplannen die aandacht nodig hebben",
+  "commandCentre.health.ok": "In orde",
+  "commandCentre.health.allClear": "Er zit niets vast.",
+  "commandCentre.health.needAttention": "Er zit iets vast. Open het getal om te zien wat."
 }

@@ -4278,7 +4278,7 @@ at the sender's company, seller or carrier sees them.
 ### FR-RPT-001 — Role dashboards
 
 - **Statement.** Each role opens on one ring chart and an AI panel (§4).
-- **Rules.** Every figure is a database aggregate scoped on the server; a buyer sees their own orders, a carrier its own consignments, staff only queues they can act on; period and slice in the URL; legend buttons and a table view make the chart never the only way to read it.
+- **Rules.** Every figure is a database aggregate scoped on the server; a buyer sees their own orders, a carrier its own consignments, staff only queues they can act on; period and slice in the URL; legend buttons and a table view make the chart never the only way to read it. On the admin dashboard, staff with `report.read` also see **key figures** (orders, gross sales, average order value, collected, net revenue, low stock, each against the previous period of the same length) and a **system-health tile** (emails that could not be sent, dead background jobs, refused payment messages, unmatched payments, repeat-order plans needing attention), all from `GET /admin/dashboard`.
 - **Status.** Built.
 
 ### FR-RPT-002 — Reports

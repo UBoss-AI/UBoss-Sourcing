@@ -4979,5 +4979,19 @@
   "feeRules.field.reasonHint": "Dix caractères au moins.",
   "errors.levels.PLATFORM_FEE_RULE_INVALID": "Vérifiez la règle de frais : un montant, un taux, une date ou ce à quoi elle s’applique n’est pas valide.",
   "errors.levels.PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN": "Un autre membre de l’équipe finance doit l’approuver. Vous l’avez créé, modifié ou soumis.",
-  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "Cela n’attend plus d’approbation. Rechargez pour voir où en est la situation."
+  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "Cela n’attend plus d’approbation. Rechargez pour voir où en est la situation.",
+  "commandCentre.loading": "Chargement des chiffres clés",
+  "commandCentre.orders": "Commandes",
+  "commandCentre.change": "{{change}} par rapport à la période précédente",
+  "commandCentre.lowStockHint": "Produits au niveau de réapprovisionnement ou en dessous. Ouvrir le stock.",
+  "commandCentre.health.title": "État du système",
+  "commandCentre.health.description": "Tout ce qui indique que quelque chose est bloqué. Un chiffre ouvre l’écran qui permet de le corriger.",
+  "commandCentre.health.failedNotifications": "E-mails qui n’ont pas pu être envoyés",
+  "commandCentre.health.deadJobs": "Tâches d’arrière-plan abandonnées",
+  "commandCentre.health.rejectedWebhooks": "Messages de paiement refusés",
+  "commandCentre.health.unreconciledPayments": "Paiements non rapprochés d’une commande",
+  "commandCentre.health.schedulesNeedingAttention": "Plans de commandes récurrentes à surveiller",
+  "commandCentre.health.ok": "OK",
+  "commandCentre.health.allClear": "Rien n’est bloqué.",
+  "commandCentre.health.needAttention": "Quelque chose est bloqué. Ouvrez le chiffre pour voir quoi."
 }

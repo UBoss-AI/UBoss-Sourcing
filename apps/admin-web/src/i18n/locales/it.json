@@ -4979,5 +4979,19 @@
   "feeRules.field.reasonHint": "Almeno dieci caratteri.",
   "errors.levels.PLATFORM_FEE_RULE_INVALID": "Controlla la regola di commissione: un importo, una percentuale, una data o l’ambito non è valido.",
   "errors.levels.PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN": "Deve approvarlo un altro membro del team finanza. L’hai creato, modificato o inviato tu.",
-  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "Non è più in attesa di approvazione. Ricarica per vedere a che punto è."
+  "errors.levels.PLATFORM_FEE_NOT_PENDING_APPROVAL": "Non è più in attesa di approvazione. Ricarica per vedere a che punto è.",
+  "commandCentre.loading": "Caricamento dei dati principali",
+  "commandCentre.orders": "Ordini",
+  "commandCentre.change": "{{change}} rispetto al periodo precedente",
+  "commandCentre.lowStockHint": "Prodotti al livello di riordino o sotto. Apri le scorte.",
+  "commandCentre.health.title": "Stato del sistema",
+  "commandCentre.health.description": "Tutto ciò che indica che qualcosa è bloccato. Un numero apre la schermata dove si risolve.",
+  "commandCentre.health.failedNotifications": "Email che non è stato possibile inviare",
+  "commandCentre.health.deadJobs": "Attività in background abbandonate",
+  "commandCentre.health.rejectedWebhooks": "Messaggi di pagamento rifiutati",
+  "commandCentre.health.unreconciledPayments": "Pagamenti non abbinati a un ordine",
+  "commandCentre.health.schedulesNeedingAttention": "Piani di ordini ricorrenti che richiedono attenzione",
+  "commandCentre.health.ok": "OK",
+  "commandCentre.health.allClear": "Niente è bloccato.",
+  "commandCentre.health.needAttention": "Qualcosa è bloccato. Apri il numero per vedere cosa."
 }
