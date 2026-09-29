@@ -1493,6 +1493,8 @@ before exiting** **[VR]**. Read the failure; do not work around it.
 | `LOGISTICS_WEB_PUBLIC_URL` | API | Invitation links | conditional | no | same, **https required in production** | — | n/a | https check in production | Invitations point nowhere |
 | `EMAIL_DRIVER` | API, worker | Mail transport | yes | no | `smtp` | `log` | n/a | production guard | **Refuses to start** on `log` |
 | `STORAGE_DRIVER` | API, worker | Media storage | yes | no | **`s3`** | `local` | n/a | production guard; `s3` requires bucket + both keys | `local` **refuses to start** in production — a VPS disk is one disk |
+| `S3_SSE` / `S3_SSE_KMS_KEY_ID` | API, worker | Encryption at rest for every stored object (pictures, documents, uploads) | yes when `STORAGE_DRIVER=s3` | the key id is not a secret | `AES256`, `aws:kms` (with the key id), or `provider-managed` when the provider encrypts every object anyway (Cloudflare R2; AWS S3 since January 2023; a bucket with default encryption on) | empty | n/a | `env.ts` enum; `aws:kms` needs `S3_SSE_KMS_KEY_ID` | **Refuses to start** in production when empty — see *Encryption at rest* below |
+| `DATABASE_ENCRYPTION_AT_REST` | API, worker | Says how the database is encrypted at rest | yes | no | `innodb` (MariaDB data-at-rest encryption, **checked at start-up**: `innodb_encrypt_tables` and `innodb_encrypt_log` must be on) or `provider-managed` (a managed database whose storage the provider encrypts; stated, not checkable) | `unchecked` | n/a | `env.ts` enum + `infra/database-encryption.ts` at start-up | **Refuses to start** in production on `unchecked`, and on `innodb` when the server is not actually encrypting |
 | `ALLOW_PRIVATE_ERP_TARGETS` | API, worker | SSRF escape hatch | no | no | unset / `false` | `true` for a mock ERP | n/a | production guard | **Refuses to start** if `true` — it makes the cloud metadata endpoint reachable from a form field |
 | `DATABASE_URL` | API, worker | Runtime database | yes | **yes** | `mysql://uboss_app:...@127.0.0.1:3306/uboss` | local | Quarterly | parsed at boot | No start |
 | `DATABASE_MAINTENANCE_URL` | API, worker (erasure and audit retention only) | The one account that may blank an erased person's email/IP/user agent on audit rows and delete rows past retention | yes | **yes** | `mysql://uboss_maintenance:...@127.0.0.1:3306/uboss` | unset (main connection) | Quarterly | **refused if unset or equal to `DATABASE_URL`** | No start |
@@ -1502,6 +1504,27 @@ before exiting** **[VR]**. Read the failure; do not work around it.
 | `DEFAULT_TIMEZONE` | API | Application wall-clock | yes | no | **`Europe/Warsaw`** | `Asia/Kolkata` | n/a | — | **The default is `Asia/Kolkata`** — schedules fire at the wrong hour |
 | `FEATURE_ADMIN_LOGIN_LOCATION` | API | Staff sign-in geolocation | no | no | **`false` in the EU** | `false` | n/a | — | **Privacy-preserving default.** Enable only after the assessment in `DATA-PROTECTION.md` §2.1 |
 | `FEATURE_SELLER_SETTLEMENT_STATEMENTS` / `SELLER_SETTLEMENT_PERIOD` / `SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS` | worker (the daily close), API (boot check) | Seller settlement statements: one per seller and currency per closed period | no | no | Off unless you have decided your settlement policy. When on: `MONTHLY` or `WEEKLY`, and the return window in days (0–365) | `false` / `MONTHLY` / unset | n/a | `env.ts`: the days are **required when the flag is on — there is no default** | **Refuses to start** when statements are on and the days are unset. A statement moves no money: payouts stay unconfigured |
+
+#### Encryption at rest
+
+Production refuses to start until both halves of the data at rest are
+accounted for:
+
+- **The database.** On your own MariaDB, run
+  `sudo deploy/scripts/mariadb-encryption-keys.sh` once, copy
+  `deploy/mariadb/uboss-encryption.cnf` to
+  `/etc/mysql/mariadb.conf.d/99-uboss-encryption.cnf`, restart MariaDB and
+  set `DATABASE_ENCRYPTION_AT_REST=innodb`. That encrypts every table and
+  index, the redo log, temporary tables, the binary log and temporary files;
+  the API checks it at every start. Keep the key file **off** the backups it
+  protects. On a managed database whose storage the provider encrypts, set
+  `provider-managed` instead.
+- **Stored files.** With `STORAGE_DRIVER=s3`, set `S3_SSE` as in the table
+  above.
+- **What neither covers:** the disk as a whole, swap and the MariaDB slow and
+  error logs. Encrypt the data volume (LUKS, or the provider's volume
+  encryption). The nightly dumps are encrypted separately by
+  `deploy/scripts/backup.sh`.
 
 ### 12.2 Payments
 

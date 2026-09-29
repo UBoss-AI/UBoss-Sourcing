@@ -74,6 +74,10 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   // inside each request, and staff's internal notes go under `internalNotes`.
   SupportTicket: 'supportTickets',
   SupportTicketEvent: 'supportTickets',
+  // Claims and chargebacks they raised, with the events they were shown.
+  Dispute: 'disputes',
+  DisputeEvent: 'disputes',
+  InspectionAgencyMember: 'inspectionAgencyMembership',
   AssistantConversation: 'chatEnquiries',
   Session: 'sessions',
   DataRequest: 'dataRequests',

@@ -82,6 +82,9 @@ function productionEnv(overrides: Record<string, string | undefined> = {}): Reco
     S3_BUCKET: 'uboss-media',
     S3_ACCESS_KEY_ID: 'not-a-real-access-key-id',
     S3_SECRET_ACCESS_KEY: 'not-a-real-secret-access-key',
+    // Encryption at rest, which production refuses to start without.
+    S3_SSE: 'provider-managed',
+    DATABASE_ENCRYPTION_AT_REST: 'provider-managed',
 
     MALWARE_SCANNER_DRIVER: 'clamav',
 

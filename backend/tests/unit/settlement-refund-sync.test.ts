@@ -50,6 +50,9 @@ function fakeTx(input: { refunds: { status: string; amountMinor: bigint }[]; ope
         }),
     },
     orderItem: { count: () => Promise.resolve(input.operatorLines ?? 0) },
+    // No refund here is for a return of one seller's goods; returns are
+    // attributed in their own tests (buyer-returns).
+    returnRequest: { findMany: () => Promise.resolve([]) },
     sellerNotification: {
       create: ({ data }: { data: { dedupeKey: string } }) => {
         notifications.push(data.dedupeKey);

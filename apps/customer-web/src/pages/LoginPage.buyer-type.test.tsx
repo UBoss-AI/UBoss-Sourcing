@@ -84,7 +84,7 @@ describe('LoginPage - Individual and Company tabs', () => {
     await signIn(user);
 
     await waitFor(() => {
-      expect(login).toHaveBeenCalledWith('asha@example.test', 'CorrectHorseBattery1', 'company');
+      expect(login).toHaveBeenCalledWith('asha@example.test', 'CorrectHorseBattery1', 'company', null);
     });
   });
 
@@ -105,7 +105,8 @@ describe('LoginPage - Individual and Company tabs', () => {
     expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
     await signIn(user);
     await waitFor(() => {
-      expect(login).toHaveBeenCalledWith('asha@example.test', 'CorrectHorseBattery1');
+      // No CAPTCHA is configured here, so the token is null - sent explicitly, never omitted.
+      expect(login).toHaveBeenCalledWith('asha@example.test', 'CorrectHorseBattery1', undefined, null);
     });
   });
 });

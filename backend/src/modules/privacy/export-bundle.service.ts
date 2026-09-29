@@ -114,6 +114,16 @@ export const SECTIONS = Object.freeze({
     // Every Terms and Conditions document they agreed to: which one, which
     // version and language, its hash and when. Buyers and carrier staff alike.
     'termsAcceptances',
+    // Claims they raised about an order, and chargebacks on their payments:
+    // what they said, what they asked for, what was decided and why, and every
+    // message and status change they were shown. Staff's internal notes and
+    // the seller-only thread are withheld under `internalNotes`.
+    'disputes',
+    // Their place in an INSPECTION agency, where they inspect goods for this
+    // marketplace: the name and identity document recorded for them, their
+    // role, credentials and when their identity was checked. The agency's jobs
+    // and reports are the agency's and are not included.
+    'inspectionAgencyMembership',
     // Their standing authority to be charged, and the evidence of when they
     // gave it. Disclosed in full: it is the record a subject would want if they
     // ever disputed a charge.
@@ -971,6 +981,120 @@ export async function buildCustomerBundle(
     dataRequests,
     supportTickets,
     termsAcceptances,
+
+    /*
+     * Their claims and chargebacks.
+     *
+     * The same line the support tickets draw: their own words, what they asked
+     * for, what was decided and the reason given to them, and every event
+     * marked visible to the buyer. Events the buyer was never shown - staff
+     * notes, the seller-only side of the thread - are withheld under
+     * `internalNotes`. Who decided is not named: that is a member of staff's
+     * identity, not the subject's data.
+     */
+    disputes: (
+      await prisma.dispute.findMany({
+        where: { customerProfileId: profile?.id ?? '' },
+        orderBy: { createdAt: 'asc' },
+        select: {
+          reference: true,
+          kind: true,
+          status: true,
+          orderId: true,
+          reasonCode: true,
+          description: true,
+          desiredOutcome: true,
+          requestedAmountMinor: true,
+          currency: true,
+          resolution: true,
+          resolutionAmountMinor: true,
+          decisionReason: true,
+          decidedAt: true,
+          appealCount: true,
+          disputedAmountMinor: true,
+          closedAt: true,
+          createdAt: true,
+          attachments: {
+            orderBy: { createdAt: 'asc' },
+            select: { fileName: true, contentType: true, byteSize: true, createdAt: true },
+          },
+          events: {
+            where: { visibleToBuyer: true },
+            orderBy: { createdAt: 'asc' },
+            select: { kind: true, party: true, body: true, toValue: true, amountMinor: true, createdAt: true },
+          },
+        },
+      })
+    ).map((dispute) => ({
+      reference: dispute.reference,
+      kind: dispute.kind,
+      status: dispute.status,
+      orderId: dispute.orderId,
+      reason: dispute.reasonCode,
+      description: dispute.description,
+      askedFor: dispute.desiredOutcome,
+      currency: dispute.currency,
+      requestedMinor: money(dispute.requestedAmountMinor),
+      disputedMinor: money(dispute.disputedAmountMinor),
+      decision: dispute.resolution,
+      decisionMinor: money(dispute.resolutionAmountMinor),
+      decisionReason: dispute.decisionReason,
+      decidedAt: iso(dispute.decidedAt),
+      appeals: dispute.appealCount,
+      closedAt: iso(dispute.closedAt),
+      raisedAt: iso(dispute.createdAt),
+      files: dispute.attachments.map((file) => ({ ...file, createdAt: iso(file.createdAt) })),
+      history: dispute.events.map((event) => ({
+        kind: event.kind,
+        from: event.party,
+        text: event.body,
+        toValue: event.toValue,
+        amountMinor: money(event.amountMinor),
+        at: iso(event.createdAt),
+      })),
+    })),
+
+    /**
+     * Where they inspect goods, for an inspection agency.
+     *
+     * The same line as the other memberships: what they are recorded as and
+     * what authority they hold. The identity document number IS included - it
+     * is this person's own document, recorded about them. Whether the check
+     * was done is disclosed; who did it is not.
+     */
+    inspectionAgencyMembership: await (async () => {
+      const member = await prisma.inspectionAgencyMember.findUnique({
+        where: { userId: subject.userId },
+        select: {
+          role: true,
+          status: true,
+          fullName: true,
+          jobTitle: true,
+          idDocumentType: true,
+          idDocumentNumber: true,
+          identityVerifiedAt: true,
+          credentials: true,
+          credentialExpiresAt: true,
+          createdAt: true,
+          agency: { select: { name: true } },
+        },
+      });
+
+      if (member === null) return null;
+
+      return {
+        agencyName: member.agency.name,
+        nameOnRecord: member.fullName,
+        jobTitle: member.jobTitle,
+        role: member.role,
+        status: member.status,
+        identityDocument: { type: member.idDocumentType, number: member.idDocumentNumber },
+        identityVerifiedAt: iso(member.identityVerifiedAt),
+        credentials: member.credentials,
+        credentialsExpireAt: iso(member.credentialExpiresAt),
+        joinedAt: iso(member.createdAt),
+      };
+    })(),
 
     // The one thing in this feature that IS the subject's: their standing
     // authority to be charged, and the evidence of when they gave it. The ERP

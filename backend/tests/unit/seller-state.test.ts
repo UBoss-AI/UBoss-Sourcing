@@ -19,6 +19,7 @@ import {
   SellerApplicationStatusValues,
   SELLER_TRADING_STATUSES,
 } from '../../src/domain/seller-state.js';
+import { GATE_NOT_APPLICABLE } from '../../src/domain/inspection-gate.js';
 
 describe('seller application transitions', () => {
   it('lets a seller submit a draft and an operator approve it', () => {
@@ -198,7 +199,10 @@ describe('seller order transitions', () => {
     ] as const;
 
     for (const [from, to] of path) {
-      expect(() => assertSellerOrderTransition({ from, to, actor: 'SELLER' })).not.toThrow();
+      // No inspection applies to this order; the gate has its own tests.
+      expect(() =>
+        assertSellerOrderTransition({ from, to, actor: 'SELLER', inspectionGate: GATE_NOT_APPLICABLE }),
+      ).not.toThrow();
     }
   });
 

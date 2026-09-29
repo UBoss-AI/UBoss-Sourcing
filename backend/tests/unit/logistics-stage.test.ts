@@ -26,6 +26,7 @@ import {
   methodKeyFor,
 } from '../../src/domain/seller-fulfilment.js';
 import { CREDENTIAL_FIELDS } from '../../src/modules/seller/carrier-credential.service.js';
+import { GATE_NOT_APPLICABLE } from '../../src/domain/inspection-gate.js';
 
 const facts = (
   shipmentStatus: ShipmentStatusName,
@@ -239,6 +240,7 @@ describe('the SELLER actor in the shipment state machine', () => {
         to: 'DELIVERED',
         actor: 'SELLER',
         hasProofOfDelivery: true,
+        inspectionGate: GATE_NOT_APPLICABLE,
       }),
     ).not.toThrow();
   });

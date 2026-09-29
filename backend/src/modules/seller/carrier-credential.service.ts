@@ -94,9 +94,19 @@ export function safeCarrierMessage(value: unknown): string {
 
   return (
     raw
-      // Anything that looks like a bearer token, a key or a long opaque run.
+      // A named credential, including the scheme word after it: in
+      // "Authorization: Bearer abc" the secret is the word AFTER "Bearer", so
+      // taking only the next word used to leave the token itself in the text.
+      .replace(
+        /\b(authorization|api[-_]?key|secret|password|token)\b\s*[:=]\s*(?:(?:bearer|basic|token|digest)\s+)?\S+/gi,
+        '$1 [redacted]',
+      )
+      // A bare scheme and its credential, wherever it appears.
+      .replace(/\b(bearer|basic)\s+[A-Za-z0-9._~+/=-]+/gi, '$1 [redacted]')
+      // Keys in the common "sk_live_…" shape, which are shorter than 24.
+      .replace(/\b(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9]+/gi, '[redacted]')
+      // Anything else that looks like a token, a key or a long opaque run.
       .replace(/\b[A-Za-z0-9_-]{24,}\b/g, '[redacted]')
-      .replace(/\b(authorization|api[-_]?key|secret|password|token)\b\s*[:=]\s*\S+/gi, '$1 [redacted]')
       .slice(0, 480)
   );
 }

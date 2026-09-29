@@ -70,7 +70,8 @@ describe('LoginPage - accepting the terms', () => {
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
-      expect(login).toHaveBeenCalledWith('asha@example.test', 'CorrectHorseBattery1');
+      // No CAPTCHA is configured here, so the token is null - sent explicitly, never omitted.
+      expect(login).toHaveBeenCalledWith('asha@example.test', 'CorrectHorseBattery1', undefined, null);
     });
   });
 

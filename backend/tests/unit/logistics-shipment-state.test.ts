@@ -25,6 +25,7 @@ import {
   ALL_LOGISTICS_PERMISSIONS,
   LogisticsPermission,
 } from '../../src/domain/logistics-permissions.js';
+import { GATE_NOT_APPLICABLE } from '../../src/domain/inspection-gate.js';
 
 /** A partner holding everything, so a refusal is never about a missing key. */
 const FULL = [...ALL_LOGISTICS_PERMISSIONS];
@@ -167,6 +168,9 @@ describe('reasons and proof', () => {
         actor: 'DRIVER',
         permissions: FULL,
         hasProofOfDelivery: true,
+        // No inspection applies to this consignment; the gate is covered by
+        // its own tests below and in inspection-gate.test.ts.
+        inspectionGate: GATE_NOT_APPLICABLE,
       }),
     ).not.toThrow();
   });
@@ -202,6 +206,7 @@ describe('permissions', () => {
         from: 'IN_TRANSIT',
         to: 'OUT_FOR_DELIVERY',
         actor: 'CARRIER',
+        inspectionGate: GATE_NOT_APPLICABLE,
       }),
     ).not.toThrow();
   });
