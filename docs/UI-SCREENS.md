@@ -754,9 +754,15 @@ screen serves three addresses:
 **Everything is kept in the address bar**, so a filtered list can be shared
 or bookmarked: `q`, `category` (one or a comma list), `page`, `sort` (newest,
 price up, price down, name A–Z, name Z–A), `minPrice`, `maxPrice`, `inStock`,
-`onSale`, `recurringOnly`, `added` (7, 30 or 90 days) and `attr` (repeatable,
-`name:value`). Changing a filter goes back to page 1. **Clear all** keeps the
-search term and removes the rest.
+`onSale`, `recurringOnly`, `added` (7, 30 or 90 days), `attr` (repeatable,
+`name:value`) and `seller` (one verified supplier's slug). Changing a filter
+goes back to page 1. **Clear all** keeps the search term and removes the rest.
+
+**Only what may be sold to the shopper's destination is listed.** The chosen
+country is sent with every read; a product the operator has blocked for that
+country (a product rule, or a category rule covering everything beneath it)
+is left out of the list, the search and the filter counts. With no country
+chosen, nothing is left out.
 
 **On the screen**
 
@@ -771,7 +777,11 @@ search term and removes the rest.
   - **Show only**: In stock, On offer, Repeat orders.
   - **When it was added**: any time, last 7, 30 or 90 days.
   - One block per product attribute the catalogue offers, with counts.
-- **Filtered by**: a chip per filter, each with ×.
+- **Filtered by**: a chip per filter, each with × ("From ₹100.00",
+  "Supplier: Acme", …), worded in the shopper's language.
+- On a search of two letters or more: **Verified suppliers matching "…"**,
+  up to six supplier pills (name, country, a verified mark) above the
+  results, each opening `/products?seller=…`. Absent when nobody matches.
 - The results: a row per product with its name, SKU, price (or "Request a
   quote"), tax, badges (Minimum N, In multiples of N, N% off, Currently
   unavailable), the star rating with its review count when the product has
@@ -791,6 +801,7 @@ category shows an empty list, not an error.
 - `GET /api/v1/catalog/categories/:slug`
 - `GET /api/v1/catalog/products?page=…&limit=24&…`
 - `GET /api/v1/catalog/filters?…` (the filter blocks and price range)
+- `GET /api/v1/catalog/suppliers?q=…&limit=6` (on a search) and `?slug=…&limit=1` (the supplier chip's name)
 - `GET` and `POST /api/v1/account/wishlist`, `DELETE /api/v1/account/wishlist/:id`
   (customers)
 

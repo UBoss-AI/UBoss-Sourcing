@@ -52,6 +52,7 @@ import { CategoryStrip } from '@/components/catalog/CategoryStrip';
 import { SubCategoryRail } from '@/components/catalog/SubCategoryRail';
 import { findCategoryInTree, rootCategorySlug } from '@/lib/category-tree';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { SupplierMatches } from '@/components/catalog/SupplierMatches';
 import type {
   CatalogFilterFacets,
   CategoryNode,
@@ -1161,8 +1162,8 @@ export function CatalogPage(): React.JSX.Element {
         low !== null && high !== null
           ? `${low} – ${high}`
           : low !== null
-            ? `From ${low}`
-            : `Up to ${high ?? ''}`,
+            ? t('catalog.priceFromChip', { amount: low })
+            : t('catalog.priceUpToChip', { amount: high ?? '' }),
       remove: () => {
         setParam({ minPrice: null, maxPrice: null });
       },
@@ -1531,6 +1532,9 @@ export function CatalogPage(): React.JSX.Element {
         </aside>
 
         <div className="min-w-0">
+          {/* Suppliers whose name matches the search, above the products. */}
+          <SupplierMatches q={q} />
+
           {products.isError && (
             <ErrorState
               error={products.error}

@@ -54,6 +54,8 @@ export interface SupplierListQuery {
   country?: string | undefined;
   /** Exactly one supplier, by slug — what a filtered catalogue asks for. */
   slug?: string | undefined;
+  /** Words in the public name — what a search shows beside its products. */
+  q?: string | undefined;
 }
 
 export interface SupplierListResult {
@@ -93,6 +95,7 @@ export async function listVerifiedSuppliers(
     ...base,
     ...(query.country === undefined ? {} : { registrationCountry: query.country }),
     ...(query.slug === undefined ? {} : { slug: query.slug }),
+    ...(query.q === undefined || query.q === '' ? {} : { displayName: { contains: query.q } }),
   };
 
   const [rows, total, byCountry] = await Promise.all([

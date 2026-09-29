@@ -1448,8 +1448,21 @@ all absent (`BUYER_COMPANIES_DISABLED`).
 ### FR-SRCH-002 — Search, filters and facets
 
 - **Statement.** A visitor can search and filter; facets come from the
-  administrator's filters (`/catalog/filters`).
-- **Status.** Built.
+  administrator's filters (`/catalog/filters`). A search also lists the
+  verified suppliers whose public name matches it, and the results can be
+  narrowed to one supplier (`seller`).
+- **Rules.**
+  1. **Market eligibility.** For the shopper's destination country, a product
+     with an active, in-force `BLOCK` market rule — on the product, or on its
+     category or any category above it — is excluded from the list, the
+     search and the facet counts. `DOCUMENTS_REQUIRED` does not hide. With no
+     destination, nothing is excluded. Rules are recorded in `market_rules`;
+     the screen to manage them is FR for Master row 69 and not built yet.
+  2. Refusing a blocked product at the cart and checkout is Master row 26 and
+     not built yet; until then a direct link to a blocked product can still be
+     added to a basket.
+- **Status.** Built (market eligibility and supplier results: 29 Sep 2026,
+  checklist Master row 2).
 
 ### FR-SRCH-003 — Voice search
 

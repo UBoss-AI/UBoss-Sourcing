@@ -1597,6 +1597,25 @@ list is empty: a seller's shop does not advertise its competitors.
 `tests/integration/catalog-suppliers.test.ts` and
 `components/home/VerifiedSuppliers.test.tsx` hold these rules.
 
+**Market eligibility on every listing.** `resolveFilters` in
+`catalog.public.ts` — shared by the grid, search and the facet counts, so the
+three cannot disagree — adds one more condition for the shopper's destination
+(`country`): products with an in-force `BLOCK` rule in `market_rules` are left
+out (`modules/catalog/market-eligibility.service.ts`). A category rule covers
+the category and every sub-category beneath it, because a restriction on
+"Chemicals" has to hold one level down too. A rule counts only while
+`isActive`, from `effectiveFrom` and before `effectiveUntil`;
+`DOCUMENTS_REQUIRED` informs rather than hides. No destination means no rule:
+guessing a country would hide goods from somebody the rule was never about.
+The cart and checkout do not yet refuse a blocked product (Master row 26), and
+the console screen to manage rules is Master row 69.
+`tests/integration/catalog-market-eligibility.test.ts`.
+
+A search also shows **Verified suppliers matching "…"** above the products
+(`components/catalog/SupplierMatches.tsx`), from the same suppliers read with
+`q` — matched on the public name, never the legal name, and only for two
+letters or more.
+
 The bar carries four controls:
 
 | Control | What it does |

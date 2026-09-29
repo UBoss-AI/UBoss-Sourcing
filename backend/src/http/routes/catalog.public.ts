@@ -71,6 +71,7 @@ import {
   subtreeCategoryIds,
 } from '../../modules/catalog/category.service.js';
 import {
+  destinationFor,
   loadShelfContext,
   quoteShelfPrice,
   toListed,
@@ -98,6 +99,7 @@ import {
   variantPackagingFor,
   type SerialisedPackaging,
 } from '../../modules/catalog/packaging.service.js';
+import { marketEligibleWhere } from '../../modules/catalog/market-eligibility.service.js';
 import {
   MAX_SUPPLIERS,
   listVerifiedSuppliers,
@@ -1028,6 +1030,12 @@ async function resolveFilters(
 
   if (options.includeAttributes) conditions.push(...attributeConditions(attributes));
 
+  // What may not be sold to the shopper's destination is left out of the
+  // grid, search and every facet count - never shown and then refused at the
+  // cart. No destination, no rule: see market-eligibility.service.
+  const eligible = await marketEligibleWhere(destinationFor(query.country));
+  if (eligible !== null) conditions.push(eligible);
+
   if (conditions.length > 0) productWhere.AND = conditions;
 
   return { productWhere, attributes, unknownCategory: false };
@@ -1310,6 +1318,8 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
           .max(180)
           .regex(/^[a-z0-9-]+$/)
           .optional(),
+        /** Words in the supplier's public name: what a search shows beside products. */
+        q: z.string().trim().max(120).optional(),
       })
       .parse(request.query);
 
