@@ -1029,6 +1029,8 @@ describe('a successful payment', () => {
       state: 'SUCCEEDED',
       orderStatus: 'CONFIRMED',
       card: { brand: 'visa', last4: '4242' },
+      // What the buyer quotes to support so the payment can be found at Stripe.
+      paymentReference: intent.latest_charge,
       failureReason: null,
       canRetry: false,
     });
@@ -1105,6 +1107,8 @@ describe('a successful payment', () => {
     const view = await getCheckoutConfirmation(orderId, buyer.profileId, sessionIdOf(result));
 
     expect(view.state).toBe('CONFIRMING');
+    // No reference is shown before the provider has issued one.
+    expect(view.paymentReference).toBeNull();
     const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
     expect(order.status).toBe('PENDING_PAYMENT');
     expect(order.paidMinor).toBe(0n);

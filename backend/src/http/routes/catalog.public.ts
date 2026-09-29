@@ -38,6 +38,7 @@ import { prisma } from '../../infra/prisma.js';
 import { env } from '../../config/env.js';
 import { ratingBadges, withRatingBadges } from '../../modules/catalog/product-review.service.js';
 import { NO_VARIANT_KEY } from '../../infra/ids.js';
+import { assertNotMalware } from '../../infra/malware-scan.js';
 import { assertWithinSizeLimit, sniffImageType } from '../../infra/storage/index.js';
 import { getAvailabilityMap } from '../../modules/inventory/inventory.service.js';
 import { requireCustomer } from '../plugins/auth.js';
@@ -2103,6 +2104,9 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
       const buffer = await upload.toBuffer();
       assertWithinSizeLimit(buffer.byteLength);
       const sniffed = sniffImageType(buffer);
+      // The picture is not stored, but it IS sent on to a third party. A file
+      // that fails the security scan, or one nobody could scan, goes nowhere.
+      await assertNotMalware(buffer);
 
       /*
        * The customer is watching a spinner over their own photograph. If they

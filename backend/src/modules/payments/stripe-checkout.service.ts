@@ -1111,6 +1111,11 @@ export interface CheckoutConfirmationView {
   paidAt: string | null;
   /** "Visa ending 4242". Brand and last four only; there is nothing else. */
   card: { brand: string | null; last4: string } | null;
+  /**
+   * The payment provider's own id for this payment, once it has one. What the
+   * customer quotes to support so the payment can be found at the provider.
+   */
+  paymentReference: string | null;
   /** The most recent decline Stripe reported, in customer terms. */
   failureReason: CheckoutFailureReason | null;
   /** Whether a new attempt may be started for this order now. */
@@ -1180,6 +1185,7 @@ function viewOf(attempt: TransactionWithOrder): CheckoutConfirmationView {
     paidAt: attempt.capturedAt?.toISOString() ?? null,
     card:
       attempt.cardLast4 === null ? null : { brand: attempt.cardBrand, last4: attempt.cardLast4 },
+    paymentReference: attempt.providerPaymentId,
     // Only for an attempt that closed unpaid. A decline recorded while the
     // customer was still on Stripe's page is history once they paid with
     // another card, and must not be read out beside "Confirming payment".

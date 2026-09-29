@@ -226,6 +226,44 @@ export async function getAutoPaySettings(customerProfileId: string): Promise<Aut
 }
 
 /**
+ * The suppliers and categories a customer may limit automatic payment to.
+ *
+ * Suppliers are keyed by the seller account id (what the scope stores), with
+ * the marketplace's own stock as `MARKETPLACE`. Only approved sellers are
+ * offered. Categories are the active ones. Both lists are capped: a picker with
+ * thousands of rows is not a picker.
+ */
+export async function listAutoPayScopeOptions(): Promise<{
+  suppliers: { key: string; name: string | null }[];
+  categories: { id: string; name: string }[];
+}> {
+  const [sellers, categories] = await Promise.all([
+    prisma.sellerAccount.findMany({
+      where: { status: 'APPROVED' },
+      select: { id: true, displayName: true },
+      orderBy: { displayName: 'asc' },
+      take: 200,
+    }),
+    prisma.category.findMany({
+      where: { isActive: true },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+      take: 500,
+    }),
+  ]);
+
+  return {
+    // `name: null` is the marketplace's own stock: the screen words it, because
+    // it is the operator's name and that is a setting, not a constant.
+    suppliers: [
+      { key: MARKETPLACE_SUPPLIER_KEY, name: null },
+      ...sellers.map((seller) => ({ key: seller.id, name: seller.displayName })),
+    ],
+    categories,
+  };
+}
+
+/**
  * What automatic (off-session, scheduled) charges have taken - or are in the
  * middle of taking - from this customer in the current period.
  *

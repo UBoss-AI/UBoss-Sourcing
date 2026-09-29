@@ -183,6 +183,12 @@ export const loggerOptions: LoggerOptions = {
   hooks: {
     // The message itself, and any interpolation arguments.
     logMethod(args, method) {
+      // `log.error(err)` copies err.message into the line's own `msg`, and the
+      // err serializer never sees that copy. Pass the masked message ourselves.
+      if (args.length === 1 && args[0] instanceof Error) {
+        method.apply(this, [args[0], maskCardNumbers(args[0].message)] as unknown as Parameters<typeof method>);
+        return;
+      }
       method.apply(
         this,
         args.map((arg) => (typeof arg === 'string' ? maskCardNumbers(arg) : arg)) as Parameters<

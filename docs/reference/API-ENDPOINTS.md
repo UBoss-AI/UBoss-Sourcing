@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1111 endpoints** in 97 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1114 endpoints** in 97 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -31,7 +31,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 274 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 233 |
+| [Customer account](#customer-account) | 236 |
 | [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
@@ -1806,6 +1806,7 @@ Defined in `backend/src/http/routes/autopay.customer.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/account/autopay` | Customer | Customer | Ungated read. |
+| GET | `/api/v1/account/autopay/scope-options` | Customer | Customer | The suppliers and categories a customer can limit automatic payment to, for the pickers on the Automatic payment page. Approved suppliers and active categories only. |
 | POST | `/api/v1/account/autopay` | Customer | Customer + Feature | Switch on automatic payment: the customer gives explicit permission for a saved card to be charged while they are away, with optional spending limits. Refused without that permission or without a card that can be charged today; the permission is recorded with an audit entry. |
 | PATCH | `/api/v1/account/autopay` | Customer | Customer + Feature | Change the card, spending limits, retry choice or notification settings of automatic payment, without asking for permission again. Writes an audit entry recording the before and after. |
 | POST | `/api/v1/account/autopay/pause` | Customer | Customer + Feature | Pause or resume automatic payment without withdrawing the customer's permission. Resuming checks the saved card can still be charged; refused when automatic payment is switched off. Writes an audit entry. |
@@ -2243,6 +2244,8 @@ Defined in `backend/src/http/routes/schedules.ts`.
 | GET | `/api/v1/recurring-schedules/:id/occurrences` | Customer | Customer | The deliveries on a plan - past, pending and upcoming. |
 | POST | `/api/v1/recurring-schedules/:id/skip-next` | Customer | Customer | Skip the next delivery. |
 | POST | `/api/v1/recurring-schedules/occurrences/:occurrenceId/skip` | Customer | Customer | Skip one named delivery. |
+| POST | `/api/v1/recurring-schedules/:id/occurrences/:occurrenceId/confirm-price` | Customer | Customer | Accept the new total for a delivery that was held because its price moved. Send the total you were shown; if it has changed since, this is refused and you are shown the new one. The delivery is then priced again and charged only if it is still exactly that amount. |
+| POST | `/api/v1/recurring-schedules/:id/occurrences/:occurrenceId/decline-price` | Customer | Customer | Turn down the new total: this one delivery is skipped and the plan carries on. |
 | DELETE | `/api/v1/recurring-schedules/occurrences/:occurrenceId` | Customer | Customer | Cancel one delivery outright, rather than skipping it. |
 
 ### `returns`

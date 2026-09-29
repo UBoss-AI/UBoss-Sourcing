@@ -1333,7 +1333,9 @@ a wrong type is `MEDIA_TYPE_NOT_ALLOWED`.
 Examples: `POST /api/v1/admin/products/:id/media` (one image, plus an optional
 `altText` field), `POST /api/v1/seller/listing-drafts/:id/media`,
 `POST /api/v1/seller/documents`, `POST /api/v1/catalog/image-search` (one file
-named `image`; the bytes are never stored).
+named `image`; the bytes are never stored). Image search scans the file for
+malware before it goes to the AI provider: a flagged file is
+`400 MALWARE_DETECTED`, and a scanner that cannot be reached is a 503.
 
 A listing's description and specifications: `GET /api/v1/seller/listing-drafts/:id/content`
 returns `{ content: { specifications, descriptionSections, variantOverrides },
@@ -1594,7 +1596,9 @@ server asks Stripe's API itself (the confirmation view and *Check again* in
 nothing: the page can be closed, the redirect can be forged, and a payment can
 still fail after it. A client must never show "paid" because of a redirect; it
 asks `GET /api/v1/payments/orders/:orderId/status`, or for Stripe Checkout
-`GET /api/v1/payments/orders/:orderId/checkout/:sessionId`, instead. Every one
+`GET /api/v1/payments/orders/:orderId/checkout/:sessionId`, instead. That view
+also carries `paymentReference`, the provider's own id for the payment (null
+until it has one), for the buyer to quote to support. Every one
 of these paths ends in the same guarded capture, so an order is confirmed
 exactly once.
 

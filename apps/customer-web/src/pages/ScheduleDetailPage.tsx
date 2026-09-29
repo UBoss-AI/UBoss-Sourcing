@@ -26,8 +26,8 @@ import {
   LoadingState,
   Textarea,
 } from '@/components/ui';
-import { api } from '@/lib/api';
-import { formatDateTime, formatNumber, humanise } from '@/lib/format';
+import { api, ApiError } from '@/lib/api';
+import { formatDateTime, formatMoney, formatNumber, humanise } from '@/lib/format';
 import {
   occurrenceStatusTone,
   scheduleStatusLabel,
@@ -40,6 +40,108 @@ import type { TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 
 type PendingAction = 'pause' | 'resume' | 'cancel';
+
+type HeldOccurrence = NonNullable<Schedule['occurrences']>[number];
+
+/**
+ * The question a held delivery asks: its price moved, nothing has been
+ * charged, and the customer decides.
+ *
+ * Confirming sends back the total that is on screen, not "yes". If the price
+ * moved again while they were reading, the server refuses with the new total
+ * and the page reloads it - so nobody agrees to a number they did not see.
+ */
+function HeldPricePrompt({
+  scheduleId,
+  occurrence,
+}: {
+  scheduleId: string;
+  occurrence: HeldOccurrence;
+}): React.JSX.Element | null {
+  const { t } = useI18n();
+  const queryClient = useQueryClient();
+  const toast = useToast();
+  const [error, setError] = useState<string | null>(null);
+
+  const total = occurrence.total ?? null;
+
+  const answer = useMutation({
+    mutationFn: (choice: 'confirm' | 'decline') => {
+      const base = `/recurring-schedules/${scheduleId}/occurrences/${occurrence.id}`;
+      if (choice === 'decline') return api.post(`${base}/decline-price`);
+      return api.post(`${base}/confirm-price`, { acceptedTotalMinor: total?.minor ?? '0' });
+    },
+    onSuccess: async (_result, choice) => {
+      setError(null);
+      toast.success(choice === 'confirm' ? t('scheduleDetail.priceConfirmed') : t('scheduleDetail.priceDeclined'));
+      await queryClient.invalidateQueries({ queryKey: ['schedule', scheduleId] });
+      await queryClient.invalidateQueries({ queryKey: ['schedules'] });
+    },
+    onError: async (failure) => {
+      if (failure instanceof ApiError && failure.code === 'SCHEDULE_CONFIRMED_TOTAL_STALE') {
+        setError(t('scheduleDetail.priceStale'));
+        await queryClient.invalidateQueries({ queryKey: ['schedule', scheduleId] });
+        return;
+      }
+      setError(errorMessage(t, failure, t('scheduleDetail.thatCouldNotBeDone')));
+      await queryClient.invalidateQueries({ queryKey: ['schedule', scheduleId] });
+    },
+  });
+
+  if (total === null) return null;
+
+  return (
+    <div
+      role="group"
+      aria-label={t('scheduleDetail.priceHeldTitle')}
+      className="mt-2 w-full rounded-md border border-warning/40 bg-warning-soft p-3 text-sm"
+    >
+      <p className="font-medium text-ink">{t('scheduleDetail.priceHeldTitle')}</p>
+      <p className="mt-1 text-ink-muted">
+        {t('scheduleDetail.priceHeldBody', { total: formatMoney(total) })}
+      </p>
+      {occurrence.quotedTotal !== undefined && occurrence.quotedTotal !== null && (
+        <p className="mt-1 text-xs text-ink-muted">
+          {t('scheduleDetail.priceHeldWas', { quoted: formatMoney(occurrence.quotedTotal) })}
+        </p>
+      )}
+      {occurrence.confirmationDueAt !== undefined && occurrence.confirmationDueAt !== null && (
+        <p className="mt-1 text-xs text-ink-muted">
+          {t('scheduleDetail.priceHeldDeadline', {
+            deadline: formatDateTime(occurrence.confirmationDueAt),
+          })}
+        </p>
+      )}
+
+      {error !== null && (
+        <p role="alert" className="mt-2 text-xs text-danger">
+          {error}
+        </p>
+      )}
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Button
+          variant="primary"
+          disabled={answer.isPending}
+          onClick={() => {
+            answer.mutate('confirm');
+          }}
+        >
+          {t('scheduleDetail.priceConfirm')}
+        </Button>
+        <Button
+          variant="secondary"
+          disabled={answer.isPending}
+          onClick={() => {
+            answer.mutate('decline');
+          }}
+        >
+          {t('scheduleDetail.priceDecline')}
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 // Keys, not words: this table is module state, built before any component can
 // call `t`. Translated in the dialog that shows it.
@@ -388,6 +490,10 @@ export function ScheduleDetailPage(): React.JSX.Element {
                         owed the reason rather than a bare grey chip. */}
                     {occurrence.failureMessage === null && occurrence.skipReason !== null && (
                       <span className="w-full text-xs text-ink-muted">{occurrence.skipReason}</span>
+                    )}
+
+                    {occurrence.awaitingConfirmation === true && (
+                      <HeldPricePrompt scheduleId={schedule.id} occurrence={occurrence} />
                     )}
                   </li>
                 ))}

@@ -21,12 +21,13 @@
  * computed with the real HMAC against a real secret rather than stubbed - the
  * point of a webhook test is that verification runs.
  */
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { earliestFirstDelivery } from '../support/schedule-dates.js';
 import { createHmac } from 'node:crypto';
 import { env } from '../../src/config/env.js';
 import { occurrenceIdempotencyKey } from '../../src/domain/schedule-state.js';
-import { encryptSecret } from '../../src/infra/crypto.js';
+import { encryptSecret, hashPassword } from '../../src/infra/crypto.js';
+import { buildApp } from '../../src/http/app.js';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
 import { receiveStock } from '../../src/modules/inventory/inventory.service.js';
@@ -50,7 +51,10 @@ import {
   skipNextOccurrence,
   updateSchedule,
 } from '../../src/modules/recurring/schedule.service.js';
-import { runOccurrence } from '../../src/modules/recurring/occurrence.service.js';
+import {
+  expireActionRequiredOccurrences,
+  runOccurrence,
+} from '../../src/modules/recurring/occurrence.service.js';
 import { retryDueErpPushes } from '../../src/modules/integrations/erp-order.service.js';
 
 const WEBHOOK_SECRET = 'whsec_scheduled_orders_test';
@@ -325,6 +329,8 @@ let currentAmountMinor = 0;
 // ---------------------------------------------------------------------------
 
 async function resetAll(): Promise<void> {
+  await prisma.session.deleteMany({});
+  await prisma.loginAttempt.deleteMany({});
   await prisma.auditLog.deleteMany({});
   await prisma.jobQueue.deleteMany({});
   await prisma.notificationDelivery.deleteMany({});
@@ -1846,5 +1852,201 @@ describe('the customer’s own auto-pay limits', () => {
 
     expect(outcome.result).toBe('COMPLETED');
     expect(world.chargeCalls).toHaveLength(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// A delivery held because its price moved: the customer answers
+// ---------------------------------------------------------------------------
+
+describe('answering a held price', () => {
+  let app: Awaited<ReturnType<typeof buildApp>>;
+  const PASSWORD = 'HeldPricePass!2026x';
+
+  beforeAll(async () => {
+    app = await buildApp();
+    await app.ready();
+  }, 120_000);
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  interface Session {
+    cookie: string;
+    csrf: string;
+    ip: string;
+  }
+
+  /** Give a customer a password and sign them in the way a browser does. */
+  async function signIn(email: string, ip: string): Promise<Session> {
+    await prisma.user.update({
+      where: { emailNormalized: email },
+      data: { passwordHash: await hashPassword(PASSWORD), emailVerifiedAt: new Date() },
+    });
+    const login = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/login',
+      headers: { 'x-forwarded-for': ip },
+      payload: { email, password: PASSWORD },
+    });
+    expect(login.statusCode, login.body).toBe(200);
+    const jar = new Map<string, string>();
+    for (const cookie of login.cookies as { name: string; value: string }[]) jar.set(cookie.name, cookie.value);
+    return {
+      cookie: [...jar.entries()].map(([name, value]) => `${name}=${value}`).join('; '),
+      csrf: jar.get('uboss_shop_csrf') ?? '',
+      ip,
+    };
+  }
+
+  function call(session: Session, method: 'GET' | 'POST', url: string, payload?: unknown) {
+    return app.inject({
+      method,
+      url: `/api/v1/recurring-schedules${url}`,
+      headers: { cookie: session.cookie, 'x-csrf-token': session.csrf, 'x-forwarded-for': session.ip },
+      ...(payload === undefined ? {} : { payload: payload as Record<string, unknown> }),
+    });
+  }
+
+  const code = (response: { json: () => unknown }): string | undefined =>
+    (response.json() as { error?: { code?: string } }).error?.code;
+
+  /** A delivery whose price doubled after the customer last saw it. */
+  async function heldDelivery(): Promise<{ scheduleId: string; occurrenceId: string; totalMinor: bigint }> {
+    await fillCart(10);
+    const scheduleId = await liveSchedule(
+      subscriptionConfig({ priceTolerancePercent: '5', priceToleranceMinor: '0' }),
+    );
+    const slot = await quotedOccurrence(scheduleId, 236_000n);
+    await prisma.product.update({ where: { id: productId }, data: { basePriceMinor: 40_000n } });
+
+    const outcome = await runOccurrence(scheduleId, slot);
+    expect(outcome.result).toBe('AWAITING_CONFIRMATION');
+
+    const held = await prisma.scheduleOccurrence.findFirstOrThrow({ where: { scheduleId, plannedRunAt: slot } });
+    return { scheduleId, occurrenceId: held.id, totalMinor: held.actualTotalMinor ?? 0n };
+  }
+
+  const statusOf = async (id: string): Promise<string> =>
+    (await prisma.scheduleOccurrence.findUniqueOrThrow({ where: { id }, select: { status: true } })).status;
+
+  it('refuses a signed-out caller', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/v1/recurring-schedules/${newId()}/occurrences/${newId()}/confirm-price`,
+      payload: { acceptedTotalMinor: '1' },
+    });
+    expect(response.statusCode).toBe(401);
+  });
+
+  it('shows the customer the held delivery with the new total and the deadline', async () => {
+    const { scheduleId, occurrenceId, totalMinor } = await heldDelivery();
+    const session = await signIn('buyer@sched.test', '10.60.0.1');
+
+    const detail = await call(session, 'GET', `/${scheduleId}`);
+    expect(detail.statusCode, detail.body).toBe(200);
+    const shown = detail
+      .json<{ schedule: { occurrences: { id: string; awaitingConfirmation: boolean; total: { minor: string }; confirmationDueAt: string | null }[] } }>()
+      .schedule.occurrences.find((occurrence) => occurrence.id === occurrenceId);
+    expect(shown?.awaitingConfirmation).toBe(true);
+    expect(BigInt(shown?.total.minor ?? '0')).toBe(totalMinor);
+    expect(shown?.confirmationDueAt).not.toBeNull();
+  });
+
+  it('refuses a total the customer was not shown, and charges nothing', async () => {
+    const { scheduleId, occurrenceId, totalMinor } = await heldDelivery();
+    const session = await signIn('buyer@sched.test', '10.60.0.2');
+
+    const response = await call(session, 'POST', `/${scheduleId}/occurrences/${occurrenceId}/confirm-price`, {
+      acceptedTotalMinor: (totalMinor - 1n).toString(),
+    });
+    expect(response.statusCode).toBe(409);
+    expect(code(response)).toBe('SCHEDULE_CONFIRMED_TOTAL_STALE');
+    expect(await statusOf(occurrenceId)).toBe('AWAITING_CONFIRMATION');
+    expect(world.chargeCalls).toHaveLength(0);
+  });
+
+  it("does not let another customer answer for them", async () => {
+    const { scheduleId, occurrenceId, totalMinor } = await heldDelivery();
+    const rival = await signIn('rival@sched.test', '10.60.0.3');
+
+    const confirm = await call(rival, 'POST', `/${scheduleId}/occurrences/${occurrenceId}/confirm-price`, {
+      acceptedTotalMinor: totalMinor.toString(),
+    });
+    expect(confirm.statusCode).toBe(404);
+    const decline = await call(rival, 'POST', `/${scheduleId}/occurrences/${occurrenceId}/decline-price`);
+    expect(decline.statusCode).toBe(404);
+    expect(await statusOf(occurrenceId)).toBe('AWAITING_CONFIRMATION');
+    expect(world.chargeCalls).toHaveLength(0);
+  });
+
+  it('goes ahead and charges exactly the accepted total when the customer confirms', async () => {
+    const { scheduleId, occurrenceId, totalMinor } = await heldDelivery();
+    const session = await signIn('buyer@sched.test', '10.60.0.4');
+    currentAmountMinor = Number(totalMinor);
+
+    const response = await call(session, 'POST', `/${scheduleId}/occurrences/${occurrenceId}/confirm-price`, {
+      acceptedTotalMinor: totalMinor.toString(),
+    });
+    expect(response.statusCode, response.body).toBe(200);
+    expect(response.json<{ result: string }>().result).toBe('COMPLETED');
+
+    expect(world.chargeCalls).toHaveLength(1);
+    const order = await prisma.order.findFirstOrThrow();
+    expect(order.grandTotalMinor).toBe(totalMinor);
+    const done = await prisma.scheduleOccurrence.findUniqueOrThrow({ where: { id: occurrenceId } });
+    expect(done.confirmedTotalMinor).toBe(totalMinor);
+    expect(done.confirmedByUserId).toBe(customerActor.userId);
+
+    // Answering twice must not charge twice.
+    const again = await call(session, 'POST', `/${scheduleId}/occurrences/${occurrenceId}/confirm-price`, {
+      acceptedTotalMinor: totalMinor.toString(),
+    });
+    expect(again.statusCode).toBe(409);
+    expect(code(again)).toBe('SCHEDULE_CONFIRMATION_NOT_PENDING');
+    expect(world.chargeCalls).toHaveLength(1);
+  });
+
+  it('skips only that delivery when the customer declines, and the plan carries on', async () => {
+    const { scheduleId, occurrenceId } = await heldDelivery();
+    const session = await signIn('buyer@sched.test', '10.60.0.5');
+
+    const response = await call(session, 'POST', `/${scheduleId}/occurrences/${occurrenceId}/decline-price`);
+    expect(response.statusCode, response.body).toBe(200);
+
+    const skipped = await prisma.scheduleOccurrence.findUniqueOrThrow({ where: { id: occurrenceId } });
+    expect(skipped.status).toBe('SKIPPED');
+    expect(skipped.skippedByUser).toBe(true);
+    expect((await prisma.recurringSchedule.findUniqueOrThrow({ where: { id: scheduleId } })).status).toBe('ACTIVE');
+    expect(world.chargeCalls).toHaveLength(0);
+
+    const again = await call(session, 'POST', `/${scheduleId}/occurrences/${occurrenceId}/decline-price`);
+    expect(again.statusCode).toBe(409);
+    expect(code(again)).toBe('SCHEDULE_CONFIRMATION_NOT_PENDING');
+  });
+
+  it('skips the delivery at the deadline when nobody answers, and cannot then be confirmed', async () => {
+    const { scheduleId, occurrenceId, totalMinor } = await heldDelivery();
+    const session = await signIn('buyer@sched.test', '10.60.0.6');
+
+    await prisma.scheduleOccurrence.update({
+      where: { id: occurrenceId },
+      data: { confirmationDueAt: new Date(Date.now() - 60_000) },
+    });
+
+    // Past the deadline the answer is refused even before the sweep runs.
+    const late = await call(session, 'POST', `/${scheduleId}/occurrences/${occurrenceId}/confirm-price`, {
+      acceptedTotalMinor: totalMinor.toString(),
+    });
+    expect(late.statusCode).toBe(409);
+    expect(code(late)).toBe('SCHEDULE_CONFIRMATION_NOT_PENDING');
+
+    await expireActionRequiredOccurrences();
+    const skipped = await prisma.scheduleOccurrence.findUniqueOrThrow({ where: { id: occurrenceId } });
+    expect(skipped.status).toBe('SKIPPED');
+    expect(skipped.skippedByUser).toBe(false);
+    expect(world.chargeCalls).toHaveLength(0);
+    expect(await prisma.order.count()).toBe(0);
   });
 });

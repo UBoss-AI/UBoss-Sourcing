@@ -38,9 +38,16 @@ import {
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { api } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
-import { formatDateTime } from '@/lib/format';
-import { autoPayApi, autoPayKeys, inputToMinor, minorToInput } from '@/lib/autopay';
-import type { AutoPayRetryPreference, AutoPaySettings } from '@/lib/types';
+import { formatDateTime, formatMoneyMinor } from '@/lib/format';
+import {
+  autoPayApi,
+  autoPayKeys,
+  dateInputToIso,
+  inputToMinor,
+  isoToDateInput,
+  minorToInput,
+} from '@/lib/autopay';
+import type { AutoPayCapPeriod, AutoPayRetryPreference, AutoPaySettings } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 
 interface SavedCard {
@@ -68,6 +75,16 @@ interface FormState {
   notifyOnCharge: boolean;
   notifyOnFailure: boolean;
   consentAccepted: boolean;
+  /** `YYYY-MM-DD`, or empty for "from when it is switched on". */
+  startsOn: string;
+  /** `YYYY-MM-DD`, or empty for "until I switch it off". */
+  endsOn: string;
+  /** Major units as typed, or empty for no cap. */
+  periodCap: string;
+  capPeriod: AutoPayCapPeriod | '';
+  /** Empty means every supplier / every category. */
+  scopeSellerKeys: string[];
+  scopeCategoryIds: string[];
 }
 
 function initialForm(settings: AutoPaySettings, cards: SavedCard[]): FormState {
@@ -92,6 +109,12 @@ function initialForm(settings: AutoPaySettings, cards: SavedCard[]): FormState {
     // Never carried over from a previous session, and never defaulted true.
     // Consent is given by the person in front of the screen, now.
     consentAccepted: false,
+    startsOn: isoToDateInput(settings.authorityStartsAt),
+    endsOn: isoToDateInput(settings.authorityExpiresAt),
+    periodCap: minorToInput(settings.periodCapMinor ?? null),
+    capPeriod: settings.capPeriod ?? '',
+    scopeSellerKeys: settings.scopeSellerKeys ?? [],
+    scopeCategoryIds: settings.scopeCategoryIds ?? [],
   };
 }
 
@@ -149,6 +172,12 @@ export function AutoPayPage(): React.JSX.Element {
         .then((response) => response.paymentMethods),
     // The saved-cards surface is behind its own flag and answers 403 when it is
     // off. Only asked for once auto-pay says it is available.
+    enabled: settingsQuery.data?.available === true,
+  });
+
+  const scopeQuery = useQuery({
+    queryKey: autoPayKeys.scopeOptions,
+    queryFn: () => autoPayApi.scopeOptions(),
     enabled: settingsQuery.data?.available === true,
   });
 
@@ -283,8 +312,36 @@ export function AutoPayPage(): React.JSX.Element {
   const hasUsableCard = usableCards.length > 0;
 
   /** Convert what was typed, or record which field could not be. */
-  function readLimits(current: FormState): { max: string | null; threshold: string | null } | null {
+  function readLimits(current: FormState): {
+    max: string | null;
+    threshold: string | null;
+    cap: string | null;
+  } | null {
     const errors: Record<string, string> = {};
+
+    const cap = current.periodCap.trim() === '' ? null : inputToMinor(current.periodCap);
+    if (current.periodCap.trim() !== '' && cap === null) {
+      errors['periodCapMinor'] = t('autopay.enterAnAmount');
+    }
+    if (cap !== null && current.capPeriod === '') {
+      errors['capPeriod'] = t('autopay.chooseAPeriod');
+    }
+
+    if (current.startsOn.trim() !== '' && dateInputToIso(current.startsOn, 'start') === null) {
+      errors['authorityStartsAt'] = t('autopay.chooseADate');
+    }
+    if (current.endsOn.trim() !== '' && dateInputToIso(current.endsOn, 'end') === null) {
+      errors['authorityExpiresAt'] = t('autopay.chooseADate');
+    }
+    if (
+      errors['authorityStartsAt'] === undefined &&
+      errors['authorityExpiresAt'] === undefined &&
+      current.startsOn.trim() !== '' &&
+      current.endsOn.trim() !== '' &&
+      current.endsOn < current.startsOn
+    ) {
+      errors['authorityExpiresAt'] = t('autopay.endBeforeStart');
+    }
 
     const max = current.maxTransaction.trim() === '' ? null : inputToMinor(current.maxTransaction);
     if (current.maxTransaction.trim() !== '' && max === null) {
@@ -297,7 +354,7 @@ export function AutoPayPage(): React.JSX.Element {
       errors['approvalThresholdMinor'] = t('autopay.enterAnAmount');
     }
 
-    if ((max !== null || threshold !== null) && current.limitCurrency.trim() === '') {
+    if ((max !== null || threshold !== null || cap !== null) && current.limitCurrency.trim() === '') {
       // An amount with no currency is not a limit. Refused here as well as on
       // the server, because a round trip to learn it is a poor experience.
       errors['limitCurrency'] = t('autopay.chooseACurrency');
@@ -305,7 +362,19 @@ export function AutoPayPage(): React.JSX.Element {
 
     setFieldErrors(errors);
 
-    return Object.keys(errors).length === 0 ? { max, threshold } : null;
+    return Object.keys(errors).length === 0 ? { max, threshold, cap } : null;
+  }
+
+  /** The time, cap and scope fields, in the shape the API takes. Blank means "none". */
+  function authorityBody(current: FormState, cap: string | null) {
+    return {
+      authorityStartsAt: current.startsOn.trim() === '' ? null : dateInputToIso(current.startsOn, 'start'),
+      authorityExpiresAt: current.endsOn.trim() === '' ? null : dateInputToIso(current.endsOn, 'end'),
+      periodCapMinor: cap,
+      capPeriod: cap === null || current.capPeriod === '' ? null : current.capPeriod,
+      scopeSellerKeys: current.scopeSellerKeys.length === 0 ? null : current.scopeSellerKeys,
+      scopeCategoryIds: current.scopeCategoryIds.length === 0 ? null : current.scopeCategoryIds,
+    };
   }
 
   const submitEnable = (): void => {
@@ -321,6 +390,7 @@ export function AutoPayPage(): React.JSX.Element {
       retryPreference: form.retryPreference,
       notifyOnCharge: form.notifyOnCharge,
       notifyOnFailure: form.notifyOnFailure,
+      ...authorityBody(form, limits.cap),
     });
   };
 
@@ -336,6 +406,7 @@ export function AutoPayPage(): React.JSX.Element {
       retryPreference: form.retryPreference,
       notifyOnCharge: form.notifyOnCharge,
       notifyOnFailure: form.notifyOnFailure,
+      ...authorityBody(form, limits.cap),
     });
   };
 
@@ -465,6 +536,185 @@ export function AutoPayPage(): React.JSX.Element {
               )}
             </Field>
           </div>
+
+          {/* --- When it applies ------------------------------------------ */}
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-medium text-ink">{t('autopay.whenItApplies')}</legend>
+            <p className="text-xs text-ink-muted">{t('autopay.whenItAppliesHint')}</p>
+
+            {settings.authorityExpired === true && (
+              <p role="status" className="rounded-md bg-warning-soft px-3 py-2 text-xs text-warning">
+                {t('autopay.hasEnded')}
+              </p>
+            )}
+            {settings.authorityNotStarted === true && (
+              <p role="status" className="rounded-md bg-surface-sunken px-3 py-2 text-xs text-ink-muted">
+                {t('autopay.notStartedYet')}
+              </p>
+            )}
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field label={t('autopay.startsOn')} hint={t('autopay.startsOnHint')} error={fieldErrors['authorityStartsAt']}>
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    aria-describedby={describedBy}
+                    type="date"
+                    value={form.startsOn}
+                    disabled={busy}
+                    invalid={fieldErrors['authorityStartsAt'] !== undefined}
+                    onChange={(event) => {
+                      setForm({ ...form, startsOn: event.target.value });
+                    }}
+                  />
+                )}
+              </Field>
+
+              <Field label={t('autopay.endsOn')} hint={t('autopay.endsOnHint')} error={fieldErrors['authorityExpiresAt']}>
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    aria-describedby={describedBy}
+                    type="date"
+                    value={form.endsOn}
+                    disabled={busy}
+                    invalid={fieldErrors['authorityExpiresAt'] !== undefined}
+                    onChange={(event) => {
+                      setForm({ ...form, endsOn: event.target.value });
+                    }}
+                  />
+                )}
+              </Field>
+            </div>
+          </fieldset>
+
+          {/* --- The cap per period --------------------------------------- */}
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-medium text-ink">{t('autopay.periodCapHeading')}</legend>
+            <p className="text-xs text-ink-muted">{t('autopay.periodCapHint')}</p>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field label={t('autopay.periodCapAmount')} error={fieldErrors['periodCapMinor']}>
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    aria-describedby={describedBy}
+                    inputMode="decimal"
+                    placeholder={t('autopay.noLimit')}
+                    value={form.periodCap}
+                    disabled={busy}
+                    invalid={fieldErrors['periodCapMinor'] !== undefined}
+                    onChange={(event) => {
+                      setForm({ ...form, periodCap: event.target.value });
+                    }}
+                  />
+                )}
+              </Field>
+
+              <Field label={t('autopay.periodCapEvery')} error={fieldErrors['capPeriod']}>
+                {({ inputId, describedBy }) => (
+                  <Select
+                    id={inputId}
+                    aria-describedby={describedBy}
+                    value={form.capPeriod}
+                    disabled={busy}
+                    onChange={(event) => {
+                      setForm({ ...form, capPeriod: event.target.value as AutoPayCapPeriod | '' });
+                    }}
+                  >
+                    <option value="">{t('autopay.periodNone')}</option>
+                    <option value="WEEK">{t('autopay.period.WEEK')}</option>
+                    <option value="MONTH">{t('autopay.period.MONTH')}</option>
+                    <option value="QUARTER">{t('autopay.period.QUARTER')}</option>
+                    <option value="YEAR">{t('autopay.period.YEAR')}</option>
+                  </Select>
+                )}
+              </Field>
+            </div>
+
+            {settings.periodCapMinor !== undefined &&
+              settings.periodCapMinor !== null &&
+              settings.periodUsedMinor !== undefined &&
+              settings.periodUsedMinor !== null &&
+              settings.limitCurrency !== null && (
+                <p className="text-xs text-ink-muted">
+                  {t('autopay.periodUsed', {
+                    used: formatMoneyMinor(settings.periodUsedMinor, settings.limitCurrency),
+                    cap: formatMoneyMinor(settings.periodCapMinor, settings.limitCurrency),
+                  })}
+                </p>
+              )}
+          </fieldset>
+
+          {/* --- Scope: which suppliers and categories --------------------- */}
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-medium text-ink">{t('autopay.scopeHeading')}</legend>
+            <p className="text-xs text-ink-muted">{t('autopay.scopeHint')}</p>
+
+            {scopeQuery.isError && (
+              <p role="alert" className="text-xs text-danger">
+                {t('autopay.scopeUnavailable')}
+              </p>
+            )}
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-xs font-medium text-ink">{t('autopay.scopeSuppliers')}</p>
+                <div className="relative mt-1 max-h-40 space-y-1 overflow-auto rounded-md border border-border p-2">
+                  {(scopeQuery.data?.suppliers ?? []).map((supplier) => (
+                    <label key={supplier.key} className="flex items-start gap-2 text-sm text-ink-muted">
+                      <input
+                        type="checkbox"
+                        className="mt-0.5"
+                        checked={form.scopeSellerKeys.includes(supplier.key)}
+                        disabled={busy}
+                        onChange={(event) => {
+                          setForm({
+                            ...form,
+                            scopeSellerKeys: event.target.checked
+                              ? [...form.scopeSellerKeys, supplier.key]
+                              : form.scopeSellerKeys.filter((key) => key !== supplier.key),
+                          });
+                        }}
+                      />
+                      {supplier.name ?? t('autopay.scopeOwnStock')}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium text-ink">{t('autopay.scopeCategories')}</p>
+                <div className="relative mt-1 max-h-40 space-y-1 overflow-auto rounded-md border border-border p-2">
+                  {(scopeQuery.data?.categories ?? []).map((category) => (
+                    <label key={category.id} className="flex items-start gap-2 text-sm text-ink-muted">
+                      <input
+                        type="checkbox"
+                        className="mt-0.5"
+                        checked={form.scopeCategoryIds.includes(category.id)}
+                        disabled={busy}
+                        onChange={(event) => {
+                          setForm({
+                            ...form,
+                            scopeCategoryIds: event.target.checked
+                              ? [...form.scopeCategoryIds, category.id]
+                              : form.scopeCategoryIds.filter((id) => id !== category.id),
+                          });
+                        }}
+                      />
+                      {category.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-ink-muted">
+              {form.scopeSellerKeys.length === 0 && form.scopeCategoryIds.length === 0
+                ? t('autopay.scopeEverything')
+                : t('autopay.scopeOutsideAsks')}
+            </p>
+          </fieldset>
 
           {/* --- Preferences ---------------------------------------------- */}
           <Field label={t('autopay.ifAPaymentFails')} hint={t('autopay.ifAPaymentFailsHint')}>

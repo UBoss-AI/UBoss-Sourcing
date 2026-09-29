@@ -51,6 +51,7 @@ const succeeded = view({
   orderStatus: 'CONFIRMED',
   paidAt: '2026-09-03T10:05:00.000Z',
   card: { brand: 'visa', last4: '4242' },
+  paymentReference: 'ch_3PxAbCdEfGhIjKlM',
 });
 
 function serve(options: { views?: View[]; refresh?: View; onRefresh?: () => void; status?: number } = {}): {
@@ -130,6 +131,28 @@ describe('PaymentConfirmationPage', () => {
       await new Promise((resolve) => setTimeout(resolve, 2500));
     });
     expect(statusCalls()).toBe(asked);
+  });
+
+  it('shows the payment reference to quote, and a way to reach support with the order filled in', async () => {
+    serve({ views: [succeeded] });
+    renderConfirmation();
+
+    await screen.findByText('Payment successful');
+    expect(screen.getByText('Payment reference')).toBeInTheDocument();
+    expect(screen.getByText('ch_3PxAbCdEfGhIjKlM')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /contact support/i })).toHaveAttribute(
+      'href',
+      '/support?order=UB-2026-000042&category=ORDERS',
+    );
+  });
+
+  it('offers support on a failed payment too, and shows no reference the provider never issued', async () => {
+    serve({ views: [view({ state: 'FAILED', failureReason: 'DECLINED', canRetry: true })] });
+    renderConfirmation();
+
+    await screen.findByText(/retry payment/i);
+    expect(screen.queryByText('Payment reference')).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /contact support/i })).toBeInTheDocument();
   });
 
   it('never shows more of the card than its brand and last four', async () => {

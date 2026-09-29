@@ -73,6 +73,16 @@ function renderConfirmation(): void {
 }
 
 describe('OrderConfirmationPage', () => {
+  it('offers support with the order already filled in', async () => {
+    serve(order());
+    renderConfirmation();
+
+    expect(await screen.findByRole('link', { name: /contact support/i })).toHaveAttribute(
+      'href',
+      '/support?order=UB-2026-000042&category=ORDERS',
+    );
+  });
+
   it('says the order was placed, never that it was paid', async () => {
     serve(order());
     renderConfirmation();

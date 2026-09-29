@@ -8912,7 +8912,7 @@ this key). The chat stream's `error` frame carries a `code` — `BUSY`,
 conversation id, as the `reason` and `providerStatus` fields. The storefront
 words each code in the visitor's language and offers **Try again** only when a
 second attempt can work. The logger also redacts `apiKey` and the providers'
-key headers, in case an SDK ever attaches its request to an error.
+key headers, in case an SDK ever attaches its request to an error. A card number quoted inside an error's message is masked to its last four digits; until 29 Sep 2026 the copy that pino writes into the line's own `msg` when an error is logged was not masked (`tests/unit/logger-redaction.test.ts` found it).
 
 **No key can reach a browser.** The keys are read by the API process only.
 CI's frontend jobs run a step called *No server secret in the bundle*, which
@@ -9265,6 +9265,14 @@ is on the admin upload, because it is a script-capable document rather than a
 picture. The photograph goes to the provider and is dropped when the request
 ends: a picture taken inside a hospital store room is not something this system
 should be holding.
+
+**It is malware-scanned before it is sent on.** After the type is sniffed the
+route calls `assertNotMalware`, the same scan every other image upload uses. A
+flagged file is refused with `MALWARE_DETECTED` (400) and one nobody could scan
+with a 503; neither reaches the provider. `MALWARE_SCANNER_DRIVER=disabled`
+(development only) skips it. The dialog also tells the customer, before they
+send anything, that the picture goes to an AI service and is not stored, and,
+beside the results, that matches are approximate.
 
 Three failures, three codes, because each needs different words and a
 different action:
@@ -11195,8 +11203,12 @@ delayed (after 60 seconds of polling every 2 seconds). Because the server asks
 Stripe on each poll, a card Stripe has already confirmed normally shows Payment
 successful on the first answer. Once it does, the page drops its cached copies
 of the order, so View order never shows the old "Pending payment". Success shows the order
-number, amount, when it was paid, "Visa ending in 4242", the order status, View
-order and Continue shopping. "Check again" appears when delayed or processing;
+number, amount, when it was paid, "Visa ending in 4242", the **payment
+reference** (the provider's own payment id, once it has one - what to quote to
+support), the order status, View order and Continue shopping. Every state that
+shows the order also carries "Need help with this payment?" and a **Contact
+support** link with the order filled in (the order-placed page has the same
+link). "Check again" appears when delayed or processing;
 "Retry payment" only when the attempt closed unpaid. The heading is a live
 region and takes focus when it changes. An unknown session says "We could not
 find this payment".
@@ -11674,6 +11686,19 @@ Beyond tolerance: nothing is charged, the occurrence is held, and the customer
 gets an email whose first sentence is *"We have NOT charged you"*. Somebody
 reading "the price has changed" assumes they already paid it.
 
+**The customer answers on the schedule page** (`/account/schedules/:id`). A
+held delivery shows the new total, what they were last told and the deadline,
+with **Confirm the new price** and **Skip this delivery**
+(`POST /recurring-schedules/:id/occurrences/:occurrenceId/confirm-price` and
+`.../decline-price`). Confirming sends back **the total that was on screen**, not
+a bare yes: if the total moved again the server answers
+`SCHEDULE_CONFIRMED_TOTAL_STALE` (409) and the page shows the new figure. An
+accepted total is then priced again by `quoteSchedule` and charged only if it is
+still exactly that amount, so a customer is never charged a number they did not
+see. A double click, or the deadline sweep at the same moment, has one winner
+(`SCHEDULE_CONFIRMATION_NOT_PENDING`). Nobody answering by
+`SCHEDULE_PRICE_CONFIRMATION_HOURS` skips that one delivery; the plan carries on.
+
 ### Substitution
 
 Never, unless asked for. The default `substitutionPolicy` is `NEVER`: an
@@ -12070,6 +12095,8 @@ Before the worker charges a scheduled delivery, it checks those limits through `
 | **Charge** | Charged as described above. |
 
 A customer with **no** account-wide Autopay setting, or one who switched it off, is governed only by the consent they gave the schedule, exactly as before. Every withheld charge is on the audit trail as `autopay.charge_withheld`.
+
+**Four more limits are set on the same page**, and the worker applies each one. An **end date** stops all charging after it (`AUTOPAY_AUTHORITY_EXPIRED`; a date in the past is refused when set, so the authority cannot be switched on and off in one breath), and a **start date** holds charging until it arrives (`AUTOPAY_AUTHORITY_NOT_STARTED`). A **cap per period** (week, month, quarter or year, needing a currency) counts only the scheduled engine's own charges that were taken or are in flight - a failed attempt, a payment made by hand or another customer's charge does not count - and a charge that would pass it is **asked**, not made (`AUTOPAY_PERIOD_CAP_REACHED`). A **supplier and category scope** asks (`AUTOPAY_OUTSIDE_SCOPE`) when any line is outside it; the marketplace's own stock is a supplier the customer can allow, and a basket the worker did not describe counts as *not covered*. `GET /account/autopay/scope-options` feeds the pickers. Changing any of it needs a fresh confirmation (`STEP_UP_REQUIRED`) and, with `AUTOPAY_REQUIRES_MFA`, a second factor. `tests/integration/autopay.test.ts` holds the decision and `autopay-authority-http.test.ts` the routes.
 
 Until 29 September 2026 these limits were stored and shown back to the customer, but the worker never read them. It was found during the pre-go-live checklist verification (`Checklist.md`, SCREEN-085).
 

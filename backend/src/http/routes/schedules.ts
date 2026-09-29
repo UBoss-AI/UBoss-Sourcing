@@ -40,6 +40,10 @@ import {
 } from '../../modules/recurring/schedule-estimate.service.js';
 import { deliveryNoticeFloor } from '../../modules/recurring/schedule-notice.js';
 import {
+  confirmOccurrencePrice,
+  declineOccurrencePrice,
+} from '../../modules/recurring/occurrence.service.js';
+import {
   convertCartAfterActivation,
   createCartSchedule,
   previewCartSchedule,
@@ -679,6 +683,17 @@ export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<vo
           attemptCount: occurrence.attemptCount,
           /** True only while the customer can still skip or re-date this one. */
           canModify: occurrence.status === 'SCHEDULED',
+          /**
+           * A delivery held because its price moved. `total` above is the new
+           * amount; `quotedTotal` is what they were last told; the deadline is
+           * when it is skipped if nobody answers.
+           */
+          awaitingConfirmation: occurrence.status === 'AWAITING_CONFIRMATION',
+          quotedTotal:
+            occurrence.quotedTotalMinor === null
+              ? null
+              : serialiseMoney(occurrence.quotedTotalMinor, currency),
+          confirmationDueAt: occurrence.confirmationDueAt?.toISOString() ?? null,
         })),
       },
     });
@@ -1060,6 +1075,63 @@ export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<vo
       scheduleId: skipped.scheduleId,
       plannedRunAt: skipped.plannedRunAt.toISOString(),
     });
+  });
+
+  /**
+   * Accept the new total for a delivery that was held because its price
+   * moved. Send the total you were shown; if it has changed since, this is
+   * refused and you are shown the new one. The delivery is then priced again
+   * and charged only if it is still exactly that amount.
+   */
+  app.post(
+    '/:id/occurrences/:occurrenceId/confirm-price',
+    { config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
+    async (request, reply) => {
+      const auth = currentUser(request);
+      const params = z
+        .object({ id: z.string().length(26), occurrenceId: z.string().length(26) })
+        .parse(request.params);
+      const body = z.object({ acceptedTotalMinor: z.string().regex(/^\d{1,18}$/) }).strict().parse(request.body);
+
+      const outcome = await confirmOccurrencePrice(
+        {
+          customerProfileId: auth.customerProfileId ?? '',
+          userId: auth.id,
+          email: auth.email,
+          correlationId: request.correlationId,
+        },
+        { scheduleId: params.id, occurrenceId: params.occurrenceId, acceptedTotalMinor: BigInt(body.acceptedTotalMinor) },
+      );
+
+      // Money crosses the API as text; the outcome carries a BigInt.
+      return reply.status(200).send({
+        result: outcome.result,
+        ...('orderId' in outcome ? { orderId: outcome.orderId } : {}),
+        ...('orderNumber' in outcome ? { orderNumber: outcome.orderNumber } : {}),
+        ...('totalMinor' in outcome ? { totalMinor: outcome.totalMinor.toString(), currency: outcome.currency } : {}),
+        ...('reason' in outcome ? { reason: outcome.reason } : {}),
+      });
+    },
+  );
+
+  /** Turn down the new total: this one delivery is skipped and the plan carries on. */
+  app.post('/:id/occurrences/:occurrenceId/decline-price', async (request, reply) => {
+    const auth = currentUser(request);
+    const params = z
+      .object({ id: z.string().length(26), occurrenceId: z.string().length(26) })
+      .parse(request.params);
+
+    await declineOccurrencePrice(
+      {
+        customerProfileId: auth.customerProfileId ?? '',
+        userId: auth.id,
+        email: auth.email,
+        correlationId: request.correlationId,
+      },
+      { scheduleId: params.id, occurrenceId: params.occurrenceId },
+    );
+
+    return reply.status(200).send({ declined: true });
   });
 
   /** Cancel one delivery outright, rather than skipping it. */

@@ -734,7 +734,9 @@ whole catalogue when the box is empty. Typing and then pressing
 connection the browser measures as 3G or slower, the 3D globe is not
 downloaded and the drawn sphere stays. **Image search** (customers
 only; a guest is asked to sign in) takes or uploads a photo and shows matching
-products.
+products. Before anything is sent the dialog says the picture goes to an AI
+service and is not stored; beside the results it says the matches are
+approximate.
 
 Product cards on this page only show; they have no "add to cart". The name
 opens the product.
@@ -2105,12 +2107,16 @@ readers and takes focus when it changes:
 | State | What it shows |
 |---|---|
 | Confirming your payment… | A spinner while the server checks with Stripe |
-| Payment successful | The order number, the amount, when it was paid, the card ("Visa ending in 4242"), the order status, **View order** and **Continue shopping** |
+| Payment successful | The order number, the amount, when it was paid, the card ("Visa ending in 4242"), the payment reference (the provider's own id, shown once it has one), the order status, **View order** and **Continue shopping** |
 | Payment processing | The bank has not finished yet (a delayed payment method). **Check again** |
 | Payment failed | Why, in plain words (declined, not enough funds, expired card, wrong CVC, failed bank check, bank payment failed). **Retry payment** |
 | Payment cancelled | Nothing was charged. **Retry payment** |
 | Session expired | Stripe's page timed out. **Retry payment** |
 | Confirmation temporarily delayed | After 60 seconds of waiting. **Check again** |
+
+Under every state that shows the order there is "Need help with this payment?"
+with a **Contact support** link that opens `/support` with the order already
+filled in.
 
 A session that does not exist or is not yours: "We could not find this
 payment".
@@ -2160,6 +2166,8 @@ right now: payment-link orders and orders waiting for approval. It never says
 
 - **What you ordered**, with the totals and "Paid so far".
 - **Track this order**, **All your orders**, **Keep shopping**.
+- "Need help with this order?" and a **Contact support** link with the order
+  filled in.
 
 **API call:** `GET /api/v1/orders/:orderId`
 
@@ -2377,6 +2385,12 @@ Schedule Cart.
 - **What is delivered**.
 - **Delivery history**: each planned delivery with its status and a link to
   the order it created, or why it failed or was skipped.
+- A delivery **held because its price moved** shows a box: "The price of this
+  delivery changed", that it has **not** been charged, the new total, what
+  you were last told, and the day it is skipped if nobody answers. **Confirm
+  the new price** sends back the total on screen and the order is placed and
+  charged; **Skip this delivery** skips only that one. If the price moved again
+  while you were reading, the box says so and shows the new figure.
 - **Manage**: **Change what is delivered** (opens
   `/accounts/schedule?id=…`), **Pause deliveries** (optional reason),
   **Resume deliveries**, **Cancel this repeat purchase** (reason required, and
@@ -2388,6 +2402,8 @@ Schedule Cart.
 - `POST /api/v1/recurring-schedules/:id/pause`
 - `POST /api/v1/recurring-schedules/:id/resume`
 - `DELETE /api/v1/recurring-schedules/:id?reason=…`
+- `POST /api/v1/recurring-schedules/:id/occurrences/:occurrenceId/confirm-price`
+  and `.../decline-price` (a held delivery)
 
 #### `/account/preorders` — My preorders
 
@@ -2515,6 +2531,14 @@ limits you set.
 - **Card to charge**, or **Add a card** when there is none.
 - Limits: **Never charge more than** and **Ask me first above**, and the
   currency they are in.
+- **When it applies**: **Start on** and **End on** (both optional dates; blank
+  means "from when I switch it on" and "until I switch it off"). A notice says
+  when the end date has passed or the start date has not come.
+- **Most to charge in a period**: a cap amount and how often it starts again
+  (each week, month, quarter or year), with how much of it is used so far.
+- **Only for these suppliers and categories**: tick boxes for suppliers (the
+  marketplace's own stock included) and categories; nothing ticked means
+  everything.
 - **If a payment fails**: tell me and do not try again, try once more the next
   day, or try a few times over a few days.
 - **Tell me when**: a payment is taken, a payment does not go through.
@@ -2526,6 +2550,7 @@ limits you set.
 
 - `GET /api/v1/account/autopay`
 - `GET /api/v1/account/payment-methods`
+- `GET /api/v1/account/autopay/scope-options` (the supplier and category boxes)
 - `POST /api/v1/account/autopay` (turn on)
 - `PATCH /api/v1/account/autopay` (save)
 - `POST /api/v1/account/autopay/pause`

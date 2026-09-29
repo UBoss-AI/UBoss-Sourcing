@@ -106,10 +106,23 @@ const OPTIONAL: Record<string, string> = {
     'A carrier on a bad line may resend; the key makes the resend a replay.',
   [`POST ${P}/logistics/shipments/:id/proof-of-delivery`]:
     'A driver phone may resend a proof upload; the key makes it a replay.',
-  [`POST ${P}/logistics/operations/shipments/:id/events`]:
+  [`POST ${P}/logistics/legs/:id/progress`]:
     'A driver phone may resend; the key makes it a replay.',
-  [`POST ${P}/logistics/driver/location`]: 'Positions are deduplicated by the key the phone sends.',
-  [`POST ${P}/admin/logistics-levels/legs/:legId/move`]: 'A repeated move with the same key changes nothing.',
+  [`POST ${P}/logistics/driver/location-pings`]: 'Positions are deduplicated by the key the phone sends.',
+  [`POST ${P}/logistics/legs/:id/driver`]: 'A repeated assignment with the same key changes nothing.',
+  [`POST ${P}/payments/links/:token/pay`]:
+    'Opens a payment for a link; the provider confirms once by webhook, so a repeat cannot charge twice, but a key stops a second session being opened.',
+  [`POST ${P}/payments/orders/:orderId/mock-capture`]: 'Development-only capture; a repeat is refused once the order is paid.',
+  [`POST ${P}/admin/inventory/receipts`]:
+    'Adds received stock; a key makes a resent form a replay instead of counting the delivery twice.',
+  [`POST ${P}/admin/inventory/adjustments`]:
+    'Changes a stock count; a key makes a resent form a replay instead of adjusting twice.',
+  [`POST ${P}/seller/inventory/movements`]:
+    'Moves stock; a key makes a resent form a replay instead of moving it twice.',
+  [`POST ${P}/admin/returns/:id/receive`]: 'Books returned goods back into stock; the return state refuses a second receipt.',
+  [`POST ${P}/seller/returns/:id/receive`]: 'Books returned goods back into stock; the return state refuses a second receipt.',
+  [`POST ${P}/admin/returns/:id/replacement`]: 'Sends a replacement; the return state refuses a second one.',
+  [`POST ${P}/disputes`]: 'Opens a dispute; a key makes a resent form a replay instead of a second dispute.',
   [`POST ${P}/admin/erp/connections`]: 'The key is the ERP header name to send, not a request key.',
 };
 
@@ -219,6 +232,90 @@ const HARMLESS_CREATE_WORDS = new Set([
   'buyer-companies', 'applications', 'registrations', 'entities', 'profile',
 ]);
 
+/**
+ * Routes checked one by one whose final word is not in a list above. Each group
+ * says why a repeat is harmless; a route is added here on purpose, after
+ * somebody has asked the question, never to silence the guard test.
+ */
+const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
+  {
+    reason:
+      'Moves one record through its state machine (review, hold, retire, receive, response, appeal); a repeat finds it already moved and is refused.',
+    routes: [
+      'admin/buyer-companies/:id/checks', 'admin/buyer-companies/:id/request-information',
+      'admin/buyer-companies/:id/reverify', 'admin/buyer-companies/:id/start-review',
+      'admin/disputes/:id/assignment', 'admin/disputes/:id/decision/refuse', 'admin/disputes/:id/review',
+      'admin/platform-fee-rules/:id/retire', 'admin/platform-fees/:id/retire',
+      'admin/platform-fees/:id/verify-tax', 'admin/product-reviews/:reviewId/moderation',
+      'admin/returns/:id/instructions', 'admin/returns/:id/labels', 'admin/sellers/:id/screening',
+      'admin/support-tickets/:id/assignment', 'admin/logistics/partners/:id/verification',
+      'admin/logistics/managed-levels/rates/:rateId/publish-price', 'admin/preorder-chats/:id/preorder',
+      'buyer-companies/:id/resubmit', 'disputes/:reference/appeal', 'seller/disputes/:reference/appeal',
+      'seller/disputes/:reference/response', 'seller/returns/:id/instructions', 'seller/returns/:id/labels',
+      'seller/returns/:id/response', 'seller/preorders/:id/availability-proposal',
+      'logistics/dispatch-manifests/:id/handover', 'logistics/packages/:id/scan', 'logistics/pickups/:id/fail',
+      'logistics/driver/trips/:id/end', 'seller/consignments/:id/pack', 'seller/consignments/:id/split',
+      'seller/consignments/:id/purchase', 'seller/consignments/:id/carrier',
+      'seller/consignments/:id/manual-booking', 'seller/consignments/:id/milestones',
+      'seller/consignments/:id/packing-list/supersede', 'seller/consignments/:id/quotes/:quoteId/select',
+      'seller/listings/:id/pause-for-edit', 'admin/logistics/orders/:id/shipments',
+      'account/integrations/erp/approvals/:approvalId', 'account/integrations/erp/connections/:id/disconnect',
+      'account/integrations/erp/connections/:id/reconnect', 'admin/erp/connections/:id/actions',
+      'seller/erp/connections/:id/initial-sync', 'seller/erp/connections/:id/auto-create-masters',
+      'recurring-schedules/:id/skip-next', 'recurring-schedules/occurrences/:occurrenceId/skip',
+      'recurring-schedules/:id/occurrences/:occurrenceId/confirm-price',
+      'recurring-schedules/:id/occurrences/:occurrenceId/decline-price',
+      'admin/notifications/read-all', 'sellers/session/renew',
+    ],
+  },
+  {
+    reason:
+      'Computes and returns an answer (a quote, a preview, a draft title, a generated variant grid, a chat reply); it changes no business state, so a repeat is harmless.',
+    routes: [
+      'delivery/options', 'fulfilment/warehouse-options', 'fulfilment/warehouse-options/:quoteId/revalidate',
+      'partner-invitations/describe', 'assistant/chat', 'admin/products/:id/variants/generate',
+      'seller/listing-drafts/:id/preview-title', 'seller/listing-drafts/:id/variants/generate',
+      'seller/consignments/:id/quotes', 'admin/settings/catalogue-translation/run',
+      'account/integrations/erp/oauth/callback',
+    ],
+  },
+  {
+    reason:
+      'Adds one record the person can see and remove themselves (a customer, a tax class, a connection, an invitation, a draft, an application); a unique constraint refuses a duplicate where it would matter.',
+    routes: [
+      'admin/customers', 'admin/settings/tax-classes', 'admin/settings/shipping-methods',
+      'admin/economic-operators', 'admin/integrations', 'admin/platform-fee-rules', 'admin/platform-fees',
+      'admin/logistics/partners', 'admin/logistics/partners/:id/capabilities', 'admin/erp/inventory/manual',
+      'account/integrations/erp/connections/:id/product-codes', 'account/integrations/erp/organization/invites',
+      'account/integrations/erp/organization/join', 'buyer-companies/:id/access-reviews',
+      'buyer-companies/:id/email-code', 'buyer-companies/:id/invitations/:invitationId/resend',
+      'seller/access-reviews', 'seller/agreements', 'seller/brand-requests', 'seller/carriers',
+      'seller/certifications', 'seller/document-links/:kind/:id', 'seller/document-links/batch',
+      'seller/erp/connections/:id/company', 'seller/erp/connections/:id/pairing-codes', 'seller/factories',
+      'seller/factories/:id/evidence', 'seller/fulfilment/methods',
+      'seller/fulfilment/methods/:methodId/capabilities', 'seller/fulfilment/methods/:methodId/rate-cards',
+      'seller/fulfilment/partners/request', 'seller/fulfilment/self-managed', 'seller/invitations/:invitationId/resend',
+      'seller/listing-drafts', 'seller/listings/:id/duplicate', 'returns/:id/files', 'sellers/apply',
+      'sellers/lock/open', 'recurring-schedules/from-cart', 'logistics/dispatch-manifests',
+      'logistics/driver/location-consent', 'logistics/driver/trips', 'admin/vat-rates',
+    ],
+  },
+  {
+    reason:
+      'Changes a login or a secret (a temporary password, a rotated integration secret); a repeat replaces the previous one and the earlier value stops working.',
+    routes: ['admin/customers/:id/password-reset', 'admin/staff/:id/temporary-password', 'admin/logistics/integrations/:id/rotate-secret'],
+  },
+];
+
+const LISTED_NOT_NEEDED = new Map<string, string>(
+  LISTED_NOT_NEEDED_GROUPS.flatMap((group) => group.routes.map((route) => [`POST ${P}/${route}`, group.reason] as const)),
+);
+
+/** Listed routes, so the guard test can spot an entry left behind by a removed route. */
+export function listedNotNeededRoutes(): string[] {
+  return [...LISTED_NOT_NEEDED.keys()];
+}
+
 const HARMLESS_CREATE: Rule = {
   id: 'harmless-create',
   reason:
@@ -245,6 +342,9 @@ export function declarationFor(method: string, url: string): IdempotencyDeclarat
   const optional = OPTIONAL[key];
   if (optional !== undefined) return { mode: 'OPTIONAL', source: 'OPTIONAL', reason: optional };
 
+  const listed = LISTED_NOT_NEEDED.get(key);
+  if (listed !== undefined) return { mode: 'NOT_NEEDED', source: 'LISTED_NOT_NEEDED', reason: listed };
+
   for (const rule of [...RULES, HARMLESS_CREATE]) {
     if (rule.matches(upper, url)) return { mode: 'NOT_NEEDED', source: rule.id, reason: rule.reason };
   }
@@ -257,6 +357,7 @@ export function explicitlyDeclaredRoutes(): string[] {
     ...Object.keys(REQUIRED_SERVICE),
     ...Object.keys(REQUIRED_CENTRAL),
     ...Object.keys(OPTIONAL),
+    ...listedNotNeededRoutes(),
   ];
 }
 

@@ -26,7 +26,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { CheckoutSteps } from '@/components/CheckoutSteps';
 import { OrderPaymentReceipts } from '@/components/OrderPaymentReceipts';
-import { AlertIcon, CheckIcon, ClockIcon } from '@/components/icons';
+import { AlertIcon, CheckIcon, ClockIcon, HeadsetIcon } from '@/components/icons';
 import { Button, ButtonLink, ErrorState, Spinner } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { paymentSteps } from '@/lib/checkout-steps';
@@ -262,6 +262,11 @@ export function PaymentConfirmationPage(): React.JSX.Element {
                   : t('paymentConfirmation.cardEnding', { brand, last4: view.card.last4 })}
               </Detail>
             )}
+            {view.paymentReference !== null && view.paymentReference !== undefined && (
+              <Detail label={t('paymentConfirmation.paymentReference')}>
+                <span className="break-all font-mono text-xs">{view.paymentReference}</span>
+              </Detail>
+            )}
             <Detail label={t('paymentConfirmation.orderStatus')}>
               {orderStatusLabel(t, view.orderStatus)}
             </Detail>
@@ -316,6 +321,22 @@ export function PaymentConfirmationPage(): React.JSX.Element {
         {refresh.isError && (
           <p role="alert" className="mt-3 text-sm text-danger">
             {t('paymentConfirmation.checkFailed')}
+          </p>
+        )}
+
+        {/* Whatever the outcome, a way to a person. The order number and the
+            payment reference above are what they will ask for, and the link
+            arrives with the order already filled in. */}
+        {view !== undefined && (
+          <p className="mt-6 text-xs text-ink-muted">
+            {t('paymentConfirmation.needHelp')}{' '}
+            <Link
+              to={`/support?order=${encodeURIComponent(view.orderNumber)}&category=ORDERS`}
+              className="inline-flex items-center gap-1 font-medium text-brand hover:underline"
+            >
+              <HeadsetIcon className="h-3.5 w-3.5" />
+              {t('paymentConfirmation.contactSupport')}
+            </Link>
           </p>
         )}
       </Panel>

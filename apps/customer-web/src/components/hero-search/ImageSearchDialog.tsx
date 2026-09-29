@@ -467,6 +467,11 @@ export function ImageSearchDialog({
                 {rejection}
               </p>
             )}
+
+            {/* Said before anything is sent, and in the same place whether or not
+                a picture has been chosen: the picture leaves this site for an
+                AI provider, and the customer should know that first. */}
+            <p className="mt-2.5 text-xs text-ink-muted">{t('imageSearch.privacyNote')}</p>
           </div>
 
           {/* --- Search -------------------------------------------------- */}
@@ -553,6 +558,7 @@ export function ImageSearchDialog({
                   <p className="text-sm font-medium text-ink">
                     {t('imageSearch.matchCount', { count: results.products.length })}
                   </p>
+                  <p className="-mt-1 text-xs text-ink-muted">{t('imageSearch.approximateNote')}</p>
                   <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {results.products.map((product) => (
                       <li key={product.id}>

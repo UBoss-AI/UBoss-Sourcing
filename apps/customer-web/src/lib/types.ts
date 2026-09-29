@@ -1663,6 +1663,8 @@ export interface CheckoutConfirmation {
   paidAt: string | null;
   /** Brand and last four only. There is nothing else to show, by design. */
   card: { brand: string | null; last4: string } | null;
+  /** The payment provider's own id for the payment, for quoting to support. Null until it has one. */
+  paymentReference?: string | null;
   failureReason:
     | 'DECLINED'
     | 'INSUFFICIENT_FUNDS'
@@ -1883,6 +1885,12 @@ export interface Schedule {
     attemptCount?: number;
     /** True only while the customer can still skip or re-date this one. */
     canModify?: boolean;
+    /** Held because its price moved: the customer must confirm the new total or skip it. */
+    awaitingConfirmation?: boolean;
+    /** What they were last told this delivery would cost. */
+    quotedTotal?: Money | null;
+    /** When the held delivery is skipped if nobody answers. */
+    confirmationDueAt?: string | null;
   }[];
 }
 
@@ -1898,6 +1906,13 @@ export interface Schedule {
 
 export type AutoPayStatus = 'DISABLED' | 'ACTIVE' | 'PAUSED';
 export type AutoPayRetryPreference = 'NONE' | 'ONCE' | 'STANDARD';
+export type AutoPayCapPeriod = 'WEEK' | 'MONTH' | 'QUARTER' | 'YEAR';
+
+/** What the scope pickers offer. `name: null` is the marketplace's own stock. */
+export interface AutoPayScopeOptions {
+  suppliers: { key: string; name: string | null }[];
+  categories: { id: string; name: string }[];
+}
 
 export interface AutoPaySettings {
   status: AutoPayStatus;
@@ -1916,6 +1931,19 @@ export interface AutoPaySettings {
   authorityExpiresAt?: string | null;
   /** That date has passed: nothing will be charged until a new one is set. */
   authorityExpired?: boolean;
+  /** The customer's own start date, ISO. Null: from when it was switched on. */
+  authorityStartsAt?: string | null;
+  /** That date is still ahead: nothing will be charged yet. */
+  authorityNotStarted?: boolean;
+  /** The most that may be charged automatically per period, minor units as text. */
+  periodCapMinor?: string | null;
+  capPeriod?: AutoPayCapPeriod | null;
+  /** What automatic charges have used of the cap in the current period. */
+  periodUsedMinor?: string | null;
+  /** Seller account ids and MARKETPLACE. Null: every supplier. */
+  scopeSellerKeys?: string[] | null;
+  /** Category ids. Null: every category. */
+  scopeCategoryIds?: string[] | null;
   consentAcceptedAt: string | null;
   consentVersion: string | null;
   consentWithdrawnAt: string | null;

@@ -15,13 +15,19 @@
  * they meant to allow.
  */
 import { api } from './api';
-import type { AutoPayRetryPreference, AutoPaySettings } from './types';
+import type {
+  AutoPayCapPeriod,
+  AutoPayRetryPreference,
+  AutoPayScopeOptions,
+  AutoPaySettings,
+} from './types';
 
 const BASE = '/account/autopay';
 
 export const autoPayKeys = {
   settings: ['autopay'] as const,
   paymentMethods: ['payment-methods'] as const,
+  scopeOptions: ['autopay-scope-options'] as const,
 };
 
 export interface EnableAutoPayBody {
@@ -33,12 +39,21 @@ export interface EnableAutoPayBody {
   retryPreference?: AutoPayRetryPreference;
   notifyOnCharge?: boolean;
   notifyOnFailure?: boolean;
+  authorityStartsAt?: string | null;
+  authorityExpiresAt?: string | null;
+  periodCapMinor?: string | null;
+  capPeriod?: AutoPayCapPeriod | null;
+  scopeSellerKeys?: string[] | null;
+  scopeCategoryIds?: string[] | null;
 }
 
 export const autoPayApi = {
   /** Also reports whether the store offers it, so the screen never guesses. */
   get: () =>
     api.get<{ autoPay: AutoPaySettings; available: boolean; consentVersion: string }>(BASE),
+
+  /** The suppliers and categories the pickers offer. */
+  scopeOptions: () => api.get<AutoPayScopeOptions>(`${BASE}/scope-options`),
 
   enable: (body: EnableAutoPayBody) =>
     api.post<{ autoPay: AutoPaySettings }>(BASE, body).then((response) => response.autoPay),
@@ -54,6 +69,37 @@ export const autoPayApi = {
   disable: () =>
     api.delete<{ autoPay: AutoPaySettings }>(BASE).then((response) => response.autoPay),
 };
+
+/**
+ * A calendar date (`YYYY-MM-DD`, what a date field holds) from an ISO instant,
+ * in the customer's own time zone. Empty for none.
+ */
+export function isoToDateInput(iso: string | null | undefined): string {
+  if (iso === null || iso === undefined || iso === '') return '';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${String(date.getFullYear())}-${month}-${day}`;
+}
+
+/**
+ * The instant a chosen date begins or ends, in the customer's time zone.
+ *
+ * A start date means "from the first moment of that day" and an end date means
+ * "up to and including that day", so the end is the last second of it. Null for
+ * a blank or malformed field.
+ */
+export function dateInputToIso(value: string, edge: 'start' | 'end'): string | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (match === null) return null;
+  const [, year, month, day] = match;
+  const at =
+    edge === 'start'
+      ? new Date(Number(year), Number(month) - 1, Number(day), 0, 0, 0, 0)
+      : new Date(Number(year), Number(month) - 1, Number(day), 23, 59, 59, 0);
+  return Number.isNaN(at.getTime()) ? null : at.toISOString();
+}
 
 /** A major-unit string from minor units, for a limit field. */
 export function minorToInput(minor: string | null, exponent = 2): string {

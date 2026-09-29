@@ -10,7 +10,8 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ImageSearchDialog } from './ImageSearchDialog';
-import { errorResponse, renderWithProviders } from '@/test/harness';
+import { errorResponse, jsonResponse, renderWithProviders } from '@/test/harness';
+import { makeProduct } from '@/test/fixtures';
 
 const SERVER_ENGLISH = 'Server wording that must not be shown as-is.';
 
@@ -82,5 +83,41 @@ describe('ImageSearchDialog failures', () => {
     await waitFor(() => {
       expect(screen.getByText(SERVER_ENGLISH)).toBeInTheDocument();
     });
+  });
+});
+
+describe('what the dialog tells the customer about their picture', () => {
+  it('says, before anything is sent, that the picture goes to an AI service and is not stored', async () => {
+    renderWithProviders(<ImageSearchDialog isOpen onClose={() => undefined} />);
+
+    const note = await screen.findByText(/sent to an AI service/i);
+    expect(note).toHaveTextContent(/not stored by us/i);
+  });
+
+  it('says the matches are approximate once it shows them', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve(
+          jsonResponse({
+            description: 'a box of gloves',
+            terms: ['gloves'],
+            products: [makeProduct({ name: 'Nitrile gloves', slug: 'nitrile-gloves' })],
+            currency: 'INR',
+            country: 'IN',
+          }),
+        ),
+      ),
+    );
+
+    const { container } = renderWithProviders(<ImageSearchDialog isOpen onClose={() => undefined} />);
+    const upload = container.ownerDocument.querySelector<HTMLInputElement>('input[type="file"]:not([capture])');
+    if (upload === null) throw new Error('upload input not rendered');
+    fireEvent.change(upload, {
+      target: { files: [new File([new Uint8Array([0xff, 0xd8, 0xff])], 'box.jpg', { type: 'image/jpeg' })] },
+    });
+    fireEvent.click(await screen.findByRole('button', { name: 'Search with this image' }));
+
+    expect(await screen.findByText(/matches are approximate/i)).toBeInTheDocument();
   });
 });

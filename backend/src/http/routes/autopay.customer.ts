@@ -24,6 +24,7 @@ import {
   disableAutoPay,
   enableAutoPay,
   getAutoPaySettings,
+  listAutoPayScopeOptions,
   setAutoPayPaused,
   updateAutoPaySettings,
 } from '../../modules/payments/autopay.service.js';
@@ -129,6 +130,15 @@ export function registerCustomerAutoPayRoutes(app: FastifyInstance): Promise<voi
       available: await isCustomerAutoPayAvailable(),
       consentVersion: env.AUTOPAY_CONSENT_VERSION,
     });
+  });
+
+  /**
+   * The suppliers and categories a customer can limit automatic payment to,
+   * for the pickers on the Automatic payment page. Approved suppliers and
+   * active categories only.
+   */
+  app.get('/scope-options', async (_request, reply) => {
+    return reply.status(200).send(await listAutoPayScopeOptions());
   });
 
   /**

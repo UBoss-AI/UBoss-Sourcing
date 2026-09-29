@@ -322,6 +322,16 @@ export function OrderConfirmationPage(): React.JSX.Element {
       </div>
 
       <p className="mt-4 text-center text-xs text-ink-muted">
+        {t('orderConfirmation.needHelp')}{' '}
+        <Link
+          to={`/support?order=${encodeURIComponent(order.orderNumber)}&category=ORDERS`}
+          className="font-medium text-brand hover:underline"
+        >
+          {t('orderConfirmation.contactSupport')}
+        </Link>
+      </p>
+
+      <p className="mt-2 text-center text-xs text-ink-muted">
         {t('orderConfirmation.copyOnItsWay')}{' '}
         <Link to="/account/orders" className="font-medium text-brand hover:underline">
           {t('orderConfirmation.historyHasLatestStatus')}

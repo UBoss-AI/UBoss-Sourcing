@@ -21,7 +21,9 @@
  *   - and what comes back is in the model's ranking, best first, because the
  *     ranking is the whole value of having asked for one.
  */
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createServer, type Server } from 'node:net';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { env } from '../../src/config/env.js';
 import type { LightMyRequestResponse } from 'fastify';
 import { buildApp } from '../../src/http/app.js';
 import { hashPassword } from '../../src/infra/crypto.js';
@@ -300,6 +302,120 @@ describe('what the upload has to be', () => {
     });
 
     expect(response.statusCode).toBe(400);
+  });
+});
+
+/**
+ * A stand-in for the virus scanner, speaking clamd's INSTREAM protocol: it
+ * collects what it is sent and, once the empty terminating chunk arrives,
+ * answers with `reply`. The route's own scan code runs for real against it.
+ */
+async function fakeScanner(reply: string): Promise<{ server: Server; port: number; received: () => Buffer }> {
+  let received = Buffer.alloc(0);
+  const server = createServer((socket) => {
+    let buffered = Buffer.alloc(0);
+    socket.on('data', (chunk: Buffer) => {
+      buffered = Buffer.concat([buffered, chunk]);
+      received = Buffer.concat([received, chunk]);
+      if (buffered.length >= 4 && buffered.subarray(-4).equals(Buffer.alloc(4))) {
+        socket.write(Buffer.from(`${reply}\0`, 'utf8'));
+      }
+    });
+    socket.on('error', () => undefined);
+  });
+  await new Promise<void>((resolve) => {
+    server.listen(0, '127.0.0.1', resolve);
+  });
+  const address = server.address();
+  const port = typeof address === 'object' && address !== null ? address.port : 0;
+  return { server, port, received: () => received };
+}
+
+describe('the security scan on the uploaded picture', () => {
+  const savedScanner = {
+    MALWARE_SCANNER_DRIVER: env.MALWARE_SCANNER_DRIVER,
+    MALWARE_SCANNER_HOST: env.MALWARE_SCANNER_HOST,
+    MALWARE_SCANNER_PORT: env.MALWARE_SCANNER_PORT,
+    MALWARE_SCANNER_TIMEOUT_MS: env.MALWARE_SCANNER_TIMEOUT_MS,
+  };
+  let scanner: Server | null = null;
+
+  function pointScannerAt(port: number): void {
+    Object.assign(env as unknown as typeof savedScanner, {
+      MALWARE_SCANNER_DRIVER: 'clamav',
+      MALWARE_SCANNER_HOST: '127.0.0.1',
+      MALWARE_SCANNER_PORT: port,
+      MALWARE_SCANNER_TIMEOUT_MS: 3000,
+    });
+  }
+
+  afterEach(async () => {
+    Object.assign(env as unknown as typeof savedScanner, savedScanner);
+    if (scanner !== null) {
+      const closing = scanner;
+      scanner = null;
+      await new Promise<void>((resolve) => {
+        closing.close(() => {
+          resolve();
+        });
+      });
+    }
+  });
+
+  it('sends the uploaded bytes to the scanner, and only then to the provider', async () => {
+    const fake = await fakeScanner('stream: OK');
+    scanner = fake.server;
+    pointScannerAt(fake.port);
+    analyseProductImage.mockResolvedValue({
+      description: 'a box', terms: [], slugs: [], model: 'test', inputTokens: 1, outputTokens: 1,
+    });
+
+    const response = await upload(buyer);
+
+    expect(response.statusCode, response.body).toBe(200);
+    expect(fake.received().includes(PNG)).toBe(true);
+    expect(analyseProductImage).toHaveBeenCalledTimes(1);
+  });
+
+  it('refuses a picture the scanner flags, and never sends it to the provider', async () => {
+    const fake = await fakeScanner('stream: Eicar-Test-Signature FOUND');
+    scanner = fake.server;
+    pointScannerAt(fake.port);
+
+    const response = await upload(buyer);
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json<{ error: { code: string } }>().error.code).toBe('MALWARE_DETECTED');
+    expect(analyseProductImage).not.toHaveBeenCalled();
+  });
+
+  it('refuses, rather than skipping the check, when the scanner cannot be reached', async () => {
+    // A port nothing listens on.
+    const probe = await fakeScanner('stream: OK');
+    const closedPort = probe.port;
+    await new Promise<void>((resolve) => {
+      probe.server.close(() => {
+        resolve();
+      });
+    });
+    pointScannerAt(closedPort);
+
+    const response = await upload(buyer);
+
+    expect(response.statusCode).toBe(503);
+    expect(analyseProductImage).not.toHaveBeenCalled();
+  });
+
+  it('scans the file after it is known to be an image, so a text file is refused as one', async () => {
+    const fake = await fakeScanner('stream: OK');
+    scanner = fake.server;
+    pointScannerAt(fake.port);
+
+    const response = await upload(buyer, NOT_AN_IMAGE, 'photo.png');
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json<{ error: { code: string } }>().error.code).toBe('MEDIA_TYPE_NOT_ALLOWED');
+    expect(fake.received().length).toBe(0);
   });
 });
 

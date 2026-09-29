@@ -112,6 +112,9 @@ async function resetAll(): Promise<void> {
   await prisma.erpOrderPush.deleteMany({});
   await prisma.paymentEvent.deleteMany({});
   await prisma.paymentTransaction.deleteMany({});
+  await prisma.paymentProviderConnection.deleteMany({});
+  await prisma.sellerAccount.deleteMany({ where: { slug: { startsWith: 'apx-' } } });
+  await prisma.category.deleteMany({ where: { slug: { startsWith: 'apx-' } } });
   await prisma.scheduleOccurrence.deleteMany({});
   await prisma.recurringScheduleItem.deleteMany({});
   await prisma.recurringSchedule.deleteMany({});
@@ -564,6 +567,306 @@ describe('evaluateAutoPay', () => {
 // ---------------------------------------------------------------------------
 // Explaining a charge that did not happen
 // ---------------------------------------------------------------------------
+
+describe('the customer’s own time, size and scope limits', () => {
+  const euro = (minor: bigint, extra: Record<string, unknown> = {}) => ({
+    customerProfileId: actor.customerProfileId,
+    amountMinor: minor,
+    currency: 'EUR',
+    ...extra,
+  });
+
+  const DAY = 86_400_000;
+
+  async function makeSeller(slug: string): Promise<string> {
+    const id = newId();
+    await prisma.sellerAccount.create({
+      data: {
+        id,
+        slug,
+        legalName: `${slug} Ltd`,
+        displayName: slug,
+        displayNameNormalized: slug.replace(/[^a-z0-9]/g, ''),
+        registrationCountry: 'IN',
+        kind: 'WHOLESALER',
+        status: 'APPROVED',
+      },
+    });
+    return id;
+  }
+
+  async function makeCategory(slug: string): Promise<string> {
+    const id = newId();
+    await prisma.category.create({ data: { id, name: slug, slug, isActive: true } });
+    return id;
+  }
+
+  /** An automatic charge already taken (or in flight) this period. */
+  async function chargeTaken(
+    owner: AutoPayActor,
+    amountMinor: bigint,
+    options: { status?: 'CAPTURED' | 'FAILED'; createdAt?: Date; key?: string } = {},
+  ): Promise<void> {
+    const connection =
+      (await prisma.paymentProviderConnection.findFirst({ select: { id: true } })) ??
+      (await prisma.paymentProviderConnection.create({
+        data: { id: newId(), provider: 'STRIPE', mode: 'TEST', label: 'apx', credentialsEnc: 'x' },
+      }));
+    const orderId = newId();
+    await prisma.order.create({
+      data: {
+        id: orderId,
+        orderNumber: `UB-APX-${orderId.slice(-8)}`,
+        customerProfileId: owner.customerProfileId,
+        status: 'CONFIRMED',
+        currency: 'EUR',
+        subtotalMinor: amountMinor,
+        discountMinor: 0n,
+        taxMinor: 0n,
+        shippingMinor: 0n,
+        grandTotalMinor: amountMinor,
+        shippingAddressJson: {},
+        billingAddressJson: {},
+      },
+    });
+    await prisma.paymentTransaction.create({
+      data: {
+        id: newId(),
+        orderId,
+        connectionId: connection.id,
+        provider: 'STRIPE',
+        mode: 'TEST',
+        status: options.status ?? 'CAPTURED',
+        amountMinor,
+        capturedMinor: options.status === 'FAILED' ? 0n : amountMinor,
+        currency: 'EUR',
+        idempotencyKey: options.key ?? `occ:${newId()}`,
+        ...(options.createdAt === undefined ? {} : { createdAt: options.createdAt }),
+      },
+    });
+  }
+
+  describe('the end date', () => {
+    it('refuses to set an end date that has already passed', async () => {
+      await expect(
+        enableAutoPay(actor, {
+          paymentMethodId,
+          consentAccepted: true,
+          authorityExpiresAt: new Date(Date.now() - DAY),
+        }),
+      ).rejects.toMatchObject({ statusCode: 400 });
+    });
+
+    it('charges until the end date and refuses from the moment it arrives', async () => {
+      const ends = new Date(Date.now() + 10 * DAY);
+      await enableAutoPay(actor, { paymentMethodId, consentAccepted: true, authorityExpiresAt: ends });
+
+      expect((await evaluateAutoPay(euro(1_000n, { now: new Date(ends.getTime() - 1) }))).outcome).toBe('CHARGE');
+      expect(await evaluateAutoPay(euro(1_000n, { now: ends }))).toMatchObject({
+        outcome: 'REFUSE',
+        code: 'AUTOPAY_AUTHORITY_EXPIRED',
+      });
+      expect(await evaluateAutoPay(euro(1_000n, { now: new Date(ends.getTime() + 30 * DAY) }))).toMatchObject({
+        outcome: 'REFUSE',
+        code: 'AUTOPAY_AUTHORITY_EXPIRED',
+      });
+    });
+
+    it('says the authority has ended, so the screen can ask for a new date', async () => {
+      const ends = new Date(Date.now() + 5 * DAY);
+      await enableAutoPay(actor, { paymentMethodId, consentAccepted: true, authorityExpiresAt: ends });
+      await prisma.customerAutoPaySetting.updateMany({
+        where: { customerProfileId: actor.customerProfileId },
+        data: { authorityExpiresAt: new Date(Date.now() - 1_000) },
+      });
+
+      const view = await getAutoPaySettings(actor.customerProfileId);
+      expect(view.authorityExpired).toBe(true);
+    });
+
+    it('carries on again once a new end date is set', async () => {
+      await enableAutoPay(actor, {
+        paymentMethodId,
+        consentAccepted: true,
+        authorityExpiresAt: new Date(Date.now() + DAY),
+      });
+      await prisma.customerAutoPaySetting.updateMany({
+        where: { customerProfileId: actor.customerProfileId },
+        data: { authorityExpiresAt: new Date(Date.now() - 1_000) },
+      });
+      expect((await evaluateAutoPay(euro(1_000n))).outcome).toBe('REFUSE');
+
+      await updateAutoPaySettings(actor, { authorityExpiresAt: new Date(Date.now() + 30 * DAY) });
+      expect((await evaluateAutoPay(euro(1_000n))).outcome).toBe('CHARGE');
+    });
+  });
+
+  describe('the start date', () => {
+    it('takes nothing before it and charges from it', async () => {
+      const starts = new Date(Date.now() + 3 * DAY);
+      await enableAutoPay(actor, { paymentMethodId, consentAccepted: true, authorityStartsAt: starts });
+
+      expect(await evaluateAutoPay(euro(1_000n))).toMatchObject({
+        outcome: 'REFUSE',
+        code: 'AUTOPAY_AUTHORITY_NOT_STARTED',
+      });
+      expect((await evaluateAutoPay(euro(1_000n, { now: starts }))).outcome).toBe('CHARGE');
+    });
+
+    it('refuses a start date after the end date', async () => {
+      await expect(
+        enableAutoPay(actor, {
+          paymentMethodId,
+          consentAccepted: true,
+          authorityStartsAt: new Date(Date.now() + 10 * DAY),
+          authorityExpiresAt: new Date(Date.now() + 5 * DAY),
+        }),
+      ).rejects.toMatchObject({ statusCode: 400 });
+    });
+  });
+
+  describe('the cap per period', () => {
+    async function withCap(period: 'WEEK' | 'MONTH' | 'QUARTER' | 'YEAR' = 'MONTH'): Promise<void> {
+      await enableAutoPay(actor, {
+        paymentMethodId,
+        consentAccepted: true,
+        limitCurrency: 'EUR',
+        periodCapMinor: 100_000n,
+        capPeriod: period,
+      });
+    }
+
+    it('charges while the period total stays inside the cap', async () => {
+      await withCap();
+      await chargeTaken(actor, 70_000n);
+
+      expect((await evaluateAutoPay(euro(30_000n))).outcome).toBe('CHARGE');
+    });
+
+    it('asks the customer once this charge would take the period past the cap', async () => {
+      await withCap();
+      await chargeTaken(actor, 70_000n);
+
+      expect(await evaluateAutoPay(euro(30_001n))).toMatchObject({
+        outcome: 'ASK_CUSTOMER',
+        code: 'AUTOPAY_PERIOD_CAP_REACHED',
+        thresholdMinor: '100000',
+        currency: 'EUR',
+      });
+    });
+
+    it('shows the customer how much of the cap is used', async () => {
+      await withCap();
+      await chargeTaken(actor, 25_000n);
+
+      const view = await getAutoPaySettings(actor.customerProfileId);
+      expect(view).toMatchObject({ periodCapMinor: '100000', capPeriod: 'MONTH', periodUsedMinor: '25000' });
+    });
+
+    it('does not count a failed attempt, a payment made by hand, or somebody else’s charges', async () => {
+      await withCap();
+      await chargeTaken(actor, 90_000n, { status: 'FAILED' });
+      await chargeTaken(actor, 90_000n, { key: 'checkout:by-hand' });
+      await chargeTaken(rival, 90_000n);
+
+      expect((await evaluateAutoPay(euro(100_000n))).outcome).toBe('CHARGE');
+    });
+
+    it('starts again in the next period', async () => {
+      await withCap();
+      await chargeTaken(actor, 100_000n);
+      expect((await evaluateAutoPay(euro(1_000n))).outcome).toBe('ASK_CUSTOMER');
+
+      const nextMonth = new Date(Date.now() + 40 * DAY);
+      expect((await evaluateAutoPay(euro(1_000n, { now: nextMonth }))).outcome).toBe('CHARGE');
+    });
+
+    it('refuses a cap with no period or no currency', async () => {
+      await expect(
+        enableAutoPay(actor, { paymentMethodId, consentAccepted: true, limitCurrency: 'EUR', periodCapMinor: 100n }),
+      ).rejects.toMatchObject({ statusCode: 400 });
+      await expect(
+        enableAutoPay(actor, { paymentMethodId, consentAccepted: true, periodCapMinor: 100n, capPeriod: 'MONTH' }),
+      ).rejects.toMatchObject({ statusCode: 400 });
+    });
+  });
+
+  describe('the supplier and category scope', () => {
+    it('charges an order that is wholly inside the chosen suppliers', async () => {
+      const seller = await makeSeller('apx-inside');
+      await enableAutoPay(actor, { paymentMethodId, consentAccepted: true, scopeSellerKeys: [seller] });
+
+      const decision = await evaluateAutoPay(
+        euro(1_000n, { lines: [{ sellerAccountId: seller, categoryId: null }] }),
+      );
+      expect(decision.outcome).toBe('CHARGE');
+    });
+
+    it('asks, rather than charging, when any line is from a supplier outside it', async () => {
+      const inside = await makeSeller('apx-inside');
+      const outside = await makeSeller('apx-outside');
+      await enableAutoPay(actor, { paymentMethodId, consentAccepted: true, scopeSellerKeys: [inside] });
+
+      const decision = await evaluateAutoPay(
+        euro(1_000n, {
+          lines: [
+            { sellerAccountId: inside, categoryId: null },
+            { sellerAccountId: outside, categoryId: null },
+          ],
+        }),
+      );
+      expect(decision).toMatchObject({ outcome: 'ASK_CUSTOMER', code: 'AUTOPAY_OUTSIDE_SCOPE' });
+    });
+
+    it('treats the marketplace’s own stock as a supplier the customer can allow or not', async () => {
+      const seller = await makeSeller('apx-inside');
+      await enableAutoPay(actor, { paymentMethodId, consentAccepted: true, scopeSellerKeys: [seller] });
+
+      const own = [{ sellerAccountId: null, categoryId: null }];
+      expect((await evaluateAutoPay(euro(1_000n, { lines: own }))).outcome).toBe('ASK_CUSTOMER');
+
+      await updateAutoPaySettings(actor, { scopeSellerKeys: [seller, 'MARKETPLACE'] });
+      expect((await evaluateAutoPay(euro(1_000n, { lines: own }))).outcome).toBe('CHARGE');
+    });
+
+    it('does not count "we did not look at the basket" as covered', async () => {
+      const seller = await makeSeller('apx-inside');
+      await enableAutoPay(actor, { paymentMethodId, consentAccepted: true, scopeSellerKeys: [seller] });
+
+      expect((await evaluateAutoPay(euro(1_000n))).outcome).toBe('ASK_CUSTOMER');
+    });
+
+    it('limits by category the same way', async () => {
+      const allowed = await makeCategory('apx-allowed');
+      const other = await makeCategory('apx-other');
+      await enableAutoPay(actor, { paymentMethodId, consentAccepted: true, scopeCategoryIds: [allowed] });
+
+      const okay = await evaluateAutoPay(euro(1_000n, { lines: [{ sellerAccountId: null, categoryId: allowed }] }));
+      const not = await evaluateAutoPay(euro(1_000n, { lines: [{ sellerAccountId: null, categoryId: other }] }));
+      expect(okay.outcome).toBe('CHARGE');
+      expect(not).toMatchObject({ outcome: 'ASK_CUSTOMER', code: 'AUTOPAY_OUTSIDE_SCOPE' });
+    });
+
+    it('treats no scope at all as every supplier and every category', async () => {
+      await enableAutoPay(actor, { paymentMethodId, consentAccepted: true });
+      const outside = await makeSeller('apx-anyone');
+
+      const decision = await evaluateAutoPay(
+        euro(1_000n, { lines: [{ sellerAccountId: outside, categoryId: null }] }),
+      );
+      expect(decision.outcome).toBe('CHARGE');
+    });
+
+    it('refuses a supplier or category that does not exist', async () => {
+      await expect(
+        enableAutoPay(actor, { paymentMethodId, consentAccepted: true, scopeSellerKeys: [newId()] }),
+      ).rejects.toMatchObject({ statusCode: 400 });
+      await expect(
+        enableAutoPay(actor, { paymentMethodId, consentAccepted: true, scopeCategoryIds: [newId()] }),
+      ).rejects.toMatchObject({ statusCode: 400 });
+    });
+  });
+});
 
 describe('withheld charges', () => {
   it('goes on the audit trail, because a missing delivery needs an explanation too', async () => {
