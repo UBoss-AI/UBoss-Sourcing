@@ -140,3 +140,47 @@ export async function categoryMarketNotes(
     categoryName: rule.category?.name ?? '',
   }));
 }
+
+/**
+ * The rules in force for one product page: rules on the product itself plus
+ * every rule on its category and the categories above it - the same set the
+ * listing applies, so a product missing from the grid for a country explains
+ * itself when its page is opened directly.
+ */
+export async function productMarketNotes(
+  country: string | null,
+  product: { id: string; categoryId: string },
+  now: Date = new Date(),
+): Promise<CategoryMarketNote[]> {
+  if (country === null) return [];
+  const category = await prisma.category.findUnique({
+    where: { id: product.categoryId },
+    select: { id: true, path: true },
+  });
+  const onCategories = category === null ? [] : await categoryMarketNotes(country, category, now);
+
+  const onProduct = await prisma.marketRule.findMany({
+    where: {
+      countryCode: country,
+      isActive: true,
+      scope: 'PRODUCT',
+      productId: product.id,
+      effectiveFrom: { lte: now },
+      OR: [{ effectiveUntil: null }, { effectiveUntil: { gt: now } }],
+    },
+    select: { effect: true, reason: true, requiredDocumentsJson: true },
+    orderBy: [{ effect: 'asc' }, { createdAt: 'asc' }],
+  });
+
+  return [
+    ...onProduct.map((rule) => ({
+      effect: rule.effect,
+      reason: rule.reason,
+      requiredDocuments: Array.isArray(rule.requiredDocumentsJson)
+        ? rule.requiredDocumentsJson.filter((entry): entry is string => typeof entry === 'string')
+        : [],
+      categoryName: '',
+    })),
+    ...onCategories,
+  ].sort((a, b) => (a.effect === b.effect ? 0 : a.effect === 'BLOCK' ? -1 : 1));
+}

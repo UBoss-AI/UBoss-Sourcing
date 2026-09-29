@@ -99,6 +99,7 @@ import {
   variantPackagingFor,
   type SerialisedPackaging,
 } from '../../modules/catalog/packaging.service.js';
+import { productSourcingFor } from '../../modules/catalog/product-sourcing.service.js';
 import {
   categoryMarketNotes,
   marketEligibleWhere,
@@ -1845,6 +1846,20 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
        * true and which no storefront in that deployment renders.
        */
       taxNote: shelf.setup.context.reason,
+      /*
+       * Who sells it, whether it can reach the shopper's destination, how
+       * soon, and whether it is inspected before dispatch - read from the
+       * offer the basket will bind and the operator's rules. See
+       * product-sourcing.service.
+       */
+      sourcing: await productSourcingFor({
+        productId: product.id,
+        categoryId: product.category.id,
+        offerId: offerTerms?.id ?? null,
+        isMarketplaceProduct: product.isMarketplaceProduct,
+        destination: shelf.country,
+        currency,
+      }),
       soldInCurrencies: soldIn,
       /**
        * The packages this seller will sell this in - carton, pallet, container.

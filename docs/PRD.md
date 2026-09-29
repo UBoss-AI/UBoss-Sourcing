@@ -1571,6 +1571,32 @@ all absent (`BUYER_COMPANIES_DISABLED`).
      row 16), and a button with nothing behind it would mislead.
 - **Status.** Built (29 Sep 2026, checklist Master row 3).
 
+### FR-SRCH-012 — Product page: who sells it and how it reaches you
+
+- **Statement.** `GET /api/v1/catalog/products/:slug` carries `sourcing`:
+  the seller, delivery to the destination, lead time, origin and the
+  inspection outlook; the product page shows them in one block.
+- **Rules.**
+  1. **Seller** = the approved seller whose offer the basket binds (the
+     base-product offer, or for a marketplace product sold only in sizes the
+     cheapest sellable offer of any size in the shopper's currency). A
+     product that binds no offer is the marketplace's own stock.
+  2. **Delivery**: no destination → "choose your country"; a BLOCK market
+     rule on the product or any category above it → cannot be sold there; a
+     seller who listed selling regions that exclude the destination → not
+     sold there by this seller; DOCUMENTS_REQUIRED → sold to a buyer holding
+     the listed documents; otherwise available.
+  3. **Inspection** uses the operator's inspection rules as the dispatch gate
+     does, for this category, destination and seller risk: required, required
+     from an order value, depends on the country (no country chosen and a
+     country rule could apply), not required, or not applicable (marketplace
+     stock is not gated).
+  4. **A suspended or archived seller takes no new orders.** Their offers are
+     left out of the shelf price, the offer a page binds and the cart; the
+     shelf is re-projected when a seller is suspended or reinstated. Before
+     29 Sep 2026 a suspended seller's ACTIVE offers were still buyable.
+- **Status.** Built (29 Sep 2026, checklist Master row 4).
+
 ### FR-SRCH-009 — The About page
 
 - **Statement.** `/about` is a public page explaining what the marketplace

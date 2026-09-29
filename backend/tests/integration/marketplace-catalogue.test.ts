@@ -36,7 +36,7 @@ import { addItem } from '../../src/modules/cart/cart.service.js';
 import { publicProductWhere } from '../../src/modules/catalog/catalog.visibility.js';
 import { syncMarketplacePrice } from '../../src/modules/catalog/marketplace-price.service.js';
 import { setOfferStatus, updateOfferPrice } from '../../src/modules/seller/offer.service.js';
-import type { SellerMembership } from '../../src/modules/seller/account.service.js';
+import { transitionApplication, type SellerMembership } from '../../src/modules/seller/account.service.js';
 
 const EMAIL = 'mp-catalogue-buyer@test.local';
 const CATEGORY_SLUG = 'mp-catalogue-test';
@@ -374,6 +374,34 @@ describe('two sellers, one product', () => {
     await setOfferStatus(rival, rivalOfferId, 'PAUSED');
 
     expect(await shelf('INR')).toContainEqual({ productId: sellerProductId, minor: '12000' });
+  });
+
+  it('drops a suspended seller from the shelf and the basket, and restores them on reinstatement', async () => {
+    rivalOfferId = await makeOffer({
+      sellerAccountId: rivalId,
+      productId: sellerProductId,
+      sellerSku: 'RIVAL-1',
+      priceMinor: 8_000n,
+    });
+    await prisma.$transaction((tx) => syncMarketplacePrice(tx, sellerProductId));
+    expect(await shelf('INR')).toContainEqual({ productId: sellerProductId, minor: '8000' });
+
+    // Suspended: the offer is still ACTIVE, but the seller takes no new orders.
+    await transitionApplication({ sellerAccountId: rivalId, to: 'SUSPENDED', actor: 'OPERATOR', reason: 'Test suspension' });
+    try {
+      expect(await shelf('INR')).toContainEqual({ productId: sellerProductId, minor: '12000' });
+
+      await addItem(customerProfileId, { productId: sellerProductId, quantity: 1 });
+      const item = await prisma.cartItem.findFirst({
+        where: { productId: sellerProductId },
+        select: { sellerOfferId: true },
+      });
+      expect(item?.sellerOfferId).toBe(acmeOfferId);
+    } finally {
+      await transitionApplication({ sellerAccountId: rivalId, to: 'APPROVED', actor: 'OPERATOR', reason: 'Test reinstatement' });
+    }
+
+    expect(await shelf('INR')).toContainEqual({ productId: sellerProductId, minor: '8000' });
   });
 
   it('never crosses a currency to find a cheaper number', async () => {

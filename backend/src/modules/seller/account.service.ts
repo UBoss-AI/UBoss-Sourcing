@@ -35,6 +35,7 @@ import {
 import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { OPERATOR_LABEL, recordSellerAudit } from './audit.service.js';
+import { syncMarketplacePrice } from '../catalog/marketplace-price.service.js';
 
 // ---------------------------------------------------------------------------
 // Names
@@ -510,6 +511,21 @@ export async function transitionApplication(input: ApplicationTransitionInput): 
         ...(input.to === 'SUSPENDED' ? { suspendedAt: now } : {}),
       },
     });
+
+    /*
+     * Suspending (or reinstating) a seller changes what the shelf may show:
+     * their offers stop (or start) counting towards each product's price
+     * row. Re-projected now, in the same transaction, so the grid never
+     * shows a price only a suspended seller could honour.
+     */
+    if (from === 'APPROVED' || input.to === 'APPROVED') {
+      const products = await tx.sellerOffer.findMany({
+        where: { sellerAccountId: input.sellerAccountId, archivedAt: null },
+        select: { productId: true },
+        distinct: ['productId'],
+      });
+      for (const { productId } of products) await syncMarketplacePrice(tx, productId);
+    }
 
     await recordSellerAudit({
       sellerAccountId: input.sellerAccountId,

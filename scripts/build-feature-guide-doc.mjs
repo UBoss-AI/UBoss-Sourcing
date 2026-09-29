@@ -248,6 +248,8 @@ p('The pictures on those cards are chosen by the system from the shelf\'s name, 
 p('Anyone whose computer or phone is set to reduce animation gets the same cards without the tipping or the sliding. Anyone using a keyboard can reach the department row and every card, and the card at the front is the only one offering a link, so tabbing through does not walk past two dozen invisible ones.');
 
 h2('3.2 Product detail page');
+p('Every product page has a short block called “Who sells it and how it reaches you”. It names the seller the buyer would be buying from — with what kind of business it is, where it is registered and since when the marketplace has verified it — or says the marketplace sells it from its own stock. It says whether the product can be sold and delivered to the buyer\'s chosen country, or why not, and lists any documents a buyer there must hold. It gives the seller\'s preparation time and the country of origin when the seller has stated them, and says whether an independent inspection is required before the goods leave the seller. If the buyer has not chosen a country, the page asks them to choose one instead of guessing.');
+p('A seller the marketplace has suspended cannot receive new orders. Their offers disappear from prices and baskets at once, and come back only if the seller is reinstated.');
 bullets([
   'See product images, product name, SKU/reference, specifications and descriptions.',
   'Choose a variant where a product has more than one option.',

@@ -784,8 +784,37 @@ export interface CatalogFilterFacets {
   attributes: { name: string; values: { value: string; count: number }[] }[];
 }
 
+/**
+ * Who sells a product, whether it can reach the shopper's destination, how
+ * soon, and whether it is inspected before dispatch. Part of the product read.
+ */
+export interface ProductSourcing {
+  /** The approved seller whose offer the basket binds; null = the marketplace's own stock. */
+  seller: {
+    slug: string;
+    displayName: string;
+    kind: VerifiedSupplier['kind'];
+    registrationCountry: string;
+    verifiedAt: string | null;
+  } | null;
+  destination: string | null;
+  delivery: {
+    status: 'AVAILABLE' | 'DOCUMENTS_REQUIRED' | 'BLOCKED' | 'SELLER_DOES_NOT_DELIVER' | 'CHOOSE_DESTINATION';
+    notes: { effect: 'BLOCK' | 'DOCUMENTS_REQUIRED'; reason: string; requiredDocuments: string[] }[];
+  };
+  handlingTimeDays: number | null;
+  countryOfOrigin: string | null;
+  inspection: {
+    outlook: 'REQUIRED' | 'REQUIRED_FROM_VALUE' | 'DEPENDS_ON_DESTINATION' | 'NOT_REQUIRED' | 'NOT_APPLICABLE';
+    fromValueMinor: string | null;
+    currency: string | null;
+  };
+}
+
 export interface ProductDetailResponse {
   product: Product;
+  /** Absent from an older API. */
+  sourcing?: ProductSourcing;
   currency: string;
   country: string | null;
   /**

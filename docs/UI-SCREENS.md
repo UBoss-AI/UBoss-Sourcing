@@ -1046,6 +1046,18 @@ category shows an empty list, not an error.
 **States.** "Loading the product". A product that does not exist shows the
 "We could not find that page" screen.
 
+**Who sells it and how it reaches you** (product page, under Ordering
+information): **Sold by** — the seller (a link to their products, their kind
+and country, "Verified since …") or "{marketplace}, from its own stock";
+**Delivery** — "Can be sold and delivered to …", "Cannot be sold to …",
+"This seller does not sell to …", "Can be sold to … to a buyer holding the
+documents below" with the operator's reason and "Documents needed: …", or
+"Choose your country at the top of the page…"; **Lead time and origin** when
+the seller gave them; **Inspection before dispatch** — required, required on
+orders of an amount or more, depends on your country, or not required (absent
+for the marketplace's own stock). Read from `sourcing` on
+`GET /api/v1/catalog/products/:slug`.
+
 **API calls**
 
 - `GET /api/v1/catalog/products/:slug?currency=…&country=…&language=…`

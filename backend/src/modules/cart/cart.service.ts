@@ -800,7 +800,7 @@ export async function resolveCart(
           // units of one product across every line. `b2c-limit.service.ts`.
           sellerAccountId: true,
           b2cMaxOrderQuantity: true,
-          sellerAccount: { select: { displayName: true, status: true } },
+          sellerAccount: { select: { displayName: true, status: true, suspendedAt: true, archivedAt: true } },
           /*
            * The seller's CURRENT packaging, loaded beside the line's frozen
            * one so the two can be compared.
@@ -1008,7 +1008,15 @@ export async function resolveCart(
      */
     const offer = item.sellerOffer;
 
-    if (offer !== null && offer.status !== 'ACTIVE') {
+    // A suspended or archived seller takes no new orders, however live their
+    // offer still looks: the line is blocked with the same message.
+    if (
+      offer !== null &&
+      (offer.status !== 'ACTIVE' ||
+        offer.sellerAccount.status !== 'APPROVED' ||
+        offer.sellerAccount.suspendedAt !== null ||
+        offer.sellerAccount.archivedAt !== null)
+    ) {
       issues.push({
         code: ErrorCode.CART_ITEM_UNAVAILABLE,
         message: `${offer.sellerAccount.displayName} is no longer selling ${product.name}.`,

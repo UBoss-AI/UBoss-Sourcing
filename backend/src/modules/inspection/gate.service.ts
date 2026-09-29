@@ -128,7 +128,7 @@ export async function supplierRiskOf(
   };
 }
 
-async function activeRules(client: Client | typeof prisma): Promise<RuleCandidate[]> {
+export async function activeRules(client: Client | typeof prisma): Promise<RuleCandidate[]> {
   const rows = await client.inspectionRule.findMany({ where: { isActive: true } });
   return rows.map((row) => ({
     id: row.id,

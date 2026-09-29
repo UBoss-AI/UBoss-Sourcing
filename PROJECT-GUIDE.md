@@ -1631,6 +1631,24 @@ assistant on, a sourcing question is parked with `setPendingQuestion(…,
 "Request quotes" button is deliberately absent until the RFQ flow exists
 (Master row 16).
 
+**The product page's sourcing block, and what a suspended seller can sell.**
+`modules/catalog/product-sourcing.service.ts` adds `sourcing` to the product
+read: the seller whose offer the basket binds (for a marketplace product sold
+only in sizes, the cheapest sellable offer of any size — otherwise the page
+would have called a seller's product the marketplace's own stock), delivery to
+the destination from the market rules and the offer's selling regions, the
+offer's handling time and origin, and an inspection outlook computed with
+`ruleMatches` from `domain/inspection-rules.ts`, the same function the dispatch
+gate uses. It never guesses a destination: with none chosen it asks, and
+inspection reads `DEPENDS_ON_DESTINATION` when a country rule could apply.
+
+`SELLABLE_SELLER` in `marketplace-price.service.ts` is the one definition of a
+seller whose offer may be shown or bought: approved, not suspended, not
+archived. The shelf projection, `cheapestOfferFor` and the cart's line check
+all use it, and `transitionApplication` re-projects a seller's products when
+they are suspended or reinstated. Before this, a suspended seller's ACTIVE
+offers stayed on the shelf and in baskets.
+
 The bar carries four controls:
 
 | Control | What it does |

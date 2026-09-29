@@ -109,6 +109,7 @@ import {
   remainingUnderLimit,
 } from '@/lib/b2c-limit';
 import { usePointerZoom } from '@/lib/pointer-zoom';
+import { ProductSourcingPanel } from '@/components/product/ProductSourcingPanel';
 
 /**
  * The image gallery.
@@ -725,17 +726,20 @@ function OrderingInformation({ product }: { product: Product }): React.JSX.Eleme
 
       <dl className="mt-3 grid grid-cols-1 gap-x-5 gap-y-3.5 sm:grid-cols-2">
         {facts.map((fact) => (
-          <div key={fact.key} className="flex gap-2.5">
-            <span
-              aria-hidden="true"
-              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface text-ink-muted ring-1 ring-inset ring-border"
-            >
-              {fact.icon}
-            </span>
-            <div className="min-w-0">
-              <dt className="text-xs font-semibold text-ink">{fact.term}</dt>
-              <dd className="mt-0.5 text-xs leading-relaxed text-ink-muted">{fact.detail}</dd>
-            </div>
+          // A term and its detail must be the row's own children for the list
+          // to be read as one - the icon lives inside the term, and the detail
+          // is indented under the text rather than under the icon.
+          <div key={fact.key} className="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-x-2.5">
+            <dt className="col-span-2 flex items-center gap-2.5 text-xs font-semibold text-ink">
+              <span
+                aria-hidden="true"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface text-ink-muted ring-1 ring-inset ring-border"
+              >
+                {fact.icon}
+              </span>
+              <span className="min-w-0">{fact.term}</span>
+            </dt>
+            <dd className="col-start-2 mt-0.5 text-xs leading-relaxed text-ink-muted">{fact.detail}</dd>
           </div>
         ))}
       </dl>
@@ -2475,6 +2479,10 @@ export function ProductPage(): React.JSX.Element {
           {/* Everything in here is a fact the API already sent. See the
               component's own note. */}
           <OrderingInformation product={product} />
+
+          {/* Who sells it, whether it can reach the chosen country, how soon,
+              and whether it is inspected before dispatch. */}
+          <ProductSourcingPanel sourcing={query.data.sourcing} />
         </div>
       </div>
 

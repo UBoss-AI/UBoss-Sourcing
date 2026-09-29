@@ -83,6 +83,16 @@ interface PriceRow {
  * in every category, search result and facet count. The base row is the
  * "from" price: the cheapest thing a shopper could actually buy.
  */
+/**
+ * The seller behind an offer the shelf may show or a basket may bind.
+ *
+ * An ACTIVE offer is not enough on its own: a seller the operator suspended
+ * takes no new orders (see `SellerApplicationStatus.SUSPENDED`), so their
+ * offers are left out of the shelf price, the offer a product page binds, and
+ * the cart. One definition, used everywhere, so the three cannot disagree.
+ */
+export const SELLABLE_SELLER = { status: 'APPROVED', suspendedAt: null, archivedAt: null } as const;
+
 async function liveOfferPrices(client: Client, productId: string): Promise<PriceRow[]> {
   const groups = await client.sellerOffer.groupBy({
     by: ['variantKey', 'currency'],
@@ -90,6 +100,7 @@ async function liveOfferPrices(client: Client, productId: string): Promise<Price
       productId,
       status: 'ACTIVE',
       archivedAt: null,
+      sellerAccount: SELLABLE_SELLER,
     },
     _min: { priceMinor: true },
   });
@@ -144,6 +155,7 @@ async function compareAtFor(
       ...(variantKey === NO_VARIANT_KEY ? {} : { variantKey }),
       status: 'ACTIVE',
       archivedAt: null,
+      sellerAccount: SELLABLE_SELLER,
       currency,
       priceMinor,
     },
@@ -329,6 +341,7 @@ export async function cheapestOfferFor(
     variantKey,
     status: 'ACTIVE',
     archivedAt: null,
+    sellerAccount: SELLABLE_SELLER,
     ...(currency === null ? {} : { currency }),
   };
 
