@@ -23970,6 +23970,11 @@ model RfqRequest {
 
   submittedAt  DateTime? @db.DateTime(3)
   closedAt     DateTime? @db.DateTime(3)
+  /// The one quote accepted on this request (Master row 19). Written only by
+  /// the acceptance transaction, conditionally on it being NULL - the UNIQUE
+  /// index and that condition are why a request is awarded once.
+  awardedQuoteId String?   @unique(map: "uq_rfq_request_awarded_quote") @db.Char(26)
+  awardedAt      DateTime? @db.DateTime(3)
   cancelledAt  DateTime? @db.DateTime(3)
   statusReason String?   @db.VarChar(1000)
 

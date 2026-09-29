@@ -18,7 +18,7 @@ import {
   RfqTimeline,
 } from '@/components/rfq/RfqParts';
 import { RfqThread } from '@/components/rfq/RfqThread';
-import { OfferHistory } from '@/components/rfq/OfferHistory';
+import { NegotiationPanel } from '@/components/rfq/NegotiationPanel';
 import { QuoteForm } from '@/components/rfq/QuoteForm';
 import { fetchSellerQuote } from '@/lib/rfq-quote';
 import { useToast } from '@/components/toast-context';
@@ -58,9 +58,10 @@ function SellerQuotePanel({ rfq }: { rfq: SellerRfq }): React.JSX.Element {
     );
   }
   return (
-    <Card title={t('rfq.quote.yours', { status: t(`rfq.quoteStatus.${quote.status}` as TranslationKey) })} bodyClassName="px-6 py-5">
-      <OfferHistory versions={quote.versions} reader="SUPPLIER" />
-    </Card>
+    <div className="space-y-2">
+      <p className="text-sm font-medium text-ink">{t('rfq.quote.yours', { status: t(`rfq.quoteStatus.${quote.status}` as TranslationKey) })}</p>
+      <NegotiationPanel quote={quote} party="SUPPLIER" basePath={`/seller/rfqs/${rfq.id}/quote`} queryKey={['seller', 'rfq-quote', rfq.id]} />
+    </div>
   );
 }
 

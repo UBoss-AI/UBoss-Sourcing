@@ -75,6 +75,8 @@ export type RfqRequestMinAggregateOutputType = {
   currentRequirementVersion: number | null
   submittedAt: Date | null
   closedAt: Date | null
+  awardedQuoteId: string | null
+  awardedAt: Date | null
   cancelledAt: Date | null
   statusReason: string | null
   createdAt: Date | null
@@ -111,6 +113,8 @@ export type RfqRequestMaxAggregateOutputType = {
   currentRequirementVersion: number | null
   submittedAt: Date | null
   closedAt: Date | null
+  awardedQuoteId: string | null
+  awardedAt: Date | null
   cancelledAt: Date | null
   statusReason: string | null
   createdAt: Date | null
@@ -151,6 +155,8 @@ export type RfqRequestCountAggregateOutputType = {
   currentRequirementVersion: number
   submittedAt: number
   closedAt: number
+  awardedQuoteId: number
+  awardedAt: number
   cancelledAt: number
   statusReason: number
   createdAt: number
@@ -207,6 +213,8 @@ export type RfqRequestMinAggregateInputType = {
   currentRequirementVersion?: true
   submittedAt?: true
   closedAt?: true
+  awardedQuoteId?: true
+  awardedAt?: true
   cancelledAt?: true
   statusReason?: true
   createdAt?: true
@@ -243,6 +251,8 @@ export type RfqRequestMaxAggregateInputType = {
   currentRequirementVersion?: true
   submittedAt?: true
   closedAt?: true
+  awardedQuoteId?: true
+  awardedAt?: true
   cancelledAt?: true
   statusReason?: true
   createdAt?: true
@@ -283,6 +293,8 @@ export type RfqRequestCountAggregateInputType = {
   currentRequirementVersion?: true
   submittedAt?: true
   closedAt?: true
+  awardedQuoteId?: true
+  awardedAt?: true
   cancelledAt?: true
   statusReason?: true
   createdAt?: true
@@ -410,6 +422,8 @@ export type RfqRequestGroupByOutputType = {
   currentRequirementVersion: number
   submittedAt: Date | null
   closedAt: Date | null
+  awardedQuoteId: string | null
+  awardedAt: Date | null
   cancelledAt: Date | null
   statusReason: string | null
   createdAt: Date
@@ -473,6 +487,8 @@ export type RfqRequestWhereInput = {
   currentRequirementVersion?: Prisma.IntFilter<"RfqRequest"> | number
   submittedAt?: Prisma.DateTimeNullableFilter<"RfqRequest"> | Date | string | null
   closedAt?: Prisma.DateTimeNullableFilter<"RfqRequest"> | Date | string | null
+  awardedQuoteId?: Prisma.StringNullableFilter<"RfqRequest"> | string | null
+  awardedAt?: Prisma.DateTimeNullableFilter<"RfqRequest"> | Date | string | null
   cancelledAt?: Prisma.DateTimeNullableFilter<"RfqRequest"> | Date | string | null
   statusReason?: Prisma.StringNullableFilter<"RfqRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RfqRequest"> | Date | string
@@ -522,6 +538,8 @@ export type RfqRequestOrderByWithRelationInput = {
   currentRequirementVersion?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   closedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  awardedQuoteId?: Prisma.SortOrderInput | Prisma.SortOrder
+  awardedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   statusReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -541,6 +559,7 @@ export type RfqRequestOrderByWithRelationInput = {
 export type RfqRequestWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   reference?: string
+  awardedQuoteId?: string
   AND?: Prisma.RfqRequestWhereInput | Prisma.RfqRequestWhereInput[]
   OR?: Prisma.RfqRequestWhereInput[]
   NOT?: Prisma.RfqRequestWhereInput | Prisma.RfqRequestWhereInput[]
@@ -575,6 +594,7 @@ export type RfqRequestWhereUniqueInput = Prisma.AtLeast<{
   currentRequirementVersion?: Prisma.IntFilter<"RfqRequest"> | number
   submittedAt?: Prisma.DateTimeNullableFilter<"RfqRequest"> | Date | string | null
   closedAt?: Prisma.DateTimeNullableFilter<"RfqRequest"> | Date | string | null
+  awardedAt?: Prisma.DateTimeNullableFilter<"RfqRequest"> | Date | string | null
   cancelledAt?: Prisma.DateTimeNullableFilter<"RfqRequest"> | Date | string | null
   statusReason?: Prisma.StringNullableFilter<"RfqRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RfqRequest"> | Date | string
@@ -588,7 +608,7 @@ export type RfqRequestWhereUniqueInput = Prisma.AtLeast<{
   events?: Prisma.RfqEventListRelationFilter
   messages?: Prisma.RfqMessageListRelationFilter
   quotes?: Prisma.RfqQuoteListRelationFilter
-}, "id" | "reference">
+}, "id" | "reference" | "awardedQuoteId">
 
 export type RfqRequestOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -624,6 +644,8 @@ export type RfqRequestOrderByWithAggregationInput = {
   currentRequirementVersion?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   closedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  awardedQuoteId?: Prisma.SortOrderInput | Prisma.SortOrder
+  awardedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   statusReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -672,6 +694,8 @@ export type RfqRequestScalarWhereWithAggregatesInput = {
   currentRequirementVersion?: Prisma.IntWithAggregatesFilter<"RfqRequest"> | number
   submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RfqRequest"> | Date | string | null
   closedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RfqRequest"> | Date | string | null
+  awardedQuoteId?: Prisma.StringNullableWithAggregatesFilter<"RfqRequest"> | string | null
+  awardedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RfqRequest"> | Date | string | null
   cancelledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RfqRequest"> | Date | string | null
   statusReason?: Prisma.StringNullableWithAggregatesFilter<"RfqRequest"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RfqRequest"> | Date | string
@@ -709,6 +733,8 @@ export type RfqRequestCreateInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -758,6 +784,8 @@ export type RfqRequestUncheckedCreateInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -801,6 +829,8 @@ export type RfqRequestUpdateInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -850,6 +880,8 @@ export type RfqRequestUncheckedUpdateInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -896,6 +928,8 @@ export type RfqRequestCreateManyInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -933,6 +967,8 @@ export type RfqRequestUpdateManyMutationInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -973,6 +1009,8 @@ export type RfqRequestUncheckedUpdateManyInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1029,6 +1067,8 @@ export type RfqRequestCountOrderByAggregateInput = {
   currentRequirementVersion?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
+  awardedQuoteId?: Prisma.SortOrder
+  awardedAt?: Prisma.SortOrder
   cancelledAt?: Prisma.SortOrder
   statusReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -1074,6 +1114,8 @@ export type RfqRequestMaxOrderByAggregateInput = {
   currentRequirementVersion?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
+  awardedQuoteId?: Prisma.SortOrder
+  awardedAt?: Prisma.SortOrder
   cancelledAt?: Prisma.SortOrder
   statusReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -1110,6 +1152,8 @@ export type RfqRequestMinOrderByAggregateInput = {
   currentRequirementVersion?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
+  awardedQuoteId?: Prisma.SortOrder
+  awardedAt?: Prisma.SortOrder
   cancelledAt?: Prisma.SortOrder
   statusReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -1375,6 +1419,8 @@ export type RfqRequestCreateWithoutCategoryInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -1422,6 +1468,8 @@ export type RfqRequestUncheckedCreateWithoutCategoryInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -1497,6 +1545,8 @@ export type RfqRequestScalarWhereInput = {
   currentRequirementVersion?: Prisma.IntFilter<"RfqRequest"> | number
   submittedAt?: Prisma.DateTimeNullableFilter<"RfqRequest"> | Date | string | null
   closedAt?: Prisma.DateTimeNullableFilter<"RfqRequest"> | Date | string | null
+  awardedQuoteId?: Prisma.StringNullableFilter<"RfqRequest"> | string | null
+  awardedAt?: Prisma.DateTimeNullableFilter<"RfqRequest"> | Date | string | null
   cancelledAt?: Prisma.DateTimeNullableFilter<"RfqRequest"> | Date | string | null
   statusReason?: Prisma.StringNullableFilter<"RfqRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RfqRequest"> | Date | string
@@ -1534,6 +1584,8 @@ export type RfqRequestCreateWithoutCustomerProfileInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -1581,6 +1633,8 @@ export type RfqRequestUncheckedCreateWithoutCustomerProfileInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -1650,6 +1704,8 @@ export type RfqRequestCreateWithoutBuyerCompanyInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -1697,6 +1753,8 @@ export type RfqRequestUncheckedCreateWithoutBuyerCompanyInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -1766,6 +1824,8 @@ export type RfqRequestCreateWithoutRequirementVersionsInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -1814,6 +1874,8 @@ export type RfqRequestUncheckedCreateWithoutRequirementVersionsInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -1872,6 +1934,8 @@ export type RfqRequestUpdateWithoutRequirementVersionsInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1920,6 +1984,8 @@ export type RfqRequestUncheckedUpdateWithoutRequirementVersionsInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1962,6 +2028,8 @@ export type RfqRequestCreateWithoutInvitationsInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -2010,6 +2078,8 @@ export type RfqRequestUncheckedCreateWithoutInvitationsInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -2068,6 +2138,8 @@ export type RfqRequestUpdateWithoutInvitationsInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2116,6 +2188,8 @@ export type RfqRequestUncheckedUpdateWithoutInvitationsInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2158,6 +2232,8 @@ export type RfqRequestCreateWithoutAttachmentsInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -2206,6 +2282,8 @@ export type RfqRequestUncheckedCreateWithoutAttachmentsInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -2264,6 +2342,8 @@ export type RfqRequestUpdateWithoutAttachmentsInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2312,6 +2392,8 @@ export type RfqRequestUncheckedUpdateWithoutAttachmentsInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2354,6 +2436,8 @@ export type RfqRequestCreateWithoutEventsInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -2402,6 +2486,8 @@ export type RfqRequestUncheckedCreateWithoutEventsInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -2460,6 +2546,8 @@ export type RfqRequestUpdateWithoutEventsInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2508,6 +2596,8 @@ export type RfqRequestUncheckedUpdateWithoutEventsInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2550,6 +2640,8 @@ export type RfqRequestCreateWithoutMessagesInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -2598,6 +2690,8 @@ export type RfqRequestUncheckedCreateWithoutMessagesInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -2656,6 +2750,8 @@ export type RfqRequestUpdateWithoutMessagesInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2704,6 +2800,8 @@ export type RfqRequestUncheckedUpdateWithoutMessagesInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2746,6 +2844,8 @@ export type RfqRequestCreateWithoutQuotesInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -2794,6 +2894,8 @@ export type RfqRequestUncheckedCreateWithoutQuotesInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -2852,6 +2954,8 @@ export type RfqRequestUpdateWithoutQuotesInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2900,6 +3004,8 @@ export type RfqRequestUncheckedUpdateWithoutQuotesInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2944,6 +3050,8 @@ export type RfqRequestCreateManyCategoryInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -2981,6 +3089,8 @@ export type RfqRequestUpdateWithoutCategoryInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3028,6 +3138,8 @@ export type RfqRequestUncheckedUpdateWithoutCategoryInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3073,6 +3185,8 @@ export type RfqRequestUncheckedUpdateManyWithoutCategoryInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3112,6 +3226,8 @@ export type RfqRequestCreateManyCustomerProfileInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -3149,6 +3265,8 @@ export type RfqRequestUpdateWithoutCustomerProfileInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3196,6 +3314,8 @@ export type RfqRequestUncheckedUpdateWithoutCustomerProfileInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3241,6 +3361,8 @@ export type RfqRequestUncheckedUpdateManyWithoutCustomerProfileInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3280,6 +3402,8 @@ export type RfqRequestCreateManyBuyerCompanyInput = {
   currentRequirementVersion?: number
   submittedAt?: Date | string | null
   closedAt?: Date | string | null
+  awardedQuoteId?: string | null
+  awardedAt?: Date | string | null
   cancelledAt?: Date | string | null
   statusReason?: string | null
   createdAt?: Date | string
@@ -3317,6 +3441,8 @@ export type RfqRequestUpdateWithoutBuyerCompanyInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3364,6 +3490,8 @@ export type RfqRequestUncheckedUpdateWithoutBuyerCompanyInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3409,6 +3537,8 @@ export type RfqRequestUncheckedUpdateManyWithoutBuyerCompanyInput = {
   currentRequirementVersion?: Prisma.IntFieldUpdateOperationsInput | number
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  awardedQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  awardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3525,6 +3655,8 @@ export type RfqRequestSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   currentRequirementVersion?: boolean
   submittedAt?: boolean
   closedAt?: boolean
+  awardedQuoteId?: boolean
+  awardedAt?: boolean
   cancelledAt?: boolean
   statusReason?: boolean
   createdAt?: boolean
@@ -3577,13 +3709,15 @@ export type RfqRequestSelectScalar = {
   currentRequirementVersion?: boolean
   submittedAt?: boolean
   closedAt?: boolean
+  awardedQuoteId?: boolean
+  awardedAt?: boolean
   cancelledAt?: boolean
   statusReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RfqRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reference" | "status" | "version" | "customerProfileId" | "buyerCompanyId" | "createdByUserId" | "categoryId" | "title" | "specification" | "specsJson" | "quantity" | "unitOfMeasure" | "annualVolume" | "targetUnitPriceMinor" | "targetCurrency" | "destinationCountry" | "destinationAddress" | "destinationPort" | "incoterm" | "certificationsJson" | "sampleRequirement" | "inspectionRequirement" | "responseDeadline" | "deliveryTargetDate" | "notes" | "includeSellerIdsJson" | "excludeSellerIdsJson" | "matchedSupplierCount" | "matchOutcome" | "currentRequirementVersion" | "submittedAt" | "closedAt" | "cancelledAt" | "statusReason" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqRequest"]>
+export type RfqRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reference" | "status" | "version" | "customerProfileId" | "buyerCompanyId" | "createdByUserId" | "categoryId" | "title" | "specification" | "specsJson" | "quantity" | "unitOfMeasure" | "annualVolume" | "targetUnitPriceMinor" | "targetCurrency" | "destinationCountry" | "destinationAddress" | "destinationPort" | "incoterm" | "certificationsJson" | "sampleRequirement" | "inspectionRequirement" | "responseDeadline" | "deliveryTargetDate" | "notes" | "includeSellerIdsJson" | "excludeSellerIdsJson" | "matchedSupplierCount" | "matchOutcome" | "currentRequirementVersion" | "submittedAt" | "closedAt" | "awardedQuoteId" | "awardedAt" | "cancelledAt" | "statusReason" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqRequest"]>
 export type RfqRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   buyerCompany?: boolean | Prisma.RfqRequest$buyerCompanyArgs<ExtArgs>
@@ -3689,6 +3823,13 @@ export type $RfqRequestPayload<ExtArgs extends runtime.Types.Extensions.Internal
     currentRequirementVersion: number
     submittedAt: Date | null
     closedAt: Date | null
+    /**
+     * The one quote accepted on this request (Master row 19). Written only by
+     * the acceptance transaction, conditionally on it being NULL - the UNIQUE
+     * index and that condition are why a request is awarded once.
+     */
+    awardedQuoteId: string | null
+    awardedAt: Date | null
     cancelledAt: Date | null
     statusReason: string | null
     createdAt: Date
@@ -4104,6 +4245,8 @@ export interface RfqRequestFieldRefs {
   readonly currentRequirementVersion: Prisma.FieldRef<"RfqRequest", 'Int'>
   readonly submittedAt: Prisma.FieldRef<"RfqRequest", 'DateTime'>
   readonly closedAt: Prisma.FieldRef<"RfqRequest", 'DateTime'>
+  readonly awardedQuoteId: Prisma.FieldRef<"RfqRequest", 'String'>
+  readonly awardedAt: Prisma.FieldRef<"RfqRequest", 'DateTime'>
   readonly cancelledAt: Prisma.FieldRef<"RfqRequest", 'DateTime'>
   readonly statusReason: Prisma.FieldRef<"RfqRequest", 'String'>
   readonly createdAt: Prisma.FieldRef<"RfqRequest", 'DateTime'>

@@ -10,7 +10,19 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { SellerPermission } from '../../domain/seller-permissions.js';
-import { supplierFromMembership, type RfqSupplier } from '../../modules/rfq/access.js';
+import { prisma } from '../../infra/prisma.js';
+import { rfqNotFound, supplierFromMembership, type RfqSupplier } from '../../modules/rfq/access.js';
+import {
+  acceptOffer,
+  acceptSchema,
+  acceptedTerms,
+  counterOffer,
+  counterSchema,
+  rejectOffer,
+  rejectSchema,
+  withdrawQuote,
+  type Negotiator,
+} from '../../modules/rfq/negotiation.service.js';
 import { readRfqAttachment, storeRfqAttachment, supplierAttachmentWhere } from '../../modules/rfq/attachment.service.js';
 import { quoteInputSchema, submitQuote, supplierQuote } from '../../modules/rfq/quote.service.js';
 import { listThread, messageBodySchema, postMessage, threadQuerySchema } from '../../modules/rfq/message.service.js';
@@ -31,6 +43,21 @@ import { readRfqUpload, requireFeature } from './rfq.customer.js';
 const idParams = z.object({ id: z.string().length(26) });
 const attachmentParams = z.object({ id: z.string().length(26), attachmentId: z.string().length(26) });
 const WRITE_RATE_LIMIT = { max: 60, timeWindow: '1 minute' } as const;
+
+function sellerNegotiator(supplier: RfqSupplier): Negotiator {
+  return { party: 'SUPPLIER', userId: supplier.userId, email: null };
+}
+
+/** This seller's own quote on the request; anything else is not found. */
+async function ownQuoteId(supplier: RfqSupplier, rfqId: string): Promise<string> {
+  await loadInvitation(supplier, rfqId);
+  const quote = await prisma.rfqQuote.findUnique({
+    where: { rfqId_sellerAccountId: { rfqId, sellerAccountId: supplier.sellerAccountId } },
+    select: { id: true },
+  });
+  if (quote === null) rfqNotFound();
+  return quote.id;
+}
 
 export function supplierOf(request: FastifyRequest): RfqSupplier {
   return supplierFromMembership(currentSeller(request), currentUser(request).id);
@@ -114,6 +141,61 @@ export function registerSellerRfqRoutes(app: FastifyInstance): Promise<void> {
   app.get('/rfqs/:id/quote', { preHandler: requireSeller(SellerPermission.ORDER_READ) }, async (request, reply) => {
     const { id } = idParams.parse(request.params);
     return reply.header('Cache-Control', 'no-store').status(200).send({ quote: await supplierQuote(supplierOf(request), id) });
+  });
+
+  /** Send a counter-offer on this seller's quote. Names the version being answered. */
+  app.post(
+    '/rfqs/:id/quote/offers',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const input = counterSchema.parse(request.body);
+      const supplier = supplierOf(request);
+      return reply.status(201).send({ quote: await counterOffer(sellerNegotiator(supplier), await ownQuoteId(supplier, id), input) });
+    },
+  );
+
+  /** Accept the buyer's counter-offer on the table. Awards the request and freezes the terms. */
+  app.post(
+    '/rfqs/:id/quote/accept',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const input = acceptSchema.parse(request.body);
+      const supplier = supplierOf(request);
+      return reply.status(200).send({ quote: await acceptOffer(sellerNegotiator(supplier), await ownQuoteId(supplier, id), input) });
+    },
+  );
+
+  /** Reject the buyer's counter-offer on the table. */
+  app.post(
+    '/rfqs/:id/quote/reject',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const input = rejectSchema.parse(request.body);
+      const supplier = supplierOf(request);
+      return reply.status(200).send({ quote: await rejectOffer(sellerNegotiator(supplier), await ownQuoteId(supplier, id), input) });
+    },
+  );
+
+  /** Withdraw this seller's quote while it is open. The buyer is told. */
+  app.post(
+    '/rfqs/:id/quote/withdraw',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const supplier = supplierOf(request);
+      return reply.status(200).send({ quote: await withdrawQuote(sellerNegotiator(supplier), await ownQuoteId(supplier, id)) });
+    },
+  );
+
+  /** The terms agreed with this seller, frozen at acceptance. Not found unless its quote won. */
+  app.get('/rfqs/:id/accepted-terms', { preHandler: requireSeller(SellerPermission.ORDER_READ) }, async (request, reply) => {
+    const { id } = idParams.parse(request.params);
+    const supplier = supplierOf(request);
+    await loadInvitation(supplier, id);
+    return reply.header('Cache-Control', 'no-store').status(200).send({ acceptedTerms: await acceptedTerms(id, supplier.sellerAccountId) });
   });
 
   /**

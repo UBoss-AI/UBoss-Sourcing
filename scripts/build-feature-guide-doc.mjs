@@ -629,6 +629,9 @@ bullets([
   'The buyer can show every figure in the currency they choose. The figure the supplier quoted is always shown too; the converted one is marked as converted and says which exchange rate was used, where it came from and on what date.',
   'Anything a supplier did not give says “Not provided”. It is never shown as zero, so a quote is never made to look cheaper by leaving something out.',
   'The buyer can sort, keep a shortlist and download the comparison as a spreadsheet file.',
+  'From a quote, the buyer and that supplier can negotiate: either sends a counter-offer with a new price, quantity, minimum order, lead time, Incoterm, payment or inspection terms, a comment and how long it stands. Each offer is kept exactly as it was sent.',
+  'The side that did not make an offer can accept or reject it. An offer that has run out of time cannot be accepted, but either side can send a new one.',
+  'Accepting awards the request to that supplier, closes every other quote and locks the agreed terms, with a fingerprint that any later order must match. Two people pressing accept at the same moment cannot both win. Turning agreed terms into a purchase order is not available yet.',
 ]);
 
 h2('5.4b Asking the team about a preorder');
@@ -1155,6 +1158,7 @@ bullets([
   'If the buyer changes the request, the seller is told and sees exactly which details changed.',
   'Once the deadline passes without an answer, the invitation lapses. If the buyer gives more time, it comes back.',
   'Only members allowed to handle orders can answer, and only while the business is approved to sell.',
+  'After quoting, the seller sees every offer in the negotiation, can accept or reject the buyer’s counter-offer, send its own, or withdraw its quote while it is open.',
 ]);
 
 h2('6a.8e Seeing exactly what a customer ordered');

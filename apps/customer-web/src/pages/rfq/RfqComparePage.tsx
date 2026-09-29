@@ -241,6 +241,9 @@ export function RfqComparePage(): React.JSX.Element {
                     >
                       {row.shortlisted ? t('rfq.compare.unshortlist') : t('rfq.compare.shortlist')}
                     </Button>
+                    <Link to={`/account/rfqs/${id}/quotes/${row.quoteId}`} className="mt-2 block text-xs font-medium text-brand hover:underline">
+                      {t('rfq.compare.open')}
+                    </Link>
                   </th>
                 ))}
               </tr>

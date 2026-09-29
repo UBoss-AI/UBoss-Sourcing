@@ -20425,6 +20425,8 @@ One request for quotation. The row holds the CURRENT requirement; every submitte
 | `currentRequirementVersion` | Int |  |  | 0 | 0 while a draft; 1 once submitted; +1 per amendment. |
 | `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `closedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `awardedQuoteId` | String · Char(26) | yes | UNIQUE |  | The one quote accepted on this request (Master row 19). Written only by the acceptance transaction, conditionally on it being NULL - the UNIQUE index and that condition are why a request is awarded once. |
+| `awardedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `cancelledAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `statusReason` | String · VarChar(1000) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |

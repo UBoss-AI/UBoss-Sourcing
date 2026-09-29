@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1143 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1152 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -29,9 +29,9 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 |---|---|
 | [Admin panel (staff)](#admin-panel-staff) | 452 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 283 |
+| [Seller Hub](#seller-hub) | 288 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 256 |
+| [Customer account](#customer-account) | 260 |
 | [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
@@ -1676,6 +1676,11 @@ Defined in `backend/src/http/routes/rfq.seller.ts`.
 | POST | `/api/v1/seller/rfqs/:id/messages` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Ask the buyer a question. A resend with the same clientMessageId is not a second message. |
 | POST | `/api/v1/seller/rfqs/:id/quotes` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Quote on a request: a unit price, optional tiers and the commercial terms, with files uploaded first. One quote per seller; before the deadline only. Tells the buyer and writes an audit entry. |
 | GET | `/api/v1/seller/rfqs/:id/quote` | Seller | Feature + Seller(ORDER_READ) | This seller's own quote on the request, with every offer version; null before it quoted. |
+| POST | `/api/v1/seller/rfqs/:id/quote/offers` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Send a counter-offer on this seller's quote. Names the version being answered. |
+| POST | `/api/v1/seller/rfqs/:id/quote/accept` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Accept the buyer's counter-offer on the table. Awards the request and freezes the terms. |
+| POST | `/api/v1/seller/rfqs/:id/quote/reject` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Reject the buyer's counter-offer on the table. |
+| POST | `/api/v1/seller/rfqs/:id/quote/withdraw` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Withdraw this seller's quote while it is open. The buyer is told. |
+| GET | `/api/v1/seller/rfqs/:id/accepted-terms` | Seller | Feature + Seller(ORDER_READ) | The terms agreed with this seller, frozen at acceptance. Not found unless its quote won. |
 | POST | `/api/v1/seller/rfqs/:id/attachments` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Upload a PDF or image to send with this seller's quote or next offer. Seen by nobody else until it is sent with one. |
 | GET | `/api/v1/seller/rfqs/:id/attachments/:attachmentId/download` | Seller | Feature + Seller(ORDER_READ) | Download a file this seller may see on the request. Served as a download, never inline. |
 
@@ -2300,6 +2305,10 @@ Defined in `backend/src/http/routes/rfq.customer.ts`.
 | PUT | `/api/v1/rfqs/:id/quotes/:quoteId/shortlist` | Customer | Feature + Customer | Put a quote on your shortlist, or take it off. Writes an audit entry. |
 | GET | `/api/v1/rfqs/:id/comparison` | Customer | Feature + Customer | The quotes side by side, sortable and filterable, with every figure as quoted and, beside it, converted into `?currency=` at the published rate (source and date given). Missing terms are null, never zero. |
 | GET | `/api/v1/rfqs/:id/comparison.csv` | Customer | Feature + Customer | The same comparison as a CSV file, spreadsheet formulas neutralised. Writes an audit entry. |
+| POST | `/api/v1/rfqs/:id/quotes/:quoteId/offers` | Customer | Feature + Customer | Send a counter-offer on a quote: new terms as a new, immutable version. Names the version being answered; refused if it moved. Writes an audit entry. |
+| POST | `/api/v1/rfqs/:id/quotes/:quoteId/accept` | Customer | Feature + Customer | Accept the supplier's offer on the table, naming its terms hash. Awards the request, closes every other quote and freezes the terms. Repeating it is answered with the same result. Writes an audit entry. |
+| POST | `/api/v1/rfqs/:id/quotes/:quoteId/reject` | Customer | Feature + Customer | Reject the supplier's offer on the table; the quote closes as rejected. |
+| GET | `/api/v1/rfqs/:id/accepted-terms` | Customer | Feature + Customer | The terms both sides agreed to, frozen at acceptance, with their hash. |
 | GET | `/api/v1/rfqs/:id/invitations/:invitationId/messages` | Customer | Feature + Customer | The thread with one invited seller, oldest first; `?after=` for only new ones. |
 | POST | `/api/v1/rfqs/:id/invitations/:invitationId/messages` | Customer | Feature + Customer | Write to one invited seller. A resend with the same clientMessageId is not a second message. |
 

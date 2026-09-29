@@ -13170,6 +13170,18 @@ the rate, provider and date, and labelled approximate. A term not given is
 null and reads "Not provided". Totals are tier price x quantity rounded once.
 The CSV export uses the same rows and the reports' formula guard (`csvRow`).
 
+**Negotiation and acceptance (row 19).** Either side counters with a new
+immutable version that names the version it answers (a moved one is refused).
+Only the side that did not write the offer on the table may accept or reject
+it, naming its terms hash; an expired offer can be countered, never accepted.
+Acceptance runs three conditional updates in one transaction - the request to
+AWARDED while `awardedQuoteId` is empty (UNIQUE), the quote to ACCEPTED while
+the version is current, the version to ACCEPTED - so two people acting at once
+cannot both win, and repeating it returns the same result. Other quotes close.
+The accepted terms and hash are frozen on the quote and read back from
+`GET /rfqs/:id/accepted-terms`. Creating a purchase order from them is not
+built yet (`purchaseOrder.status = NOT_BUILT`).
+
 ## 9.5.4 Seller invoices and packing lists
 
 ### Whose document it is

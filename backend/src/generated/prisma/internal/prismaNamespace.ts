@@ -31870,6 +31870,8 @@ export const RfqRequestScalarFieldEnum = {
   currentRequirementVersion: 'currentRequirementVersion',
   submittedAt: 'submittedAt',
   closedAt: 'closedAt',
+  awardedQuoteId: 'awardedQuoteId',
+  awardedAt: 'awardedAt',
   cancelledAt: 'cancelledAt',
   statusReason: 'statusReason',
   createdAt: 'createdAt',
@@ -36999,6 +37001,7 @@ export const RfqRequestOrderByRelevanceFieldEnum = {
   inspectionRequirement: 'inspectionRequirement',
   notes: 'notes',
   matchOutcome: 'matchOutcome',
+  awardedQuoteId: 'awardedQuoteId',
   statusReason: 'statusReason'
 } as const
 

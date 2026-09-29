@@ -3157,6 +3157,41 @@ status write is conditional on the status and version that were read.
   6. A seller sees only its own quote; the comparison is the buyer's.
 - **Status.** Built (checklist Master row 18).
 
+### FR-RFQ-004 — Negotiation and acceptance (checklist Master row 19)
+
+- **Statement.** The buyer and the quote's seller negotiate in immutable
+  offer versions until one side accepts the other's terms, which are then
+  locked as what a later order must use.
+- **Rules.**
+  1. Version 1 is the quote. A counter-offer from either side is the next
+     version (price, quantity, MOQ, lead time, Incoterm and place, payment and
+     inspection terms, comment, files, expiry; the seller's other terms carry
+     forward; tiers belong to the first quote). It names the version it
+     answers and is refused if that moved (`RFQ_OFFER_NOT_OPEN`, STALE).
+     No version is ever edited.
+  2. Only the request's buyer and that quote's seller take part; anyone else
+     gets 404. Only the side that did not write the version on the table may
+     accept or reject it (OWN_OFFER).
+  3. Accepting names the terms hash; a different hash is refused
+     (TERMS_CHANGED); an expired version cannot be accepted
+     (`RFQ_OFFER_EXPIRED`) but can be countered.
+  4. Acceptance is three conditional updates in one transaction - request
+     OPEN -> AWARDED while `awardedQuoteId` is NULL (UNIQUE), quote OPEN ->
+     ACCEPTED while this version is current, version PROPOSED -> ACCEPTED - so
+     concurrent actions cannot produce two accepted states
+     (`RFQ_ALREADY_AWARDED`). Repeating an acceptance answers with the
+     accepted quote (idempotent). Every other open quote closes
+     (AWARDED_ELSEWHERE) and its seller is told.
+  5. The accepted terms and their hash are frozen on the quote;
+     `GET /rfqs/:id/accepted-terms` (and the seller's equivalent) returns them,
+     re-checking the hash.
+  6. Reject closes the quote (REJECTED); the seller may withdraw an open
+     quote (WITHDRAWN, invitation WITHDRAWN). Every step is audited with the
+     actor and the version.
+- **Status.** Built (checklist Master row 19). **Not built:** creating a
+  purchase order or order from accepted terms - the read endpoint returns
+  `purchaseOrder.status = NOT_BUILT`.
+
 ## 5.12 Buying by the carton, pallet or container; freight (BULK)
 
 ### FR-BULK-001 — Seller packaging per listing

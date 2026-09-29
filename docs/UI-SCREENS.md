@@ -2474,6 +2474,25 @@ shows the quoted figure and, beneath, "≈ … (converted)". Missing terms read
 on a phone. **Calls** `GET /rfqs/:id/comparison`,
 `PUT /rfqs/:id/quotes/:quoteId/shortlist`, `GET /rfqs/:id/comparison.csv`.
 
+#### `/account/rfqs/:id/quotes/:quoteId` — One quote and its negotiation
+
+| | |
+|---|---|
+| **Who** | The buyer who owns the request; accepting, rejecting and countering need PURCHASE |
+| **File** | `pages/rfq/RfqQuotePage.tsx`, `components/rfq/NegotiationPanel.tsx` |
+
+**On the screen.** "The offer on the table" (version, unit price, quantity,
+valid until; expired said plainly), **Accept these terms** and **Reject**
+only when the supplier wrote it and it has not expired (each confirmed in a
+dialog), a counter-offer form (unit price in the quote's currency, quantity,
+MOQ, lead time, Incoterm and place, validity in UTC, payment and inspection
+terms, comment), and every offer so far, newest first. Once accepted: "Agreed
+terms" with the date, the terms fingerprint (hash) and that turning them
+into a purchase order is not available yet. The seller's **Your quote** tab
+uses the same panel, with **Withdraw the quote**. **Calls**
+`GET /rfqs/:id/quotes/:quoteId`, `POST …/offers`, `POST …/accept`,
+`POST …/reject`; seller `POST /seller/rfqs/:id/quote/{offers,accept,reject,withdraw}`.
+
 #### `/account/preorders/:id` — One preorder
 
 | | |

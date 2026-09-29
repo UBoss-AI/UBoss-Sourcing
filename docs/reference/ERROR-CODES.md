@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**506 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**508 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -66,7 +66,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Pre-shipment inspection and the dispatch gate](#pre-shipment-inspection-and-the-dispatch-gate) | 17 |
 | [Returns](#returns) | 5 |
 | [The buyer experience: cart, checkout, account, alerts, reviews](#the-buyer-experience-cart-checkout-account-alerts-reviews) | 27 |
-| [Requests for quotation (Master rows 16-19)](#requests-for-quotation-master-rows-16-19) | 20 |
+| [Requests for quotation (Master rows 16-19)](#requests-for-quotation-master-rows-16-19) | 22 |
 
 ## Generic
 
@@ -781,6 +781,8 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `RFQ_QUOTE_EXISTS` | This seller has already quoted on the request. A changed price is a counter-offer on that quote, never a second quote. 409. |
 | `RFQ_QUOTE_INVALID` | Some terms of an offer are not valid - an unknown currency, an expiry already past, tiers that do not climb, a file that cannot be sent. `details` names each. 400. |
 | `RFQ_OFFER_NOT_OPEN` | That quote or offer version cannot be answered: it is no longer the one on the table, it is your own, or the quote is no longer open. `details[0].code` says which. 409. |
+| `RFQ_OFFER_EXPIRED` | The offer's validity passed. It can be countered, never accepted. 409. |
+| `RFQ_ALREADY_AWARDED` | Another quote on this request was accepted first. 409. |
 | `FACTORY_NOT_EDITABLE` | A factory cannot be changed now: it is with a reviewer. 409. (Master row 13) |
 | `FACTORY_INCOMPLETE` | A factory cannot be sent for review, or verified, yet: it has no evidence attached. `details` names what is missing. 400 for the seller, 409 for a reviewer. |
 | `FACTORY_TRANSITION_INVALID` | The factory's verification cannot move that way from where it is - including a reviewer deciding a check a colleague already decided (`details[0].code` is `STALE`). 409. |

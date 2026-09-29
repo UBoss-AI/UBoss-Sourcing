@@ -1938,6 +1938,10 @@ export const ErrorCode = {
   /// on the table, it is your own, or the quote is no longer open.
   /// `details[0].code` says which. 409.
   RFQ_OFFER_NOT_OPEN: 'RFQ_OFFER_NOT_OPEN',
+  /// The offer's validity passed. It can be countered, never accepted. 409.
+  RFQ_OFFER_EXPIRED: 'RFQ_OFFER_EXPIRED',
+  /// Another quote on this request was accepted first. 409.
+  RFQ_ALREADY_AWARDED: 'RFQ_ALREADY_AWARDED',
   /// A factory cannot be changed now: it is with a reviewer. 409. (Master row 13)
   FACTORY_NOT_EDITABLE: 'FACTORY_NOT_EDITABLE',
   /// A factory cannot be sent for review, or verified, yet: it has no

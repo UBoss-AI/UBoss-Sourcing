@@ -4747,6 +4747,12 @@ Migration `20261021100000_rfq_requests` (checklist Master row 16).
 | `rfq_quote_versions` | One immutable offer: every commercial term, money as BIGINT minor units (NULL = not provided), tiers, `expiresAt`, `termsHash` (SHA-256 of the canonical terms). `UNIQUE (quoteId, versionNumber)`. Only `state` and the answer to it ever change |
 | `rfq_events` | The timeline. `sellerAccountId` and `sharedWithSuppliers` decide which seller may see a row |
 
+`rfq_requests.awardedQuoteId` (UNIQUE, migration `20261021400000_rfq_award`)
+is written only by the acceptance transaction, conditionally on being NULL.
+Quote states: OPEN -> ACCEPTED / REJECTED / WITHDRAWN (seller) / CLOSED
+(system); version states: PROPOSED -> SUPERSEDED / ACCEPTED / REJECTED /
+WITHDRAWN / CLOSED (`domain/rfq-quote.ts`).
+
 **Rules the database holds.** `chk_rfq_target_price_pair`: a target price is
 an amount and a currency, or neither. The request belongs to
 `customer_profiles` (cascade) and optionally `buyer_companies` (restrict).

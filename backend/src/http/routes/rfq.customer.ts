@@ -27,6 +27,16 @@ import { listThread, messageBodySchema, postMessage, threadQuerySchema } from '.
 import { prisma } from '../../infra/prisma.js';
 import { buildComparison, comparisonCsv, comparisonQuerySchema } from '../../modules/rfq/comparison.service.js';
 import {
+  acceptOffer,
+  acceptSchema,
+  acceptedTerms,
+  counterOffer,
+  counterSchema,
+  rejectOffer,
+  rejectSchema,
+  type Negotiator,
+} from '../../modules/rfq/negotiation.service.js';
+import {
   listBuyerQuotes,
   loadQuoteForBuyer,
   quoteView,
@@ -384,6 +394,62 @@ export function registerCustomerRfqRoutes(app: FastifyInstance): Promise<void> {
       .send(file.content);
   });
 
+  /**
+   * Send a counter-offer on a quote: new terms as a new, immutable version.
+   * Names the version being answered; refused if it moved. Writes an audit entry.
+   */
+  app.post(
+    '/:id/quotes/:quoteId/offers',
+    { preHandler: requireCustomer, config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      assertPurchasing(request);
+      const { id, quoteId } = quoteParams.parse(request.params);
+      const input = counterSchema.parse(request.body);
+      const buyer = buyerOf(request);
+      const quote = await loadQuoteForBuyer(buyer, id, quoteId);
+      return reply.status(201).send({ quote: await counterOffer(negotiatorOf(buyer), quote.id, input) });
+    },
+  );
+
+  /**
+   * Accept the supplier's offer on the table, naming its terms hash. Awards the
+   * request, closes every other quote and freezes the terms. Repeating it is
+   * answered with the same result. Writes an audit entry.
+   */
+  app.post(
+    '/:id/quotes/:quoteId/accept',
+    { preHandler: requireCustomer, config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      assertPurchasing(request);
+      const { id, quoteId } = quoteParams.parse(request.params);
+      const input = acceptSchema.parse(request.body);
+      const buyer = buyerOf(request);
+      const quote = await loadQuoteForBuyer(buyer, id, quoteId);
+      return reply.status(200).send({ quote: await acceptOffer(negotiatorOf(buyer), quote.id, input) });
+    },
+  );
+
+  /** Reject the supplier's offer on the table; the quote closes as rejected. */
+  app.post(
+    '/:id/quotes/:quoteId/reject',
+    { preHandler: requireCustomer, config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      assertPurchasing(request);
+      const { id, quoteId } = quoteParams.parse(request.params);
+      const input = rejectSchema.parse(request.body);
+      const buyer = buyerOf(request);
+      const quote = await loadQuoteForBuyer(buyer, id, quoteId);
+      return reply.status(200).send({ quote: await rejectOffer(negotiatorOf(buyer), quote.id, input) });
+    },
+  );
+
+  /** The terms both sides agreed to, frozen at acceptance, with their hash. */
+  app.get('/:id/accepted-terms', { preHandler: requireCustomer }, async (request, reply) => {
+    const { id } = idParams.parse(request.params);
+    const rfq = await loadRfqForBuyer(buyerOf(request), id);
+    return reply.header('Cache-Control', 'no-store').status(200).send({ acceptedTerms: await acceptedTerms(rfq.id) });
+  });
+
   /** The thread with one invited seller, oldest first; `?after=` for only new ones. */
   app.get('/:id/invitations/:invitationId/messages', { preHandler: requireCustomer }, async (request, reply) => {
     const { id, invitationId } = invitationParams.parse(request.params);
@@ -419,6 +485,10 @@ export function registerCustomerRfqRoutes(app: FastifyInstance): Promise<void> {
   );
 
   return Promise.resolve();
+}
+
+function negotiatorOf(buyer: RfqBuyer): Negotiator {
+  return { party: 'BUYER', userId: buyer.userId, email: buyer.email };
 }
 
 const quoteParams = z.object({ id: z.string().length(26), quoteId: z.string().length(26) });

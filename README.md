@@ -2864,7 +2864,10 @@ inspection, warranty, tooling, sample and shipping costs, validity); the
 buyer compares them side by side in a chosen currency - converted at your
 published exchange rates, labelled as converted with the rate and its date,
 and never hiding the figure as quoted - shortlists, and downloads the
-comparison as CSV.
+comparison as CSV. Buyer and seller then negotiate in counter-offers, each an
+unchangeable version; accepting one awards the request once, closes the other
+quotes and locks the agreed terms (with a fingerprint an order would have to
+match). Turning agreed terms into a purchase order is not built yet.
 Switched by `FEATURE_RFQ` (default on).
 
 ## Preorder chat
