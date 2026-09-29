@@ -91,7 +91,7 @@ interface CallOptions {
 
 async function call(
   session: Session | null,
-  method: 'GET' | 'POST' | 'PATCH',
+  method: 'GET' | 'POST' | 'PATCH' | 'PUT',
   url: string,
   payload?: unknown,
   options: CallOptions = {},
@@ -1153,5 +1153,173 @@ describe('files on a ticket', () => {
     const closed = await upload(buyerA, reference, PNG, 'late.png');
     expect(closed.status).toBe(409);
     expect(closed.body.error?.code).toBe('SUPPORT_TICKET_CLOSED');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Service levels (checklist SCREEN-063 and JOURNEY-057)
+// ---------------------------------------------------------------------------
+
+describe('support service levels', () => {
+  const HOUR = 3_600_000;
+  let lateId = '';
+  let lateReference = '';
+  let onTimeId = '';
+  let onTimeReference = '';
+
+  /** The deadline is worked out a few milliseconds after the row is stamped. */
+  const near = (actual: number, expected: number): boolean => Math.abs(actual - expected) < 5_000;
+
+  async function directTicket(suffix: string, dueInHours: number): Promise<{ id: string; reference: string }> {
+    const id = newId();
+    const created = new Date(Date.now() - 10 * HOUR);
+    const reference = `SR-SL${suffix}-${id.slice(-4)}`;
+    await prisma.supportTicket.create({
+      data: {
+        id,
+        reference,
+        requesterUserId: buyerAUserId,
+        requesterRole: 'BUYER',
+        source: 'STOREFRONT',
+        nameSnapshot: 'Asha Rao',
+        emailSnapshot: EMAILS.buyerA,
+        category: 'OTHER',
+        subject: `Service level ${suffix}`,
+        message: 'A request used to test deadlines.',
+        createdAt: created,
+        lastActivityAt: created,
+        firstResponseDueAt: new Date(Date.now() + dueInHours * HOUR),
+        resolutionDueAt: new Date(Date.now() + (dueInHours + 24) * HOUR),
+      },
+    });
+    return { id, reference };
+  }
+
+  it('copies both deadlines onto a request when it is sent', async () => {
+    // The first ORDERS request sent earlier in this file: the defaults, 8 and 48 hours.
+    const row = await prisma.supportTicket.findFirstOrThrow({
+      where: { requesterUserId: buyerAUserId, category: 'ORDERS', subject: GOOD_REQUEST.subject },
+      orderBy: { createdAt: 'asc' },
+    });
+    expect(row.firstResponseDueAt).not.toBeNull();
+    expect(row.resolutionDueAt).not.toBeNull();
+    expect(near(row.firstResponseDueAt!.getTime() - row.createdAt.getTime(), 8 * HOUR)).toBe(true);
+    expect(near(row.resolutionDueAt!.getTime() - row.createdAt.getTime(), 48 * HOUR)).toBe(true);
+    expect(row.firstRespondedAt).toBeNull();
+  });
+
+  it('marks a request past its first-reply deadline as late, and one within it as not', async () => {
+    const late = await directTicket('LATE', -2);
+    const onTime = await directTicket('OK', 5);
+    lateId = late.id;
+    lateReference = late.reference;
+    onTimeId = onTime.id;
+    onTimeReference = onTime.reference;
+
+    const lateRead = await call(owner, 'GET', `/api/v1/admin/support-tickets/${lateId}`);
+    expect(lateRead.status).toBe(200);
+    const lateSla = (lateRead.body as { ticket: { sla: Record<string, unknown> } }).ticket.sla;
+    expect(lateSla['firstResponseBreached']).toBe(true);
+    expect(lateSla['resolutionBreached']).toBe(false);
+    expect(typeof lateSla['firstResponseDueAt']).toBe('string');
+
+    const onTimeRead = await call(owner, 'GET', `/api/v1/admin/support-tickets/${onTimeId}`);
+    const onTimeSla = (onTimeRead.body as { ticket: { sla: Record<string, unknown> } }).ticket.sla;
+    expect(onTimeSla['firstResponseBreached']).toBe(false);
+  });
+
+  it('lists only late requests when asked, with each one\'s deadlines', async () => {
+    const all = await call(owner, 'GET', '/api/v1/admin/support-tickets?limit=100');
+    const allRows = (all.body as { tickets: { reference: string; sla: { firstResponseBreached: boolean } }[] })
+      .tickets;
+    expect(allRows.find((row) => row.reference === lateReference)?.sla.firstResponseBreached).toBe(true);
+    expect(allRows.find((row) => row.reference === onTimeReference)?.sla.firstResponseBreached).toBe(false);
+
+    const filtered = await call(
+      owner,
+      'GET',
+      '/api/v1/admin/support-tickets?breached=true&limit=100',
+    );
+    expect(filtered.status).toBe(200);
+    const references = (filtered.body as { tickets: { reference: string }[] }).tickets.map(
+      (row) => row.reference,
+    );
+    expect(references).toContain(lateReference);
+    expect(references).not.toContain(onTimeReference);
+  });
+
+  it('stops the first-reply clock when staff answer, and a late answer stays late', async () => {
+    const early = await call(orders, 'POST', `/api/v1/admin/support-tickets/${onTimeId}/replies`, {
+      body: 'On it.',
+    });
+    expect(early.status).toBe(200);
+    const kept = await prisma.supportTicket.findUniqueOrThrow({ where: { id: onTimeId } });
+    expect(kept.firstRespondedAt).not.toBeNull();
+    const keptSla = (early.body as { ticket: { sla: Record<string, unknown> } }).ticket.sla;
+    expect(keptSla['firstResponseBreached']).toBe(false);
+
+    const tardy = await call(orders, 'POST', `/api/v1/admin/support-tickets/${lateId}/replies`, {
+      body: 'Sorry for the wait.',
+    });
+    expect(tardy.status).toBe(200);
+    const tardySla = (tardy.body as { ticket: { sla: Record<string, unknown> } }).ticket.sla;
+    // Answered, but after the deadline: still a missed promise.
+    expect(tardySla['firstResponseBreached']).toBe(true);
+    expect(tardySla['firstRespondedAt']).not.toBeNull();
+  });
+
+  it('records how a resolved request ended, and shows it on the list and the page', async () => {
+    const resolved = await call(orders, 'PATCH', `/api/v1/admin/support-tickets/${onTimeId}`, {
+      status: 'RESOLVED',
+      resolutionCode: 'FIXED',
+    });
+    expect(resolved.status).toBe(200);
+    expect((resolved.body as { ticket: { resolutionCode: string } }).ticket.resolutionCode).toBe('FIXED');
+
+    const list = await call(owner, 'GET', '/api/v1/admin/support-tickets?status=RESOLVED&limit=100');
+    const row = (list.body as { tickets: { reference: string; resolutionCode: string | null }[] }).tickets.find(
+      (ticket) => ticket.reference === onTimeReference,
+    );
+    expect(row?.resolutionCode).toBe('FIXED');
+  });
+
+  it('sets targets per category for later requests, for staff who may change settings', async () => {
+    const forbidden = await call(orders, 'PUT', '/api/v1/admin/support-tickets/sla-policies', {
+      policies: [{ category: 'ORDERS', firstResponseHours: 2, resolutionHours: 10 }],
+    });
+    expect(forbidden.status).toBe(403);
+
+    try {
+      const saved = await call(owner, 'PUT', '/api/v1/admin/support-tickets/sla-policies', {
+        policies: [{ category: 'ORDERS', firstResponseHours: 2, resolutionHours: 10 }],
+      });
+      expect(saved.status, JSON.stringify(saved.body)).toBe(200);
+
+      const read = await call(owner, 'GET', '/api/v1/admin/support-tickets/sla-policies');
+      const orders_ = (
+        read.body as { policies: { category: string; firstResponseHours: number; customised: boolean }[] }
+      ).policies.find((policy) => policy.category === 'ORDERS');
+      expect(orders_).toMatchObject({ firstResponseHours: 2, customised: true });
+
+      const { deadlinesFor } = await import('../../src/modules/support/support-sla.service.js');
+      // What a request sent now would be held to (the same call the send makes).
+      const sentAt = new Date();
+      const due = await deadlinesFor('ORDERS', sentAt);
+      expect(due.firstResponseDueAt.getTime() - sentAt.getTime()).toBe(2 * HOUR);
+      expect(due.resolutionDueAt.getTime() - sentAt.getTime()).toBe(10 * HOUR);
+
+      // A category nobody customised still gets the defaults.
+      const other = await deadlinesFor('PAYMENTS', sentAt);
+      expect(other.firstResponseDueAt.getTime() - sentAt.getTime()).toBe(8 * HOUR);
+
+      // A target changed later moves no promise already made.
+      const earlier = await prisma.supportTicket.findFirstOrThrow({
+        where: { requesterUserId: buyerAUserId, category: 'ORDERS', subject: GOOD_REQUEST.subject },
+        orderBy: { createdAt: 'asc' },
+      });
+      expect(near(earlier.firstResponseDueAt!.getTime() - earlier.createdAt.getTime(), 8 * HOUR)).toBe(true);
+    } finally {
+      await prisma.supportSlaPolicy.deleteMany({ where: { category: 'ORDERS' } });
+    }
   });
 });

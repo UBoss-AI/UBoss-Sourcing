@@ -12,6 +12,10 @@
  * Five headline figures with sparklines and period-over-period deltas, the
  * order-status proportion bar and its table, the payments summary, the
  * low-stock queue and the recurring-order panels. All removed deliberately.
+ * The headline figures are back, plainly, in `CommandCentreTiles` - without
+ * the sparklines - together with a system-health tile, because a command
+ * centre that cannot say whether sales are up or a job is stuck is only half
+ * of one. The rest stay on their own screens.
  *
  * None of the DATA is gone. `GET /admin/dashboard` still returns every one of
  * those aggregates, and each of them has a screen that owns it — Reports,
@@ -38,6 +42,8 @@ import { RangeTabs, RefreshButton } from '@/components/dashboard/controls';
 import { useDashboardParams } from '@/lib/use-dashboard-params';
 import { OPERATIONS_QUERY_KEY } from '@/lib/operations';
 import { OperationsHero } from './dashboard/OperationsHero';
+import { CommandCentreTiles } from './dashboard/CommandCentreTiles';
+import { KPI_QUERY_KEY } from '@/lib/command-centre';
 import { useI18n } from '@/i18n/i18n-context';
 
 export function DashboardPage(): React.JSX.Element {
@@ -54,7 +60,11 @@ export function DashboardPage(): React.JSX.Element {
    * refetch the hero started on its own poll, which a local boolean here would
    * have missed.
    */
-  const fetching = useIsFetching({ queryKey: OPERATIONS_QUERY_KEY }) > 0;
+  const fetching =
+    useIsFetching({
+      predicate: (query) =>
+        query.queryKey[0] === OPERATIONS_QUERY_KEY[0] || query.queryKey[0] === KPI_QUERY_KEY[0],
+    }) > 0;
 
   return (
     <ConsoleGround>
@@ -86,6 +96,7 @@ export function DashboardPage(): React.JSX.Element {
           busy={fetching}
           onClick={() => {
             void queryClient.invalidateQueries({ queryKey: OPERATIONS_QUERY_KEY });
+            void queryClient.invalidateQueries({ queryKey: KPI_QUERY_KEY });
           }}
           labels={{
             refresh: t('dashboard.refresh'),
@@ -100,6 +111,7 @@ export function DashboardPage(): React.JSX.Element {
           selectedGroup={params.segment}
           onSelectGroup={params.setSegment}
         />
+        <CommandCentreTiles window={params.window} />
       </BentoGrid>
     </ConsoleGround>
   );

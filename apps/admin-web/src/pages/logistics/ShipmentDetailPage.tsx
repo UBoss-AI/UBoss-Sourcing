@@ -46,13 +46,16 @@ import {
   Textarea,
 } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 import { formatDateTime, formatNumber, humanise } from '@/lib/format';
+import { formatFileSize } from '@/lib/support-tickets';
 import {
   advanceShipmentStatus,
   assignShipment,
   assignShipmentDriver,
   correctShipmentStatus,
   fetchAdminShipment,
+  fetchAdminShipmentDocuments,
   updateAdminManualBooking,
   fetchEligiblePartners,
   fetchPartnerDrivers,
@@ -278,6 +281,7 @@ export function LogisticsShipmentDetailPage(): React.JSX.Element {
       <Exceptions shipment={shipment} />
       <Assignments shipment={shipment} />
       <DriverChain shipment={shipment} />
+      <ShipmentDocuments shipmentId={shipment.id} />
       <Timeline events={shipment.events} />
     </div>
   );
@@ -567,6 +571,71 @@ function Exceptions({ shipment }: { shipment: AdminShipmentDetail }): React.JSX.
           </li>
         ))}
       </ul>
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Documents
+// ---------------------------------------------------------------------------
+
+const SCAN_TONE: Record<string, 'success' | 'warning' | 'danger' | 'neutral'> = {
+  CLEAN: 'success',
+  GENERATED: 'success',
+  PENDING: 'warning',
+  SKIPPED: 'warning',
+  INFECTED: 'danger',
+  FAILED: 'danger',
+};
+
+/**
+ * Every file on the consignment - labels, packing lists, invoices, delivery
+ * photos - including those meant for the marketplace only, which the carrier
+ * never sees. Names, sizes and the malware-scan state; opening a file happens
+ * in the carrier portal, not here.
+ */
+export function ShipmentDocuments({ shipmentId }: { shipmentId: string }): React.JSX.Element {
+  const { t } = useI18n();
+  const documents = useQuery({
+    queryKey: ['admin', 'logistics', 'shipment', shipmentId, 'documents'],
+    queryFn: () => fetchAdminShipmentDocuments(shipmentId),
+  });
+
+  return (
+    <Card title={t('logistics.shipment.documents')} description={t('logistics.shipment.documentsHint')}>
+      {documents.isPending && <LoadingState label={t('logistics.shipment.documentsLoading')} />}
+      {documents.isError && (
+        <ErrorState
+          error={documents.error}
+          onRetry={() => {
+            void documents.refetch();
+          }}
+        />
+      )}
+      {documents.isSuccess && documents.data.documents.length === 0 && (
+        <p className="px-5 py-4 text-sm text-ink-muted">{t('logistics.shipment.documentsNone')}</p>
+      )}
+      {documents.isSuccess && documents.data.documents.length > 0 && (
+        <ul className="divide-y divide-border-subtle">
+          {documents.data.documents.map((document) => (
+            <li key={document.id} className="flex flex-wrap items-start justify-between gap-3 px-5 py-3">
+              <div className="min-w-0">
+                <p className="break-words text-sm font-medium text-ink">{document.fileName}</p>
+                <p className="text-xxs text-ink-subtle">
+                  {humanise(document.kind)} · {formatFileSize(document.sizeBytes)} ·{' '}
+                  {formatDateTime(document.createdAt)}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Badge tone="neutral">{t(`logistics.shipment.documentAudience.${document.audience}` as TranslationKey)}</Badge>
+                <Badge tone={SCAN_TONE[document.scanState] ?? 'neutral'}>
+                  {t(`logistics.shipment.documentScan.${document.scanState}` as TranslationKey)}
+                </Badge>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </Card>
   );
 }

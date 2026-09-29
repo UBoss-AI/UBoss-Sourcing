@@ -4190,8 +4190,25 @@ That state exists to stop something being sold — an expired certificate, a
 withdrawn brand — and a button that overrode it would make the state
 decorative.
 
+**Blocking is the marketplace's pause.** `BLOCKED` is the one status a seller can
+never set. Staff with `product.publish` block a listing from the seller's page
+(`POST /admin/seller-offers/:id/block`, a reason is required and the seller
+reads it). `offer-block.service.ts` sets the status, re-projects the shelf in the
+same transaction, remembers the status it had (`statusBeforeBlock`), writes an
+admin and a seller audit entry (`seller_offer.blocked`) and notifies the seller.
+While blocked, the seller cannot resume, pause, archive or edit it
+(`LISTING_BLOCKED`, 409). `POST /admin/seller-offers/:id/unblock` restores the
+previous status, except that a listing that was on sale returns **paused**, so
+the seller's own resume checks run. A `GET /admin/sellers/:id/offers` list feeds
+the "Their listings" card.
+
 **Archiving is not pausing.** An archived listing is kept for history, hidden
-from selling, and never hard-deleted while an order references it.
+from selling, and never hard-deleted while an order references it. Every row in
+the Seller Hub listings table that is not already archived has an **Archive**
+button. It asks first (`PATCH /seller/listings/:id/status` with `ARCHIVED`),
+takes the product off the shelf in the same transaction, stamps `archivedAt`
+and writes a `seller.offer.archived` audit entry. The row then shows under the
+**Archived** tab; the tab and status labels are translated.
 
 ## What makes two variants different: the option signature
 
@@ -5655,6 +5672,17 @@ the goods **plus the delivery levels the seller controls** — see
 [9.5.6](#956-seller-delivery-levels-l1l4-and-the-platform-fee). A seller with a
 negotiated rate keeps it unless a policy is set for that seller specifically.
 
+**Fee rules** sit on top of a policy: value bands, volume tiers, seller tiers and
+promotions, drafted and published from *Finance → Fee rules*
+(`/finance/fee-rules`, `FeeRulesPage.tsx`, API `/admin/platform-fee-rules`). It is
+a maker-checker: `submit` records who submitted, and `approve` is refused with
+`PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN` for whoever created, edited or submitted
+the rule, so a *second* finance person publishes it. The screen disables Approve
+for the maker and says why. A rejection needs ten characters and returns the rule
+to draft with the reason. A published rule is never edited: **Replace** drafts a
+rule with `supersedesRuleId`, and approving it retires the old one in the same
+transaction. Money is typed in normal units and sent as whole minor units.
+
 ##### Where an operator sets it
 
 Two screens, because there are two rates and they answer different questions.
@@ -6117,8 +6145,10 @@ meantime.
 
 ## The dashboard: the morning's work, above the month's figures
 
-The admin dashboard is a ring called **Platform operations** and the insights
-panel. Nothing else — not even the queue list that used to hang under the ring,
+The admin dashboard is a ring called **Platform operations**, the insights
+panel and — for staff with `report.read` — a strip of key figures and a
+system-health tile (see *Key figures and system health* at the end of this
+section). Nothing else — not even the queue list that used to hang under the ring,
 which repeated as rows what the ring had just drawn and linked to screens that
 are in the navigation rail anyway. `queuesInGroup` still exists and the server
 still returns every queue.
@@ -6136,6 +6166,19 @@ nobody has looked at is a seller waiting four days for a decision.
 There is no request in `DashboardPage.tsx` any more, because there is nothing
 left for it to fetch. The hero owns the one query the page makes, and the
 refresh control invalidates it rather than holding a second copy.
+
+**Key figures and system health.** A command centre that cannot say whether
+sales are up or a job is stuck is half of one, so `CommandCentreTiles` puts two
+things back, plainly, without the sparklines: **key figures** (orders, gross
+sales, average order value, collected, net revenue, low stock, each against the
+previous period of the same length) and a **system-health tile** with five rows
+from the `alerts` block — failed notifications, dead jobs, refused payment
+webhooks, unreconciled payments and repeat-order plans needing attention. Both
+come from `GET /admin/dashboard` (`report.read`); a member of staff without that
+permission sees neither and the request is not made. The change figure is worked
+out in BigInt basis points, never as a float of money. A row with something
+wrong is a link to the screen that fixes it; a row with nothing wrong says OK.
+The hero's query and this one refresh together on a one-minute cadence.
 
 `GET /admin/operations` counts what is waiting, grouped five ways — approvals,
 payments, inventory, logistics, platform. It is built on the same
@@ -8090,6 +8133,17 @@ companies that have never shipped anything, and scrolling it teaches an
 operator nothing. Drivers are listed with their carrier, because two carriers
 can employ an Ilse Maes and a list of bare names is a list nobody can choose
 from.
+
+### The documents on a consignment, as staff see them
+
+The carrier's list (`listShipmentDocuments`) filters by audience in the query, so
+a marketplace-only file is never loaded for a carrier. Staff need the whole
+picture, so `listShipmentDocumentsForStaff` returns every non-deleted file with
+its `audience` and scan state, behind `GET
+/admin/logistics/shipments/:id/documents` (`logistics.read`). It selects names,
+types, sizes and states only — `storageKey` is never in the select — and the
+admin shipment page shows it as a **Documents** card. There is deliberately no
+staff download link here: opening a file is the carrier portal's audited action.
 
 ### Where a consignment comes from
 
@@ -16914,7 +16968,19 @@ a native reader.
 - No tickets from guests without an account.
 - Staff cannot attach files to a reply.
 - No live updates over a websocket, the way preorder chat has them.
-- No SLA timers on tickets.
+- No console editor for the SLA targets (the API is there).
+
+### Service levels and resolution codes
+
+A ticket copies two deadlines when it is sent (`firstResponseDueAt`,
+`resolutionDueAt`), taken from the per-category targets in
+`support_sla_policies` or from the defaults in `support-sla.service.ts`. A
+target changed later moves no promise already made. Whether a ticket is late is
+worked out on every read by `slaView` (never stored); `breachedWhere` is the
+inbox's **Late only** filter (`?breached=true`). The admin inbox shows a **Due**
+column with a red **Late**, the ticket page has a **Service level** card, and
+resolving or closing needs a resolution code (`SUPPORT_RESOLUTION_CODE_REQUIRED`)
+chosen in the **Manage** card or the reply box.
 
 ## 9.14 The About page
 

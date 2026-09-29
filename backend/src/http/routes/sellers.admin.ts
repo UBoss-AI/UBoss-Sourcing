@@ -37,6 +37,11 @@ import {
   readListingForReview,
   setSellerCommission,
 } from '../../modules/seller/moderation.service.js';
+import {
+  blockOffer,
+  listOffersForAdmin,
+  unblockOffer,
+} from '../../modules/seller/offer-block.service.js';
 import { decideSellerCarrier } from '../../modules/seller/logistics-partner.service.js';
 import {
   decideFulfilmentMethod,
@@ -492,6 +497,77 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
         correlationId: request.correlationId,
       });
 
+      return reply.status(200).send(result);
+    },
+  );
+
+  // --- Blocking a live listing --------------------------------------------
+
+  /**
+   * One seller's listings as staff see them, with the block reason where there
+   * is one. Optional `status` filter, a page at a time.
+   */
+  app.get(
+    '/sellers/:id/offers',
+    { preHandler: requireAdmin(Permission.PRODUCT_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const query = z
+        .object({
+          page: z.coerce.number().int().min(1).default(1),
+          pageSize: z.coerce.number().int().min(1).max(100).default(25),
+          status: z
+            .enum(['INACTIVE', 'ACTIVE', 'PAUSED', 'NEEDS_CHANGES', 'ARCHIVED', 'BLOCKED'])
+            .optional(),
+        })
+        .parse(request.query);
+
+      const result = await listOffersForAdmin(params.id, query.page, query.pageSize, query.status);
+      return reply.header('cache-control', 'no-store').status(200).send(result);
+    },
+  );
+
+  /**
+   * Take a seller's listing off sale. A reason is required: the seller reads it.
+   * Writes an audit entry and tells the seller. `PRODUCT_PUBLISH`, the same
+   * authority that puts a listing on sale in the first place.
+   */
+  app.post(
+    '/seller-offers/:id/block',
+    { preHandler: requireAdmin(Permission.PRODUCT_PUBLISH) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z.object({ reason: z.string().trim().min(1).max(1000) }).parse(request.body);
+
+      const result = await blockOffer({
+        offerId: params.id,
+        reason: body.reason,
+        adminUserId: currentUser(request).id,
+        correlationId: request.correlationId,
+      });
+      return reply.status(200).send(result);
+    },
+  );
+
+  /**
+   * Lift a block. The listing returns to where it was; one that was on sale
+   * comes back paused so the seller's own checks run before it sells again.
+   */
+  app.post(
+    '/seller-offers/:id/unblock',
+    { preHandler: requireAdmin(Permission.PRODUCT_PUBLISH) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({ note: z.string().trim().max(1000).nullable().optional() })
+        .parse(request.body ?? {});
+
+      const result = await unblockOffer({
+        offerId: params.id,
+        note: body.note ?? null,
+        adminUserId: currentUser(request).id,
+        correlationId: request.correlationId,
+      });
       return reply.status(200).send(result);
     },
   );

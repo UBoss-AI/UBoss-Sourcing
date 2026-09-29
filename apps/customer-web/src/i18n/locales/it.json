@@ -6742,5 +6742,18 @@
   "errors.factory.CERTIFICATION_TRANSITION_INVALID": "Questo certificato non può essere inviato alla verifica nello stato attuale. Ricarichi la pagina.",
   "errors.factory.TRUST_EVIDENCE_UNUSABLE": "Quel documento è stato sostituito, ritirato o non ha superato il controllo di sicurezza. Ne scelga o ne carichi un altro.",
   "errors.factory.TRUST_EVIDENCE_IN_USE": "Questo documento è una prova per uno stabilimento o un certificato. Lo rimuova prima da lì.",
-  "errors.factory.STALE": "È cambiato mentre la pagina era aperta. La ricarichi per vedere com’è ora."
+  "errors.factory.STALE": "È cambiato mentre la pagina era aperta. La ricarichi per vedere com’è ora.",
+  "seller.offers.statusArchived": "Archiviato",
+  "seller.offers.archive": "Archivia",
+  "seller.offers.archiveTitle": "Archiviare {{code}}?",
+  "seller.offers.archiveDescription": "Gli acquirenti non potranno più vederlo né ordinarlo. Passa alla scheda «Archiviati».",
+  "seller.offers.archiveKeep": "Mantienilo",
+  "seller.offers.archiveConfirm": "Archivia questo annuncio",
+  "seller.offers.archiveNoteOffSale": "Scompare dalla ricerca e non può essere aggiunto a un carrello.",
+  "seller.offers.archiveNoteOrders": "Gli ordini già effettuati non sono interessati. Devi comunque imballarli e spedirli.",
+  "seller.offers.archiveNoteKept": "La cronologia viene conservata. Non viene eliminato.",
+  "seller.offers.archived": "Annuncio archiviato.",
+  "seller.offers.statusBlocked": "Bloccato",
+  "seller.offers.blockedNote": "Tolto dalla vendita da {{marketplace}}. Solo {{marketplace}} può rimuovere il blocco.",
+  "errors.listingBlocked": "{{marketplace}} ha bloccato questo annuncio. Solo {{marketplace}} può rimuovere il blocco."
 }

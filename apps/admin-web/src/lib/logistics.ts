@@ -612,6 +612,29 @@ export function fetchAdminShipment(id: string): Promise<AdminShipmentDetail> {
   return api.get<AdminShipmentDetail>(`/admin/logistics/shipments/${id}`);
 }
 
+export type ShipmentDocumentScanState = 'PENDING' | 'CLEAN' | 'INFECTED' | 'FAILED' | 'SKIPPED' | 'GENERATED';
+
+/**
+ * One file on a consignment, as staff see it: names and states, never the
+ * file. `audience` says who else may see it - the carrier, the marketplace
+ * only, or both.
+ */
+export interface AdminShipmentDocument {
+  id: string;
+  kind: string;
+  audience: 'PARTNER' | 'OPERATOR' | 'BOTH';
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  scanState: ShipmentDocumentScanState;
+  isDownloadable: boolean;
+  createdAt: string;
+}
+
+export function fetchAdminShipmentDocuments(id: string): Promise<{ documents: AdminShipmentDocument[] }> {
+  return api.get(`/admin/logistics/shipments/${id}/documents`);
+}
+
 export interface EligiblePartner {
   id: string;
   displayName: string;

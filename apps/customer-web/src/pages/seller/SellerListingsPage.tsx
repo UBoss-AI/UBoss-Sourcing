@@ -66,6 +66,7 @@ const TABS = [
   { key: 'PENDING_REVIEW', label: 'In review', source: 'drafts' },
   { key: 'ACTION_REQUIRED', label: 'Sent back', source: 'drafts' },
   { key: 'ARCHIVED', label: 'Archived', source: 'offers' },
+  { key: 'BLOCKED', label: 'Blocked', source: 'offers' },
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
@@ -211,6 +212,7 @@ function TabStrip({
   active: TabKey;
   onSelect: (tab: TabKey) => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
   // Counts for both sources in one place, so the strip does not flicker as two
   // separate queries land at different times.
   const offers = useQuery({
@@ -267,7 +269,11 @@ function TabStrip({
                   : 'border-transparent text-ink-muted hover:border-border-strong hover:text-ink',
               )}
             >
-              {tab.label}
+              {tab.key === 'ARCHIVED'
+                ? t('seller.offers.statusArchived')
+                : tab.key === 'BLOCKED'
+                  ? t('seller.offers.statusBlocked')
+                  : tab.label}
               {count !== null && count > 0 && (
                 <span
                   className={cx(
@@ -326,11 +332,11 @@ function OfferTable({
       next: 'ACTIVE' | 'PAUSED' | 'ARCHIVED';
       reason?: string | null;
     }) => setOfferStatus(id, next, reason ?? null),
-    onSuccess: async () => {
+    onSuccess: async (_data, variables) => {
       // Every offer query, not just this page's: pausing a listing changes the
       // tab counts as well as the row.
       await client.invalidateQueries({ queryKey: ['seller', 'offers'] });
-      toast.success('Listing updated.');
+      toast.success(variables.next === 'ARCHIVED' ? t('seller.offers.archived') : 'Listing updated.');
     },
     onError: (error: unknown) => {
       toast.error(errorMessage(t, error, 'That listing could not be updated.'));
@@ -410,7 +416,7 @@ function OfferTable({
                     <QualityCell score={row.qualityScore} />
                   </td>
                   <td className="px-4 py-3">
-                    <Badge tone={offerStatusTone(row.status)}>{offerStatusLabel(row.status)}</Badge>
+                    <Badge tone={offerStatusTone(row.status)}>{offerStatusLabel(row.status, t('seller.offers.statusArchived'), t('seller.offers.statusBlocked'))}</Badge>
                     <B2cNotConfigured row={row} />
                     {row.statusReason !== null && (
                       <p className="mt-1 max-w-xs text-xxs leading-relaxed text-ink-muted">
@@ -427,6 +433,9 @@ function OfferTable({
                       }}
                       onPause={(reason) => {
                         statusMutation.mutate({ id: row.id, next: 'PAUSED', reason });
+                      }}
+                      onArchive={() => {
+                        statusMutation.mutate({ id: row.id, next: 'ARCHIVED' });
                       }}
                     />
                   </td>
@@ -446,7 +455,7 @@ function OfferTable({
                   {formatMinor(row.priceMinor, row.currency)}
                 </p>
                 <StockCell row={row} />
-                <Badge tone={offerStatusTone(row.status)}>{offerStatusLabel(row.status)}</Badge>
+                <Badge tone={offerStatusTone(row.status)}>{offerStatusLabel(row.status, t('seller.offers.statusArchived'), t('seller.offers.statusBlocked'))}</Badge>
                 <B2cNotConfigured row={row} />
               </div>
               <RowActions
@@ -457,6 +466,9 @@ function OfferTable({
                 }}
                 onPause={(reason) => {
                   statusMutation.mutate({ id: row.id, next: 'PAUSED', reason });
+                }}
+                onArchive={() => {
+                  statusMutation.mutate({ id: row.id, next: 'ARCHIVED' });
                 }}
               />
             </li>
@@ -800,12 +812,16 @@ function RowActions({
   isBusy,
   onStatus,
   onPause,
+  onArchive,
 }: {
   row: OfferRow;
   isBusy: boolean;
   onStatus: (next: 'ACTIVE' | 'PAUSED' | 'ARCHIVED') => void;
   onPause: (reason: string | null) => void;
+  onArchive: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
       <EditButton row={row} isBusy={isBusy} />
@@ -847,7 +863,84 @@ function RowActions({
         under one seller SKU is an order nobody can pick.
       */}
       <DuplicateButton row={row} />
+
+      {row.status === 'BLOCKED' && (
+        <span className="text-xxs text-ink-subtle">{t('seller.offers.blockedNote')}</span>
+      )}
+
+      {row.status !== 'ARCHIVED' && row.status !== 'BLOCKED' && <ArchiveButton row={row} isBusy={isBusy} onArchive={onArchive} />}
     </div>
+  );
+}
+
+/**
+ * Archive a listing: take it off sale for good and out of the working list.
+ *
+ * It asks first, and says what it does not do. Orders already placed are
+ * untouched, and the listing and its history are kept - it moves to the
+ * Archived tab, it is not deleted.
+ */
+function ArchiveButton({
+  row,
+  isBusy,
+  onArchive,
+}: {
+  row: OfferRow;
+  isBusy: boolean;
+  onArchive: () => void;
+}): React.JSX.Element {
+  const { t } = useI18n();
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <Button
+        size="sm"
+        variant="ghost"
+        disabled={isBusy}
+        onClick={() => {
+          setIsOpen(true);
+        }}
+      >
+        {t('seller.offers.archive')}
+      </Button>
+
+      <Modal
+        isOpen={isOpen}
+        onClose={() => {
+          setIsOpen(false);
+        }}
+        title={t('seller.offers.archiveTitle', { code: row.sellerSku })}
+        description={t('seller.offers.archiveDescription')}
+        footer={
+          <>
+            <Button
+              onClick={() => {
+                setIsOpen(false);
+              }}
+            >
+              {t('seller.offers.archiveKeep')}
+            </Button>
+            <Button
+              variant="primary"
+              isLoading={isBusy}
+              onClick={() => {
+                onArchive();
+                setIsOpen(false);
+              }}
+            >
+              {t('seller.offers.archiveConfirm')}
+            </Button>
+          </>
+        }
+      >
+        <ul className="list-disc space-y-1 pl-5 text-sm text-ink-subtle">
+          <li>{t('seller.offers.archiveNoteOffSale')}</li>
+          <li>{t('seller.offers.archiveNoteOrders')}</li>
+          <li>{t('seller.offers.archiveNoteKept')}</li>
+        </ul>
+      </Modal>
+    </>
   );
 }
 
@@ -940,7 +1033,11 @@ function DuplicateButton({ row }: { row: OfferRow }): React.JSX.Element {
   );
 }
 
-function offerStatusLabel(status: OfferRow['status']): string {
+function offerStatusLabel(
+  status: OfferRow['status'],
+  archivedLabel: string,
+  blockedLabel: string,
+): string {
   switch (status) {
     case 'ACTIVE':
       return 'On sale';
@@ -951,7 +1048,9 @@ function offerStatusLabel(status: OfferRow['status']): string {
     case 'NEEDS_CHANGES':
       return 'Needs changes';
     case 'ARCHIVED':
-      return 'Archived';
+      return archivedLabel;
+    case 'BLOCKED':
+      return blockedLabel;
   }
 }
 
@@ -960,6 +1059,7 @@ function offerStatusLabel(status: OfferRow['status']): string {
 // ---------------------------------------------------------------------------
 
 function DraftTable({ status, search }: { status: string; search: string }): React.JSX.Element {
+  const { t } = useI18n();
   // "Drafts" is one tab over three server states, because the distinction
   // between "not finished", "failed validation" and "ready to send" is about
   // what the seller does next rather than about where it lives.
@@ -1049,7 +1149,7 @@ function DraftTable({ status, search }: { status: string; search: string }): Rea
                   {row.openIssues} {row.openIssues === 1 ? 'issue' : 'issues'}
                 </Badge>
               )}
-              <Badge tone={draftStatusTone(row.status)}>{draftStatusLabel(row.status)}</Badge>
+              <Badge tone={draftStatusTone(row.status)}>{draftStatusLabel(row.status, t('seller.offers.statusArchived'))}</Badge>
 
               {/*
                 Only while it is with us. A seller who spots a mistake after
@@ -1164,7 +1264,7 @@ function WithdrawDraftButton({ draftId }: { draftId: string }): React.JSX.Elemen
   );
 }
 
-function draftStatusLabel(status: DraftListRow['status']): string {
+function draftStatusLabel(status: DraftListRow['status'], archivedLabel: string): string {
   switch (status) {
     case 'DRAFT':
       return 'Draft';
@@ -1181,7 +1281,7 @@ function draftStatusLabel(status: DraftListRow['status']): string {
     case 'REJECTED':
       return 'Not approved';
     case 'ARCHIVED':
-      return 'Archived';
+      return archivedLabel;
   }
 }
 

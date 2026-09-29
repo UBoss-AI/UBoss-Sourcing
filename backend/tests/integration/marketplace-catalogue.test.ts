@@ -324,6 +324,24 @@ describe('the shelf follows the offer', () => {
     expect(rows.map((row) => row.productId)).toEqual([operatorProductId]);
   });
 
+  it('takes the product off when the seller archives their only offer, and keeps the row', async () => {
+    await setOfferStatus(acme, acmeOfferId, 'ARCHIVED');
+
+    const rows = await shelf('INR');
+    expect(rows.map((row) => row.productId)).toEqual([operatorProductId]);
+
+    // Archived, not deleted: the listing and its history are still there.
+    const offer = await prisma.sellerOffer.findUniqueOrThrow({ where: { id: acmeOfferId } });
+    expect(offer.status).toBe('ARCHIVED');
+    expect(offer.archivedAt).not.toBeNull();
+
+    // The seller's audit trail records the archive.
+    const audit = await prisma.sellerAuditLog.findFirst({
+      where: { resourceId: acmeOfferId, action: 'seller.offer.archived' },
+    });
+    expect(audit).not.toBeNull();
+  });
+
   it('puts it back when they resume', async () => {
     await setOfferStatus(acme, acmeOfferId, 'PAUSED');
     await setOfferStatus(acme, acmeOfferId, 'ACTIVE');

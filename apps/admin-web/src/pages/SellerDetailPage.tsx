@@ -21,9 +21,11 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSession } from '@/auth/session-context';
 import { AccessReviewCard } from '@/components/AccessReviewCard';
 import { Modal } from '@/components/Modal';
 import { SellerFactoriesPanel } from '@/pages/seller/SellerFactoriesPanel';
+import { SellerOffersPanel } from '@/pages/seller/SellerOffersPanel';
 import { useToast } from '@/components/toast-context';
 import {
   Badge,
@@ -40,6 +42,7 @@ import { cx } from '@/lib/cx';
 import { ApiError, api } from '@/lib/api';
 import { ATTENTION_QUERY_KEY } from '@/lib/attention';
 import { errorMessage } from '@/lib/errors';
+import { Permission } from '@/lib/permissions';
 import { useI18n } from '@/i18n/i18n-context';
 import { SellerKybReviewPanel } from './seller/SellerKybReviewPanel';
 import {
@@ -97,7 +100,11 @@ const DECISION_COPY: Record<
 
 export function SellerDetailPage(): React.JSX.Element {
   const { id = '' } = useParams();
+  const { can } = useSession();
   const [deciding, setDeciding] = useState<DecisionKind | null>(null);
+  // The server refuses a decision without this; the buttons are not offered to
+  // staff who could only ever be told no.
+  const canDecide = can(Permission.CUSTOMER_STATUS_WRITE);
 
   const query = useQuery({
     queryKey: ['admin', 'seller', id],
@@ -114,7 +121,7 @@ export function SellerDetailPage(): React.JSX.Element {
         description={seller === undefined ? undefined : seller.legalName}
         back={{ to: '/sellers', label: 'Sellers' }}
         actions={
-          seller === undefined ? undefined : (
+          seller === undefined || !canDecide ? undefined : (
             <DecisionButtons
               status={seller.status}
               onChoose={(next) => {
@@ -356,6 +363,8 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
         <DocumentsCard sellerId={seller.id} documents={seller.documents} />
 
         <SellerFactoriesPanel sellerId={seller.id} />
+
+        <SellerOffersPanel sellerId={seller.id} />
 
         <Card
           title="Where they ship from"

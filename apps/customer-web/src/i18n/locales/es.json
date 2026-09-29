@@ -6742,5 +6742,18 @@
   "errors.factory.CERTIFICATION_TRANSITION_INVALID": "Este certificado no se puede enviar a revisión en su estado actual. Recargue la página.",
   "errors.factory.TRUST_EVIDENCE_UNUSABLE": "Ese documento se ha sustituido, retirado o no ha superado el análisis de seguridad. Elija o suba otro.",
   "errors.factory.TRUST_EVIDENCE_IN_USE": "Este documento es una prueba de una fábrica o un certificado. Quítelo primero de allí.",
-  "errors.factory.STALE": "Ha cambiado mientras la página estaba abierta. Recárguela para ver cómo está ahora."
+  "errors.factory.STALE": "Ha cambiado mientras la página estaba abierta. Recárguela para ver cómo está ahora.",
+  "seller.offers.statusArchived": "Archivado",
+  "seller.offers.archive": "Archivar",
+  "seller.offers.archiveTitle": "¿Archivar {{code}}?",
+  "seller.offers.archiveDescription": "Los compradores ya no podrán verlo ni pedirlo. Pasa a la pestaña «Archivados».",
+  "seller.offers.archiveKeep": "Conservarlo",
+  "seller.offers.archiveConfirm": "Archivar este anuncio",
+  "seller.offers.archiveNoteOffSale": "Desaparece de la búsqueda y no se puede añadir a una cesta.",
+  "seller.offers.archiveNoteOrders": "Los pedidos ya realizados no se ven afectados. Aún debe embalarlos y enviarlos.",
+  "seller.offers.archiveNoteKept": "Se conserva su historial. No se elimina.",
+  "seller.offers.archived": "Anuncio archivado.",
+  "seller.offers.statusBlocked": "Bloqueado",
+  "seller.offers.blockedNote": "Retirado de la venta por {{marketplace}}. Solo {{marketplace}} puede levantarlo.",
+  "errors.listingBlocked": "{{marketplace}} ha bloqueado este anuncio. Solo {{marketplace}} puede quitar el bloqueo."
 }

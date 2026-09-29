@@ -48,6 +48,7 @@ import {
   STAFF_TRANSITIONS,
   SUPPORT_CATEGORIES,
   SUPPORT_PRIORITIES,
+  SUPPORT_RESOLUTION_CODES,
   SUPPORT_SOURCES,
   SUPPORT_STATUSES,
   addInternalNote,
@@ -60,6 +61,8 @@ import {
   type AdminTicket,
   type AdminTicketEvent,
   type SupportPriority,
+  type SupportResolutionCode,
+  type SupportSla,
   type SupportStatus,
 } from '@/lib/support-tickets';
 import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
@@ -84,6 +87,45 @@ const PRIORITY_TONE: Record<SupportPriority, BadgeTone> = {
 
 function key(prefix: string, value: string): TranslationKey {
   return `${prefix}.${value}` as TranslationKey;
+}
+
+/**
+ * Where a ticket stands against its two promises: a first reply and an
+ * answer. Late is the server's word (`sla.*Breached`), not this screen's guess
+ * from the clock. A promise already kept and not late says nothing.
+ */
+function SlaLines({ sla, status }: { sla: SupportSla | undefined; status: SupportStatus }): React.JSX.Element {
+  const { t } = useI18n();
+  if (sla === undefined) return <span className="text-xs text-ink-muted">—</span>;
+
+  const finished = status === 'RESOLVED' || status === 'CLOSED';
+  const waitingForReply = sla.firstRespondedAt === null && sla.firstResponseDueAt !== null;
+  const waitingForAnswer = !finished && sla.resolutionDueAt !== null;
+
+  if (!waitingForReply && !waitingForAnswer && !sla.firstResponseBreached && !sla.resolutionBreached) {
+    return <span className="text-xs text-ink-muted">—</span>;
+  }
+
+  return (
+    <div className="space-y-1 text-xs">
+      {waitingForReply && sla.firstResponseDueAt !== null && (
+        <p className="flex flex-wrap items-center gap-1 text-ink-muted">
+          <span>
+            {t('supportTickets.sla.firstReplyDue', { when: formatDateTime(sla.firstResponseDueAt) })}
+          </span>
+          {sla.firstResponseBreached && <Badge tone="danger">{t('supportTickets.sla.late')}</Badge>}
+        </p>
+      )}
+      {waitingForAnswer && sla.resolutionDueAt !== null && (
+        <p className="flex flex-wrap items-center gap-1 text-ink-muted">
+          <span>
+            {t('supportTickets.sla.resolutionDue', { when: formatDateTime(sla.resolutionDueAt) })}
+          </span>
+          {sla.resolutionBreached && <Badge tone="danger">{t('supportTickets.sla.late')}</Badge>}
+        </p>
+      )}
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -223,6 +265,17 @@ export function SupportTicketsPage(): React.JSX.Element {
             ))}
           </Select>
         </ToolbarField>
+        <ToolbarField label={t('supportTickets.filter.sla')}>
+          <Select
+            value={params.get('breached') ?? ''}
+            onChange={(event) => {
+              update('breached', event.currentTarget.value);
+            }}
+          >
+            <option value="">{t('supportTickets.filter.any')}</option>
+            <option value="true">{t('supportTickets.filter.lateOnly')}</option>
+          </Select>
+        </ToolbarField>
         <ToolbarField label={t('supportTickets.filter.assignee')}>
           <Select
             value={params.get('assignee') ?? ''}
@@ -268,6 +321,9 @@ export function SupportTicketsPage(): React.JSX.Element {
                   {t('supportTickets.column.status')}
                 </th>
                 <th scope="col" className="px-4 py-2 font-medium">
+                  {t('supportTickets.column.due')}
+                </th>
+                <th scope="col" className="px-4 py-2 font-medium">
                   {t('supportTickets.column.assignee')}
                 </th>
                 <th scope="col" className="px-4 py-2 font-medium">
@@ -309,6 +365,9 @@ export function SupportTicketsPage(): React.JSX.Element {
                         </Badge>
                       )}
                     </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <SlaLines sla={ticket.sla} status={ticket.status} />
                   </td>
                   <td className="px-4 py-3 text-xs text-ink-muted">
                     {ticket.assignee?.email ?? t('supportTickets.unassigned')}
@@ -399,6 +458,36 @@ function EventLine({ event }: { event: AdminTicketEvent }): React.JSX.Element {
   );
 }
 
+/** One promise on the ticket page: when it is due, when it was kept, whether it is late. */
+function SlaLine({
+  due,
+  doneAt,
+  late,
+}: {
+  due: string | null;
+  doneAt: string | null;
+  late: boolean;
+}): React.JSX.Element {
+  const { t } = useI18n();
+  if (due === null) return <>{t('supportTickets.sla.none')}</>;
+
+  return (
+    <span className="flex flex-wrap items-center gap-1">
+      <span>{t('supportTickets.sla.due', { when: formatDateTime(due) })}</span>
+      {doneAt !== null && (
+        <span className="text-xs text-ink-muted">
+          {t('supportTickets.sla.doneAt', { when: formatDateTime(doneAt) })}
+        </span>
+      )}
+      {late ? (
+        <Badge tone="danger">{t('supportTickets.sla.late')}</Badge>
+      ) : (
+        <Badge tone="success">{t('supportTickets.sla.onTrack')}</Badge>
+      )}
+    </span>
+  );
+}
+
 function Controls({ ticket }: { ticket: AdminTicket }): React.JSX.Element {
   const { t } = useI18n();
   const { can, user } = useSession();
@@ -407,6 +496,9 @@ function Controls({ ticket }: { ticket: AdminTicket }): React.JSX.Element {
   const canReply = can(Permission.SUPPORT_TICKET_REPLY);
   const canAssign = can(Permission.SUPPORT_TICKET_ASSIGN);
   const closed = ticket.status === 'CLOSED';
+  // Resolving or closing says how it ended, unless it already carries a code.
+  const [code, setCode] = useState<SupportResolutionCode | ''>(ticket.resolutionCode ?? '');
+  const [codeMissing, setCodeMissing] = useState(false);
 
   const assignees = useQuery({
     queryKey: ['admin', 'support-assignees'],
@@ -424,8 +516,11 @@ function Controls({ ticket }: { ticket: AdminTicket }): React.JSX.Element {
   };
 
   const change = useMutation({
-    mutationFn: (input: { status?: SupportStatus; priority?: SupportPriority }) =>
-      updateTicket(ticket.id, input),
+    mutationFn: (input: {
+      status?: SupportStatus;
+      priority?: SupportPriority;
+      resolutionCode?: SupportResolutionCode;
+    }) => updateTicket(ticket.id, input),
     onSuccess: (result) => {
       refresh(result.ticket);
       toast.success(t('supportTickets.saved'));
@@ -452,7 +547,33 @@ function Controls({ ticket }: { ticket: AdminTicket }): React.JSX.Element {
             <p className="mb-2 text-xs font-medium text-ink-muted">
               {t('supportTickets.detail.moveTo')}
             </p>
-            <div className="flex flex-wrap gap-2">
+            {moves.some((to) => to === 'RESOLVED' || to === 'CLOSED') && (
+              <Field
+                label={t('supportTickets.detail.resolutionCode')}
+                hint={t('supportTickets.detail.resolutionCodeHint')}
+                error={codeMissing ? t('supportTickets.detail.codeNeeded') : undefined}
+              >
+                {({ inputId, describedBy }) => (
+                  <Select
+                    id={inputId}
+                    aria-describedby={describedBy}
+                    value={code}
+                    onChange={(event) => {
+                      setCode(event.currentTarget.value as SupportResolutionCode | '');
+                      setCodeMissing(false);
+                    }}
+                  >
+                    <option value="">{t('supportTickets.detail.chooseCode')}</option>
+                    {SUPPORT_RESOLUTION_CODES.map((value) => (
+                      <option key={value} value={value}>
+                        {t(key('supportTickets.resolutionCode', value))}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
+            )}
+            <div className="mt-2 flex flex-wrap gap-2">
               {moves.map((to) => (
                 <Button
                   key={to}
@@ -460,7 +581,15 @@ function Controls({ ticket }: { ticket: AdminTicket }): React.JSX.Element {
                   variant={to === 'CLOSED' ? 'secondary' : 'primary'}
                   disabled={change.isPending}
                   onClick={() => {
-                    change.mutate({ status: to });
+                    const ends = to === 'RESOLVED' || to === 'CLOSED';
+                    if (ends && code === '' && ticket.resolutionCode == null) {
+                      setCodeMissing(true);
+                      return;
+                    }
+                    change.mutate({
+                      status: to,
+                      ...(ends && code !== '' ? { resolutionCode: code } : {}),
+                    });
                   }}
                 >
                   {t(key('supportTickets.status', to))}
@@ -556,18 +685,24 @@ function Composer({ ticket }: { ticket: AdminTicket }): React.JSX.Element {
   const [mode, setMode] = useState<'reply' | 'note'>('reply');
   const [body, setBody] = useState('');
   const [nextStatus, setNextStatus] = useState<SupportStatus | ''>('');
+  const [replyCode, setReplyCode] = useState<SupportResolutionCode | ''>('');
   const [problem, setProblem] = useState<string | null>(null);
 
   const send = useMutation({
     mutationFn: () =>
       mode === 'reply'
-        ? replyToTicket(ticket.id, { body, nextStatus: nextStatus === '' ? null : nextStatus })
+        ? replyToTicket(ticket.id, {
+            body,
+            nextStatus: nextStatus === '' ? null : nextStatus,
+            ...(nextStatus === 'RESOLVED' && replyCode !== '' ? { resolutionCode: replyCode } : {}),
+          })
         : addInternalNote(ticket.id, body),
     onSuccess: (result) => {
       queryClient.setQueryData(['admin', 'support-ticket', ticket.id], { ticket: result.ticket });
       void queryClient.invalidateQueries({ queryKey: ['admin', 'support-tickets'] });
       setBody('');
       setNextStatus('');
+      setReplyCode('');
       setProblem(null);
       if (mode === 'note') toast.success(t('supportTickets.detail.noteSaved'));
       else
@@ -591,6 +726,10 @@ function Composer({ ticket }: { ticket: AdminTicket }): React.JSX.Element {
           event.preventDefault();
           if (body.trim().length === 0) {
             setProblem(t('supportTickets.detail.bodyRequired'));
+            return;
+          }
+          if (mode === 'reply' && nextStatus === 'RESOLVED' && replyCode === '' && ticket.resolutionCode == null) {
+            setProblem(t('supportTickets.detail.codeNeeded'));
             return;
           }
           if (!send.isPending) send.mutate();
@@ -654,6 +793,26 @@ function Composer({ ticket }: { ticket: AdminTicket }): React.JSX.Element {
                   {t('supportTickets.status.WAITING_FOR_CUSTOMER')}
                 </option>
                 <option value="RESOLVED">{t('supportTickets.status.RESOLVED')}</option>
+              </Select>
+            )}
+          </Field>
+        )}
+        {mode === 'reply' && nextStatus === 'RESOLVED' && ticket.resolutionCode == null && (
+          <Field label={t('supportTickets.detail.resolutionCode')}>
+            {({ inputId }) => (
+              <Select
+                id={inputId}
+                value={replyCode}
+                onChange={(event) => {
+                  setReplyCode(event.currentTarget.value as SupportResolutionCode | '');
+                }}
+              >
+                <option value="">{t('supportTickets.detail.chooseCode')}</option>
+                {SUPPORT_RESOLUTION_CODES.map((value) => (
+                  <option key={value} value={value}>
+                    {t(key('supportTickets.resolutionCode', value))}
+                  </option>
+                ))}
               </Select>
             )}
           </Field>
@@ -806,6 +965,40 @@ export function SupportTicketDetailPage(): React.JSX.Element {
                     ) : (
                       ticket.relatedOrder.orderNumber
                     ),
+                },
+              ]}
+            />
+          </Card>
+          <Card title={t('supportTickets.detail.sla')} bodyClassName="px-5 py-4">
+            <DescriptionList
+              columns={1}
+              items={[
+                {
+                  label: t('supportTickets.sla.firstReply'),
+                  value: (
+                    <SlaLine
+                      due={ticket.sla?.firstResponseDueAt ?? null}
+                      doneAt={ticket.sla?.firstRespondedAt ?? null}
+                      late={ticket.sla?.firstResponseBreached ?? false}
+                    />
+                  ),
+                },
+                {
+                  label: t('supportTickets.sla.resolution'),
+                  value: (
+                    <SlaLine
+                      due={ticket.sla?.resolutionDueAt ?? null}
+                      doneAt={ticket.resolvedAt ?? ticket.closedAt}
+                      late={ticket.sla?.resolutionBreached ?? false}
+                    />
+                  ),
+                },
+                {
+                  label: t('supportTickets.detail.resolutionCode'),
+                  value:
+                    ticket.resolutionCode == null
+                      ? '—'
+                      : t(key('supportTickets.resolutionCode', ticket.resolutionCode)),
                 },
               ]}
             />

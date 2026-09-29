@@ -941,6 +941,7 @@ table(['Decision', 'What happens'], [
   ['Reject', 'Refuses the application with a reason. Staff choose whether the business may apply again.'],
   ['Suspend', 'Stops an already approved seller. New listings and new orders stop at once; orders they have already accepted still have to be fulfilled and money already owed is still owed.'],
 ], [2200, 7800]);
+p('Stopping one listing is different from stopping the whole seller. On the seller’s page, staff can see every listing the seller has. A member of staff who is allowed to publish can press Block on a listing that is not archived. They must write a reason, and the seller reads it exactly as written. The listing leaves search and baskets at once. The seller is told, and the block is recorded. The seller cannot put it back on sale, edit it or archive it. Orders already placed still have to be shipped. Later, staff can press Lift block. A listing that was on sale then comes back paused, so the seller’s own checks run before it sells again.');
 note('Reasons are written for the seller', 'Every refusal needs a reason, and that reason appears on the seller’s own screen. A separate box holds private staff notes, which are never sent to the seller. The two are kept apart on purpose.', C.blue);
 note('Two people, one application', 'A decision is recorded against the version of the application the reviewer was looking at. If somebody else decided it in the meantime, the second decision is refused rather than quietly overwriting the first.', C.purple);
 
@@ -1110,7 +1111,7 @@ table(['What the seller does', 'What the system does'], [
 note('What pausing does, and what it does not', 'A paused listing disappears from search and cannot be added to a basket, and anybody who already had it in their basket is told it is unavailable. Orders already placed are not affected at all — they still have to be packed and sent, and the delivery carries on exactly as before. Stock, codes and sales history are all kept.', C.blue);
 note('Putting it back on sale is checked, not assumed', 'Pausing is what a seller does in order to change things, so the state it was paused in is not the state it is coming back in. Before it goes live again the system checks it still has a code, a price, a previous price that is not lower than the price, stock that is not negative, and a product and version that are both still active. A listing paused to fix a price and put back with the price box empty would otherwise go on sale at nothing.', C.orange);
 note('Some listings cannot simply be resumed', 'Where the marketplace has stopped a listing itself — an expired certificate, a brand that was withdrawn — there is no Put on sale button, and the system refuses it as well. That state exists to stop something being sold, and a button that overrode it would make it meaningless. The seller fixes the thing that is wrong and the listing becomes resumable.', C.orange);
-note('Archiving is not pausing', 'A listing that is finished with is archived rather than deleted. It is kept so that past orders still make sense, hidden from selling, and never removed while an order refers to it.', C.teal);
+note('Archiving is not pausing', 'A listing that is finished with is archived rather than deleted. Every row in the seller’s Listings screen has an Archive button. It asks first, then takes the listing off sale for good and moves it to the Archived tab. It is kept so that past orders still make sense, hidden from selling, and never removed while an order refers to it. Orders already placed still have to be shipped.', C.teal);
 
 h2('6a.8d What buyers asked for and did not buy');
 p('This is the only thing in the hub that comes from somebody who did not place an order. Orders tell a seller what sold. Stock tells them what is left. This tells them why the rest of the people who looked went away, which nothing else on any of their screens can answer.');
@@ -1518,7 +1519,12 @@ table(['Staff role', 'Main abilities'], [
 ], [3100, 6600]);
 p('The page may hide controls a role cannot use, but the server also checks the permission on every protected request.');
 h2('7.3 Dashboard and notification bell');
-p('The console opens on the work waiting for the team this morning, and on nothing else: one ring, and beside it a short written summary of what the ring shows. The month’s trading figures used to sit underneath and were moved out, because they are read once a week and a queue nobody has looked at is a seller waiting four days for a decision. Every one of those figures is on the screen that owns it — Reports, Orders, Payments, Inventory, Recurring — all still in the menu.');
+p('The console opens on the work waiting for the team this morning, and on nothing else: one ring, and beside it a short written summary of what the ring shows. Beneath the ring, staff who are allowed to see reports also get a short strip of key figures and a health tile. The detailed trading figures live on the screens that own them — Reports, Orders, Payments, Inventory, Recurring — all still in the menu.');
+bullets([
+  'Key figures: how many orders, the gross sales, the average order value, the money collected, the net revenue, and how many products are low on stock. Each one says how it moved compared with the period just before it, for example “+20.0% vs the previous period”. If there was nothing before, it says so instead of showing a made-up figure.',
+  'System health: five lines that mean something is stuck. Emails that could not be sent. Background jobs that gave up. Payment messages the shop refused. Payments that could not be matched to an order. Repeat-order plans that need attention. A line with a problem shows how many, and pressing it opens the screen where it is fixed. A line with no problem says OK. If all five are fine the tile says nothing is stuck.',
+  'Staff who may not see reports do not see these two blocks at all.',
+]);
 bullets([
   'A ring shows everything waiting, in five groups: approvals, payments, stock, deliveries and the platform itself.',
   'Choosing a group singles it out, and the written summary beside the ring is then about that group. The screens where that work is decided are in the menu on the left.',
@@ -1864,6 +1870,7 @@ bullets([
   'A tax can be set on the fee. It is shown as a configured rate until somebody with the authority to do so records that it is the correct legal rule. Only then is it called by its tax name, such as GST.',
   'Fees are drafted, then published. A published fee is never changed; publishing a new one replaces it, and every order already settled keeps the version it was settled on. Staff can see which orders were settled on each version.',
   'A preview shows what a chosen seller would be paid on a given sale under today’s fees, without saving anything.',
+  'On top of a fee, the finance team can add rules under Finance → Fee rules: a different fee for orders in a value range, for sellers who sell above a certain amount, for sellers in a named tier, or a time-limited discount on the fee. A rule is written by one person and published by a different one. The person who wrote or submitted it cannot approve it; the Approve button is greyed out and says so. A rule that is sent back must say why. A rule that is live is never edited: a new one replaces it, and the old one stops when the new one is approved. A rule only applies to orders confirmed while it is live, and the screen shows which orders it changed and by how much.',
   'Nothing is set out of the box. Until the finance team publishes a fee, sellers are charged the marketplace commission exactly as before.',
 ]);
 
@@ -1936,6 +1943,8 @@ table(['Staff member does', 'The system does back'], [
   ['Writes an internal note.', 'Keeps it for staff only. The customer never sees it, and it is not included in the customer’s copy of their data.'],
   ['Changes the state.', 'Allows only sensible moves: for example a resolved ticket can be reopened or closed, and a closed ticket cannot be changed at all.'],
   ['Sets the priority: low, normal, high or urgent.', 'Records it. Only staff set a priority; the customer cannot choose one.'],
+  ['Looks at when a ticket is due.', 'Every ticket carries two promises made when it was sent: a first reply and an answer, each with a deadline that depends on the topic. The list shows what is due, in red when the deadline has passed. A filter shows only late tickets. The ticket page shows both deadlines and whether each was kept.'],
+  ['Resolves or closes a ticket.', 'Asks how it ended — answered, fixed, refunded, replaced, passed to someone else, a duplicate, no reply from the sender, or nothing to do — and will not go on without an answer. The choice is kept on the ticket and shown on its page.'],
   ['Takes a ticket, releases it, or gives it to a colleague.', 'Moves it, and emails the colleague who was given it. Giving a ticket to somebody else, or taking it from them, needs a separate permission.'],
 ], [4200, 5800]);
 bullets([
@@ -2233,7 +2242,7 @@ bullets([
 h2('12a.6 What the business sees');
 table(['Screen', 'What it is for'], [
   ['Consignments', 'Every delivery, whoever is carrying it — including the ones nobody is carrying yet, and which person at the haulage company is driving each one.'],
-  ['One consignment', 'Offer it to a carrier, take it back, correct a status that was recorded wrongly, and read the whole history — including every driver who has held it and why it changed hands. From here the operations desk can also put one of the carrier’s drivers on it, name the vehicle, move it to somebody else, take them off, and send it on the way.'],
+  ['One consignment', 'Offer it to a carrier, take it back, correct a status that was recorded wrongly, and read the whole history — including every driver who has held it and why it changed hands. The page also lists every document attached to the delivery — labels, packing lists, invoices, photographs — including those meant only for the business, with who may see each one and whether it passed the virus check. The files themselves are opened in the carrier’s portal, not on this page. From here the operations desk can also put one of the carrier’s drivers on it, name the vehicle, move it to somebody else, take them off, and send it on the way.'],
   ['Delivery problems', 'The queue across every carrier, worst first and then oldest first.'],
   ['Carriers', 'Add a haulage company, invite its first person, and see how much each one has on.'],
   ['One carrier', 'Its registration and contract, where it operates, what it is approved to carry, the delivery times it has promised, its people — and its fleet, where a driver or a vehicle can be added on their behalf. It is also where staff check the company’s profile changes and documents.'],

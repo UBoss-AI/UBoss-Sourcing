@@ -36,6 +36,31 @@ export const SUPPORT_CATEGORIES = [
 
 export const SUPPORT_SOURCES = ['STOREFRONT', 'SELLER_HUB', 'LOGISTICS_PORTAL'] as const;
 
+/** How a request ended. Staff choose one when they resolve or close it. */
+export const SUPPORT_RESOLUTION_CODES = [
+  'ANSWERED',
+  'FIXED',
+  'REFUNDED',
+  'REPLACED',
+  'REFERRED',
+  'DUPLICATE',
+  'NO_RESPONSE',
+  'NO_ACTION',
+] as const;
+export type SupportResolutionCode = (typeof SUPPORT_RESOLUTION_CODES)[number];
+
+/**
+ * A ticket's service level. The two deadlines are copied onto the ticket when
+ * it is sent; "late" is worked out by the server, never stored.
+ */
+export interface SupportSla {
+  firstResponseDueAt: string | null;
+  resolutionDueAt: string | null;
+  firstRespondedAt: string | null;
+  firstResponseBreached: boolean;
+  resolutionBreached: boolean;
+}
+
 /**
  * Which moves the lifecycle allows from each status. The server is the
  * authority (`domain/support-ticket-state.ts`); this only decides which
@@ -68,6 +93,8 @@ export interface AdminTicketRow {
   companyName: string | null;
   relatedOrderNumber: string | null;
   assignee: StaffRef | null;
+  resolutionCode?: SupportResolutionCode | null;
+  sla?: SupportSla;
   lastActivityAt: string;
   createdAt: string;
 }
@@ -131,6 +158,8 @@ export interface AdminTicket {
     byteSize: number;
     createdAt: string;
   }[];
+  resolutionCode?: SupportResolutionCode | null;
+  sla?: SupportSla;
   lastActivityAt: string;
   resolvedAt: string | null;
   closedAt: string | null;
@@ -152,7 +181,7 @@ export function fetchAssignees(): Promise<{ assignees: StaffRef[] }> {
 
 export function replyToTicket(
   id: string,
-  input: { body: string; nextStatus: SupportStatus | null },
+  input: { body: string; nextStatus: SupportStatus | null; resolutionCode?: SupportResolutionCode | null },
 ): Promise<{ ticket: AdminTicket; emailQueued: boolean }> {
   return api.post(`/admin/support-tickets/${encodeURIComponent(id)}/replies`, input);
 }
@@ -163,7 +192,7 @@ export function addInternalNote(id: string, body: string): Promise<{ ticket: Adm
 
 export function updateTicket(
   id: string,
-  input: { status?: SupportStatus; priority?: SupportPriority },
+  input: { status?: SupportStatus; priority?: SupportPriority; resolutionCode?: SupportResolutionCode },
 ): Promise<{ ticket: AdminTicket }> {
   return api.patch(`/admin/support-tickets/${encodeURIComponent(id)}`, input);
 }

@@ -3234,6 +3234,8 @@ selling involves) is public.
   3. Combinations are matched by option signature; withdrawing one somebody bought archives it.
   4. The storefront price row is a projection of the cheapest live offer written in the same transaction; pausing the last offer takes the product off the shelf.
   5. The edit page shows the B2C Maximum Order Quantity and lets the seller change it while live, but not remove it once set. A listing with none shows **B2C limit not configured** with a link to set it. Each change is audited (`seller.offer.b2c_limit_changed`).
+  6. **Archive** is a button on every listing row that is not already archived. It asks first, takes the product off the shelf in the same transaction, sets `archivedAt` and writes a `seller.offer.archived` audit entry. The listing is kept, not deleted.
+  7. **The marketplace can block a listing** (`POST /admin/seller-offers/:id/block`, needs `product.publish`) with a required reason. Status becomes `BLOCKED`, the product leaves the shelf in the same transaction, both audit trails record it and the seller is notified. The seller cannot resume, pause, archive or edit it (`LISTING_BLOCKED`). `POST /admin/seller-offers/:id/unblock` returns it to where it was, except that a listing that was on sale comes back **paused** so the resume checks run. The seller-page card "Their listings" is where staff do this.
 - **Rules.** A **product** is the thing; an **offer** is one seller's price and stock for it. Ten sellers on one product = one product row, ten offers.
 - **Status.** Built. `npm run marketplace:sync` builds rows for installations that approved listings before the projection existed.
 
@@ -3278,6 +3280,7 @@ selling involves) is public.
   drafts, publishes, retires and previews them, and marks a policy's tax rule
   verified before a document may call it GST. A seller previews their
   settlement (`/seller/settlements/estimate`).
+- **Fee rules (screen built).** On top of a policy, finance drafts **fee rules**: value bands, volume tiers, seller tiers and promotions (`/admin/platform-fee-rules`, screen **Finance → Fee rules**). **Maker-checker:** a rule is drafted, submitted, and published only by a *different* member of finance staff than whoever created, edited or submitted it (`PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN`, 403); the screen disables Approve for that person and says why. A rejection needs a reason of ten characters and returns the rule to draft with it. A published rule is never edited: **Replace** drafts a rule that supersedes it and approving that one retires the old one in the same step. A rule applies only to orders confirmed while it is live.
 - **Rules.** The platform fee is a **deduction from the seller's proceeds, never added to what a buyer pays**. Rates are exact decimals, amounts BigInt, rounding half-up once per step; no rate is a constant in code. Needs `finance.policy.*` / `finance.tax.verify`.
 - **Settlement statements.** A daily worker job closes the last finished period into **one statement per seller and currency** (status `PENDING_PAYOUT`, number `STL-YYYY-MM-NNNN`), shown in **Seller Hub → Payments**. The operator decides the period (`SELLER_SETTLEMENT_PERIOD`: `MONTHLY` or `WEEKLY`, UTC) and the return window (`SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS`, no default): an order counts only if delivered at least that many days before the period ended. Lines are copied from each order's settlement record, never recalculated: sale (+), the seller's own delivery (+), platform fee (−), tax on the fee (−), refunds (−). Each order is sold on exactly one statement; a later refund goes on the next statement as the difference only. The statement header must satisfy gross − commission − processing fee − refunds + adjustments = net before it is written. Re-running the close writes nothing twice (`uq_seller_settlement_period_currency`). The Seller Hub shows the period as the days it covers and labels each line by its kind in the reader's language, followed by the seller order number.
 - **Status.** Settlement calculation: built. **Settlement statements: built, behind a flag** — `FEATURE_SELLER_SETTLEMENT_STATEMENTS` (default `false`); before 29 Sep 2026 nothing created them, so the statements page was always empty. A statement moves no money. **Payouts** (moving money) — Unconfigured by design (FR-PAY-009); paying a statement is refused with `SELLER_PAYOUT_PROVIDER_UNCONFIGURED`. The operator's own invoice to the seller for this fee is §5.14a; once a statement exists, a commission invoice shows its reference, and its collection becomes "taken from settlement" only when that statement is paid, which cannot happen while payouts are unconfigured.
@@ -3303,7 +3306,7 @@ selling involves) is public.
 ### FR-SEL-016 — Seller bulk import
 
 - **Statement.** A seller can import listings in bulk (`seller.bulk_import.run`).
-- **Status.** Built (permission and route present).
+- **Status.** **Not built.** The permission (`seller.bulk_import.run`) and two error codes (`BULK_IMPORT_FILE_INVALID`, `BULK_IMPORT_NOT_APPLICABLE`) are defined, but there is no seller route, page or importer. A seller adds listings one at a time in the wizard (FR-SEL-006). The operator's own catalogue import (FR-CAT) is a different feature.
 
 ---
 
@@ -3738,6 +3741,8 @@ carrier can be created, and the Logistics group is absent from the console.
   `LOGISTICS_ASSIGNMENT_RESPONSE_HOURS` (default 24) expires back to the queue.
 - **Rules.** A paid order raises one consignment per despatching building (operator warehouse or each seller's pickup place); raising is idempotent and can never fail a paid order. Nothing is assigned at creation; staff choose the carrier at **Logistics → Shipments**. Statuses follow §7.9.
 - **Status.** Behind a flag.
+
+The marketplace's staff (`logistics.read`) see every document on a consignment on its admin page, including those whose audience is the marketplace only, with each file's audience and scan state (`GET /admin/logistics/shipments/:id/documents`). It returns names and states, never the file or where it is stored; a deleted file is not listed. Opening a file is a carrier-portal action (FR-LOG-003).
 
 ### FR-LOG-004 — Collections and dispatch manifests
 
@@ -4231,7 +4236,9 @@ at the sender's company, seller or carrier sees them.
      support permission — cannot be given one
      (`SUPPORT_ASSIGNEE_NOT_ELIGIBLE`, 400). A move the status model does not
      allow is refused with `SUPPORT_TICKET_TRANSITION_NOT_ALLOWED` (409).
-- **Status.** Built. **Not built:** SLA timers on tickets.
+  5. **Service levels.** Each ticket copies two deadlines when it is sent: a first reply and a resolution, from the targets set per category (defaults apply until the operator sets its own; `GET`/`PUT /admin/support-tickets/sla-policies`, the write needs `settings.write`). A target changed later moves no promise already made. The clock does not stop while the team waits for the sender. "Late" is worked out by the server, not stored: the deadline has passed and the promise is not kept, or it was kept after the deadline. The inbox has a **Late only** filter (`breached=true`), shows what is due on every row, and the ticket page shows both deadlines, whether each is late, and the first-reply time.
+  6. **Resolution code.** Resolving or closing needs a code saying how it ended (Answered, Fixed, Refunded, Replaced, Referred, Duplicate, No response, No action) unless the ticket already has one (`SUPPORT_RESOLUTION_CODE_REQUIRED`, 400). The Manage card and the reply box ask for it; the ticket page shows it.
+- **Status.** Built, including service-level deadlines, the late filter and resolution codes. **Not built:** an editor for the per-category targets in the console (the API exists; the defaults apply until it is called).
 
 ### FR-SUP-008 — Notifications
 
@@ -4294,7 +4301,8 @@ at the sender's company, seller or carrier sees them.
   of the product, every language (Greek in particular) still wants a native
   reader.
 - **Status.** **Not built:** guest tickets without an account; staff
-  attaching files to replies; live (websocket) updates; SLA timers.
+  attaching files to replies; live (websocket) updates. (Service-level
+  deadlines are built: see FR-SUP-007.)
 
 ---
 
@@ -4303,7 +4311,7 @@ at the sender's company, seller or carrier sees them.
 ### FR-RPT-001 — Role dashboards
 
 - **Statement.** Each role opens on one ring chart and an AI panel (§4).
-- **Rules.** Every figure is a database aggregate scoped on the server; a buyer sees their own orders, a carrier its own consignments, staff only queues they can act on; period and slice in the URL; legend buttons and a table view make the chart never the only way to read it.
+- **Rules.** Every figure is a database aggregate scoped on the server; a buyer sees their own orders, a carrier its own consignments, staff only queues they can act on; period and slice in the URL; legend buttons and a table view make the chart never the only way to read it. On the admin dashboard, staff with `report.read` also see **key figures** (orders, gross sales, average order value, collected, net revenue, low stock, each against the previous period of the same length) and a **system-health tile** (emails that could not be sent, dead background jobs, refused payment messages, unmatched payments, repeat-order plans needing attention), all from `GET /admin/dashboard`.
 - **Status.** Built.
 
 ### FR-RPT-002 — Reports
@@ -5901,7 +5909,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 | G9 | Customer self-service return request screen | Buyer-initiated returns (staff record them today) | Code search |
 | G10 | GPSR pictograms, batch/serial capture, Safety Gate reporting | Some product-safety duties | PRODUCT-SAFETY.md |
 | G11 | Documentation of seller logistics levels (L1–L4) in README and PROJECT-GUIDE | Readers of those guides | Appendix A |
-| G12 | Support tickets: guest tickets without an account, staff attaching files to a reply, live (websocket) updates on a ticket, SLA timers | Visitors who cannot sign in (they use the published email); staff sending a document back; seeing a reply without reloading; response-time targets | FR-SUP-012 |
+| G12 | Support tickets: guest tickets without an account, staff attaching files to a reply, live (websocket) updates on a ticket, a console editor for the SLA targets (the deadlines themselves are built) | Visitors who cannot sign in (they use the published email); staff sending a document back; seeing a reply without reloading; setting response-time targets without calling the API | FR-SUP-012 |
 | G13 | Commission invoices: sending them to the seller (Seller Hub screen or email), GST IRP/IRN registration of them, and automatic credit notes on a refund | Sellers reading their own commission invoices; operators above the e-invoicing threshold | FR-CINV-012 |
 | G14 | **Closed 29 Sep 2026.** Delivery codes (OTP) are now emailed to the buyer when a shipment goes out for delivery, and can be re-sent from the portal within limits | — | FR-LOG-006 |
 | G15 | **Closed 29 Sep 2026.** A driver can open the shipment page for a stop on their own round and complete it; still not the company's other shipments | — | FR-LOG-006 |

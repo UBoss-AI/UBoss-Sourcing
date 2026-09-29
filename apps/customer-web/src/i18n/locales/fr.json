@@ -6742,5 +6742,18 @@
   "errors.factory.CERTIFICATION_TRANSITION_INVALID": "Ce certificat ne peut pas être envoyé en vérification dans son état actuel. Rechargez la page.",
   "errors.factory.TRUST_EVIDENCE_UNUSABLE": "Ce document a été remplacé, retiré ou n’a pas passé le contrôle de sécurité. Choisissez-en un autre ou envoyez-en un.",
   "errors.factory.TRUST_EVIDENCE_IN_USE": "Ce document sert de preuve pour une usine ou un certificat. Retirez-le d’abord de là.",
-  "errors.factory.STALE": "Cela a changé pendant que la page était ouverte. Rechargez-la pour voir où en sont les choses."
+  "errors.factory.STALE": "Cela a changé pendant que la page était ouverte. Rechargez-la pour voir où en sont les choses.",
+  "seller.offers.statusArchived": "Archivé",
+  "seller.offers.archive": "Archiver",
+  "seller.offers.archiveTitle": "Archiver {{code}} ?",
+  "seller.offers.archiveDescription": "Les acheteurs ne pourront plus le voir ni le commander. Il passe dans l’onglet « Archivés ».",
+  "seller.offers.archiveKeep": "Le conserver",
+  "seller.offers.archiveConfirm": "Archiver cette annonce",
+  "seller.offers.archiveNoteOffSale": "Il disparaît de la recherche et ne peut plus être ajouté à un panier.",
+  "seller.offers.archiveNoteOrders": "Les commandes déjà passées ne sont pas affectées. Vous devez toujours les préparer et les expédier.",
+  "seller.offers.archiveNoteKept": "Son historique est conservé. Il n’est pas supprimé.",
+  "seller.offers.archived": "Annonce archivée.",
+  "seller.offers.statusBlocked": "Bloquée",
+  "seller.offers.blockedNote": "Retirée de la vente par {{marketplace}}. Seul {{marketplace}} peut lever ce blocage.",
+  "errors.listingBlocked": "{{marketplace}} a bloqué cette annonce. Seul {{marketplace}} peut lever le blocage."
 }

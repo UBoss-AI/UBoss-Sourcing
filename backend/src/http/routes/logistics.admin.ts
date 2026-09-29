@@ -54,6 +54,7 @@ import {
   readProviderCatalogue,
 } from '../../modules/logistics/partner-catalogue.service.js';
 import { readDriverAssignmentHistory } from '../../modules/logistics/driver-assignment.service.js';
+import { listShipmentDocumentsForStaff } from '../../modules/logistics/document.service.js';
 import {
   createAdminComplianceLink,
   decideComplianceDocument,
@@ -1362,6 +1363,21 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
          */
         allowedTransitions: allowedShipmentTransitions(shipment.status, 'UBOSS_ADMIN'),
       });
+    },
+  );
+
+  /**
+   * The files on one consignment, including those meant for the marketplace
+   * only, with each file's audience and malware-scan state. Names and sizes,
+   * never the files themselves.
+   */
+  app.get(
+    '/logistics/shipments/:id/documents',
+    { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const documents = await listShipmentDocumentsForStaff(params.id);
+      return reply.header('cache-control', 'no-store').status(200).send({ documents });
     },
   );
 

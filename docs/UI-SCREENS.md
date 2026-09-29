@@ -455,6 +455,7 @@ flowchart LR
 
   Dash --> Finance["Finance"]
   Finance --> Fees["/finance/platform-fees"]
+  Finance --> FeeRules["/finance/fee-rules"]
   Finance --> CommInv["/finance/commission-invoices"] --> CommInvOne["/finance/commission-invoices/:id"]
   Dash --> Insight["Insight"]
   Insight --> Reports["/reports"]
@@ -3637,6 +3638,8 @@ link to its edit page to set one; until then it has no individual limit.
 | Pause | Asks first, and explains: it leaves search, baskets are told, orders already placed are not affected. An optional reason only your team sees |
 | Put on sale | Puts a paused or ready listing on sale |
 | Copy | Makes a paused copy under a new code |
+| (Blocked) | A listing the marketplace has blocked has its own **Blocked** tab and status. It shows the marketplace's reason and offers no Pause, Put on sale, Archive or Edit: only the marketplace can lift it |
+| Archive | Asks first, then takes the listing off sale for good. It moves to the **Archived** tab and is not deleted. Orders already placed are not affected. Hidden on a listing that is already archived |
 
 **Drafts.** A row per draft with its title, code, brand, when it was last
 saved, progress dots per section and how many issues it has. It opens the
@@ -4454,6 +4457,7 @@ explains and offers **Email me a new link** and **Go to sign in**.
 | Logistics | Delivery levels | `/logistics/managed-levels` | `logistics.read` | |
 | Logistics | Delivery legs | `/logistics/legs` | `logistics.read` | |
 | Finance | Platform fees | `/finance/platform-fees` | `finance.policy.read` | |
+| Finance | Fee rules | `/finance/fee-rules` | `finance.policy.read` | |
 | Insight | Reports | `/reports` | `report.read` | |
 | Insight | Audit log | `/audit` | `audit.read` | |
 | Insight | Data requests | `/data-requests` | `data_request.read` | Requests waiting |
@@ -4507,11 +4511,27 @@ can act on.
   provider cannot be reached, the answer says it was built straight from the
   figures.
 
-The ring refreshes every minute.
+- **Key figures** (only with `report.read`; without it nothing is shown and no
+  request is made): **Orders**, **Gross sales**, **Average order value**,
+  **Collected**, **Net revenue** and **Low stock**, each with its change against
+  the previous period of the same length ("+20.0% vs the previous period", or
+  "Nothing to compare with yet"). The change is worked out in whole minor
+  units. **Low stock** opens Stock.
+- **System health** (same permission): five rows — **Emails that could not be
+  sent**, **Background jobs that gave up**, **Payment messages refused**,
+  **Payments not matched to an order**, **Repeat-order plans needing
+  attention**. A row with something wrong shows its count as a red link to the
+  screen that fixes it (`/operations/failed-notifications`,
+  `/operations/dead-jobs`, `/payments`, `/recurring`); a row with nothing wrong
+  says **OK**. Underneath: "Nothing is stuck." or "Something is stuck. Open the
+  number to see what."
+
+The ring and the key figures refresh every minute, and **Refresh** reloads both.
 
 **API calls**
 
 - `GET /api/v1/admin/operations`
+- `GET /api/v1/admin/dashboard?from=…&to=…` (key figures and system health; `report.read`)
 - `POST /api/v1/admin/dashboard/insights/stream` (a live stream)
 
 #### `/operations/dead-jobs` and `/operations/failed-notifications` — Dead background jobs, Undeliverable emails
@@ -5357,6 +5377,14 @@ type, file, dates, virus-scan state, decision; **Open**, **Accept**, **Send
 back** with a reason); **Where they ship from**; **What they have accepted**
 (agreements, version, who, when, from which IP).
 
+**Their listings** (main column, `product.read`): every listing this seller
+has, a page of 25, with its code, product, last change and status. Staff with
+`product.publish` see **Block** on a listing that is not archived. It asks for a
+**Reason** (required, at least five characters, the seller reads it as written).
+A blocked listing shows its reason and **Lift block** (optional private note).
+The server takes it off the shelf at once and the seller cannot resume, pause,
+archive or edit it.
+
 **Side column:** **Where it stands** (dates), **Application progress** (eight
 steps: contact verification, business identity, identity and documents, store
 details, pickup and returns, payout account, compliance, agreements),
@@ -5376,8 +5404,9 @@ their catalogue.
 | Suspended | Approve (reinstate), Send back, Reject |
 | Rejected | Send back (reopen) |
 
-Each decision asks "What should the seller be told?" (required to send back,
-reject or suspend) and an internal note. Reject has "They may apply again". If
+Staff without `customer.status.write` are offered none of these buttons (the
+server would refuse them anyway). Each decision asks "What should the seller be
+told?" (required to send back, reject or suspend) and an internal note. Reject has "They may apply again". If
 somebody else decided first, the server refuses the stale decision.
 
 **API calls**
@@ -5388,6 +5417,8 @@ somebody else decided first, the server refuses the stale decision.
 - `PATCH /api/v1/admin/sellers/:id/commission`
 - `POST /api/v1/admin/seller-documents/:documentId/link`
 - `POST /api/v1/admin/seller-documents/:documentId/decision`
+- `GET /api/v1/admin/sellers/:id/offers?page=…&pageSize=25`
+- `POST /api/v1/admin/seller-offers/:id/block`, `POST /api/v1/admin/seller-offers/:id/unblock`
 
 #### `/seller-carriers` — Carrier arrangements
 
@@ -5507,10 +5538,13 @@ their Support pages.
 - Filters: **Status** (opens on **Needs work** — Open, In progress and
   Waiting for customer together — or one status, or **All statuses**),
   **Priority**, **Topic**, **Raised from** (Storefront, Seller Hub, Logistics
-  portal) and **Assigned to** (Anyone, Me, Nobody). **Search**: "Reference,
+  portal), **Service level** (Any, **Late only**) and **Assigned to** (Anyone,
+  Me, Nobody). **Search**: "Reference,
   subject, name, email, company or order".
 - A row per ticket: **Ticket** (number and subject), **Raised by**,
-  **Status**, **Assigned to** and **Last activity**. Most recently active
+  **Status**, **Due** ("First reply due …" until it is answered, "Answer due …"
+  until it is resolved, with a red **Late** when the server says the deadline
+  has passed), **Assigned to** and **Last activity**. Most recently active
   first. Empty: **No tickets here**.
 
 **On the screen: one ticket** (`/support/:id`)
@@ -5534,13 +5568,19 @@ their Support pages.
   or **Actual size**, previous and next ("2 of 3", arrow keys too),
   **Download** and **Close**. If a file cannot be fetched: "The file could not
   be opened. Please try again." with **Try again**.
-- **Manage**: **Move to** (only the moves the ticket's status allows),
+- **Service level**: **First reply** and **Resolution**, each with its
+  deadline, when it was done, and **On time** or **Late**; and **How it
+  ended** (the resolution code, or a dash).
+- **Manage**: **How it ended** (choose before **Resolved** or **Closed** — a
+  code is required unless the ticket has one; without it nothing is sent),
+  **Move to** (only the moves the ticket's status allows),
   **Priority** (Low, Normal, High, Urgent — staff set it; the sender never
   sees it), **Assigned to** with **Take this ticket**, **Put back in the
   queue** and **Give to a colleague**.
 - **Write**: **Reply to the customer** ("The customer sees this on their
   ticket and is emailed a link to it.") with **After sending, mark the ticket
-  as** (Leave the status as it is, Waiting for customer, Resolved), or
+  as** (Leave the status as it is, Waiting for customer, Resolved; choosing
+  Resolved shows **How it ended**, required), or
   **Internal note** ("Only staff see internal notes…"). **Send reply** or
   **Save note**.
 
@@ -5563,7 +5603,7 @@ their Support pages.
 
 **API calls**
 
-- `GET /api/v1/admin/support-tickets?status=…&priority=…&category=…&source=…&assignee=…&search=…&page=…&limit=…`
+- `GET /api/v1/admin/support-tickets?status=…&priority=…&category=…&source=…&assignee=…&search=…&breached=true&page=…&limit=…`
 - `GET /api/v1/admin/support-tickets/assignees`
 - `GET /api/v1/admin/support-tickets/:id`
 - `POST /api/v1/admin/support-tickets/:id/replies`, `POST …/:id/notes`
@@ -5702,11 +5742,21 @@ be, and why).
 (cold chain, sterile, dangerous goods, fragile); **The seller's side** (with
 **Save the tracking number** for a hand booking); **The carrier's feed**;
 problems; who it was offered to; **Who has carried this** (assign, move or take
-off a driver, and **Send on the way**); **What has happened**.
+off a driver, and **Send on the way**); **Documents**; **What has happened**.
+
+**Documents.** Every file on the consignment, newest first, including those
+meant for the marketplace only (which the carrier's own list leaves out). Each
+shows its name, type, size, when it was added, **who may see it** (Carrier,
+Marketplace only, Carrier and marketplace) and its **malware-scan state**
+(Scanned, clean; Made by the system; Scan not finished; Not scanned; Malware
+found; Scan failed). Names and states only: staff cannot open a file from this
+page, and a deleted file is not listed. Empty: "No documents have been added to
+this consignment yet."
 
 **API calls**
 
 - `GET /api/v1/admin/logistics/shipments/:id`
+- `GET /api/v1/admin/logistics/shipments/:id/documents`
 - `GET /api/v1/admin/logistics/shipments/:id/eligible-partners`
 - `POST /api/v1/admin/logistics/shipments/:id/assign`
 - `POST /api/v1/admin/logistics/shipments/:id/withdraw`
@@ -5868,6 +5918,49 @@ see the fee and the estimated settlement.
   `/verify-tax`
 - `GET /api/v1/admin/platform-fees/:policyId/orders`
 - `POST /api/v1/admin/platform-fees/preview`
+
+#### `/finance/fee-rules` — Fee rules
+
+| | |
+|---|---|
+| **Who** | `finance.policy.read` to open. Every change (new, edit, submit, approve, send back, replace, retire): `finance.policy.write` |
+| **File** | `src/pages/finance/FeeRulesPage.tsx`, `src/lib/fee-rules.ts` |
+
+**Purpose.** Value bands, volume tiers, seller tiers and promotions that adjust
+the platform fee on top of a fee policy. Reached from **Finance → Fee rules**.
+
+**On the screen.** A note that two people are always involved. A **Show**
+filter (All rules, Draft, Waiting for approval, Live, Retired). A table: **Rule**
+(name, type and what it applies to), **What it does** (for example "Orders from
+₹100,000.00 to no upper limit: fee 4%"), **Live from** (and to), **Status**, and
+the actions for that status. **New fee rule** (staff with write) opens the
+editor: name, type (value band, volume tier, seller tier, promotion), applies to
+(whole marketplace, one market, one category, one seller, with its ID or country
+code), the fields that type needs (currency and order-value range; sales
+threshold and days; tier name; fee percentage or, for a promotion, the discount),
+**Live from** and **Live until** (a promotion must have an end), and notes. Money
+is typed in normal units and sent as whole minor units; an amount with too many
+decimals for the currency is refused before anything is sent.
+
+**The maker-checker, on the screen**
+
+| Status | Buttons |
+|---|---|
+| Draft | **Edit**, **Submit for approval** (a draft that was sent back shows the reason) |
+| Waiting for approval | **Approve and publish**, **Send back**. Approve is **disabled, with the reason beside it**, for whoever created, edited or submitted the rule |
+| Live | **Replace** (drafts a new rule that supersedes it; approving that one retires this one), **Retire**, **Orders (n)** |
+| Retired | **Orders (n)** |
+
+**Send back** needs a reason of at least ten characters. A live rule is never
+edited. **Orders (n)** lists the seller orders whose fee the rule changed and
+by how much.
+
+**API calls**
+
+- `GET /api/v1/admin/platform-fee-rules?status=…`, `POST /api/v1/admin/platform-fee-rules`
+- `PUT /api/v1/admin/platform-fee-rules/:id` (drafts only)
+- `POST /api/v1/admin/platform-fee-rules/:id/submit`, `/approve`, `/reject`, `/retire`
+- `GET /api/v1/admin/platform-fee-rules/:id/orders`
 
 #### `/finance/commission-invoices` — Commission invoices
 

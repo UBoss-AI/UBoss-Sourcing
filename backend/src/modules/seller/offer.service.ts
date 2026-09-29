@@ -230,6 +230,15 @@ export async function setOfferStatus(
   if (offer === null) throw notFound('Listing');
   assertSellerOwnership(membership, offer.sellerAccountId, 'Listing');
 
+  // Only staff lift a block. Not resume, not pause, not archive: each would be
+  // a way round it.
+  if (offer.status === 'BLOCKED') {
+    throw conflict(
+      ErrorCode.LISTING_BLOCKED,
+      offer.statusReason ?? 'The marketplace has blocked this listing. Only the marketplace can lift it.',
+    );
+  }
+
   if (next === 'ACTIVE') {
     assertSellerTrading(membership);
 
