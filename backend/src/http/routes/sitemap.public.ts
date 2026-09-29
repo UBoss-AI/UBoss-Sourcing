@@ -29,6 +29,7 @@ import type { FastifyInstance } from 'fastify';
 import { env } from '../../config/env.js';
 import { prisma } from '../../infra/prisma.js';
 import { publicCategoryWhere, publicProductWhere } from '../../modules/catalog/catalog.visibility.js';
+import { verifiedSupplierWhere } from '../../modules/catalog/supplier-directory.service.js';
 
 /** Every language the storefront ships. Mirrors `apps/customer-web/src/lib/seo.ts`. */
 const LANGUAGES = ['en', 'de', 'el', 'es', 'fr', 'it', 'nl', 'pl'] as const;
@@ -114,7 +115,7 @@ export function registerSitemapRoutes(app: FastifyInstance): Promise<void> {
   app.get('/sitemap.xml', async (_request, reply) => {
     const origin = storefrontOrigin();
 
-    const [categories, products] = await Promise.all([
+    const [categories, products, suppliers] = await Promise.all([
       prisma.category.findMany({
         where: publicCategoryWhere(),
         select: { slug: true, updatedAt: true },
@@ -125,7 +126,15 @@ export function registerSitemapRoutes(app: FastifyInstance): Promise<void> {
         where: publicProductWhere(),
         select: { slug: true, updatedAt: true },
         orderBy: { updatedAt: 'desc' },
-        take: MAX_URLS - 2_100,
+        take: MAX_URLS - 3_100,
+      }),
+      // The same definition the supplier page itself answers to, so a supplier
+      // that would be a 404 is not offered to a crawler.
+      prisma.sellerAccount.findMany({
+        where: verifiedSupplierWhere(),
+        select: { slug: true, updatedAt: true },
+        orderBy: { updatedAt: 'desc' },
+        take: 1_000,
       }),
     ]);
 
@@ -136,6 +145,12 @@ export function registerSitemapRoutes(app: FastifyInstance): Promise<void> {
         path: `/catalog/${category.slug}`,
         lastModified: category.updatedAt,
         priority: '0.8',
+        changeFrequency: 'weekly',
+      })),
+      ...suppliers.map((supplier) => ({
+        path: `/suppliers/${supplier.slug}`,
+        lastModified: supplier.updatedAt,
+        priority: '0.6',
         changeFrequency: 'weekly',
       })),
       ...products.map((product) => ({

@@ -43,6 +43,7 @@ async function cleanUp(): Promise<void> {
   await prisma.auditLog.deleteMany({ where: { resourceType: 'market_profile', resourceId: COUNTRY } });
   await prisma.marketProfile.deleteMany({ where: { countryCode: COUNTRY } });
   await prisma.marketRule.deleteMany({ where: { reason: { startsWith: PREFIX } } });
+  await prisma.logisticsLane.deleteMany({ where: { name: { startsWith: PREFIX } } });
   await prisma.category.deleteMany({ where: { slug: { startsWith: PREFIX } } });
   await prisma.session.deleteMany({ where: { user: { emailNormalized: { in: [OWNER, CATALOG] } } } });
   await prisma.userRole.deleteMany({ where: { user: { emailNormalized: { in: [OWNER, CATALOG] } } } });
@@ -118,6 +119,46 @@ describe('GET /api/v1/catalog/markets/:country', () => {
   it('is a 404 for a country the deployment does not sell in, and 400 for a malformed code', async () => {
     expect((await page('ZZ')).statusCode).toBe(404);
     expect((await page('KIR')).statusCode).toBe(400);
+  });
+
+  it('shows the country language and a summary of the shipping lanes, and nothing commercial', async () => {
+    const before = await prisma.country.findUniqueOrThrow({ where: { code: COUNTRY }, select: { languageCode: true } });
+    const lane = (name: string, origin: string, mode: 'SEA' | 'AIR', min: number, max: number, extra: Record<string, unknown> = {}) =>
+      prisma.logisticsLane.create({
+        data: {
+          id: newId(),
+          name: `${PREFIX}${name}`,
+          originCountry: origin,
+          destinationCountry: COUNTRY,
+          mode,
+          carrierName: 'SECRET-CARRIER',
+          transitDaysMin: min,
+          transitDaysMax: max,
+          currency: currencyCode,
+          validFrom: new Date(Date.now() - 86_400_000),
+          ...extra,
+        },
+      });
+    try {
+      await prisma.country.update({ where: { code: COUNTRY }, data: { languageCode: 'en' } });
+      await lane('sea-a', 'IN', 'SEA', 20, 30);
+      await lane('sea-b', 'IN', 'SEA', 15, 25);
+      await lane('air', 'IN', 'AIR', 4, 7);
+      await lane('off', 'CN', 'SEA', 1, 2, { isServiceable: false });
+      await lane('expired', 'DE', 'AIR', 1, 2, { validTo: new Date(Date.now() - 1000) });
+
+      const response = await page(COUNTRY);
+      const body = response.json<{ country: { languageCode: string | null }; lanes: unknown[] }>();
+      expect(body.country.languageCode).toBe('en');
+      expect(body.lanes).toEqual([
+        { originCountry: 'IN', mode: 'AIR', transitDaysMin: 4, transitDaysMax: 7 },
+        { originCountry: 'IN', mode: 'SEA', transitDaysMin: 15, transitDaysMax: 30 },
+      ]);
+      expect(response.body).not.toContain('SECRET-CARRIER');
+    } finally {
+      await prisma.logisticsLane.deleteMany({ where: { name: { startsWith: PREFIX } } });
+      await prisma.country.update({ where: { code: COUNTRY }, data: { languageCode: before.languageCode } });
+    }
   });
 
   it('always lists the destination facts, even with no text written', async () => {

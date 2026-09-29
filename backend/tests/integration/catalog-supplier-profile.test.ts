@@ -293,6 +293,15 @@ describe('GET /api/v1/catalog/suppliers/:slug', () => {
     }
   });
 
+  it('lists listed suppliers in the sitemap and nobody else', async () => {
+    const body = (await app.inject({ method: 'GET', url: '/api/v1/sitemap.xml' })).body;
+
+    expect(body).toContain(`/suppliers/${PREFIX}acme</loc>`);
+    for (const slug of ['pending', 'suspended', 'nothing-to-sell']) {
+      expect(body, slug).not.toContain(`/suppliers/${PREFIX}${slug}<`);
+    }
+  });
+
   it('refuses a malformed slug', async () => {
     const response = await app.inject({ method: 'GET', url: '/api/v1/catalog/suppliers/%3Cscript%3E' });
     expect(response.statusCode).toBe(400);

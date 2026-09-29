@@ -45,7 +45,7 @@ const blank = (value: string | null): string | null => (value === null || value.
 async function activeCountry(code: string) {
   const country = await prisma.country.findFirst({
     where: { code: code.toUpperCase(), isActive: true },
-    select: { code: true, name: true, currencyCode: true },
+    select: { code: true, name: true, currencyCode: true, languageCode: true },
   });
   if (country === null) throw notFound('Market');
   return country;
@@ -55,8 +55,27 @@ function slugs(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : [];
 }
 
+/**
+ * One way goods reach this destination, summarised from the lanes in force.
+ *
+ * Origin, mode and the transit window only. The carrier, the price and the
+ * service level stay off a public page: they are commercial terms, and a lane
+ * is a rate card, not a promise about any one order.
+ */
+export interface MarketLane {
+  originCountry: string;
+  mode: string;
+  transitDaysMin: number;
+  transitDaysMax: number;
+}
+
 export interface MarketPage {
-  country: { code: string; name: string; currencyCode: string };
+  /**
+   * `languageCode` is the country's stored language, or null when none is
+   * recorded - never a guess, and never "English" by default.
+   */
+  country: { code: string; name: string; currencyCode: string; languageCode: string | null };
+  lanes: MarketLane[];
   profile: {
     headline: string | null;
     intro: string | null;
@@ -77,8 +96,19 @@ export interface MarketPage {
 export async function marketPage(code: string, now: Date = new Date()): Promise<MarketPage> {
   const country = await activeCountry(code);
 
-  const [profile, rules] = await Promise.all([
+  const [profile, laneRows, rules] = await Promise.all([
     prisma.marketProfile.findUnique({ where: { countryCode: country.code } }),
+    prisma.logisticsLane.findMany({
+      where: {
+        destinationCountry: country.code,
+        isActive: true,
+        isServiceable: true,
+        validFrom: { lte: now },
+        OR: [{ validTo: null }, { validTo: { gt: now } }],
+      },
+      select: { originCountry: true, mode: true, transitDaysMin: true, transitDaysMax: true },
+      take: 500,
+    }),
     prisma.marketRule.findMany({
       where: {
         countryCode: country.code,
@@ -111,8 +141,25 @@ export async function marketPage(code: string, now: Date = new Date()): Promise<
     .map((slug) => featured.find((category) => category.slug === slug))
     .filter((category): category is { slug: string; name: string } => category !== undefined);
 
+  // Several lanes on one origin and mode (different ports, service levels) read
+  // as one line with the widest window they span.
+  const lanes = new Map<string, MarketLane>();
+  for (const lane of laneRows) {
+    const key = `${lane.originCountry}:${lane.mode}`;
+    const seen = lanes.get(key);
+    lanes.set(key, {
+      originCountry: lane.originCountry,
+      mode: lane.mode,
+      transitDaysMin: seen === undefined ? lane.transitDaysMin : Math.min(seen.transitDaysMin, lane.transitDaysMin),
+      transitDaysMax: seen === undefined ? lane.transitDaysMax : Math.max(seen.transitDaysMax, lane.transitDaysMax),
+    });
+  }
+
   return {
     country,
+    lanes: [...lanes.values()].sort(
+      (a, b) => a.originCountry.localeCompare(b.originCountry) || a.mode.localeCompare(b.mode),
+    ),
     profile:
       published === null
         ? null

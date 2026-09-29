@@ -61,6 +61,12 @@ export interface SupplierListQuery {
    * categories (a category page passes its whole subtree).
    */
   categoryIds?: string[] | undefined;
+  /**
+   * `newest` lists the most recently verified first and leaves out any supplier
+   * approved before the date was recorded: "recently verified" cannot be said of
+   * a date nobody holds. Anything else keeps the default, longest-verified first.
+   */
+  sort?: 'newest' | undefined;
 }
 
 export interface SupplierListResult {
@@ -99,6 +105,7 @@ export async function listVerifiedSuppliers(
   const where: Prisma.SellerAccountWhereInput = {
     ...base,
     ...(query.country === undefined ? {} : { registrationCountry: query.country }),
+    ...(query.sort === 'newest' ? { approvedAt: { not: null } } : {}),
     ...(query.slug === undefined ? {} : { slug: query.slug }),
     ...(query.q === undefined || query.q === '' ? {} : { displayName: { contains: query.q } }),
     ...(query.categoryIds === undefined
@@ -127,7 +134,11 @@ export async function listVerifiedSuppliers(
       },
       // Longest-verified first, then by name, so the order is stable between
       // two visits and never depends on which row the database found first.
-      orderBy: [{ approvedAt: 'asc' }, { displayName: 'asc' }, { id: 'asc' }],
+      orderBy: [
+        { approvedAt: query.sort === 'newest' ? 'desc' : 'asc' },
+        { displayName: 'asc' },
+        { id: 'asc' },
+      ],
       take: Math.min(Math.max(query.limit, 1), MAX_SUPPLIERS),
     }),
     prisma.sellerAccount.count({ where }),

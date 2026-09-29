@@ -205,6 +205,13 @@ describe('GET /api/v1/catalog/suppliers', () => {
     expect(body.total).toBe(2);
   });
 
+  it('sort=newest puts the most recently verified first and drops undated approvals', async () => {
+    const body = await suppliers(`country=${COUNTRY}&limit=24&sort=newest`);
+
+    // `older` has no approval date, so it cannot be "recently verified".
+    expect(body.suppliers.map((row) => row.slug)).toEqual([`${PREFIX}acme`]);
+  });
+
   it('counts products, not offers, and never invents an approval date', async () => {
     const body = await suppliers(`country=${COUNTRY}&limit=24`);
     const acme = body.suppliers.find((row) => row.slug === `${PREFIX}acme`);

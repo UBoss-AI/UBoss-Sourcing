@@ -1329,6 +1329,8 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
         q: z.string().trim().max(120).optional(),
         /** A category slug: suppliers selling anything filed under it. */
         category: z.string().trim().max(255).optional(),
+        /** `newest`: most recently verified first, undated approvals left out. */
+        sort: z.enum(['newest']).optional(),
       })
       .parse(request.query);
 
