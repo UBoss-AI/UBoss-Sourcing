@@ -5343,8 +5343,9 @@ their catalogue.
 | Suspended | Approve (reinstate), Send back, Reject |
 | Rejected | Send back (reopen) |
 
-Each decision asks "What should the seller be told?" (required to send back,
-reject or suspend) and an internal note. Reject has "They may apply again". If
+Staff without `customer.status.write` are offered none of these buttons (the
+server would refuse them anyway). Each decision asks "What should the seller be
+told?" (required to send back, reject or suspend) and an internal note. Reject has "They may apply again". If
 somebody else decided first, the server refuses the stale decision.
 
 **API calls**
