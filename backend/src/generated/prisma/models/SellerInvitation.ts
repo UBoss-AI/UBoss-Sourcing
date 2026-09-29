@@ -14,31 +14,53 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model SellerInvitation
- * An outstanding invitation to join a seller organisation.
+ * An invitation to join a seller organisation in one role (checklist Master
+ * row 14).
  * 
  * Token stored as a SHA-256 hash, single-use, expiring - the same treatment a
  * password reset gets, and for the same reason: an invitation grants standing
- * inside a business that ships medical devices.
+ * inside a business. Sent by a member holding `seller.member.write`, never
+ * for OWNER, and only for a role the sender could grant
+ * (`canGrantSellerRole`). Accepting needs a signed-in account whose VERIFIED
+ * email is the one invited. See `modules/seller/team.service.ts`.
+ * 
+ * Rows are never deleted: accepted, revoked and replaced invitations stay as
+ * the record of who asked whom in, as what, and when.
  */
 export type SellerInvitationModel = runtime.Types.Result.DefaultSelection<Prisma.$SellerInvitationPayload>
 
 export type AggregateSellerInvitation = {
   _count: SellerInvitationCountAggregateOutputType | null
+  _avg: SellerInvitationAvgAggregateOutputType | null
+  _sum: SellerInvitationSumAggregateOutputType | null
   _min: SellerInvitationMinAggregateOutputType | null
   _max: SellerInvitationMaxAggregateOutputType | null
+}
+
+export type SellerInvitationAvgAggregateOutputType = {
+  sendCount: number | null
+}
+
+export type SellerInvitationSumAggregateOutputType = {
+  sendCount: number | null
 }
 
 export type SellerInvitationMinAggregateOutputType = {
   id: string | null
   sellerAccountId: string | null
+  email: string | null
   emailNormalized: string | null
   role: $Enums.SellerMemberRole | null
   tokenHash: string | null
   expiresAt: Date | null
+  liveKey: string | null
+  sendCount: number | null
+  lastSentAt: Date | null
   invitedByProfileId: string | null
   acceptedAt: Date | null
   acceptedByProfileId: string | null
   revokedAt: Date | null
+  revokedByProfileId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,14 +68,19 @@ export type SellerInvitationMinAggregateOutputType = {
 export type SellerInvitationMaxAggregateOutputType = {
   id: string | null
   sellerAccountId: string | null
+  email: string | null
   emailNormalized: string | null
   role: $Enums.SellerMemberRole | null
   tokenHash: string | null
   expiresAt: Date | null
+  liveKey: string | null
+  sendCount: number | null
+  lastSentAt: Date | null
   invitedByProfileId: string | null
   acceptedAt: Date | null
   acceptedByProfileId: string | null
   revokedAt: Date | null
+  revokedByProfileId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -61,31 +88,49 @@ export type SellerInvitationMaxAggregateOutputType = {
 export type SellerInvitationCountAggregateOutputType = {
   id: number
   sellerAccountId: number
+  email: number
   emailNormalized: number
   role: number
   tokenHash: number
   expiresAt: number
+  liveKey: number
+  sendCount: number
+  lastSentAt: number
   invitedByProfileId: number
   acceptedAt: number
   acceptedByProfileId: number
   revokedAt: number
+  revokedByProfileId: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
+export type SellerInvitationAvgAggregateInputType = {
+  sendCount?: true
+}
+
+export type SellerInvitationSumAggregateInputType = {
+  sendCount?: true
+}
+
 export type SellerInvitationMinAggregateInputType = {
   id?: true
   sellerAccountId?: true
+  email?: true
   emailNormalized?: true
   role?: true
   tokenHash?: true
   expiresAt?: true
+  liveKey?: true
+  sendCount?: true
+  lastSentAt?: true
   invitedByProfileId?: true
   acceptedAt?: true
   acceptedByProfileId?: true
   revokedAt?: true
+  revokedByProfileId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -93,14 +138,19 @@ export type SellerInvitationMinAggregateInputType = {
 export type SellerInvitationMaxAggregateInputType = {
   id?: true
   sellerAccountId?: true
+  email?: true
   emailNormalized?: true
   role?: true
   tokenHash?: true
   expiresAt?: true
+  liveKey?: true
+  sendCount?: true
+  lastSentAt?: true
   invitedByProfileId?: true
   acceptedAt?: true
   acceptedByProfileId?: true
   revokedAt?: true
+  revokedByProfileId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -108,14 +158,19 @@ export type SellerInvitationMaxAggregateInputType = {
 export type SellerInvitationCountAggregateInputType = {
   id?: true
   sellerAccountId?: true
+  email?: true
   emailNormalized?: true
   role?: true
   tokenHash?: true
   expiresAt?: true
+  liveKey?: true
+  sendCount?: true
+  lastSentAt?: true
   invitedByProfileId?: true
   acceptedAt?: true
   acceptedByProfileId?: true
   revokedAt?: true
+  revokedByProfileId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -159,6 +214,18 @@ export type SellerInvitationAggregateArgs<ExtArgs extends runtime.Types.Extensio
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: SellerInvitationAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: SellerInvitationSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: SellerInvitationMinAggregateInputType
@@ -189,6 +256,8 @@ export type SellerInvitationGroupByArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   _count?: SellerInvitationCountAggregateInputType | true
+  _avg?: SellerInvitationAvgAggregateInputType
+  _sum?: SellerInvitationSumAggregateInputType
   _min?: SellerInvitationMinAggregateInputType
   _max?: SellerInvitationMaxAggregateInputType
 }
@@ -196,17 +265,24 @@ export type SellerInvitationGroupByArgs<ExtArgs extends runtime.Types.Extensions
 export type SellerInvitationGroupByOutputType = {
   id: string
   sellerAccountId: string
+  email: string
   emailNormalized: string
   role: $Enums.SellerMemberRole
   tokenHash: string
   expiresAt: Date
+  liveKey: string | null
+  sendCount: number
+  lastSentAt: Date
   invitedByProfileId: string | null
   acceptedAt: Date | null
   acceptedByProfileId: string | null
   revokedAt: Date | null
+  revokedByProfileId: string | null
   createdAt: Date
   updatedAt: Date
   _count: SellerInvitationCountAggregateOutputType | null
+  _avg: SellerInvitationAvgAggregateOutputType | null
+  _sum: SellerInvitationSumAggregateOutputType | null
   _min: SellerInvitationMinAggregateOutputType | null
   _max: SellerInvitationMaxAggregateOutputType | null
 }
@@ -232,14 +308,19 @@ export type SellerInvitationWhereInput = {
   NOT?: Prisma.SellerInvitationWhereInput | Prisma.SellerInvitationWhereInput[]
   id?: Prisma.StringFilter<"SellerInvitation"> | string
   sellerAccountId?: Prisma.StringFilter<"SellerInvitation"> | string
+  email?: Prisma.StringFilter<"SellerInvitation"> | string
   emailNormalized?: Prisma.StringFilter<"SellerInvitation"> | string
   role?: Prisma.EnumSellerMemberRoleFilter<"SellerInvitation"> | $Enums.SellerMemberRole
   tokenHash?: Prisma.StringFilter<"SellerInvitation"> | string
   expiresAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
+  liveKey?: Prisma.StringNullableFilter<"SellerInvitation"> | string | null
+  sendCount?: Prisma.IntFilter<"SellerInvitation"> | number
+  lastSentAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
   invitedByProfileId?: Prisma.StringNullableFilter<"SellerInvitation"> | string | null
   acceptedAt?: Prisma.DateTimeNullableFilter<"SellerInvitation"> | Date | string | null
   acceptedByProfileId?: Prisma.StringNullableFilter<"SellerInvitation"> | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"SellerInvitation"> | Date | string | null
+  revokedByProfileId?: Prisma.StringNullableFilter<"SellerInvitation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
@@ -248,14 +329,19 @@ export type SellerInvitationWhereInput = {
 export type SellerInvitationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   sellerAccountId?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   emailNormalized?: Prisma.SortOrder
   role?: Prisma.SortOrder
   tokenHash?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  liveKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  sendCount?: Prisma.SortOrder
+  lastSentAt?: Prisma.SortOrder
   invitedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   acceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   acceptedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  revokedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
@@ -265,38 +351,50 @@ export type SellerInvitationOrderByWithRelationInput = {
 export type SellerInvitationWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   tokenHash?: string
+  liveKey?: string
   AND?: Prisma.SellerInvitationWhereInput | Prisma.SellerInvitationWhereInput[]
   OR?: Prisma.SellerInvitationWhereInput[]
   NOT?: Prisma.SellerInvitationWhereInput | Prisma.SellerInvitationWhereInput[]
   sellerAccountId?: Prisma.StringFilter<"SellerInvitation"> | string
+  email?: Prisma.StringFilter<"SellerInvitation"> | string
   emailNormalized?: Prisma.StringFilter<"SellerInvitation"> | string
   role?: Prisma.EnumSellerMemberRoleFilter<"SellerInvitation"> | $Enums.SellerMemberRole
   expiresAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
+  sendCount?: Prisma.IntFilter<"SellerInvitation"> | number
+  lastSentAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
   invitedByProfileId?: Prisma.StringNullableFilter<"SellerInvitation"> | string | null
   acceptedAt?: Prisma.DateTimeNullableFilter<"SellerInvitation"> | Date | string | null
   acceptedByProfileId?: Prisma.StringNullableFilter<"SellerInvitation"> | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"SellerInvitation"> | Date | string | null
+  revokedByProfileId?: Prisma.StringNullableFilter<"SellerInvitation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
-}, "id" | "tokenHash">
+}, "id" | "tokenHash" | "liveKey">
 
 export type SellerInvitationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   sellerAccountId?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   emailNormalized?: Prisma.SortOrder
   role?: Prisma.SortOrder
   tokenHash?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  liveKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  sendCount?: Prisma.SortOrder
+  lastSentAt?: Prisma.SortOrder
   invitedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   acceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   acceptedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  revokedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerInvitationCountOrderByAggregateInput
+  _avg?: Prisma.SellerInvitationAvgOrderByAggregateInput
   _max?: Prisma.SellerInvitationMaxOrderByAggregateInput
   _min?: Prisma.SellerInvitationMinOrderByAggregateInput
+  _sum?: Prisma.SellerInvitationSumOrderByAggregateInput
 }
 
 export type SellerInvitationScalarWhereWithAggregatesInput = {
@@ -305,28 +403,38 @@ export type SellerInvitationScalarWhereWithAggregatesInput = {
   NOT?: Prisma.SellerInvitationScalarWhereWithAggregatesInput | Prisma.SellerInvitationScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"SellerInvitation"> | string
   sellerAccountId?: Prisma.StringWithAggregatesFilter<"SellerInvitation"> | string
+  email?: Prisma.StringWithAggregatesFilter<"SellerInvitation"> | string
   emailNormalized?: Prisma.StringWithAggregatesFilter<"SellerInvitation"> | string
   role?: Prisma.EnumSellerMemberRoleWithAggregatesFilter<"SellerInvitation"> | $Enums.SellerMemberRole
   tokenHash?: Prisma.StringWithAggregatesFilter<"SellerInvitation"> | string
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"SellerInvitation"> | Date | string
+  liveKey?: Prisma.StringNullableWithAggregatesFilter<"SellerInvitation"> | string | null
+  sendCount?: Prisma.IntWithAggregatesFilter<"SellerInvitation"> | number
+  lastSentAt?: Prisma.DateTimeWithAggregatesFilter<"SellerInvitation"> | Date | string
   invitedByProfileId?: Prisma.StringNullableWithAggregatesFilter<"SellerInvitation"> | string | null
   acceptedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerInvitation"> | Date | string | null
   acceptedByProfileId?: Prisma.StringNullableWithAggregatesFilter<"SellerInvitation"> | string | null
   revokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerInvitation"> | Date | string | null
+  revokedByProfileId?: Prisma.StringNullableWithAggregatesFilter<"SellerInvitation"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerInvitation"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerInvitation"> | Date | string
 }
 
 export type SellerInvitationCreateInput = {
   id: string
+  email: string
   emailNormalized: string
   role?: $Enums.SellerMemberRole
   tokenHash: string
   expiresAt: Date | string
+  liveKey?: string | null
+  sendCount?: number
+  lastSentAt?: Date | string
   invitedByProfileId?: string | null
   acceptedAt?: Date | string | null
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
+  revokedByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutInvitationsInput
@@ -335,28 +443,38 @@ export type SellerInvitationCreateInput = {
 export type SellerInvitationUncheckedCreateInput = {
   id: string
   sellerAccountId: string
+  email: string
   emailNormalized: string
   role?: $Enums.SellerMemberRole
   tokenHash: string
   expiresAt: Date | string
+  liveKey?: string | null
+  sendCount?: number
+  lastSentAt?: Date | string
   invitedByProfileId?: string | null
   acceptedAt?: Date | string | null
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
+  revokedByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type SellerInvitationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  liveKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sendCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lastSentAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutInvitationsNestedInput
@@ -365,14 +483,19 @@ export type SellerInvitationUpdateInput = {
 export type SellerInvitationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  liveKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sendCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lastSentAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -380,28 +503,38 @@ export type SellerInvitationUncheckedUpdateInput = {
 export type SellerInvitationCreateManyInput = {
   id: string
   sellerAccountId: string
+  email: string
   emailNormalized: string
   role?: $Enums.SellerMemberRole
   tokenHash: string
   expiresAt: Date | string
+  liveKey?: string | null
+  sendCount?: number
+  lastSentAt?: Date | string
   invitedByProfileId?: string | null
   acceptedAt?: Date | string | null
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
+  revokedByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type SellerInvitationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  liveKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sendCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lastSentAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -409,14 +542,19 @@ export type SellerInvitationUpdateManyMutationInput = {
 export type SellerInvitationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  liveKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sendCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lastSentAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -440,29 +578,43 @@ export type SellerInvitationOrderByRelevanceInput = {
 export type SellerInvitationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   sellerAccountId?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   emailNormalized?: Prisma.SortOrder
   role?: Prisma.SortOrder
   tokenHash?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  liveKey?: Prisma.SortOrder
+  sendCount?: Prisma.SortOrder
+  lastSentAt?: Prisma.SortOrder
   invitedByProfileId?: Prisma.SortOrder
   acceptedAt?: Prisma.SortOrder
   acceptedByProfileId?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
+  revokedByProfileId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SellerInvitationAvgOrderByAggregateInput = {
+  sendCount?: Prisma.SortOrder
 }
 
 export type SellerInvitationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   sellerAccountId?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   emailNormalized?: Prisma.SortOrder
   role?: Prisma.SortOrder
   tokenHash?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  liveKey?: Prisma.SortOrder
+  sendCount?: Prisma.SortOrder
+  lastSentAt?: Prisma.SortOrder
   invitedByProfileId?: Prisma.SortOrder
   acceptedAt?: Prisma.SortOrder
   acceptedByProfileId?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
+  revokedByProfileId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -470,16 +622,25 @@ export type SellerInvitationMaxOrderByAggregateInput = {
 export type SellerInvitationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   sellerAccountId?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   emailNormalized?: Prisma.SortOrder
   role?: Prisma.SortOrder
   tokenHash?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  liveKey?: Prisma.SortOrder
+  sendCount?: Prisma.SortOrder
+  lastSentAt?: Prisma.SortOrder
   invitedByProfileId?: Prisma.SortOrder
   acceptedAt?: Prisma.SortOrder
   acceptedByProfileId?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
+  revokedByProfileId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SellerInvitationSumOrderByAggregateInput = {
+  sendCount?: Prisma.SortOrder
 }
 
 export type SellerInvitationCreateNestedManyWithoutSellerAccountInput = {
@@ -526,28 +687,38 @@ export type SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput =
 
 export type SellerInvitationCreateWithoutSellerAccountInput = {
   id: string
+  email: string
   emailNormalized: string
   role?: $Enums.SellerMemberRole
   tokenHash: string
   expiresAt: Date | string
+  liveKey?: string | null
+  sendCount?: number
+  lastSentAt?: Date | string
   invitedByProfileId?: string | null
   acceptedAt?: Date | string | null
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
+  revokedByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type SellerInvitationUncheckedCreateWithoutSellerAccountInput = {
   id: string
+  email: string
   emailNormalized: string
   role?: $Enums.SellerMemberRole
   tokenHash: string
   expiresAt: Date | string
+  liveKey?: string | null
+  sendCount?: number
+  lastSentAt?: Date | string
   invitedByProfileId?: string | null
   acceptedAt?: Date | string | null
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
+  revokedByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -584,70 +755,95 @@ export type SellerInvitationScalarWhereInput = {
   NOT?: Prisma.SellerInvitationScalarWhereInput | Prisma.SellerInvitationScalarWhereInput[]
   id?: Prisma.StringFilter<"SellerInvitation"> | string
   sellerAccountId?: Prisma.StringFilter<"SellerInvitation"> | string
+  email?: Prisma.StringFilter<"SellerInvitation"> | string
   emailNormalized?: Prisma.StringFilter<"SellerInvitation"> | string
   role?: Prisma.EnumSellerMemberRoleFilter<"SellerInvitation"> | $Enums.SellerMemberRole
   tokenHash?: Prisma.StringFilter<"SellerInvitation"> | string
   expiresAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
+  liveKey?: Prisma.StringNullableFilter<"SellerInvitation"> | string | null
+  sendCount?: Prisma.IntFilter<"SellerInvitation"> | number
+  lastSentAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
   invitedByProfileId?: Prisma.StringNullableFilter<"SellerInvitation"> | string | null
   acceptedAt?: Prisma.DateTimeNullableFilter<"SellerInvitation"> | Date | string | null
   acceptedByProfileId?: Prisma.StringNullableFilter<"SellerInvitation"> | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"SellerInvitation"> | Date | string | null
+  revokedByProfileId?: Prisma.StringNullableFilter<"SellerInvitation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerInvitation"> | Date | string
 }
 
 export type SellerInvitationCreateManySellerAccountInput = {
   id: string
+  email: string
   emailNormalized: string
   role?: $Enums.SellerMemberRole
   tokenHash: string
   expiresAt: Date | string
+  liveKey?: string | null
+  sendCount?: number
+  lastSentAt?: Date | string
   invitedByProfileId?: string | null
   acceptedAt?: Date | string | null
   acceptedByProfileId?: string | null
   revokedAt?: Date | string | null
+  revokedByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type SellerInvitationUpdateWithoutSellerAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  liveKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sendCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lastSentAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerInvitationUncheckedUpdateWithoutSellerAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  liveKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sendCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lastSentAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerInvitationUncheckedUpdateManyWithoutSellerAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  liveKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sendCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lastSentAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acceptedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -657,14 +853,19 @@ export type SellerInvitationUncheckedUpdateManyWithoutSellerAccountInput = {
 export type SellerInvitationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   sellerAccountId?: boolean
+  email?: boolean
   emailNormalized?: boolean
   role?: boolean
   tokenHash?: boolean
   expiresAt?: boolean
+  liveKey?: boolean
+  sendCount?: boolean
+  lastSentAt?: boolean
   invitedByProfileId?: boolean
   acceptedAt?: boolean
   acceptedByProfileId?: boolean
   revokedAt?: boolean
+  revokedByProfileId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
@@ -675,19 +876,24 @@ export type SellerInvitationSelect<ExtArgs extends runtime.Types.Extensions.Inte
 export type SellerInvitationSelectScalar = {
   id?: boolean
   sellerAccountId?: boolean
+  email?: boolean
   emailNormalized?: boolean
   role?: boolean
   tokenHash?: boolean
   expiresAt?: boolean
+  liveKey?: boolean
+  sendCount?: boolean
+  lastSentAt?: boolean
   invitedByProfileId?: boolean
   acceptedAt?: boolean
   acceptedByProfileId?: boolean
   revokedAt?: boolean
+  revokedByProfileId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SellerInvitationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "emailNormalized" | "role" | "tokenHash" | "expiresAt" | "invitedByProfileId" | "acceptedAt" | "acceptedByProfileId" | "revokedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerInvitation"]>
+export type SellerInvitationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "email" | "emailNormalized" | "role" | "tokenHash" | "expiresAt" | "liveKey" | "sendCount" | "lastSentAt" | "invitedByProfileId" | "acceptedAt" | "acceptedByProfileId" | "revokedAt" | "revokedByProfileId" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerInvitation"]>
 export type SellerInvitationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }
@@ -700,14 +906,32 @@ export type $SellerInvitationPayload<ExtArgs extends runtime.Types.Extensions.In
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     sellerAccountId: string
+    /**
+     * As typed, for display. `emailNormalized` is what is compared.
+     */
+    email: string
     emailNormalized: string
     role: $Enums.SellerMemberRole
     tokenHash: string
     expiresAt: Date
+    /**
+     * `sellerAccountId:emailNormalized` while the invitation can still be
+     * accepted; null once it is accepted, revoked or replaced. UNIQUE, so an
+     * address has at most one live invitation per seller. MariaDB lets any
+     * number of NULLs through a UNIQUE index, which is what lets the retired
+     * rows stay.
+     */
+    liveKey: string | null
+    /**
+     * How many times the email has gone out: 1 when invited, +1 per resend.
+     */
+    sendCount: number
+    lastSentAt: Date
     invitedByProfileId: string | null
     acceptedAt: Date | null
     acceptedByProfileId: string | null
     revokedAt: Date | null
+    revokedByProfileId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["sellerInvitation"]>
@@ -1082,14 +1306,19 @@ export interface Prisma__SellerInvitationClient<T, Null = never, ExtArgs extends
 export interface SellerInvitationFieldRefs {
   readonly id: Prisma.FieldRef<"SellerInvitation", 'String'>
   readonly sellerAccountId: Prisma.FieldRef<"SellerInvitation", 'String'>
+  readonly email: Prisma.FieldRef<"SellerInvitation", 'String'>
   readonly emailNormalized: Prisma.FieldRef<"SellerInvitation", 'String'>
   readonly role: Prisma.FieldRef<"SellerInvitation", 'SellerMemberRole'>
   readonly tokenHash: Prisma.FieldRef<"SellerInvitation", 'String'>
   readonly expiresAt: Prisma.FieldRef<"SellerInvitation", 'DateTime'>
+  readonly liveKey: Prisma.FieldRef<"SellerInvitation", 'String'>
+  readonly sendCount: Prisma.FieldRef<"SellerInvitation", 'Int'>
+  readonly lastSentAt: Prisma.FieldRef<"SellerInvitation", 'DateTime'>
   readonly invitedByProfileId: Prisma.FieldRef<"SellerInvitation", 'String'>
   readonly acceptedAt: Prisma.FieldRef<"SellerInvitation", 'DateTime'>
   readonly acceptedByProfileId: Prisma.FieldRef<"SellerInvitation", 'String'>
   readonly revokedAt: Prisma.FieldRef<"SellerInvitation", 'DateTime'>
+  readonly revokedByProfileId: Prisma.FieldRef<"SellerInvitation", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerInvitation", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SellerInvitation", 'DateTime'>
 }

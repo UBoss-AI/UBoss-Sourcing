@@ -9687,6 +9687,8 @@ model SellerAccount {
 
   members            SellerMember[]
   invitations        SellerInvitation[]
+  /// Owners and admins recording that they checked who has access.
+  accessReviews      TeamAccessReview[]
   onboarding         SellerOnboardingProgress?
   businessProfile    SellerBusinessProfile?
   verificationCases  SellerVerificationCase[]
@@ -9823,25 +9825,44 @@ model SellerMember {
   @@map("seller_members")
 }
 
-/// An outstanding invitation to join a seller organisation.
+/// An invitation to join a seller organisation in one role (checklist Master
+/// row 14).
 ///
 /// Token stored as a SHA-256 hash, single-use, expiring - the same treatment a
 /// password reset gets, and for the same reason: an invitation grants standing
-/// inside a business that ships medical devices.
+/// inside a business. Sent by a member holding `seller.member.write`, never
+/// for OWNER, and only for a role the sender could grant
+/// (`canGrantSellerRole`). Accepting needs a signed-in account whose VERIFIED
+/// email is the one invited. See `modules/seller/team.service.ts`.
+///
+/// Rows are never deleted: accepted, revoked and replaced invitations stay as
+/// the record of who asked whom in, as what, and when.
 model SellerInvitation {
   id              String @id @db.Char(26)
   sellerAccountId String @db.Char(26)
 
+  /// As typed, for display. `emailNormalized` is what is compared.
+  email           String           @db.VarChar(320)
   emailNormalized String           @db.VarChar(320)
   role            SellerMemberRole @default(SUPPORT_MEMBER)
 
   tokenHash String   @unique(map: "uq_seller_invitation_token") @db.Char(64)
   expiresAt DateTime @db.DateTime(3)
+  /// `sellerAccountId:emailNormalized` while the invitation can still be
+  /// accepted; null once it is accepted, revoked or replaced. UNIQUE, so an
+  /// address has at most one live invitation per seller. MariaDB lets any
+  /// number of NULLs through a UNIQUE index, which is what lets the retired
+  /// rows stay.
+  liveKey    String?  @unique(map: "uq_seller_invitation_live") @db.VarChar(360)
+  /// How many times the email has gone out: 1 when invited, +1 per resend.
+  sendCount  Int      @default(1)
+  lastSentAt DateTime @default(now()) @db.DateTime(3)
 
   invitedByProfileId  String?   @db.Char(26)
   acceptedAt          DateTime? @db.DateTime(3)
   acceptedByProfileId String?   @db.Char(26)
   revokedAt           DateTime? @db.DateTime(3)
+  revokedByProfileId  String?   @db.Char(26)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
 
@@ -20318,6 +20339,7 @@ model BuyerCompany {
   locations        BuyerCompanyLocation[]
   members          BuyerCompanyMember[]
   invitations      BuyerCompanyInvitation[]
+  accessReviews    TeamAccessReview[]
   cases            BuyerCompanyVerificationCase[]
   checks           BuyerCompanyCheck[]
   documents        BuyerCompanyDocument[]
@@ -20409,6 +20431,30 @@ model BuyerCompanyIdentifier {
   @@unique([companyId, scheme], map: "uq_buyer_company_identifier_scheme")
   @@index([scheme, valueNormalized], map: "ix_buyer_company_identifier_value")
   @@map("buyer_company_identifiers")
+}
+
+/// "I have checked who has access" - one row each time an owner or
+/// administrator confirms a periodic access review of their team (checklist
+/// Master row 14). Belongs to exactly one seller or one buyer company (CHECK
+/// `chk_team_access_review_one_owner`). The counts are what the reviewer was
+/// looking at, so a later reader can tell a review of three people from a
+/// review of thirty. The application never changes or deletes a row; each one
+/// is also written to the audit log.
+model TeamAccessReview {
+  id               String   @id @db.Char(26)
+  sellerAccountId  String?  @db.Char(26)
+  buyerCompanyId   String?  @db.Char(26)
+  reviewedByUserId String   @db.Char(26)
+  memberCount      Int
+  invitationCount  Int
+  createdAt        DateTime @default(now()) @db.DateTime(3)
+
+  sellerAccount SellerAccount? @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_team_access_review_seller")
+  buyerCompany  BuyerCompany?  @relation(fields: [buyerCompanyId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_team_access_review_company")
+
+  @@index([sellerAccountId, createdAt], map: "ix_team_access_review_seller")
+  @@index([buyerCompanyId, createdAt], map: "ix_team_access_review_company")
+  @@map("team_access_reviews")
 }
 
 /// A branch, plant or warehouse of the company, for later. Carries its own

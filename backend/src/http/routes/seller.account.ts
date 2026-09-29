@@ -16,13 +16,12 @@ import { ErrorCode } from '../../domain/errors.js';
 import { newId } from '../../infra/ids.js';
 import { logoUrlFor, removeSellerLogo, uploadSellerLogo } from '../../modules/seller/logo.service.js';
 import {
-  changeMemberRole,
   findSellerMembership,
   resolveSellerMembership,
   isDisplayNameAvailable,
-  removeMember,
   startSellerApplication,
 } from '../../modules/seller/account.service.js';
+import { changeSellerMemberRole, removeSellerMember } from '../../modules/seller/team.service.js';
 import {
   lockSeller,
   sellerLockState,
@@ -1793,8 +1792,8 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
 
   /**
    * Change a team member's role. Refused if it would leave the business with no
-   * owner, or would grant a role the person making the change does not hold.
-   * Writes an audit entry.
+   * owner, would grant a role the person making the change does not hold, or
+   * touches yourself or somebody holding more than you. Writes an audit entry.
    */
   app.patch(
     '/members/:memberId',
@@ -1819,11 +1818,17 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
       // still the member at the keyboard.
       assertRecentStepUp(currentUser(request));
 
-      await changeMemberRole(
-        currentSeller(request),
+      const auth = currentUser(request);
+      await changeSellerMemberRole(
+        {
+          membership: currentSeller(request),
+          userId: auth.id,
+          email: auth.email,
+          ipAddress: request.ip,
+          correlationId: request.correlationId,
+        },
         params.memberId,
         body.role,
-        request.correlationId,
       );
 
       return reply.status(204).send();
@@ -1832,15 +1837,26 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
 
   /**
    * Remove someone from the seller's team. Their past actions still show their
-   * name, and removing the last owner is refused. Writes an audit entry.
+   * name. Removing the last owner, yourself, or somebody holding more than you
+   * is refused. Writes an audit entry.
    */
   app.delete(
     '/members/:memberId',
     { preHandler: requireSeller(SellerPermission.MEMBER_WRITE) },
     async (request, reply) => {
       const params = z.object({ memberId: z.string().length(26) }).parse(request.params);
-      assertRecentStepUp(currentUser(request));
-      await removeMember(currentSeller(request), params.memberId, request.correlationId);
+      const auth = currentUser(request);
+      assertRecentStepUp(auth);
+      await removeSellerMember(
+        {
+          membership: currentSeller(request),
+          userId: auth.id,
+          email: auth.email,
+          ipAddress: request.ip,
+          correlationId: request.correlationId,
+        },
+        params.memberId,
+      );
       return reply.status(204).send();
     },
   );

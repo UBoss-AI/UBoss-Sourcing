@@ -173,6 +173,19 @@ const envSchema = z
     SELLER_HUB_IDLE_TIMEOUT_SECONDS: intFromString(300, 86_400).default(3600),
     /** How long before that the Hub warns, in seconds. Five minutes by default. */
     SELLER_HUB_IDLE_WARNING_SECONDS: intFromString(30, 3600).default(300),
+    /**
+     * How long an invitation to join a seller's team can be accepted, in
+     * hours. A week by default; resending sends a new link and starts the
+     * period again.
+     */
+    SELLER_INVITE_TTL_HOURS: intFromString(1, 720).default(168),
+    /**
+     * How often a seller's or buyer company's owner is reminded to review who
+     * has access to their team, in days. The team screens say a review is due
+     * once this long has passed since the last one (or when there has never
+     * been one). 0 turns the reminder off; reviewing stays possible.
+     */
+    TEAM_ACCESS_REVIEW_INTERVAL_DAYS: intFromString(0, 3650).default(90),
 
     // --- Seller settlement statements ---
     //

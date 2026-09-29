@@ -24,6 +24,7 @@ import {
   redeemDocumentLink,
 } from '../../modules/seller/document.service.js';
 import { readSellerInsight } from '../../modules/seller/insight.service.js';
+import { sellerAccessForStaff } from '../../modules/access-review/admin-access-review.service.js';
 import {
   decideApplication,
   decideBrandRequest,
@@ -122,6 +123,20 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
       const params = idParam.parse(request.params);
       const insight = await readSellerInsight(params.id);
       return reply.header('cache-control', 'no-store').status(200).send(insight);
+    },
+  );
+
+  /**
+   * Who can act for this seller, read-only: each member's role, when they
+   * joined, who invited them, when they last signed in and used the Hub, the
+   * open invitations and the recent access reviews.
+   */
+  app.get(
+    '/sellers/:id/access-review',
+    { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      return reply.header('cache-control', 'no-store').status(200).send(await sellerAccessForStaff(params.id));
     },
   );
 

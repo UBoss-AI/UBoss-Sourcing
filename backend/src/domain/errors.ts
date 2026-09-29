@@ -751,6 +751,20 @@ export const ErrorCode = {
   /// This account already belongs to a seller organisation. One profile, one
   /// seller - see `SellerMember`.
   SELLER_MEMBERSHIP_EXISTS: 'SELLER_MEMBERSHIP_EXISTS',
+  /// That address already has an invitation to this seller's team that can
+  /// still be accepted. Resend it rather than sending a second one.
+  SELLER_INVITATION_EXISTS: 'SELLER_INVITATION_EXISTS',
+  /// That person is already an active member of this seller's team. Change
+  /// their role instead.
+  SELLER_ALREADY_MEMBER: 'SELLER_ALREADY_MEMBER',
+  /// That member cannot be changed or removed by the caller.
+  /// `details[0].code` is SELF (nobody changes or removes themselves) or
+  /// ROLE_ABOVE_YOURS (their role carries a permission the caller does not
+  /// hold - an admin cannot touch an owner).
+  SELLER_MEMBER_PROTECTED: 'SELLER_MEMBER_PROTECTED',
+  /// One invitation has been emailed as many times as it may be. Withdraw it
+  /// and invite again. `details[0].meta.max` is the cap.
+  SELLER_INVITATION_SEND_LIMIT: 'SELLER_INVITATION_SEND_LIMIT',
 
   /// A listing draft cannot move the way it was asked to.
   LISTING_TRANSITION_NOT_ALLOWED: 'LISTING_TRANSITION_NOT_ALLOWED',

@@ -21,6 +21,7 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AccessReviewCard } from '@/components/AccessReviewCard';
 import { Modal } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
 import {
@@ -342,6 +343,8 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
             </div>
           )}
         </Card>
+
+        <AccessReviewCard kind="seller" id={seller.id} />
 
         <DocumentsCard sellerId={seller.id} documents={seller.documents} />
 

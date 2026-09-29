@@ -17,6 +17,7 @@
  *     hand somebody else's.
  */
 import { api, postFile } from './api';
+import type { AccessReviewSummary } from './buyer-companies';
 import type { SpecGroupKey } from './types';
 import type { CarrierSetupStatus } from './carrier-providers';
 import type { ConsignmentLogisticsState } from './consignment-logistics';
@@ -1671,6 +1672,95 @@ export function changeMemberRole(memberId: string, role: string): Promise<never>
 
 export function removeMember(memberId: string): Promise<never> {
   return api.delete<never>(`/seller/members/${memberId}`);
+}
+
+// --- The team: invitations and the access review (Master row 14) -----------
+//
+// The server decides every rule - which roles the caller may give, who they may
+// change - and says so in the view. This only carries it.
+
+export type SellerRoleKey =
+  | 'OWNER'
+  | 'ADMIN'
+  | 'CATALOGUE_MANAGER'
+  | 'INVENTORY_MANAGER'
+  | 'ORDER_MANAGER'
+  | 'FINANCE_VIEWER'
+  | 'SUPPORT_MEMBER';
+export type SellerInvitableRole = Exclude<SellerRoleKey, 'OWNER'>;
+
+export interface SellerTeamMember {
+  id: string;
+  name: string;
+  email: string;
+  role: SellerRoleKey;
+  joinedAt: string;
+  isYou: boolean;
+  canChange: boolean;
+  invitedByName: string | null;
+  lastSignInAt: string | null;
+  lastActiveAt: string | null;
+  lastHubActivityAt: string | null;
+}
+
+export interface SellerTeamInvitation {
+  id: string;
+  email: string;
+  role: SellerRoleKey;
+  expiresAt: string;
+  expired: boolean;
+  sendCount: number;
+  lastSentAt: string;
+  invitedByName: string | null;
+  canChange: boolean;
+}
+
+export interface SellerTeam {
+  yourRole: SellerRoleKey;
+  canManage: boolean;
+  assignableRoles: SellerRoleKey[];
+  invitableRoles: SellerInvitableRole[];
+  members: SellerTeamMember[];
+  invitations: SellerTeamInvitation[];
+  accessReview: AccessReviewSummary;
+}
+
+export const SELLER_TEAM_QUERY_KEY = ['seller', 'team'] as const;
+
+export function fetchSellerTeam(): Promise<SellerTeam> {
+  return api.get<SellerTeam>('/seller/team');
+}
+
+export function inviteSellerMember(input: { email: string; role: SellerInvitableRole }): Promise<SellerTeam> {
+  return api.post<SellerTeam>('/seller/invitations', input);
+}
+
+export function resendSellerInvitation(invitationId: string): Promise<SellerTeam> {
+  return api.post<SellerTeam>(`/seller/invitations/${invitationId}/resend`);
+}
+
+export function revokeSellerInvitation(invitationId: string): Promise<SellerTeam> {
+  return api.delete<SellerTeam>(`/seller/invitations/${invitationId}`);
+}
+
+export function recordSellerAccessReview(): Promise<SellerTeam> {
+  return api.post<SellerTeam>('/seller/access-reviews');
+}
+
+export interface SellerInvitationPreview {
+  sellerName: string;
+  role: SellerRoleKey;
+  expiresAt: string;
+  inviterName: string;
+}
+
+/** The token travels in the body, never in a URL the server logs. */
+export function previewSellerInvitation(token: string): Promise<SellerInvitationPreview> {
+  return api.post<SellerInvitationPreview>('/sellers/invitations/preview', { token });
+}
+
+export function acceptSellerInvitation(token: string): Promise<{ sellerAccountId: string }> {
+  return api.post<{ sellerAccountId: string }>('/sellers/invitations/accept', { token });
 }
 
 export interface SellerAuditRow {

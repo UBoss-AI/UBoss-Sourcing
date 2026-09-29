@@ -398,6 +398,7 @@ export type SellerAccountWhereInput = {
   archivedAt?: Prisma.DateTimeNullableFilter<"SellerAccount"> | Date | string | null
   members?: Prisma.SellerMemberListRelationFilter
   invitations?: Prisma.SellerInvitationListRelationFilter
+  accessReviews?: Prisma.TeamAccessReviewListRelationFilter
   onboarding?: Prisma.XOR<Prisma.SellerOnboardingProgressNullableScalarRelationFilter, Prisma.SellerOnboardingProgressWhereInput> | null
   businessProfile?: Prisma.XOR<Prisma.SellerBusinessProfileNullableScalarRelationFilter, Prisma.SellerBusinessProfileWhereInput> | null
   verificationCases?: Prisma.SellerVerificationCaseListRelationFilter
@@ -490,6 +491,7 @@ export type SellerAccountOrderByWithRelationInput = {
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   members?: Prisma.SellerMemberOrderByRelationAggregateInput
   invitations?: Prisma.SellerInvitationOrderByRelationAggregateInput
+  accessReviews?: Prisma.TeamAccessReviewOrderByRelationAggregateInput
   onboarding?: Prisma.SellerOnboardingProgressOrderByWithRelationInput
   businessProfile?: Prisma.SellerBusinessProfileOrderByWithRelationInput
   verificationCases?: Prisma.SellerVerificationCaseOrderByRelationAggregateInput
@@ -586,6 +588,7 @@ export type SellerAccountWhereUniqueInput = Prisma.AtLeast<{
   archivedAt?: Prisma.DateTimeNullableFilter<"SellerAccount"> | Date | string | null
   members?: Prisma.SellerMemberListRelationFilter
   invitations?: Prisma.SellerInvitationListRelationFilter
+  accessReviews?: Prisma.TeamAccessReviewListRelationFilter
   onboarding?: Prisma.XOR<Prisma.SellerOnboardingProgressNullableScalarRelationFilter, Prisma.SellerOnboardingProgressWhereInput> | null
   businessProfile?: Prisma.XOR<Prisma.SellerBusinessProfileNullableScalarRelationFilter, Prisma.SellerBusinessProfileWhereInput> | null
   verificationCases?: Prisma.SellerVerificationCaseListRelationFilter
@@ -742,6 +745,7 @@ export type SellerAccountCreateInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -834,6 +838,7 @@ export type SellerAccountUncheckedCreateInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -926,6 +931,7 @@ export type SellerAccountUpdateInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -1018,6 +1024,7 @@ export type SellerAccountUncheckedUpdateInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -2070,6 +2077,22 @@ export type SellerAccountUpdateOneWithoutLinkedBuyerCompaniesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutLinkedBuyerCompaniesInput, Prisma.SellerAccountUpdateWithoutLinkedBuyerCompaniesInput>, Prisma.SellerAccountUncheckedUpdateWithoutLinkedBuyerCompaniesInput>
 }
 
+export type SellerAccountCreateNestedOneWithoutAccessReviewsInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutAccessReviewsInput, Prisma.SellerAccountUncheckedCreateWithoutAccessReviewsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutAccessReviewsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+}
+
+export type SellerAccountUpdateOneWithoutAccessReviewsNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutAccessReviewsInput, Prisma.SellerAccountUncheckedCreateWithoutAccessReviewsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutAccessReviewsInput
+  upsert?: Prisma.SellerAccountUpsertWithoutAccessReviewsInput
+  disconnect?: Prisma.SellerAccountWhereInput | boolean
+  delete?: Prisma.SellerAccountWhereInput | boolean
+  connect?: Prisma.SellerAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutAccessReviewsInput, Prisma.SellerAccountUpdateWithoutAccessReviewsInput>, Prisma.SellerAccountUncheckedUpdateWithoutAccessReviewsInput>
+}
+
 export type SellerAccountCreateNestedOneWithoutCommissionInvoicesInput = {
   create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutCommissionInvoicesInput, Prisma.SellerAccountUncheckedCreateWithoutCommissionInvoicesInput>
   connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutCommissionInvoicesInput
@@ -2224,6 +2247,7 @@ export type SellerAccountCreateWithoutCreatedProductsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -2315,6 +2339,7 @@ export type SellerAccountUncheckedCreateWithoutCreatedProductsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -2422,6 +2447,7 @@ export type SellerAccountUpdateWithoutCreatedProductsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -2513,6 +2539,7 @@ export type SellerAccountUncheckedUpdateWithoutCreatedProductsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -2604,6 +2631,7 @@ export type SellerAccountCreateWithoutSupportTicketsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -2695,6 +2723,7 @@ export type SellerAccountUncheckedCreateWithoutSupportTicketsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -2802,6 +2831,7 @@ export type SellerAccountUpdateWithoutSupportTicketsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -2893,6 +2923,7 @@ export type SellerAccountUncheckedUpdateWithoutSupportTicketsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -2984,6 +3015,7 @@ export type SellerAccountCreateWithoutDisputesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -3075,6 +3107,7 @@ export type SellerAccountUncheckedCreateWithoutDisputesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -3182,6 +3215,7 @@ export type SellerAccountUpdateWithoutDisputesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -3273,6 +3307,7 @@ export type SellerAccountUncheckedUpdateWithoutDisputesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -3363,6 +3398,7 @@ export type SellerAccountCreateWithoutMembersInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -3454,6 +3490,7 @@ export type SellerAccountUncheckedCreateWithoutMembersInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -3561,6 +3598,7 @@ export type SellerAccountUpdateWithoutMembersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -3652,6 +3690,7 @@ export type SellerAccountUncheckedUpdateWithoutMembersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -3743,6 +3782,7 @@ export type SellerAccountCreateWithoutInvitationsInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -3834,6 +3874,7 @@ export type SellerAccountUncheckedCreateWithoutInvitationsInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -3941,6 +3982,7 @@ export type SellerAccountUpdateWithoutInvitationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -4032,6 +4074,7 @@ export type SellerAccountUncheckedUpdateWithoutInvitationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -4124,6 +4167,7 @@ export type SellerAccountCreateWithoutOnboardingInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
   documents?: Prisma.SellerDocumentCreateNestedManyWithoutSellerAccountInput
@@ -4215,6 +4259,7 @@ export type SellerAccountUncheckedCreateWithoutOnboardingInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   documents?: Prisma.SellerDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -4322,6 +4367,7 @@ export type SellerAccountUpdateWithoutOnboardingInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
   documents?: Prisma.SellerDocumentUpdateManyWithoutSellerAccountNestedInput
@@ -4413,6 +4459,7 @@ export type SellerAccountUncheckedUpdateWithoutOnboardingInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   documents?: Prisma.SellerDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -4504,6 +4551,7 @@ export type SellerAccountCreateWithoutBusinessProfileInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
   documents?: Prisma.SellerDocumentCreateNestedManyWithoutSellerAccountInput
@@ -4595,6 +4643,7 @@ export type SellerAccountUncheckedCreateWithoutBusinessProfileInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
   documents?: Prisma.SellerDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -4702,6 +4751,7 @@ export type SellerAccountUpdateWithoutBusinessProfileInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
   documents?: Prisma.SellerDocumentUpdateManyWithoutSellerAccountNestedInput
@@ -4793,6 +4843,7 @@ export type SellerAccountUncheckedUpdateWithoutBusinessProfileInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
   documents?: Prisma.SellerDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -4884,6 +4935,7 @@ export type SellerAccountCreateWithoutVerificationCasesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   documents?: Prisma.SellerDocumentCreateNestedManyWithoutSellerAccountInput
@@ -4975,6 +5027,7 @@ export type SellerAccountUncheckedCreateWithoutVerificationCasesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   documents?: Prisma.SellerDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -5082,6 +5135,7 @@ export type SellerAccountUpdateWithoutVerificationCasesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   documents?: Prisma.SellerDocumentUpdateManyWithoutSellerAccountNestedInput
@@ -5173,6 +5227,7 @@ export type SellerAccountUncheckedUpdateWithoutVerificationCasesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   documents?: Prisma.SellerDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -5264,6 +5319,7 @@ export type SellerAccountCreateWithoutDocumentsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -5355,6 +5411,7 @@ export type SellerAccountUncheckedCreateWithoutDocumentsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -5462,6 +5519,7 @@ export type SellerAccountUpdateWithoutDocumentsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -5553,6 +5611,7 @@ export type SellerAccountUncheckedUpdateWithoutDocumentsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -5644,6 +5703,7 @@ export type SellerAccountCreateWithoutAgreementsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -5735,6 +5795,7 @@ export type SellerAccountUncheckedCreateWithoutAgreementsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -5842,6 +5903,7 @@ export type SellerAccountUpdateWithoutAgreementsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -5933,6 +5995,7 @@ export type SellerAccountUncheckedUpdateWithoutAgreementsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -6024,6 +6087,7 @@ export type SellerAccountCreateWithoutPayoutAccountInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -6115,6 +6179,7 @@ export type SellerAccountUncheckedCreateWithoutPayoutAccountInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -6222,6 +6287,7 @@ export type SellerAccountUpdateWithoutPayoutAccountInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -6313,6 +6379,7 @@ export type SellerAccountUncheckedUpdateWithoutPayoutAccountInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -6404,6 +6471,7 @@ export type SellerAccountCreateWithoutLocationsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -6495,6 +6563,7 @@ export type SellerAccountUncheckedCreateWithoutLocationsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -6602,6 +6671,7 @@ export type SellerAccountUpdateWithoutLocationsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -6693,6 +6763,7 @@ export type SellerAccountUncheckedUpdateWithoutLocationsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -6784,6 +6855,7 @@ export type SellerAccountCreateWithoutBrandRequestsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -6875,6 +6947,7 @@ export type SellerAccountUncheckedCreateWithoutBrandRequestsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -6982,6 +7055,7 @@ export type SellerAccountUpdateWithoutBrandRequestsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -7073,6 +7147,7 @@ export type SellerAccountUncheckedUpdateWithoutBrandRequestsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -7164,6 +7239,7 @@ export type SellerAccountCreateWithoutListingDraftsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -7255,6 +7331,7 @@ export type SellerAccountUncheckedCreateWithoutListingDraftsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -7362,6 +7439,7 @@ export type SellerAccountUpdateWithoutListingDraftsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -7453,6 +7531,7 @@ export type SellerAccountUncheckedUpdateWithoutListingDraftsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -7544,6 +7623,7 @@ export type SellerAccountCreateWithoutOffersInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -7635,6 +7715,7 @@ export type SellerAccountUncheckedCreateWithoutOffersInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -7742,6 +7823,7 @@ export type SellerAccountUpdateWithoutOffersInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -7833,6 +7915,7 @@ export type SellerAccountUncheckedUpdateWithoutOffersInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -7924,6 +8007,7 @@ export type SellerAccountCreateWithoutInventoryInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -8015,6 +8099,7 @@ export type SellerAccountUncheckedCreateWithoutInventoryInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -8122,6 +8207,7 @@ export type SellerAccountUpdateWithoutInventoryInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -8213,6 +8299,7 @@ export type SellerAccountUncheckedUpdateWithoutInventoryInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -8304,6 +8391,7 @@ export type SellerAccountCreateWithoutInventoryMovementsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -8395,6 +8483,7 @@ export type SellerAccountUncheckedCreateWithoutInventoryMovementsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -8502,6 +8591,7 @@ export type SellerAccountUpdateWithoutInventoryMovementsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -8593,6 +8683,7 @@ export type SellerAccountUncheckedUpdateWithoutInventoryMovementsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -8684,6 +8775,7 @@ export type SellerAccountCreateWithoutBulkImportsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -8775,6 +8867,7 @@ export type SellerAccountUncheckedCreateWithoutBulkImportsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -8882,6 +8975,7 @@ export type SellerAccountUpdateWithoutBulkImportsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -8973,6 +9067,7 @@ export type SellerAccountUncheckedUpdateWithoutBulkImportsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -9064,6 +9159,7 @@ export type SellerAccountCreateWithoutOrderGroupsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -9155,6 +9251,7 @@ export type SellerAccountUncheckedCreateWithoutOrderGroupsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -9262,6 +9359,7 @@ export type SellerAccountUpdateWithoutOrderGroupsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -9353,6 +9451,7 @@ export type SellerAccountUncheckedUpdateWithoutOrderGroupsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -9444,6 +9543,7 @@ export type SellerAccountCreateWithoutShipmentsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -9535,6 +9635,7 @@ export type SellerAccountUncheckedCreateWithoutShipmentsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -9642,6 +9743,7 @@ export type SellerAccountUpdateWithoutShipmentsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -9733,6 +9835,7 @@ export type SellerAccountUncheckedUpdateWithoutShipmentsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -9824,6 +9927,7 @@ export type SellerAccountCreateWithoutReturnsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -9915,6 +10019,7 @@ export type SellerAccountUncheckedCreateWithoutReturnsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -10022,6 +10127,7 @@ export type SellerAccountUpdateWithoutReturnsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -10113,6 +10219,7 @@ export type SellerAccountUncheckedUpdateWithoutReturnsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -10204,6 +10311,7 @@ export type SellerAccountCreateWithoutSettlementsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -10295,6 +10403,7 @@ export type SellerAccountUncheckedCreateWithoutSettlementsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -10402,6 +10511,7 @@ export type SellerAccountUpdateWithoutSettlementsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -10493,6 +10603,7 @@ export type SellerAccountUncheckedUpdateWithoutSettlementsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -10584,6 +10695,7 @@ export type SellerAccountCreateWithoutPayoutsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -10675,6 +10787,7 @@ export type SellerAccountUncheckedCreateWithoutPayoutsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -10782,6 +10895,7 @@ export type SellerAccountUpdateWithoutPayoutsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -10873,6 +10987,7 @@ export type SellerAccountUncheckedUpdateWithoutPayoutsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -10964,6 +11079,7 @@ export type SellerAccountCreateWithoutNotificationsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -11055,6 +11171,7 @@ export type SellerAccountUncheckedCreateWithoutNotificationsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -11162,6 +11279,7 @@ export type SellerAccountUpdateWithoutNotificationsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -11253,6 +11371,7 @@ export type SellerAccountUncheckedUpdateWithoutNotificationsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -11344,6 +11463,7 @@ export type SellerAccountCreateWithoutAuditLogsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -11435,6 +11555,7 @@ export type SellerAccountUncheckedCreateWithoutAuditLogsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -11542,6 +11663,7 @@ export type SellerAccountUpdateWithoutAuditLogsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -11633,6 +11755,7 @@ export type SellerAccountUncheckedUpdateWithoutAuditLogsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -11724,6 +11847,7 @@ export type SellerAccountCreateWithoutLogisticsPartnersInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -11815,6 +11939,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPartnersInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -11922,6 +12047,7 @@ export type SellerAccountUpdateWithoutLogisticsPartnersInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -12013,6 +12139,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPartnersInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -12104,6 +12231,7 @@ export type SellerAccountCreateWithoutFulfilmentMethodsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -12195,6 +12323,7 @@ export type SellerAccountUncheckedCreateWithoutFulfilmentMethodsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -12302,6 +12431,7 @@ export type SellerAccountUpdateWithoutFulfilmentMethodsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -12393,6 +12523,7 @@ export type SellerAccountUncheckedUpdateWithoutFulfilmentMethodsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -12484,6 +12615,7 @@ export type SellerAccountCreateWithoutCarrierConnectionsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -12575,6 +12707,7 @@ export type SellerAccountUncheckedCreateWithoutCarrierConnectionsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -12682,6 +12815,7 @@ export type SellerAccountUpdateWithoutCarrierConnectionsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -12773,6 +12907,7 @@ export type SellerAccountUncheckedUpdateWithoutCarrierConnectionsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -12864,6 +12999,7 @@ export type SellerAccountCreateWithoutFulfilmentRulesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -12955,6 +13091,7 @@ export type SellerAccountUncheckedCreateWithoutFulfilmentRulesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -13062,6 +13199,7 @@ export type SellerAccountUpdateWithoutFulfilmentRulesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -13153,6 +13291,7 @@ export type SellerAccountUncheckedUpdateWithoutFulfilmentRulesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -13244,6 +13383,7 @@ export type SellerAccountCreateWithoutPickupProfilesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -13335,6 +13475,7 @@ export type SellerAccountUncheckedCreateWithoutPickupProfilesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -13442,6 +13583,7 @@ export type SellerAccountUpdateWithoutPickupProfilesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -13533,6 +13675,7 @@ export type SellerAccountUncheckedUpdateWithoutPickupProfilesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -13624,6 +13767,7 @@ export type SellerAccountCreateWithoutLogisticsRateCardsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -13715,6 +13859,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsRateCardsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -13822,6 +13967,7 @@ export type SellerAccountUpdateWithoutLogisticsRateCardsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -13913,6 +14059,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsRateCardsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -14004,6 +14151,7 @@ export type SellerAccountCreateWithoutCarrierRateQuotesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -14095,6 +14243,7 @@ export type SellerAccountUncheckedCreateWithoutCarrierRateQuotesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -14202,6 +14351,7 @@ export type SellerAccountUpdateWithoutCarrierRateQuotesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -14293,6 +14443,7 @@ export type SellerAccountUncheckedUpdateWithoutCarrierRateQuotesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -14384,6 +14535,7 @@ export type SellerAccountCreateWithoutShipmentPurchasesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -14475,6 +14627,7 @@ export type SellerAccountUncheckedCreateWithoutShipmentPurchasesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -14582,6 +14735,7 @@ export type SellerAccountUpdateWithoutShipmentPurchasesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -14673,6 +14827,7 @@ export type SellerAccountUncheckedUpdateWithoutShipmentPurchasesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -14764,6 +14919,7 @@ export type SellerAccountCreateWithoutPartnerInvitationsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -14855,6 +15011,7 @@ export type SellerAccountUncheckedCreateWithoutPartnerInvitationsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -14962,6 +15119,7 @@ export type SellerAccountUpdateWithoutPartnerInvitationsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -15053,6 +15211,7 @@ export type SellerAccountUncheckedUpdateWithoutPartnerInvitationsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -15144,6 +15303,7 @@ export type SellerAccountCreateWithoutOwnedLogisticsPartnersInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -15235,6 +15395,7 @@ export type SellerAccountUncheckedCreateWithoutOwnedLogisticsPartnersInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -15342,6 +15503,7 @@ export type SellerAccountUpdateWithoutOwnedLogisticsPartnersInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -15433,6 +15595,7 @@ export type SellerAccountUncheckedUpdateWithoutOwnedLogisticsPartnersInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -15524,6 +15687,7 @@ export type SellerAccountCreateWithoutPickupRequestsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -15615,6 +15779,7 @@ export type SellerAccountUncheckedCreateWithoutPickupRequestsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -15722,6 +15887,7 @@ export type SellerAccountUpdateWithoutPickupRequestsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -15813,6 +15979,7 @@ export type SellerAccountUncheckedUpdateWithoutPickupRequestsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -15904,6 +16071,7 @@ export type SellerAccountCreateWithoutPackagingProfilesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -15995,6 +16163,7 @@ export type SellerAccountUncheckedCreateWithoutPackagingProfilesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -16102,6 +16271,7 @@ export type SellerAccountUpdateWithoutPackagingProfilesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -16193,6 +16363,7 @@ export type SellerAccountUncheckedUpdateWithoutPackagingProfilesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -16284,6 +16455,7 @@ export type SellerAccountCreateWithoutFreightQuoteRequestsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -16375,6 +16547,7 @@ export type SellerAccountUncheckedCreateWithoutFreightQuoteRequestsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -16482,6 +16655,7 @@ export type SellerAccountUpdateWithoutFreightQuoteRequestsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -16573,6 +16747,7 @@ export type SellerAccountUncheckedUpdateWithoutFreightQuoteRequestsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -16664,6 +16839,7 @@ export type SellerAccountCreateWithoutErpConnectionsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -16755,6 +16931,7 @@ export type SellerAccountUncheckedCreateWithoutErpConnectionsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -16862,6 +17039,7 @@ export type SellerAccountUpdateWithoutErpConnectionsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -16953,6 +17131,7 @@ export type SellerAccountUncheckedUpdateWithoutErpConnectionsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -17044,6 +17223,7 @@ export type SellerAccountCreateWithoutErpBridgeDevicesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -17135,6 +17315,7 @@ export type SellerAccountUncheckedCreateWithoutErpBridgeDevicesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -17242,6 +17423,7 @@ export type SellerAccountUpdateWithoutErpBridgeDevicesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -17333,6 +17515,7 @@ export type SellerAccountUncheckedUpdateWithoutErpBridgeDevicesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -17424,6 +17607,7 @@ export type SellerAccountCreateWithoutErpSyncJobsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -17515,6 +17699,7 @@ export type SellerAccountUncheckedCreateWithoutErpSyncJobsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -17622,6 +17807,7 @@ export type SellerAccountUpdateWithoutErpSyncJobsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -17713,6 +17899,7 @@ export type SellerAccountUncheckedUpdateWithoutErpSyncJobsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -17804,6 +17991,7 @@ export type SellerAccountCreateWithoutErpAuditEventsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -17895,6 +18083,7 @@ export type SellerAccountUncheckedCreateWithoutErpAuditEventsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -18002,6 +18191,7 @@ export type SellerAccountUpdateWithoutErpAuditEventsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -18093,6 +18283,7 @@ export type SellerAccountUncheckedUpdateWithoutErpAuditEventsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -18184,6 +18375,7 @@ export type SellerAccountCreateWithoutLogisticsPolicyInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -18275,6 +18467,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPolicyInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -18382,6 +18575,7 @@ export type SellerAccountUpdateWithoutLogisticsPolicyInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -18473,6 +18667,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -18564,6 +18759,7 @@ export type SellerAccountCreateWithoutLogisticsPolicyVersionsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -18655,6 +18851,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPolicyVersionsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -18762,6 +18959,7 @@ export type SellerAccountUpdateWithoutLogisticsPolicyVersionsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -18853,6 +19051,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyVersionsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -18944,6 +19143,7 @@ export type SellerAccountCreateWithoutLogisticsProvidersInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -19035,6 +19235,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsProvidersInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -19142,6 +19343,7 @@ export type SellerAccountUpdateWithoutLogisticsProvidersInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -19233,6 +19435,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsProvidersInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -19324,6 +19527,7 @@ export type SellerAccountCreateWithoutLogisticsLevelRatesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -19415,6 +19619,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsLevelRatesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -19522,6 +19727,7 @@ export type SellerAccountUpdateWithoutLogisticsLevelRatesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -19613,6 +19819,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsLevelRatesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -19704,6 +19911,7 @@ export type SellerAccountCreateWithoutOrderLogisticsLegsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -19795,6 +20003,7 @@ export type SellerAccountUncheckedCreateWithoutOrderLogisticsLegsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -19902,6 +20111,7 @@ export type SellerAccountUpdateWithoutOrderLogisticsLegsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -19993,6 +20203,7 @@ export type SellerAccountUncheckedUpdateWithoutOrderLogisticsLegsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -20084,6 +20295,7 @@ export type SellerAccountCreateWithoutShipmentLegsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -20175,6 +20387,7 @@ export type SellerAccountUncheckedCreateWithoutShipmentLegsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -20282,6 +20495,7 @@ export type SellerAccountUpdateWithoutShipmentLegsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -20373,6 +20587,7 @@ export type SellerAccountUncheckedUpdateWithoutShipmentLegsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -20464,6 +20679,7 @@ export type SellerAccountCreateWithoutOrderSettlementsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -20555,6 +20771,7 @@ export type SellerAccountUncheckedCreateWithoutOrderSettlementsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -20662,6 +20879,7 @@ export type SellerAccountUpdateWithoutOrderSettlementsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -20753,6 +20971,7 @@ export type SellerAccountUncheckedUpdateWithoutOrderSettlementsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -20844,6 +21063,7 @@ export type SellerAccountCreateWithoutPreorderPoliciesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -20935,6 +21155,7 @@ export type SellerAccountUncheckedCreateWithoutPreorderPoliciesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -21042,6 +21263,7 @@ export type SellerAccountUpdateWithoutPreorderPoliciesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -21133,6 +21355,7 @@ export type SellerAccountUncheckedUpdateWithoutPreorderPoliciesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -21224,6 +21447,7 @@ export type SellerAccountCreateWithoutPreorderRequestsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -21315,6 +21539,7 @@ export type SellerAccountUncheckedCreateWithoutPreorderRequestsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -21422,6 +21647,7 @@ export type SellerAccountUpdateWithoutPreorderRequestsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -21513,6 +21739,7 @@ export type SellerAccountUncheckedUpdateWithoutPreorderRequestsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -21604,6 +21831,7 @@ export type SellerAccountCreateWithoutInvoiceSettingsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -21695,6 +21923,7 @@ export type SellerAccountUncheckedCreateWithoutInvoiceSettingsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -21802,6 +22031,7 @@ export type SellerAccountUpdateWithoutInvoiceSettingsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -21893,6 +22123,7 @@ export type SellerAccountUncheckedUpdateWithoutInvoiceSettingsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -21984,6 +22215,7 @@ export type SellerAccountCreateWithoutSellerInvoicesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -22075,6 +22307,7 @@ export type SellerAccountUncheckedCreateWithoutSellerInvoicesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -22182,6 +22415,7 @@ export type SellerAccountUpdateWithoutSellerInvoicesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -22273,6 +22507,7 @@ export type SellerAccountUncheckedUpdateWithoutSellerInvoicesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -22364,6 +22599,7 @@ export type SellerAccountCreateWithoutPackingListsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -22455,6 +22691,7 @@ export type SellerAccountUncheckedCreateWithoutPackingListsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -22562,6 +22799,7 @@ export type SellerAccountUpdateWithoutPackingListsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -22653,6 +22891,7 @@ export type SellerAccountUncheckedUpdateWithoutPackingListsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -22744,6 +22983,7 @@ export type SellerAccountCreateWithoutLinkedBuyerCompaniesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -22835,6 +23075,7 @@ export type SellerAccountUncheckedCreateWithoutLinkedBuyerCompaniesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -22942,6 +23183,7 @@ export type SellerAccountUpdateWithoutLinkedBuyerCompaniesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -23033,6 +23275,7 @@ export type SellerAccountUncheckedUpdateWithoutLinkedBuyerCompaniesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -23096,6 +23339,390 @@ export type SellerAccountUncheckedUpdateWithoutLinkedBuyerCompaniesInput = {
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
+export type SellerAccountCreateWithoutAccessReviewsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountUncheckedCreateWithoutAccessReviewsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationUncheckedCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnUncheckedCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutUncheckedCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductUncheckedCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountCreateOrConnectWithoutAccessReviewsInput = {
+  where: Prisma.SellerAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutAccessReviewsInput, Prisma.SellerAccountUncheckedCreateWithoutAccessReviewsInput>
+}
+
+export type SellerAccountUpsertWithoutAccessReviewsInput = {
+  update: Prisma.XOR<Prisma.SellerAccountUpdateWithoutAccessReviewsInput, Prisma.SellerAccountUncheckedUpdateWithoutAccessReviewsInput>
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutAccessReviewsInput, Prisma.SellerAccountUncheckedCreateWithoutAccessReviewsInput>
+  where?: Prisma.SellerAccountWhereInput
+}
+
+export type SellerAccountUpdateToOneWithWhereWithoutAccessReviewsInput = {
+  where?: Prisma.SellerAccountWhereInput
+  data: Prisma.XOR<Prisma.SellerAccountUpdateWithoutAccessReviewsInput, Prisma.SellerAccountUncheckedUpdateWithoutAccessReviewsInput>
+}
+
+export type SellerAccountUpdateWithoutAccessReviewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountUncheckedUpdateWithoutAccessReviewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUncheckedUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUncheckedUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUncheckedUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+}
+
 export type SellerAccountCreateWithoutCommissionInvoicesInput = {
   id: string
   legalName: string
@@ -23124,6 +23751,7 @@ export type SellerAccountCreateWithoutCommissionInvoicesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -23215,6 +23843,7 @@ export type SellerAccountUncheckedCreateWithoutCommissionInvoicesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -23322,6 +23951,7 @@ export type SellerAccountUpdateWithoutCommissionInvoicesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -23413,6 +24043,7 @@ export type SellerAccountUncheckedUpdateWithoutCommissionInvoicesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -23504,6 +24135,7 @@ export type SellerAccountCreateWithoutTrustProfileInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -23595,6 +24227,7 @@ export type SellerAccountUncheckedCreateWithoutTrustProfileInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -23702,6 +24335,7 @@ export type SellerAccountUpdateWithoutTrustProfileInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -23793,6 +24427,7 @@ export type SellerAccountUncheckedUpdateWithoutTrustProfileInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -23884,6 +24519,7 @@ export type SellerAccountCreateWithoutBeneficialOwnersInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -23975,6 +24611,7 @@ export type SellerAccountUncheckedCreateWithoutBeneficialOwnersInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -24082,6 +24719,7 @@ export type SellerAccountUpdateWithoutBeneficialOwnersInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -24173,6 +24811,7 @@ export type SellerAccountUncheckedUpdateWithoutBeneficialOwnersInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -24264,6 +24903,7 @@ export type SellerAccountCreateWithoutFactoriesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -24355,6 +24995,7 @@ export type SellerAccountUncheckedCreateWithoutFactoriesInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -24462,6 +25103,7 @@ export type SellerAccountUpdateWithoutFactoriesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -24553,6 +25195,7 @@ export type SellerAccountUncheckedUpdateWithoutFactoriesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -24644,6 +25287,7 @@ export type SellerAccountCreateWithoutCertificationsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -24735,6 +25379,7 @@ export type SellerAccountUncheckedCreateWithoutCertificationsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -24842,6 +25487,7 @@ export type SellerAccountUpdateWithoutCertificationsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -24933,6 +25579,7 @@ export type SellerAccountUncheckedUpdateWithoutCertificationsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -25024,6 +25671,7 @@ export type SellerAccountCreateWithoutTrustChecksInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -25115,6 +25763,7 @@ export type SellerAccountUncheckedCreateWithoutTrustChecksInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -25222,6 +25871,7 @@ export type SellerAccountUpdateWithoutTrustChecksInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -25313,6 +25963,7 @@ export type SellerAccountUncheckedUpdateWithoutTrustChecksInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -25404,6 +26055,7 @@ export type SellerAccountCreateWithoutScreeningChecksInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -25495,6 +26147,7 @@ export type SellerAccountUncheckedCreateWithoutScreeningChecksInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -25602,6 +26255,7 @@ export type SellerAccountUpdateWithoutScreeningChecksInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -25693,6 +26347,7 @@ export type SellerAccountUncheckedUpdateWithoutScreeningChecksInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -25784,6 +26439,7 @@ export type SellerAccountCreateWithoutProfileChangeRequestsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -25875,6 +26531,7 @@ export type SellerAccountUncheckedCreateWithoutProfileChangeRequestsInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -25982,6 +26639,7 @@ export type SellerAccountUpdateWithoutProfileChangeRequestsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -26073,6 +26731,7 @@ export type SellerAccountUncheckedUpdateWithoutProfileChangeRequestsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -26164,6 +26823,7 @@ export type SellerAccountCreateWithoutListingTrustInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
@@ -26255,6 +26915,7 @@ export type SellerAccountUncheckedCreateWithoutListingTrustInput = {
   archivedAt?: Date | string | null
   members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
   invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
@@ -26362,6 +27023,7 @@ export type SellerAccountUpdateWithoutListingTrustInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
@@ -26453,6 +27115,7 @@ export type SellerAccountUncheckedUpdateWithoutListingTrustInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
   invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
   onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
   businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
   verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -26524,6 +27187,7 @@ export type SellerAccountUncheckedUpdateWithoutListingTrustInput = {
 export type SellerAccountCountOutputType = {
   members: number
   invitations: number
+  accessReviews: number
   verificationCases: number
   documents: number
   agreements: number
@@ -26585,6 +27249,7 @@ export type SellerAccountCountOutputType = {
 export type SellerAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | SellerAccountCountOutputTypeCountMembersArgs
   invitations?: boolean | SellerAccountCountOutputTypeCountInvitationsArgs
+  accessReviews?: boolean | SellerAccountCountOutputTypeCountAccessReviewsArgs
   verificationCases?: boolean | SellerAccountCountOutputTypeCountVerificationCasesArgs
   documents?: boolean | SellerAccountCountOutputTypeCountDocumentsArgs
   agreements?: boolean | SellerAccountCountOutputTypeCountAgreementsArgs
@@ -26665,6 +27330,13 @@ export type SellerAccountCountOutputTypeCountMembersArgs<ExtArgs extends runtime
  */
 export type SellerAccountCountOutputTypeCountInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.SellerInvitationWhereInput
+}
+
+/**
+ * SellerAccountCountOutputType without action
+ */
+export type SellerAccountCountOutputTypeCountAccessReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TeamAccessReviewWhereInput
 }
 
 /**
@@ -27088,6 +27760,7 @@ export type SellerAccountSelect<ExtArgs extends runtime.Types.Extensions.Interna
   archivedAt?: boolean
   members?: boolean | Prisma.SellerAccount$membersArgs<ExtArgs>
   invitations?: boolean | Prisma.SellerAccount$invitationsArgs<ExtArgs>
+  accessReviews?: boolean | Prisma.SellerAccount$accessReviewsArgs<ExtArgs>
   onboarding?: boolean | Prisma.SellerAccount$onboardingArgs<ExtArgs>
   businessProfile?: boolean | Prisma.SellerAccount$businessProfileArgs<ExtArgs>
   verificationCases?: boolean | Prisma.SellerAccount$verificationCasesArgs<ExtArgs>
@@ -27187,6 +27860,7 @@ export type SellerAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalA
 export type SellerAccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.SellerAccount$membersArgs<ExtArgs>
   invitations?: boolean | Prisma.SellerAccount$invitationsArgs<ExtArgs>
+  accessReviews?: boolean | Prisma.SellerAccount$accessReviewsArgs<ExtArgs>
   onboarding?: boolean | Prisma.SellerAccount$onboardingArgs<ExtArgs>
   businessProfile?: boolean | Prisma.SellerAccount$businessProfileArgs<ExtArgs>
   verificationCases?: boolean | Prisma.SellerAccount$verificationCasesArgs<ExtArgs>
@@ -27257,6 +27931,10 @@ export type $SellerAccountPayload<ExtArgs extends runtime.Types.Extensions.Inter
   objects: {
     members: Prisma.$SellerMemberPayload<ExtArgs>[]
     invitations: Prisma.$SellerInvitationPayload<ExtArgs>[]
+    /**
+     * Owners and admins recording that they checked who has access.
+     */
+    accessReviews: Prisma.$TeamAccessReviewPayload<ExtArgs>[]
     onboarding: Prisma.$SellerOnboardingProgressPayload<ExtArgs> | null
     businessProfile: Prisma.$SellerBusinessProfilePayload<ExtArgs> | null
     verificationCases: Prisma.$SellerVerificationCasePayload<ExtArgs>[]
@@ -27795,6 +28473,7 @@ export interface Prisma__SellerAccountClient<T, Null = never, ExtArgs extends ru
   readonly [Symbol.toStringTag]: "PrismaPromise"
   members<T extends Prisma.SellerAccount$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invitations<T extends Prisma.SellerAccount$invitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  accessReviews<T extends Prisma.SellerAccount$accessReviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$accessReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TeamAccessReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   onboarding<T extends Prisma.SellerAccount$onboardingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$onboardingArgs<ExtArgs>>): Prisma.Prisma__SellerOnboardingProgressClient<runtime.Types.Result.GetResult<Prisma.$SellerOnboardingProgressPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   businessProfile<T extends Prisma.SellerAccount$businessProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$businessProfileArgs<ExtArgs>>): Prisma.Prisma__SellerBusinessProfileClient<runtime.Types.Result.GetResult<Prisma.$SellerBusinessProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   verificationCases<T extends Prisma.SellerAccount$verificationCasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$verificationCasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerVerificationCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -28304,6 +28983,30 @@ export type SellerAccount$invitationsArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.SellerInvitationScalarFieldEnum | Prisma.SellerInvitationScalarFieldEnum[]
+}
+
+/**
+ * SellerAccount.accessReviews
+ */
+export type SellerAccount$accessReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TeamAccessReview
+   */
+  select?: Prisma.TeamAccessReviewSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TeamAccessReview
+   */
+  omit?: Prisma.TeamAccessReviewOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TeamAccessReviewInclude<ExtArgs> | null
+  where?: Prisma.TeamAccessReviewWhereInput
+  orderBy?: Prisma.TeamAccessReviewOrderByWithRelationInput | Prisma.TeamAccessReviewOrderByWithRelationInput[]
+  cursor?: Prisma.TeamAccessReviewWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TeamAccessReviewScalarFieldEnum | Prisma.TeamAccessReviewScalarFieldEnum[]
 }
 
 /**

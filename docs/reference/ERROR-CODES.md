@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**481 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**485 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -43,7 +43,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Auto-pay](#auto-pay) | 15 |
 | [Data protection](#data-protection) | 6 |
 | [A buyer's own ERP, and the organisation that owns it](#a-buyer-s-own-erp-and-the-organisation-that-owns-it) | 26 |
-| [Seller Hub](#seller-hub) | 41 |
+| [Seller Hub](#seller-hub) | 45 |
 | [Logistics partner portal](#logistics-partner-portal) | 23 |
 | [How a seller's own goods get delivered](#how-a-seller-s-own-goods-get-delivered) | 15 |
 | [Console notifications](#console-notifications) | 2 |
@@ -399,6 +399,10 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `SELLER_LAST_OWNER` | The last owner cannot be removed or demoted. An organisation with no owner has nobody who can invite one. |
 | `SELLER_INVITATION_INVALID` | The invitation is expired, already accepted, revoked, or addressed to a different email than the one signed in. |
 | `SELLER_MEMBERSHIP_EXISTS` | This account already belongs to a seller organisation. One profile, one seller - see `SellerMember`. |
+| `SELLER_INVITATION_EXISTS` | That address already has an invitation to this seller's team that can still be accepted. Resend it rather than sending a second one. |
+| `SELLER_ALREADY_MEMBER` | That person is already an active member of this seller's team. Change their role instead. |
+| `SELLER_MEMBER_PROTECTED` | That member cannot be changed or removed by the caller. `details[0].code` is SELF (nobody changes or removes themselves) or ROLE_ABOVE_YOURS (their role carries a permission the caller does not hold - an admin cannot touch an owner). |
+| `SELLER_INVITATION_SEND_LIMIT` | One invitation has been emailed as many times as it may be. Withdraw it and invite again. `details[0].meta.max` is the cap. |
 | `LISTING_TRANSITION_NOT_ALLOWED` | A listing draft cannot move the way it was asked to. |
 | `LISTING_NOT_SUBMITTABLE` | Submission refused: required sections do not pass. `details` carries one entry per blocking issue, each naming its section and attribute, so the interface puts every refusal beside the field that caused it rather than showing one sentence at the top. |
 | `LISTING_ATTRIBUTE_INVALID` | A value failed its category attribute definition - wrong type, outside bounds, not an allowed option, failed the pattern. |

@@ -1329,11 +1329,18 @@ export type SellerAccount = Prisma.SellerAccountModel
 export type SellerMember = Prisma.SellerMemberModel
 /**
  * Model SellerInvitation
- * An outstanding invitation to join a seller organisation.
+ * An invitation to join a seller organisation in one role (checklist Master
+ * row 14).
  * 
  * Token stored as a SHA-256 hash, single-use, expiring - the same treatment a
  * password reset gets, and for the same reason: an invitation grants standing
- * inside a business that ships medical devices.
+ * inside a business. Sent by a member holding `seller.member.write`, never
+ * for OWNER, and only for a role the sender could grant
+ * (`canGrantSellerRole`). Accepting needs a signed-in account whose VERIFIED
+ * email is the one invited. See `modules/seller/team.service.ts`.
+ * 
+ * Rows are never deleted: accepted, revoked and replaced invitations stay as
+ * the record of who asked whom in, as what, and when.
  */
 export type SellerInvitation = Prisma.SellerInvitationModel
 /**
@@ -2768,6 +2775,17 @@ export type BuyerCompanyAddress = Prisma.BuyerCompanyAddressModel
  * carries a reason code and no value.
  */
 export type BuyerCompanyIdentifier = Prisma.BuyerCompanyIdentifierModel
+/**
+ * Model TeamAccessReview
+ * "I have checked who has access" - one row each time an owner or
+ * administrator confirms a periodic access review of their team (checklist
+ * Master row 14). Belongs to exactly one seller or one buyer company (CHECK
+ * `chk_team_access_review_one_owner`). The counts are what the reviewer was
+ * looking at, so a later reader can tell a review of three people from a
+ * review of thirty. The application never changes or deletes a row; each one
+ * is also written to the audit log.
+ */
+export type TeamAccessReview = Prisma.TeamAccessReviewModel
 /**
  * Model BuyerCompanyLocation
  * A branch, plant or warehouse of the company, for later. Carries its own

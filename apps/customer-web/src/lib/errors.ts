@@ -124,6 +124,21 @@ const BUYER_COMPANY_CODES = new Set([
   'BUYER_COMPANY_MEMBER_PROTECTED',
 ]);
 
+/**
+ * A seller's team (Master row 14): inviting, accepting, changing a role. Each
+ * is met mid-task on the Team page or the join page, so each is said in the
+ * reader's language.
+ */
+const SELLER_TEAM_CODES = new Set([
+  'SELLER_INVITATION_EXISTS',
+  'SELLER_INVITATION_INVALID',
+  'SELLER_INVITATION_SEND_LIMIT',
+  'SELLER_ALREADY_MEMBER',
+  'SELLER_MEMBERSHIP_EXISTS',
+  'SELLER_MEMBER_PROTECTED',
+  'SELLER_LAST_OWNER',
+]);
+
 /** An individual's identity check, on Identity and import. */
 const CUSTOMER_KYC_CODES = new Set([
   'CUSTOMER_KYC_NOT_EDITABLE',
@@ -275,6 +290,17 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
 
     if (SELLER_DOCUMENT_CODES.has(error.code)) {
       return t(`errors.sellerDocument.${error.code}` as TranslationKey);
+    }
+
+    if (SELLER_TEAM_CODES.has(error.code)) {
+      // Which rule protects a member: themselves, or somebody holding more.
+      const detail = error.details[0]?.code;
+      if (error.code === 'SELLER_MEMBER_PROTECTED' && detail !== undefined) {
+        return t(`errors.sellerTeam.protected.${detail}` as TranslationKey, {
+          defaultValue: t('errors.sellerTeam.SELLER_MEMBER_PROTECTED'),
+        });
+      }
+      return t(`errors.sellerTeam.${error.code}` as TranslationKey);
     }
 
     if (CUSTOMER_KYC_CODES.has(error.code)) {

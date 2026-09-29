@@ -255,6 +255,18 @@ function ProfileIcon({ className }: IconProps): React.JSX.Element {
   );
 }
 
+/** Two people: the team. */
+function TeamIcon({ className }: IconProps): React.JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <circle cx="9" cy="8.5" r="3" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M3.5 19.5a5.5 5.5 0 0 1 11 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="16.5" cy="9" r="2.5" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M15.5 14.2a4.5 4.5 0 0 1 5 5.3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /** A closed padlock. Shutting the Hub, not signing out. */
 function LockIcon({ className }: IconProps): React.JSX.Element {
   return (
@@ -310,6 +322,8 @@ interface NavItem {
   icon: (props: IconProps) => React.JSX.Element;
   /** Whether the destination is usable before the account is approved. */
   needsApproval: boolean;
+  /** Shown only to members holding this permission. The server refuses anyway. */
+  permission?: string;
 }
 
 const NAV_ITEMS: readonly NavItem[] = Object.freeze([
@@ -413,6 +427,15 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
     needsApproval: false,
   },
   { to: '/seller/profile', labelKey: 'seller.nav.profile', icon: ProfileIcon, needsApproval: false },
+  // Who else can use this account. Open before approval - a business sets up
+  // its people while it waits - and only to the owner and admins.
+  {
+    to: '/seller/team',
+    labelKey: 'seller.nav.team',
+    icon: TeamIcon,
+    needsApproval: false,
+    permission: 'seller.member.read',
+  },
   // Last, and open before approval: a seller stuck in onboarding is exactly
   // who most needs to reach the marketplace.
   { to: '/seller/support', labelKey: 'seller.nav.support', icon: HeadsetIcon, needsApproval: false },
@@ -968,7 +991,9 @@ export function SellerLayout(): React.JSX.Element {
           aria-label={t('seller.nav.sellerHub')}
           className="flex items-stretch justify-around gap-1 px-2 py-2 lg:flex-col lg:justify-start lg:gap-0.5 lg:px-3 lg:py-0"
         >
-          {NAV_ITEMS.map((item) => (
+          {NAV_ITEMS.filter(
+            (item) => item.permission === undefined || seller.permissions.includes(item.permission),
+          ).map((item) => (
             <RailLink
               key={item.to}
               item={item}

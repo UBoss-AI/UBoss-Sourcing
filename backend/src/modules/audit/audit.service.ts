@@ -554,6 +554,16 @@ export const AuditAction = {
   BUYER_COMPANY_INVITATION_ACCEPTED: 'buyer_company.invitation_accepted',
   BUYER_COMPANY_MEMBER_ROLE_CHANGED: 'buyer_company.member_role_changed',
   BUYER_COMPANY_MEMBER_REMOVED: 'buyer_company.member_removed',
+  BUYER_COMPANY_ACCESS_REVIEWED: 'buyer_company.access_reviewed',
+  // Who belongs to a seller's team, and as what (Master row 14). Also written
+  // to the seller's own log (`seller_audit_logs`) in words for the seller.
+  SELLER_MEMBER_INVITED: 'seller.member.invited',
+  SELLER_INVITATION_RESENT: 'seller.invitation.resent',
+  SELLER_INVITATION_REVOKED: 'seller.invitation.revoked',
+  SELLER_INVITATION_ACCEPTED: 'seller.invitation.accepted',
+  SELLER_MEMBER_ROLE_CHANGED: 'seller.member.role_changed',
+  SELLER_MEMBER_REMOVED: 'seller.member.removed',
+  SELLER_ACCESS_REVIEWED: 'seller.access.reviewed',
   // An individual buyer's identity check and marketing choices (Master row 11).
   CUSTOMER_KYC_UPDATED: 'customer_kyc.updated',
   CUSTOMER_KYC_SUBMITTED: 'customer_kyc.submitted',

@@ -33,6 +33,13 @@ import { AppError, ErrorCode, badRequest, conflict, forbidden, notFound } from '
 import { sha256Hex } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
+import {
+  accessReviewSummary,
+  activityForUsers,
+  insertAccessReview,
+  namesForUsers,
+  type AccessReviewSummary,
+} from '../access-review/access-review.service.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { NotificationEvent, enqueueNotification } from '../notifications/notification.service.js';
 import { renderInvitationEmail } from './invitation-email.js';
@@ -53,6 +60,12 @@ export interface TeamMemberView {
   isYou: boolean;
   /** Whether the caller may change this member's role or remove them. */
   canChange: boolean;
+  /**
+   * The access-review facts: who invited them and when they last signed in
+   * and were active. Only for the owner and administrators - a Viewer has no
+   * business reading when a colleague last signed in - so null otherwise.
+   */
+  access: { invitedByName: string | null; lastSignInAt: string | null; lastActiveAt: string | null } | null;
 }
 
 export interface TeamInvitationView {
@@ -76,6 +89,8 @@ export interface TeamView {
   members: TeamMemberView[];
   /** Live invitations; empty for anybody who cannot manage the team. */
   invitations: TeamInvitationView[];
+  /** Recent access reviews and whether one is due; null for anybody who cannot manage. */
+  accessReview: AccessReviewSummary | null;
 }
 
 const normalize = (email: string): string => email.trim().toLowerCase();
@@ -165,6 +180,7 @@ export async function readTeam(userId: string, companyId: string): Promise<TeamV
       userId: true,
       role: true,
       createdAt: true,
+      invitedByUserId: true,
       user: { select: { email: true, customerProfile: { select: { fullName: true } } } },
     },
   });
@@ -175,6 +191,13 @@ export async function readTeam(userId: string, companyId: string): Promise<TeamV
         take: 100,
       })
     : [];
+  const [activity, inviters, accessReview] = canManage
+    ? await Promise.all([
+        activityForUsers(members.map((member) => member.userId)),
+        namesForUsers(members.map((member) => member.invitedByUserId)),
+        accessReviewSummary({ buyerCompanyId: companyId }),
+      ])
+    : [null, null, null];
   const now = Date.now();
 
   return {
@@ -190,6 +213,14 @@ export async function readTeam(userId: string, companyId: string): Promise<TeamV
       joinedAt: member.createdAt.toISOString(),
       isYou: member.userId === userId,
       canChange: canManage && member.userId !== userId && mayTouch(membership.role, member.role),
+      access:
+        activity === null || inviters === null
+          ? null
+          : {
+              invitedByName: member.invitedByUserId === null ? null : (inviters.get(member.invitedByUserId) ?? null),
+              lastSignInAt: activity.get(member.userId)?.lastSignInAt ?? null,
+              lastActiveAt: activity.get(member.userId)?.lastActiveAt ?? null,
+            },
     })),
     invitations: invitations.map((invitation) => ({
       id: invitation.id,
@@ -201,7 +232,26 @@ export async function readTeam(userId: string, companyId: string): Promise<TeamV
       lastSentAt: invitation.lastSentAt.toISOString(),
       canChange: mayTouch(membership.role, invitation.role),
     })),
+    accessReview,
   };
+}
+
+/**
+ * Record that the caller has checked who has access to the company, as the
+ * team stands now. Owner or administrator of an approved company. Audited.
+ */
+export async function recordAccessReview(actor: Actor & { userId: string }, companyId: string): Promise<TeamView> {
+  await prisma.$transaction(async (tx) => {
+    const { membership, company } = await context(actor.userId, companyId, tx);
+    assertCanManage(membership, company.status);
+    const [memberCount, invitationCount] = await Promise.all([
+      tx.buyerCompanyMember.count({ where: { companyId, status: 'ACTIVE' } }),
+      tx.buyerCompanyInvitation.count({ where: { companyId, liveKey: { not: null } } }),
+    ]);
+    const id = await insertAccessReview(tx, { buyerCompanyId: companyId }, { reviewedByUserId: actor.userId, memberCount, invitationCount });
+    await audit(tx, actor, AuditAction.BUYER_COMPANY_ACCESS_REVIEWED, 'team_access_review', id, companyId, null, { memberCount, invitationCount });
+  });
+  return readTeam(actor.userId, companyId);
 }
 
 function acceptUrl(token: string): string {

@@ -19,8 +19,6 @@
 import type { SellerApplicationStatus, SellerMemberRole } from '../../generated/prisma/enums.js';
 import { ErrorCode, badRequest, conflict, forbidden, notFound } from '../../domain/errors.js';
 import {
-  SellerPermission,
-  canGrantSellerRole,
   permissionsForSellerRole,
   sellerRoleDefinition,
   type SellerPermissionKey,
@@ -559,118 +557,6 @@ export async function transitionApplication(input: ApplicationTransitionInput): 
 // ---------------------------------------------------------------------------
 // People
 // ---------------------------------------------------------------------------
-
-/**
- * Change somebody's role, or refuse.
- *
- * Two refusals, and both close an escalation rather than enforce tidiness:
- *
- *   - **The last owner cannot be demoted.** An organisation with no owner has
- *     nobody who can appoint one, and nobody who can accept the next version
- *     of the marketplace agreement. It is stuck, and only the operator can
- *     unstick it.
- *   - **Nobody may grant a role they do not hold.** An ADMIN with
- *     `MEMBER_WRITE` could otherwise mint an OWNER and so award themselves
- *     `AGREEMENT_ACCEPT`, the one permission ADMIN deliberately lacks.
- */
-export async function changeMemberRole(
-  membership: SellerMembership,
-  targetMemberId: string,
-  nextRole: SellerMemberRole,
-  correlationId?: string | null,
-): Promise<void> {
-  assertSellerPermission(membership, SellerPermission.MEMBER_WRITE);
-
-  if (!canGrantSellerRole(membership.role, nextRole)) {
-    throw forbidden(
-      ErrorCode.SELLER_ROLE_DENIED,
-      'You cannot grant a role that carries more than your own.',
-    );
-  }
-
-  await prisma.$transaction(async (tx) => {
-    const target = await tx.sellerMember.findFirst({
-      where: {
-        id: targetMemberId,
-        sellerAccountId: membership.sellerAccountId,
-        removedAt: null,
-      },
-      select: { id: true, role: true },
-    });
-
-    if (target === null) throw notFound('Team member');
-    if (target.role === nextRole) return;
-
-    if (target.role === 'OWNER') {
-      const owners = await tx.sellerMember.count({
-        where: { sellerAccountId: membership.sellerAccountId, role: 'OWNER', removedAt: null },
-      });
-
-      if (owners <= 1) {
-        throw conflict(
-          ErrorCode.SELLER_LAST_OWNER,
-          'This is the only owner of the account. Make somebody else an owner first.',
-        );
-      }
-    }
-
-    await tx.sellerMember.update({ where: { id: target.id }, data: { role: nextRole } });
-
-    await recordSellerAudit({
-      sellerAccountId: membership.sellerAccountId,
-      action: 'seller.member.role_changed',
-      actor: { type: 'CUSTOMER', label: membership.displayName },
-      resourceType: 'seller_member',
-      resourceId: target.id,
-      before: { role: target.role },
-      after: { role: nextRole },
-      summary: `A team member's role changed from ${target.role} to ${nextRole}.`,
-      correlationId: correlationId ?? null,
-      tx,
-    });
-  });
-}
-
-/** Remove somebody, keeping the row so their past actions still name a person. */
-export async function removeMember(
-  membership: SellerMembership,
-  targetMemberId: string,
-  correlationId?: string | null,
-): Promise<void> {
-  assertSellerPermission(membership, SellerPermission.MEMBER_WRITE);
-
-  await prisma.$transaction(async (tx) => {
-    const target = await tx.sellerMember.findFirst({
-      where: { id: targetMemberId, sellerAccountId: membership.sellerAccountId, removedAt: null },
-      select: { id: true, role: true },
-    });
-
-    if (target === null) throw notFound('Team member');
-
-    if (target.role === 'OWNER') {
-      const owners = await tx.sellerMember.count({
-        where: { sellerAccountId: membership.sellerAccountId, role: 'OWNER', removedAt: null },
-      });
-
-      if (owners <= 1) {
-        throw conflict(
-          ErrorCode.SELLER_LAST_OWNER,
-          'This is the only owner of the account and cannot be removed.',
-        );
-      }
-    }
-
-    await tx.sellerMember.update({ where: { id: target.id }, data: { removedAt: new Date() } });
-
-    await recordSellerAudit({
-      sellerAccountId: membership.sellerAccountId,
-      action: 'seller.member.removed',
-      actor: { type: 'CUSTOMER', label: membership.displayName },
-      resourceType: 'seller_member',
-      resourceId: target.id,
-      summary: 'A team member was removed from the seller account.',
-      correlationId: correlationId ?? null,
-      tx,
-    });
-  });
-}
+//
+// Inviting, changing a role, removing and reviewing access live in
+// `team.service.ts` (checklist Master row 14).

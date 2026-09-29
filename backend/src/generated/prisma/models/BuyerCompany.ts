@@ -505,6 +505,7 @@ export type BuyerCompanyWhereInput = {
   locations?: Prisma.BuyerCompanyLocationListRelationFilter
   members?: Prisma.BuyerCompanyMemberListRelationFilter
   invitations?: Prisma.BuyerCompanyInvitationListRelationFilter
+  accessReviews?: Prisma.TeamAccessReviewListRelationFilter
   cases?: Prisma.BuyerCompanyVerificationCaseListRelationFilter
   checks?: Prisma.BuyerCompanyCheckListRelationFilter
   documents?: Prisma.BuyerCompanyDocumentListRelationFilter
@@ -572,6 +573,7 @@ export type BuyerCompanyOrderByWithRelationInput = {
   locations?: Prisma.BuyerCompanyLocationOrderByRelationAggregateInput
   members?: Prisma.BuyerCompanyMemberOrderByRelationAggregateInput
   invitations?: Prisma.BuyerCompanyInvitationOrderByRelationAggregateInput
+  accessReviews?: Prisma.TeamAccessReviewOrderByRelationAggregateInput
   cases?: Prisma.BuyerCompanyVerificationCaseOrderByRelationAggregateInput
   checks?: Prisma.BuyerCompanyCheckOrderByRelationAggregateInput
   documents?: Prisma.BuyerCompanyDocumentOrderByRelationAggregateInput
@@ -643,6 +645,7 @@ export type BuyerCompanyWhereUniqueInput = Prisma.AtLeast<{
   locations?: Prisma.BuyerCompanyLocationListRelationFilter
   members?: Prisma.BuyerCompanyMemberListRelationFilter
   invitations?: Prisma.BuyerCompanyInvitationListRelationFilter
+  accessReviews?: Prisma.TeamAccessReviewListRelationFilter
   cases?: Prisma.BuyerCompanyVerificationCaseListRelationFilter
   checks?: Prisma.BuyerCompanyCheckListRelationFilter
   documents?: Prisma.BuyerCompanyDocumentListRelationFilter
@@ -805,6 +808,7 @@ export type BuyerCompanyCreateInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -872,6 +876,7 @@ export type BuyerCompanyUncheckedCreateInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -937,6 +942,7 @@ export type BuyerCompanyUpdateInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -1004,6 +1010,7 @@ export type BuyerCompanyUncheckedUpdateInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -1516,6 +1523,22 @@ export type BuyerCompanyUpdateOneRequiredWithoutIdentifiersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BuyerCompanyUpdateToOneWithWhereWithoutIdentifiersInput, Prisma.BuyerCompanyUpdateWithoutIdentifiersInput>, Prisma.BuyerCompanyUncheckedUpdateWithoutIdentifiersInput>
 }
 
+export type BuyerCompanyCreateNestedOneWithoutAccessReviewsInput = {
+  create?: Prisma.XOR<Prisma.BuyerCompanyCreateWithoutAccessReviewsInput, Prisma.BuyerCompanyUncheckedCreateWithoutAccessReviewsInput>
+  connectOrCreate?: Prisma.BuyerCompanyCreateOrConnectWithoutAccessReviewsInput
+  connect?: Prisma.BuyerCompanyWhereUniqueInput
+}
+
+export type BuyerCompanyUpdateOneWithoutAccessReviewsNestedInput = {
+  create?: Prisma.XOR<Prisma.BuyerCompanyCreateWithoutAccessReviewsInput, Prisma.BuyerCompanyUncheckedCreateWithoutAccessReviewsInput>
+  connectOrCreate?: Prisma.BuyerCompanyCreateOrConnectWithoutAccessReviewsInput
+  upsert?: Prisma.BuyerCompanyUpsertWithoutAccessReviewsInput
+  disconnect?: Prisma.BuyerCompanyWhereInput | boolean
+  delete?: Prisma.BuyerCompanyWhereInput | boolean
+  connect?: Prisma.BuyerCompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BuyerCompanyUpdateToOneWithWhereWithoutAccessReviewsInput, Prisma.BuyerCompanyUpdateWithoutAccessReviewsInput>, Prisma.BuyerCompanyUncheckedUpdateWithoutAccessReviewsInput>
+}
+
 export type BuyerCompanyCreateNestedOneWithoutLocationsInput = {
   create?: Prisma.XOR<Prisma.BuyerCompanyCreateWithoutLocationsInput, Prisma.BuyerCompanyUncheckedCreateWithoutLocationsInput>
   connectOrCreate?: Prisma.BuyerCompanyCreateOrConnectWithoutLocationsInput
@@ -1746,6 +1769,7 @@ export type BuyerCompanyCreateWithoutSessionsInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -1812,6 +1836,7 @@ export type BuyerCompanyUncheckedCreateWithoutSessionsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -1892,6 +1917,7 @@ export type BuyerCompanyUpdateWithoutSessionsInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -1958,6 +1984,7 @@ export type BuyerCompanyUncheckedUpdateWithoutSessionsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -2022,6 +2049,7 @@ export type BuyerCompanyCreateWithoutAddressBookInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -2088,6 +2116,7 @@ export type BuyerCompanyUncheckedCreateWithoutAddressBookInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -2168,6 +2197,7 @@ export type BuyerCompanyUpdateWithoutAddressBookInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -2234,6 +2264,7 @@ export type BuyerCompanyUncheckedUpdateWithoutAddressBookInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -2298,6 +2329,7 @@ export type BuyerCompanyCreateWithoutCartsInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -2364,6 +2396,7 @@ export type BuyerCompanyUncheckedCreateWithoutCartsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -2444,6 +2477,7 @@ export type BuyerCompanyUpdateWithoutCartsInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -2510,6 +2544,7 @@ export type BuyerCompanyUncheckedUpdateWithoutCartsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -2574,6 +2609,7 @@ export type BuyerCompanyCreateWithoutOrdersInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -2640,6 +2676,7 @@ export type BuyerCompanyUncheckedCreateWithoutOrdersInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -2720,6 +2757,7 @@ export type BuyerCompanyUpdateWithoutOrdersInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -2786,6 +2824,7 @@ export type BuyerCompanyUncheckedUpdateWithoutOrdersInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -2850,6 +2889,7 @@ export type BuyerCompanyCreateWithoutSchedulesInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -2916,6 +2956,7 @@ export type BuyerCompanyUncheckedCreateWithoutSchedulesInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -2996,6 +3037,7 @@ export type BuyerCompanyUpdateWithoutSchedulesInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -3062,6 +3104,7 @@ export type BuyerCompanyUncheckedUpdateWithoutSchedulesInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -3126,6 +3169,7 @@ export type BuyerCompanyCreateWithoutSupportTicketsInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -3192,6 +3236,7 @@ export type BuyerCompanyUncheckedCreateWithoutSupportTicketsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -3272,6 +3317,7 @@ export type BuyerCompanyUpdateWithoutSupportTicketsInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -3338,6 +3384,7 @@ export type BuyerCompanyUncheckedUpdateWithoutSupportTicketsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -3402,6 +3449,7 @@ export type BuyerCompanyCreateWithoutLinkedSellerAccountInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -3467,6 +3515,7 @@ export type BuyerCompanyUncheckedCreateWithoutLinkedSellerAccountInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -3605,6 +3654,7 @@ export type BuyerCompanyCreateWithoutPreorderRequestsInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -3671,6 +3721,7 @@ export type BuyerCompanyUncheckedCreateWithoutPreorderRequestsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -3751,6 +3802,7 @@ export type BuyerCompanyUpdateWithoutPreorderRequestsInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -3817,6 +3869,7 @@ export type BuyerCompanyUncheckedUpdateWithoutPreorderRequestsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -3880,6 +3933,7 @@ export type BuyerCompanyCreateWithoutAddressesInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -3946,6 +4000,7 @@ export type BuyerCompanyUncheckedCreateWithoutAddressesInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -4026,6 +4081,7 @@ export type BuyerCompanyUpdateWithoutAddressesInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -4092,6 +4148,7 @@ export type BuyerCompanyUncheckedUpdateWithoutAddressesInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -4156,6 +4213,7 @@ export type BuyerCompanyCreateWithoutIdentifiersInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -4222,6 +4280,7 @@ export type BuyerCompanyUncheckedCreateWithoutIdentifiersInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -4302,6 +4361,7 @@ export type BuyerCompanyUpdateWithoutIdentifiersInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -4365,6 +4425,287 @@ export type BuyerCompanyUncheckedUpdateWithoutIdentifiersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   addresses?: Prisma.BuyerCompanyAddressUncheckedUpdateManyWithoutCompanyNestedInput
+  locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
+  members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
+  invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
+  cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
+  checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
+  documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
+  infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedUpdateManyWithoutCompanyNestedInput
+  reviewEvents?: Prisma.BuyerCompanyReviewEventUncheckedUpdateManyWithoutCompanyNestedInput
+  statusHistory?: Prisma.BuyerCompanyStatusHistoryUncheckedUpdateManyWithoutCompanyNestedInput
+  consents?: Prisma.ConsentRecordUncheckedUpdateManyWithoutCompanyNestedInput
+  emailChallenges?: Prisma.BuyerCompanyEmailChallengeUncheckedUpdateManyWithoutCompanyNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutBuyerCompanyNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutBuyerCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutBuyerCompanyNestedInput
+  addressBook?: Prisma.AddressUncheckedUpdateManyWithoutBuyerCompanyNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutBuyerCompanyNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutBuyerCompanyNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutBuyerCompanyNestedInput
+  approvalPolicy?: Prisma.BuyerCompanyApprovalPolicyUncheckedUpdateOneWithoutCompanyNestedInput
+  orderApprovals?: Prisma.BuyerCompanyOrderApprovalUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type BuyerCompanyCreateWithoutAccessReviewsInput = {
+  id: string
+  applicationReference: string
+  status?: $Enums.BuyerCompanyStatus
+  version?: number
+  legalName?: string | null
+  legalNameNormalized?: string | null
+  tradingName?: string | null
+  entityType?: $Enums.BuyerCompanyEntityType | null
+  registrationCountry?: string | null
+  registrationNumber?: string | null
+  registrationNumberNormalized?: string | null
+  registrationClaimKey?: string | null
+  incorporationDate?: Date | string | null
+  industry?: string | null
+  website?: string | null
+  businessEmail?: string | null
+  businessEmailNormalized?: string | null
+  businessEmailVerifiedAt?: Date | string | null
+  businessDomain?: string | null
+  businessDomainStatus?: $Enums.BuyerCompanyDomainStatus
+  businessPhone?: string | null
+  applicantJobTitle?: string | null
+  applicantRelationship?: string | null
+  applicantAuthorityConfirmedAt?: Date | string | null
+  procurementProfileJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  riskLevel?: $Enums.BuyerCompanyRiskLevel
+  statusReason?: string | null
+  statusReasonCode?: string | null
+  resubmissionAllowed?: boolean
+  createdByUserId: string
+  submittedAt?: Date | string | null
+  firstSubmittedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  reverificationRequestedAt?: Date | string | null
+  lastStatusChangedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  addresses?: Prisma.BuyerCompanyAddressCreateNestedManyWithoutCompanyInput
+  identifiers?: Prisma.BuyerCompanyIdentifierCreateNestedManyWithoutCompanyInput
+  locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
+  members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
+  invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
+  checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
+  documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
+  infoRequests?: Prisma.BuyerCompanyInfoRequestCreateNestedManyWithoutCompanyInput
+  reviewEvents?: Prisma.BuyerCompanyReviewEventCreateNestedManyWithoutCompanyInput
+  statusHistory?: Prisma.BuyerCompanyStatusHistoryCreateNestedManyWithoutCompanyInput
+  consents?: Prisma.ConsentRecordCreateNestedManyWithoutCompanyInput
+  emailChallenges?: Prisma.BuyerCompanyEmailChallengeCreateNestedManyWithoutCompanyInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutBuyerCompanyInput
+  carts?: Prisma.CartCreateNestedManyWithoutBuyerCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutBuyerCompanyInput
+  addressBook?: Prisma.AddressCreateNestedManyWithoutBuyerCompanyInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutBuyerCompanyInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutBuyerCompanyInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutBuyerCompanyInput
+  approvalPolicy?: Prisma.BuyerCompanyApprovalPolicyCreateNestedOneWithoutCompanyInput
+  orderApprovals?: Prisma.BuyerCompanyOrderApprovalCreateNestedManyWithoutCompanyInput
+  linkedSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutLinkedBuyerCompaniesInput
+}
+
+export type BuyerCompanyUncheckedCreateWithoutAccessReviewsInput = {
+  id: string
+  applicationReference: string
+  status?: $Enums.BuyerCompanyStatus
+  version?: number
+  legalName?: string | null
+  legalNameNormalized?: string | null
+  tradingName?: string | null
+  entityType?: $Enums.BuyerCompanyEntityType | null
+  registrationCountry?: string | null
+  registrationNumber?: string | null
+  registrationNumberNormalized?: string | null
+  registrationClaimKey?: string | null
+  incorporationDate?: Date | string | null
+  industry?: string | null
+  website?: string | null
+  businessEmail?: string | null
+  businessEmailNormalized?: string | null
+  businessEmailVerifiedAt?: Date | string | null
+  businessDomain?: string | null
+  businessDomainStatus?: $Enums.BuyerCompanyDomainStatus
+  businessPhone?: string | null
+  applicantJobTitle?: string | null
+  applicantRelationship?: string | null
+  applicantAuthorityConfirmedAt?: Date | string | null
+  linkedSellerAccountId?: string | null
+  procurementProfileJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  riskLevel?: $Enums.BuyerCompanyRiskLevel
+  statusReason?: string | null
+  statusReasonCode?: string | null
+  resubmissionAllowed?: boolean
+  createdByUserId: string
+  submittedAt?: Date | string | null
+  firstSubmittedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  reverificationRequestedAt?: Date | string | null
+  lastStatusChangedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  addresses?: Prisma.BuyerCompanyAddressUncheckedCreateNestedManyWithoutCompanyInput
+  identifiers?: Prisma.BuyerCompanyIdentifierUncheckedCreateNestedManyWithoutCompanyInput
+  locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
+  members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
+  invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
+  checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
+  documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
+  infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedCreateNestedManyWithoutCompanyInput
+  reviewEvents?: Prisma.BuyerCompanyReviewEventUncheckedCreateNestedManyWithoutCompanyInput
+  statusHistory?: Prisma.BuyerCompanyStatusHistoryUncheckedCreateNestedManyWithoutCompanyInput
+  consents?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutCompanyInput
+  emailChallenges?: Prisma.BuyerCompanyEmailChallengeUncheckedCreateNestedManyWithoutCompanyInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutBuyerCompanyInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutBuyerCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutBuyerCompanyInput
+  addressBook?: Prisma.AddressUncheckedCreateNestedManyWithoutBuyerCompanyInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutBuyerCompanyInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutBuyerCompanyInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutBuyerCompanyInput
+  approvalPolicy?: Prisma.BuyerCompanyApprovalPolicyUncheckedCreateNestedOneWithoutCompanyInput
+  orderApprovals?: Prisma.BuyerCompanyOrderApprovalUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type BuyerCompanyCreateOrConnectWithoutAccessReviewsInput = {
+  where: Prisma.BuyerCompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.BuyerCompanyCreateWithoutAccessReviewsInput, Prisma.BuyerCompanyUncheckedCreateWithoutAccessReviewsInput>
+}
+
+export type BuyerCompanyUpsertWithoutAccessReviewsInput = {
+  update: Prisma.XOR<Prisma.BuyerCompanyUpdateWithoutAccessReviewsInput, Prisma.BuyerCompanyUncheckedUpdateWithoutAccessReviewsInput>
+  create: Prisma.XOR<Prisma.BuyerCompanyCreateWithoutAccessReviewsInput, Prisma.BuyerCompanyUncheckedCreateWithoutAccessReviewsInput>
+  where?: Prisma.BuyerCompanyWhereInput
+}
+
+export type BuyerCompanyUpdateToOneWithWhereWithoutAccessReviewsInput = {
+  where?: Prisma.BuyerCompanyWhereInput
+  data: Prisma.XOR<Prisma.BuyerCompanyUpdateWithoutAccessReviewsInput, Prisma.BuyerCompanyUncheckedUpdateWithoutAccessReviewsInput>
+}
+
+export type BuyerCompanyUpdateWithoutAccessReviewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  applicationReference?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalNameNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tradingName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entityType?: Prisma.NullableEnumBuyerCompanyEntityTypeFieldUpdateOperationsInput | $Enums.BuyerCompanyEntityType | null
+  registrationCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationNumberNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationClaimKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incorporationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessEmailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  businessDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessDomainStatus?: Prisma.EnumBuyerCompanyDomainStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyDomainStatus
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  applicantJobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  applicantRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  applicantAuthorityConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  procurementProfileJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  riskLevel?: Prisma.EnumBuyerCompanyRiskLevelFieldUpdateOperationsInput | $Enums.BuyerCompanyRiskLevel
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reverificationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  addresses?: Prisma.BuyerCompanyAddressUpdateManyWithoutCompanyNestedInput
+  identifiers?: Prisma.BuyerCompanyIdentifierUpdateManyWithoutCompanyNestedInput
+  locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
+  members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
+  invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
+  checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
+  documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
+  infoRequests?: Prisma.BuyerCompanyInfoRequestUpdateManyWithoutCompanyNestedInput
+  reviewEvents?: Prisma.BuyerCompanyReviewEventUpdateManyWithoutCompanyNestedInput
+  statusHistory?: Prisma.BuyerCompanyStatusHistoryUpdateManyWithoutCompanyNestedInput
+  consents?: Prisma.ConsentRecordUpdateManyWithoutCompanyNestedInput
+  emailChallenges?: Prisma.BuyerCompanyEmailChallengeUpdateManyWithoutCompanyNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutBuyerCompanyNestedInput
+  carts?: Prisma.CartUpdateManyWithoutBuyerCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutBuyerCompanyNestedInput
+  addressBook?: Prisma.AddressUpdateManyWithoutBuyerCompanyNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutBuyerCompanyNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutBuyerCompanyNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutBuyerCompanyNestedInput
+  approvalPolicy?: Prisma.BuyerCompanyApprovalPolicyUpdateOneWithoutCompanyNestedInput
+  orderApprovals?: Prisma.BuyerCompanyOrderApprovalUpdateManyWithoutCompanyNestedInput
+  linkedSellerAccount?: Prisma.SellerAccountUpdateOneWithoutLinkedBuyerCompaniesNestedInput
+}
+
+export type BuyerCompanyUncheckedUpdateWithoutAccessReviewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  applicationReference?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumBuyerCompanyStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyStatus
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalNameNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tradingName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entityType?: Prisma.NullableEnumBuyerCompanyEntityTypeFieldUpdateOperationsInput | $Enums.BuyerCompanyEntityType | null
+  registrationCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationNumberNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationClaimKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  incorporationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessEmailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  businessDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessDomainStatus?: Prisma.EnumBuyerCompanyDomainStatusFieldUpdateOperationsInput | $Enums.BuyerCompanyDomainStatus
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  applicantJobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  applicantRelationship?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  applicantAuthorityConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  linkedSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  procurementProfileJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  riskLevel?: Prisma.EnumBuyerCompanyRiskLevelFieldUpdateOperationsInput | $Enums.BuyerCompanyRiskLevel
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReasonCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reverificationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  addresses?: Prisma.BuyerCompanyAddressUncheckedUpdateManyWithoutCompanyNestedInput
+  identifiers?: Prisma.BuyerCompanyIdentifierUncheckedUpdateManyWithoutCompanyNestedInput
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
@@ -4432,6 +4773,7 @@ export type BuyerCompanyCreateWithoutLocationsInput = {
   identifiers?: Prisma.BuyerCompanyIdentifierCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -4498,6 +4840,7 @@ export type BuyerCompanyUncheckedCreateWithoutLocationsInput = {
   identifiers?: Prisma.BuyerCompanyIdentifierUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -4578,6 +4921,7 @@ export type BuyerCompanyUpdateWithoutLocationsInput = {
   identifiers?: Prisma.BuyerCompanyIdentifierUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -4644,6 +4988,7 @@ export type BuyerCompanyUncheckedUpdateWithoutLocationsInput = {
   identifiers?: Prisma.BuyerCompanyIdentifierUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -4708,6 +5053,7 @@ export type BuyerCompanyCreateWithoutMembersInput = {
   identifiers?: Prisma.BuyerCompanyIdentifierCreateNestedManyWithoutCompanyInput
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -4774,6 +5120,7 @@ export type BuyerCompanyUncheckedCreateWithoutMembersInput = {
   identifiers?: Prisma.BuyerCompanyIdentifierUncheckedCreateNestedManyWithoutCompanyInput
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -4854,6 +5201,7 @@ export type BuyerCompanyUpdateWithoutMembersInput = {
   identifiers?: Prisma.BuyerCompanyIdentifierUpdateManyWithoutCompanyNestedInput
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -4920,6 +5268,7 @@ export type BuyerCompanyUncheckedUpdateWithoutMembersInput = {
   identifiers?: Prisma.BuyerCompanyIdentifierUncheckedUpdateManyWithoutCompanyNestedInput
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -4984,6 +5333,7 @@ export type BuyerCompanyCreateWithoutInvitationsInput = {
   identifiers?: Prisma.BuyerCompanyIdentifierCreateNestedManyWithoutCompanyInput
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -5050,6 +5400,7 @@ export type BuyerCompanyUncheckedCreateWithoutInvitationsInput = {
   identifiers?: Prisma.BuyerCompanyIdentifierUncheckedCreateNestedManyWithoutCompanyInput
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -5130,6 +5481,7 @@ export type BuyerCompanyUpdateWithoutInvitationsInput = {
   identifiers?: Prisma.BuyerCompanyIdentifierUpdateManyWithoutCompanyNestedInput
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -5196,6 +5548,7 @@ export type BuyerCompanyUncheckedUpdateWithoutInvitationsInput = {
   identifiers?: Prisma.BuyerCompanyIdentifierUncheckedUpdateManyWithoutCompanyNestedInput
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -5261,6 +5614,7 @@ export type BuyerCompanyCreateWithoutApprovalPolicyInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -5327,6 +5681,7 @@ export type BuyerCompanyUncheckedCreateWithoutApprovalPolicyInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -5407,6 +5762,7 @@ export type BuyerCompanyUpdateWithoutApprovalPolicyInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -5473,6 +5829,7 @@ export type BuyerCompanyUncheckedUpdateWithoutApprovalPolicyInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -5537,6 +5894,7 @@ export type BuyerCompanyCreateWithoutOrderApprovalsInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -5603,6 +5961,7 @@ export type BuyerCompanyUncheckedCreateWithoutOrderApprovalsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -5683,6 +6042,7 @@ export type BuyerCompanyUpdateWithoutOrderApprovalsInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -5749,6 +6109,7 @@ export type BuyerCompanyUncheckedUpdateWithoutOrderApprovalsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -5813,6 +6174,7 @@ export type BuyerCompanyCreateWithoutCasesInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestCreateNestedManyWithoutCompanyInput
@@ -5879,6 +6241,7 @@ export type BuyerCompanyUncheckedCreateWithoutCasesInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedCreateNestedManyWithoutCompanyInput
@@ -5959,6 +6322,7 @@ export type BuyerCompanyUpdateWithoutCasesInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUpdateManyWithoutCompanyNestedInput
@@ -6025,6 +6389,7 @@ export type BuyerCompanyUncheckedUpdateWithoutCasesInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedUpdateManyWithoutCompanyNestedInput
@@ -6089,6 +6454,7 @@ export type BuyerCompanyCreateWithoutChecksInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestCreateNestedManyWithoutCompanyInput
@@ -6155,6 +6521,7 @@ export type BuyerCompanyUncheckedCreateWithoutChecksInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedCreateNestedManyWithoutCompanyInput
@@ -6235,6 +6602,7 @@ export type BuyerCompanyUpdateWithoutChecksInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUpdateManyWithoutCompanyNestedInput
@@ -6301,6 +6669,7 @@ export type BuyerCompanyUncheckedUpdateWithoutChecksInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedUpdateManyWithoutCompanyNestedInput
@@ -6365,6 +6734,7 @@ export type BuyerCompanyCreateWithoutDocumentsInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestCreateNestedManyWithoutCompanyInput
@@ -6431,6 +6801,7 @@ export type BuyerCompanyUncheckedCreateWithoutDocumentsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedCreateNestedManyWithoutCompanyInput
@@ -6511,6 +6882,7 @@ export type BuyerCompanyUpdateWithoutDocumentsInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUpdateManyWithoutCompanyNestedInput
@@ -6577,6 +6949,7 @@ export type BuyerCompanyUncheckedUpdateWithoutDocumentsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   infoRequests?: Prisma.BuyerCompanyInfoRequestUncheckedUpdateManyWithoutCompanyNestedInput
@@ -6641,6 +7014,7 @@ export type BuyerCompanyCreateWithoutInfoRequestsInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -6707,6 +7081,7 @@ export type BuyerCompanyUncheckedCreateWithoutInfoRequestsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -6787,6 +7162,7 @@ export type BuyerCompanyUpdateWithoutInfoRequestsInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -6853,6 +7229,7 @@ export type BuyerCompanyUncheckedUpdateWithoutInfoRequestsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -6917,6 +7294,7 @@ export type BuyerCompanyCreateWithoutReviewEventsInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -6983,6 +7361,7 @@ export type BuyerCompanyUncheckedCreateWithoutReviewEventsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -7063,6 +7442,7 @@ export type BuyerCompanyUpdateWithoutReviewEventsInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -7129,6 +7509,7 @@ export type BuyerCompanyUncheckedUpdateWithoutReviewEventsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -7193,6 +7574,7 @@ export type BuyerCompanyCreateWithoutStatusHistoryInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -7259,6 +7641,7 @@ export type BuyerCompanyUncheckedCreateWithoutStatusHistoryInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -7339,6 +7722,7 @@ export type BuyerCompanyUpdateWithoutStatusHistoryInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -7405,6 +7789,7 @@ export type BuyerCompanyUncheckedUpdateWithoutStatusHistoryInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -7469,6 +7854,7 @@ export type BuyerCompanyCreateWithoutConsentsInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -7535,6 +7921,7 @@ export type BuyerCompanyUncheckedCreateWithoutConsentsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -7615,6 +8002,7 @@ export type BuyerCompanyUpdateWithoutConsentsInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -7681,6 +8069,7 @@ export type BuyerCompanyUncheckedUpdateWithoutConsentsInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -7745,6 +8134,7 @@ export type BuyerCompanyCreateWithoutEmailChallengesInput = {
   locations?: Prisma.BuyerCompanyLocationCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentCreateNestedManyWithoutCompanyInput
@@ -7811,6 +8201,7 @@ export type BuyerCompanyUncheckedCreateWithoutEmailChallengesInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedCreateNestedManyWithoutCompanyInput
   members?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutCompanyInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedCreateNestedManyWithoutCompanyInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutBuyerCompanyInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutCompanyInput
   checks?: Prisma.BuyerCompanyCheckUncheckedCreateNestedManyWithoutCompanyInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedCreateNestedManyWithoutCompanyInput
@@ -7891,6 +8282,7 @@ export type BuyerCompanyUpdateWithoutEmailChallengesInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -7957,6 +8349,7 @@ export type BuyerCompanyUncheckedUpdateWithoutEmailChallengesInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -8064,6 +8457,7 @@ export type BuyerCompanyUpdateWithoutLinkedSellerAccountInput = {
   locations?: Prisma.BuyerCompanyLocationUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUpdateManyWithoutCompanyNestedInput
@@ -8129,6 +8523,7 @@ export type BuyerCompanyUncheckedUpdateWithoutLinkedSellerAccountInput = {
   locations?: Prisma.BuyerCompanyLocationUncheckedUpdateManyWithoutCompanyNestedInput
   members?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutCompanyNestedInput
   invitations?: Prisma.BuyerCompanyInvitationUncheckedUpdateManyWithoutCompanyNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutBuyerCompanyNestedInput
   cases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutCompanyNestedInput
   checks?: Prisma.BuyerCompanyCheckUncheckedUpdateManyWithoutCompanyNestedInput
   documents?: Prisma.BuyerCompanyDocumentUncheckedUpdateManyWithoutCompanyNestedInput
@@ -8202,6 +8597,7 @@ export type BuyerCompanyCountOutputType = {
   locations: number
   members: number
   invitations: number
+  accessReviews: number
   cases: number
   checks: number
   documents: number
@@ -8226,6 +8622,7 @@ export type BuyerCompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Exte
   locations?: boolean | BuyerCompanyCountOutputTypeCountLocationsArgs
   members?: boolean | BuyerCompanyCountOutputTypeCountMembersArgs
   invitations?: boolean | BuyerCompanyCountOutputTypeCountInvitationsArgs
+  accessReviews?: boolean | BuyerCompanyCountOutputTypeCountAccessReviewsArgs
   cases?: boolean | BuyerCompanyCountOutputTypeCountCasesArgs
   checks?: boolean | BuyerCompanyCountOutputTypeCountChecksArgs
   documents?: boolean | BuyerCompanyCountOutputTypeCountDocumentsArgs
@@ -8287,6 +8684,13 @@ export type BuyerCompanyCountOutputTypeCountMembersArgs<ExtArgs extends runtime.
  */
 export type BuyerCompanyCountOutputTypeCountInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.BuyerCompanyInvitationWhereInput
+}
+
+/**
+ * BuyerCompanyCountOutputType without action
+ */
+export type BuyerCompanyCountOutputTypeCountAccessReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TeamAccessReviewWhereInput
 }
 
 /**
@@ -8449,6 +8853,7 @@ export type BuyerCompanySelect<ExtArgs extends runtime.Types.Extensions.Internal
   locations?: boolean | Prisma.BuyerCompany$locationsArgs<ExtArgs>
   members?: boolean | Prisma.BuyerCompany$membersArgs<ExtArgs>
   invitations?: boolean | Prisma.BuyerCompany$invitationsArgs<ExtArgs>
+  accessReviews?: boolean | Prisma.BuyerCompany$accessReviewsArgs<ExtArgs>
   cases?: boolean | Prisma.BuyerCompany$casesArgs<ExtArgs>
   checks?: boolean | Prisma.BuyerCompany$checksArgs<ExtArgs>
   documents?: boolean | Prisma.BuyerCompany$documentsArgs<ExtArgs>
@@ -8523,6 +8928,7 @@ export type BuyerCompanyInclude<ExtArgs extends runtime.Types.Extensions.Interna
   locations?: boolean | Prisma.BuyerCompany$locationsArgs<ExtArgs>
   members?: boolean | Prisma.BuyerCompany$membersArgs<ExtArgs>
   invitations?: boolean | Prisma.BuyerCompany$invitationsArgs<ExtArgs>
+  accessReviews?: boolean | Prisma.BuyerCompany$accessReviewsArgs<ExtArgs>
   cases?: boolean | Prisma.BuyerCompany$casesArgs<ExtArgs>
   checks?: boolean | Prisma.BuyerCompany$checksArgs<ExtArgs>
   documents?: boolean | Prisma.BuyerCompany$documentsArgs<ExtArgs>
@@ -8552,6 +8958,7 @@ export type $BuyerCompanyPayload<ExtArgs extends runtime.Types.Extensions.Intern
     locations: Prisma.$BuyerCompanyLocationPayload<ExtArgs>[]
     members: Prisma.$BuyerCompanyMemberPayload<ExtArgs>[]
     invitations: Prisma.$BuyerCompanyInvitationPayload<ExtArgs>[]
+    accessReviews: Prisma.$TeamAccessReviewPayload<ExtArgs>[]
     cases: Prisma.$BuyerCompanyVerificationCasePayload<ExtArgs>[]
     checks: Prisma.$BuyerCompanyCheckPayload<ExtArgs>[]
     documents: Prisma.$BuyerCompanyDocumentPayload<ExtArgs>[]
@@ -9032,6 +9439,7 @@ export interface Prisma__BuyerCompanyClient<T, Null = never, ExtArgs extends run
   locations<T extends Prisma.BuyerCompany$locationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BuyerCompany$locationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BuyerCompanyLocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   members<T extends Prisma.BuyerCompany$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BuyerCompany$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BuyerCompanyMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invitations<T extends Prisma.BuyerCompany$invitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BuyerCompany$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BuyerCompanyInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  accessReviews<T extends Prisma.BuyerCompany$accessReviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BuyerCompany$accessReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TeamAccessReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   cases<T extends Prisma.BuyerCompany$casesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BuyerCompany$casesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BuyerCompanyVerificationCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   checks<T extends Prisma.BuyerCompany$checksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BuyerCompany$checksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BuyerCompanyCheckPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   documents<T extends Prisma.BuyerCompany$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BuyerCompany$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BuyerCompanyDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -9585,6 +9993,30 @@ export type BuyerCompany$invitationsArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.BuyerCompanyInvitationScalarFieldEnum | Prisma.BuyerCompanyInvitationScalarFieldEnum[]
+}
+
+/**
+ * BuyerCompany.accessReviews
+ */
+export type BuyerCompany$accessReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TeamAccessReview
+   */
+  select?: Prisma.TeamAccessReviewSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TeamAccessReview
+   */
+  omit?: Prisma.TeamAccessReviewOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TeamAccessReviewInclude<ExtArgs> | null
+  where?: Prisma.TeamAccessReviewWhereInput
+  orderBy?: Prisma.TeamAccessReviewOrderByWithRelationInput | Prisma.TeamAccessReviewOrderByWithRelationInput[]
+  cursor?: Prisma.TeamAccessReviewWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TeamAccessReviewScalarFieldEnum | Prisma.TeamAccessReviewScalarFieldEnum[]
 }
 
 /**

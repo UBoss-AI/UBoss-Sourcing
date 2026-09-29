@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1081 endpoints** in 93 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1091 endpoints** in 95 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,11 +27,11 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 445 |
+| [Admin panel (staff)](#admin-panel-staff) | 447 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 252 |
+| [Seller Hub](#seller-hub) | 259 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 232 |
+| [Customer account](#customer-account) | 233 |
 | [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
@@ -101,6 +101,7 @@ Defined in `backend/src/http/routes/buyer-companies.admin.ts`.
 | GET | `/api/v1/admin/buyer-companies` | Staff | Admin(BUYER_COMPANY_READ) | The review queue: filter by status, country, reviewer and risk; search by name, reference, number or email. |
 | GET | `/api/v1/admin/buyer-companies/reviewers` | Staff | Admin(BUYER_COMPANY_READ) | Staff who may be assigned a company review. |
 | GET | `/api/v1/admin/buyer-companies/:id` | Staff | Admin(BUYER_COMPANY_READ) | One application with everything a reviewer needs: details, checks, duplicates, documents, notes and history. |
+| GET | `/api/v1/admin/buyer-companies/:id/access-review` | Staff | Admin(BUYER_COMPANY_READ) | Who can act for this company, read-only: roles, joining dates, who invited whom, last sign-in and activity, open invitations and recent access reviews. |
 | POST | `/api/v1/admin/buyer-companies/:id/start-review` | Staff | Admin(BUYER_COMPANY_REVIEW) | Open a submitted application for review and take it if nobody has. |
 | POST | `/api/v1/admin/buyer-companies/:id/assign` | Staff | Admin(BUYER_COMPANY_REVIEW) | Give the review to a colleague who may review, or unassign it. |
 | POST | `/api/v1/admin/buyer-companies/:id/notes` | Staff | Admin(BUYER_COMPANY_REVIEW) | Add an internal note. Never shown to the applicant. |
@@ -781,6 +782,7 @@ Defined in `backend/src/http/routes/sellers.admin.ts`.
 | GET | `/api/v1/admin/sellers` | Staff | Admin(CUSTOMER_READ) | List seller applications a page at a time, filtered by status or searched by business name. |
 | GET | `/api/v1/admin/sellers/:id` | Staff | Admin(CUSTOMER_READ) | One seller application in full, including internal notes the seller never sees. |
 | GET | `/api/v1/admin/sellers/:id/insight` | Staff | Admin(CUSTOMER_READ) | How this seller is doing, and where its goods are. |
+| GET | `/api/v1/admin/sellers/:id/access-review` | Staff | Admin(CUSTOMER_READ) | Who can act for this seller, read-only: each member's role, when they joined, who invited them, when they last signed in and used the Hub, the open invitations and the recent access reviews. |
 | POST | `/api/v1/admin/sellers/:id/decision` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Decide an application. |
 | PATCH | `/api/v1/admin/sellers/:id/commission` | Staff | Admin(SETTINGS_WRITE) | One seller's own commission rate. |
 | GET | `/api/v1/admin/sellers/:id/documents` | Staff | Admin(CUSTOMER_READ) | The current certificates and licences a seller has uploaded, with the review status of each. |
@@ -1099,6 +1101,14 @@ Defined in `backend/src/http/routes/logistics.operations.ts`.
 
 ## Seller Hub
 
+### `seller/access-reviews`
+
+Defined in `backend/src/http/routes/seller.team.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/seller/access-reviews` | Seller | Seller(MEMBER_WRITE) | Record that you have reviewed who has access to the team. Audited. |
+
 ### `seller/agreements`
 
 Defined in `backend/src/http/routes/seller.account.ts`.
@@ -1324,6 +1334,16 @@ Defined in `backend/src/http/routes/seller.operations.ts`.
 | PATCH | `/api/v1/seller/inventory/:offerId/:locationId` | Seller | Seller + Seller(INVENTORY_WRITE) | Change the reorder level and batch details (batch number, made and expiry dates) for one listing's stock at one place. Does not change the quantity. |
 | GET | `/api/v1/seller/inventory/:offerId/movements` | Seller | Seller + Seller(INVENTORY_READ) | The history of stock changes for one listing, most recent first. |
 
+### `seller/invitations`
+
+Defined in `backend/src/http/routes/seller.team.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/seller/invitations` | Seller | Seller(MEMBER_WRITE) | Invite somebody by email in one role. Never Owner, and never a role carrying more than your own. |
+| POST | `/api/v1/seller/invitations/:invitationId/resend` | Seller | Seller(MEMBER_WRITE) | Send an invitation again with a new link and a new expiry; the old link stops working. |
+| DELETE | `/api/v1/seller/invitations/:invitationId` | Seller | Seller(MEMBER_WRITE) | Withdraw an invitation nobody has accepted yet. |
+
 ### `seller/invoice-settings`
 
 Defined in `backend/src/http/routes/seller.documents.ts`.
@@ -1443,8 +1463,8 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/seller/members` | Seller | Seller + Seller(MEMBER_READ) | The seller's current team members, with each one's name, email, role and joining date. |
-| PATCH | `/api/v1/seller/members/:memberId` | Seller | Seller + Seller(MEMBER_WRITE) | Change a team member's role. Refused if it would leave the business with no owner, or would grant a role the person making the change does not hold. Writes an audit entry. |
-| DELETE | `/api/v1/seller/members/:memberId` | Seller | Seller + Seller(MEMBER_WRITE) | Remove someone from the seller's team. Their past actions still show their name, and removing the last owner is refused. Writes an audit entry. |
+| PATCH | `/api/v1/seller/members/:memberId` | Seller | Seller + Seller(MEMBER_WRITE) | Change a team member's role. Refused if it would leave the business with no owner, would grant a role the person making the change does not hold, or touches yourself or somebody holding more than you. Writes an audit entry. |
+| DELETE | `/api/v1/seller/members/:memberId` | Seller | Seller + Seller(MEMBER_WRITE) | Remove someone from the seller's team. Their past actions still show their name. Removing the last owner, yourself, or somebody holding more than you is refused. Writes an audit entry. |
 
 ### `seller/new-id`
 
@@ -1630,9 +1650,17 @@ Defined in `backend/src/http/routes/support.ts`.
 | POST | `/api/v1/seller/support/tickets/:reference/attachments/:attachmentId/link` | Seller | Seller | A download link for one file on your ticket: five minutes, single use, this session only. |
 | GET | `/api/v1/seller/support/tickets/:reference/attachments/:attachmentId/download` | Seller | Seller | Redeem a download link. Served as a download, never inline. |
 
+### `seller/team`
+
+Defined in `backend/src/http/routes/seller.team.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/team` | Seller | Seller(MEMBER_READ) | The team with each member's role, who invited them and when they last signed in; live invitations; recent access reviews. |
+
 ### `sellers`
 
-Defined in `backend/src/http/routes/seller.account.ts`.
+Defined in `backend/src/http/routes/seller.account.ts`, `backend/src/http/routes/seller.team.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -1644,6 +1672,8 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 | POST | `/api/v1/sellers/lock/close` | Customer | Customer | Shut it again, without signing out of the shop. |
 | GET | `/api/v1/sellers/display-name-available` | Customer | Customer | Is this public shop name free? Called as the seller types it. |
 | POST | `/api/v1/sellers/apply` | Customer | Customer | Start a seller application. |
+| POST | `/api/v1/sellers/invitations/preview` | Customer | Customer | What a seller team invitation asks you to join. Only for the signed-in account it was sent to. |
+| POST | `/api/v1/sellers/invitations/accept` | Customer | Customer | Accept a seller team invitation. Your verified email must be the one it was sent to. |
 
 ## Webhooks, integrations and health
 
@@ -1987,6 +2017,7 @@ Defined in `backend/src/http/routes/buyer-companies.customer.ts`.
 | DELETE | `/api/v1/buyer-companies/:id/invitations/:invitationId` | Customer | Customer | Withdraw an invitation nobody has accepted yet. |
 | PATCH | `/api/v1/buyer-companies/:id/members/:memberId` | Customer | Customer | Change a member's role. Never the owner, never yourself; only the owner changes an administrator. |
 | DELETE | `/api/v1/buyer-companies/:id/members/:memberId` | Customer | Customer | Remove a member. Their access ends on their next request. |
+| POST | `/api/v1/buyer-companies/:id/access-reviews` | Customer | Customer | Record that you have reviewed who has access to the company. Owner or administrator; audited. |
 | POST | `/api/v1/buyer-companies/invitations/preview` | Customer | Customer | What an invitation link asks you to join. Only for the signed-in account it was sent to. |
 | POST | `/api/v1/buyer-companies/invitations/accept` | Customer | Customer | Accept an invitation. Your verified email must be the one it was sent to. |
 

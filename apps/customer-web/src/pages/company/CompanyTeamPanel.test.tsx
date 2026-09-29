@@ -19,12 +19,31 @@ function team(overrides: Record<string, unknown> = {}) {
     manageBlocked: null,
     assignableRoles: ['COMPANY_ADMIN', 'BUYER', 'ORDER_APPROVER', 'FINANCE', 'VIEWER'],
     members: [
-      { id: 'm1', name: 'Olga Owner', email: 'olga@acme.test', role: 'OWNER', joinedAt: '2026-09-01T00:00:00.000Z', isYou: true, canChange: false },
-      { id: 'm2', name: 'Bea Buyer', email: 'bea@acme.test', role: 'BUYER', joinedAt: '2026-09-02T00:00:00.000Z', isYou: false, canChange: true },
+      {
+        id: 'm1',
+        name: 'Olga Owner',
+        email: 'olga@acme.test',
+        role: 'OWNER',
+        joinedAt: '2026-09-01T00:00:00.000Z',
+        isYou: true,
+        canChange: false,
+        access: { invitedByName: null, lastSignInAt: '2026-09-20T00:00:00.000Z', lastActiveAt: '2026-09-21T00:00:00.000Z' },
+      },
+      {
+        id: 'm2',
+        name: 'Bea Buyer',
+        email: 'bea@acme.test',
+        role: 'BUYER',
+        joinedAt: '2026-09-02T00:00:00.000Z',
+        isYou: false,
+        canChange: true,
+        access: { invitedByName: 'Olga Owner', lastSignInAt: null, lastActiveAt: null },
+      },
     ],
     invitations: [
       { id: 'i1', email: 'carl@acme.test', role: 'FINANCE', expiresAt: '2026-10-09T00:00:00.000Z', expired: false, sendCount: 1, lastSentAt: '2026-10-02T00:00:00.000Z', canChange: true },
     ],
+    accessReview: { reviews: [], intervalDays: 90, dueAt: null, due: true },
     ...overrides,
   };
 }
@@ -101,7 +120,18 @@ describe('CompanyTeamPanel', () => {
 
   it('shows a member without the right role the team only, and a pending company why it cannot be managed', async () => {
     fetchMock.mockImplementation(() =>
-      Promise.resolve(jsonResponse(team({ companyStatus: 'SUBMITTED', manageBlocked: 'NOT_APPROVED', assignableRoles: [], invitations: [], members: team().members.map((m) => ({ ...m, canChange: false })) }))),
+      Promise.resolve(
+        jsonResponse(
+          team({
+            companyStatus: 'SUBMITTED',
+            manageBlocked: 'NOT_APPROVED',
+            assignableRoles: [],
+            invitations: [],
+            accessReview: null,
+            members: team().members.map((m) => ({ ...m, canChange: false, access: null })),
+          }),
+        ),
+      ),
     );
     renderWithProviders(<CompanyTeamPanel companyId={COMPANY} />);
 
@@ -109,6 +139,25 @@ describe('CompanyTeamPanel', () => {
     expect(screen.getByText('Bea Buyer')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Send invitation' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Remove/ })).not.toBeInTheDocument();
+    // No access-review facts for somebody who cannot manage the team.
+    expect(screen.queryByText(/Last signed in/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'I have reviewed this team' })).not.toBeInTheDocument();
+  });
+
+  it('shows the access-review facts and records a review', async () => {
+    fetchMock.mockImplementation(() => Promise.resolve(jsonResponse(team())));
+    renderWithProviders(<CompanyTeamPanel companyId={COMPANY} />);
+
+    expect(await screen.findByText('Review due')).toBeInTheDocument();
+    expect(screen.getByText('This team has not been reviewed yet.')).toBeInTheDocument();
+    expect(screen.getByText(/invited by Olga Owner/)).toBeInTheDocument();
+    expect(screen.getByText(/started the company/)).toBeInTheDocument();
+    expect(screen.getByText(/Last signed in: never/)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'I have reviewed this team' }));
+    await waitFor(() => {
+      expect(calls(`/buyer-companies/${COMPANY}/access-reviews`, 'POST')).toHaveLength(1);
+    });
   });
 
   it('says which rule refused a change, and reloads the team', async () => {

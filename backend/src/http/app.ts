@@ -98,6 +98,7 @@ import {
   registerSellerEntryRoutes,
 } from './routes/seller.account.js';
 import { registerSellerListingRoutes } from './routes/seller.listings.js';
+import { registerSellerInvitationRoutes, registerSellerTeamRoutes } from './routes/seller.team.js';
 import { registerSellerOperationsRoutes } from './routes/seller.operations.js';
 import { registerSellerErpRoutes } from './routes/seller.erp.js';
 import { registerErpBridgeRoutes } from './routes/erp-bridge.js';
@@ -804,6 +805,10 @@ export async function buildApp() {
    */
   await app.register(registerSellerEntryRoutes, { prefix: `${API_PREFIX}/sellers` });
   await app.register(registerSellerAccountRoutes, { prefix: `${API_PREFIX}/seller` });
+  // A seller's team: invitations and the access review (Master row 14). The
+  // accept side is under /sellers: the person accepting is not a seller yet.
+  await app.register(registerSellerTeamRoutes, { prefix: `${API_PREFIX}/seller` });
+  await app.register(registerSellerInvitationRoutes, { prefix: `${API_PREFIX}/sellers` });
   await app.register(registerSellerListingRoutes, { prefix: `${API_PREFIX}/seller` });
   await app.register(registerSellerOperationsRoutes, { prefix: `${API_PREFIX}/seller` });
   // The seller's own accounting system. Under `/seller` like everything else

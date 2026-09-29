@@ -314,6 +314,7 @@ export const ModelName = {
   BuyerCompany: 'BuyerCompany',
   BuyerCompanyAddress: 'BuyerCompanyAddress',
   BuyerCompanyIdentifier: 'BuyerCompanyIdentifier',
+  TeamAccessReview: 'TeamAccessReview',
   BuyerCompanyLocation: 'BuyerCompanyLocation',
   BuyerCompanyMember: 'BuyerCompanyMember',
   BuyerCompanyInvitation: 'BuyerCompanyInvitation',
@@ -3363,14 +3364,19 @@ export type SellerMemberScalarFieldEnum = (typeof SellerMemberScalarFieldEnum)[k
 export const SellerInvitationScalarFieldEnum = {
   id: 'id',
   sellerAccountId: 'sellerAccountId',
+  email: 'email',
   emailNormalized: 'emailNormalized',
   role: 'role',
   tokenHash: 'tokenHash',
   expiresAt: 'expiresAt',
+  liveKey: 'liveKey',
+  sendCount: 'sendCount',
+  lastSentAt: 'lastSentAt',
   invitedByProfileId: 'invitedByProfileId',
   acceptedAt: 'acceptedAt',
   acceptedByProfileId: 'acceptedByProfileId',
   revokedAt: 'revokedAt',
+  revokedByProfileId: 'revokedByProfileId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -6633,6 +6639,19 @@ export const BuyerCompanyIdentifierScalarFieldEnum = {
 } as const
 
 export type BuyerCompanyIdentifierScalarFieldEnum = (typeof BuyerCompanyIdentifierScalarFieldEnum)[keyof typeof BuyerCompanyIdentifierScalarFieldEnum]
+
+
+export const TeamAccessReviewScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  buyerCompanyId: 'buyerCompanyId',
+  reviewedByUserId: 'reviewedByUserId',
+  memberCount: 'memberCount',
+  invitationCount: 'invitationCount',
+  createdAt: 'createdAt'
+} as const
+
+export type TeamAccessReviewScalarFieldEnum = (typeof TeamAccessReviewScalarFieldEnum)[keyof typeof TeamAccessReviewScalarFieldEnum]
 
 
 export const BuyerCompanyLocationScalarFieldEnum = {
@@ -10228,10 +10247,13 @@ export type SellerMemberOrderByRelevanceFieldEnum = (typeof SellerMemberOrderByR
 export const SellerInvitationOrderByRelevanceFieldEnum = {
   id: 'id',
   sellerAccountId: 'sellerAccountId',
+  email: 'email',
   emailNormalized: 'emailNormalized',
   tokenHash: 'tokenHash',
+  liveKey: 'liveKey',
   invitedByProfileId: 'invitedByProfileId',
-  acceptedByProfileId: 'acceptedByProfileId'
+  acceptedByProfileId: 'acceptedByProfileId',
+  revokedByProfileId: 'revokedByProfileId'
 } as const
 
 export type SellerInvitationOrderByRelevanceFieldEnum = (typeof SellerInvitationOrderByRelevanceFieldEnum)[keyof typeof SellerInvitationOrderByRelevanceFieldEnum]
@@ -12152,6 +12174,16 @@ export const BuyerCompanyIdentifierOrderByRelevanceFieldEnum = {
 } as const
 
 export type BuyerCompanyIdentifierOrderByRelevanceFieldEnum = (typeof BuyerCompanyIdentifierOrderByRelevanceFieldEnum)[keyof typeof BuyerCompanyIdentifierOrderByRelevanceFieldEnum]
+
+
+export const TeamAccessReviewOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  buyerCompanyId: 'buyerCompanyId',
+  reviewedByUserId: 'reviewedByUserId'
+} as const
+
+export type TeamAccessReviewOrderByRelevanceFieldEnum = (typeof TeamAccessReviewOrderByRelevanceFieldEnum)[keyof typeof TeamAccessReviewOrderByRelevanceFieldEnum]
 
 
 export const BuyerCompanyLocationOrderByRelevanceFieldEnum = {

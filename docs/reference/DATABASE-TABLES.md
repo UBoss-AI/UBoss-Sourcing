@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**341 tables · 318 enums · 786 extra indexes and unique keys**, in 54 groups. The groups follow the section banners in the schema file.
+**342 tables · 318 enums · 788 extra indexes and unique keys**, in 54 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -71,7 +71,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ which level of the fallback chain a policy sits at. / / offer -&gt; product -&gt; seller_default -&gt; the platform's own defaults (config) / / the first one that exists wins, whole. a variant whose own policy says / "disabled" is disabled, and does not fall through to an enabled product / policy - a seller who switched one variant off meant it.](#group-which-level-of-the-fallback-chain-a-policy-sits-at-offer-product-seller-default-the-platform-s-own-defaults-config-the-first-one-that-exists-wins-whole-a-variant-whose-own-policy-says-disabled-is-disabled-and-does-not-fall-through-to-an-enabled-product-policy-a-seller-who-switched-one-variant-off-meant-it) | 9 | 14 |
 | [/ where a conversation stands. moved only by `domain/preorder-chat-state.ts`.](#group-where-a-conversation-stands-moved-only-by-domain-preorder-chat-state-ts) | 8 | 7 |
 | [Seller documents: invoices and packing lists](#group-seller-documents-invoices-and-packing-lists) | 5 | 3 |
-| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 15 | 19 |
+| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 16 | 19 |
 | [/ which agreement a document is. each account type is asked for its own.](#group-which-agreement-a-document-is-each-account-type-is-asked-for-its-own) | 2 | 2 |
 | [Seller commission invoices](#group-seller-commission-invoices) | 6 | 7 |
 | [/ how strongly an order needs inspecting, decided by the rules engine.](#group-how-strongly-an-order-needs-inspecting-decided-by-the-rules-engine) | 17 | 23 |
@@ -7881,6 +7881,7 @@ A seller business, as a tenant.
 
 - `members` ← [SellerMember](#model-sellermember) - has many
 - `invitations` ← [SellerInvitation](#model-sellerinvitation) - has many
+- `accessReviews` ← [TeamAccessReview](#model-teamaccessreview) - has many
 - `onboarding` ← [SellerOnboardingProgress](#model-selleronboardingprogress) - has zero or one
 - `businessProfile` ← [SellerBusinessProfile](#model-sellerbusinessprofile) - has zero or one
 - `verificationCases` ← [SellerVerificationCase](#model-sellerverificationcase) - has many
@@ -7987,20 +7988,25 @@ One person's place in one seller organisation.
 
 Table `seller_invitations`
 
-An outstanding invitation to join a seller organisation.
+An invitation to join a seller organisation in one role (checklist Master row 14).
 
 | Column | Type | Null? | Key | Default | Notes |
 |---|---|---|---|---|---|
 | `id` | String · Char(26) |  | PK |  |  |
 | `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `email` | String · VarChar(320) |  |  |  | As typed, for display. `emailNormalized` is what is compared. |
 | `emailNormalized` | String · VarChar(320) |  |  |  |  |
 | `role` | [enum SellerMemberRole](#enum-sellermemberrole) |  |  | SUPPORT_MEMBER |  |
 | `tokenHash` | String · Char(64) |  | UNIQUE |  |  |
 | `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
+| `liveKey` | String · VarChar(360) | yes | UNIQUE |  | `sellerAccountId:emailNormalized` while the invitation can still be accepted; null once it is accepted, revoked or replaced. UNIQUE, so an address has at most one live invitation per seller. MariaDB lets any number of NULLs through a UNIQUE index, which is what lets the retired rows stay. |
+| `sendCount` | Int |  |  | 1 | How many times the email has gone out: 1 when invited, +1 per resend. |
+| `lastSentAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `invitedByProfileId` | String · Char(26) | yes |  |  |  |
 | `acceptedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `acceptedByProfileId` | String · Char(26) | yes |  |  |  |
 | `revokedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `revokedByProfileId` | String · Char(26) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
@@ -15851,13 +15857,15 @@ A packing list for one consignment - one vehicle, one load.
 
 ##  / which buyer the session is acting as. null on a session row means individual.
 
-[BuyerCompany](#model-buyercompany) · [BuyerCompanyAddress](#model-buyercompanyaddress) · [BuyerCompanyIdentifier](#model-buyercompanyidentifier) · [BuyerCompanyLocation](#model-buyercompanylocation) · [BuyerCompanyMember](#model-buyercompanymember) · [BuyerCompanyInvitation](#model-buyercompanyinvitation) · [BuyerCompanyApprovalPolicy](#model-buyercompanyapprovalpolicy) · [BuyerCompanyOrderApproval](#model-buyercompanyorderapproval) · [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) · [BuyerCompanyCheck](#model-buyercompanycheck) · [BuyerCompanyDocument](#model-buyercompanydocument) · [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) · [BuyerCompanyReviewEvent](#model-buyercompanyreviewevent) · [BuyerCompanyStatusHistory](#model-buyercompanystatushistory) · [ConsentRecord](#model-consentrecord)
+[BuyerCompany](#model-buyercompany) · [BuyerCompanyAddress](#model-buyercompanyaddress) · [BuyerCompanyIdentifier](#model-buyercompanyidentifier) · [TeamAccessReview](#model-teamaccessreview) · [BuyerCompanyLocation](#model-buyercompanylocation) · [BuyerCompanyMember](#model-buyercompanymember) · [BuyerCompanyInvitation](#model-buyercompanyinvitation) · [BuyerCompanyApprovalPolicy](#model-buyercompanyapprovalpolicy) · [BuyerCompanyOrderApproval](#model-buyercompanyorderapproval) · [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) · [BuyerCompanyCheck](#model-buyercompanycheck) · [BuyerCompanyDocument](#model-buyercompanydocument) · [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) · [BuyerCompanyReviewEvent](#model-buyercompanyreviewevent) · [BuyerCompanyStatusHistory](#model-buyercompanystatushistory) · [ConsentRecord](#model-consentrecord)
 
 ```mermaid
 erDiagram
     SellerAccount |o--o{ BuyerCompany : "linkedSellerAccount"
     BuyerCompany ||--o{ BuyerCompanyAddress : "company"
     BuyerCompany ||--o{ BuyerCompanyIdentifier : "company"
+    SellerAccount |o--o{ TeamAccessReview : "sellerAccount"
+    BuyerCompany |o--o{ TeamAccessReview : "buyerCompany"
     BuyerCompany ||--o{ BuyerCompanyLocation : "company"
     BuyerCompany ||--o{ BuyerCompanyMember : "company"
     User ||--o{ BuyerCompanyMember : "user"
@@ -15890,6 +15898,11 @@ erDiagram
     BuyerCompanyIdentifier {
         String id PK
         String companyId FK
+    }
+    TeamAccessReview {
+        String id PK
+        String sellerAccountId FK
+        String buyerCompanyId FK
     }
     BuyerCompanyLocation {
         String id PK
@@ -16014,6 +16027,7 @@ Table `buyer_companies`
 - `locations` ← [BuyerCompanyLocation](#model-buyercompanylocation) - has many
 - `members` ← [BuyerCompanyMember](#model-buyercompanymember) - has many
 - `invitations` ← [BuyerCompanyInvitation](#model-buyercompanyinvitation) - has many
+- `accessReviews` ← [TeamAccessReview](#model-teamaccessreview) - has many
 - `cases` ← [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) - has many
 - `checks` ← [BuyerCompanyCheck](#model-buyercompanycheck) - has many
 - `documents` ← [BuyerCompanyDocument](#model-buyercompanydocument) - has many
@@ -16102,6 +16116,34 @@ A tax or trade identifier - GSTIN, NIP, an EU VAT number, a LEI.
 
 - `@@unique([companyId, scheme], map: "uq_buyer_company_identifier_scheme")`
 - `@@index([scheme, valueNormalized], map: "ix_buyer_company_identifier_value")`
+
+<a id="model-teamaccessreview"></a>
+
+### TeamAccessReview
+
+Table `team_access_reviews`
+
+"I have checked who has access" - one row each time an owner or administrator confirms a periodic access review of their team (checklist Master row 14). Belongs to exactly one seller or one buyer company (CHECK `chk_team_access_review_one_owner`). The counts are what the reviewer was looking at, so a later reader can tell a review of three people from a review of thirty. The application never changes or deletes a row; each one is also written to the audit log.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerAccountId` | String · Char(26) | yes | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Cascade) |
+| `buyerCompanyId` | String · Char(26) | yes | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `reviewedByUserId` | String · Char(26) |  |  |  |  |
+| `memberCount` | Int |  |  |  |  |
+| `invitationCount` | Int |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, optional, on delete **Cascade**, on update **Restrict**
+- `buyerCompany` → [BuyerCompany](#model-buyercompany) via `buyerCompanyId` - many-to-one, optional, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, createdAt], map: "ix_team_access_review_seller")`
+- `@@index([buyerCompanyId, createdAt], map: "ix_team_access_review_company")`
 
 <a id="model-buyercompanylocation"></a>
 

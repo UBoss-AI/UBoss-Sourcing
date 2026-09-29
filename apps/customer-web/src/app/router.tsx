@@ -414,6 +414,15 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            // Where a seller team invitation email lands. Under the account,
+            // not the Seller Hub: the person accepting does not sell here yet,
+            // and the Hub sends anybody without a seller to /sell.
+            path: 'join-seller',
+            ...accountPage(() =>
+              import('@/pages/seller/JoinSellerPage').then((m) => m.JoinSellerPage),
+            ),
+          },
+          {
             path: 'addresses',
             ...accountPage(() => import('@/pages/AddressesPage').then((m) => m.AddressesPage)),
           },
@@ -823,6 +832,13 @@ export const router = createBrowserRouter([
         path: 'profile',
         ...accountPage(() =>
           import('@/pages/seller/SellerProfilePage').then((m) => m.SellerProfilePage),
+        ),
+      },
+      // Who else can use this seller account: invitations, roles, the access review.
+      {
+        path: 'team',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerTeamPage').then((m) => m.SellerTeamPage),
         ),
       },
       // Support from inside the Hub: sent as the seller, to the marketplace.
