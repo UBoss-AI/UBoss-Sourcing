@@ -198,6 +198,21 @@ function BrandsIcon({ className }: IconProps): React.JSX.Element {
   );
 }
 
+/** Factories. A saw-tooth roof over a floor, with a chimney. */
+function FactoryIcon({ className }: IconProps): React.JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M3.5 20.5V11l5 3v-3l5 3v-3l5 3V4.5h2v16Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path d="M7 17.5h2M11.5 17.5h2M16 17.5h2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /**
  * Buyer requests. A speech bubble with a line in it.
  *
@@ -426,6 +441,10 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
     icon: ActivityIcon,
     needsApproval: false,
   },
+  // Plants, machines, evidence and certificates, and their verification
+  // (Master row 13). Open before approval: a factory is part of what a
+  // reviewer weighs, so it can be recorded while the application is open.
+  { to: '/seller/factories', labelKey: 'seller.nav.factories', icon: FactoryIcon, needsApproval: false },
   { to: '/seller/profile', labelKey: 'seller.nav.profile', icon: ProfileIcon, needsApproval: false },
   // Who else can use this account. Open before approval - a business sets up
   // its people while it waits - and only to the owner and admins.

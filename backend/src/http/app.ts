@@ -103,6 +103,7 @@ import { registerSellerOperationsRoutes } from './routes/seller.operations.js';
 import { registerSellerErpRoutes } from './routes/seller.erp.js';
 import { registerErpBridgeRoutes } from './routes/erp-bridge.js';
 import { registerAdminSellerRoutes } from './routes/sellers.admin.js';
+import { registerAdminFactoryRoutes } from './routes/factories.admin.js';
 import { registerAdminBuyerCompanyRoutes } from './routes/buyer-companies.admin.js';
 import { registerBuyerCompanyRoutes } from './routes/buyer-companies.customer.js';
 import { registerLogisticsPortalRoutes } from './routes/logistics.portal.js';
@@ -124,6 +125,7 @@ import { registerPreorderChatRoutes } from './routes/preorder-chats.js';
 import { registerAdminPreorderChatRoutes } from './routes/preorder-chats.admin.js';
 import { registerChatRuntime } from '../modules/preorder-chat/realtime/runtime.js';
 import { registerSellerDocumentRoutes } from './routes/seller.documents.js';
+import { registerSellerFactoryRoutes } from './routes/seller.factories.js';
 import { registerSellerQuantityTierRoutes } from './routes/seller.quantity-tiers.js';
 import { registerBulkPricingRoutes } from './routes/bulk-pricing.js';
 import { registerDocumentRoutes } from './routes/documents.js';
@@ -832,6 +834,9 @@ export async function buildApp() {
   // Seller invoices and packing lists: the seller's side, the buyer's and the
   // public check, and read-only for the operator.
   await app.register(registerSellerDocumentRoutes, { prefix: `${API_PREFIX}/seller` });
+  // Seller Hub -> Factories: plants, machines, evidence and certificates, and
+  // sending them for verification. The operator decides under /admin.
+  await app.register(registerSellerFactoryRoutes, { prefix: `${API_PREFIX}/seller` });
   await app.register(registerSellerQuantityTierRoutes, { prefix: `${API_PREFIX}/seller` });
   await app.register(registerDocumentRoutes, { prefix: `${API_PREFIX}/documents` });
   await app.register(registerAdminDocumentRoutes, { prefix: `${API_PREFIX}/admin` });
@@ -855,6 +860,8 @@ export async function buildApp() {
   // and brand requests. Guarded by the ADMIN permission catalogue, never the
   // seller one - see `domain/seller-permissions.ts`.
   await app.register(registerAdminSellerRoutes, { prefix: `${API_PREFIX}/admin` });
+  // Verifying suppliers' factories and certificates (Master row 13).
+  await app.register(registerAdminFactoryRoutes, { prefix: `${API_PREFIX}/admin` });
 
   // Buyer companies: a registered business applying to buy in its own name,
   // and the console that verifies it. The storefront side needs a customer

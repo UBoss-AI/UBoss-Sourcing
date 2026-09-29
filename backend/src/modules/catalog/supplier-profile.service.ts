@@ -20,8 +20,12 @@
  *   - **Certifications the operator VERIFIED and that have not expired.** A
  *     pending, rejected or expired certificate is not shown at all: listing
  *     it with a caveat would still put the claim on the page.
- *   - Factories by city, region and country, with the facts about capacity
- *     the seller gave. Never the street address, postcode or coordinates.
+ *   - **Factories the operator VERIFIED, whose verification is still
+ *     current** (Master row 13), by city, region and country, with the facts
+ *     about capacity the seller gave. Never the street address, postcode or
+ *     coordinates. A factory that was never sent, is waiting, was refused,
+ *     or whose verification lapsed is not shown at all - the same rule as a
+ *     certificate, for the same reason.
  *
  * NEVER PUBLISHED: the legal name, registration and tax numbers, contact
  * people, internal notes, verification documents or statuses.
@@ -30,6 +34,7 @@ import type { SellerKind } from '../../generated/prisma/client.js';
 import { notFound } from '../../domain/errors.js';
 import { prisma } from '../../infra/prisma.js';
 import { logoUrlFor } from '../seller/logo.service.js';
+import { verifiedFactoryIds } from '../trust/factory.service.js';
 import { publicProductWhere } from './catalog.visibility.js';
 import { verifiedSupplierWhere } from './supplier-directory.service.js';
 
@@ -60,6 +65,8 @@ export interface SupplierProfile {
     monthlyCapacity: number | null;
     capacityUnit: string | null;
     productsMade: string | null;
+    /** When the operator verified it. */
+    verifiedAt: string | null;
   }[];
   certifications: {
     standard: string;
@@ -107,7 +114,7 @@ export async function supplierProfile(slug: string, now: Date = new Date()): Pro
 
   const today = new Date(now.toISOString().slice(0, 10));
 
-  const [trust, factories, certifications, offers] = await Promise.all([
+  const [trust, verifiedFactories, allFactories, certifications, offers] = await Promise.all([
     prisma.sellerTrustProfile.findUnique({
       where: { sellerAccountId: account.id },
       select: {
@@ -118,10 +125,12 @@ export async function supplierProfile(slug: string, now: Date = new Date()): Pro
         capabilitiesJson: true,
       },
     }),
+    verifiedFactoryIds(account.id, now),
     prisma.sellerFactory.findMany({
       where: { sellerAccountId: account.id, archivedAt: null },
       orderBy: [{ createdAt: 'asc' }],
       select: {
+        id: true,
         name: true,
         city: true,
         region: true,
@@ -184,7 +193,9 @@ export async function supplierProfile(slug: string, now: Date = new Date()): Pro
     yearsExporting: trust?.yearsExporting ?? null,
     responseSlaHours: trust?.responseSlaHours ?? null,
     capabilities: strings(trust?.capabilitiesJson),
-    factories,
+    factories: allFactories
+      .filter((factory) => verifiedFactories.has(factory.id))
+      .map(({ id, ...factory }) => ({ ...factory, verifiedAt: verifiedFactories.get(id)?.toISOString() ?? null })),
     certifications: certifications.map((certificate) => ({
       standard: certificate.standard,
       issuer: certificate.issuer,

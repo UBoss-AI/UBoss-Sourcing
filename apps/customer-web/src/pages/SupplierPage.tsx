@@ -219,10 +219,15 @@ export function SupplierPage(): React.JSX.Element {
                     )}
                   </dl>
                   {factory.productsMade !== null && <p className="mt-1 text-ink-muted">{factory.productsMade}</p>}
+                  {typeof factory.verifiedAt === 'string' && (
+                    <p className="mt-1 text-xs text-success">
+                      {t('supplier.factoryVerifiedOn', { date: dateFormat.format(new Date(factory.verifiedAt)) })}
+                    </p>
+                  )}
                 </li>
               ))}
             </ul>
-            <p className="mt-2 text-xs text-ink-muted">{t('supplier.statedBySupplier')}</p>
+            <p className="mt-2 text-xs text-ink-muted">{t('supplier.factoriesMeaning')}</p>
           </Section>
         )}
 
