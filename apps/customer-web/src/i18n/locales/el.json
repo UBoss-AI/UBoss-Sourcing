@@ -5215,6 +5215,7 @@
   "preorderChat.proposal.linkFailed": "Το αίτημα προπαραγγελίας σας στάλθηκε, αλλά δεν ήταν δυνατή η σύνδεσή του με τη συνομιλία. Η ομάδα της {{team}} μπορεί να το δει κανονικά.",
   "preorderChat.page.title": "Μηνύματα",
   "preorderChat.page.subtitle": "Οι συνομιλίες σας με την ομάδα προπαραγγελιών της {{team}}.",
+  "preorderChat.page.rfqThreads": "Συνομιλίες με προμηθευτές για τα αιτήματα προσφοράς σας:",
   "preorderChat.page.emptyTitle": "Δεν υπάρχουν ακόμη συνομιλίες",
   "preorderChat.page.empty": "Χρησιμοποιήστε το «Συνομιλία με τη {{marketplace}}» σε οποιαδήποτε σελίδα προϊόντος για να ρωτήσετε για μια προπαραγγελία.",
   "preorderChat.page.listLabel": "Συνομιλίες",

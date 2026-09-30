@@ -5314,6 +5314,7 @@
   "preorderChat.proposal.linkFailed": "La Sua richiesta di preordine è stata inviata, ma non è stato possibile collegarla alla conversazione. Il team {{team}} può comunque vederla.",
   "preorderChat.page.title": "Messaggi",
   "preorderChat.page.subtitle": "Le Sue conversazioni con il team preordini di {{team}}.",
+  "preorderChat.page.rfqThreads": "Conversazioni con i fornitori sulle tue richieste di preventivo:",
   "preorderChat.page.emptyTitle": "Ancora nessuna conversazione",
   "preorderChat.page.empty": "Usi “Scriva a {{marketplace}}” nella pagina di qualsiasi prodotto per chiedere informazioni su un preordine.",
   "preorderChat.page.listLabel": "Conversazioni",

@@ -5215,6 +5215,7 @@
   "preorderChat.proposal.linkFailed": "Uw verzoek tot voorbestelling is verstuurd, maar kon niet aan het gesprek worden gekoppeld. Het {{team}}-team kan het wel zien.",
   "preorderChat.page.title": "Berichten",
   "preorderChat.page.subtitle": "Uw gesprekken met het voorbestellingsteam van {{team}}.",
+  "preorderChat.page.rfqThreads": "Gesprekken met leveranciers over uw offerteaanvragen:",
   "preorderChat.page.emptyTitle": "Nog geen gesprekken",
   "preorderChat.page.empty": "Gebruik ‘Chatten met {{marketplace}}’ op een productpagina om een vraag over een voorbestelling te stellen.",
   "preorderChat.page.listLabel": "Gesprekken",

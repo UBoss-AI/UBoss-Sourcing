@@ -21,7 +21,7 @@
  * flex child's default minimum height is its content's, and one ancestor
  * without it is how a long conversation makes the whole page scroll again.
  */
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
 import { ChatThread } from '@/components/preorder-chat/ChatThread';
@@ -44,10 +44,19 @@ import {
   type CustomerConversation,
 } from '@/lib/preorder-chat';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { fetchMyRfqs } from '@/lib/rfq';
 
 export function MessagesPage(): React.JSX.Element {
   const { t } = useI18n();
-  const { business } = useStorefront();
+  const { business, features } = useStorefront();
+  // Supplier conversations on requests for quotation live on each RFQ; this
+  // lists the open ones so the message centre reaches them too (row 62).
+  const rfqs = useQuery({
+    queryKey: ['rfqs', 'all'],
+    queryFn: () => fetchMyRfqs(null),
+    enabled: features.rfq === true,
+  });
+  const openRfqs = (rfqs.data?.items ?? []).filter((rfq) => rfq.status === 'OPEN' || rfq.status === 'AWARDED').slice(0, 4);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   useDocumentMeta({ title: t('preorderChat.page.title'), noIndex: true }, business.displayName);
@@ -86,6 +95,16 @@ export function MessagesPage(): React.JSX.Element {
       >
         <h1 className="text-xl font-semibold text-ink sm:text-2xl">{t('preorderChat.page.title')}</h1>
         <p className="text-sm text-ink-muted">{t('preorderChat.page.subtitle')}</p>
+        {openRfqs.length > 0 && (
+          <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm">
+            <span className="text-ink-muted">{t('preorderChat.page.rfqThreads')}</span>
+            {openRfqs.map((rfq) => (
+              <Link key={rfq.id} to={`/account/rfqs/${rfq.id}`} className="font-medium text-brand hover:underline">
+                {rfq.reference} · {rfq.title}
+              </Link>
+            ))}
+          </p>
+        )}
       </header>
 
       <div className="grid min-h-0 flex-1 overflow-hidden rounded-lg border border-border bg-surface shadow-card md:grid-cols-[17rem_minmax(0,1fr)] lg:grid-cols-[20rem_minmax(0,1fr)]">

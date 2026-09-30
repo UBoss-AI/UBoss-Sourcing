@@ -5215,6 +5215,7 @@
   "preorderChat.proposal.linkFailed": "Your preorder request was sent, but it could not be linked to the conversation. The {{team}} team can still see it.",
   "preorderChat.page.title": "Messages",
   "preorderChat.page.subtitle": "Your conversations with the {{team}} preorder team.",
+  "preorderChat.page.rfqThreads": "Supplier conversations on your requests for quotation:",
   "preorderChat.page.emptyTitle": "No conversations yet",
   "preorderChat.page.empty": "Use “Chat with {{marketplace}}” on any product page to ask about a preorder.",
   "preorderChat.page.listLabel": "Conversations",

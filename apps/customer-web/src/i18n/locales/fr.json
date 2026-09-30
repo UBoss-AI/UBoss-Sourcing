@@ -5314,6 +5314,7 @@
   "preorderChat.proposal.linkFailed": "Votre demande de précommande a bien été envoyée, mais elle n’a pas pu être liée à la conversation. L’équipe {{team}} peut tout de même la voir.",
   "preorderChat.page.title": "Messages",
   "preorderChat.page.subtitle": "Vos conversations avec l’équipe précommandes d’{{team}}.",
+  "preorderChat.page.rfqThreads": "Échanges avec les fournisseurs sur vos demandes de devis :",
   "preorderChat.page.emptyTitle": "Aucune conversation pour l’instant",
   "preorderChat.page.empty": "Utilisez « Discuter avec {{marketplace}} » sur n’importe quelle page produit pour poser une question sur une précommande.",
   "preorderChat.page.listLabel": "Conversations",

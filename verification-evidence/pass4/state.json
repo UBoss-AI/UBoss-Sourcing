@@ -770,8 +770,15 @@
     {
       "id": 62,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "finding": "Message centre held order/preorder conversations with attachments, but RFQ supplier conversations (per RFQ, with a files tab) were not reachable from it.",
+      "fix": "Message centre header lists the buyer's open and awarded RFQs, linking to each RFQ's supplier conversations. 8 languages.",
+      "tests": "MessagesPage tests + i18n 71/71; tsc and lint clean",
+      "evidence": "MessagesPage tests + i18n 71/71; tsc and lint clean",
+      "testResult": "MessagesPage tests + i18n 71/71; tsc and lint clean",
+      "verification": "MessagesPage tests + i18n 71/71; tsc and lint clean"
     },
     {
       "id": 63,

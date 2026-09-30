@@ -5314,6 +5314,7 @@
   "preorderChat.proposal.linkFailed": "Se ha enviado su solicitud de reserva, pero no se ha podido vincular a la conversación. El equipo de {{team}} puede verla igualmente.",
   "preorderChat.page.title": "Mensajes",
   "preorderChat.page.subtitle": "Sus conversaciones con el equipo de reservas de {{team}}.",
+  "preorderChat.page.rfqThreads": "Conversaciones con proveedores sobre sus solicitudes de presupuesto:",
   "preorderChat.page.emptyTitle": "Aún no hay conversaciones",
   "preorderChat.page.empty": "Use «Chatear con {{marketplace}}» en cualquier página de producto para preguntar por una reserva.",
   "preorderChat.page.listLabel": "Conversaciones",

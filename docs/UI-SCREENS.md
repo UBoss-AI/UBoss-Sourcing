@@ -2352,6 +2352,8 @@ it.
 - `POST /api/v1/cart/items` (once per line, for "Order these again")
 - `GET /api/v1/account/product-reviews/reviewed?productIds=…` (delivered orders)
 
+The message centre (`/account/messages`) also lists the buyer's open and awarded RFQs under its heading, each linking to that RFQ's supplier conversations.
+
 #### `/account/orders/:id/claim`, `/account/disputes`, `/account/disputes/:reference` — Claims
 
 The operator side is the admin console's `/disputes` queue and `/disputes/:id` case screen (see PRD 5.8).

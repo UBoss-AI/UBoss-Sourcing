@@ -5215,6 +5215,7 @@
   "preorderChat.proposal.linkFailed": "Ihre Vorbestellungsanfrage wurde gesendet, konnte aber nicht mit dem Gespräch verknüpft werden. Das {{team}}-Team kann sie trotzdem sehen.",
   "preorderChat.page.title": "Nachrichten",
   "preorderChat.page.subtitle": "Ihre Gespräche mit dem {{team}}-Vorbestellungsteam.",
+  "preorderChat.page.rfqThreads": "Lieferantengespräche zu Ihren Angebotsanfragen:",
   "preorderChat.page.emptyTitle": "Noch keine Gespräche",
   "preorderChat.page.empty": "Nutzen Sie „Mit {{marketplace}} chatten“ auf einer beliebigen Produktseite, um nach einer Vorbestellung zu fragen.",
   "preorderChat.page.listLabel": "Gespräche",
