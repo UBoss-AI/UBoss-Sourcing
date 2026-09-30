@@ -15686,6 +15686,8 @@ has one.
 
 ## 9.7 Refunds and returns
 
+**Payment reconciliation and actionable notifications (built).** `GET /admin/payments/reconciliation` (payment.read) compares each order's recorded paid and refunded totals with captured payments and succeeded refunds over the last 90 days and lists differences; the admin Integrations page shows it. The customer notification centre links each notification to its screen (RFQs, orders, returns, claims) and labels shipment, quote, return, claim and inspection notifications.
+
 **Admin dispute console (built).** `/disputes` (queue: status filter, search) and `/disputes/:id` (buyer, seller, money paid/refunded/refundable, evidence, thread; take into review, record a decision with a mandatory reason and a server preview that says when a second approver is needed, approve or send back, message buyer/seller/both, internal notes). Needs `dispute.view`; each action follows the case's `can` block.
 
 **Claim screens.** `/account/orders/:id/claim`, `/account/disputes` and `/account/disputes/:reference`, using `GET /disputes/context`, `POST /disputes` (Idempotency-Key), `GET /disputes`, `GET /disputes/:reference`, and the messages, attachments, escalate, withdraw and appeal routes. Buttons follow the server's `can` block.

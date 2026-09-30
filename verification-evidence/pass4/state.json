@@ -902,8 +902,15 @@
     {
       "id": 77,
       "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "finding": "Integration monitoring had webhook status, retries and dead letters but no reconciliation.",
+      "fix": "Added GET /admin/payments/reconciliation (orders whose recorded paid/refunded totals differ from captured payments and succeeded refunds, last 90 days) and a Payment reconciliation panel on the admin Integrations page. 8 languages.",
+      "tests": "backend unit payment-reconciliation 2/2; backend tsc clean; admin tsc/lint clean; admin page + i18n tests 142/142; docs:check ok",
+      "evidence": "backend unit payment-reconciliation 2/2; backend tsc clean; admin tsc/lint clean; admin page + i18n tests 142/142; docs:check ok",
+      "testResult": "backend unit payment-reconciliation 2/2; backend tsc clean; admin tsc/lint clean; admin page + i18n tests 142/142; docs:check ok",
+      "verification": "backend unit payment-reconciliation 2/2; backend tsc clean; admin tsc/lint clean; admin page + i18n tests 142/142; docs:check ok"
     },
     {
       "id": 78,

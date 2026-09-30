@@ -2418,6 +2418,8 @@ Built. The review step has an unticked box: "I have read and agree to the Terms 
 
 ## 5.8 Orders, cancellations, returns, refunds and invoices (ORD)
 
+**Payment reconciliation and actionable notifications (built).** `GET /admin/payments/reconciliation` (payment.read) compares each order's recorded paid and refunded totals with captured payments and succeeded refunds over the last 90 days and lists differences; the admin Integrations page shows it. The customer notification centre links each notification to its screen (RFQs, orders, returns, claims) and labels shipment, quote, return, claim and inspection notifications.
+
 **Admin dispute console (built).** `/disputes` (queue: status filter, search) and `/disputes/:id` (buyer, seller, money paid/refunded/refundable, evidence, thread; take into review, record a decision with a mandatory reason and a server preview that says when a second approver is needed, approve or send back, message buyer/seller/both, internal notes). Needs `dispute.view`; each action follows the case's `can` block.
 
 **Buyer claim screens (built).** Any placed, uncancelled order shows "Raise a claim about this order", opening `/account/orders/:id/claim`: the buyer picks the whole order or one line, a reason from those the operator enabled, a description (minimum length from the server), and a remedy (full refund, partial refund with an amount, or replacement). `/account/disputes` lists claims; `/account/disputes/:reference` shows status, the requested remedy, the decision and refund, evidence, and the message thread. Evidence upload, messages, escalation, withdrawal and appeal are offered only when the claim's `can` block allows them.

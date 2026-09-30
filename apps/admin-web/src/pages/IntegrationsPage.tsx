@@ -57,7 +57,7 @@ import {
 import { cx } from '@/lib/cx';
 import { ApiError, api } from '@/lib/api';
 import { applyApiErrors } from '@/lib/forms';
-import { formatDateTime, humanise } from '@/lib/format';
+import { formatDateTime, formatMoney, humanise, type Money } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Translate } from '@/i18n/i18n-context';
@@ -803,6 +803,62 @@ function ConnectorsPanel(): React.JSX.Element {
   );
 }
 
+interface ReconciliationReport {
+  windowDays: number;
+  checkedOrders: number;
+  mismatchCount: number;
+  mismatches: { orderId: string; orderNumber: string; recordedPaid: Money; capturedPaid: Money; recordedRefunded: Money; succeededRefunds: Money }[];
+}
+
+/**
+ * Payment reconciliation (checklist Master row 77): orders whose recorded paid
+ * or refunded total differs from the payment and refund ledgers. The server
+ * computes every figure; this panel only lists them.
+ */
+function ReconciliationPanel(): React.JSX.Element {
+  const { t } = useI18n();
+  const query = useQuery({
+    queryKey: ['admin', 'payments', 'reconciliation'],
+    queryFn: () => api.get<ReconciliationReport>('/admin/payments/reconciliation'),
+  });
+  return (
+    <Card title={t('integrations.reconciliationTitle')}>
+      {query.isPending ? (
+        <LoadingState />
+      ) : query.isError ? (
+        <ErrorState error={query.error} onRetry={() => { void query.refetch(); }} />
+      ) : (
+        <div className="space-y-3 px-5 py-4 text-sm">
+          <p className="text-ink-muted">
+            {t('integrations.reconciliationSummary', {
+              orders: String(query.data.checkedOrders),
+              days: String(query.data.windowDays),
+              mismatches: String(query.data.mismatchCount),
+            })}
+          </p>
+          {query.data.mismatches.length > 0 && (
+            <ul className="divide-y divide-border-subtle">
+              {query.data.mismatches.map((row) => (
+                <li key={row.orderId} className="py-2">
+                  <span className="font-medium">{row.orderNumber}</span>{' '}
+                  <span className="text-ink-muted">
+                    {t('integrations.reconciliationRow', {
+                      recordedPaid: formatMoney(row.recordedPaid),
+                      capturedPaid: formatMoney(row.capturedPaid),
+                      recordedRefunded: formatMoney(row.recordedRefunded),
+                      succeededRefunds: formatMoney(row.succeededRefunds),
+                    })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </Card>
+  );
+}
+
 export function IntegrationsPage(): React.JSX.Element {
   const { t } = useI18n();
 
@@ -825,6 +881,7 @@ export function IntegrationsPage(): React.JSX.Element {
       <div className="space-y-5">
         {showsGateway && <GatewayPanel />}
         {showsConnectors && <ConnectorsPanel />}
+        {can(Permission.PAYMENT_READ) && <ReconciliationPanel />}
 
         {/* Reachable only if the route guard and these two checks ever fall out
             of step. Better an honest panel than a blank page. */}

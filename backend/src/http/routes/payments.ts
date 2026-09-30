@@ -19,6 +19,7 @@ import { lifecycleState } from '../../domain/payment-state.js';
 import { Permission } from '../../domain/permissions.js';
 import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
+import { reconcilePayments } from '../../modules/payments/reconciliation.service.js';
 import {
   createPaymentLink,
   redeemPaymentLink,
@@ -598,6 +599,11 @@ export function registerAdminPaymentRoutes(app: FastifyInstance): Promise<void> 
    * or a raw payload - those can contain provider references an operator has no
    * need to see in a list view.
    */
+  // Orders whose recorded paid or refunded total differs from captured payments and succeeded refunds (last 90 days).
+  app.get('/payments/reconciliation', { preHandler: requireAdmin(Permission.PAYMENT_READ) }, async (_request, reply) =>
+    reply.header('Cache-Control', 'no-store').status(200).send(await reconcilePayments()),
+  );
+
   app.get(
     '/payments/webhook-health',
     { preHandler: requireAdmin(Permission.PAYMENT_READ) },

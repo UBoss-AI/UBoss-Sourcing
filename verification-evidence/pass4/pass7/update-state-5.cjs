@@ -1,0 +1,4 @@
+const fs=require('fs');const file='verification-evidence/pass4/state.json';const s=JSON.parse(fs.readFileSync(file,'utf8'));
+const r=s.rows.find(x=>x.id===77);const t='backend unit payment-reconciliation 2/2; backend tsc clean; admin tsc/lint clean; admin page + i18n tests 142/142; docs:check ok';
+Object.assign(r,{status:'FIXED_AND_VERIFIED',pass4Done:true,verifiedAt:'2026-09-30 (pass 7)',finding:'Integration monitoring had webhook status, retries and dead letters but no reconciliation.',fix:'Added GET /admin/payments/reconciliation (orders whose recorded paid/refunded totals differ from captured payments and succeeded refunds, last 90 days) and a Payment reconciliation panel on the admin Integrations page. 8 languages.',tests:t,evidence:t,testResult:t,verification:t});
+fs.writeFileSync(file,JSON.stringify(s,null,2)+'\n');

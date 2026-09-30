@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1175 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1176 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,7 +27,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 456 |
+| [Admin panel (staff)](#admin-panel-staff) | 457 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 293 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
@@ -518,7 +518,8 @@ Defined in `backend/src/http/routes/payments.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/admin/payments` | Staff | Admin(PAYMENT_READ) | List payment attempts, newest first, a page at a time. Can be narrowed to one status or one order. |
-| GET | `/api/v1/admin/payments/webhook-health` | Staff | Admin(PAYMENT_READ) | Webhook health. |
+| GET | `/api/v1/admin/payments/reconciliation` | Staff | Admin(PAYMENT_READ) | Webhook health. |
+| GET | `/api/v1/admin/payments/webhook-health` | Staff | Admin(PAYMENT_READ) | *Read webhook health.* |
 | PUT | `/api/v1/admin/payments/connections` | Staff | Admin(PAYMENT_GATEWAY_WRITE) | Save gateway credentials. |
 | GET | `/api/v1/admin/payments/connections` | Staff | Admin(PAYMENT_READ) | Configured connections. Masks only - a secret never leaves the server. |
 | POST | `/api/v1/admin/payments/connections/:id/test` | Staff | Admin(PAYMENT_GATEWAY_WRITE) | Test one saved connection. |

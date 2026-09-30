@@ -376,6 +376,7 @@ p('On a delivered order, the customer can choose Return items. They pick what to
 h2('3.2g2 Raising a claim when something went wrong');
 p('If an order arrived damaged, short, not as described or not at all, the customer can raise a claim from the order. They say what went wrong and what they would like: a full refund, part of the money back, or a replacement. The seller is asked to answer within a set time. The customer can add photos or documents, write messages, ask the marketplace to decide if the seller does not answer in time, withdraw the claim, and appeal the decision once.');
 p('On the marketplace side, staff work through a queue of open claims. For each one they see both sides, the money, the evidence and the messages. They can write to the buyer, the seller or both, keep internal notes, and record a decision with a reason. A large refund waits for a second person to approve it.');
+p('Every notification a customer receives opens the screen it is about: the quote, the order, the return or the claim. Staff can see a payment check that lists any order whose recorded payments or refunds do not match what the payment provider actually took or paid back.');
 h2('3.2h Buy again and quick quote requests');
 p('The customer dashboard suggests up to four products the customer orders most and can still buy. From search results, or from a question asked in AI Mode, one click starts a request for quotation with the search already filled in.');
 
