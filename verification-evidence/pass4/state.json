@@ -1,0 +1,1389 @@
+{
+  "recommendation": "NO-GO",
+  "recommendationWhy": "CI on main is green (commit 1a4d157, all 13 checks, backend included), but most P0 rows are still unverified or unbuilt (RFQ, inspection screens, payouts) and legal texts are missing.",
+  "checkpoint": {
+    "lastCompleted": 19,
+    "next": 9,
+    "latestTest": "2026-09-30: reverified checked Master rows 27, 28, 32, 73, 79, 80 and 85; backend 175/175, customer 73/73, admin 22/22. Earlier stalled backend files also passed 66/66 in a focused rerun.",
+    "blocker": "Row 9 approved policy text absent. Row 12 payout adapter absent, not merely unconfigured. Row 20 payment/order/inspection integration missing; owner chose existing checkout with tax and shipping calculated separately on 2026-09-30."
+  },
+  "notes": [
+    "2026-09-29: a previous session pushed all earlier work to origin/main as one commit (d0aa96d, 502 files). It cannot be split without rewriting published history, so it stays; everything from this pass is committed and pushed feature by feature.",
+    "2026-09-29: the local working tree was stale against origin/main. It was saved (git stash \"pre-pass4 working tree\", plus a patch in the session scratchpad) and main fast-forwarded to d0aa96d with the owner's approval. The stash also holds a draft of 51 extra schema tables (RFQ, trade messaging, CMS, KYC, notifications) that have no migrations or code.",
+    "Only UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx is edited (owner's instruction); no backup copy is made. The pre-existing _before_verification.docx is not touched.",
+    "2026-09-29, after row 5: DOCX integrity check. A copy opened in Word 16 without repair, 29 pages (same as before), exported to PDF and page 4 rendered: rows 1-5 show ☑, earlier ticks intact, table, borders and footer unchanged. Only the five intended Master boxes changed (tick.cjs verifies the change set on every write). Evidence: verification-evidence/pass4/docx-integrity/after-row05-page-4.png",
+    "2026-09-29, after row 10: DOCX integrity check passed. Copy opened in Word 16 without repair, 29 pages; page 4 rendered: rows 1-8 and 10 show ☑, row 9 ☐ (awaiting legal texts), row 27 ☑ from before; table, borders, footer unchanged. Evidence: verification-evidence/pass4/docx-integrity/after-row10-page-4.png",
+    "2026-09-29, rows 11–20: row 11 finished, ticked and pushed (commit 5262610). To go faster the remaining rows run in parallel, each in its own git worktree with its own test database: row 12 (seller KYB), row 13 (factory verification), row 14 (seller team), rows 16–19 (RFQ subsystem); plus a fix for the backend tests that already fail on main, and a read-only triage of every other unchecked box. Each row is ticked in the Word file only after its work is merged, tested and checked in the browser.",
+    "2026-09-29 17:45 IST: verified and queued, waiting for the Word file to be closed (it is open in Word, so it cannot be written): Master rows 29, 31, 83, 86 and boxes HOME-001, HOME-003, HOME-007, HOME-011, JOURNEY-009, JOURNEY-047, JOURNEY-066. They are applied with flush-ticks.cjs the moment Word releases the file; until then the reconciliation lists them as not yet ticked.",
+    "2026-09-29: Master row 84 and DOD-019 verified; queued because the Word file is open in Word again. Applied by flush-ticks.cjs once Word releases it.",
+    "2026-09-29: on the owner's instruction the parallel build of rows 14 and 16–19 was stopped; rows 12 and 13 are being completed, then work stops. Paused work is kept, unmerged, in its worktree."
+  ],
+  "rows": [
+    {
+      "id": 1,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Added what was missing: verified Indian suppliers and a value proposition. New public GET /api/v1/catalog/suppliers lists only sellers the operator approved (APPROVED, not suspended/archived) with a live offer on a public product; catalogue and facets accept ?seller=; home shows a \"Verified suppliers\" section (country named only when every verified supplier is registered there, e.g. \"from India\") and a one-line value proposition that makes no supplier claim when there are none. Search and categories were already present. Also fixed: the feature guide still described the old cycling headline word.",
+      "verification": "Backend integration (visibility rules, product-not-offer counts, no legal name/ids leaked, country breakdown across all suppliers, slug lookup, 400 on bad input, cap 24, seller filter incl. suspended/paused); component tests (country/no-country/no-suppliers/failed/malformed, card link and text, aria-hidden measuring copies, single request); live API smoke; headless Chrome 320/375/768/1024/1440 + dark 375/1440: no horizontal scroll, axe WCAG 2.1 AA 0 violations, visible focus on every card, no raw i18n keys; rate limit 300/window applies.",
+      "evidence": "backend/tests/integration/catalog-suppliers.test.ts (16); apps/customer-web/src/components/home/VerifiedSuppliers.test.tsx (8); verification-evidence/pass4/row01/ (results.json, results-dark.json, 5 screenshots); commit 8147546",
+      "files": "backend: modules/catalog/supplier-directory.service.ts (new), http/routes/catalog.public.ts; customer-web: components/home/VerifiedSuppliers.tsx (new), lib/verified-suppliers.ts (new), pages/HomePage.tsx, pages/CatalogPage.tsx, lib/types.ts, 8 locales; docs: PRD FR-SRCH-010, UI-SCREENS, PROJECT-GUIDE (+Hinglish), feature guide, reference API list",
+      "testResult": "PASS — backend 16/16 + catalogue regression 85/85; storefront 8/8, full storefront suite 1510/1510; typecheck + lint clean; i18n complete",
+      "verifiedAt": "2026-09-29",
+      "blocker": "— (a supplier profile page of its own is Master row 5)",
+      "manual": [
+        "Open http://localhost:5174/ as a guest. Under the headline you should see one sentence: \"Source direct from verified suppliers…\". With suppliers in more than one country it names no country; if every approved seller is registered in one country it says \"…in <country>\".",
+        "Scroll below \"Shop by category\": a \"Verified suppliers\" section shows up to 8 cards, each with name, kind · country, \"Verified since <Month Year>\" (or \"Verified by <marketplace>\") and a product count.",
+        "Press a card: it opens /suppliers/<slug> (the supplier page, row 5).",
+        "In the admin (http://localhost:5173) suspend one of those sellers, reload the home page: that card is gone. Reinstate it afterwards.",
+        "Negative: open http://localhost:4000/api/v1/catalog/suppliers?limit=99 - you get 400. The JSON of ?limit=8 contains no legal names.",
+        "Switch the language (EN menu top right) to Polski or Deutsch: the section and sentence are translated; switch the theme to dark: the cards stay readable."
+      ],
+      "commands": [
+        "Set-Location backend; npx vitest run tests/integration/catalog-suppliers.test.ts",
+        "Set-Location apps/customer-web; npx vitest run src/components/home/VerifiedSuppliers.test.tsx"
+      ]
+    },
+    {
+      "id": 2,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Filters, sort and URL state already existed. Added market eligibility: for the destination country, products with an in-force BLOCK market rule (product, or category incl. all sub-categories) are excluded from grid, search and facet counts via the shared filter step (market-eligibility.service.ts). Added supplier results: search lists up to 6 verified suppliers matching the public name (GET /catalog/suppliers?q=). Fixed English-only \"From/Up to\" price chips (8 languages).",
+      "verification": "Integration: product rule, category-subtree rule, per-destination scope, lower-case country, no-destination = unfiltered, inactive/future/expired rules and DOCUMENTS_REQUIRED hide nothing, search respects rules, supplier q matches public not legal name, 400 on >120 chars; component: supplier strip shown/absent/failed/short term; live: temporary DE rule hid the product for DE only (then removed); headless Chrome 5 widths: no h-scroll, axe 0, focus visible, translated chip.",
+      "evidence": "backend/tests/integration/catalog-market-eligibility.test.ts (9); apps/customer-web/src/components/catalog/SupplierMatches.test.tsx (4); catalogue regression 159/159; verification-evidence/pass4/row02/; commit 3911176",
+      "files": "backend: modules/catalog/market-eligibility.service.ts (new), supplier-directory.service.ts, http/routes/catalog.public.ts; customer-web: components/catalog/SupplierMatches.tsx (new), pages/CatalogPage.tsx, 8 locales; docs: PRD FR-SRCH-002, UI-SCREENS, PROJECT-GUIDE (+Hinglish), feature guide, reference",
+      "testResult": "PASS — 9/9 + 4/4 + 159/159 regression; typecheck + lint clean",
+      "verifiedAt": "2026-09-29",
+      "blocker": "— Cart/checkout refusal of a blocked product is Master row 26; rule management screen is Master row 69.",
+      "manual": [
+        "Search \"fasten\" from the home page: above the results, \"Verified suppliers matching \"fasten\"\" lists suppliers whose public name matches; each pill opens their supplier page.",
+        "Add a price filter (e.g. From 100): the chip reads \"From ₹100.00\"; switch to Deutsch - it reads \"Ab ₹100.00\".",
+        "Market eligibility (no admin screen yet - Master row 69): add a row to market_rules with effect BLOCK for one product and your chosen country (or run the automated test below). Choose that country in the EN/₹ menu: the product disappears from search and category listings; choose another country: it is back.",
+        "Negative: http://localhost:4000/api/v1/catalog/suppliers?q=<121 characters> returns 400."
+      ],
+      "commands": [
+        "Set-Location backend; npx vitest run tests/integration/catalog-market-eligibility.test.ts",
+        "Set-Location apps/customer-web; npx vitest run src/components/catalog/SupplierMatches.test.tsx"
+      ]
+    },
+    {
+      "id": 3,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Category taxonomy, sub-categories, counts and SEO already existed. Added the sourcing entry: a \"Sourcing <category>\" panel with the destination's market notes (BLOCK / DOCUMENTS_REQUIRED, incl. rules on parent categories, operator reason and document list), the verified-supplier count and up to 6 supplier pills that keep the category, and an assistant hand-off that parks an editable sourcing question. New: GET /catalog/categories/:slug?country= returns marketNotes; GET /catalog/suppliers?category= (subtree). No RFQ button until Master row 16 exists.",
+      "verification": "Integration: note on a child of a blocked category, documents list drops non-strings, none without destination / other destination, supplier count scoped to subtree, unknown category = none; component: count + category-keeping links, block note, documents note, assistant question parked for compose, nothing shown with nothing to say / assistant off; headless Chrome 5 widths on /category/tools-hardware: no h-scroll, axe 0, visible focus, 6 suppliers + assistant link.",
+      "evidence": "backend/tests/integration/catalog-market-eligibility.test.ts (14 incl. 5 for this row); apps/customer-web/src/components/catalog/CategorySourcing.test.tsx (5); verification-evidence/pass4/row03/; commit 78c6cdb",
+      "files": "backend: market-eligibility.service.ts, supplier-directory.service.ts, catalog.public.ts; customer-web: components/catalog/CategorySourcing.tsx (new), SupplierMatches.tsx (shared SupplierPill), pages/CatalogPage.tsx, 8 locales; docs: PRD FR-SRCH-011, UI-SCREENS, PROJECT-GUIDE (+Hinglish), feature guide, reference",
+      "testResult": "PASS — backend 14/14, storefront catalog 44/44; typecheck + lint clean; i18n complete",
+      "verifiedAt": "2026-09-29",
+      "blocker": "— RFQ \"Request quotes\" entry to be added with Master row 16",
+      "manual": [
+        "Open http://localhost:5174/category/tools-hardware. Under \"What is inside\" a \"Sourcing Tools & Hardware\" panel shows \"N verified suppliers sell in Tools & Hardware.\" with up to 6 supplier pills.",
+        "Press a pill: the category page opens filtered to that supplier (?seller=…), with a \"Supplier: <name>\" chip that removes the filter.",
+        "Press \"Ask the assistant about sourcing Tools & Hardware\" (only when the assistant is switched on): AI Mode opens with the question already typed in the composer, not sent.",
+        "With a BLOCK or DOCUMENTS_REQUIRED category rule for your chosen country (see row 2), the panel shows the operator's reason, and for documents the list of documents."
+      ],
+      "commands": [
+        "Set-Location backend; npx vitest run tests/integration/catalog-market-eligibility.test.ts",
+        "Set-Location apps/customer-web; npx vitest run src/components/catalog/CategorySourcing.test.tsx"
+      ]
+    },
+    {
+      "id": 4,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Specs, MOQ, tiers, variants and price/quote mode existed. Added `sourcing` to the product read and a \"Who sells it and how it reaches you\" block: seller (the approved seller the basket binds, incl. size-only marketplace products), delivery to the destination (market rules + seller selling regions, never guessed), handling time and origin, inspection outlook via the dispatch gate's ruleMatches. Defects fixed: suspended/archived sellers' ACTIVE offers were still on the shelf and buyable (SELLABLE_SELLER now used by projection, page binding and cart; re-projection on suspend/reinstate); invalid definition-list markup in Ordering information (axe serious x2).",
+      "verification": "Integration: seller named/legal name hidden, size-only product names its seller, own stock = marketplace, destination asked for, parent-category BLOCK, documents, seller regions, inspection REQUIRED / from value / risk tier LOW vs HIGH / depends on destination / not required, suspended seller dropped; marketplace-catalogue: suspension removes seller from shelf and basket binding, reinstatement restores; cart/seller regression 273/273; component 13 cases; live API (FirstCry now \"Sold by Sikka\"); headless Chrome 5 widths: no h-scroll, axe 0 (was 2), focus visible.",
+      "evidence": "backend/tests/integration/catalog-product-sourcing.test.ts (10), marketplace-catalogue.test.ts (+1); apps/customer-web/src/components/product/ProductSourcingPanel.test.tsx (13); verification-evidence/pass4/row04/; commit 7ac0e98",
+      "files": "backend: catalog/product-sourcing.service.ts (new), market-eligibility.service.ts, marketplace-price.service.ts, cart/cart.service.ts, seller/account.service.ts, inspection/gate.service.ts, routes/catalog.public.ts; customer-web: components/product/ProductSourcingPanel.tsx (new), pages/ProductPage.tsx, lib/types.ts, 8 locales; docs: PRD FR-SRCH-012, UI-SCREENS, PROJECT-GUIDE (+Hinglish), feature guide, reference",
+      "testResult": "PASS — backend 10/10 + 25/25 + 273/273 regression; storefront 96/96; typecheck + lint clean; i18n complete",
+      "verifiedAt": "2026-09-29",
+      "blocker": "— (buyer comparison and RFQ CTA belong to rows 6 and 90; samples/capacity to rows 20/13)",
+      "manual": [
+        "Open a product sold by a seller, e.g. http://localhost:5174/product/firstcry-toys-for-kids-t-001-s3ch85. Under \"Ordering information\" the block \"Who sells it and how it reaches you\" shows Sold by <seller> (a link), kind · country, \"Verified since …\".",
+        "Without a country chosen, Delivery says \"Choose your country at the top of the page…\". Choose India in the EN/₹ menu: it says \"Can be sold and delivered to India.\"",
+        "Open a marketplace-owned product (e.g. the dehumidifier demo product): Sold by reads \"<marketplace>, from its own stock\" and there is no inspection line.",
+        "Suspension (defect fixed): in admin suspend the seller of a product; reload the product - the seller is no longer named and adding it to the cart binds another seller or is refused. Reinstate afterwards.",
+        "Accessibility: run any screen reader or axe DevTools on the product page - the Ordering information and sourcing lists report no definition-list errors."
+      ],
+      "commands": [
+        "Set-Location backend; npx vitest run tests/integration/catalog-product-sourcing.test.ts tests/integration/marketplace-catalogue.test.ts",
+        "Set-Location apps/customer-web; npx vitest run src/components/product/ProductSourcingPanel.test.tsx"
+      ]
+    },
+    {
+      "id": 5,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Did not exist (cards opened a filtered catalogue). Built GET /catalog/suppliers/:slug + /suppliers/:slug: company facts, verified-since, categories they sell, operator-VERIFIED in-date certifications only, factories by city/region/country (never street/postcode/coordinates), stated capabilities/exports; no legal name/identifiers/contacts/notes; http(s)-only website; plain 404 for unlisted suppliers. Supplier cards, pills and product seller link now open it.",
+      "verification": "Integration 7: published fields, only VERIFIED+in-date certs (pending/rejected/expired/past-expiry excluded), factory without address/postcode/coords and closed factory skipped, raw body contains no legal name/CIN/GSTIN/contact/notes/Udyam/IEC, 404 for pending/suspended/no-offers/unknown, 400 malformed slug, javascript: website dropped. Component 4: full page, empty sections hidden, 404 + no request for malformed slug, retry on failure; component suite 443/443. Headless Chrome 5 widths + 404: no h-scroll, axe 0, focus visible.",
+      "evidence": "backend/tests/integration/catalog-supplier-profile.test.ts (7); apps/customer-web/src/pages/SupplierPage.test.tsx (4); verification-evidence/pass4/row05/; commit 0c6b8c8",
+      "files": "backend: catalog/supplier-profile.service.ts (new), routes/catalog.public.ts; customer-web: pages/SupplierPage.tsx (new), app/router.tsx, lib/types.ts, VerifiedSuppliers.tsx, SupplierMatches.tsx, ProductSourcingPanel.tsx, 8 locales; docs: PRD FR-SRCH-013, UI-SCREENS, PROJECT-GUIDE (+Hinglish), feature guide, reference",
+      "testResult": "PASS — backend 7/7; storefront 443/443 (components + page); typecheck + lint clean; i18n complete",
+      "verifiedAt": "2026-09-29",
+      "blocker": "— Factory/certification/capability data entry is Master rows 13 and 34; those sections stay hidden until then.",
+      "manual": [
+        "Open http://localhost:5174/suppliers/northwind-fastenings: name, logo, kind · country, \"Verified since …\", \"See its N products\" and Website (opens in a new tab).",
+        "\"About the supplier\" and \"What they sell here\" appear; each category pill opens that category filtered to this supplier.",
+        "Certifications, Factories and Capabilities appear only when that data exists (entered from Master rows 13/34); only certificates the operator verified and still in date are listed; factories show city/region/country, never a street address.",
+        "Open http://localhost:5174/suppliers/jkl (a draft seller): the not-found page. The API http://localhost:4000/api/v1/catalog/suppliers/jkl returns 404, and the JSON for a real supplier contains no legal name, GSTIN or contact details."
+      ],
+      "commands": [
+        "Set-Location backend; npx vitest run tests/integration/catalog-supplier-profile.test.ts",
+        "Set-Location apps/customer-web; npx vitest run src/pages/SupplierPage.test.tsx"
+      ]
+    },
+    {
+      "id": 6,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "manual": [
+        "Open two product pages and press \"Compare\" under each title; the button turns into \"In comparison\" and offers \"Compare 2 items\".",
+        "Open http://localhost:5174/compare: a table with the products as columns and Price, Minimum order, Ordered in, Sold by, Delivery, Prepared for dispatch in, Country of origin, Inspection and the specifications as rows.",
+        "Choose a country in the EN/₹ menu: the Delivery row changes for every product (values are read fresh, not remembered).",
+        "Press \"Remove …\" under a column; press \"Clear this comparison\": the empty state explains how to add items.",
+        "Open two supplier pages, press Compare, then the \"Suppliers\" view on /compare: kind, country, verified since, products, verified certifications, factories, capacity, exports, reply time.",
+        "Try to add a fifth product: \"You can compare up to 4 at a time…\" appears and nothing is added. On a phone width the table scrolls sideways inside its frame; the page itself does not."
+      ],
+      "commands": [
+        "Set-Location apps/customer-web; npx vitest run src/pages/ComparePage.test.tsx"
+      ],
+      "fix": "Did not exist. Built per-visitor compare list (lib/compare.ts, max 4 products + 4 suppliers, browser storage guarded, tampered entries ignored), Compare toggle beside every product title and on supplier pages, and /compare with real tables: products (price/quote, MOQ, increment, seller, delivery to chosen country, lead time, origin, inspection, all specs) and suppliers (kind, country, verified since, years, products, categories, verified certs, factories, capacity, exports, reply time). Values read fresh; a gone item says so once in its column. Found in browser: button missing on sized products (was inside the buy panel) - moved beside the title.",
+      "verification": "Component 6: full list refusal message, toggle + aria-pressed + \"Compare 2 items\", fresh-read table with row/column headers + gone item + country/currency on reads, remove/empty state, suppliers view, tampered storage ignored with no request. Product page suite 54/54. Headless Chrome: items added through the real buttons on 2 product + 2 supplier pages, /compare at 320-1440 and suppliers view: table present, scrolls in its frame on phones, no page h-scroll, axe 0, focus visible.",
+      "evidence": "apps/customer-web/src/pages/ComparePage.test.tsx (6); verification-evidence/pass4/row06/; commit 14ef349",
+      "files": "customer-web: lib/compare.ts, components/compare/CompareButton.tsx, pages/ComparePage.tsx (new), pages/ProductPage.tsx, pages/SupplierPage.tsx, app/router.tsx, 8 locales; docs: PRD FR-SRCH-014, UI-SCREENS, PROJECT-GUIDE (+Hinglish), feature guide",
+      "testResult": "PASS — 6/6 + 54/54; typecheck + lint clean; i18n complete; secret scan clean (renamed a constant gitleaks read as a key)",
+      "verifiedAt": "2026-09-29",
+      "blocker": "—"
+    },
+    {
+      "id": 7,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Did not exist. Built /assurance (footer + product-page link) and GET /catalog/assurance: verification (live count + what it does/does not mean), inspection before dispatch (dispatch gate explained only when an in-force rule exists, otherwise \"not required at the moment\"), payment (provider confirmation, refund route, no escrow claim), returns (configured window, refund/replacement), claims (claim/seller/decision/appeal windows, raise via support today), and an always-shown \"What this does not cover\".",
+      "verification": "Integration 2: windows equal the configured return/dispute settings; inspection in use only with an active in-force rule (future and inactive rules ignored). Component 6: configured numbers, not-in-use wording, dispatch-gate wording when in use, returns off, limits always present, error = retry and no figures; product panel + layout 83/83. Headless Chrome 5 widths: six sections, no h-scroll, axe 0, focus visible.",
+      "evidence": "backend/tests/integration/catalog-assurance.test.ts (2); apps/customer-web/src/pages/AssurancePage.test.tsx (6); verification-evidence/pass4/row07/; commit 39850d3",
+      "files": "backend: catalog/assurance.service.ts (new), routes/catalog.public.ts; customer-web: pages/AssurancePage.tsx (new), layout/Footer.tsx, components/product/ProductSourcingPanel.tsx, app/router.tsx, 8 locales; docs: PRD FR-SRCH-015, UI-SCREENS, PROJECT-GUIDE (+Hinglish), feature guide, reference",
+      "testResult": "PASS — backend 2/2; storefront 89/89; typecheck + lint clean; i18n complete",
+      "verifiedAt": "2026-09-29",
+      "blocker": "Word tick queued: the DOCX is open in Word. Policy links come with Master row 9.",
+      "manual": [
+        "Open http://localhost:5174/assurance (also \"How assurance works\" in the footer, and at the foot of the \"Who sells it…\" block on any product page).",
+        "Check the six cards: the verified-supplier count equals the number on the home page section; the return window equals Admin → returns settings; the claim/seller/decision/appeal numbers equal Admin → dispute settings.",
+        "With no inspection rules configured, \"Inspection before dispatch\" says it is not required at the moment. Add an active inspection rule in the admin console and reload: it now explains that goods cannot be dispatched until the inspection passes.",
+        "\"What this does not cover\" is always there. Switch to another language: every card is translated."
+      ],
+      "commands": [
+        "Set-Location backend; npx vitest run tests/integration/catalog-assurance.test.ts",
+        "Set-Location apps/customer-web; npx vitest run src/pages/AssurancePage.test.tsx"
+      ]
+    },
+    {
+      "id": 8,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Did not exist (market_profiles table had no code). Built /markets/:country (currency + \"Shop as a buyer in…\" switch, restrictions in force with reasons/documents, operator text only when published, featured categories), footer link for the shopper's country, GET /catalog/markets/:country (active countries only), and Admin → Settings → Market pages editor via GET/PUT /admin/settings/market-profiles (settings.read/write, validated, audited).",
+      "verification": "Integration 6: 404 inactive/unknown + 400 malformed, facts shown with no text, draft private / published public, blanks stored as null, featured order kept and non-public dropped, 403 without settings.write, 400 on bad input, 2 audit rows. Storefront 6 (facts, restrictions with links, published text labelled, market switch calls choose(DE,EUR), already-here state, 404 + no request for malformed) + layout 41/41. Admin 3 (save payload, slug refused before send, read-only without write). Headless Chrome 5 widths /markets/in + 404: axe 0, focus visible.",
+      "evidence": "backend/tests/integration/market-pages.test.ts (6); apps/customer-web/src/pages/MarketPage.test.tsx (6); apps/admin-web/src/pages/settings/MarketPagesPanel.test.tsx (3); verification-evidence/pass4/row08/; commit 4f35c8b",
+      "files": "backend: settings/market-profile.service.ts (new), routes/catalog.public.ts, routes/settings.admin.ts; customer-web: pages/MarketPage.tsx (new), layout/Footer.tsx, app/router.tsx, 8 locales; admin-web: settings/MarketPagesPanel.tsx (new), SettingsPage.tsx, 8 locales; docs: PRD FR-SRCH-016, UI-SCREENS, PROJECT-GUIDE (+Hinglish), feature guide, reference",
+      "testResult": "PASS — backend 6/6; storefront 47/47; admin 3/3; typecheck + lint clean both apps; i18n complete",
+      "verifiedAt": "2026-09-29",
+      "blocker": "—",
+      "manual": [
+        "Choose a country in the storefront's EN/₹ menu, scroll to the footer: \"Shopping from <country>\" opens /markets/<code>.",
+        "The page shows \"Buyers in <country> are quoted in <currency>\" and a \"Shop as a buyer in <country>\" button (or \"You are shopping as a buyer in…\"). Press it from another country: the header switches market.",
+        "\"What can be sold to <country>\" lists blocked categories/products with the reason and those needing documents, or says no restrictions are recorded.",
+        "In the admin console (http://localhost:5173) → Settings → Market pages: pick the country, type an intro and duties text, enter category slugs like \"tools-hardware\", leave Publish unticked and save: the storefront page shows no notes. Tick Publish and save: \"Notes from <marketplace>\" appears. Admin → Audit shows two settings.updated entries for market_profile.",
+        "Negative: sign in as a catalogue manager (no settings.write) - the panel is read-only; /markets/zz is the not-found page."
+      ],
+      "commands": [
+        "Set-Location backend; npx vitest run tests/integration/market-pages.test.ts",
+        "Set-Location apps/customer-web; npx vitest run src/pages/MarketPage.test.tsx",
+        "Set-Location apps/admin-web; npx vitest run src/pages/settings/MarketPagesPanel.test.tsx"
+      ]
+    },
+    {
+      "id": 9,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NEEDS_HUMAN_VERIFICATION",
+      "pass4Done": true,
+      "fix": "Software built: the legal-document pipeline now manages all six policy kinds besides the two terms (draft → publish → hash → immutable, versions readable); RETURNS_POLICY added by migration 20261018100000; only terms kinds can ever be accepted at sign-up; GET /legal/in-force; /legal hub (every document in force, names the unpublished ones, support + assurance + operator policy links); footer link; assurance page links returns/buyer-protection/inspection policies; admin Legal documents offers the new kinds (8 languages).",
+      "verification": "Chrome 153 at 320/375/768/1024/1440: no horizontal overflow and axe WCAG 2.0/2.1 A/AA 0 violations. Keyboard walk at 375 reaches support, assurance and terms with focus indicators. Screenshot inspected at 375. Dev-only Vite HMR WebSocket error recorded at every width; not a clean console claim. Local API lists PLATFORM_TERMS only; page identifies it as a development placeholder. Six policies not published. Evidence output/master-009-browser/results.json and shots/help-policies-375.png.",
+      "evidence": "backend/tests/integration/legal-documents.test.ts; apps/customer-web/src/pages/HelpPoliciesPage.test.tsx; verification-evidence/pass4/row09/; commit 0dd693e",
+      "files": "backend: domain/legal-document.ts, modules/legal/legal-document.service.ts, development-terms.ts, routes/legal.public.ts, prisma/schema.prisma + migration 20261018100000_legal_returns_policy + generated client; customer-web: pages/HelpPoliciesPage.tsx (new), AssurancePage.tsx, layout/Footer.tsx, app/router.tsx, 8 locales; admin-web: lib/legal-documents.ts, 8 locales; docs: PRD FR-SRCH-017, UI-SCREENS, DATABASE-DESIGN, PROJECT-GUIDE (+Hinglish), feature guide, reference",
+      "testResult": "2026-09-30: backend legal-document service/domain 29/29; new legal-documents-http 4/4 (18 forbidden route calls, owner CSRF, private drafts/PDF, concurrent publish, immutable published text and one audit event); storefront help/terms 17/17; admin legal editor 8/8. All exit 0. Frontend tests emit jsdom scroll warnings.",
+      "verifiedAt": "2026-09-29",
+      "blocker": "Owner and qualified counsel must supply and approve actual launch-market terms plus seller terms, privacy, returns, buyer protection, inspection and prohibited-products policies. Existing local terms are a development placeholder. No legal sign-off performed; Word row stays unchecked.",
+      "manual": [
+        "Open http://localhost:5174/legal (footer: \"Help, policies and legal\"). You see Get help, and Terms and policies: each published document links to its text; the rest are named under \"Not published yet\".",
+        "In the admin console → Settings → Legal documents → New document: the Kind list now offers Seller terms, Privacy policy, Returns policy, Buyer protection policy, Inspection policy and Prohibited products. Create a Returns policy, publish it, reload /legal: it appears with its version and date, and /assurance shows it under \"The policies in full\".",
+        "Try to change the published document: it is refused (published documents are immutable). Publish a newer version: the older one stays readable at its own link.",
+        "Sign-up still asks only for the Terms and Conditions; a policy is never offered as the thing you agree to.",
+        "Legal sign-off (human): read each published text and confirm it is the approved wording for this business."
+      ],
+      "commands": [
+        "Set-Location backend; npx vitest run tests/integration/legal-documents.test.ts",
+        "Set-Location apps/customer-web; npx vitest run src/pages/HelpPoliciesPage.test.tsx"
+      ]
+    },
+    {
+      "id": 10,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Sign-up, sign-in (lockout, non-enumeration, refresh-token reuse), email verification, password reset, CAPTCHA, sign-in alerts and the buyer MFA API already existed (pass 3). Missing: a buyer could not choose two-step sign-in — setup only appeared when a step-up forced it. Built Profile → Two-step sign-in (turn on via the enrolment flow, recovery codes left, replace codes shown once, turn off; not offered while a seller role requires it). Fixed test isolation in customer-mfa.test.ts (lockout case inherited one wrong code and locked early; product behaviour verified correct).",
+      "verification": "Backend auth suites 110/110 (auth, self-registration, rate-limit, customer-mfa 14/14, session-isolation, gateway-activation, staff-temporary-password, login-alert). Storefront 64/64 incl. panel 4 (turn-on starts setup, codes shown once, turn off posts, required role hides switch-off, absent when unavailable). Headless Chrome 5 widths on /login, /register, /forgot-password and signed-in /account/profile: axe 0, no h-scroll, focus visible, panel present.",
+      "evidence": "apps/customer-web/src/pages/account/TwoStepSignInPanel.test.tsx (4); backend/tests/integration/customer-mfa.test.ts; verification-evidence/pass4/row10/; commit bd02815",
+      "files": "customer-web: pages/account/TwoStepSignInPanel.tsx (new), ProfileInformationPage.tsx, 8 locales; backend: tests/integration/customer-mfa.test.ts; docs: PRD FR-IDN-019, UI-SCREENS, PROJECT-GUIDE (+Hinglish), feature guide",
+      "testResult": "PASS — backend 110/110; storefront 64/64; typecheck + lint clean; i18n complete",
+      "verifiedAt": "2026-09-29",
+      "blocker": "—",
+      "manual": [
+        "Open http://localhost:5174/register: create an account (the Terms must be ticked); you are asked to confirm your email. /login: signing in with a wrong password shows the same message whether or not the email exists; repeated failures lock the account.",
+        "/forgot-password: enter an email — the same confirmation appears for a known and an unknown address; the email (real SMTP here) holds a reset link.",
+        "Signed in, open Account → Profile: \"Two-step sign-in\" is off. Press \"Turn on two-step sign-in\", scan the QR code with an authenticator app, save the recovery codes, enter the code: it is on, with \"10 recovery codes left\".",
+        "Sign out and back in: after the password you are asked for the six-digit code. A recovery code works once.",
+        "\"Replace recovery codes\" asks you to confirm with a code, then shows ten new codes once. \"Turn off two-step sign-in\" asks for a code and emails the account holder.",
+        "As a seller owner, the panel explains it stays on and offers no switch-off."
+      ],
+      "commands": [
+        "Set-Location backend; npx vitest run tests/integration/auth.test.ts tests/integration/self-registration.test.ts tests/integration/customer-mfa.test.ts tests/integration/rate-limit.test.ts",
+        "Set-Location apps/customer-web; npx vitest run src/pages/account/TwoStepSignInPanel.test.tsx src/pages/LoginPage.test.tsx src/pages/RegisterPage.test.tsx"
+      ]
+    },
+    {
+      "id": 11,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "finding": "Individual identity check built by an earlier session but never tested to completion, ticked or committed. Re-inspection found: a VERIFIED check never expired when its document lapsed; a staff decision on a stale screen silently overturned a colleague (VERIFIED then REJECTED both 200); status writes were not atomic; the staff file download put a Unicode filename in the header and had no sandbox CSP; an expired document gave a misleading \"fill in every detail\" message. Company buyers: roles existed but no member could ever be invited, so every company had only its owner.",
+      "fix": "Individual buyer (kept, finished): identity details, masked document number, documents (sniffed, scanned, private), importer data, marketing consent, staff review. Fixed: lapsed ID document now moves VERIFIED→EXPIRED (system, audited) and is refused at submit and verify; staff decisions must state expectedStatus and a stale screen gets 409 STALE instead of overturning a colleague; every status write is a conditional update on status+version; staff download uses an ASCII filename and a sandbox CSP; storefront/admin explain an expired document and a stale decision (8 languages). Company buyer: application, PAN/GSTIN/CIN/Udyam/IEC identifiers, documents, addresses and admin approval already existed; built the missing team: invite by email in a role, resend (new link, max 5), withdraw, accept (verified matching email only, one answer for every bad link, idempotent), change role, remove (effective next request); owner never assignable/changeable, only owner manages admins, nobody changes themselves; only an APPROVED company can manage its team.",
+      "verification": "Browser (headless Chrome 153, axe 4.13) at 320/375/768/1024/1440 on /account/identity, /account/companies/:id (approved with 2 members + 1 invitation; draft company), /account/join-company?token=…: no horizontal scroll, axe 0 violations, identity page opens at top (scrollY 0), keyboard Tab reaches every team control in order, token removed from address bar after reading, draft company shows \"once the company is verified\" and no invite form. Found and fixed in browser: owner badge stretched and join date truncated at 320px. Temporary dev fixture created for the check and removed afterwards.",
+      "security": "Backend-only authority: buyer session refused on all 4 staff KYC routes (401/403) and state unchanged; another buyer cannot read/withdraw a KYC document (404); another company cannot read the team, invite, resend, withdraw or remove (404, state unchanged); forwarded invitation link refused for another account and for an unverified email; token stored only as SHA-256 (asserted not in the row); invitation preview/accept take the token in the body; CSRF required on writes; rate limits on upload (20/15 min), invite (30/h), resend (20/h), preview (30/15 min), accept (10/15 min); uploads type-sniffed, size- and empty-checked; audit rows for every KYC and team change without identity values.",
+      "evidence": "backend/tests/integration/customer-kyc.test.ts (24), backend/tests/integration/buyer-company-team.test.ts (14), apps/customer-web/src/pages/account/IdentityPage.test.tsx (5), apps/customer-web/src/pages/company/CompanyTeamPanel.test.tsx (7), apps/admin-web/src/pages/customer/CustomerKycPanel.test.tsx (4); verification-evidence/pass4/row11/ (results.json, team/, team-recheck/, screenshots)",
+      "files": "backend: domain/customer-kyc-state.ts, modules/customers/customer-kyc.service.ts, http/routes/customer-kyc.ts, modules/buyer-companies/team.service.ts (new), invitation-email.ts (new), http/routes/buyer-companies.customer.ts, domain/errors.ts (+4 codes), audit.service.ts, notification.service.ts, config/env.ts (BUYER_COMPANY_INVITE_TTL_HOURS), prisma/schema.prisma + migrations 20261018200000_customer_kyc_and_preferences and 20261019100000_buyer_company_invitations + generated client, privacy export/erasure; customer-web: pages/account/IdentityPage.tsx, MarketingChoicesPanel.tsx, pages/company/CompanyTeamPanel.tsx (new), JoinCompanyPage.tsx (new), CompanyApplicationPage.tsx, lib/buyer-companies.ts, lib/customer-kyc.ts, lib/errors.ts, router, 8 locales; admin-web: pages/customer/CustomerKycPanel.tsx, lib/errors.ts, 8 locales; docs: PRD FR-IDN-020 + FR-BCO-019, UI-SCREENS, DATABASE-DESIGN, README, PROJECT-GUIDE (+Hinglish), feature guide, reference",
+      "tests": "Added: expiry lapse + audit, resubmit refused with lapsed document, stale/concurrent decisions (one 200 one 409), missing expectedStatus 400, buyer session on staff routes, size/empty upload, CSP + ASCII filename; 14 team integration tests; 7 team/join component tests; storefront expired-document message; admin stale-decision message and payload.",
+      "testResult": "backend verify: typecheck + lint clean, 4671/4698 tests pass; the 27 failures are in 8 files this row does not touch (logistics levels, public-config captcha field, scheduled-order tolerance, support-ticket history, row-timestamps for 31 older models; delivery-code and POD pass on a fresh database) and are the pre-existing failures that make main CI red at bd02815. customer-web verify: 1571/1571, typecheck, lint, build OK. admin-web verify: 238/238, build OK. docs:check OK.",
+      "verifiedAt": "2026-09-29",
+      "blocker": "— (phone verification uses the existing verified contact change; no KYC provider is used: staff decide, nothing is auto-verified)",
+      "manual": [
+        "Signed in as a buyer, open http://localhost:5174/account/identity: fill identity details, upload a PDF of the document, Send for review. Details lock. The document number shows only its last characters.",
+        "In the admin console open the customer → Identity check: Open the file (audited), Accept it, Verify identity. If a colleague decided first, you are told and the panel reloads.",
+        "Set the document expiry in the past (or wait for it): the check shows Expired and cannot be re-sent until a valid document is entered.",
+        "As the owner of an approved company open Account → Companies → the company → Team: invite a colleague by email and role, Resend, Withdraw. Sign in as that colleague (same email) and open the emailed link: Accept and join. Change their role or Remove them; removal takes effect at once.",
+        "A draft company shows \"You can invite colleagues once the company is verified.\""
+      ],
+      "commands": [
+        "Set-Location backend; npx vitest run tests/integration/customer-kyc.test.ts tests/integration/buyer-company-team.test.ts tests/integration/buyer-companies.test.ts",
+        "Set-Location apps/customer-web; npx vitest run src/pages/account/IdentityPage.test.tsx src/pages/company/CompanyTeamPanel.test.tsx",
+        "Set-Location apps/admin-web; npx vitest run src/pages/customer/CustomerKycPanel.test.tsx"
+      ]
+    },
+    {
+      "id": 12,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NEEDS_HUMAN_VERIFICATION",
+      "pass4Done": true,
+      "finding": "Integrated implementation adds ownership, registrations/export/category facts, manual screening records, approval-evidence readiness checks, private document handling, expiry transition to ACTION_REQUIRED, admin response trimming, and trading gates on offer edits. Manual screening is explicitly recorded as manual rather than claimed as automated.",
+      "fix": "Integrated commit 5566e8b. Backend targeted tests passed 73/73: seller application review, trading gate, seller team, buyer-company access review and seller KYB. Customer seller UI tests passed 14/14; admin KYB UI tests passed 6/6; backend/customer/admin typechecks passed. Migrations 20261019300000_seller_application_review and 20261020140000_seller_team_invitations_access_reviews were applied to local development and test databases.",
+      "testResult": "Backend: seller-application-review, seller-factory-verification, catalog-supplier-profile, seller-moderation, seller-team, seller-trading-gate, buyer-company-access-review, seller-kyb, seller-team-invitation-email, export-bundle-completeness, row-timestamps 126/126 (29 Sep, merged main). Storefront verify 1593/1593; admin verify 250/250.",
+      "blocker": "Code inspection 2026-09-30: modules/seller/payout.service.ts payoutAdapter() always returns unconfiguredAdapter, including when Connect configuration is present. A Stripe Connect adapter is not implemented; credentials alone cannot resolve this. Owner must confirm provider/settlement model (D13), engineering must implement onboarding and trusted bank-status synchronization, then owner must provide sandbox onboarding access. Previous text claiming only credentials were missing was incomplete.",
+      "manual": [
+        "In Admin → Seller application, open a submitted seller and confirm every required ownership, registration, export and approval-evidence item is shown without private storage keys or provider configuration details.",
+        "Configure the production payout provider with real credentials. Complete a test seller's bank verification through the provider, then confirm the application cannot be approved before that result and can proceed only after it is recorded.",
+        "Record a manual sanctions/restricted-party screening decision with the reviewer, date and evidence. Confirm the UI calls it manual screening. If policy requires automated screening, configure that provider and repeat with a real provider result.",
+        "Suspend an approved seller and confirm edits to live offer price, tiers and packaging are refused; let a required document expire and confirm the seller moves to ACTION_REQUIRED."
+      ],
+      "verification": "Seller Hub screens sit behind the Hub's own password and were not opened in a browser; component tests SellerOwnershipPanel and SellerKybReviewPanel pass."
+    },
+    {
+      "id": 13,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "finding": "Schema only: factories, machines, evidence, certifications and FACTORY trust checks exist in the database design but no service, route, screen, permission or worker writes them. Defect: the public supplier page shows every non-archived factory, verified or not.",
+      "fix": "Built: seller factories, machines, evidence and certifications; admin verify/reject with reason; append-only check history; expiry; public supplier page shows only verified, in-date factories. Merged in commit 09706a5.",
+      "testResult": "Backend: seller-application-review, seller-factory-verification, catalog-supplier-profile, seller-moderation, seller-team, seller-trading-gate, buyer-company-access-review, seller-kyb, seller-team-invitation-email, export-bundle-completeness, row-timestamps 126/126 (29 Sep, merged main). Storefront verify 1593/1593; admin verify 250/250.",
+      "verification": "Public supplier page checked in the browser at 320–1440 (no horizontal scroll, axe 0). Seller Hub → Factories not opened: the Hub has its own password. Owner checked in the browser on 29 Sep: Seller Hub → Factories/Certifications and Seller Hub → Team open and work (API log: GET /seller/factories, /seller/certifications, /seller/team 200 after two-step sign-in was set up).",
+      "blocker": "—",
+      "verifiedAt": "2026-09-29",
+      "evidence": "backend/tests/integration/seller-factory-verification.test.ts, catalog-supplier-profile.test.ts; apps/customer-web SellerFactoriesPage.test.tsx; apps/admin-web SellerFactoriesPanel.test.tsx; commit 09706a5 (pushed in 994987d)"
+    },
+    {
+      "id": 14,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "finding": "Buyer-company team (invite, accept, resend, withdraw, role change, remove, owner protection) was verified with row 11. Seller team and access reviews have now been integrated on main: seller invitations, resend/withdraw/accept, role change/removal protections, and buyer/seller access-review records and UI are present.",
+      "fix": "Buyer-company team done with row 11. Seller team: invitations (hashed token, expiry, resend, withdraw, accept), last-admin protection, access review on both team screens. In main (commit cc7e640).",
+      "testResult": "Backend: seller-application-review, seller-factory-verification, catalog-supplier-profile, seller-moderation, seller-team, seller-trading-gate, buyer-company-access-review, seller-kyb, seller-team-invitation-email, export-bundle-completeness, row-timestamps 126/126 (29 Sep, merged main). Storefront verify 1593/1593; admin verify 250/250.",
+      "blocker": "—",
+      "verification": "Seller Hub → Team not opened: the Hub has its own password. Buyer-company team verified in the browser with row 11. Owner checked in the browser on 29 Sep: Seller Hub → Factories/Certifications and Seller Hub → Team open and work (API log: GET /seller/factories, /seller/certifications, /seller/team 200 after two-step sign-in was set up).",
+      "verifiedAt": "2026-09-29",
+      "evidence": "backend/tests/integration/seller-team.test.ts, buyer-company-team.test.ts, buyer-company-access-review.test.ts, unit/seller-team-invitation-email.test.ts; SellerTeamPage.test.tsx, CompanyTeamPanel.test.tsx; commits 5262610, cc7e640 (pushed in 994987d)"
+    },
+    {
+      "id": 15,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "finding": "Not built before this pass.",
+      "fix": "Buyer dashboard Sourcing card from GET /rfqs/summary: counts with \"waiting on you\", next actions, links to filtered lists; a failed block shows \"–\" and never breaks the page.",
+      "blocker": "—",
+      "evidence": "rfq-dashboard-summary.test.ts, SourcingSummaryCard.test.tsx",
+      "verification": "Merged into main (RFQ branch, 6 row commits). Backend verify 4977 pass (the 23 failures were a shared-test-DB collision; those 4 files pass 57/57 alone), storefront verify 1647/1647; browser /account/dashboard, /account/rfqs, /account/rfqs/new 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/rfq/). Seller Hub RFQ screens covered by SellerRfqPages.test.tsx (Hub needs its own sign-in).",
+      "testResult": "Merged into main (RFQ branch, 6 row commits). Backend verify 4977 pass (the 23 failures were a shared-test-DB collision; those 4 files pass 57/57 alone), storefront verify 1647/1647; browser /account/dashboard, /account/rfqs, /account/rfqs/new 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/rfq/). Seller Hub RFQ screens covered by SellerRfqPages.test.tsx (Hub needs its own sign-in).",
+      "verifiedAt": "2026-09-30"
+    },
+    {
+      "id": 16,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "finding": "Not built before this pass.",
+      "fix": "Structured RFQ: category, specs, quantity/unit, annual volume, optional target price, destination, Incoterm, certifications, sample, inspection, deadline, attachments; drafts; idempotent submit; matching approved sellers (category + market rules) with include/exclude; notifications; audit; honest \"no match\".",
+      "evidence": "rfq-create.test.ts (19)",
+      "verification": "Merged into main (RFQ branch, 6 row commits). Backend verify 4977 pass (the 23 failures were a shared-test-DB collision; those 4 files pass 57/57 alone), storefront verify 1647/1647; browser /account/dashboard, /account/rfqs, /account/rfqs/new 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/rfq/). Seller Hub RFQ screens covered by SellerRfqPages.test.tsx (Hub needs its own sign-in).",
+      "testResult": "Merged into main (RFQ branch, 6 row commits). Backend verify 4977 pass (the 23 failures were a shared-test-DB collision; those 4 files pass 57/57 alone), storefront verify 1647/1647; browser /account/dashboard, /account/rfqs, /account/rfqs/new 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/rfq/). Seller Hub RFQ screens covered by SellerRfqPages.test.tsx (Hub needs its own sign-in).",
+      "verifiedAt": "2026-09-30",
+      "blocker": "—"
+    },
+    {
+      "id": 17,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "finding": "Not built before this pass.",
+      "fix": "RFQ workspace: requirement versions/amendments, invitation statuses, UTC deadline, per-supplier Q&A, attachments protected, timeline; suppliers see only their own RFQs, threads and quotes.",
+      "evidence": "rfq-responses.test.ts (8), SellerRfqPages.test.tsx",
+      "verification": "Merged into main (RFQ branch, 6 row commits). Backend verify 4977 pass (the 23 failures were a shared-test-DB collision; those 4 files pass 57/57 alone), storefront verify 1647/1647; browser /account/dashboard, /account/rfqs, /account/rfqs/new 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/rfq/). Seller Hub RFQ screens covered by SellerRfqPages.test.tsx (Hub needs its own sign-in).",
+      "testResult": "Merged into main (RFQ branch, 6 row commits). Backend verify 4977 pass (the 23 failures were a shared-test-DB collision; those 4 files pass 57/57 alone), storefront verify 1647/1647; browser /account/dashboard, /account/rfqs, /account/rfqs/new 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/rfq/). Seller Hub RFQ screens covered by SellerRfqPages.test.tsx (Hub needs its own sign-in).",
+      "verifiedAt": "2026-09-30",
+      "blocker": "—"
+    },
+    {
+      "id": 18,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "finding": "Not built before this pass.",
+      "fix": "Quote comparison: price tiers, MOQ, lead time, capacity, Incoterm, terms, tooling, sample cost, shipping, exclusions, validity; stored FX rate with source and timestamp, converted values labelled, missing never 0; sort/filter/shortlist; CSV export guarded against formula injection.",
+      "evidence": "rfq-quote-comparison.test.ts (6), RfqComparePage.test.tsx",
+      "verification": "Merged into main (RFQ branch, 6 row commits). Backend verify 4977 pass (the 23 failures were a shared-test-DB collision; those 4 files pass 57/57 alone), storefront verify 1647/1647; browser /account/dashboard, /account/rfqs, /account/rfqs/new 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/rfq/). Seller Hub RFQ screens covered by SellerRfqPages.test.tsx (Hub needs its own sign-in).",
+      "testResult": "Merged into main (RFQ branch, 6 row commits). Backend verify 4977 pass (the 23 failures were a shared-test-DB collision; those 4 files pass 57/57 alone), storefront verify 1647/1647; browser /account/dashboard, /account/rfqs, /account/rfqs/new 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/rfq/). Seller Hub RFQ screens covered by SellerRfqPages.test.tsx (Hub needs its own sign-in).",
+      "verifiedAt": "2026-09-30",
+      "blocker": "—"
+    },
+    {
+      "id": 19,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "finding": "Not built before this pass.",
+      "fix": "Negotiation: immutable offer versions; accept/reject/counter/withdraw; idempotent acceptance with one winner; expired offers refused; accepted terms frozen with SHA-256 and readable for the purchase order (the PO itself is a later row).",
+      "evidence": "rfq-negotiation.test.ts (6), NegotiationPanel.test.tsx",
+      "verification": "Merged into main (RFQ branch, 6 row commits). Backend verify 4977 pass (the 23 failures were a shared-test-DB collision; those 4 files pass 57/57 alone), storefront verify 1647/1647; browser /account/dashboard, /account/rfqs, /account/rfqs/new 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/rfq/). Seller Hub RFQ screens covered by SellerRfqPages.test.tsx (Hub needs its own sign-in).",
+      "testResult": "Merged into main (RFQ branch, 6 row commits). Backend verify 4977 pass (the 23 failures were a shared-test-DB collision; those 4 files pass 57/57 alone), storefront verify 1647/1647; browser /account/dashboard, /account/rfqs, /account/rfqs/new 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/rfq/). Seller Hub RFQ screens covered by SellerRfqPages.test.tsx (Hub needs its own sign-in).",
+      "verifiedAt": "2026-09-30",
+      "blocker": "—"
+    },
+    {
+      "id": 20,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "BLOCKED",
+      "pass4Done": false,
+      "finding": "Built: sample requests on an RFQ with quantity, cost, currency, courier, address, tracking, date, approval criteria, supplier answer, accept/reject with reason, evidence, REF- reference code, timeline, notifications, idempotent create; never marked shipped/delivered/paid without the real event (rfq-samples.test.ts, SamplesPanel.test.tsx).",
+      "fix": "In main.",
+      "testResult": "Merged into main (RFQ branch, 6 row commits). Backend verify 4977 pass (the 23 failures were a shared-test-DB collision; those 4 files pass 57/57 alone), storefront verify 1647/1647; browser /account/dashboard, /account/rfqs, /account/rfqs/new 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/rfq/). Seller Hub RFQ screens covered by SellerRfqPages.test.tsx (Hub needs its own sign-in).",
+      "verifiedAt": "2026-09-30",
+      "blocker": "Linking an accepted reference sample to the final bulk-order inspection needs the inspection screens and routes, which are not built. Collecting payment for a sample is not built either."
+    },
+    {
+      "id": 21,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 22,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 23,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 24,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 25,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Cart lines say which seller sells them (CartPage.test.tsx).",
+      "verification": "Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
+      "evidence": "Cart lines say which seller sells them (CartPage.test.tsx).",
+      "testResult": "Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
+      "verifiedAt": "2026-09-29",
+      "blocker": "—"
+    },
+    {
+      "id": 26,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 27,
+      "previous": "☑ at start of pass 4; pass 1–3: VERIFIED",
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30",
+      "blocker": "—",
+      "verification": "Reverified real payment outcome handling across Stripe checkout, customer payment status, cancellation, failure, processing, confirmation, and receipt-safe result rendering.",
+      "evidence": "backend/tests/integration/stripe-checkout.test.ts; apps/customer-web/src/pages/PaymentPage.test.tsx; PaymentPage.stripe.test.tsx; PaymentConfirmationPage.test.tsx",
+      "testResult": "PASS — included in backend 7 files / 175 tests and customer 7 files / 73 tests."
+    },
+    {
+      "id": 28,
+      "previous": "☑ at start of pass 4; pass 1–3: FIXED_AND_VERIFIED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30",
+      "blocker": "—",
+      "verification": "Reverified the customer My Orders list and order-state presentation.",
+      "evidence": "apps/customer-web/src/pages/OrdersPage.test.tsx",
+      "testResult": "PASS — included in customer 7 files / 73 tests."
+    },
+    {
+      "id": 29,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "finding": "Already built; re-verified in this pass.",
+      "fix": "No change needed.",
+      "verification": "/account/orders/:id tracking panel checked (status and journey shown for an order on its way). Browser (headless Chrome, 320–1440, verification-evidence/pass4/verified-existing/): no horizontal scroll, axe 0, no JS errors.",
+      "evidence": "components/order-tracking/OrderTracking.tsx (EtaLine, journey, POD) on the customer order page; backend/src/http/routes/order-tracking.customer.ts; backend/tests/integration/buyer-tracking.test.ts ('says a revised estimate is revised...', 'shows the movement in order...', 'answers another buyer with not found').",
+      "testResult": "Tests run this session: backend buyer-tracking, product-reviews, customer-erp (3 files), customers, buyer-companies, seller-offer-authority, marketplace-catalogue 195/195; storefront voice-search + order-tracking 17/17.",
+      "security": "Covered by the backend tests named (another buyer gets not found where applicable; routes need a customer session).",
+      "verifiedAt": "2026-09-29",
+      "blocker": "—"
+    },
+    {
+      "id": 30,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 31,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "finding": "Already built; re-verified in this pass.",
+      "fix": "No change needed.",
+      "verification": "/account/reviews lists items waiting for a rating; verified-purchase gate and moderation proven by product-reviews tests. Browser (headless Chrome, 320–1440, verification-evidence/pass4/verified-existing/): no horizontal scroll, axe 0, no JS errors.",
+      "evidence": "Verified-purchase gate and moderation: backend/tests/integration/product-reviews.test.ts ('refuses somebody who never ordered the product', 'refuses an order that is on its way but not delivered', 'requires a reason to hide', 'takes a hidden review out of every average'). UI: ReviewDialog on the customer order page, account/MyReviewsPage, admin ProductReviewsPage.",
+      "testResult": "Tests run this session: backend buyer-tracking, product-reviews, customer-erp (3 files), customers, buyer-companies, seller-offer-authority, marketplace-catalogue 195/195; storefront voice-search + order-tracking 17/17.",
+      "security": "Covered by the backend tests named (another buyer gets not found where applicable; routes need a customer session).",
+      "verifiedAt": "2026-09-29",
+      "blocker": "—"
+    },
+    {
+      "id": 32,
+      "previous": "☑ at start of pass 4; pass 1–3: VERIFIED",
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30",
+      "blocker": "—",
+      "verification": "Reverified wishlist persistence, ownership isolation, and account self-service behavior at the service and HTTP boundary.",
+      "evidence": "backend/tests/integration/account-self-service.test.ts",
+      "testResult": "PASS — included in backend 7 files / 175 tests."
+    },
+    {
+      "id": 33,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 34,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 35,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Seller Hub Archive action with confirm; Archived tab and labels in 8 languages (SellerListingsPage.test.tsx; marketplace-catalogue.test.ts \"archives their only offer\").",
+      "evidence": "Seller Hub Archive action with confirm; Archived tab and labels in 8 languages (SellerListingsPage.test.tsx; marketplace-catalogue.test.ts \"archives their only offer\").",
+      "verification": "Component and integration tests; admin screens are not opened in the headless harness (staff sign-in with MFA).",
+      "testResult": "Merged in d855955 (admin/operations batch). Backend verify 4967/4967, admin verify 323/323, storefront 1630/1631 with the one failure (PaymentPage.stripe timing under parallel load) passing 12/12 on rerun.",
+      "verifiedAt": "2026-09-30",
+      "blocker": "—"
+    },
+    {
+      "id": 36,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 37,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 38,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 39,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 40,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 41,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 42,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 43,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 44,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 45,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 46,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 47,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 48,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 49,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 50,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 51,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 52,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 53,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 54,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 55,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 56,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 57,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Admin shipment page Documents card; GET /admin/logistics/shipments/:id/documents never returns the storage key (logistics-admin-tracking.test.ts, ShipmentDocuments.test.tsx).",
+      "evidence": "Admin shipment page Documents card; GET /admin/logistics/shipments/:id/documents never returns the storage key (logistics-admin-tracking.test.ts, ShipmentDocuments.test.tsx).",
+      "verification": "Component and integration tests; admin screens are not opened in the headless harness (staff sign-in with MFA).",
+      "testResult": "Merged in d855955 (admin/operations batch). Backend verify 4967/4967, admin verify 323/323, storefront 1630/1631 with the one failure (PaymentPage.stripe timing under parallel load) passing 12/12 on rerun.",
+      "verifiedAt": "2026-09-30",
+      "blocker": "—"
+    },
+    {
+      "id": 58,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 59,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 60,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 61,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 62,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 63,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Support inbox Due column, Late badge and filter; Service level card; resolution code required to resolve (support-tickets.test.ts \"support service levels\", SupportTicketsSla.test.tsx).",
+      "evidence": "Support inbox Due column, Late badge and filter; Service level card; resolution code required to resolve (support-tickets.test.ts \"support service levels\", SupportTicketsSla.test.tsx).",
+      "verification": "Component and integration tests; admin screens are not opened in the headless harness (staff sign-in with MFA).",
+      "testResult": "Merged in d855955 (admin/operations batch). Backend verify 4967/4967, admin verify 323/323, storefront 1630/1631 with the one failure (PaymentPage.stripe timing under parallel load) passing 12/12 on rerun.",
+      "verifiedAt": "2026-09-30",
+      "blocker": "—"
+    },
+    {
+      "id": 64,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 65,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Command centre key figures vs previous period (BigInt) and system-health tile from /admin/dashboard alerts (CommandCentreTiles.test.tsx).",
+      "evidence": "Command centre key figures vs previous period (BigInt) and system-health tile from /admin/dashboard alerts (CommandCentreTiles.test.tsx).",
+      "verification": "Component and integration tests; admin screens are not opened in the headless harness (staff sign-in with MFA).",
+      "testResult": "Merged in d855955 (admin/operations batch). Backend verify 4967/4967, admin verify 323/323, storefront 1630/1631 with the one failure (PaymentPage.stripe timing under parallel load) passing 12/12 on rerun.",
+      "verifiedAt": "2026-09-30",
+      "blocker": "—"
+    },
+    {
+      "id": 66,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Customers, sellers and buyer companies: search, suspend/reactivate, approve, verify/reverify; component tests for all six admin pages; seller decision buttons now permission-gated.",
+      "evidence": "Customers, sellers and buyer companies: search, suspend/reactivate, approve, verify/reverify; component tests for all six admin pages; seller decision buttons now permission-gated.",
+      "verification": "Component and integration tests; admin screens are not opened in the headless harness (staff sign-in with MFA).",
+      "testResult": "Merged in d855955 (admin/operations batch). Backend verify 4967/4967, admin verify 323/323, storefront 1630/1631 with the one failure (PaymentPage.stripe timing under parallel load) passing 12/12 on rerun.",
+      "verifiedAt": "2026-09-30",
+      "blocker": "—"
+    },
+    {
+      "id": 67,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Staff block/unblock a live listing with a required reason, audited, seller notified; seller cannot change a blocked listing (seller-offer-block.test.ts 9, SellerOffersPanel.test.tsx).",
+      "evidence": "Staff block/unblock a live listing with a required reason, audited, seller notified; seller cannot change a blocked listing (seller-offer-block.test.ts 9, SellerOffersPanel.test.tsx).",
+      "verification": "Component and integration tests; admin screens are not opened in the headless harness (staff sign-in with MFA).",
+      "testResult": "Merged in d855955 (admin/operations batch). Backend verify 4967/4967, admin verify 323/323, storefront 1630/1631 with the one failure (PaymentPage.stripe timing under parallel load) passing 12/12 on rerun.",
+      "verifiedAt": "2026-09-30",
+      "blocker": "—"
+    },
+    {
+      "id": 68,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Finance → Fee rules editor with maker-checker (FeeRulesPage.test.tsx 9, platform-fee-rules-http.test.ts 11).",
+      "evidence": "Finance → Fee rules editor with maker-checker (FeeRulesPage.test.tsx 9, platform-fee-rules-http.test.ts 11).",
+      "verification": "Component and integration tests; admin screens are not opened in the headless harness (staff sign-in with MFA).",
+      "testResult": "Merged in d855955 (admin/operations batch). Backend verify 4967/4967, admin verify 323/323, storefront 1630/1631 with the one failure (PaymentPage.stripe timing under parallel load) passing 12/12 on rerun.",
+      "verifiedAt": "2026-09-30",
+      "blocker": "—"
+    },
+    {
+      "id": 69,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 70,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 71,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 72,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 73,
+      "previous": "☑ at start of pass 4; pass 1–3: FIXED_AND_VERIFIED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30",
+      "blocker": "—",
+      "verification": "Reverified audit request attribution, admin audit history rendering, filters, columns, and export behavior.",
+      "evidence": "backend/tests/integration/audit-request-context.test.ts; backend/tests/integration/audit-log-admin.test.ts; apps/admin-web/src/pages/AuditPage.test.tsx",
+      "testResult": "PASS — included in backend 7 files / 175 tests and admin 2 files / 22 tests."
+    },
+    {
+      "id": 74,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 75,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 76,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 77,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 78,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 79,
+      "previous": "☑ at start of pass 4; pass 1–3: VERIFIED",
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30",
+      "blocker": "—",
+      "verification": "Reverified saved locale behavior and customer locale-provider rendering.",
+      "evidence": "backend/tests/integration/language.test.ts; apps/customer-web/src/app/LocaleProvider.test.tsx",
+      "testResult": "PASS — included in backend 7 files / 175 tests and customer 7 files / 73 tests."
+    },
+    {
+      "id": 80,
+      "previous": "☑ at start of pass 4; pass 1–3: VERIFIED",
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30",
+      "blocker": "—",
+      "verification": "Reverified customer and admin theme controls and persisted theme behavior.",
+      "evidence": "apps/customer-web/src/components/ThemeToggle.test.tsx; apps/admin-web/src/components/ThemeToggle.test.tsx",
+      "testResult": "PASS — customer coverage included in 73 tests; admin coverage included in 22 tests."
+    },
+    {
+      "id": 81,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 82,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 83,
+      "previous": "☐ at start of pass 4; pass 1–3: NEEDS_HUMAN_VERIFICATION",
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "finding": "Already built; re-verified in this pass.",
+      "fix": "No change needed.",
+      "verification": "Microphone button present on the home search; transcript is placed in the box and never auto-submitted (voice-search tests). Browser (headless Chrome, 320–1440, verification-evidence/pass4/verified-existing/): no horizontal scroll, axe 0, no JS errors.",
+      "evidence": "lib/voice-search.ts (browser speech engine; the transcript lands in the box and never auto-submits, interim text is shown) used by HeroSearch.tsx and AiComposer.tsx; lib/voice-search.test.tsx ('hands over a finalised phrase and only shows an interim one').",
+      "testResult": "Tests run this session: backend buyer-tracking, product-reviews, customer-erp (3 files), customers, buyer-companies, seller-offer-authority, marketplace-catalogue 195/195; storefront voice-search + order-tracking 17/17.",
+      "security": "Covered by the backend tests named (another buyer gets not found where applicable; routes need a customer session).",
+      "verifiedAt": "2026-09-29",
+      "blocker": "—"
+    },
+    {
+      "id": 84,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "finding": "Already built; held back earlier only because one scheduled-orders test failed. That test had fallen behind a deliberate rule (a delivery whose price moves waits for the customer to confirm); fixed in commit 747fead.",
+      "fix": "No product change needed.",
+      "verification": "Browser (headless Chrome, 320–1440, verification-evidence/pass4/verified-existing/r084/): /account/schedules, /accounts/schedule (Schedule Cart), /schedules/new render with meaningful empty states; no horizontal scroll, axe 0.",
+      "evidence": "Screens: ScheduleCartPage, ScheduleBuilderPage, SchedulesPage, ScheduleDetailPage; routes schedules.ts; pricing only via quoteSchedule; flags FEATURE_SCHEDULED_ORDERS / FEATURE_RECURRING_ORDERS.",
+      "testResult": "backend scheduled-orders, schedule-cart, recurring: 129/129 (this session, after 747fead).",
+      "security": "Schedule state only through domain/schedule-state.ts; customer session required; tests cover another buyer not found.",
+      "verifiedAt": "2026-09-29",
+      "blocker": "—"
+    },
+    {
+      "id": 85,
+      "previous": "☑ at start of pass 4; pass 1–3: FIXED_AND_VERIFIED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30",
+      "blocker": "—",
+      "verification": "Reverified AutoPay authority, consent, scope, HTTP protections, and customer management UI.",
+      "evidence": "backend/tests/integration/autopay.test.ts; backend/tests/integration/autopay-authority-http.test.ts; apps/customer-web/src/pages/AutoPayPage.test.tsx",
+      "testResult": "PASS — included in backend 7 files / 175 tests and customer 7 files / 73 tests."
+    },
+    {
+      "id": 86,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "finding": "Already built; re-verified in this pass.",
+      "fix": "No change needed.",
+      "verification": "/account/integrations/erp lists connections and connect flow; PO/shipment/invoice/payment-reference sync proven by customer-erp tests. Browser (headless Chrome, 320–1440, verification-evidence/pass4/verified-existing/): no horizontal scroll, axe 0, no JS errors.",
+      "evidence": "account/erp/ErpHubPage, ErpWizardPage, ErpConnectionPage; customer-erp.customer.ts; event types PURCHASE_ORDER_CREATE/UPDATE, SHIPMENT_STATUS, INVOICE_SYNC, PAYMENT_REFERENCE; tests customer-erp.test.ts (30), customer-erp-live.test.ts, customer-erp-product-codes.test.ts. FEATURE_CUSTOMER_ERP defaults to true.",
+      "testResult": "Tests run this session: backend buyer-tracking, product-reviews, customer-erp (3 files), customers, buyer-companies, seller-offer-authority, marketplace-catalogue 195/195; storefront voice-search + order-tracking 17/17.",
+      "security": "Covered by the backend tests named (another buyer gets not found where applicable; routes need a customer session).",
+      "verifiedAt": "2026-09-29",
+      "blocker": "—"
+    },
+    {
+      "id": 87,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 88,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 89,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 90,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 91,
+      "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "Reorder tries every line and reports each result with the server's reason (OrderDetailPage.reorder.test.tsx).",
+      "verification": "Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
+      "evidence": "Reorder tries every line and reports each result with the server's reason (OrderDetailPage.reorder.test.tsx).",
+      "testResult": "Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
+      "verifiedAt": "2026-09-29",
+      "blocker": "—"
+    },
+    {
+      "id": 92,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 93,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "finding": "Earlier held back because the supplier page listed factories nobody had verified.",
+      "fix": "Fixed by the row 13 work: only verified, in-date factories and certifications are published.",
+      "verification": "Browser /suppliers/northwind-fastenings at 320–1440: renders, no horizontal scroll, axe 0 (verification-evidence/pass4/rows12-14/).",
+      "testResult": "catalog-supplier-profile + seller-factory-verification tests pass (29 Sep).",
+      "evidence": "backend/src/modules/catalog/supplier-profile.service.ts; tests catalog-supplier-profile.test.ts, seller-factory-verification.test.ts",
+      "verifiedAt": "2026-09-29",
+      "blocker": "—"
+    },
+    {
+      "id": 94,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 95,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    },
+    {
+      "id": 96,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "fix": "/assurance is a five-step protected-milestone timeline (AssurancePage.test.tsx).",
+      "verification": "Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
+      "evidence": "/assurance is a five-step protected-milestone timeline (AssurancePage.test.tsx).",
+      "testResult": "Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
+      "verifiedAt": "2026-09-29",
+      "blocker": "—"
+    },
+    {
+      "id": 97,
+      "previous": "☐ at start of pass 4; pass 1–3: FAILED",
+      "status": "NOT_STARTED",
+      "pass4Done": false
+    }
+  ],
+  "pendingTicks": [],
+  "batch": {
+    "from": 11,
+    "to": 20,
+    "lastCompleted": 20,
+    "next": 21
+  },
+  "otherBoxes": [
+    {
+      "id": "DOD-002",
+      "status": "VERIFIED",
+      "evidence": "Shared EmptyState/LoadingState/ErrorState in apps/customer-web/src/components/ui.tsx (599-690), apps/admin-web/src/components/ui.tsx (769-900, plus NoAccessState) and apps/logistics-web; toast for success; one full-page error for 10 failure kinds in all three apps (components/error-page, error-page-sync.test.ts, PRD NFR-REL-008). Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-005",
+      "status": "VERIFIED",
+      "evidence": "Design tokens plus shared ui.tsx primitives (Button, Field, Card, Badge, PageHeader, Toolbar) in each app; `audit:contrast` for both themes runs inside `npm run verify` in all three apps (package.json) and in CI. Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-007",
+      "status": "VERIFIED",
+      "evidence": "Shared Field has a `required` prop that renders a visible marker and an sr-only \"(required)\" (customer-web ui.tsx 283-306); Zod schemas on every route enforce the same on the server; ErrorSummary moves focus to the first bad field (ui.test.tsx). Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-008",
+      "status": "VERIFIED",
+      "evidence": "Zod validation on server routes and react-hook-form with zod resolvers in the frontends; many invalid-input tests (e.g. security.test.ts, customer-kyc.test.ts 'refuses a file over the size limit', legal-documents.test.ts 'refuse a version that is not a plain identifier'). Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-011",
+      "status": "VERIFIED",
+      "evidence": "Drafts where they matter: seller listing drafts (seller-listing-b2c-draft.test.ts), buyer company 6-step application saved as DRAFT (buyer-companies.test.ts), seller onboarding steps (seller-onboarding-steps.test.ts), payout statement drafts. Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-012",
+      "status": "VERIFIED",
+      "evidence": "Shared Button sets `disabled={disabled || isLoading}` (customer-web ui.tsx:166; same in admin and logistics); server-side Idempotency-Key replay (checkout.test.ts 'survives two concurrent submissions of the same key'). Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-021",
+      "status": "VERIFIED",
+      "evidence": "AuditLog.beforeJson/afterJson (schema.prisma:5199), written redacted by recordAudit (modules/audit/audit.service.ts:780, 326 call sites); audit-log-admin.test.ts checks the before/after values and redaction. Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-022",
+      "status": "VERIFIED",
+      "evidence": "Versioned legal documents with a frozen hash (legal-documents.test.ts 'freezes the text with its hash', 'makes the older version unacceptable'); listing revisions (BR-SEC-005); OrderTradeDocumentVersion and SellerLogisticsPolicyVersion models; issued invoices are immutable and corrected by credit note (BR-SINV-001, BR-CINV-003). Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-023",
+      "status": "VERIFIED",
+      "evidence": "requiresReason/REASON_REQUIRED enforced in 22 source files (e.g. seller-state.ts assertSellerOrderTransition, disputes 'mandatory reason'); tests in order-state-machine.test.ts, inventory.test.ts, buyer-companies.test.ts, data-subject-rights.test.ts; audit reads the reason (audit-log-admin.test.ts 'reads a reason recorded as a code'). Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-026",
+      "status": "VERIFIED",
+      "evidence": "TLS 1.2/1.3, an HTTP-to-HTTPS 301 and HSTS in deploy/nginx; the database is checked for encryption at rest at boot (backend/src/infra/database-encryption.ts, called from server.ts), and production refuses 'unchecked' (config/env.ts:2406, production-config.test.ts); secrets use AES-256-GCM with AAD (security.test.ts). Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-028",
+      "status": "VERIFIED",
+      "evidence": "ClamAV scanning fails closed (tests/unit/malware-scan.test.ts); production refuses to run without ClamAV and refuses unscanned downloads (production-config.test.ts:209,215); inspection evidence is scanned and hashed (modules/inspection/evidence.service.ts:101-127). Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-030",
+      "status": "VERIFIED",
+      "evidence": "tests/integration/security.test.ts (XSS sanitising, magic-byte uploads, RBAC escalation, webhook HMAC, constant-time compare), security-regressions.test.ts (CSRF, refresh-token reuse, enumeration), unit/outbound-http.test.ts (SSRF, 19 cases), rate-limit.test.ts, session-isolation.test.ts, logistics-tenant-isolation.test.ts; CodeQL workflow (.github/workflows/codeql.yml). Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-031",
+      "status": "VERIFIED",
+      "evidence": "tests/integration/privacy-controls.test.ts (retention schedule matches env, processing register, permission-gated), data-subject-rights.test.ts (20 tests), unit/export-bundle-completeness.test.ts (fails CI for any personal-data table missing from the GDPR export), housekeeping.test.ts (retention sweeps). Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-032",
+      "status": "VERIFIED",
+      "evidence": "tests/unit/provider-fault-injection.test.ts with tests/support/fake-provider.ts (payment, carrier and ERP adapters under fault), unit/outbound-timeouts.test.ts, integration/job-queue.test.ts (retry, backoff, lease), dead-letter.test.ts, stripe-adapter.test.ts 'treats a Stripe outage as retryable'. Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-035",
+      "status": "VERIFIED",
+      "evidence": "reconcilePayment and reconcileOpenCheckouts, with admin reconcile routes (routes/payments.ts:481,1096), the PAYMENT_RECONCILE job and the uboss_payments_unreconciled gauge (infra/metrics.ts:147); tested in stripe-checkout.test.ts:1049-1274; scheduled-orders.test.ts 'records one inventory reconciliation'; ubl-invoice.test.ts line-sum reconciliation. Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-037",
+      "status": "VERIFIED",
+      "evidence": "End-to-end acceptance tests: integration/acceptance-seller-to-doorstep.test.ts, acceptance-own-delivery-operation.test.ts, checkout.test.ts, stripe-checkout.test.ts. Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-038",
+      "status": "VERIFIED",
+      "evidence": "Boundary tests across money and quantity: unit/money.test.ts, b2c-order-limit.test.ts, quantity-tier.test.ts, security.test.ts 'keeps tax exact at awkward amounts', reports.test.ts 'beyond Number.MAX_SAFE_INTEGER', audit-log-admin.test.ts 'stops at the row cap'. Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-039",
+      "status": "VERIFIED",
+      "evidence": "Zod on every route; invalid-input tests such as security.test.ts 'never lets a decimal money string through', preorder-chat.test.ts:942/949, customer-kyc.test.ts:193, checkout.test.ts 'rejects the same key with a different body'. Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-041",
+      "status": "VERIFIED",
+      "evidence": "checkout.test.ts 'survives two concurrent submissions of the same key', security-regressions.test.ts 'lets exactly one of two simultaneous rotations win', seller-review-races.test.ts, job-queue.test.ts (lease claims), dead-letter.test.ts 'refuses a second press'. Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-046",
+      "status": "VERIFIED",
+      "evidence": "recordAudit is called at 326 sites with actor, roles, IP, device and correlation id (audit-request-context.test.ts, audit-log-admin.test.ts); transactional outbox and integration events (NFR-REL-003); Pino structured logs with correlation id. Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-048",
+      "status": "VERIFIED",
+      "evidence": "deploy/scripts/monitor.sh (uboss-monitor.timer) checks dead jobs, backlog, backups and certificates and calls UBOSS_ALERT_COMMAND; Prometheus gauges for queue/outbox depth, payment rejections, unreconciled payments and DB encryption (infra/metrics.ts). Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-049",
+      "status": "VERIFIED",
+      "evidence": "Logistics SLA (unit/logistics-sla.test.ts, 15 tests), seller dispatch deadline (unit/seller-dispatch-deadline.test.ts), support SLA policies per category (modules/support/support-sla.service.ts), fulfilment ageing buckets (report.service.ts fulfilmentAgeing; reports.test.ts 'buckets waiting orders by age'). Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-050",
+      "status": "VERIFIED",
+      "evidence": "Admin DeadLetterPage with retry (apps/admin-web/src/pages/DeadLetterPage.tsx + test; backend dead-letter.test.ts), fulfilment-ageing report, 'surfaces rejected webhooks' (reports.test.ts:433), unreconciled-payments gauge and the admin reconcile route. Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "SEC-001",
+      "status": "VERIFIED",
+      "evidence": "Staff TOTP mandatory in production (production-config.test.ts 'refuses admin MFA being switched off'); SELLER_MFA_REQUIRED gates owners and finance roles (http/plugins/seller.ts:143 assertSellerMfaSatisfied; customer-mfa.test.ts 'shuts every Hub route to the owner and a finance viewer until they enrol'); step-up for payouts, role changes and AutoPay (customer-mfa.test.ts:461,547); new-device alerts (:575); bot check (:605); staff sign-in location check. Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "SEC-004",
+      "status": "VERIFIED",
+      "evidence": "Type from magic bytes, SVG/HTML refused (security.test.ts:114-133, logistics-profile.test.ts:581, seller-logo.test.ts:105); size caps (customer-kyc.test.ts:193, preorder-chat.test.ts:949); ClamAV fails closed (malware-scan.test.ts) and is required in production; single-use short-lived links (buyer-companies.test.ts:495, logistics-profile.test.ts:704). Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "SEC-005",
+      "status": "VERIFIED",
+      "evidence": "Automated OWASP-style coverage: XSS (security.test.ts), CSRF (security-regressions.test.ts:165), access control and IDOR (session-isolation, logistics-tenant-isolation, support-tickets 'answers another buyer not found'), SSRF (outbound-http.test.ts), rate limiting (rate-limit.test.ts), injection through Prisma parameterisation plus CodeQL; the only raw-unsafe SQL is in 2 infra maintenance files. Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "SEC-009",
+      "status": "VERIFIED",
+      "evidence": "audit_logs is append-only by DB grant (deploy/mariadb/post-migrate-grants.sql) and proven by the CI step 'The application account cannot rewrite its own audit log' (.github/workflows/ci.yml:228); maintenance goes through a separate account (auditMaintenancePrisma); issued invoices are immutable; inspection reports sign over evidence hashes. Backend full suite this session (29 Sep, after row 11): every cited test file passed (4671 passing; the 8 failing files are not cited here). Cited files confirmed present; config evidence re-read (CI step ci.yml:228, deploy/nginx TLS1.2/1.3 + 301, database-encryption check in http/server.ts, monitor.sh UBOSS_ALERT_COMMAND, audit:contrast in every app verify).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-019",
+      "status": "VERIFIED",
+      "evidence": "tests/unit/row-timestamps.test.ts reads schema.prisma and fails for any model without createdAt and updatedAt in the house form; no allowlist. Migration 20261019200000_row_timestamps (commit 747fead) added the 31 missing columns; the test passes on main (this session).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "HOME-001",
+      "status": "VERIFIED",
+      "evidence": "apps/customer-web/src/layout/Header.tsx BrandMark: <Link to=\"/\">. The mark is the vector EarthMark or an uploaded logo with alt=\"\"; the link is named by the business-name text; the name truncates, with a short name below sm, fitted to 320px. Tests in apps/customer-web/src/pages/brand.test.tsx: 'names the shop on the first line', 'says the one-word name on a phone and the full name from sm up'. Browser: logo link href=\"/\" at every width, named by the shop name; fits at 320px.",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "HOME-003",
+      "status": "VERIFIED",
+      "evidence": "components/market/MarketMenu.tsx: one panel for country, language and currency, applied on Apply. app/LocaleProvider.tsx choose() calls invalidateQueries(); catalogue query keys carry country and currency. FX is shown as indicative only (ApproximatePrice.tsx, backend domain/fx.ts). Tests: layout/chrome.test.tsx 'applies all three answers at once' and 'nothing is applied until Apply is pressed'; app/LocaleProvider.test.tsx; backend/tests/integration/catalog-market-eligibility.test.ts 'leaves out the blocked product and the whole blocked category for that destination'.",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "HOME-007",
+      "status": "VERIFIED",
+      "evidence": "pages/HomePage.tsx Greeting (~l.183): 'welcome back, name' only for a signed-in customer once the session has loaded; guests and a loading session get the neutral greeting.eyebrow. The headline is the same for everyone, and the strapline cell reserves the height of both phrases. Test in brand.test.tsx: 'reserves the height of both phrases so nothing moves when it changes'. Browser: guest sees the neutral eyebrow (\"One connected flow\"), signed-in buyer sees \"Welcome back, Deepak\"; strapline height reserved (brand.test.tsx).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "HOME-011",
+      "status": "VERIFIED",
+      "evidence": "apps/customer-web/src/lib/voice-search.ts (browser speech recognition and permission prompt). The transcript lands in the box and the user presses Search. Each error type has its own message ending in 'type your search instead'. It listens in the interface language, chosen from 8. Used in HeroSearch.tsx and pages/ai/AiComposer.tsx. Tests in lib/voice-search.test.tsx: 'listens in the interface language, one phrase at a time', 'says plainly when the microphone was refused', 'reports no support where the browser has no engine'. Browser: microphone button present on the home search.",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "JOURNEY-009",
+      "status": "VERIFIED",
+      "evidence": "Business type: BuyerCompany.entityType. Addresses: BuyerCompanyAddressKind BILLING/SHIPPING plus customer Address. Tax IDs: BuyerCompanyIdentifier with validation in domain/buyer-company-identifiers.ts (GST, NIP, Udyam, IEC and others). Importer data: CustomerKyc.isImporter/eoriNumber/importerTaxId/importLicenceNumber/customsBroker. Roles: BuyerCompanyRole. Document status: BuyerCompanyDocument and CustomerKycDocumentStatus. Consent: ConsentRecord. Tests in backend/tests/integration/buyer-companies.test.ts: 'needs every one of the four declarations, then submits and records each separately', 'refuses a malformed NIP...', 'sends the application back with a question and named documents'. customer-kyc.test.ts: 'locks identity details ... but not importer details'. buyer-company-team.test.ts covers roles. Built and verified with Master row 11 (commit 5262610).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "JOURNEY-047",
+      "status": "VERIFIED",
+      "evidence": "GET /api/v1/orders/:id/tracking (backend/src/http/routes/order-tracking.customer.ts) + apps/customer-web/src/components/order-tracking/OrderTracking.tsx (+ test). Carrier events via carrier-webhooks.ts; exceptions CUSTOMS_DELAY/DOCUMENTATION_MISSING; POD in modules/logistics/pod.service.ts. Tests: backend/tests/integration/buyer-tracking.test.ts ('turns a customs hold into a plain category', 'says a revised estimate is revised', 'shows the owner who took it... code and both images', 'emails the buyer and alerts the seller when the parcel is held'), logistics-pod.test.ts, logistics-carrier-webhook.test.ts. Map is optional in the requirement and not built; customs/documentation exceptions cover port holds.",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "JOURNEY-066",
+      "status": "VERIFIED",
+      "evidence": "AuditLog has actorUserId/actorEmail/actorRoles, action, resourceType/Id, beforeJson/afterJson, ipAddress, userAgent, correlationId, createdAt; reason from the after values; CSV export needs audit.read + export.create; append-only grants for the app user (deploy/scripts/apply-grants.sh, auditMaintenancePrisma for erasure). Tests: tests/integration/audit-log-admin.test.ts ('returns the role at the time, the reason, the address and the device', 'downloads the filtered entries', 'is itself on the trail'), audit-request-context.test.ts. Tamper resistance is by database grant, proven by the CI step \"The application account cannot rewrite its own audit log\".",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "JOURNEY-011",
+      "status": "VERIFIED",
+      "evidence": "Delivered by Master row 13 (factory verification): plants, coordinates/geo-tagged evidence, machines, capacity, QC, certifications, verification date, expiry and reverification. Owner checked in the browser on 29 Sep: Seller Hub → Factories/Certifications and Seller Hub → Team open and work (API log: GET /seller/factories, /seller/certifications, /seller/team 200 after two-step sign-in was set up).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "JOURNEY-012",
+      "status": "VERIFIED",
+      "evidence": "Delivered by Master rows 11 and 14: buyer roles (creator/approver/finance), seller roles, invitation expiry, access review, removal, last-owner protection; maker-checker on fee policies. Owner checked in the browser on 29 Sep: Seller Hub → Factories/Certifications and Seller Hub → Team open and work (API log: GET /seller/factories, /seller/certifications, /seller/team 200 after two-step sign-in was set up).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "JOURNEY-006",
+      "status": "VERIFIED",
+      "evidence": "Assurance page: plain-language scope, not-covered list, inspection gate, buyer/seller/marketplace responsibilities, claims through support. Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "JOURNEY-021",
+      "status": "VERIFIED",
+      "evidence": "Cart: seller per line, save for later, duties note. Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "HOME-006",
+      "status": "VERIFIED",
+      "evidence": "Cart total note: duties and customs are not included. Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "ENH-023",
+      "status": "VERIFIED",
+      "evidence": "Supplier pages in sitemap + Organization JSON-LD (catalog-supplier-profile.test.ts, SupplierPage.test.tsx). Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DYNAMIC-006",
+      "status": "VERIFIED",
+      "evidence": "Home: newly verified suppliers (catalog-suppliers.test.ts sort=newest, HomeTrustBlocks.test.tsx). Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DYNAMIC-008",
+      "status": "VERIFIED",
+      "evidence": "Home: assurance explainer from /catalog/assurance (HomeTrustBlocks.test.tsx). Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DYNAMIC-009",
+      "status": "VERIFIED",
+      "evidence": "Home: selected-market block linking /markets/:cc (HomeTrustBlocks.test.tsx). Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "UAT-UI-001",
+      "status": "VERIFIED",
+      "evidence": "CatalogPage.test.tsx: DE/EUR refetches and keeps the search term. Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-013",
+      "status": "VERIFIED",
+      "evidence": "tests/unit/idempotency-policy.test.ts walks every write route; every one declared (checkout REQUIRED; others with reasons). Commit e42912e (tests-and-security batch). Backend verify 4938/4938, storefront verify 1627/1627; browser /account/autopay, /account/schedules 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/sec/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "SEC-003",
+      "status": "VERIFIED",
+      "evidence": "tests/unit/logger-redaction.test.ts (card numbers, tokens, passwords, cookies, auth headers redacted; fixed a leak through error msg); encryption/secrets evidence as DOD-026. Commit e42912e (tests-and-security batch). Backend verify 4938/4938, storefront verify 1627/1627; browser /account/autopay, /account/schedules 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/sec/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-040",
+      "status": "VERIFIED",
+      "evidence": "tests/integration/anonymous-access.test.ts: every non-public route refuses an anonymous call. Commit e42912e (tests-and-security batch). Backend verify 4938/4938, storefront verify 1627/1627; browser /account/autopay, /account/schedules 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/sec/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-017",
+      "status": "VERIFIED",
+      "evidence": "tests/integration/seller-order-privacy.test.ts: seller order responses never contain buyer email, phone or payment references. Commit e42912e (tests-and-security batch). Backend verify 4938/4938, storefront verify 1627/1627; browser /account/autopay, /account/schedules 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/sec/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "DOD-016",
+      "status": "VERIFIED",
+      "evidence": "disputes-http.test.ts (DISPUTE_SELF_APPROVAL_FORBIDDEN), fee-maker-checker-http.test.ts (PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN). Commit e42912e (tests-and-security batch). Backend verify 4938/4938, storefront verify 1627/1627; browser /account/autopay, /account/schedules 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/sec/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "HOME-015",
+      "status": "VERIFIED",
+      "evidence": "Scheduled orders (row 84) plus price-change acceptance: confirm-price / decline-price routes, ScheduleDetailPage prompt; scheduled-orders.test.ts \"answering a held price\". Commit e42912e (tests-and-security batch). Backend verify 4938/4938, storefront verify 1627/1627; browser /account/autopay, /account/schedules 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/sec/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "ENH-013",
+      "status": "VERIFIED",
+      "evidence": "Held price must be reconfirmed before charging (scheduled-orders.test.ts, ScheduleDetailPage.test.tsx). Commit e42912e (tests-and-security batch). Backend verify 4938/4938, storefront verify 1627/1627; browser /account/autopay, /account/schedules 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/sec/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "UAT-UI-006",
+      "status": "VERIFIED",
+      "evidence": "Price moved beyond tolerance → AWAITING_CONFIRMATION, no charge; confirm charges the exact accepted total, stale total refused. Commit e42912e (tests-and-security batch). Backend verify 4938/4938, storefront verify 1627/1627; browser /account/autopay, /account/schedules 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/sec/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "UAT-UI-005",
+      "status": "VERIFIED",
+      "evidence": "AutoPay cap per period and end date; over cap or expired → no charge, customer asked (autopay.test.ts, autopay-authority-http.test.ts, AutoPayPage.test.tsx). Commit e42912e (tests-and-security batch). Backend verify 4938/4938, storefront verify 1627/1627; browser /account/autopay, /account/schedules 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/sec/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "HOME-014",
+      "status": "VERIFIED",
+      "evidence": "AutoPay authority limited by amount, period cap, supplier/category scope, start/end; step-up MFA to activate/change (autopay-authority-http.test.ts, customer-mfa.test.ts); revoke existing. Commit e42912e (tests-and-security batch). Backend verify 4938/4938, storefront verify 1627/1627; browser /account/autopay, /account/schedules 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/sec/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "JOURNEY-023",
+      "status": "VERIFIED",
+      "evidence": "Idempotent checkout (checkout.test.ts), pending/failure pages, receipt; confirmation now shows the provider payment reference and a support link (stripe-checkout.test.ts, page tests). Commit e42912e (tests-and-security batch). Backend verify 4938/4938, storefront verify 1627/1627; browser /account/autopay, /account/schedules 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/sec/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "LIVE-008",
+      "status": "VERIFIED",
+      "evidence": "tests/unit/inspection-gate.test.ts (28) + integration inspection-gate-http.test.ts: seller refused INSPECTION_GATE_CLOSED past a mandatory rule. Commit e42912e (tests-and-security batch). Backend verify 4938/4938, storefront verify 1627/1627; browser /account/autopay, /account/schedules 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/sec/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "FLOW-002",
+      "status": "VERIFIED",
+      "evidence": "Same tests: dispatch allowed only with a PASS release bound to the current goods. Commit e42912e (tests-and-security batch). Backend verify 4938/4938, storefront verify 1627/1627; browser /account/autopay, /account/schedules 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/sec/).",
+      "verifiedAt": "2026-09-29"
+    },
+    {
+      "id": "JOURNEY-057",
+      "status": "VERIFIED",
+      "evidence": "Support SLA deadlines, breach, resolution codes shown and enforced in the console (support-tickets.test.ts, SupportTicketsSla.test.tsx). Merged in d855955 (admin/operations batch). Backend verify 4967/4967, admin verify 323/323, storefront 1630/1631 with the one failure (PaymentPage.stripe timing under parallel load) passing 12/12 on rerun.",
+      "verifiedAt": "2026-09-30"
+    },
+    {
+      "id": "JOURNEY-013",
+      "status": "VERIFIED",
+      "evidence": "Delivered by Master row 16. Merged into main (RFQ branch, 6 row commits). Backend verify 4977 pass (the 23 failures were a shared-test-DB collision; those 4 files pass 57/57 alone), storefront verify 1647/1647; browser /account/dashboard, /account/rfqs, /account/rfqs/new 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/rfq/). Seller Hub RFQ screens covered by SellerRfqPages.test.tsx (Hub needs its own sign-in).",
+      "verifiedAt": "2026-09-30"
+    },
+    {
+      "id": "JOURNEY-015",
+      "status": "VERIFIED",
+      "evidence": "Delivered by Master row 17. Merged into main (RFQ branch, 6 row commits). Backend verify 4977 pass (the 23 failures were a shared-test-DB collision; those 4 files pass 57/57 alone), storefront verify 1647/1647; browser /account/dashboard, /account/rfqs, /account/rfqs/new 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/rfq/). Seller Hub RFQ screens covered by SellerRfqPages.test.tsx (Hub needs its own sign-in).",
+      "verifiedAt": "2026-09-30"
+    }
+  ],
+  "pendingBoxes": []
+}

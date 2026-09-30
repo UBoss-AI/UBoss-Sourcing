@@ -1,0 +1,3642 @@
+[
+ {
+  "id": "FLOW-001",
+  "ord": 1,
+  "loc": "P20",
+  "boxIndexInCell": 0,
+  "section": "3. End-to-End Transaction Flows > 3.3 Mandatory Inspection Control Gate",
+  "module": "3.3 Mandatory Inspection Control Gate",
+  "priority": "—",
+  "requirement": "Order engine determines whether inspection is Mandatory / Risk-triggered / Buyer-requested / Not required based on category, value, destination, supplier risk and policy."
+ },
+ {
+  "id": "FLOW-002",
+  "ord": 2,
+  "loc": "P21",
+  "boxIndexInCell": 0,
+  "section": "3. End-to-End Transaction Flows > 3.3 Mandatory Inspection Control Gate",
+  "module": "3.3 Mandatory Inspection Control Gate",
+  "priority": "—",
+  "requirement": "For mandatory inspection, shipment status cannot move to Approved for Dispatch until the inspection result is PASS or an authorized conditional release is recorded."
+ },
+ {
+  "id": "FLOW-003",
+  "ord": 3,
+  "loc": "P22",
+  "boxIndexInCell": 0,
+  "section": "3. End-to-End Transaction Flows > 3.3 Mandatory Inspection Control Gate",
+  "module": "3.3 Mandatory Inspection Control Gate",
+  "priority": "—",
+  "requirement": "Inspection agency must be independent from seller approval; conflict-of-interest declaration and inspector identity are recorded."
+ },
+ {
+  "id": "FLOW-004",
+  "ord": 4,
+  "loc": "P23",
+  "boxIndexInCell": 0,
+  "section": "3. End-to-End Transaction Flows > 3.3 Mandatory Inspection Control Gate",
+  "module": "3.3 Mandatory Inspection Control Gate",
+  "priority": "—",
+  "requirement": "Inspection scope is generated from PO/contract, approved sample/specification, quantity, packaging, labeling and destination requirements."
+ },
+ {
+  "id": "FLOW-005",
+  "ord": 5,
+  "loc": "P24",
+  "boxIndexInCell": 0,
+  "section": "3. End-to-End Transaction Flows > 3.3 Mandatory Inspection Control Gate",
+  "module": "3.3 Mandatory Inspection Control Gate",
+  "priority": "—",
+  "requirement": "FAIL or major NCR automatically blocks dispatch; CAPA/correction evidence and re-inspection are linked to the original report."
+ },
+ {
+  "id": "FLOW-006",
+  "ord": 6,
+  "loc": "P25",
+  "boxIndexInCell": 0,
+  "section": "3. End-to-End Transaction Flows > 3.3 Mandatory Inspection Control Gate",
+  "module": "3.3 Mandatory Inspection Control Gate",
+  "priority": "—",
+  "requirement": "Inspection report, evidence, release decision, timestamps and responsible parties are preserved in the order audit trail."
+ },
+ {
+  "id": "FLOW-007",
+  "ord": 7,
+  "loc": "P26",
+  "boxIndexInCell": 0,
+  "section": "3. End-to-End Transaction Flows > 3.3 Mandatory Inspection Control Gate",
+  "module": "3.3 Mandatory Inspection Control Gate",
+  "priority": "—",
+  "requirement": "Buyer receives report visibility before shipment release according to platform policy/contract."
+ },
+ {
+  "id": "SCREEN-001",
+  "ord": 8,
+  "loc": "T4R2C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#1 Public / All",
+  "priority": "P0",
+  "requirement": "Home / Landing — Global value proposition, search, categories, verified Indian suppliers"
+ },
+ {
+  "id": "SCREEN-002",
+  "ord": 9,
+  "loc": "T4R3C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#2 Public / All",
+  "priority": "P0",
+  "requirement": "Global Search Results — Products/suppliers with filters, sort, market eligibility"
+ },
+ {
+  "id": "SCREEN-003",
+  "ord": 10,
+  "loc": "T4R4C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#3 Public / All",
+  "priority": "P0",
+  "requirement": "Category / Industry Landing — Category discovery and sourcing entry"
+ },
+ {
+  "id": "SCREEN-004",
+  "ord": 11,
+  "loc": "T4R5C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#4 Public / All",
+  "priority": "P0",
+  "requirement": "Product Detail Page — Specs, MOQ, price/quote mode, seller, assurance, shipping"
+ },
+ {
+  "id": "SCREEN-005",
+  "ord": 12,
+  "loc": "T4R6C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#5 Public / All",
+  "priority": "P0",
+  "requirement": "Supplier Storefront — Verified company/factory profile, capabilities, products, certifications"
+ },
+ {
+  "id": "SCREEN-006",
+  "ord": 13,
+  "loc": "T4R7C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#6 Public / All",
+  "priority": "P1",
+  "requirement": "Compare Products / Suppliers — Side-by-side commercial and capability comparison"
+ },
+ {
+  "id": "SCREEN-007",
+  "ord": 14,
+  "loc": "T4R8C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#7 Public / All",
+  "priority": "P0",
+  "requirement": "How Gloviaa Assurance Works — Trust, inspection, buyer protection and dispute explanation"
+ },
+ {
+  "id": "SCREEN-008",
+  "ord": 15,
+  "loc": "T4R9C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#8 Public / All",
+  "priority": "P1",
+  "requirement": "Country / Market Landing — Localized discovery, currency/language and delivery eligibility"
+ },
+ {
+  "id": "SCREEN-009",
+  "ord": 16,
+  "loc": "T4R10C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#9 Public / All",
+  "priority": "P0",
+  "requirement": "Help / Policies / Legal — Terms, privacy, returns, inspection, prohibited items, buyer protection"
+ },
+ {
+  "id": "SCREEN-010",
+  "ord": 17,
+  "loc": "T4R11C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#10 Identity / All",
+  "priority": "P0",
+  "requirement": "Sign Up / Login / MFA — Account creation, authentication and recovery"
+ },
+ {
+  "id": "SCREEN-011",
+  "ord": 18,
+  "loc": "T4R12C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#11 Identity / Buyer",
+  "priority": "P0",
+  "requirement": "Buyer Profile / KYC — Identity/business details, addresses, tax and preferences"
+ },
+ {
+  "id": "SCREEN-012",
+  "ord": 19,
+  "loc": "T4R13C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#12 Identity / Seller",
+  "priority": "P0",
+  "requirement": "Seller Application / KYB — Legal entity, ownership, tax/export/bank and verification"
+ },
+ {
+  "id": "SCREEN-013",
+  "ord": 20,
+  "loc": "T4R14C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#13 Identity / Seller",
+  "priority": "P0",
+  "requirement": "Factory Verification — Plants, capacity, machinery, workforce, certifications, evidence"
+ },
+ {
+  "id": "SCREEN-014",
+  "ord": 21,
+  "loc": "T4R15C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#14 Identity / All",
+  "priority": "P0",
+  "requirement": "Role & Team Management — Invite users and permission assignment"
+ },
+ {
+  "id": "SCREEN-015",
+  "ord": 22,
+  "loc": "T4R16C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#15 B2B Buyer / Buyer",
+  "priority": "P0",
+  "requirement": "Buyer Dashboard — RFQs, quotes, orders, inspections, shipments, actions"
+ },
+ {
+  "id": "SCREEN-016",
+  "ord": 23,
+  "loc": "T4R17C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#16 B2B Buyer / Buyer",
+  "priority": "P0",
+  "requirement": "Create RFQ — Structured requirement, specs, qty, target market, files"
+ },
+ {
+  "id": "SCREEN-017",
+  "ord": 24,
+  "loc": "T4R18C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#17 B2B Buyer / Buyer",
+  "priority": "P0",
+  "requirement": "RFQ Detail / Supplier Responses — Compare and communicate with suppliers"
+ },
+ {
+  "id": "SCREEN-018",
+  "ord": 25,
+  "loc": "T4R19C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#18 B2B Buyer / Buyer",
+  "priority": "P0",
+  "requirement": "Quote Comparison — Price, MOQ, lead time, Incoterm, inspection, landed components"
+ },
+ {
+  "id": "SCREEN-019",
+  "ord": 26,
+  "loc": "T4R20C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#19 B2B Buyer / Buyer",
+  "priority": "P0",
+  "requirement": "Negotiation Workspace — Versioned commercial negotiation and messages"
+ },
+ {
+  "id": "SCREEN-020",
+  "ord": 27,
+  "loc": "T4R21C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#20 B2B Buyer / Buyer",
+  "priority": "P1",
+  "requirement": "Sample Request — Sample terms, payment, shipping and approval"
+ },
+ {
+  "id": "SCREEN-021",
+  "ord": 28,
+  "loc": "T4R22C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#21 B2B Buyer / Buyer",
+  "priority": "P0",
+  "requirement": "B2B Order / PO Review — Final contract terms before order"
+ },
+ {
+  "id": "SCREEN-022",
+  "ord": 29,
+  "loc": "T4R23C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#22 B2B Buyer / Buyer",
+  "priority": "P0",
+  "requirement": "Order Detail / Milestones — Production, inspection, shipment, documents, payment"
+ },
+ {
+  "id": "SCREEN-023",
+  "ord": 30,
+  "loc": "T4R24C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#23 B2B Buyer / Buyer",
+  "priority": "P0",
+  "requirement": "Inspection Report Viewer — Findings, evidence, NCR, release status"
+ },
+ {
+  "id": "SCREEN-024",
+  "ord": 31,
+  "loc": "T4R25C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#24 B2B Buyer / Buyer",
+  "priority": "P0",
+  "requirement": "Dispute / Claim — Issue, evidence, requested remedy, status"
+ },
+ {
+  "id": "SCREEN-025",
+  "ord": 32,
+  "loc": "T4R26C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#25 B2C / Buyer",
+  "priority": "P0",
+  "requirement": "Cart — Items, seller, shipping eligibility, totals"
+ },
+ {
+  "id": "SCREEN-026",
+  "ord": 33,
+  "loc": "T4R27C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#26 B2C / Buyer",
+  "priority": "P0",
+  "requirement": "Checkout — Address, shipping, duties/taxes, payment, consent"
+ },
+ {
+  "id": "SCREEN-027",
+  "ord": 34,
+  "loc": "T4R28C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#27 B2C / Buyer",
+  "priority": "P0",
+  "requirement": "Payment Result — Success/pending/failure/retry"
+ },
+ {
+  "id": "SCREEN-028",
+  "ord": 35,
+  "loc": "T4R29C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#28 B2C / Buyer",
+  "priority": "P0",
+  "requirement": "My Orders — Order history and statuses"
+ },
+ {
+  "id": "SCREEN-029",
+  "ord": 36,
+  "loc": "T4R30C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#29 B2C / Buyer",
+  "priority": "P0",
+  "requirement": "Order Tracking — Shipment events and ETA"
+ },
+ {
+  "id": "SCREEN-030",
+  "ord": 37,
+  "loc": "T4R31C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#30 B2C / Buyer",
+  "priority": "P0",
+  "requirement": "Return / Refund Request — Reason, evidence, pickup/return and refund status"
+ },
+ {
+  "id": "SCREEN-031",
+  "ord": 38,
+  "loc": "T4R32C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#31 B2C / Buyer",
+  "priority": "P1",
+  "requirement": "Ratings & Reviews — Verified purchase review and moderation"
+ },
+ {
+  "id": "SCREEN-032",
+  "ord": 39,
+  "loc": "T4R33C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#32 B2C / Buyer",
+  "priority": "P1",
+  "requirement": "Wishlist / Saved Items — Save and revisit"
+ },
+ {
+  "id": "SCREEN-033",
+  "ord": 40,
+  "loc": "T4R34C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#33 Seller / Seller",
+  "priority": "P0",
+  "requirement": "Seller Dashboard — Sales, RFQs, orders, inspection, payout, compliance actions"
+ },
+ {
+  "id": "SCREEN-034",
+  "ord": 41,
+  "loc": "T4R35C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#34 Seller / Seller",
+  "priority": "P0",
+  "requirement": "Company / Factory Profile Editor — Maintain verified business and capability data"
+ },
+ {
+  "id": "SCREEN-035",
+  "ord": 42,
+  "loc": "T4R36C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#35 Seller / Seller",
+  "priority": "P0",
+  "requirement": "Product Catalog — Create/edit/archive products and variants"
+ },
+ {
+  "id": "SCREEN-036",
+  "ord": 43,
+  "loc": "T4R37C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#36 Seller / Seller",
+  "priority": "P0",
+  "requirement": "Product Listing Editor — Specs, media, price/MOQ, compliance, export markets"
+ },
+ {
+  "id": "SCREEN-037",
+  "ord": 44,
+  "loc": "T4R38C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#37 Seller / Seller",
+  "priority": "P1",
+  "requirement": "Bulk Upload / Catalog Import — Mass product/price/inventory update"
+ },
+ {
+  "id": "SCREEN-038",
+  "ord": 45,
+  "loc": "T4R39C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#38 Seller / Seller",
+  "priority": "P0",
+  "requirement": "RFQ Inbox — Qualified buyer opportunities"
+ },
+ {
+  "id": "SCREEN-039",
+  "ord": 46,
+  "loc": "T4R40C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#39 Seller / Seller",
+  "priority": "P0",
+  "requirement": "Create / Revise Quote — Commercial offer with validity and terms"
+ },
+ {
+  "id": "SCREEN-040",
+  "ord": 47,
+  "loc": "T4R41C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#40 Seller / Seller",
+  "priority": "P0",
+  "requirement": "Orders / Production Milestones — Confirm, manufacture, readiness and exceptions"
+ },
+ {
+  "id": "SCREEN-041",
+  "ord": 48,
+  "loc": "T4R42C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#41 Seller / Seller",
+  "priority": "P0",
+  "requirement": "Inspection Readiness — Submit lot, location, packing list and readiness evidence"
+ },
+ {
+  "id": "SCREEN-042",
+  "ord": 49,
+  "loc": "T4R43C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#42 Seller / Seller",
+  "priority": "P0",
+  "requirement": "Shipment Documents — Invoice, packing list, COO, BL/AWB and category documents"
+ },
+ {
+  "id": "SCREEN-043",
+  "ord": 50,
+  "loc": "T4R44C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#43 Seller / Seller",
+  "priority": "P0",
+  "requirement": "Payments / Settlements — Receivables, fees, reserves, settlement and reconciliation"
+ },
+ {
+  "id": "SCREEN-044",
+  "ord": 51,
+  "loc": "T4R45C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#44 Seller / Seller",
+  "priority": "P1",
+  "requirement": "Performance / Analytics — Conversion, OTIF, quality, cancellations, claims"
+ },
+ {
+  "id": "SCREEN-045",
+  "ord": 52,
+  "loc": "T4R46C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#45 Inspection / Agency",
+  "priority": "P0",
+  "requirement": "Inspection Partner Dashboard — Assignments, SLA, inspectors, reports, invoices"
+ },
+ {
+  "id": "SCREEN-046",
+  "ord": 53,
+  "loc": "T4R47C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#46 Inspection / Agency",
+  "priority": "P0",
+  "requirement": "Assignment Detail — Order scope, location, schedule, checklist and conflict check"
+ },
+ {
+  "id": "SCREEN-047",
+  "ord": 54,
+  "loc": "T4R48C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#47 Inspection / Agency",
+  "priority": "P0",
+  "requirement": "Inspector Allocation — Assign qualified inspector and credentials"
+ },
+ {
+  "id": "SCREEN-048",
+  "ord": 55,
+  "loc": "T4R49C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#48 Inspection / Inspector",
+  "priority": "P0",
+  "requirement": "Inspection Checklist — Sampling, product/spec/qty/workmanship tests"
+ },
+ {
+  "id": "SCREEN-049",
+  "ord": 56,
+  "loc": "T4R50C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#49 Inspection / Inspector",
+  "priority": "P0",
+  "requirement": "Evidence Capture — Timestamped photos/video/documents/measurements"
+ },
+ {
+  "id": "SCREEN-050",
+  "ord": 57,
+  "loc": "T4R51C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#50 Inspection / Inspector",
+  "priority": "P0",
+  "requirement": "Packaging & Label Check — Marks, barcode, carton, pallet, destination labels"
+ },
+ {
+  "id": "SCREEN-051",
+  "ord": 58,
+  "loc": "T4R52C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#51 Inspection / Inspector",
+  "priority": "P0",
+  "requirement": "Quantity / Sampling Record — Lot, sample size, accepted/rejected counts"
+ },
+ {
+  "id": "SCREEN-052",
+  "ord": 59,
+  "loc": "T4R53C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#52 Inspection / Inspector",
+  "priority": "P0",
+  "requirement": "NCR / Defect Log — Critical/major/minor defects and evidence"
+ },
+ {
+  "id": "SCREEN-053",
+  "ord": 60,
+  "loc": "T4R54C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#53 Inspection / Agency",
+  "priority": "P0",
+  "requirement": "Inspection Report Review — Agency QA and digital sign-off"
+ },
+ {
+  "id": "SCREEN-054",
+  "ord": 61,
+  "loc": "T4R55C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#54 Inspection / Agency",
+  "priority": "P0",
+  "requirement": "Re-inspection — Corrective evidence and repeat inspection linkage"
+ },
+ {
+  "id": "SCREEN-055",
+  "ord": 62,
+  "loc": "T4R56C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#55 Inspection / Admin",
+  "priority": "P0",
+  "requirement": "Shipment Release Decision — Pass/fail/conditional release with authority and audit"
+ },
+ {
+  "id": "SCREEN-056",
+  "ord": 63,
+  "loc": "T4R57C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#56 Logistics / Partner/Seller",
+  "priority": "P0",
+  "requirement": "Shipment Booking — Mode, carrier, route, Incoterm, pickup, port"
+ },
+ {
+  "id": "SCREEN-057",
+  "ord": 64,
+  "loc": "T4R58C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#57 Logistics / All",
+  "priority": "P0",
+  "requirement": "Shipment Tracking — Milestones, exceptions, documents, POD"
+ },
+ {
+  "id": "SCREEN-058",
+  "ord": 65,
+  "loc": "T4R59C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#58 Finance / Buyer",
+  "priority": "P0",
+  "requirement": "Payment / Escrow — Method, currency, milestone, status and receipts"
+ },
+ {
+  "id": "SCREEN-059",
+  "ord": 66,
+  "loc": "T4R60C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#59 Finance / Finance",
+  "priority": "P0",
+  "requirement": "Transaction Ledger — Gross order, fees, tax, refunds, settlement"
+ },
+ {
+  "id": "SCREEN-060",
+  "ord": 67,
+  "loc": "T4R61C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#60 Finance / Finance",
+  "priority": "P0",
+  "requirement": "Seller Settlement — Release conditions, bank payout, holds, reconciliation"
+ },
+ {
+  "id": "SCREEN-061",
+  "ord": 68,
+  "loc": "T4R62C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#61 Finance / Finance",
+  "priority": "P0",
+  "requirement": "Refund / Chargeback — Refund, reversal, evidence and accounting status"
+ },
+ {
+  "id": "SCREEN-062",
+  "ord": 69,
+  "loc": "T4R63C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#62 Support / All",
+  "priority": "P0",
+  "requirement": "Message Center — Order/RFQ contextual messaging and attachments"
+ },
+ {
+  "id": "SCREEN-063",
+  "ord": 70,
+  "loc": "T4R64C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#63 Support / All",
+  "priority": "P0",
+  "requirement": "Support Ticket — Issue type, SLA, owner, evidence and resolution"
+ },
+ {
+  "id": "SCREEN-064",
+  "ord": 71,
+  "loc": "T4R65C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#64 Support / Support",
+  "priority": "P0",
+  "requirement": "Dispute Resolution Console — Buyer/seller evidence, decision and financial action"
+ },
+ {
+  "id": "SCREEN-065",
+  "ord": 72,
+  "loc": "T4R66C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#65 Admin / Admin",
+  "priority": "P0",
+  "requirement": "Admin Command Center — KPIs, exceptions, risk queues and system health"
+ },
+ {
+  "id": "SCREEN-066",
+  "ord": 73,
+  "loc": "T4R67C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#66 Admin / Admin",
+  "priority": "P0",
+  "requirement": "User / Seller / Buyer Management — Search, review, suspend, restrict, verify"
+ },
+ {
+  "id": "SCREEN-067",
+  "ord": 74,
+  "loc": "T4R68C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#67 Admin / Admin",
+  "priority": "P0",
+  "requirement": "Listing Moderation — Approve/reject/restrict products and claims"
+ },
+ {
+  "id": "SCREEN-068",
+  "ord": 75,
+  "loc": "T4R69C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#68 Admin / Admin",
+  "priority": "P0",
+  "requirement": "Commission & Fee Rules — Category/value/volume/market fee configuration"
+ },
+ {
+  "id": "SCREEN-069",
+  "ord": 76,
+  "loc": "T4R70C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#69 Admin / Admin",
+  "priority": "P0",
+  "requirement": "Country / Compliance Rules — Destination, restricted goods, docs and thresholds"
+ },
+ {
+  "id": "SCREEN-070",
+  "ord": 77,
+  "loc": "T4R71C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#70 Admin / Admin",
+  "priority": "P0",
+  "requirement": "Inspection Rules Engine — When, where, scope, agency and release rules"
+ },
+ {
+  "id": "SCREEN-071",
+  "ord": 78,
+  "loc": "T4R72C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#71 Admin / Admin",
+  "priority": "P1",
+  "requirement": "Logistics Rules & Rate Cards — Routes, serviceability, carriers and rates"
+ },
+ {
+  "id": "SCREEN-072",
+  "ord": 79,
+  "loc": "T4R73C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#72 Admin / Admin",
+  "priority": "P1",
+  "requirement": "CMS / Content / Promotions — Banners, category content and campaigns"
+ },
+ {
+  "id": "SCREEN-073",
+  "ord": 80,
+  "loc": "T4R74C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#73 Admin / Admin",
+  "priority": "P0",
+  "requirement": "Audit Log — Actor/action/before-after/time/IP/device/export"
+ },
+ {
+  "id": "SCREEN-074",
+  "ord": 81,
+  "loc": "T4R75C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#74 Admin / Admin",
+  "priority": "P1",
+  "requirement": "Reports & Analytics — GMV, orders, supplier quality, inspection, disputes, settlement"
+ },
+ {
+  "id": "SCREEN-075",
+  "ord": 82,
+  "loc": "T4R76C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#75 Admin / Admin",
+  "priority": "P0",
+  "requirement": "Master Data / Configuration — Categories, UOM, currencies, Incoterms, defect codes"
+ },
+ {
+  "id": "SCREEN-076",
+  "ord": 83,
+  "loc": "T4R77C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#76 Admin / Admin",
+  "priority": "P1",
+  "requirement": "Notification Templates — Email/SMS/WhatsApp/in-app event templates"
+ },
+ {
+  "id": "SCREEN-077",
+  "ord": 84,
+  "loc": "T4R78C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#77 Admin / Admin",
+  "priority": "P1",
+  "requirement": "Integration Monitoring — API/webhook status, retries, failures and reconciliation"
+ },
+ {
+  "id": "SCREEN-078",
+  "ord": 85,
+  "loc": "T4R79C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#78 Public / All",
+  "priority": "P0",
+  "requirement": "Smart Home Dashboard — Personalized home after login: recent activity, recommendations, quick actions"
+ },
+ {
+  "id": "SCREEN-079",
+  "ord": 86,
+  "loc": "T4R80C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#79 Public / All",
+  "priority": "P0",
+  "requirement": "Language / Country / Currency Selector — Set locale, destination market, currency and persistence"
+ },
+ {
+  "id": "SCREEN-080",
+  "ord": 87,
+  "loc": "T4R81C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#80 Public / All",
+  "priority": "P2",
+  "requirement": "Theme / Display Preference — Light/dark mode and saved display preference"
+ },
+ {
+  "id": "SCREEN-081",
+  "ord": 88,
+  "loc": "T4R82C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#81 Discovery / All",
+  "priority": "P0",
+  "requirement": "AI Assistant Workspace — Conversational sourcing, product discovery, comparison, RFQ drafting"
+ },
+ {
+  "id": "SCREEN-082",
+  "ord": 89,
+  "loc": "T4R83C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#82 Discovery / All",
+  "priority": "P1",
+  "requirement": "Image Search — Upload/camera image to discover visually similar products"
+ },
+ {
+  "id": "SCREEN-083",
+  "ord": 90,
+  "loc": "T4R84C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#83 Discovery / All",
+  "priority": "P1",
+  "requirement": "Voice Search — Speech-to-search with transcript confirmation"
+ },
+ {
+  "id": "SCREEN-084",
+  "ord": 91,
+  "loc": "T4R85C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#84 Buyer / Buyer",
+  "priority": "P1",
+  "requirement": "Scheduled Cart / Repeat Order — Plan future delivery and repeat purchase cadence"
+ },
+ {
+  "id": "SCREEN-085",
+  "ord": 92,
+  "loc": "T4R86C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#85 Buyer / Buyer",
+  "priority": "P1",
+  "requirement": "AutoPay / Standing Authority — Controlled recurring payment authority with user-defined limits"
+ },
+ {
+  "id": "SCREEN-086",
+  "ord": 93,
+  "loc": "T4R87C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#86 Buyer / Buyer",
+  "priority": "P1",
+  "requirement": "ERP Integration Center — Connect buyer ERP for PO, order, invoice and status synchronization"
+ },
+ {
+  "id": "SCREEN-087",
+  "ord": 94,
+  "loc": "T4R88C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#87 Buyer / Buyer",
+  "priority": "P1",
+  "requirement": "Saved Search / Alerts — Save sourcing criteria and receive new-supplier/product/price alerts"
+ },
+ {
+  "id": "SCREEN-088",
+  "ord": 95,
+  "loc": "T4R89C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#88 Buyer / Buyer",
+  "priority": "P1",
+  "requirement": "Recently Viewed / Continue Sourcing — Resume products, suppliers, RFQs and carts"
+ },
+ {
+  "id": "SCREEN-089",
+  "ord": 96,
+  "loc": "T4R90C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#89 Buyer / Buyer",
+  "priority": "P0",
+  "requirement": "Landed Cost Calculator — Estimate item, freight, duty, tax, inspection and platform fees"
+ },
+ {
+  "id": "SCREEN-090",
+  "ord": 97,
+  "loc": "T4R91C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#90 Buyer / Buyer",
+  "priority": "P0",
+  "requirement": "Quick RFQ from Search / PDP — Convert search/product discovery to structured RFQ in minimal steps"
+ },
+ {
+  "id": "SCREEN-091",
+  "ord": 98,
+  "loc": "T4R92C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#91 Buyer / Buyer",
+  "priority": "P1",
+  "requirement": "Reorder / Buy Again — Recreate prior order with current price/availability validation"
+ },
+ {
+  "id": "SCREEN-092",
+  "ord": 99,
+  "loc": "T4R93C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#92 Seller / Seller",
+  "priority": "P0",
+  "requirement": "Seller Hub Home — Single workspace for catalog, RFQs, orders, inspection, logistics and payout"
+ },
+ {
+  "id": "SCREEN-093",
+  "ord": 100,
+  "loc": "T4R94C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#93 Trust / All",
+  "priority": "P0",
+  "requirement": "Verified Supplier Badge Detail — Explain verification scope, validity and evidence without overstating assurance"
+ },
+ {
+  "id": "SCREEN-094",
+  "ord": 101,
+  "loc": "T4R95C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#94 Trust / Buyer",
+  "priority": "P0",
+  "requirement": "Inspection Booking & Selection — Select inspection scope, timing, agency and payer before shipment"
+ },
+ {
+  "id": "SCREEN-095",
+  "ord": 102,
+  "loc": "T4R96C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#95 Trust / Buyer/Seller",
+  "priority": "P0",
+  "requirement": "Inspection Timeline — Track booking, inspector assigned, started, report, NCR, release"
+ },
+ {
+  "id": "SCREEN-096",
+  "ord": 103,
+  "loc": "T4R97C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#96 Trust / All",
+  "priority": "P0",
+  "requirement": "Gloviaa Assurance Timeline — Explain protected milestones from order to inspection to delivery"
+ },
+ {
+  "id": "SCREEN-097",
+  "ord": 104,
+  "loc": "T4R98C7",
+  "boxIndexInCell": 0,
+  "section": "4. Master Screen Inventory & Development Checklist",
+  "module": "#97 Notifications / All",
+  "priority": "P0",
+  "requirement": "Notification Center — Actionable alerts for quotes, orders, inspection, shipment, payment and disputes"
+ },
+ {
+  "id": "DOD-001",
+  "ord": 105,
+  "loc": "T5R2C2",
+  "boxIndexInCell": 0,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: UX / UI",
+  "priority": "—",
+  "requirement": "Clear primary action"
+ },
+ {
+  "id": "DOD-002",
+  "ord": 106,
+  "loc": "T5R2C2",
+  "boxIndexInCell": 1,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: UX / UI",
+  "priority": "—",
+  "requirement": "Empty/loading/error/success states"
+ },
+ {
+  "id": "DOD-003",
+  "ord": 107,
+  "loc": "T5R2C2",
+  "boxIndexInCell": 2,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: UX / UI",
+  "priority": "—",
+  "requirement": "Responsive desktop/tablet/mobile"
+ },
+ {
+  "id": "DOD-004",
+  "ord": 108,
+  "loc": "T5R2C2",
+  "boxIndexInCell": 3,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: UX / UI",
+  "priority": "—",
+  "requirement": "Keyboard/focus usability"
+ },
+ {
+  "id": "DOD-005",
+  "ord": 109,
+  "loc": "T5R2C2",
+  "boxIndexInCell": 4,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: UX / UI",
+  "priority": "—",
+  "requirement": "Consistent design system"
+ },
+ {
+  "id": "DOD-006",
+  "ord": 110,
+  "loc": "T5R2C2",
+  "boxIndexInCell": 5,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: UX / UI",
+  "priority": "—",
+  "requirement": "Localization-ready"
+ },
+ {
+  "id": "DOD-007",
+  "ord": 111,
+  "loc": "T5R3C2",
+  "boxIndexInCell": 0,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Functional",
+  "priority": "—",
+  "requirement": "Required fields"
+ },
+ {
+  "id": "DOD-008",
+  "ord": 112,
+  "loc": "T5R3C2",
+  "boxIndexInCell": 1,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Functional",
+  "priority": "—",
+  "requirement": "Validations"
+ },
+ {
+  "id": "DOD-009",
+  "ord": 113,
+  "loc": "T5R3C2",
+  "boxIndexInCell": 2,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Functional",
+  "priority": "—",
+  "requirement": "Calculations"
+ },
+ {
+  "id": "DOD-010",
+  "ord": 114,
+  "loc": "T5R3C2",
+  "boxIndexInCell": 3,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Functional",
+  "priority": "—",
+  "requirement": "State transitions"
+ },
+ {
+  "id": "DOD-011",
+  "ord": 115,
+  "loc": "T5R3C2",
+  "boxIndexInCell": 4,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Functional",
+  "priority": "—",
+  "requirement": "Draft/save/resume where relevant"
+ },
+ {
+  "id": "DOD-012",
+  "ord": 116,
+  "loc": "T5R3C2",
+  "boxIndexInCell": 5,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Functional",
+  "priority": "—",
+  "requirement": "duplicate-submit prevention"
+ },
+ {
+  "id": "DOD-013",
+  "ord": 117,
+  "loc": "T5R3C2",
+  "boxIndexInCell": 6,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Functional",
+  "priority": "—",
+  "requirement": "idempotent critical actions"
+ },
+ {
+  "id": "DOD-014",
+  "ord": 118,
+  "loc": "T5R4C2",
+  "boxIndexInCell": 0,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Permissions",
+  "priority": "—",
+  "requirement": "Role access"
+ },
+ {
+  "id": "DOD-015",
+  "ord": 119,
+  "loc": "T5R4C2",
+  "boxIndexInCell": 1,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Permissions",
+  "priority": "—",
+  "requirement": "object-level authorization"
+ },
+ {
+  "id": "DOD-016",
+  "ord": 120,
+  "loc": "T5R4C2",
+  "boxIndexInCell": 2,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Permissions",
+  "priority": "—",
+  "requirement": "maker/checker where required"
+ },
+ {
+  "id": "DOD-017",
+  "ord": 121,
+  "loc": "T5R4C2",
+  "boxIndexInCell": 3,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Permissions",
+  "priority": "—",
+  "requirement": "seller cannot access buyer-private data"
+ },
+ {
+  "id": "DOD-018",
+  "ord": 122,
+  "loc": "T5R4C2",
+  "boxIndexInCell": 4,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Permissions",
+  "priority": "—",
+  "requirement": "inspector scope restricted to assigned jobs"
+ },
+ {
+  "id": "DOD-019",
+  "ord": 123,
+  "loc": "T5R5C2",
+  "boxIndexInCell": 0,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Data & Audit",
+  "priority": "—",
+  "requirement": "Created/updated timestamps"
+ },
+ {
+  "id": "DOD-020",
+  "ord": 124,
+  "loc": "T5R5C2",
+  "boxIndexInCell": 1,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Data & Audit",
+  "priority": "—",
+  "requirement": "actor"
+ },
+ {
+  "id": "DOD-021",
+  "ord": 125,
+  "loc": "T5R5C2",
+  "boxIndexInCell": 2,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Data & Audit",
+  "priority": "—",
+  "requirement": "before/after for critical changes"
+ },
+ {
+  "id": "DOD-022",
+  "ord": 126,
+  "loc": "T5R5C2",
+  "boxIndexInCell": 3,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Data & Audit",
+  "priority": "—",
+  "requirement": "document version"
+ },
+ {
+  "id": "DOD-023",
+  "ord": 127,
+  "loc": "T5R5C2",
+  "boxIndexInCell": 4,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Data & Audit",
+  "priority": "—",
+  "requirement": "reason for override"
+ },
+ {
+  "id": "DOD-024",
+  "ord": 128,
+  "loc": "T5R5C2",
+  "boxIndexInCell": 5,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Data & Audit",
+  "priority": "—",
+  "requirement": "exportable audit evidence"
+ },
+ {
+  "id": "DOD-025",
+  "ord": 129,
+  "loc": "T5R6C2",
+  "boxIndexInCell": 0,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Security",
+  "priority": "—",
+  "requirement": "Authentication/session controls"
+ },
+ {
+  "id": "DOD-026",
+  "ord": 130,
+  "loc": "T5R6C2",
+  "boxIndexInCell": 1,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Security",
+  "priority": "—",
+  "requirement": "encryption in transit/at rest"
+ },
+ {
+  "id": "DOD-027",
+  "ord": 131,
+  "loc": "T5R6C2",
+  "boxIndexInCell": 2,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Security",
+  "priority": "—",
+  "requirement": "secrets excluded from UI/logs"
+ },
+ {
+  "id": "DOD-028",
+  "ord": 132,
+  "loc": "T5R6C2",
+  "boxIndexInCell": 3,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Security",
+  "priority": "—",
+  "requirement": "upload scanning"
+ },
+ {
+  "id": "DOD-029",
+  "ord": 133,
+  "loc": "T5R6C2",
+  "boxIndexInCell": 4,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Security",
+  "priority": "—",
+  "requirement": "rate limits"
+ },
+ {
+  "id": "DOD-030",
+  "ord": 134,
+  "loc": "T5R6C2",
+  "boxIndexInCell": 5,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Security",
+  "priority": "—",
+  "requirement": "OWASP tests"
+ },
+ {
+  "id": "DOD-031",
+  "ord": 135,
+  "loc": "T5R6C2",
+  "boxIndexInCell": 6,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Security",
+  "priority": "—",
+  "requirement": "privacy controls"
+ },
+ {
+  "id": "DOD-032",
+  "ord": 136,
+  "loc": "T5R7C2",
+  "boxIndexInCell": 0,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Integration",
+  "priority": "—",
+  "requirement": "API success/failure/retry"
+ },
+ {
+  "id": "DOD-033",
+  "ord": 137,
+  "loc": "T5R7C2",
+  "boxIndexInCell": 1,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Integration",
+  "priority": "—",
+  "requirement": "webhook handling"
+ },
+ {
+  "id": "DOD-034",
+  "ord": 138,
+  "loc": "T5R7C2",
+  "boxIndexInCell": 2,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Integration",
+  "priority": "—",
+  "requirement": "timeout behavior"
+ },
+ {
+  "id": "DOD-035",
+  "ord": 139,
+  "loc": "T5R7C2",
+  "boxIndexInCell": 3,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Integration",
+  "priority": "—",
+  "requirement": "reconciliation"
+ },
+ {
+  "id": "DOD-036",
+  "ord": 140,
+  "loc": "T5R7C2",
+  "boxIndexInCell": 4,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Integration",
+  "priority": "—",
+  "requirement": "no duplicate financial/order events"
+ },
+ {
+  "id": "DOD-037",
+  "ord": 141,
+  "loc": "T5R8C2",
+  "boxIndexInCell": 0,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: QA / UAT",
+  "priority": "—",
+  "requirement": "Happy path"
+ },
+ {
+  "id": "DOD-038",
+  "ord": 142,
+  "loc": "T5R8C2",
+  "boxIndexInCell": 1,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: QA / UAT",
+  "priority": "—",
+  "requirement": "boundary values"
+ },
+ {
+  "id": "DOD-039",
+  "ord": 143,
+  "loc": "T5R8C2",
+  "boxIndexInCell": 2,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: QA / UAT",
+  "priority": "—",
+  "requirement": "invalid input"
+ },
+ {
+  "id": "DOD-040",
+  "ord": 144,
+  "loc": "T5R8C2",
+  "boxIndexInCell": 3,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: QA / UAT",
+  "priority": "—",
+  "requirement": "permission negative test"
+ },
+ {
+  "id": "DOD-041",
+  "ord": 145,
+  "loc": "T5R8C2",
+  "boxIndexInCell": 4,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: QA / UAT",
+  "priority": "—",
+  "requirement": "concurrency"
+ },
+ {
+  "id": "DOD-042",
+  "ord": 146,
+  "loc": "T5R8C2",
+  "boxIndexInCell": 5,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: QA / UAT",
+  "priority": "—",
+  "requirement": "network interruption"
+ },
+ {
+  "id": "DOD-043",
+  "ord": 147,
+  "loc": "T5R8C2",
+  "boxIndexInCell": 6,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: QA / UAT",
+  "priority": "—",
+  "requirement": "browser/device"
+ },
+ {
+  "id": "DOD-044",
+  "ord": 148,
+  "loc": "T5R8C2",
+  "boxIndexInCell": 7,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: QA / UAT",
+  "priority": "—",
+  "requirement": "performance"
+ },
+ {
+  "id": "DOD-045",
+  "ord": 149,
+  "loc": "T5R8C2",
+  "boxIndexInCell": 8,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: QA / UAT",
+  "priority": "—",
+  "requirement": "regression"
+ },
+ {
+  "id": "DOD-046",
+  "ord": 150,
+  "loc": "T5R9C2",
+  "boxIndexInCell": 0,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Observability",
+  "priority": "—",
+  "requirement": "business event logging"
+ },
+ {
+  "id": "DOD-047",
+  "ord": 151,
+  "loc": "T5R9C2",
+  "boxIndexInCell": 1,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Observability",
+  "priority": "—",
+  "requirement": "error correlation ID"
+ },
+ {
+  "id": "DOD-048",
+  "ord": 152,
+  "loc": "T5R9C2",
+  "boxIndexInCell": 2,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Observability",
+  "priority": "—",
+  "requirement": "alertable failures"
+ },
+ {
+  "id": "DOD-049",
+  "ord": 153,
+  "loc": "T5R9C2",
+  "boxIndexInCell": 3,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Observability",
+  "priority": "—",
+  "requirement": "SLA timers"
+ },
+ {
+  "id": "DOD-050",
+  "ord": 154,
+  "loc": "T5R9C2",
+  "boxIndexInCell": 4,
+  "section": "5. Standard Definition of Done - Apply to Every Screen",
+  "module": "5. Definition of Done: Observability",
+  "priority": "—",
+  "requirement": "admin visibility for stuck transactions"
+ },
+ {
+  "id": "INSPECT-001",
+  "ord": 155,
+  "loc": "P55",
+  "boxIndexInCell": 0,
+  "section": "7. Third-Party Pre-Shipment Inspection - Detailed Control Checklist > 7.1 Inspection Release Rules",
+  "module": "7.1 Inspection Release Rules",
+  "priority": "—",
+  "requirement": "Critical defect present → automatic FAIL unless formally reclassified by authorized inspection QA with documented evidence and approval."
+ },
+ {
+  "id": "INSPECT-002",
+  "ord": 156,
+  "loc": "P56",
+  "boxIndexInCell": 0,
+  "section": "7. Third-Party Pre-Shipment Inspection - Detailed Control Checklist > 7.1 Inspection Release Rules",
+  "module": "7.1 Inspection Release Rules",
+  "priority": "—",
+  "requirement": "Major/Minor acceptance thresholds → controlled by category-specific inspection plan/contract, not manually improvised by the inspector."
+ },
+ {
+  "id": "INSPECT-003",
+  "ord": 157,
+  "loc": "P57",
+  "boxIndexInCell": 0,
+  "section": "7. Third-Party Pre-Shipment Inspection - Detailed Control Checklist > 7.1 Inspection Release Rules",
+  "module": "7.1 Inspection Release Rules",
+  "priority": "—",
+  "requirement": "Seller cannot edit the approved inspection report or evidence."
+ },
+ {
+  "id": "INSPECT-004",
+  "ord": 158,
+  "loc": "P58",
+  "boxIndexInCell": 0,
+  "section": "7. Third-Party Pre-Shipment Inspection - Detailed Control Checklist > 7.1 Inspection Release Rules",
+  "module": "7.1 Inspection Release Rules",
+  "priority": "—",
+  "requirement": "Any post-inspection change to goods, quantity, packaging, labels or container that affects inspected scope must trigger re-evaluation/re-inspection."
+ },
+ {
+  "id": "INSPECT-005",
+  "ord": 159,
+  "loc": "P59",
+  "boxIndexInCell": 0,
+  "section": "7. Third-Party Pre-Shipment Inspection - Detailed Control Checklist > 7.1 Inspection Release Rules",
+  "module": "7.1 Inspection Release Rules",
+  "priority": "—",
+  "requirement": "Shipment booking can be prepared before inspection, but final dispatch/load release must respect the inspection gate for mandatory cases."
+ },
+ {
+  "id": "INSPECT-006",
+  "ord": 160,
+  "loc": "P60",
+  "boxIndexInCell": 0,
+  "section": "7. Third-Party Pre-Shipment Inspection - Detailed Control Checklist > 7.1 Inspection Release Rules",
+  "module": "7.1 Inspection Release Rules",
+  "priority": "—",
+  "requirement": "Manual override requires named authority, reason, supporting evidence and audit event; high-risk overrides should require dual approval."
+ },
+ {
+  "id": "INSPECT-007",
+  "ord": 161,
+  "loc": "P61",
+  "boxIndexInCell": 0,
+  "section": "7. Third-Party Pre-Shipment Inspection - Detailed Control Checklist > 7.1 Inspection Release Rules",
+  "module": "7.1 Inspection Release Rules",
+  "priority": "—",
+  "requirement": "Inspection agency invoice/payment status must not alter the technical PASS/FAIL result."
+ },
+ {
+  "id": "TEMPLATE-001",
+  "ord": 162,
+  "loc": "T14R19C2",
+  "boxIndexInCell": 0,
+  "section": "8. Screen-Level Development & QA Checklist Template",
+  "module": "8. Screen QA Template: Positive UAT",
+  "priority": "—",
+  "requirement": "Pass"
+ },
+ {
+  "id": "TEMPLATE-002",
+  "ord": 163,
+  "loc": "T14R19C2",
+  "boxIndexInCell": 1,
+  "section": "8. Screen-Level Development & QA Checklist Template",
+  "module": "8. Screen QA Template: Positive UAT",
+  "priority": "—",
+  "requirement": "Fail"
+ },
+ {
+  "id": "TEMPLATE-003",
+  "ord": 164,
+  "loc": "T14R19C2",
+  "boxIndexInCell": 2,
+  "section": "8. Screen-Level Development & QA Checklist Template",
+  "module": "8. Screen QA Template: Positive UAT",
+  "priority": "—",
+  "requirement": "N/A"
+ },
+ {
+  "id": "TEMPLATE-004",
+  "ord": 165,
+  "loc": "T14R20C2",
+  "boxIndexInCell": 0,
+  "section": "8. Screen-Level Development & QA Checklist Template",
+  "module": "8. Screen QA Template: Negative / permission UAT",
+  "priority": "—",
+  "requirement": "Pass"
+ },
+ {
+  "id": "TEMPLATE-005",
+  "ord": 166,
+  "loc": "T14R20C2",
+  "boxIndexInCell": 1,
+  "section": "8. Screen-Level Development & QA Checklist Template",
+  "module": "8. Screen QA Template: Negative / permission UAT",
+  "priority": "—",
+  "requirement": "Fail"
+ },
+ {
+  "id": "TEMPLATE-006",
+  "ord": 167,
+  "loc": "T14R20C2",
+  "boxIndexInCell": 2,
+  "section": "8. Screen-Level Development & QA Checklist Template",
+  "module": "8. Screen QA Template: Negative / permission UAT",
+  "priority": "—",
+  "requirement": "N/A"
+ },
+ {
+  "id": "TEMPLATE-007",
+  "ord": 168,
+  "loc": "T14R21C2",
+  "boxIndexInCell": 0,
+  "section": "8. Screen-Level Development & QA Checklist Template",
+  "module": "8. Screen QA Template: Integration / reconciliation UAT",
+  "priority": "—",
+  "requirement": "Pass"
+ },
+ {
+  "id": "TEMPLATE-008",
+  "ord": 169,
+  "loc": "T14R21C2",
+  "boxIndexInCell": 1,
+  "section": "8. Screen-Level Development & QA Checklist Template",
+  "module": "8. Screen QA Template: Integration / reconciliation UAT",
+  "priority": "—",
+  "requirement": "Fail"
+ },
+ {
+  "id": "TEMPLATE-009",
+  "ord": 170,
+  "loc": "T14R21C2",
+  "boxIndexInCell": 2,
+  "section": "8. Screen-Level Development & QA Checklist Template",
+  "module": "8. Screen QA Template: Integration / reconciliation UAT",
+  "priority": "—",
+  "requirement": "N/A"
+ },
+ {
+  "id": "TEMPLATE-010",
+  "ord": 171,
+  "loc": "T14R22C2",
+  "boxIndexInCell": 0,
+  "section": "8. Screen-Level Development & QA Checklist Template",
+  "module": "8. Screen QA Template: Performance / security test",
+  "priority": "—",
+  "requirement": "Pass"
+ },
+ {
+  "id": "TEMPLATE-011",
+  "ord": 172,
+  "loc": "T14R22C2",
+  "boxIndexInCell": 1,
+  "section": "8. Screen-Level Development & QA Checklist Template",
+  "module": "8. Screen QA Template: Performance / security test",
+  "priority": "—",
+  "requirement": "Fail"
+ },
+ {
+  "id": "TEMPLATE-012",
+  "ord": 173,
+  "loc": "T14R22C2",
+  "boxIndexInCell": 2,
+  "section": "8. Screen-Level Development & QA Checklist Template",
+  "module": "8. Screen QA Template: Performance / security test",
+  "priority": "—",
+  "requirement": "N/A"
+ },
+ {
+  "id": "SEC-001",
+  "ord": 174,
+  "loc": "P76",
+  "boxIndexInCell": 0,
+  "section": "12. Security, Privacy & Trust Checklist",
+  "module": "12. Security, Privacy & Trust",
+  "priority": "—",
+  "requirement": "MFA for privileged/admin and high-risk seller/finance roles; risk-based authentication for sensitive actions."
+ },
+ {
+  "id": "SEC-002",
+  "ord": 175,
+  "loc": "P77",
+  "boxIndexInCell": 0,
+  "section": "12. Security, Privacy & Trust Checklist",
+  "module": "12. Security, Privacy & Trust",
+  "priority": "—",
+  "requirement": "Least-privilege RBAC plus object-level authorization for orders, RFQs, documents and inspection jobs."
+ },
+ {
+  "id": "SEC-003",
+  "ord": 176,
+  "loc": "P78",
+  "boxIndexInCell": 0,
+  "section": "12. Security, Privacy & Trust Checklist",
+  "module": "12. Security, Privacy & Trust",
+  "priority": "—",
+  "requirement": "Encryption in transit and at rest; key/secrets management; no credentials or full sensitive financial data in application logs."
+ },
+ {
+  "id": "SEC-004",
+  "ord": 177,
+  "loc": "P79",
+  "boxIndexInCell": 0,
+  "section": "12. Security, Privacy & Trust Checklist",
+  "module": "12. Security, Privacy & Trust",
+  "priority": "—",
+  "requirement": "Secure upload pipeline: extension/MIME validation, malware scanning, file-size limits, signed/expiring access URLs."
+ },
+ {
+  "id": "SEC-005",
+  "ord": 178,
+  "loc": "P80",
+  "boxIndexInCell": 0,
+  "section": "12. Security, Privacy & Trust Checklist",
+  "module": "12. Security, Privacy & Trust",
+  "priority": "—",
+  "requirement": "OWASP-oriented web/API testing including injection, XSS, CSRF where applicable, broken access control, SSRF, insecure direct object references and rate limiting."
+ },
+ {
+  "id": "SEC-006",
+  "ord": 179,
+  "loc": "P81",
+  "boxIndexInCell": 0,
+  "section": "12. Security, Privacy & Trust Checklist",
+  "module": "12. Security, Privacy & Trust",
+  "priority": "—",
+  "requirement": "Payment data architecture should minimize platform exposure to card data and use compliant payment providers/tokenization."
+ },
+ {
+  "id": "SEC-007",
+  "ord": 180,
+  "loc": "P82",
+  "boxIndexInCell": 0,
+  "section": "12. Security, Privacy & Trust Checklist",
+  "module": "12. Security, Privacy & Trust",
+  "priority": "—",
+  "requirement": "Privacy notices, consent where required, purpose limitation, retention schedules, data-subject handling and controlled cross-border data access."
+ },
+ {
+  "id": "SEC-008",
+  "ord": 181,
+  "loc": "P83",
+  "boxIndexInCell": 0,
+  "section": "12. Security, Privacy & Trust Checklist",
+  "module": "12. Security, Privacy & Trust",
+  "priority": "—",
+  "requirement": "Fraud controls for account takeover, fake suppliers, fake inspection evidence, refund abuse, promo abuse and suspicious transaction velocity."
+ },
+ {
+  "id": "SEC-009",
+  "ord": 182,
+  "loc": "P84",
+  "boxIndexInCell": 0,
+  "section": "12. Security, Privacy & Trust Checklist",
+  "module": "12. Security, Privacy & Trust",
+  "priority": "—",
+  "requirement": "Immutable/append-only audit treatment for critical approvals, inspection results, settlement and manual overrides."
+ },
+ {
+  "id": "SEC-010",
+  "ord": 183,
+  "loc": "P85",
+  "boxIndexInCell": 0,
+  "section": "12. Security, Privacy & Trust Checklist",
+  "module": "12. Security, Privacy & Trust",
+  "priority": "—",
+  "requirement": "Backup, restore, disaster recovery, monitoring, incident response and security alert ownership tested before go-live."
+ },
+ {
+  "id": "LIVE-001",
+  "ord": 184,
+  "loc": "P92",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Product & UX",
+  "module": "14. Go-Live: Product & UX",
+  "priority": "—",
+  "requirement": "All P0 screens approved by Product Owner and QA."
+ },
+ {
+  "id": "LIVE-002",
+  "ord": 185,
+  "loc": "P93",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Product & UX",
+  "module": "14. Go-Live: Product & UX",
+  "priority": "—",
+  "requirement": "Responsive behavior validated on supported devices/browsers."
+ },
+ {
+  "id": "LIVE-003",
+  "ord": 186,
+  "loc": "P94",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Product & UX",
+  "module": "14. Go-Live: Product & UX",
+  "priority": "—",
+  "requirement": "Empty/error/loading states complete; user guidance and policy links published."
+ },
+ {
+  "id": "LIVE-004",
+  "ord": 187,
+  "loc": "P96",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Commerce",
+  "module": "14. Go-Live: Commerce",
+  "priority": "—",
+  "requirement": "B2B RFQ-to-order and B2C cart-to-delivery pass end-to-end."
+ },
+ {
+  "id": "LIVE-005",
+  "ord": 188,
+  "loc": "P97",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Commerce",
+  "module": "14. Go-Live: Commerce",
+  "priority": "—",
+  "requirement": "Price, currency, fees, taxes/duties policy and invoices reconciled."
+ },
+ {
+  "id": "LIVE-006",
+  "ord": 189,
+  "loc": "P98",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Commerce",
+  "module": "14. Go-Live: Commerce",
+  "priority": "—",
+  "requirement": "Cancellation, return, refund, dispute and settlement paths tested."
+ },
+ {
+  "id": "LIVE-007",
+  "ord": 190,
+  "loc": "P100",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Inspection",
+  "module": "14. Go-Live: Inspection",
+  "priority": "—",
+  "requirement": "At least one full PASS and one FAIL→NCR→re-inspection→PASS scenario completed."
+ },
+ {
+  "id": "LIVE-008",
+  "ord": 191,
+  "loc": "P101",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Inspection",
+  "module": "14. Go-Live: Inspection",
+  "priority": "—",
+  "requirement": "Dispatch gate cannot be bypassed by seller for mandatory inspection."
+ },
+ {
+  "id": "LIVE-009",
+  "ord": 192,
+  "loc": "P102",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Inspection",
+  "module": "14. Go-Live: Inspection",
+  "priority": "—",
+  "requirement": "Agency/inspector permissions, report signature, evidence and audit verified."
+ },
+ {
+  "id": "LIVE-010",
+  "ord": 193,
+  "loc": "P104",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Operations",
+  "module": "14. Go-Live: Operations",
+  "priority": "—",
+  "requirement": "Seller verification SOP, inspection SOP, dispute SOP and finance reconciliation SOP operational."
+ },
+ {
+  "id": "LIVE-011",
+  "ord": 194,
+  "loc": "P105",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Operations",
+  "module": "14. Go-Live: Operations",
+  "priority": "—",
+  "requirement": "SLAs, escalation owners and admin exception queues defined."
+ },
+ {
+  "id": "LIVE-012",
+  "ord": 195,
+  "loc": "P106",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Operations",
+  "module": "14. Go-Live: Operations",
+  "priority": "—",
+  "requirement": "Support team trained using real UAT scenarios."
+ },
+ {
+  "id": "LIVE-013",
+  "ord": 196,
+  "loc": "P108",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Security & Compliance",
+  "module": "14. Go-Live: Security & Compliance",
+  "priority": "—",
+  "requirement": "Penetration/security testing issues resolved per release criteria."
+ },
+ {
+  "id": "LIVE-014",
+  "ord": 197,
+  "loc": "P109",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Security & Compliance",
+  "module": "14. Go-Live: Security & Compliance",
+  "priority": "—",
+  "requirement": "Privacy/terms/seller/buyer/inspection policies approved by qualified legal/compliance counsel for launch markets."
+ },
+ {
+  "id": "LIVE-015",
+  "ord": 198,
+  "loc": "P110",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Security & Compliance",
+  "module": "14. Go-Live: Security & Compliance",
+  "priority": "—",
+  "requirement": "Backup/restore, incident response and privileged access review tested."
+ },
+ {
+  "id": "LIVE-016",
+  "ord": 199,
+  "loc": "P112",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Integrations",
+  "module": "14. Go-Live: Integrations",
+  "priority": "—",
+  "requirement": "Payment, payout, logistics, notification, storage and inspection integrations production-tested."
+ },
+ {
+  "id": "LIVE-017",
+  "ord": 200,
+  "loc": "P113",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Integrations",
+  "module": "14. Go-Live: Integrations",
+  "priority": "—",
+  "requirement": "Webhook retries, reconciliation and outage fallback validated."
+ },
+ {
+  "id": "LIVE-018",
+  "ord": 201,
+  "loc": "P114",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Integrations",
+  "module": "14. Go-Live: Integrations",
+  "priority": "—",
+  "requirement": "Production credentials/secrets rotated and monitored."
+ },
+ {
+  "id": "LIVE-019",
+  "ord": 202,
+  "loc": "P116",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Data & Analytics",
+  "module": "14. Go-Live: Data & Analytics",
+  "priority": "—",
+  "requirement": "Master data loaded and approved."
+ },
+ {
+  "id": "LIVE-020",
+  "ord": 203,
+  "loc": "P117",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Data & Analytics",
+  "module": "14. Go-Live: Data & Analytics",
+  "priority": "—",
+  "requirement": "Critical event analytics validated against source transactions."
+ },
+ {
+  "id": "LIVE-021",
+  "ord": 204,
+  "loc": "P118",
+  "boxIndexInCell": 0,
+  "section": "14. Go-Live Readiness Checklist > Data & Analytics",
+  "module": "14. Go-Live: Data & Analytics",
+  "priority": "—",
+  "requirement": "Audit log and management dashboards reconcile with operational data."
+ },
+ {
+  "id": "SIGNOFF-001",
+  "ord": 205,
+  "loc": "T19R2C3",
+  "boxIndexInCell": 0,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Product Owner",
+  "priority": "—",
+  "requirement": "Approve"
+ },
+ {
+  "id": "SIGNOFF-002",
+  "ord": 206,
+  "loc": "T19R2C3",
+  "boxIndexInCell": 1,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Product Owner",
+  "priority": "—",
+  "requirement": "Hold"
+ },
+ {
+  "id": "SIGNOFF-003",
+  "ord": 207,
+  "loc": "T19R3C3",
+  "boxIndexInCell": 0,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Engineering Lead",
+  "priority": "—",
+  "requirement": "Approve"
+ },
+ {
+  "id": "SIGNOFF-004",
+  "ord": 208,
+  "loc": "T19R3C3",
+  "boxIndexInCell": 1,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Engineering Lead",
+  "priority": "—",
+  "requirement": "Hold"
+ },
+ {
+  "id": "SIGNOFF-005",
+  "ord": 209,
+  "loc": "T19R4C3",
+  "boxIndexInCell": 0,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: QA / UAT Lead",
+  "priority": "—",
+  "requirement": "Approve"
+ },
+ {
+  "id": "SIGNOFF-006",
+  "ord": 210,
+  "loc": "T19R4C3",
+  "boxIndexInCell": 1,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: QA / UAT Lead",
+  "priority": "—",
+  "requirement": "Hold"
+ },
+ {
+  "id": "SIGNOFF-007",
+  "ord": 211,
+  "loc": "T19R5C3",
+  "boxIndexInCell": 0,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Operations",
+  "priority": "—",
+  "requirement": "Approve"
+ },
+ {
+  "id": "SIGNOFF-008",
+  "ord": 212,
+  "loc": "T19R5C3",
+  "boxIndexInCell": 1,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Operations",
+  "priority": "—",
+  "requirement": "Hold"
+ },
+ {
+  "id": "SIGNOFF-009",
+  "ord": 213,
+  "loc": "T19R6C3",
+  "boxIndexInCell": 0,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Finance",
+  "priority": "—",
+  "requirement": "Approve"
+ },
+ {
+  "id": "SIGNOFF-010",
+  "ord": 214,
+  "loc": "T19R6C3",
+  "boxIndexInCell": 1,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Finance",
+  "priority": "—",
+  "requirement": "Hold"
+ },
+ {
+  "id": "SIGNOFF-011",
+  "ord": 215,
+  "loc": "T19R7C3",
+  "boxIndexInCell": 0,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Inspection / Quality",
+  "priority": "—",
+  "requirement": "Approve"
+ },
+ {
+  "id": "SIGNOFF-012",
+  "ord": 216,
+  "loc": "T19R7C3",
+  "boxIndexInCell": 1,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Inspection / Quality",
+  "priority": "—",
+  "requirement": "Hold"
+ },
+ {
+  "id": "SIGNOFF-013",
+  "ord": 217,
+  "loc": "T19R8C3",
+  "boxIndexInCell": 0,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Information Security",
+  "priority": "—",
+  "requirement": "Approve"
+ },
+ {
+  "id": "SIGNOFF-014",
+  "ord": 218,
+  "loc": "T19R8C3",
+  "boxIndexInCell": 1,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Information Security",
+  "priority": "—",
+  "requirement": "Hold"
+ },
+ {
+  "id": "SIGNOFF-015",
+  "ord": 219,
+  "loc": "T19R9C3",
+  "boxIndexInCell": 0,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Compliance / Legal",
+  "priority": "—",
+  "requirement": "Approve"
+ },
+ {
+  "id": "SIGNOFF-016",
+  "ord": 220,
+  "loc": "T19R9C3",
+  "boxIndexInCell": 1,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Compliance / Legal",
+  "priority": "—",
+  "requirement": "Hold"
+ },
+ {
+  "id": "SIGNOFF-017",
+  "ord": 221,
+  "loc": "T19R10C3",
+  "boxIndexInCell": 0,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Management",
+  "priority": "—",
+  "requirement": "Go Live"
+ },
+ {
+  "id": "SIGNOFF-018",
+  "ord": 222,
+  "loc": "T19R10C3",
+  "boxIndexInCell": 1,
+  "section": "15. Release Sign-Off",
+  "module": "15. Release Sign-Off: Management",
+  "priority": "—",
+  "requirement": "Hold"
+ },
+ {
+  "id": "HOME-001",
+  "ord": 223,
+  "loc": "T20R2C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: Brand header / logo",
+  "priority": "—",
+  "requirement": "Logo, tagline and home link remain legible and consistent at all breakpoints. Checks: Click logo returns home; alt text; crisp asset; no overlap on mobile."
+ },
+ {
+  "id": "HOME-002",
+  "ord": 224,
+  "loc": "T20R3C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: Theme controls",
+  "priority": "—",
+  "requirement": "Desktop/light/dark state behaves consistently across all pages. Checks: Preference persists; contrast remains WCAG-friendly; no unreadable components."
+ },
+ {
+  "id": "HOME-003",
+  "ord": 225,
+  "loc": "T20R4C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: India / EN / INR selector",
+  "priority": "—",
+  "requirement": "Country, language and currency are explicit global settings. Checks: Changing country recalculates serviceability/content; currency display is clear; no silent FX commitment."
+ },
+ {
+  "id": "HOME-004",
+  "ord": 226,
+  "loc": "T20R5C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: Seller Hub",
+  "priority": "—",
+  "requirement": "Seller entry is prominent without confusing buyers. Checks: Role-based destination; unauthenticated seller is routed to seller onboarding; seller login preserved."
+ },
+ {
+  "id": "HOME-005",
+  "ord": 227,
+  "loc": "T20R6C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: User profile - John",
+  "priority": "—",
+  "requirement": "Profile menu exposes account, orders, RFQs, addresses, settings, security, logout. Checks: Session/auth checks; role switch only where authorized; keyboard accessible."
+ },
+ {
+  "id": "HOME-006",
+  "ord": 228,
+  "loc": "T20R7C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: Cart",
+  "priority": "—",
+  "requirement": "Cart count and value update in real time. Checks: Stock/MOQ/price revalidated; mixed-seller handling; currency and duties messaging."
+ },
+ {
+  "id": "HOME-007",
+  "ord": 229,
+  "loc": "T20R8C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: Welcome / hero",
+  "priority": "—",
+  "requirement": "Personalized greeting and clear value proposition. Checks: Do not over-personalize before consent; first-time user gets neutral hero; dynamic content cannot cause layout shift."
+ },
+ {
+  "id": "HOME-008",
+  "ord": 230,
+  "loc": "T20R9C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: Home / AI Assistant / Products tabs",
+  "priority": "—",
+  "requirement": "Fast switch among discovery modes without losing user context. Checks: Active state clear; browser back works; deep links supported; mobile tab behavior tested."
+ },
+ {
+  "id": "HOME-009",
+  "ord": 231,
+  "loc": "T20R10C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: Catalogue search",
+  "priority": "—",
+  "requirement": "Natural-language and keyword search across products, categories, suppliers and capabilities. Checks: Autocomplete; spelling; synonyms; no-result recovery; recent searches; search analytics."
+ },
+ {
+  "id": "HOME-010",
+  "ord": 232,
+  "loc": "T20R11C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: Image search",
+  "priority": "—",
+  "requirement": "Visual matching from uploaded product/reference image. Checks: File type/size/privacy controls; preview/delete; similarity disclaimer; unsafe file scanning."
+ },
+ {
+  "id": "HOME-011",
+  "ord": 233,
+  "loc": "T20R12C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: Voice search",
+  "priority": "—",
+  "requirement": "Microphone input for sourcing terms. Checks: Permission handling; transcript confirmation; noisy-environment fallback; language choice."
+ },
+ {
+  "id": "HOME-012",
+  "ord": 234,
+  "loc": "T20R13C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: Search CTA",
+  "priority": "—",
+  "requirement": "Single high-visibility action starts discovery. Checks: Enter key works; loading feedback; duplicate click protection; latency monitoring."
+ },
+ {
+  "id": "HOME-013",
+  "ord": 235,
+  "loc": "T20R14C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: AI Assistant card",
+  "priority": "—",
+  "requirement": "Conversational sourcing assistant explains products, lines, suppliers and purchasing options. Checks: Source grounding; clear AI disclosure; handoff to product/RFQ; no unauthorized data exposure."
+ },
+ {
+  "id": "HOME-014",
+  "ord": 236,
+  "loc": "T20R15C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: Autopay card",
+  "priority": "—",
+  "requirement": "Standing payment authority only within buyer-defined amount, supplier/order and time controls. Checks: MFA for activation/change; cap and expiry; revoke instantly; transaction alerts; audit log."
+ },
+ {
+  "id": "HOME-015",
+  "ord": 237,
+  "loc": "T20R16C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: Schedule your Cart",
+  "priority": "—",
+  "requirement": "Buyer plans future delivery and optional repeat frequency. Checks: Cut-off dates, stock recheck, price-change acceptance, reminder, cancel/edit before charge."
+ },
+ {
+  "id": "HOME-016",
+  "ord": 238,
+  "loc": "T20R17C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: ERP Integration card",
+  "priority": "—",
+  "requirement": "Orders handed to/from buyer ERP through controlled integration. Checks: OAuth/API keys; mapping; sandbox test; sync status; retry queue; reconciliation; revoke access."
+ },
+ {
+  "id": "HOME-017",
+  "ord": 239,
+  "loc": "T20R18C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: Globe visual",
+  "priority": "—",
+  "requirement": "Interactive visual should reinforce global reach without becoming a navigation barrier. Checks: Optional hotspot navigation; lazy-load; reduced-motion option; fast fallback on low bandwidth."
+ },
+ {
+  "id": "HOME-018",
+  "ord": 240,
+  "loc": "T20R19C4",
+  "boxIndexInCell": 0,
+  "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+  "module": "16. Home: AI disclaimer/footer note",
+  "priority": "—",
+  "requirement": "User understands generated text limitations and full-conversation behavior. Checks: Policy link; data-use notice; prompt retention settings; error/escalation path."
+ },
+ {
+  "id": "JOURNEY-001",
+  "ord": 241,
+  "loc": "T22R2C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.1 Public Discovery & Trust",
+  "module": "17.1 Public Discovery & Trust: Home / Personalized Home",
+  "priority": "P0",
+  "requirement": "Global search, categories, verified suppliers, AI entry, quick actions, recent activity. Checks: Search in <=2 actions; locale shown; seller/buyer CTAs distinct; trust/inspection visible; personalized modules dismissible."
+ },
+ {
+  "id": "JOURNEY-002",
+  "ord": 242,
+  "loc": "T22R3C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.1 Public Discovery & Trust",
+  "module": "17.1 Public Discovery & Trust: Search Results",
+  "priority": "P0",
+  "requirement": "Products + suppliers + capabilities with filters/sort. Checks: Filters for MOQ, country, price, lead time, certification, verified status, sample, Incoterm; URL-state shareable; no-result alternatives."
+ },
+ {
+  "id": "JOURNEY-003",
+  "ord": 243,
+  "loc": "T22R4C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.1 Public Discovery & Trust",
+  "module": "17.1 Public Discovery & Trust: Category / Industry Landing",
+  "priority": "P1",
+  "requirement": "Structured discovery by industry/use case. Checks: Category taxonomy, popular specs, supplier count, RFQ CTA, destination compliance note, SEO fields."
+ },
+ {
+  "id": "JOURNEY-004",
+  "ord": 244,
+  "loc": "T22R5C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.1 Public Discovery & Trust",
+  "module": "17.1 Public Discovery & Trust: Product Detail",
+  "priority": "P0",
+  "requirement": "Decision page for B2C buy-now or B2B inquiry/RFQ. Checks: Variants, MOQ, tier price, capacity, lead time, samples, Incoterms, inspection, seller trust, shipping eligibility, comparison, RFQ/cart CTA."
+ },
+ {
+  "id": "JOURNEY-005",
+  "ord": 245,
+  "loc": "T22R6C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.1 Public Discovery & Trust",
+  "module": "17.1 Public Discovery & Trust: Supplier Storefront",
+  "priority": "P0",
+  "requirement": "Manufacturer/OEM credibility and capability page. Checks: Legal name, factory location, capability, machinery, capacity, export markets, certifications with validity, response SLA, products, inspection history summary."
+ },
+ {
+  "id": "JOURNEY-006",
+  "ord": 246,
+  "loc": "T22R7C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.1 Public Discovery & Trust",
+  "module": "17.1 Public Discovery & Trust: Gloviaa Assurance",
+  "priority": "P1",
+  "requirement": "Explain verification, inspection, payment protection and dispute flow. Checks: Plain-language scope; what is/not guaranteed; inspection gate; buyer/seller responsibilities; claims workflow."
+ },
+ {
+  "id": "JOURNEY-007",
+  "ord": 247,
+  "loc": "T22R8C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.1 Public Discovery & Trust",
+  "module": "17.1 Public Discovery & Trust: Country Landing",
+  "priority": "P0",
+  "requirement": "Localize the marketplace by buyer destination. Checks: Currency/language, popular categories, shipping lanes, duties guidance, compliance rules, delivery promise assumptions."
+ },
+ {
+  "id": "JOURNEY-008",
+  "ord": 248,
+  "loc": "T23R2C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.2 Identity, Buyer & Seller Onboarding",
+  "module": "17.2 Identity, Buyer & Seller Onboarding: Sign up / Login / MFA",
+  "priority": "P0",
+  "requirement": "Secure account creation and access. Checks: Email/phone verification; social/enterprise SSO optional; MFA; bot protection; rate limits; recovery; suspicious login alerts."
+ },
+ {
+  "id": "JOURNEY-009",
+  "ord": 249,
+  "loc": "T23R3C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.2 Identity, Buyer & Seller Onboarding",
+  "module": "17.2 Identity, Buyer & Seller Onboarding: Buyer Profile / Business KYC",
+  "priority": "P0",
+  "requirement": "Capture individual or business buyer data. Checks: Business type; billing/shipping addresses; tax IDs; importer data if needed; user roles; document status; consent."
+ },
+ {
+  "id": "JOURNEY-010",
+  "ord": 250,
+  "loc": "T23R4C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.2 Identity, Buyer & Seller Onboarding",
+  "module": "17.2 Identity, Buyer & Seller Onboarding: Seller Application / KYB",
+  "priority": "P0",
+  "requirement": "Verify Indian manufacturer/OEM before selling. Checks: PAN/GST/CIN/Udyam/IEC as applicable; bank validation; beneficial owner/contact; factory proof; export capability; sanctions/restriction screening as required by policy."
+ },
+ {
+  "id": "JOURNEY-011",
+  "ord": 251,
+  "loc": "T23R5C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.2 Identity, Buyer & Seller Onboarding",
+  "module": "17.2 Identity, Buyer & Seller Onboarding: Factory Verification",
+  "priority": "P0",
+  "requirement": "Assess manufacturing authenticity/capability. Checks: Plant details; geo-tagged evidence where policy permits; machines; capacity; QC; certifications; audit/verification date; expiry/reverification."
+ },
+ {
+  "id": "JOURNEY-012",
+  "ord": 252,
+  "loc": "T23R6C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.2 Identity, Buyer & Seller Onboarding",
+  "module": "17.2 Identity, Buyer & Seller Onboarding: Team & Roles",
+  "priority": "P1",
+  "requirement": "Enterprise users and permissions. Checks: Buyer creator/approver/finance; seller sales/ops/finance; maker-checker; invitation expiry; access review; removal."
+ },
+ {
+  "id": "JOURNEY-013",
+  "ord": 253,
+  "loc": "T24R2C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.3 B2B Sourcing, RFQ & Negotiation",
+  "module": "17.3 B2B Sourcing, RFQ & Negotiation: Create RFQ",
+  "priority": "P0",
+  "requirement": "Convert requirement into comparable supplier request. Checks: Category-guided specs; target qty; annual volume; target price optional; destination; Incoterm; certification; sample; files; inspection need; response deadline."
+ },
+ {
+  "id": "JOURNEY-014",
+  "ord": 254,
+  "loc": "T24R3C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.3 B2B Sourcing, RFQ & Negotiation",
+  "module": "17.3 B2B Sourcing, RFQ & Negotiation: Supplier Match / Invite",
+  "priority": "P0",
+  "requirement": "Find suitable Indian manufacturers. Checks: Match explanation; capability and market eligibility; invite selected/all; supplier capacity/conflict flags; buyer can exclude."
+ },
+ {
+  "id": "JOURNEY-015",
+  "ord": 255,
+  "loc": "T24R4C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.3 B2B Sourcing, RFQ & Negotiation",
+  "module": "17.3 B2B Sourcing, RFQ & Negotiation: RFQ Detail",
+  "priority": "P0",
+  "requirement": "Single workspace for requirements and responses. Checks: Versioned requirement; Q&A; invited suppliers; response status; attachments; deadlines; edit rules after quotes."
+ },
+ {
+  "id": "JOURNEY-016",
+  "ord": 256,
+  "loc": "T24R5C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.3 B2B Sourcing, RFQ & Negotiation",
+  "module": "17.3 B2B Sourcing, RFQ & Negotiation: Quote Builder",
+  "priority": "P0",
+  "requirement": "Seller creates complete commercial offer. Checks: Price tiers; MOQ; tooling/NRE; sample; lead time; capacity; Incoterm; payment; validity; warranty; inspection; export docs."
+ },
+ {
+  "id": "JOURNEY-017",
+  "ord": 257,
+  "loc": "T24R6C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.3 B2B Sourcing, RFQ & Negotiation",
+  "module": "17.3 B2B Sourcing, RFQ & Negotiation: Quote Comparison",
+  "priority": "P0",
+  "requirement": "Normalize offers. Checks: Side-by-side price/MOQ/lead time/terms/landed estimate; identify missing fields; currency basis; export to PDF/Excel."
+ },
+ {
+  "id": "JOURNEY-018",
+  "ord": 258,
+  "loc": "T24R7C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.3 B2B Sourcing, RFQ & Negotiation",
+  "module": "17.3 B2B Sourcing, RFQ & Negotiation: Negotiation Workspace",
+  "priority": "P0",
+  "requirement": "Controlled commercial negotiation. Checks: Offer/counter-offer versions; expiry; comments; attachments; accepted terms locked into order; no silent edits."
+ },
+ {
+  "id": "JOURNEY-019",
+  "ord": 259,
+  "loc": "T24R8C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.3 B2B Sourcing, RFQ & Negotiation",
+  "module": "17.3 B2B Sourcing, RFQ & Negotiation: Sample Request",
+  "priority": "P1",
+  "requirement": "Manage samples before bulk order. Checks: Sample qty/cost; courier; approval criteria; buyer acceptance/rejection; reference sample link to final inspection."
+ },
+ {
+  "id": "JOURNEY-020",
+  "ord": 260,
+  "loc": "T24R9C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.3 B2B Sourcing, RFQ & Negotiation",
+  "module": "17.3 B2B Sourcing, RFQ & Negotiation: B2B PO / Contract Review",
+  "priority": "P0",
+  "requirement": "Convert agreed terms to binding order. Checks: Final SKU/spec/qty/price/Incoterm/payment/inspection/ship window/docs; approval matrix; e-accept/e-sign integration if used."
+ },
+ {
+  "id": "JOURNEY-021",
+  "ord": 261,
+  "loc": "T25R2C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.4 B2C Commerce",
+  "module": "17.4 B2C Commerce: Cart",
+  "priority": "P0",
+  "requirement": "Review purchasable items. Checks: Variant, qty, seller, stock, shipping estimate, taxes/duties explanation, coupons, saved-for-later, MOQ rule if applicable."
+ },
+ {
+  "id": "JOURNEY-022",
+  "ord": 262,
+  "loc": "T25R3C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.4 B2C Commerce",
+  "module": "17.4 B2C Commerce: Checkout",
+  "priority": "P0",
+  "requirement": "Complete international B2C purchase. Checks: Address validation; serviceability; shipping options; duty/tax method; payment; consent; final amount; fraud checks."
+ },
+ {
+  "id": "JOURNEY-023",
+  "ord": 263,
+  "loc": "T25R4C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.4 B2C Commerce",
+  "module": "17.4 B2C Commerce: Payment Result",
+  "priority": "P0",
+  "requirement": "Handle success, pending and failure safely. Checks: Idempotency; clear pending state; retry without duplicate order; receipt; payment reference; support path."
+ },
+ {
+  "id": "JOURNEY-024",
+  "ord": 264,
+  "loc": "T25R5C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.4 B2C Commerce",
+  "module": "17.4 B2C Commerce: My Orders",
+  "priority": "P0",
+  "requirement": "Order history and next actions. Checks: Filter/status; invoice; cancel eligibility; track; support; return/refund; buy again."
+ },
+ {
+  "id": "JOURNEY-025",
+  "ord": 265,
+  "loc": "T25R6C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.4 B2C Commerce",
+  "module": "17.4 B2C Commerce: Return / Refund",
+  "priority": "P1",
+  "requirement": "Structured after-sales claim. Checks: Reason codes; photo/video; eligibility; return label/pickup; inspection of return where needed; refund method/timeline."
+ },
+ {
+  "id": "JOURNEY-026",
+  "ord": 266,
+  "loc": "T26R2C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.5 Seller Hub & Manufacturer Operations",
+  "module": "17.5 Seller Hub & Manufacturer Operations: Seller Hub Home",
+  "priority": "P0",
+  "requirement": "Prioritized daily work queue. Checks: RFQs awaiting response; orders at risk; inspection actions; shipment docs; settlement holds; compliance expiries."
+ },
+ {
+  "id": "JOURNEY-027",
+  "ord": 267,
+  "loc": "T26R3C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.5 Seller Hub & Manufacturer Operations",
+  "module": "17.5 Seller Hub & Manufacturer Operations: Company / Factory Profile",
+  "priority": "P0",
+  "requirement": "Maintain verified manufacturer data. Checks: Change-control for verified fields; re-approval after material changes; certificates expiry alerts; buyer-facing preview."
+ },
+ {
+  "id": "JOURNEY-028",
+  "ord": 268,
+  "loc": "T26R4C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.5 Seller Hub & Manufacturer Operations",
+  "module": "17.5 Seller Hub & Manufacturer Operations: Catalog Manager",
+  "priority": "P0",
+  "requirement": "Manage products, variants, status and market eligibility. Checks: Draft/review/live/blocked; clone; bulk action; stock/capacity; missing-data flags; change history."
+ },
+ {
+  "id": "JOURNEY-029",
+  "ord": 269,
+  "loc": "T26R5C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.5 Seller Hub & Manufacturer Operations",
+  "module": "17.5 Seller Hub & Manufacturer Operations: Product Listing Editor",
+  "priority": "P0",
+  "requirement": "Publish export-ready product data. Checks: Structured specs; HS code candidate; certification; export markets; MOQ/tier price; private-label/OEM; lead time; packaging; media; claims moderation."
+ },
+ {
+  "id": "JOURNEY-030",
+  "ord": 270,
+  "loc": "T26R6C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.5 Seller Hub & Manufacturer Operations",
+  "module": "17.5 Seller Hub & Manufacturer Operations: RFQ Inbox",
+  "priority": "P1",
+  "requirement": "Seller opportunity queue. Checks: Qualification score; deadline; buyer verification status; target market; hide irrelevant opportunities; assign owner."
+ },
+ {
+  "id": "JOURNEY-031",
+  "ord": 271,
+  "loc": "T26R7C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.5 Seller Hub & Manufacturer Operations",
+  "module": "17.5 Seller Hub & Manufacturer Operations: Orders / Production Milestones",
+  "priority": "P0",
+  "requirement": "Execute manufacturing order. Checks: Order acceptance; raw material/production/QA/ready milestones; delays; buyer updates; inspection readiness cannot be falsely advanced."
+ },
+ {
+  "id": "JOURNEY-032",
+  "ord": 272,
+  "loc": "T26R8C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.5 Seller Hub & Manufacturer Operations",
+  "module": "17.5 Seller Hub & Manufacturer Operations: Inspection Readiness",
+  "priority": "P0",
+  "requirement": "Seller presents final lot for independent inspection. Checks: Lot/PO/SKU/qty; location; packing list; readiness date; contact; sealed/packed status; declaration that goods match order."
+ },
+ {
+  "id": "JOURNEY-033",
+  "ord": 273,
+  "loc": "T26R9C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.5 Seller Hub & Manufacturer Operations",
+  "module": "17.5 Seller Hub & Manufacturer Operations: Shipment Documents",
+  "priority": "P1",
+  "requirement": "Build export document pack. Checks: Commercial invoice; packing list; COO; shipping bill references; BL/AWB; inspection certificate/report; category-specific documents; version control."
+ },
+ {
+  "id": "JOURNEY-034",
+  "ord": 274,
+  "loc": "T26R10C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.5 Seller Hub & Manufacturer Operations",
+  "module": "17.5 Seller Hub & Manufacturer Operations: Payments / Settlements",
+  "priority": "P0",
+  "requirement": "Explain every deduction and release condition. Checks: Gross sale; commission; inspection/logistics charges; tax; reserve/hold; refund; net settlement; payout status; reconciliation export."
+ },
+ {
+  "id": "JOURNEY-035",
+  "ord": 275,
+  "loc": "T27R2C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.6 Inspection & Shipment Assurance",
+  "module": "17.6 Inspection & Shipment Assurance: Inspection Booking",
+  "priority": "P0",
+  "requirement": "Create inspection job before loading. Checks: Order scope auto-populated; inspection point/port; date; agency; payer; standard/checklist; language; SLA."
+ },
+ {
+  "id": "JOURNEY-036",
+  "ord": 276,
+  "loc": "T27R3C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.6 Inspection & Shipment Assurance",
+  "module": "17.6 Inspection & Shipment Assurance: Agency Assignment",
+  "priority": "P1",
+  "requirement": "Independent agency accepts assignment. Checks: Conflict check; competence; availability; scope acceptance; no seller-controlled technical result."
+ },
+ {
+  "id": "JOURNEY-037",
+  "ord": 277,
+  "loc": "T27R4C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.6 Inspection & Shipment Assurance",
+  "module": "17.6 Inspection & Shipment Assurance: Inspector Allocation",
+  "priority": "P1",
+  "requirement": "Assign named qualified inspector. Checks: Competence/category authorization; ID; conflict declaration; schedule; backup inspector; location."
+ },
+ {
+  "id": "JOURNEY-038",
+  "ord": 278,
+  "loc": "T27R5C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.6 Inspection & Shipment Assurance",
+  "module": "17.6 Inspection & Shipment Assurance: Inspection Checklist",
+  "priority": "P0",
+  "requirement": "Record objective checks against order/specification. Checks: Product identity; quantity; dimensions; workmanship; functional tests; reference sample; tolerance; category-specific acceptance plan."
+ },
+ {
+  "id": "JOURNEY-039",
+  "ord": 279,
+  "loc": "T27R6C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.6 Inspection & Shipment Assurance",
+  "module": "17.6 Inspection & Shipment Assurance: Evidence Capture",
+  "priority": "P1",
+  "requirement": "Capture tamper-resistant inspection evidence. Checks: Time/date; inspector/job association; photo/video; measurement records; original file retention; upload failure recovery."
+ },
+ {
+  "id": "JOURNEY-040",
+  "ord": 280,
+  "loc": "T27R7C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.6 Inspection & Shipment Assurance",
+  "module": "17.6 Inspection & Shipment Assurance: Packaging / Label Check",
+  "priority": "P1",
+  "requirement": "Confirm export pack and marks. Checks: Inner/outer packaging; carton qty; pallet; shipping marks; barcode; destination labels; fragile/hazard symbols if applicable."
+ },
+ {
+  "id": "JOURNEY-041",
+  "ord": 281,
+  "loc": "T27R8C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.6 Inspection & Shipment Assurance",
+  "module": "17.6 Inspection & Shipment Assurance: NCR / Defect Log",
+  "priority": "P0",
+  "requirement": "Record deviations. Checks: Critical/major/minor; requirement reference; defect qty; evidence; seller response; correction; buyer visibility according to policy."
+ },
+ {
+  "id": "JOURNEY-042",
+  "ord": 282,
+  "loc": "T27R9C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.6 Inspection & Shipment Assurance",
+  "module": "17.6 Inspection & Shipment Assurance: Inspection Report Review",
+  "priority": "P0",
+  "requirement": "Agency QA reviews and signs report. Checks: Checklist completeness; evidence; calculations; classification; digital sign-off; locked final report; revision control."
+ },
+ {
+  "id": "JOURNEY-043",
+  "ord": 283,
+  "loc": "T27R10C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.6 Inspection & Shipment Assurance",
+  "module": "17.6 Inspection & Shipment Assurance: Re-inspection",
+  "priority": "P1",
+  "requirement": "Verify corrections on failed/held shipment. Checks: Link original NCR; corrected lot; new evidence; no deletion of original report; repeat release decision."
+ },
+ {
+  "id": "JOURNEY-044",
+  "ord": 284,
+  "loc": "T27R11C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.6 Inspection & Shipment Assurance",
+  "module": "17.6 Inspection & Shipment Assurance: Shipment Release Gate",
+  "priority": "P0",
+  "requirement": "Control loading/dispatch. Checks: PASS required when inspection mandatory; manual override restricted/dual approval; any post-inspection material change triggers re-evaluation."
+ },
+ {
+  "id": "JOURNEY-045",
+  "ord": 285,
+  "loc": "T27R12C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.6 Inspection & Shipment Assurance",
+  "module": "17.6 Inspection & Shipment Assurance: Container / Seal Record",
+  "priority": "P1",
+  "requirement": "Bind inspected goods to shipment where used. Checks: Container no.; seal no.; stuffing evidence; quantity; time; inspector/authorized witness; changes alert."
+ },
+ {
+  "id": "JOURNEY-046",
+  "ord": 286,
+  "loc": "T28R2C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.7 Logistics, Delivery & Trade Documents",
+  "module": "17.7 Logistics, Delivery & Trade Documents: Shipment Booking",
+  "priority": "P0",
+  "requirement": "Select carrier/freight option. Checks: Origin/destination; mode; port; Incoterm; pickup; weights/dimensions; rate validity; insurance option; inspection release prerequisite."
+ },
+ {
+  "id": "JOURNEY-047",
+  "ord": 287,
+  "loc": "T28R3C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.7 Logistics, Delivery & Trade Documents",
+  "module": "17.7 Logistics, Delivery & Trade Documents: Shipment Tracking",
+  "priority": "P0",
+  "requirement": "Track physical movement. Checks: Carrier events; customs/port exceptions; ETA; milestones; map optional; buyer/seller notifications; proof of delivery."
+ },
+ {
+  "id": "JOURNEY-048",
+  "ord": 288,
+  "loc": "T28R4C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.7 Logistics, Delivery & Trade Documents",
+  "module": "17.7 Logistics, Delivery & Trade Documents: Trade Document Center",
+  "priority": "P1",
+  "requirement": "Central order document vault. Checks: Version, issuer, expiry, validation state, buyer visibility, download watermark if needed, audit history."
+ },
+ {
+  "id": "JOURNEY-049",
+  "ord": 289,
+  "loc": "T28R5C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.7 Logistics, Delivery & Trade Documents",
+  "module": "17.7 Logistics, Delivery & Trade Documents: Customs / Compliance Checklist",
+  "priority": "P1",
+  "requirement": "Destination documentation readiness. Checks: HS code verification workflow; restricted goods; licenses/certificates; country rules; responsible party; exception hold."
+ },
+ {
+  "id": "JOURNEY-050",
+  "ord": 290,
+  "loc": "T29R2C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.8 Payments, Finance & Commercial Controls",
+  "module": "17.8 Payments, Finance & Commercial Controls: Payment / Escrow or Protected Collection",
+  "priority": "P0",
+  "requirement": "Collect buyer funds under disclosed release terms. Checks: Currency; method; milestone; payment provider status; charge/refund; reconciliation; buyer receipt."
+ },
+ {
+  "id": "JOURNEY-051",
+  "ord": 291,
+  "loc": "T29R3C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.8 Payments, Finance & Commercial Controls",
+  "module": "17.8 Payments, Finance & Commercial Controls: AutoPay Authority",
+  "priority": "P1",
+  "requirement": "Recurring/standing authority. Checks: Maximum per transaction/period; supplier/category scope; start/end; MFA; revoke; failure handling; pre-charge notice."
+ },
+ {
+  "id": "JOURNEY-052",
+  "ord": 292,
+  "loc": "T29R4C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.8 Payments, Finance & Commercial Controls",
+  "module": "17.8 Payments, Finance & Commercial Controls: Transaction Ledger",
+  "priority": "P0",
+  "requirement": "Single source for money movement. Checks: Order gross; taxes; platform fees; inspection; logistics; refunds; holds; payout; immutable references."
+ },
+ {
+  "id": "JOURNEY-053",
+  "ord": 293,
+  "loc": "T29R5C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.8 Payments, Finance & Commercial Controls",
+  "module": "17.8 Payments, Finance & Commercial Controls: Seller Settlement",
+  "priority": "P0",
+  "requirement": "Release funds after configured conditions. Checks: Delivery/acceptance/dispute window; inspection release where applicable; reserves; bank status; retry; reconciliation."
+ },
+ {
+  "id": "JOURNEY-054",
+  "ord": 294,
+  "loc": "T29R6C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.8 Payments, Finance & Commercial Controls",
+  "module": "17.8 Payments, Finance & Commercial Controls: Commission / Fee Rules",
+  "priority": "P1",
+  "requirement": "Admin commercial configuration. Checks: Category, value, volume, seller tier, market, promotion; effective dates; maker-checker; no retroactive surprise."
+ },
+ {
+  "id": "JOURNEY-055",
+  "ord": 295,
+  "loc": "T30R2C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.9 Support, Disputes, Ratings & Communication",
+  "module": "17.9 Support, Disputes, Ratings & Communication: Message Center",
+  "priority": "P1",
+  "requirement": "Contextual buyer-seller-platform communication. Checks: Order/RFQ linked; attachments; translation optional; abuse reporting; audit; sensitive-data warning."
+ },
+ {
+  "id": "JOURNEY-056",
+  "ord": 296,
+  "loc": "T30R3C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.9 Support, Disputes, Ratings & Communication",
+  "module": "17.9 Support, Disputes, Ratings & Communication: Notification Center",
+  "priority": "P0",
+  "requirement": "Single action queue across channels. Checks: Unread; priority; deep link; mute/preferences; email/SMS/WhatsApp/in-app mapping; duplicate suppression."
+ },
+ {
+  "id": "JOURNEY-057",
+  "ord": 297,
+  "loc": "T30R4C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.9 Support, Disputes, Ratings & Communication",
+  "module": "17.9 Support, Disputes, Ratings & Communication: Support Ticket",
+  "priority": "P0",
+  "requirement": "Structured support case. Checks: Category; order link; SLA; assignee; evidence; internal notes; customer-visible updates; resolution code."
+ },
+ {
+  "id": "JOURNEY-058",
+  "ord": 298,
+  "loc": "T30R5C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.9 Support, Disputes, Ratings & Communication",
+  "module": "17.9 Support, Disputes, Ratings & Communication: Dispute Console",
+  "priority": "P0",
+  "requirement": "Resolve quality/commercial/delivery disputes. Checks: Evidence timeline; inspection report; payment status; proposed remedies; authority; decision; financial action; appeal/escalation."
+ },
+ {
+  "id": "JOURNEY-059",
+  "ord": 299,
+  "loc": "T30R6C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.9 Support, Disputes, Ratings & Communication",
+  "module": "17.9 Support, Disputes, Ratings & Communication: Ratings & Reviews",
+  "priority": "P1",
+  "requirement": "Build trust without manipulation. Checks: Verified transaction; product vs seller score; moderation; response; anti-fraud; inspection result not replaced by rating."
+ },
+ {
+  "id": "JOURNEY-060",
+  "ord": 300,
+  "loc": "T31R2C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.10 Admin, Risk & Platform Operations",
+  "module": "17.10 Admin, Risk & Platform Operations: Admin Command Center",
+  "priority": "P0",
+  "requirement": "Exception-first operations dashboard. Checks: High-risk orders; failed inspections; payment mismatches; settlement holds; compliance expiries; integration failures; SLA breaches."
+ },
+ {
+  "id": "JOURNEY-061",
+  "ord": 301,
+  "loc": "T31R3C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.10 Admin, Risk & Platform Operations",
+  "module": "17.10 Admin, Risk & Platform Operations: User / Supplier Management",
+  "priority": "P0",
+  "requirement": "Operational control over accounts. Checks: Search; verification; suspend/restrict; reason; maker-checker for critical actions; history; communication."
+ },
+ {
+  "id": "JOURNEY-062",
+  "ord": 302,
+  "loc": "T31R4C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.10 Admin, Risk & Platform Operations",
+  "module": "17.10 Admin, Risk & Platform Operations: Listing Moderation",
+  "priority": "P1",
+  "requirement": "Control product content and prohibited claims. Checks: Automated flags + human review; evidence request; reject reason; appeal; destination restrictions."
+ },
+ {
+  "id": "JOURNEY-063",
+  "ord": 303,
+  "loc": "T31R5C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.10 Admin, Risk & Platform Operations",
+  "module": "17.10 Admin, Risk & Platform Operations: Inspection Rules Engine",
+  "priority": "P0",
+  "requirement": "Determine when inspection is required. Checks: Category/value/destination/supplier risk/buyer request; sampling plan; agency eligibility; release rule; effective dates."
+ },
+ {
+  "id": "JOURNEY-064",
+  "ord": 304,
+  "loc": "T31R6C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.10 Admin, Risk & Platform Operations",
+  "module": "17.10 Admin, Risk & Platform Operations: Country / Compliance Rules",
+  "priority": "P0",
+  "requirement": "Market-specific controls. Checks: Restricted products; document requirements; tax/duty presentation; label rules; serviceability; rule source/version/owner."
+ },
+ {
+  "id": "JOURNEY-065",
+  "ord": 305,
+  "loc": "T31R7C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.10 Admin, Risk & Platform Operations",
+  "module": "17.10 Admin, Risk & Platform Operations: Integration Monitor",
+  "priority": "P1",
+  "requirement": "Operate external connections. Checks: Payment/logistics/ERP/inspection/webhook status; retry; dead-letter queue; manual reconcile; outage banner."
+ },
+ {
+  "id": "JOURNEY-066",
+  "ord": 306,
+  "loc": "T31R8C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.10 Admin, Risk & Platform Operations",
+  "module": "17.10 Admin, Risk & Platform Operations: Audit Log",
+  "priority": "P0",
+  "requirement": "Trace critical actions. Checks: Actor; role; action; object; before/after; timestamp; IP/device where appropriate; reason; export; tamper resistance."
+ },
+ {
+  "id": "JOURNEY-067",
+  "ord": 307,
+  "loc": "T31R9C5",
+  "boxIndexInCell": 0,
+  "section": "17. Detailed Screen Checklist by User Journey > 17.10 Admin, Risk & Platform Operations",
+  "module": "17.10 Admin, Risk & Platform Operations: CMS / Promotions",
+  "priority": "P1",
+  "requirement": "Manage merchandising. Checks: Country/language targeting; schedule; approval; preview; rollback; coupon/rule conflict checks."
+ },
+ {
+  "id": "ENH-001",
+  "ord": 308,
+  "loc": "T33R2C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: AI Guided Sourcing",
+  "priority": "P0",
+  "requirement": "User describes need in plain language; AI converts it into filters/specifications and a draft RFQ."
+ },
+ {
+  "id": "ENH-002",
+  "ord": 309,
+  "loc": "T33R3C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: AI Product & Supplier Comparison",
+  "priority": "P1",
+  "requirement": "AI summarizes differences only from verified catalog/quote data and links every conclusion to source fields."
+ },
+ {
+  "id": "ENH-003",
+  "ord": 310,
+  "loc": "T33R4C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Dynamic Home by Persona",
+  "priority": "P0",
+  "requirement": "Home changes for guest, B2B buyer, B2C buyer, seller and returning user."
+ },
+ {
+  "id": "ENH-004",
+  "ord": 311,
+  "loc": "T33R5C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Universal Command/Search Bar",
+  "priority": "P1",
+  "requirement": "One search can find product, supplier, RFQ, order, invoice, shipment or help depending on role."
+ },
+ {
+  "id": "ENH-005",
+  "ord": 312,
+  "loc": "T33R6C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Quick Action Dock",
+  "priority": "P1",
+  "requirement": "Persistent actions: Create RFQ, Upload Image, Ask AI, Reorder, Track Order, Contact Support."
+ },
+ {
+  "id": "ENH-006",
+  "ord": 313,
+  "loc": "T33R7C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Landed Cost & Delivery Promise",
+  "priority": "P0",
+  "requirement": "Show product + freight + estimated duty/tax + inspection/platform fee + expected delivery range."
+ },
+ {
+  "id": "ENH-007",
+  "ord": 314,
+  "loc": "T33R8C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Destination-Aware Catalog",
+  "priority": "P0",
+  "requirement": "Hide or flag products that cannot legally/logistically ship to selected country."
+ },
+ {
+  "id": "ENH-008",
+  "ord": 315,
+  "loc": "T33R9C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Supplier Capability Match Score",
+  "priority": "P1",
+  "requirement": "Explain match using capacity, MOQ, certifications, destination eligibility and response record; avoid opaque ranking."
+ },
+ {
+  "id": "ENH-009",
+  "ord": 316,
+  "loc": "T33R10C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Verified Evidence Drawer",
+  "priority": "P0",
+  "requirement": "Click a badge to see verification type, issuer, validity and last checked date."
+ },
+ {
+  "id": "ENH-010",
+  "ord": 317,
+  "loc": "T33R11C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Inspection Status Widget",
+  "priority": "P0",
+  "requirement": "Order card shows: Not Required / Required / Booked / In Progress / NCR / Reinspection / Released."
+ },
+ {
+  "id": "ENH-011",
+  "ord": 318,
+  "loc": "T33R12C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Port Inspection Scheduling Calendar",
+  "priority": "P1",
+  "requirement": "Agency capacity, port/date/time and seller readiness in one calendar."
+ },
+ {
+  "id": "ENH-012",
+  "ord": 319,
+  "loc": "T33R13C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Container Seal & Handover Evidence",
+  "priority": "P1",
+  "requirement": "After successful inspection, optionally bind report to container/seal and handover evidence."
+ },
+ {
+  "id": "ENH-013",
+  "ord": 320,
+  "loc": "T33R14C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Schedule Cart / Repeat Purchase Rules",
+  "priority": "P1",
+  "requirement": "Recurring cart with reminders and explicit price/availability reconfirmation."
+ },
+ {
+  "id": "ENH-014",
+  "ord": 321,
+  "loc": "T33R15C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: AutoPay Guardrails",
+  "priority": "P1",
+  "requirement": "Spending caps, supplier/category scope, expiry, pre-charge reminder and one-click pause."
+ },
+ {
+  "id": "ENH-015",
+  "ord": 322,
+  "loc": "T33R16C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: ERP Self-Service Connector Wizard",
+  "priority": "P1",
+  "requirement": "Step-by-step mapping for PO, order acknowledgement, invoice, shipment and status with sandbox test."
+ },
+ {
+  "id": "ENH-016",
+  "ord": 323,
+  "loc": "T33R17C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Bulk B2B Upload",
+  "priority": "P1",
+  "requirement": "Upload Excel/CSV requirements or SKU list to create multi-line RFQ/order."
+ },
+ {
+  "id": "ENH-017",
+  "ord": 324,
+  "loc": "T33R18C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Buyer Approval Workflow",
+  "priority": "P1",
+  "requirement": "Configurable requestor → approver → finance approval before PO/payment."
+ },
+ {
+  "id": "ENH-018",
+  "ord": 325,
+  "loc": "T33R19C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Seller Daily Action Queue",
+  "priority": "P0",
+  "requirement": "Rank operational tasks by deadline and business impact, not merely dashboard metrics."
+ },
+ {
+  "id": "ENH-019",
+  "ord": 326,
+  "loc": "T33R20C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Exception Center",
+  "priority": "P0",
+  "requirement": "One queue for failed payment, missing doc, inspection NCR, late shipment, settlement mismatch and integration failure."
+ },
+ {
+  "id": "ENH-020",
+  "ord": 327,
+  "loc": "T33R21C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Smart Notifications",
+  "priority": "P1",
+  "requirement": "Bundle low-priority alerts; immediately escalate inspection fail, payment risk, shipping delay and RFQ expiry."
+ },
+ {
+  "id": "ENH-021",
+  "ord": 328,
+  "loc": "T33R22C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: One-click Translate",
+  "priority": "P1",
+  "requirement": "Translate product content/messages while retaining original text."
+ },
+ {
+  "id": "ENH-022",
+  "ord": 329,
+  "loc": "T33R23C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Country-specific Checkout / RFQ Guidance",
+  "priority": "P1",
+  "requirement": "Inline prompts explain importer details, labeling or documents needed for selected destination."
+ },
+ {
+  "id": "ENH-023",
+  "ord": 330,
+  "loc": "T33R24C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Supplier Mini-site / Shareable Storefront",
+  "priority": "P0",
+  "requirement": "SEO-friendly shareable manufacturer page under Gloviaa trust framework."
+ },
+ {
+  "id": "ENH-024",
+  "ord": 331,
+  "loc": "T33R25C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Request Private Label / OEM",
+  "priority": "P0",
+  "requirement": "Dedicated CTA captures branding, packaging, drawing/spec and target volume."
+ },
+ {
+  "id": "ENH-025",
+  "ord": 332,
+  "loc": "T33R26C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Sample-to-Bulk Conversion",
+  "priority": "P0",
+  "requirement": "Approved sample becomes a controlled reference for bulk order and inspection."
+ },
+ {
+  "id": "ENH-026",
+  "ord": 333,
+  "loc": "T33R27C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Negotiation Summary",
+  "priority": "P1",
+  "requirement": "System-generated final term sheet before acceptance, showing changed clauses."
+ },
+ {
+  "id": "ENH-027",
+  "ord": 334,
+  "loc": "T33R28C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Price / MOQ Break Visualizer",
+  "priority": "P1",
+  "requirement": "Interactive quantity slider displays tier price, lead-time/capacity effect and estimated landed cost."
+ },
+ {
+  "id": "ENH-028",
+  "ord": 335,
+  "loc": "T33R29C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Low-bandwidth / Progressive Loading",
+  "priority": "P0",
+  "requirement": "Skeleton states, compressed media and deferred globe/animation loading."
+ },
+ {
+  "id": "ENH-029",
+  "ord": 336,
+  "loc": "T33R30C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Mobile-first Seller Operations",
+  "priority": "P0",
+  "requirement": "RFQ reply, order milestone, inspection readiness, document upload and notifications optimized for phone."
+ },
+ {
+  "id": "ENH-030",
+  "ord": 337,
+  "loc": "T33R31C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Operational SLA Timers",
+  "priority": "P1",
+  "requirement": "Visible countdowns for quote response, inspection assignment, report issuance, shipment readiness and dispute handling."
+ },
+ {
+  "id": "ENH-031",
+  "ord": 338,
+  "loc": "T33R32C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: Data Export & API Access",
+  "priority": "P1",
+  "requirement": "Controlled export/API for orders, RFQs, reports, settlements and analytics."
+ },
+ {
+  "id": "ENH-032",
+  "ord": 339,
+  "loc": "T33R33C5",
+  "boxIndexInCell": 0,
+  "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+  "module": "18. Enhancement: AI Help on Every Complex Form",
+  "priority": "P1",
+  "requirement": "Explain fields, suggest values from existing verified data, but require user confirmation."
+ },
+ {
+  "id": "DYNAMIC-001",
+  "ord": 340,
+  "loc": "P146",
+  "boxIndexInCell": 0,
+  "section": "20. Dynamic Home Screen - Recommended Component Order",
+  "module": "20. Dynamic Home Component Order",
+  "priority": "—",
+  "requirement": "Header: Logo | Universal Search | Country/Language/Currency | Seller Hub | Messages/Notifications | Profile | Cart."
+ },
+ {
+  "id": "DYNAMIC-002",
+  "ord": 341,
+  "loc": "P147",
+  "boxIndexInCell": 0,
+  "section": "20. Dynamic Home Screen - Recommended Component Order",
+  "module": "20. Dynamic Home Component Order",
+  "priority": "—",
+  "requirement": "Hero: “Source from verified Indian manufacturers” + Search/AI input + quick chips (Product, Supplier, RFQ, Image Search)."
+ },
+ {
+  "id": "DYNAMIC-003",
+  "ord": 342,
+  "loc": "P148",
+  "boxIndexInCell": 0,
+  "section": "20. Dynamic Home Screen - Recommended Component Order",
+  "module": "20. Dynamic Home Component Order",
+  "priority": "—",
+  "requirement": "Trust strip: Verified manufacturers | Independent inspection | Buyer protection / controlled payment | Global logistics."
+ },
+ {
+  "id": "DYNAMIC-004",
+  "ord": 343,
+  "loc": "P149",
+  "boxIndexInCell": 0,
+  "section": "20. Dynamic Home Screen - Recommended Component Order",
+  "module": "20. Dynamic Home Component Order",
+  "priority": "—",
+  "requirement": "Personalized task row for signed-in user: quotes awaiting decision, inspection status, shipments, payments, repeat orders."
+ },
+ {
+  "id": "DYNAMIC-005",
+  "ord": 344,
+  "loc": "P150",
+  "boxIndexInCell": 0,
+  "section": "20. Dynamic Home Screen - Recommended Component Order",
+  "module": "20. Dynamic Home Component Order",
+  "priority": "—",
+  "requirement": "AI sourcing assistant with examples and “Create RFQ from this conversation”."
+ },
+ {
+  "id": "DYNAMIC-006",
+  "ord": 345,
+  "loc": "P151",
+  "boxIndexInCell": 0,
+  "section": "20. Dynamic Home Screen - Recommended Component Order",
+  "module": "20. Dynamic Home Component Order",
+  "priority": "—",
+  "requirement": "Category and industry discovery, followed by verified supplier highlights and new/export-ready manufacturers."
+ },
+ {
+  "id": "DYNAMIC-007",
+  "ord": 346,
+  "loc": "P152",
+  "boxIndexInCell": 0,
+  "section": "20. Dynamic Home Screen - Recommended Component Order",
+  "module": "20. Dynamic Home Component Order",
+  "priority": "—",
+  "requirement": "B2B tools: Request Private Label/OEM | Upload Bulk Requirement | Landed Cost | Schedule Cart | ERP Integration."
+ },
+ {
+  "id": "DYNAMIC-008",
+  "ord": 347,
+  "loc": "P153",
+  "boxIndexInCell": 0,
+  "section": "20. Dynamic Home Screen - Recommended Component Order",
+  "module": "20. Dynamic Home Component Order",
+  "priority": "—",
+  "requirement": "Inspection & Assurance explainer with clear pre-shipment release gate."
+ },
+ {
+  "id": "DYNAMIC-009",
+  "ord": 348,
+  "loc": "P154",
+  "boxIndexInCell": 0,
+  "section": "20. Dynamic Home Screen - Recommended Component Order",
+  "module": "20. Dynamic Home Component Order",
+  "priority": "—",
+  "requirement": "Country-focused content and delivery/compliance guidance."
+ },
+ {
+  "id": "DYNAMIC-010",
+  "ord": 349,
+  "loc": "P155",
+  "boxIndexInCell": 0,
+  "section": "20. Dynamic Home Screen - Recommended Component Order",
+  "module": "20. Dynamic Home Component Order",
+  "priority": "—",
+  "requirement": "Footer: Help, policies, inspection policy, buyer/seller terms, privacy, prohibited products, support and company information."
+ },
+ {
+  "id": "UAT-UI-001",
+  "ord": 350,
+  "loc": "P157",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "Guest changes India/INR to Germany/EUR; catalog, serviceability and display currency update without losing search context."
+ },
+ {
+  "id": "UAT-UI-002",
+  "ord": 351,
+  "loc": "P158",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "User starts with image search, receives matches, opens a product and converts it to an RFQ with image retained as reference."
+ },
+ {
+  "id": "UAT-UI-003",
+  "ord": 352,
+  "loc": "P159",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "Voice search permission denied; UI falls back to typing without dead-end or repeated permission loop."
+ },
+ {
+  "id": "UAT-UI-004",
+  "ord": 353,
+  "loc": "P160",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "AI Assistant drafts an RFQ; user edits key specification and only confirmed values are submitted."
+ },
+ {
+  "id": "UAT-UI-005",
+  "ord": 354,
+  "loc": "P161",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "Buyer enables AutoPay with cap and expiry; transaction above cap is blocked and requests explicit approval."
+ },
+ {
+  "id": "UAT-UI-006",
+  "ord": 355,
+  "loc": "P162",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "Scheduled cart reaches execution date after price changed; system requests reconfirmation rather than charging silently."
+ },
+ {
+  "id": "UAT-UI-007",
+  "ord": 356,
+  "loc": "P163",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "ERP sync receives duplicate PO event; idempotency prevents duplicate order creation."
+ },
+ {
+  "id": "UAT-UI-008",
+  "ord": 357,
+  "loc": "P164",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "Seller marks inspection ready but required packing list missing; readiness submission is blocked with exact missing item."
+ },
+ {
+  "id": "UAT-UI-009",
+  "ord": 358,
+  "loc": "P165",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "Inspection fails with major NCR; shipment release remains blocked even if logistics booking already exists."
+ },
+ {
+  "id": "UAT-UI-010",
+  "ord": 359,
+  "loc": "P166",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "Re-inspection passes; release event is recorded and logistics receives dispatch authorization."
+ },
+ {
+  "id": "UAT-UI-011",
+  "ord": 360,
+  "loc": "P167",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "Container/seal number changes after inspection; system triggers re-evaluation before dispatch."
+ },
+ {
+  "id": "UAT-UI-012",
+  "ord": 361,
+  "loc": "P168",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "Buyer destination is changed to a country where product is restricted; checkout/RFQ shows block and compliance reason."
+ },
+ {
+  "id": "UAT-UI-013",
+  "ord": 362,
+  "loc": "P169",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "Seller certificate expires; affected listings/markets follow configured warning/hold policy and buyer-facing badge updates."
+ },
+ {
+  "id": "UAT-UI-014",
+  "ord": 363,
+  "loc": "P170",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "Payment succeeds but webhook is delayed; order remains pending-safe and later reconciles without duplicate capture."
+ },
+ {
+  "id": "UAT-UI-015",
+  "ord": 364,
+  "loc": "P171",
+  "boxIndexInCell": 0,
+  "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+  "module": "21. Additional UAT Scenarios",
+  "priority": "—",
+  "requirement": "Low-bandwidth mobile session loads essential search/product controls before globe animation and heavy media."
+ }
+]
