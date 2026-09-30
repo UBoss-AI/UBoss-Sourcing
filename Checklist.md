@@ -16,7 +16,7 @@
 - Failed: 0 in inherited pass 4; no new application failure established.
 - Blocked: 1 in inherited pass 4 (row 20).
 - Needs human verification: 2 in inherited pass 4 (rows 9 and 12).
-- Latest pushed baseline: `d52998b5` at batch start; this atomic commit completes Master 45.
+- Latest pushed feature checkpoint: `9c1f1a04` (Master 45). The first push also published the pre-existing local baseline `d52998b5`.
 - Current change set: Master row 45 dashboard, baseline contract fixes, documentation and one exact checklist tick; no other checkbox changed.
 - Latest test command: full backend/customer/admin verify; backend build; docs/i18n checks; focused contract/HTTP/RFQ tests; Chrome UI fixtures; Word package/layout verification.
 - Latest test result: Full local verify: backend 289 files / 5023 tests; customer 164 files / 1665 tests; admin 35 files / 323 tests. All passed. Affected lint/typecheck, backend build and both frontend builds passed. Reference docs and all eight-language catalogues passed. Word/Markdown mismatch count: 0. No human, device-matrix or production test claimed.
@@ -26,7 +26,7 @@
 
 ### Sequential continuation from d52998b5 — Master 45
 
-Starting baseline: 168 checked / 196 open; main and origin/main at d52998b5; zero reconciliation problems. Existing untracked backup/evidence files preserved.
+Starting baseline: 168 checked / 196 open; local main at d52998b5, while origin/main remained at bc4cff74; zero reconciliation problems. Fetch and fast-forward-only pull preserved the existing one-commit local lead. The successful push published that inherited commit together with feature commit 9c1f1a04. Existing untracked backup/evidence files preserved.
 
 Agency dashboard now reads the existing scoped dashboard API: assignments, acceptance/report deadlines, overdue totals, members, report links and permission-filtered invoices. Customer AgencyPages.test.tsx 4/4; backend inspection-http.test.ts 2/2 (full lifecycle plus dashboard authorization and invoice visibility).
 
