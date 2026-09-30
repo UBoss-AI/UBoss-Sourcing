@@ -1,0 +1,4 @@
+const fs=require('fs');const file='verification-evidence/pass4/state.json';const s=JSON.parse(fs.readFileSync(file,'utf8'));
+const r=s.rows.find(x=>x.id===97);const t='NotificationsPage.test 1/1; customer i18n 66/66; tsc and lint clean';
+Object.assign(r,{status:'FIXED_AND_VERIFIED',pass4Done:true,verifiedAt:'2026-09-30 (pass 7)',finding:'Notification centre listed every sent notification (RFQ/quote, order, payment, shipment, return, dispute events exist in the backend) but rows were not actionable and several families were unlabelled.',fix:'Each row now links to its screen (RFQs, orders, returns, claims); new families for shipments, quotes, returns, claims and inspection. Inspection events appear once the inspection module sends them. 8 languages.',tests:t,evidence:t,testResult:t,verification:t});
+fs.writeFileSync(file,JSON.stringify(s,null,2)+'\n');

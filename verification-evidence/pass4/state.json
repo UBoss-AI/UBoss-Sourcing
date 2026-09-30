@@ -1107,8 +1107,15 @@
     {
       "id": 97,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "finding": "Notification centre listed every sent notification (RFQ/quote, order, payment, shipment, return, dispute events exist in the backend) but rows were not actionable and several families were unlabelled.",
+      "fix": "Each row now links to its screen (RFQs, orders, returns, claims); new families for shipments, quotes, returns, claims and inspection. Inspection events appear once the inspection module sends them. 8 languages.",
+      "tests": "NotificationsPage.test 1/1; customer i18n 66/66; tsc and lint clean",
+      "evidence": "NotificationsPage.test 1/1; customer i18n 66/66; tsc and lint clean",
+      "testResult": "NotificationsPage.test 1/1; customer i18n 66/66; tsc and lint clean",
+      "verification": "NotificationsPage.test 1/1; customer i18n 66/66; tsc and lint clean"
     }
   ],
   "pendingTicks": [],

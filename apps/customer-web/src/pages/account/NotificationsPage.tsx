@@ -40,6 +40,9 @@ import {
   CalendarIcon,
   CardIcon,
   ShieldIcon,
+  DocumentIcon,
+  HeadsetIcon,
+  TruckIcon,
 } from '@/components/icons';
 import { api } from '@/lib/api';
 import { formatDateTime } from '@/lib/format';
@@ -60,9 +63,16 @@ const FAMILIES: readonly {
   prefix: string;
   labelKey: TranslationKey;
   icon: (props: { className?: string }) => React.JSX.Element;
+  /** Where the notification's subject lives, so each row leads to its next action. */
+  to?: string;
 }[] = [
-  { prefix: 'order.', labelKey: 'notifications.family.orders', icon: BoxIcon },
-  { prefix: 'payment.', labelKey: 'notifications.family.payments', icon: CardIcon },
+  { prefix: 'order.', labelKey: 'notifications.family.orders', icon: BoxIcon, to: '/account/orders' },
+  { prefix: 'shipment.', labelKey: 'notifications.family.shipments', icon: TruckIcon, to: '/account/orders' },
+  { prefix: 'rfq.', labelKey: 'notifications.family.quotes', icon: DocumentIcon, to: '/account/rfqs' },
+  { prefix: 'return.', labelKey: 'notifications.family.returns', icon: BoxIcon, to: '/account/returns' },
+  { prefix: 'dispute.', labelKey: 'notifications.family.disputes', icon: HeadsetIcon, to: '/account/disputes' },
+  { prefix: 'inspection.', labelKey: 'notifications.family.inspection', icon: ShieldIcon, to: '/account/orders' },
+  { prefix: 'payment.', labelKey: 'notifications.family.payments', icon: CardIcon, to: '/account/orders' },
   { prefix: 'refund.', labelKey: 'notifications.family.payments', icon: CardIcon },
   { prefix: 'autopay.', labelKey: 'notifications.family.payments', icon: CardIcon },
   { prefix: 'schedule.', labelKey: 'notifications.family.scheduled', icon: CalendarIcon },
@@ -132,7 +142,15 @@ export function NotificationsPage(): React.JSX.Element {
                   </span>
 
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-ink">{entry.subject}</p>
+                    <p className="text-sm font-medium text-ink">
+                      {family?.to === undefined ? (
+                        entry.subject
+                      ) : (
+                        <Link to={family.to} className="hover:text-brand hover:underline">
+                          {entry.subject}
+                        </Link>
+                      )}
+                    </p>
                     <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-muted">
                       {family !== null && <span>{t(family.labelKey)}</span>}
                       {entry.sentAt !== null && (
