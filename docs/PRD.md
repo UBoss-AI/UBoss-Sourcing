@@ -2418,6 +2418,14 @@ Built. The review step has an unticked box: "I have read and agree to the Terms 
 
 ## 5.8 Orders, cancellations, returns, refunds and invoices (ORD)
 
+**Admin dispute console (built).** `/disputes` (queue: status filter, search) and `/disputes/:id` (buyer, seller, money paid/refunded/refundable, evidence, thread; take into review, record a decision with a mandatory reason and a server preview that says when a second approver is needed, approve or send back, message buyer/seller/both, internal notes). Needs `dispute.view`; each action follows the case's `can` block.
+
+**Buyer claim screens (built).** Any placed, uncancelled order shows "Raise a claim about this order", opening `/account/orders/:id/claim`: the buyer picks the whole order or one line, a reason from those the operator enabled, a description (minimum length from the server), and a remedy (full refund, partial refund with an amount, or replacement). `/account/disputes` lists claims; `/account/disputes/:reference` shows status, the requested remedy, the decision and refund, evidence, and the message thread. Evidence upload, messages, escalation, withdrawal and appeal are offered only when the claim's `can` block allows them.
+
+**Buyer return screens (built).** A delivered order shows "Return items from this order", which opens `/account/orders/:id/return`: the buyer picks lines and quantities, a reason, optional details, photos (required when the operator's policy says so for that reason) and, where offered, refund or replacement. `/account/returns` lists every return and `/account/returns/:id` shows status, return instructions, the refund and the history. The screens call the existing returns API and compute nothing.
+
+**Buy again, and RFQ shortcuts (built).** The buyer dashboard lists up to four products the buyer ordered most that are still on sale ("Buy again"). Search results with a search term, and the AI Mode transcript, link to a new request for quotation prefilled with the search or the last question, when RFQs are switched on.
+
 ### FR-ORD-001 — Ten order statuses, one state machine
 
 - **Statement.** Every order is in exactly one of ten statuses: `DRAFT`,

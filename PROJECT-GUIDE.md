@@ -15686,6 +15686,14 @@ has one.
 
 ## 9.7 Refunds and returns
 
+**Admin dispute console (built).** `/disputes` (queue: status filter, search) and `/disputes/:id` (buyer, seller, money paid/refunded/refundable, evidence, thread; take into review, record a decision with a mandatory reason and a server preview that says when a second approver is needed, approve or send back, message buyer/seller/both, internal notes). Needs `dispute.view`; each action follows the case's `can` block.
+
+**Claim screens.** `/account/orders/:id/claim`, `/account/disputes` and `/account/disputes/:reference`, using `GET /disputes/context`, `POST /disputes` (Idempotency-Key), `GET /disputes`, `GET /disputes/:reference`, and the messages, attachments, escalate, withdraw and appeal routes. Buttons follow the server's `can` block.
+
+**Buyer screens.** `/account/orders/:id/return` (ask), `/account/returns` (list) and `/account/returns/:id` (status, instructions, refund, history), reached from a delivered order. They use `GET /orders/:id/returns/eligibility`, `POST /orders/:id/returns` (with an Idempotency-Key; photos as multipart), `GET /returns` and `GET /returns/:id`.
+
+Also new: the buyer dashboard's "Buy again" card (`buyAgain` in `GET /account/dashboard`: the buyer's most-ordered products still ACTIVE, at most four), and RFQ links from search results and AI Mode that prefill the title.
+
 A refund is money leaving, so it is guarded in three separate places:
 
 1. `unique(refunds.idempotencyKey)` — the same refund cannot be issued twice.

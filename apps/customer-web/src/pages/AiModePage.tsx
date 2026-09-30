@@ -70,6 +70,7 @@ import { useStorefront } from '@/app/storefront-context';
 import { ImageSearchDialog } from '@/components/hero-search/ImageSearchDialog';
 import { Modal } from '@/components/Modal';
 import { Button, ButtonLink, Spinner } from '@/components/ui';
+import { Link } from 'react-router-dom';
 import { SidebarIcon, SparkIcon } from '@/components/icons';
 import { cx } from '@/lib/cx';
 import { formatNumber } from '@/lib/format';
@@ -988,6 +989,19 @@ export function AiModePage(): React.JSX.Element {
                   />
                 ),
               )
+            )}
+
+            {/* What was asked can become a request for quotation, prefilled
+                with the question (checklist Master row 81). */}
+            {features.rfq === true && !isStreaming && lastQuestion !== null && (
+              <p className="text-sm">
+                <Link
+                  to={`/account/rfqs/new?title=${encodeURIComponent(lastQuestion.trim().slice(0, 200))}`}
+                  className="font-medium text-brand underline-offset-2 hover:underline"
+                >
+                  {t('aiMode.draftRfq')}
+                </Link>
+              </p>
             )}
 
             {/* Announced politely, and only while it is actually thinking: a

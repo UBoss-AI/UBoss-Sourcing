@@ -35,6 +35,7 @@
  * rendered. There is no sequence number anywhere in this file.
  */
 import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { BentoCell, BentoGrid, ConsoleGround, ConsoleHeader } from '@/components/dashboard/console';
 import { RangeTabs, RefreshButton } from '@/components/dashboard/controls';
@@ -262,6 +263,30 @@ export function DashboardPage(): React.JSX.Element {
             }}
           />
         </BentoCell>
+
+        {/* --- Buy again (row 78): suggestions from the buyer's own orders --- */}
+        {data?.buyAgain !== undefined && data.buyAgain.length > 0 && (
+          <BentoCell span={6} spanMd={3}>
+            <section aria-labelledby="buy-again-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+              <h2 id="buy-again-heading" className="text-base font-semibold text-ink">
+                {t('buyerDashboard.buyAgainTitle')}
+              </h2>
+              <p className="mt-1 text-xs text-ink-muted">{t('buyerDashboard.buyAgainBody')}</p>
+              <ul className="mt-3 space-y-2">
+                {data.buyAgain.map((item) => (
+                  <li key={item.productId} className="flex items-center justify-between gap-3 text-sm">
+                    <Link to={`/product/${item.slug}`} className="min-w-0 truncate font-medium text-brand hover:underline">
+                      {item.name}
+                    </Link>
+                    <span className="shrink-0 text-xs text-ink-muted">
+                      {t('buyerDashboard.buyAgainTimes', { orders: String(item.timesOrdered) })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </BentoCell>
+        )}
 
         {/* --- Sourcing (row 15) ---------------------------------------- */}
         {/* Its own request: a sourcing failure never blanks the ring. */}

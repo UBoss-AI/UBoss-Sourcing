@@ -385,6 +385,18 @@ describe('the states that are not a chart', () => {
     ).toBeInTheDocument();
   });
 
+  it('suggests products to buy again, from the buyer’s own orders', async () => {
+    serve(
+      makeDashboard({
+        buyAgain: [{ productId: 'P'.repeat(26), name: 'Nitrile gloves', slug: 'nitrile-gloves', timesOrdered: 3 }],
+      }),
+    );
+    renderWithProviders(<DashboardPage />, { route: '/account/dashboard' });
+
+    expect(await screen.findByRole('link', { name: 'Nitrile gloves' })).toHaveAttribute('href', '/product/nitrile-gloves');
+    expect(screen.getByText('On 3 orders')).toBeInTheDocument();
+  });
+
   it('offers a retry when the request fails', async () => {
     fetchMock.mockResolvedValue(
       jsonResponse({ error: { code: 'INTERNAL_ERROR', message: 'nope' } }, 500),

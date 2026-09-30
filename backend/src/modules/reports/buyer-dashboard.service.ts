@@ -143,6 +143,11 @@ export interface BuyerDashboard {
     placedAt: string | null;
     total: ReturnType<typeof serialiseMoney>;
   }[];
+  /**
+   * Products this buyer has ordered most, still on sale: the dashboard's
+   * "buy again" suggestions. Drawn only from the buyer's own orders.
+   */
+  buyAgain: { productId: string; name: string; slug: string; timesOrdered: number }[];
 }
 
 // ---------------------------------------------------------------------------
@@ -454,7 +459,41 @@ export async function buyerDashboard(
       placedAt: order.placedAt?.toISOString() ?? null,
       total: serialiseMoney(order.grandTotalMinor, order.currency),
     })),
+
+    buyAgain: await buyAgain(customerProfileId),
   };
+}
+
+/** How many "buy again" suggestions the dashboard shows. */
+const BUY_AGAIN_LIMIT = 4;
+
+/**
+ * The products this buyer has ordered on the most placed orders, newest
+ * catalogue state: a product no longer on sale is left out rather than
+ * suggested and then refused at the cart.
+ */
+async function buyAgain(customerProfileId: string): Promise<BuyerDashboard['buyAgain']> {
+  const rows = await prisma.orderItem.groupBy({
+    by: ['productId'],
+    where: { order: { customerProfileId, placedAt: { not: null }, status: { not: 'CANCELLED' } } },
+    _count: { orderId: true },
+    orderBy: { _count: { orderId: 'desc' } },
+    take: BUY_AGAIN_LIMIT * 3,
+  });
+  if (rows.length === 0) return [];
+  const products = await prisma.product.findMany({
+    where: { id: { in: rows.map((row) => row.productId) }, status: 'ACTIVE' },
+    select: { id: true, name: true, slug: true },
+  });
+  const byId = new Map(products.map((product) => [product.id, product]));
+  return rows
+    .flatMap((row) => {
+      const product = byId.get(row.productId);
+      return product === undefined
+        ? []
+        : [{ productId: product.id, name: product.name, slug: product.slug, timesOrdered: row._count.orderId }];
+    })
+    .slice(0, BUY_AGAIN_LIMIT);
 }
 
 /**

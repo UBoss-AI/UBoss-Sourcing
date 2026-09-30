@@ -795,7 +795,7 @@ export function CatalogPage(): React.JSX.Element {
 
   const { slug } = useParams<{ slug: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { business } = useStorefront();
+  const { business, features } = useStorefront();
 
   // Mobile only. Desktop keeps the sidebar, so this never opens there.
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
@@ -1406,6 +1406,20 @@ export function CatalogPage(): React.JSX.Element {
           country={destinationCountry}
           notes={categoryDetail.data.marketNotes ?? []}
         />
+      )}
+
+      {/* A search that found the wrong things, or too few, can become a
+          request for quotation in one step (checklist Master row 90). */}
+      {features.rfq === true && q.trim().length > 0 && (
+        <p className="mb-4 text-sm text-ink-muted">
+          {t('rfq.cta.searchPrompt')}{' '}
+          <Link
+            to={`/account/rfqs/new?title=${encodeURIComponent(q.trim().slice(0, 200))}`}
+            className="font-medium text-brand underline-offset-2 hover:underline"
+          >
+            {t('rfq.cta.requestQuotesFor', { term: q.trim().slice(0, 80) })}
+          </Link>
+        </p>
       )}
 
       {/*

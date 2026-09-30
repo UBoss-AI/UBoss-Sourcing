@@ -98,6 +98,8 @@ export interface BuyerDashboard {
     placedAt: string | null;
     total: Money;
   }[];
+  /** Products this buyer ordered most and can still buy. Older servers omit it. */
+  buyAgain?: { productId: string; name: string; slug: string; timesOrdered: number }[];
 }
 
 // ---------------------------------------------------------------------------

@@ -2352,6 +2352,16 @@ it.
 - `POST /api/v1/cart/items` (once per line, for "Order these again")
 - `GET /api/v1/account/product-reviews/reviewed?productIds=…` (delivered orders)
 
+#### `/account/orders/:id/claim`, `/account/disputes`, `/account/disputes/:reference` — Claims
+
+The operator side is the admin console's `/disputes` queue and `/disputes/:id` case screen (see PRD 5.8).
+
+Reached from any placed order ("Raise a claim about this order", "Your claims"). The form asks for the line (or whole order), reason, description, remedy and, for a partial refund, the amount; Send stays off until the reason and a long-enough description are given. The detail shows status, reason, remedy, description, evidence, the decision with any refund, and the message thread, with Add evidence, Send message, Ask the marketplace to decide, Withdraw and Appeal shown only when the server allows each.
+
+#### `/account/orders/:id/return`, `/account/returns`, `/account/returns/:id` — Returns and refunds
+
+Reached from a delivered order ("Return items from this order") and from "Your returns and refunds" on any order. The request screen shows each returnable line with a quantity box, a reason list, optional details, a photo picker (marked required when the reason needs evidence) and refund-or-replacement when offered. Send stays off until a line, a reason and any required photos are given. The list shows reference, order, date and status. The detail shows status, reason, items, value, next steps or the seller's instructions, the refund and the history. Calls `GET /orders/:id/returns/eligibility`, `POST /orders/:id/returns`, `GET /returns`, `GET /returns/:id`.
+
 #### `/account/schedules` — Repeat purchases
 
 | | |

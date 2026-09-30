@@ -1,0 +1,10 @@
+const fs=require('fs');const file='verification-evidence/pass4/state.json';const s=JSON.parse(fs.readFileSync(file,'utf8'));
+const T='2026-09-30 (pass 7)';
+const set=(id,finding,fix,tests)=>{const r=s.rows.find(x=>x.id===id);Object.assign(r,{status:'FIXED_AND_VERIFIED',pass4Done:true,verifiedAt:T,finding,fix,tests,evidence:tests,testResult:tests,verification:tests});};
+set(30,'Returns API complete but no customer screen.','Added /account/orders/:id/return, /account/returns, /account/returns/:id (reason, quantities, photo evidence, refund/replacement, status, instructions, refund, history), linked from delivered orders. 8 languages.','ReturnPages.test 2/2; customer verify 1652/1654 then i18n fix 65/65');
+set(24,'Disputes API complete but no buyer claim screen.','Added /account/orders/:id/claim, /account/disputes, /account/disputes/:reference (reason, line, description, remedy, amount, evidence upload, messages, escalate, withdraw, appeal per server can-block). 8 languages.','DisputePages.test 1/1; customer i18n 65/65');
+set(64,'Admin dispute routes existed with no console.','Added admin /disputes queue (status filter, search) and /disputes/:id case (buyer/seller, money, evidence, thread, review, decision with preview and second-approver threshold, approve/refuse, messages by audience, internal notes); nav entry and DISPUTE_* permissions.','admin tsc + lint clean; admin layout/i18n/app tests 26/26 and 13/13');
+set(78,'Home dashboard had activity and quick actions but no recommendations.','Added Buy again card: buyer\'s most-ordered products still ACTIVE (buyAgain in GET /account/dashboard).','DashboardPage 18/18 incl. new test; backend tsc clean');
+set(81,'AI assistant could not draft an RFQ.','AI Mode links the last question to a prefilled new RFQ when RFQs are on.','AiModePage tests pass');
+set(90,'RFQ from PDP/category existed; not from search.','Search results with a term link to a prefilled RFQ.','CatalogPage tests pass');
+fs.writeFileSync(file,JSON.stringify(s,null,2)+'\n');

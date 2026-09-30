@@ -117,6 +117,11 @@ export const Permission = {
 
   DATA_REQUEST_READ: 'data_request.read',
   DATA_REQUEST_ACTION: 'data_request.action',
+
+  DISPUTE_VIEW: 'dispute.view',
+  DISPUTE_MANAGE: 'dispute.manage',
+  DISPUTE_ASSIGN: 'dispute.assign',
+  DISPUTE_APPROVE: 'dispute.approve',
 } as const;
 
 export type PermissionKey = (typeof Permission)[keyof typeof Permission];

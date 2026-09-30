@@ -518,6 +518,8 @@ export async function postFile<T>(
     query?: Record<string, string | number | undefined>;
     signal?: AbortSignal;
     retryOnUnauthorised?: boolean;
+    /** Sent as the Idempotency-Key header, for a write that must happen once. */
+    idempotencyKey?: string;
     /**
      * Called with 0..1 as the body leaves the browser. `fetch` cannot report
      * upload progress, so a caller that asks for it is sent through
@@ -537,7 +539,10 @@ export async function postFile<T>(
             method: 'POST',
             credentials: 'include',
             // No Content-Type. The browser writes it, with the boundary.
-            headers: csrf === null ? {} : { [CSRF_HEADER]: csrf },
+            headers: {
+              ...(csrf === null ? {} : { [CSRF_HEADER]: csrf }),
+              ...(options.idempotencyKey === undefined ? {} : { 'Idempotency-Key': options.idempotencyKey }),
+            },
             body: form,
             ...(options.signal === undefined ? {} : { signal: options.signal }),
           })

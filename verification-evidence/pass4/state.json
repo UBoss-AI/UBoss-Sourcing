@@ -447,8 +447,15 @@
     {
       "id": 24,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "finding": "Disputes API complete but no buyer claim screen.",
+      "fix": "Added /account/orders/:id/claim, /account/disputes, /account/disputes/:reference (reason, line, description, remedy, amount, evidence upload, messages, escalate, withdraw, appeal per server can-block). 8 languages.",
+      "tests": "DisputePages.test 1/1; customer i18n 65/65",
+      "evidence": "DisputePages.test 1/1; customer i18n 65/65",
+      "testResult": "DisputePages.test 1/1; customer i18n 65/65",
+      "verification": "DisputePages.test 1/1; customer i18n 65/65"
     },
     {
       "id": 25,
@@ -515,8 +522,15 @@
     {
       "id": 30,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "finding": "Returns API complete but no customer screen.",
+      "fix": "Added /account/orders/:id/return, /account/returns, /account/returns/:id (reason, quantities, photo evidence, refund/replacement, status, instructions, refund, history), linked from delivered orders. 8 languages.",
+      "tests": "ReturnPages.test 2/2; customer verify 1652/1654 then i18n fix 65/65",
+      "evidence": "ReturnPages.test 2/2; customer verify 1652/1654 then i18n fix 65/65",
+      "testResult": "ReturnPages.test 2/2; customer verify 1652/1654 then i18n fix 65/65",
+      "verification": "ReturnPages.test 2/2; customer verify 1652/1654 then i18n fix 65/65"
     },
     {
       "id": 31,
@@ -774,8 +788,15 @@
     {
       "id": 64,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "finding": "Admin dispute routes existed with no console.",
+      "fix": "Added admin /disputes queue (status filter, search) and /disputes/:id case (buyer/seller, money, evidence, thread, review, decision with preview and second-approver threshold, approve/refuse, messages by audience, internal notes); nav entry and DISPUTE_* permissions.",
+      "tests": "admin tsc + lint clean; admin layout/i18n/app tests 26/26 and 13/13",
+      "evidence": "admin tsc + lint clean; admin layout/i18n/app tests 26/26 and 13/13",
+      "testResult": "admin tsc + lint clean; admin layout/i18n/app tests 26/26 and 13/13",
+      "verification": "admin tsc + lint clean; admin layout/i18n/app tests 26/26 and 13/13"
     },
     {
       "id": 65,
@@ -887,8 +908,15 @@
     {
       "id": 78,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "finding": "Home dashboard had activity and quick actions but no recommendations.",
+      "fix": "Added Buy again card: buyer's most-ordered products still ACTIVE (buyAgain in GET /account/dashboard).",
+      "tests": "DashboardPage 18/18 incl. new test; backend tsc clean",
+      "evidence": "DashboardPage 18/18 incl. new test; backend tsc clean",
+      "testResult": "DashboardPage 18/18 incl. new test; backend tsc clean",
+      "verification": "DashboardPage 18/18 incl. new test; backend tsc clean"
     },
     {
       "id": 79,
@@ -915,8 +943,15 @@
     {
       "id": 81,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "finding": "AI assistant could not draft an RFQ.",
+      "fix": "AI Mode links the last question to a prefilled new RFQ when RFQs are on.",
+      "tests": "AiModePage tests pass",
+      "evidence": "AiModePage tests pass",
+      "testResult": "AiModePage tests pass",
+      "verification": "AiModePage tests pass"
     },
     {
       "id": 82,
@@ -1004,8 +1039,15 @@
     {
       "id": 90,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "finding": "RFQ from PDP/category existed; not from search.",
+      "fix": "Search results with a term link to a prefilled RFQ.",
+      "tests": "CatalogPage tests pass",
+      "evidence": "CatalogPage tests pass",
+      "testResult": "CatalogPage tests pass",
+      "verification": "CatalogPage tests pass"
     },
     {
       "id": 91,

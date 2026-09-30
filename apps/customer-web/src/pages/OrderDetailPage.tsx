@@ -694,6 +694,25 @@ export function OrderDetailPage(): React.JSX.Element {
               <HeadsetIcon className="h-4 w-4" />
               {t('orderDetail.contactSupport')}
             </Link>
+            {order.status === 'DELIVERED' && (
+              <Link
+                to={`/account/orders/${order.id}/return`}
+                className="mt-2 flex items-center gap-2 font-medium text-brand hover:underline"
+              >
+                {t('returns.requestAction')}
+              </Link>
+            )}
+            {order.status !== 'DRAFT' && order.status !== 'CANCELLED' && (
+              <Link to={`/account/orders/${order.id}/claim`} className="mt-2 block font-medium text-brand hover:underline">
+                {t('disputes.requestAction')}
+              </Link>
+            )}
+            <Link to="/account/disputes" className="mt-2 block text-ink-muted hover:underline">
+              {t('disputes.yourClaims')}
+            </Link>
+            <Link to="/account/returns" className="mt-2 block text-ink-muted hover:underline">
+              {t('returns.yourReturns')}
+            </Link>
             {business.supportEmail !== null && (
               <p className="mt-2 text-ink-muted">
                 {t('orderDetail.orEmail')}{' '}

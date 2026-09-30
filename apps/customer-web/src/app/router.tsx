@@ -335,6 +335,32 @@ export const router = createBrowserRouter([
               import('@/pages/OrderDetailPage').then((m) => m.OrderDetailPage),
             ),
           },
+          // Claims on an order (checklist Master row 24).
+          {
+            path: 'orders/:id/claim',
+            ...accountPage(() => import('@/pages/disputes/DisputePages').then((m) => m.ClaimRequestPage)),
+          },
+          {
+            path: 'disputes',
+            ...accountPage(() => import('@/pages/disputes/DisputePages').then((m) => m.DisputesPage)),
+          },
+          {
+            path: 'disputes/:reference',
+            ...accountPage(() => import('@/pages/disputes/DisputePages').then((m) => m.DisputeDetailPage)),
+          },
+          // Returns and refunds (checklist Master row 30).
+          {
+            path: 'orders/:id/return',
+            ...accountPage(() => import('@/pages/returns/ReturnPages').then((m) => m.ReturnRequestPage)),
+          },
+          {
+            path: 'returns',
+            ...accountPage(() => import('@/pages/returns/ReturnPages').then((m) => m.ReturnsPage)),
+          },
+          {
+            path: 'returns/:id',
+            ...accountPage(() => import('@/pages/returns/ReturnPages').then((m) => m.ReturnDetailPage)),
+          },
           {
             path: 'schedules',
             ...accountPage(() => import('@/pages/SchedulesPage').then((m) => m.SchedulesPage)),
