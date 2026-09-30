@@ -46,6 +46,13 @@ import {
   type Negotiator,
 } from '../../modules/rfq/negotiation.service.js';
 import {
+  decidePurchaseOrder,
+  purchaseOrderDecisionSchema,
+  reviewPurchaseOrder,
+  submitPurchaseOrder,
+  submitPurchaseOrderSchema,
+} from '../../modules/rfq/purchase-order.service.js';
+import {
   listBuyerQuotes,
   loadQuoteForBuyer,
   quoteView,
@@ -464,6 +471,47 @@ export function registerCustomerRfqRoutes(app: FastifyInstance): Promise<void> {
     const rfq = await loadRfqForBuyer(buyerOf(request), id);
     return reply.header('Cache-Control', 'no-store').status(200).send({ acceptedTerms: await acceptedTerms(rfq.id) });
   });
+
+  /** The final contract preview, or the immutable purchase order already raised from it. */
+  app.get('/:id/purchase-order', { preHandler: requireCustomer }, async (request, reply) => {
+    const { id } = idParams.parse(request.params);
+    return reply.header('Cache-Control', 'no-store').status(200).send(await reviewPurchaseOrder(buyerOf(request), id));
+  });
+
+  /** E-accept the exact awarded terms and raise the binding purchase order. */
+  app.post(
+    '/:id/purchase-order',
+    { preHandler: requireCustomer, config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      assertPurchasing(request);
+      const { id } = idParams.parse(request.params);
+      const auth = currentUser(request);
+      const purchaseOrder = await submitPurchaseOrder(
+        buyerOf(request),
+        id,
+        submitPurchaseOrderSchema.parse(request.body),
+        { userId: auth.id, email: auth.email, ipAddress: request.ip, correlationId: request.correlationId },
+      );
+      return reply.status(201).send({ purchaseOrder });
+    },
+  );
+
+  /** Decide the next stage in the company's approver/finance matrix. */
+  app.post(
+    '/:id/purchase-order/decision',
+    { preHandler: requireCustomer, config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const auth = currentUser(request);
+      const purchaseOrder = await decidePurchaseOrder(
+        buyerOf(request),
+        id,
+        purchaseOrderDecisionSchema.parse(request.body),
+        { userId: auth.id, email: auth.email, ipAddress: request.ip, correlationId: request.correlationId },
+      );
+      return reply.status(200).send({ purchaseOrder });
+    },
+  );
 
   /** The samples asked for on your request, with their status, evidence and what you may do next. */
   app.get('/:id/samples', { preHandler: requireCustomer }, async (request, reply) => {

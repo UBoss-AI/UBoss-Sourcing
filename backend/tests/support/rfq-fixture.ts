@@ -70,18 +70,33 @@ const PEOPLE = ['buyer', 'rival', 'owner', 'viewer', 'alpha', 'beta', 'gamma', '
 
 export async function cleanRfqWorld(prefix: string): Promise<void> {
   const emails = PEOPLE.map((key) => emailFor(prefix, key));
-  const users = await prisma.user.findMany({ where: { emailNormalized: { in: emails } }, select: { id: true } });
+  const users = await prisma.user.findMany({
+    where: { emailNormalized: { in: emails } },
+    select: { id: true },
+  });
   const userIds = users.map((row) => row.id);
   const profiles = (
-    await prisma.customerProfile.findMany({ where: { userId: { in: userIds } }, select: { id: true } })
+    await prisma.customerProfile.findMany({
+      where: { userId: { in: userIds } },
+      select: { id: true },
+    })
   ).map((row) => row.id);
   const sellers = (
-    await prisma.sellerAccount.findMany({ where: { slug: { startsWith: prefix } }, select: { id: true } })
+    await prisma.sellerAccount.findMany({
+      where: { slug: { startsWith: prefix } },
+      select: { id: true },
+    })
   ).map((row) => row.id);
   const companies = (
-    await prisma.buyerCompany.findMany({ where: { createdByUserId: { in: userIds } }, select: { id: true } })
+    await prisma.buyerCompany.findMany({
+      where: { createdByUserId: { in: userIds } },
+      select: { id: true },
+    })
   ).map((row) => row.id);
 
+  await prisma.rfqPurchaseOrder.deleteMany({
+    where: { rfq: { customerProfileId: { in: profiles } } },
+  });
   await prisma.rfqRequest.deleteMany({ where: { customerProfileId: { in: profiles } } });
   await prisma.notificationOutbox.deleteMany({ where: { recipientEmail: { in: emails } } });
   await prisma.sellerNotification.deleteMany({ where: { sellerAccountId: { in: sellers } } });
@@ -90,7 +105,9 @@ export async function cleanRfqWorld(prefix: string): Promise<void> {
   await prisma.sellerMember.deleteMany({ where: { sellerAccountId: { in: sellers } } });
   await prisma.sellerAccount.deleteMany({ where: { id: { in: sellers } } });
   await prisma.product.deleteMany({ where: { slug: { startsWith: prefix } } });
-  await prisma.category.deleteMany({ where: { slug: { startsWith: prefix }, parentId: { not: null } } });
+  await prisma.category.deleteMany({
+    where: { slug: { startsWith: prefix }, parentId: { not: null } },
+  });
   await prisma.category.deleteMany({ where: { slug: { startsWith: prefix } } });
   await prisma.buyerCompanyMember.deleteMany({ where: { companyId: { in: companies } } });
   await prisma.buyerCompany.deleteMany({ where: { id: { in: companies } } });
@@ -102,7 +119,11 @@ export async function cleanRfqWorld(prefix: string): Promise<void> {
   await prisma.user.deleteMany({ where: { id: { in: userIds } } });
 }
 
-async function makePerson(prefix: string, key: string, hash: string): Promise<Omit<Person, 'cookie' | 'csrf'>> {
+async function makePerson(
+  prefix: string,
+  key: string,
+  hash: string,
+): Promise<Omit<Person, 'cookie' | 'csrf'>> {
   const email = emailFor(prefix, key);
   const userId = newId();
   await prisma.user.create({
@@ -137,7 +158,8 @@ async function signIn(
   });
   expect(response.statusCode, response.body).toBe(200);
   const jar = new Map<string, string>();
-  for (const cookie of response.cookies as { name: string; value: string }[]) jar.set(cookie.name, cookie.value);
+  for (const cookie of response.cookies as { name: string; value: string }[])
+    jar.set(cookie.name, cookie.value);
   return {
     ...person,
     cookie: [...jar.entries()].map(([name, value]) => `${name}=${value}`).join('; '),
@@ -145,7 +167,12 @@ async function signIn(
   };
 }
 
-async function makeProduct(prefix: string, slug: string, categoryId: string, taxClassId: string): Promise<string> {
+async function makeProduct(
+  prefix: string,
+  slug: string,
+  categoryId: string,
+  taxClassId: string,
+): Promise<string> {
   const id = newId();
   await prisma.product.create({
     data: {
@@ -226,14 +253,15 @@ async function unlockHub(person: Person, sellerAccountId: string): Promise<void>
   const now = new Date();
   await prisma.session.updateMany({
     where: { userId: person.userId },
-    data: { sellerUnlockedAt: now, sellerUnlockedForId: sellerAccountId, sellerLastActivityAt: now },
+    data: {
+      sellerUnlockedAt: now,
+      sellerUnlockedForId: sellerAccountId,
+      sellerLastActivityAt: now,
+    },
   });
 }
 
-export async function buildRfqWorld(
-  app: RfqWorld['app'],
-  prefix: string,
-): Promise<RfqWorld> {
+export async function buildRfqWorld(app: RfqWorld['app'], prefix: string): Promise<RfqWorld> {
   await cleanRfqWorld(prefix);
   const hash = await hashPassword(PASSWORD);
   const hubHash = await hashPassword('RfqHub!2026x');
@@ -241,12 +269,25 @@ export async function buildRfqWorld(
   const taxClass =
     (await prisma.taxClass.findFirst({ select: { id: true } })) ??
     (await prisma.taxClass.create({
-      data: { id: newId(), code: `${prefix}T`.slice(0, 16), name: 'GST 18%', ratePercent: '18.000000', isActive: true },
+      data: {
+        id: newId(),
+        code: `${prefix}T`.slice(0, 16),
+        name: 'GST 18%',
+        ratePercent: '18.000000',
+        isActive: true,
+      },
       select: { id: true },
     }));
 
   const root = await prisma.category.create({
-    data: { id: newId(), name: `RFQ root ${prefix}`, slug: `${prefix}root`, isActive: true, path: '/', depth: 0 },
+    data: {
+      id: newId(),
+      name: `RFQ root ${prefix}`,
+      slug: `${prefix}root`,
+      isActive: true,
+      path: '/',
+      depth: 0,
+    },
   });
   const gloves = await prisma.category.create({
     data: {
@@ -260,11 +301,25 @@ export async function buildRfqWorld(
     },
   });
   const other = await prisma.category.create({
-    data: { id: newId(), name: `RFQ other ${prefix}`, slug: `${prefix}other`, isActive: true, path: '/', depth: 0 },
+    data: {
+      id: newId(),
+      name: `RFQ other ${prefix}`,
+      slug: `${prefix}other`,
+      isActive: true,
+      path: '/',
+      depth: 0,
+    },
   });
 
   const empty = await prisma.category.create({
-    data: { id: newId(), name: `RFQ empty ${prefix}`, slug: `${prefix}empty`, isActive: true, path: '/', depth: 0 },
+    data: {
+      id: newId(),
+      name: `RFQ empty ${prefix}`,
+      slug: `${prefix}empty`,
+      isActive: true,
+      path: '/',
+      depth: 0,
+    },
   });
 
   const glovesA = await makeProduct(prefix, 'gloves-a', gloves.id, taxClass.id);
@@ -299,10 +354,24 @@ export async function buildRfqWorld(
     isActive: true,
   };
   await prisma.marketRule.create({
-    data: { id: newId(), scope: 'PRODUCT', productId: glovesBlocked, countryCode: 'DE', effect: 'BLOCK', ...ruleBase },
+    data: {
+      id: newId(),
+      scope: 'PRODUCT',
+      productId: glovesBlocked,
+      countryCode: 'DE',
+      effect: 'BLOCK',
+      ...ruleBase,
+    },
   });
   await prisma.marketRule.create({
-    data: { id: newId(), scope: 'CATEGORY', categoryId: gloves.id, countryCode: 'BR', effect: 'BLOCK', ...ruleBase },
+    data: {
+      id: newId(),
+      scope: 'CATEGORY',
+      categoryId: gloves.id,
+      countryCode: 'BR',
+      effect: 'BLOCK',
+      ...ruleBase,
+    },
   });
 
   const companyId = newId();
@@ -340,7 +409,10 @@ export async function buildRfqWorld(
 
   const sellerOf = async (key: string, id: string): Promise<Seller> => {
     await unlockHub(session(key), id);
-    const row = await prisma.sellerAccount.findUniqueOrThrow({ where: { id }, select: { displayName: true } });
+    const row = await prisma.sellerAccount.findUniqueOrThrow({
+      where: { id },
+      select: { displayName: true },
+    });
     return { id, displayName: row.displayName, owner: session(key) };
   };
 
@@ -390,11 +462,17 @@ export function errorCode(response: LightMyRequestResponse): string | undefined 
 }
 
 export function errorDetails(response: LightMyRequestResponse): { field?: string; code: string }[] {
-  return response.json<{ error?: { details?: { field?: string; code: string }[] } }>().error?.details ?? [];
+  return (
+    response.json<{ error?: { details?: { field?: string; code: string }[] } }>().error?.details ??
+    []
+  );
 }
 
 /** A complete, valid requirement for the gloves category. */
-export function completeDraft(world: RfqWorld, overrides: Record<string, unknown> = {}): Record<string, unknown> {
+export function completeDraft(
+  world: RfqWorld,
+  overrides: Record<string, unknown> = {},
+): Record<string, unknown> {
   return {
     categoryId: world.categoryId,
     title: 'Nitrile examination gloves, powder free',
@@ -433,13 +511,27 @@ export async function submitted(
   world: RfqWorld,
   person: Person = world.buyer,
   overrides: Record<string, unknown> = {},
-): Promise<{ id: string; reference: string; version: number; invitations: { id: string; status: string; supplier: { sellerAccountId: string } }[] }> {
-  const created = await as(world, person, 'POST', '/rfqs', completeDraft(world, overrides), { 'idempotency-key': key() });
-  expect(created.statusCode, created.body).toBe(201);
-  const draft = created.json<{ rfq: { id: string; version: number } }>().rfq;
-  const sent = await as(world, person, 'POST', `/rfqs/${draft.id}/submit`, { expectedVersion: draft.version }, {
+): Promise<{
+  id: string;
+  reference: string;
+  version: number;
+  invitations: { id: string; status: string; supplier: { sellerAccountId: string } }[];
+}> {
+  const created = await as(world, person, 'POST', '/rfqs', completeDraft(world, overrides), {
     'idempotency-key': key(),
   });
+  expect(created.statusCode, created.body).toBe(201);
+  const draft = created.json<{ rfq: { id: string; version: number } }>().rfq;
+  const sent = await as(
+    world,
+    person,
+    'POST',
+    `/rfqs/${draft.id}/submit`,
+    { expectedVersion: draft.version },
+    {
+      'idempotency-key': key(),
+    },
+  );
   expect(sent.statusCode, sent.body).toBe(200);
   return sent.json<{ rfq: Awaited<ReturnType<typeof submitted>> }>().rfq;
 }

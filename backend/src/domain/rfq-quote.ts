@@ -94,15 +94,15 @@ export interface OfferTerms {
 }
 
 /** Keys sorted, arrays kept in order: one string for one set of terms. */
-function canonical(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+export function canonicalRfqJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalRfqJson).join(',')}]`;
   if (value !== null && typeof value === 'object') {
     const entries = Object.entries(value as Record<string, unknown>).sort(([a], [b]) => (a < b ? -1 : 1));
-    return `{${entries.map(([key, entry]) => `${JSON.stringify(key)}:${canonical(entry)}`).join(',')}}`;
+    return `{${entries.map(([key, entry]) => `${JSON.stringify(key)}:${canonicalRfqJson(entry)}`).join(',')}}`;
   }
   return JSON.stringify(value ?? null);
 }
 
 export function offerTermsHash(terms: OfferTerms): string {
-  return createHash('sha256').update(canonical(terms)).digest('hex');
+  return createHash('sha256').update(canonicalRfqJson(terms)).digest('hex');
 }

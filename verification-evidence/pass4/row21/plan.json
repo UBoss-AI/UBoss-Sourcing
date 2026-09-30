@@ -1,0 +1,14 @@
+{
+  "base": "http://localhost:5174",
+  "widths": [320, 375, 768, 1024, 1440],
+  "focusWidth": 1440,
+  "tabs": 16,
+  "pages": [
+    {
+      "name": "purchase-order-review",
+      "path": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+      "signIn": true,
+      "after": "(async()=>{for(let i=0;i<40&&!document.querySelector('h1');i++)await new Promise(r=>setTimeout(r,200));const dismiss=[...document.querySelectorAll('button')].find(b=>b.textContent?.trim()==='Not now');if(dismiss){dismiss.click();await new Promise(r=>setTimeout(r,500));}await new Promise(r=>setTimeout(r,800));const main=document.querySelector('main');return {path:location.pathname,h1:document.querySelector('h1')?.textContent,hasCommercial:/Commercial terms/.test(main?.innerText||''),hasInspection:/SGS pre-shipment inspection/.test(main?.innerText||''),hasTax:/Tax is calculated separately at checkout/.test(main?.innerText||''),hasSignature:/Electronic acceptance/.test(main?.innerText||''),rawKeys:/rfq\\.po\\./.test(main?.innerText||''),mainOverflow:main?main.scrollWidth>main.clientWidth+1:null}})()"
+    }
+  ]
+}

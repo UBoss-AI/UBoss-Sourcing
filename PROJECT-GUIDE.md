@@ -13282,8 +13282,25 @@ AWARDED while `awardedQuoteId` is empty (UNIQUE), the quote to ACCEPTED while
 the version is current, the version to ACCEPTED - so two people acting at once
 cannot both win, and repeating it returns the same result. Other quotes close.
 The accepted terms and hash are frozen on the quote and read back from
-`GET /rfqs/:id/accepted-terms`. Creating a purchase order from them is not
-built yet (`purchaseOrder.status = NOT_BUILT`).
+`GET /rfqs/:id/accepted-terms`. That response says `NOT_RAISED` until the
+buyer completes `/account/rfqs/:id/purchase-order`, then links the resulting
+PO and its approval state.
+
+**B2B PO / contract review (row 21).** `GET /rfqs/:id/purchase-order` derives a
+review from the awarded requirement and exact accepted offer: final
+specification, buyer SKU, quantity, applicable tier price, Incoterm, payment,
+inspection, destination/date, documents, tooling and shipping. The buyer
+names the accepted-terms hash again and records an electronic signature with
+`POST` to the same path. The service stores one canonical contract JSON and
+SHA-256 contract hash; only approval state can change afterward. Goods,
+tooling and shipping remain separate and tax stays a disclosure because the
+existing order checkout calculates it later. For a buyer company, its
+`BuyerCompanyApprovalPolicy` creates an ordered approver and optional finance
+stage. The requestor cannot approve their own PO, and the same member cannot
+provide both approver and finance sign-off. Decisions use the PO version for
+optimistic locking at `POST /rfqs/:id/purchase-order/decision`. Individual or
+below-threshold POs approve immediately. Every creation and decision is
+audited against the immutable contract hash.
 
 **Samples (row 20).** On an open or awarded request the buyer asks a supplier
 taking part for a sample (`rfq_samples`, Idempotency-Key required): quantity,

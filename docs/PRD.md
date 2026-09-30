@@ -3219,11 +3219,46 @@ status write is conditional on the status and version that were read.
   6. Reject closes the quote (REJECTED); the seller may withdraw an open
      quote (WITHDRAWN, invitation WITHDRAWN). Every step is audited with the
      actor and the version.
-- **Status.** Built (checklist Master row 19). **Not built:** creating a
-  purchase order or order from accepted terms - the read endpoint returns
-  `purchaseOrder.status = NOT_BUILT`.
+- **Status.** Built (checklist Master row 19). The accepted-terms response
+  reports `NOT_RAISED` until the buyer completes the purchase-order review,
+  then links the durable PO and its approval state.
 
-### FR-RFQ-005 — Sample requests (checklist Master row 20)
+### FR-RFQ-005 — B2B purchase-order review (checklist Master row 21)
+
+- **Statement.** The awarded requirement and the exact accepted offer become
+  one immutable purchase-order contract. The buyer reviews every final term,
+  electronically accepts its hash, and completes any company approval matrix
+  before the PO is binding.
+- **Rules.**
+  1. `GET /rfqs/:id/purchase-order` returns a non-persisted preview until the
+     buyer raises the PO, then returns the same stored PO. The contract copies
+     the final specification, buyer SKU, quantity and unit, applicable tier
+     price, tooling, shipping estimate, Incoterm and place, payment and tax
+     disclosure, inspection, warranty, destination, target date,
+     certifications and requirement documents.
+  2. `POST /rfqs/:id/purchase-order` requires explicit electronic acceptance,
+     the accepted-terms hash shown to the buyer, and the signer's name. A stale
+     hash is refused (`RFQ_PURCHASE_ORDER_INVALID`). The canonical contract is
+     sealed with SHA-256 and commercial fields are never updated afterward.
+     A retry returns the one PO for that RFQ.
+  3. The goods total is the applicable accepted tier price times the accepted
+     decimal quantity, rounded half-up once. Tooling and the shipping estimate
+     are separate. Tax is disclosed but calculated later by the existing
+     order checkout, so it is not invented in the PO total.
+  4. An individual, or a company whose approval policy does not trigger,
+     produces `APPROVED`. A triggered company policy creates ordered
+     `APPROVER` and optional `FINANCE` stages. The requestor cannot decide;
+     finance must be a different member from the approver; stale versions and
+     out-of-order decisions are refused
+     (`RFQ_PURCHASE_ORDER_APPROVAL_INVALID`). A rejection is final and records
+     its reason.
+  5. Buyer scope returns 404 for another buyer's PO. Creation and every
+     decision record the actor, contract hash, IP/correlation context and
+     before/after approval state in the audit log.
+- **Status.** Built (checklist Master row 21). Converting an approved RFQ PO
+  into the fulfilment/payment order belongs to the following B2B order flow.
+
+### FR-RFQ-006 — Sample requests (checklist Master row 20)
 
 - **Statement.** On an open or awarded request the buyer asks a supplier
   taking part (optionally against its quote) for a sample; both sides follow
@@ -3255,7 +3290,7 @@ status write is conditional on the status and version that were read.
   payment for a sample; linking a reference sample into an inspection
   booking (the code is recorded for that).
 
-### FR-RFQ-006 — Sourcing on the buyer dashboard (checklist Master row 15)
+### FR-RFQ-007 — Sourcing on the buyer dashboard (checklist Master row 15)
 
 - **Statement.** With `FEATURE_RFQ` on, the buyer dashboard shows counts of
   requests (open, draft, awarded), open quotes, negotiations (a quote past its

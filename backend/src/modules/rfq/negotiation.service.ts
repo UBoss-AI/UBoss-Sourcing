@@ -454,8 +454,9 @@ export interface AcceptedTerms {
   terms: OfferTerms;
   acceptedAt: string;
   acceptedBy: 'BUYER' | 'SUPPLIER';
-  /** What a purchase order must match. Creating the order is not built yet. */
-  purchaseOrder: { status: 'NOT_BUILT' };
+  purchaseOrder:
+    | { status: 'NOT_RAISED' }
+    | { status: 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED'; id: string; reference: string };
 }
 
 /**
@@ -478,6 +479,10 @@ export async function acceptedTerms(rfqId: string, sellerAccountId?: string): Pr
   if (offerTermsHash(terms) !== quote.acceptedTermsHash) {
     throw new Error(`accepted terms of quote ${quote.id} no longer match their hash`);
   }
+  const purchaseOrder = await prisma.rfqPurchaseOrder.findUnique({
+    where: { rfqId: rfq.id },
+    select: { id: true, reference: true, status: true },
+  });
   return {
     rfqId: rfq.id,
     reference: rfq.reference,
@@ -490,6 +495,9 @@ export async function acceptedTerms(rfqId: string, sellerAccountId?: string): Pr
     terms,
     acceptedAt: quote.acceptedAt.toISOString(),
     acceptedBy: quote.acceptedByParty === 'SUPPLIER' ? 'SUPPLIER' : 'BUYER',
-    purchaseOrder: { status: 'NOT_BUILT' },
+    purchaseOrder:
+      purchaseOrder === null
+        ? { status: 'NOT_RAISED' }
+        : { status: purchaseOrder.status, id: purchaseOrder.id, reference: purchaseOrder.reference },
   };
 }

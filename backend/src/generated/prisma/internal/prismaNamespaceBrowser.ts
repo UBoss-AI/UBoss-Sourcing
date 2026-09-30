@@ -401,6 +401,8 @@ export const ModelName = {
   RfqMessage: 'RfqMessage',
   RfqQuote: 'RfqQuote',
   RfqQuoteVersion: 'RfqQuoteVersion',
+  RfqPurchaseOrder: 'RfqPurchaseOrder',
+  RfqPurchaseOrderApproval: 'RfqPurchaseOrderApproval',
   RfqSample: 'RfqSample'
 } as const
 
@@ -8546,6 +8548,56 @@ export const RfqQuoteVersionScalarFieldEnum = {
 export type RfqQuoteVersionScalarFieldEnum = (typeof RfqQuoteVersionScalarFieldEnum)[keyof typeof RfqQuoteVersionScalarFieldEnum]
 
 
+export const RfqPurchaseOrderScalarFieldEnum = {
+  id: 'id',
+  reference: 'reference',
+  rfqId: 'rfqId',
+  quoteId: 'quoteId',
+  customerProfileId: 'customerProfileId',
+  buyerCompanyId: 'buyerCompanyId',
+  sellerAccountId: 'sellerAccountId',
+  status: 'status',
+  version: 'version',
+  acceptedTermsHash: 'acceptedTermsHash',
+  contractHash: 'contractHash',
+  contractJson: 'contractJson',
+  buyerSku: 'buyerSku',
+  currency: 'currency',
+  goodsTotalMinor: 'goodsTotalMinor',
+  toolingMinor: 'toolingMinor',
+  shippingMinor: 'shippingMinor',
+  grandTotalMinor: 'grandTotalMinor',
+  requestedByUserId: 'requestedByUserId',
+  eAcceptedAt: 'eAcceptedAt',
+  signatureName: 'signatureName',
+  signatureTitle: 'signatureTitle',
+  approvalPolicyJson: 'approvalPolicyJson',
+  approvedAt: 'approvedAt',
+  rejectedAt: 'rejectedAt',
+  rejectionReason: 'rejectionReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqPurchaseOrderScalarFieldEnum = (typeof RfqPurchaseOrderScalarFieldEnum)[keyof typeof RfqPurchaseOrderScalarFieldEnum]
+
+
+export const RfqPurchaseOrderApprovalScalarFieldEnum = {
+  id: 'id',
+  purchaseOrderId: 'purchaseOrderId',
+  stage: 'stage',
+  decision: 'decision',
+  requestedByUserId: 'requestedByUserId',
+  decidedByUserId: 'decidedByUserId',
+  decidedAt: 'decidedAt',
+  reason: 'reason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RfqPurchaseOrderApprovalScalarFieldEnum = (typeof RfqPurchaseOrderApprovalScalarFieldEnum)[keyof typeof RfqPurchaseOrderApprovalScalarFieldEnum]
+
+
 export const RfqSampleScalarFieldEnum = {
   id: 'id',
   reference: 'reference',
@@ -13652,6 +13704,38 @@ export const RfqQuoteVersionOrderByRelevanceFieldEnum = {
 } as const
 
 export type RfqQuoteVersionOrderByRelevanceFieldEnum = (typeof RfqQuoteVersionOrderByRelevanceFieldEnum)[keyof typeof RfqQuoteVersionOrderByRelevanceFieldEnum]
+
+
+export const RfqPurchaseOrderOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reference: 'reference',
+  rfqId: 'rfqId',
+  quoteId: 'quoteId',
+  customerProfileId: 'customerProfileId',
+  buyerCompanyId: 'buyerCompanyId',
+  sellerAccountId: 'sellerAccountId',
+  acceptedTermsHash: 'acceptedTermsHash',
+  contractHash: 'contractHash',
+  buyerSku: 'buyerSku',
+  currency: 'currency',
+  requestedByUserId: 'requestedByUserId',
+  signatureName: 'signatureName',
+  signatureTitle: 'signatureTitle',
+  rejectionReason: 'rejectionReason'
+} as const
+
+export type RfqPurchaseOrderOrderByRelevanceFieldEnum = (typeof RfqPurchaseOrderOrderByRelevanceFieldEnum)[keyof typeof RfqPurchaseOrderOrderByRelevanceFieldEnum]
+
+
+export const RfqPurchaseOrderApprovalOrderByRelevanceFieldEnum = {
+  id: 'id',
+  purchaseOrderId: 'purchaseOrderId',
+  requestedByUserId: 'requestedByUserId',
+  decidedByUserId: 'decidedByUserId',
+  reason: 'reason'
+} as const
+
+export type RfqPurchaseOrderApprovalOrderByRelevanceFieldEnum = (typeof RfqPurchaseOrderApprovalOrderByRelevanceFieldEnum)[keyof typeof RfqPurchaseOrderApprovalOrderByRelevanceFieldEnum]
 
 
 export const RfqSampleOrderByRelevanceFieldEnum = {

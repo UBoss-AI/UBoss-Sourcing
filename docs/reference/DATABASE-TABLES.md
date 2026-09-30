@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**351 tables · 328 enums · 806 extra indexes and unique keys**, in 55 groups. The groups follow the section banners in the schema file.
+**353 tables · 331 enums · 810 extra indexes and unique keys**, in 55 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -79,7 +79,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.](#group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts) | 14 | 11 |
 | [/ what a ledger account represents. balances are never stored; they are the / sum of the account's lines.](#group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines) | 8 | 7 |
 | [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
-| [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 9 | 9 |
+| [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 11 | 12 |
 
 <a id="group-identity-access"></a>
 
@@ -20320,7 +20320,7 @@ Table `secret_fingerprints`
 
 ## Requests for quotation (rfq) - checklist master rows 16-19
 
-[RfqRequest](#model-rfqrequest) · [RfqRequirementVersion](#model-rfqrequirementversion) · [RfqInvitation](#model-rfqinvitation) · [RfqAttachment](#model-rfqattachment) · [RfqEvent](#model-rfqevent) · [RfqMessage](#model-rfqmessage) · [RfqQuote](#model-rfqquote) · [RfqQuoteVersion](#model-rfqquoteversion) · [RfqSample](#model-rfqsample)
+[RfqRequest](#model-rfqrequest) · [RfqRequirementVersion](#model-rfqrequirementversion) · [RfqInvitation](#model-rfqinvitation) · [RfqAttachment](#model-rfqattachment) · [RfqEvent](#model-rfqevent) · [RfqMessage](#model-rfqmessage) · [RfqQuote](#model-rfqquote) · [RfqQuoteVersion](#model-rfqquoteversion) · [RfqPurchaseOrder](#model-rfqpurchaseorder) · [RfqPurchaseOrderApproval](#model-rfqpurchaseorderapproval) · [RfqSample](#model-rfqsample)
 
 ```mermaid
 erDiagram
@@ -20336,6 +20336,8 @@ erDiagram
     RfqRequest ||--o{ RfqQuote : "rfq"
     SellerAccount ||--o{ RfqQuote : "sellerAccount"
     RfqQuote ||--o{ RfqQuoteVersion : "quote"
+    RfqRequest ||--o| RfqPurchaseOrder : "rfq"
+    RfqPurchaseOrder ||--o{ RfqPurchaseOrderApproval : "purchaseOrder"
     RfqRequest ||--o{ RfqSample : "rfq"
     RfqRequest {
         String id PK
@@ -20380,6 +20382,19 @@ erDiagram
         BigInt toolingMinor
         BigInt sampleCostMinor
         BigInt shippingEstimateMinor
+    }
+    RfqPurchaseOrder {
+        String id PK
+        String rfqId FK
+        RfqPurchaseOrderStatus status
+        BigInt goodsTotalMinor
+        BigInt toolingMinor
+        BigInt shippingMinor
+        BigInt grandTotalMinor
+    }
+    RfqPurchaseOrderApproval {
+        String id PK
+        String purchaseOrderId FK
     }
     RfqSample {
         String id PK
@@ -20452,6 +20467,7 @@ One request for quotation. The row holds the CURRENT requirement; every submitte
 - `messages` ← [RfqMessage](#model-rfqmessage) - has many
 - `quotes` ← [RfqQuote](#model-rfqquote) - has many
 - `samples` ← [RfqSample](#model-rfqsample) - has many
+- `purchaseOrder` ← [RfqPurchaseOrder](#model-rfqpurchaseorder) - has zero or one
 
 **Indexes and keys**
 
@@ -20709,6 +20725,85 @@ One immutable set of terms in a quote. Version 1 is the seller's quote; each cou
 - `@@unique([quoteId, versionNumber], map: "uq_rfq_quote_version")`
 - `@@index([rfqId], map: "ix_rfq_quote_version_rfq")`
 
+<a id="model-rfqpurchaseorder"></a>
+
+### RfqPurchaseOrder
+
+Table `rfq_purchase_orders`
+
+The binding buyer purchase order produced from one accepted RFQ quote. Commercial fields live in `contractJson` and are sealed by `contractHash`; after creation only approval state may change.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `reference` | String · VarChar(32) |  | UNIQUE |  |  |
+| `rfqId` | String · Char(26) |  | UNIQUE, FK → [RfqRequest](#model-rfqrequest) |  | (on delete: Restrict) |
+| `quoteId` | String · Char(26) |  | UNIQUE |  |  |
+| `customerProfileId` | String · Char(26) |  |  |  |  |
+| `buyerCompanyId` | String · Char(26) | yes |  |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `status` | [enum RfqPurchaseOrderStatus](#enum-rfqpurchaseorderstatus) |  |  |  |  |
+| `version` | Int |  |  | 0 |  |
+| `acceptedTermsHash` | String · Char(64) |  |  |  |  |
+| `contractHash` | String · Char(64) |  |  |  |  |
+| `contractJson` | Json |  |  |  |  |
+| `buyerSku` | String · VarChar(80) | yes |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `goodsTotalMinor` | BigInt |  |  |  |  |
+| `toolingMinor` | BigInt |  |  |  |  |
+| `shippingMinor` | BigInt |  |  |  |  |
+| `grandTotalMinor` | BigInt |  |  |  |  |
+| `requestedByUserId` | String · Char(26) |  |  |  |  |
+| `eAcceptedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `signatureName` | String · VarChar(160) |  |  |  |  |
+| `signatureTitle` | String · VarChar(160) | yes |  |  |  |
+| `approvalPolicyJson` | Json | yes |  |  |  |
+| `approvedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `rejectedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `rejectionReason` | String · VarChar(1000) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `rfq` → [RfqRequest](#model-rfqrequest) via `rfqId` - one-to-one, required, on delete **Restrict**, on update **Restrict**
+- `approvals` ← [RfqPurchaseOrderApproval](#model-rfqpurchaseorderapproval) - has many
+
+**Indexes and keys**
+
+- `@@index([buyerCompanyId, status, createdAt], map: "ix_rfq_po_buyer_status")`
+- `@@index([sellerAccountId, status, createdAt], map: "ix_rfq_po_seller_status")`
+
+<a id="model-rfqpurchaseorderapproval"></a>
+
+### RfqPurchaseOrderApproval
+
+Table `rfq_purchase_order_approvals`
+
+One required company sign-off. The requestor cannot decide either stage; the finance signer must also differ from the approver.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `purchaseOrderId` | String · Char(26) |  | FK → [RfqPurchaseOrder](#model-rfqpurchaseorder) |  | (on delete: Cascade) |
+| `stage` | [enum RfqPurchaseOrderApprovalStage](#enum-rfqpurchaseorderapprovalstage) |  |  |  |  |
+| `decision` | [enum RfqPurchaseOrderApprovalDecision](#enum-rfqpurchaseorderapprovaldecision) |  |  | PENDING |  |
+| `requestedByUserId` | String · Char(26) |  |  |  |  |
+| `decidedByUserId` | String · Char(26) | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reason` | String · VarChar(1000) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `purchaseOrder` → [RfqPurchaseOrder](#model-rfqpurchaseorder) via `purchaseOrderId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([purchaseOrderId, stage], map: "uq_rfq_po_approval_stage")`
+- `@@index([decision, stage, createdAt], map: "ix_rfq_po_approval_queue")`
+
 <a id="model-rfqsample"></a>
 
 ### RfqSample
@@ -20841,6 +20936,36 @@ How a seller came to be asked: matched on category and destination, or picked by
 | `REJECTED` |  |
 | `WITHDRAWN` |  |
 | `CLOSED` |  |
+
+<a id="enum-rfqpurchaseorderstatus"></a>
+
+#### enum RfqPurchaseOrderStatus
+
+| Value | Meaning |
+|---|---|
+| `PENDING_APPROVAL` |  |
+| `APPROVED` |  |
+| `REJECTED` |  |
+
+<a id="enum-rfqpurchaseorderapprovalstage"></a>
+
+#### enum RfqPurchaseOrderApprovalStage
+
+| Value | Meaning |
+|---|---|
+| `APPROVER` |  |
+| `FINANCE` |  |
+
+<a id="enum-rfqpurchaseorderapprovaldecision"></a>
+
+#### enum RfqPurchaseOrderApprovalDecision
+
+| Value | Meaning |
+|---|---|
+| `PENDING` |  |
+| `APPROVED` |  |
+| `REJECTED` |  |
+| `CANCELLED` |  |
 
 <a id="enum-rfqsamplestatus"></a>
 

@@ -1,0 +1,177 @@
+{
+ "ranAt": "2026-09-30T13:50:36.030Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "signIn": "/"
+  },
+  {
+   "afterResult": {
+    "path": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+    "h1": "Purchase order review",
+    "hasCommercial": true,
+    "hasInspection": true,
+    "hasTax": true,
+    "hasSignature": true,
+    "rawKeys": false,
+    "mainOverflow": false
+   },
+   "darkClass": "|",
+   "page": "purchase-order-review",
+   "path": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+   "w": 320,
+   "finalPath": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Purchase order review"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "purchase-order-review-320.png"
+  },
+  {
+   "afterResult": {
+    "path": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+    "h1": "Purchase order review",
+    "hasCommercial": true,
+    "hasInspection": true,
+    "hasTax": true,
+    "hasSignature": true,
+    "rawKeys": false,
+    "mainOverflow": false
+   },
+   "darkClass": "|",
+   "page": "purchase-order-review",
+   "path": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+   "w": 375,
+   "finalPath": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Purchase order review"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "purchase-order-review-375.png"
+  },
+  {
+   "afterResult": {
+    "path": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+    "h1": "Purchase order review",
+    "hasCommercial": true,
+    "hasInspection": true,
+    "hasTax": true,
+    "hasSignature": true,
+    "rawKeys": false,
+    "mainOverflow": false
+   },
+   "darkClass": "|",
+   "page": "purchase-order-review",
+   "path": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+   "w": 768,
+   "finalPath": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Purchase order review"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "purchase-order-review-768.png"
+  },
+  {
+   "afterResult": {
+    "path": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+    "h1": "Purchase order review",
+    "hasCommercial": true,
+    "hasInspection": true,
+    "hasTax": true,
+    "hasSignature": true,
+    "rawKeys": false,
+    "mainOverflow": false
+   },
+   "darkClass": "|",
+   "page": "purchase-order-review",
+   "path": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+   "w": 1024,
+   "finalPath": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Purchase order review"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "purchase-order-review-1024.png"
+  },
+  {
+   "afterResult": {
+    "path": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+    "h1": "Purchase order review",
+    "hasCommercial": true,
+    "hasInspection": true,
+    "hasTax": true,
+    "hasSignature": true,
+    "rawKeys": false,
+    "mainOverflow": false
+   },
+   "darkClass": "|",
+   "page": "purchase-order-review",
+   "path": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+   "w": 1440,
+   "finalPath": "/account/rfqs/01M3S8S9XGPB27KTE7MB9Y6PSX/purchase-order",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Purchase order review"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Dashboard",
+    "My orders",
+    "Scheduled orders",
+    "Preorders",
+    "Requests for quotation",
+    "Messages",
+    "Profile information",
+    "Identity and import",
+    "Company information",
+    "Company accounts",
+    "Manage addresses",
+    "Language and region",
+    "Saved payment methods",
+    "Auto-Pay settings",
+    "Billing information",
+    "ERP API connections"
+   ],
+   "jsErrors": [],
+   "shot": "purchase-order-review-1440.png"
+  }
+ ]
+}

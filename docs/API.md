@@ -3600,6 +3600,25 @@ default).
 
 ---
 
+## RFQ purchase-order review
+
+These storefront routes require a customer session in the same buyer context
+as the RFQ. Requests outside that scope answer 404. Writes require the CSRF
+header; raising a PO also requires the approved-company `PURCHASE` capability.
+
+| Method and path | Body | Result |
+|---|---|---|
+| `GET /api/v1/rfqs/:id/purchase-order` | — | A derived `PREVIEW` of the awarded contract, or the immutable `PURCHASE_ORDER` already raised |
+| `POST /api/v1/rfqs/:id/purchase-order` | `acceptedTermsHash`, `eAccepted: true`, `signatureName`, optional `signatureTitle`, optional `buyerSku` | Raises the one PO for the RFQ. A stale hash is `RFQ_PURCHASE_ORDER_INVALID`; a safe retry returns the same PO |
+| `POST /api/v1/rfqs/:id/purchase-order/decision` | `expectedVersion`, `approved`, optional `reason` (required to reject) | Decides the next company APPROVER or FINANCE stage. Stale, out-of-order or maker-checker violations are `RFQ_PURCHASE_ORDER_APPROVAL_INVALID` |
+
+The contract and all money fields are snapshots. Amounts remain minor-unit
+strings in API responses. The PO total contains goods, tooling and the quoted
+shipping estimate; tax is calculated separately by the existing order
+checkout.
+
+---
+
 # 12. Glossary
 
 | Term | Meaning |

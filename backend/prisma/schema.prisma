@@ -23995,6 +23995,7 @@ model RfqRequest {
   messages            RfqMessage[]
   quotes              RfqQuote[]
   samples             RfqSample[]
+  purchaseOrder       RfqPurchaseOrder?
 
   @@index([customerProfileId, buyerCompanyId, updatedAt], map: "ix_rfq_request_owner")
   @@index([buyerCompanyId, updatedAt], map: "ix_rfq_request_company")
@@ -24258,6 +24259,90 @@ model RfqQuoteVersion {
   @@unique([quoteId, versionNumber], map: "uq_rfq_quote_version")
   @@index([rfqId], map: "ix_rfq_quote_version_rfq")
   @@map("rfq_quote_versions")
+}
+
+enum RfqPurchaseOrderStatus {
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+}
+
+enum RfqPurchaseOrderApprovalStage {
+  APPROVER
+  FINANCE
+}
+
+enum RfqPurchaseOrderApprovalDecision {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+/// The binding buyer purchase order produced from one accepted RFQ quote.
+/// Commercial fields live in `contractJson` and are sealed by `contractHash`;
+/// after creation only approval state may change.
+model RfqPurchaseOrder {
+  id                String                 @id @db.Char(26)
+  reference         String                 @unique(map: "uq_rfq_po_reference") @db.VarChar(32)
+  rfqId             String                 @unique(map: "uq_rfq_po_rfq") @db.Char(26)
+  quoteId           String                 @unique(map: "uq_rfq_po_quote") @db.Char(26)
+  customerProfileId String                 @db.Char(26)
+  buyerCompanyId    String?                @db.Char(26)
+  sellerAccountId   String                 @db.Char(26)
+  status            RfqPurchaseOrderStatus
+  version           Int                    @default(0)
+
+  acceptedTermsHash String @db.Char(64)
+  contractHash      String @db.Char(64)
+  contractJson      Json
+  buyerSku          String? @db.VarChar(80)
+
+  currency       String @db.Char(3)
+  goodsTotalMinor BigInt
+  toolingMinor    BigInt
+  shippingMinor   BigInt
+  grandTotalMinor BigInt
+
+  requestedByUserId String   @db.Char(26)
+  eAcceptedAt        DateTime @db.DateTime(3)
+  signatureName      String   @db.VarChar(160)
+  signatureTitle     String?  @db.VarChar(160)
+  approvalPolicyJson Json?
+
+  approvedAt       DateTime? @db.DateTime(3)
+  rejectedAt       DateTime? @db.DateTime(3)
+  rejectionReason  String?   @db.VarChar(1000)
+  createdAt        DateTime  @default(now()) @db.DateTime(3)
+  updatedAt        DateTime  @updatedAt @db.DateTime(3)
+
+  rfq       RfqRequest                 @relation(fields: [rfqId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_rfq_po_rfq")
+  approvals RfqPurchaseOrderApproval[]
+
+  @@index([buyerCompanyId, status, createdAt], map: "ix_rfq_po_buyer_status")
+  @@index([sellerAccountId, status, createdAt], map: "ix_rfq_po_seller_status")
+  @@map("rfq_purchase_orders")
+}
+
+/// One required company sign-off. The requestor cannot decide either stage;
+/// the finance signer must also differ from the approver.
+model RfqPurchaseOrderApproval {
+  id                String                           @id @db.Char(26)
+  purchaseOrderId   String                           @db.Char(26)
+  stage             RfqPurchaseOrderApprovalStage
+  decision          RfqPurchaseOrderApprovalDecision @default(PENDING)
+  requestedByUserId String                           @db.Char(26)
+  decidedByUserId   String?                          @db.Char(26)
+  decidedAt         DateTime?                        @db.DateTime(3)
+  reason            String?                          @db.VarChar(1000)
+  createdAt         DateTime                         @default(now()) @db.DateTime(3)
+  updatedAt         DateTime                         @updatedAt @db.DateTime(3)
+
+  purchaseOrder RfqPurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_po_approval_po")
+
+  @@unique([purchaseOrderId, stage], map: "uq_rfq_po_approval_stage")
+  @@index([decision, stage, createdAt], map: "ix_rfq_po_approval_queue")
+  @@map("rfq_purchase_order_approvals")
 }
 
 enum RfqSampleStatus {

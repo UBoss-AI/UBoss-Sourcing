@@ -1945,6 +1945,12 @@ export const ErrorCode = {
   /// A sample request cannot move that way from where it is, by that side -
   /// or it changed while the screen was open (`STALE`). 409. (Master row 20)
   RFQ_SAMPLE_TRANSITION_NOT_ALLOWED: 'RFQ_SAMPLE_TRANSITION_NOT_ALLOWED',
+  /// A purchase order cannot be raised because accepted terms are missing,
+  /// changed, or the buyer did not e-accept the exact contract shown. 409.
+  RFQ_PURCHASE_ORDER_INVALID: 'RFQ_PURCHASE_ORDER_INVALID',
+  /// A purchase-order approval is stale, out of sequence, or would let its
+  /// requestor approve their own order. 409. (Master row 21)
+  RFQ_PURCHASE_ORDER_APPROVAL_INVALID: 'RFQ_PURCHASE_ORDER_APPROVAL_INVALID',
   /// A factory cannot be changed now: it is with a reviewer. 409. (Master row 13)
   FACTORY_NOT_EDITABLE: 'FACTORY_NOT_EDITABLE',
   /// A factory cannot be sent for review, or verified, yet: it has no

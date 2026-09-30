@@ -3361,6 +3361,19 @@ export type RfqQuote = Prisma.RfqQuoteModel
  */
 export type RfqQuoteVersion = Prisma.RfqQuoteVersionModel
 /**
+ * Model RfqPurchaseOrder
+ * The binding buyer purchase order produced from one accepted RFQ quote.
+ * Commercial fields live in `contractJson` and are sealed by `contractHash`;
+ * after creation only approval state may change.
+ */
+export type RfqPurchaseOrder = Prisma.RfqPurchaseOrderModel
+/**
+ * Model RfqPurchaseOrderApproval
+ * One required company sign-off. The requestor cannot decide either stage;
+ * the finance signer must also differ from the approver.
+ */
+export type RfqPurchaseOrderApproval = Prisma.RfqPurchaseOrderApprovalModel
+/**
  * Model RfqSample
  * A sample asked of one seller on a request (Master row 20), optionally
  * against its quote. Status is only changed through

@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1172 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1175 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -31,7 +31,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 293 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 271 |
+| [Customer account](#customer-account) | 274 |
 | [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
@@ -2329,6 +2329,9 @@ Defined in `backend/src/http/routes/rfq.customer.ts`.
 | POST | `/api/v1/rfqs/:id/quotes/:quoteId/accept` | Customer | Feature + Customer | Accept the supplier's offer on the table, naming its terms hash. Awards the request, closes every other quote and freezes the terms. Repeating it is answered with the same result. Writes an audit entry. |
 | POST | `/api/v1/rfqs/:id/quotes/:quoteId/reject` | Customer | Feature + Customer | Reject the supplier's offer on the table; the quote closes as rejected. |
 | GET | `/api/v1/rfqs/:id/accepted-terms` | Customer | Feature + Customer | The terms both sides agreed to, frozen at acceptance, with their hash. |
+| GET | `/api/v1/rfqs/:id/purchase-order` | Customer | Feature + Customer | The final contract preview, or the immutable purchase order already raised from it. |
+| POST | `/api/v1/rfqs/:id/purchase-order` | Customer | Feature + Customer | E-accept the exact awarded terms and raise the binding purchase order. |
+| POST | `/api/v1/rfqs/:id/purchase-order/decision` | Customer | Feature + Customer | Decide the next stage in the company's approver/finance matrix. |
 | GET | `/api/v1/rfqs/:id/samples` | Customer | Feature + Customer | The samples asked for on your request, with their status, evidence and what you may do next. |
 | POST | `/api/v1/rfqs/:id/samples` | Customer | Feature + Customer | Ask a supplier taking part for a sample: quantity, address, date and approval criteria. Needs an Idempotency-Key. Tells the supplier; audited. |
 | POST | `/api/v1/rfqs/:id/samples/:sampleId/cancel` | Customer | Feature + Customer | Cancel a sample request before it is shipped. The supplier is told; audited. |

@@ -647,6 +647,9 @@ export const AuditAction = {
   RFQ_QUOTE_WITHDRAWN: 'rfq.quote_withdrawn',
   RFQ_SAMPLE_REQUESTED: 'rfq.sample_requested',
   RFQ_SAMPLE_UPDATED: 'rfq.sample_updated',
+  RFQ_PURCHASE_ORDER_CREATED: 'rfq.purchase_order_created',
+  RFQ_PURCHASE_ORDER_APPROVED: 'rfq.purchase_order_approved',
+  RFQ_PURCHASE_ORDER_REJECTED: 'rfq.purchase_order_rejected',
 } as const;
 
 export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];

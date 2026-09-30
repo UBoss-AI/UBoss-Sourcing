@@ -3583,6 +3583,33 @@ export const RfqOfferState = {
 export type RfqOfferState = (typeof RfqOfferState)[keyof typeof RfqOfferState]
 
 
+export const RfqPurchaseOrderStatus = {
+  PENDING_APPROVAL: 'PENDING_APPROVAL',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type RfqPurchaseOrderStatus = (typeof RfqPurchaseOrderStatus)[keyof typeof RfqPurchaseOrderStatus]
+
+
+export const RfqPurchaseOrderApprovalStage = {
+  APPROVER: 'APPROVER',
+  FINANCE: 'FINANCE'
+} as const
+
+export type RfqPurchaseOrderApprovalStage = (typeof RfqPurchaseOrderApprovalStage)[keyof typeof RfqPurchaseOrderApprovalStage]
+
+
+export const RfqPurchaseOrderApprovalDecision = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type RfqPurchaseOrderApprovalDecision = (typeof RfqPurchaseOrderApprovalDecision)[keyof typeof RfqPurchaseOrderApprovalDecision]
+
+
 export const RfqSampleStatus = {
   REQUESTED: 'REQUESTED',
   ACCEPTED: 'ACCEPTED',

@@ -155,6 +155,11 @@ function RfqWorkspace({ rfq }: { rfq: BuyerRfq }): React.JSX.Element {
                 {t('rfq.detail.compare')}
               </ButtonLink>
             )}
+            {rfq.status === 'AWARDED' && (
+              <ButtonLink to={`/account/rfqs/${rfq.id}/purchase-order`} variant="primary">
+                {t('rfq.po.review')}
+              </ButtonLink>
+            )}
             {rfq.actions.canClose && (
               <Button
                 onClick={() => {
