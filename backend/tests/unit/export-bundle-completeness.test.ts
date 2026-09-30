@@ -174,6 +174,7 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   // A request for quotation this person raised, with every version of it,
   // the sellers asked, the files' names and the timeline. `rfqRequests`.
   RfqRequest: 'rfqRequests',
+  RfqPurchaseOrder: 'rfqRequests',
   RfqEvent:
     'Who did what on a request for quotation. The timeline itself is disclosed inside ' +
     '`rfqRequests` (what happened, which side, when); `actorUserId` names whoever acted - the ' +

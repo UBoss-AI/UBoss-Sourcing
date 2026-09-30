@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { LightMyRequestResponse } from 'fastify';
 import { buildApp } from '../../src/http/app.js';
 import { prisma } from '../../src/infra/prisma.js';
+import { buildCustomerBundle } from '../../src/modules/privacy/export-bundle.service.js';
 import { offerTermsHash, type OfferTerms } from '../../src/domain/rfq-quote.js';
 import {
   as,
@@ -511,6 +512,12 @@ describe('binding purchase-order review', () => {
       terms.json<{ acceptedTerms: { purchaseOrder: { status: string; reference: string } } }>()
         .acceptedTerms.purchaseOrder,
     ).toMatchObject({ status: 'APPROVED', reference: purchaseOrder.reference });
+    const bundle = await buildCustomerBundle({ userId: world.buyer.userId, email: world.buyer.email });
+    const exported = (bundle.data as Record<string, unknown>).rfqRequests as { requests: { purchaseOrder: { reference: string; contractHash: string; signatureName: string } | null }[] };
+    expect(exported.requests.find(request => request.purchaseOrder?.reference === purchaseOrder.reference)?.purchaseOrder)
+      .toMatchObject({ contractHash: purchaseOrder.contractHash, signatureName: 'Buyer One' });
+    const rivalBundle = await buildCustomerBundle({ userId: world.rival.userId, email: world.rival.email });
+    expect(JSON.stringify(rivalBundle)).not.toContain(purchaseOrder.reference);
   });
 
   it('applies company approver and finance stages in order with maker-checker separation', async () => {

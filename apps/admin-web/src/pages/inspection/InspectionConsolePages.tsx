@@ -16,6 +16,7 @@ import { useToast } from '@/components/toast-context';
 import { Badge, Button, Card, EmptyState, ErrorState, Input, LoadingState, PageHeader, Select, Textarea } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import { api } from '@/lib/api';
+import { newIdempotencyKey } from '@/lib/forms';
 import { errorMessage } from '@/lib/errors';
 import { formatDateTime } from '@/lib/format';
 
@@ -32,7 +33,7 @@ function useRun(invalidate: readonly unknown[]): ReturnType<typeof useMutation<u
   const toast = useToast();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (step: { method: 'post' | 'put'; path: string; body?: unknown }) => api[step.method](`/admin/inspection/${step.path}`, step.body),
+    mutationFn: (step: { method: 'post' | 'put'; path: string; body?: unknown }) => api[step.method](`/admin/inspection/${step.path}`, step.body, { idempotencyKey: newIdempotencyKey() }),
     onSuccess: async () => {
       toast.success(t('inspection.saved'));
       await queryClient.invalidateQueries({ queryKey: invalidate });

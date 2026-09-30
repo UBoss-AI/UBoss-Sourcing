@@ -1553,6 +1553,11 @@ page();
 
 
 // 7
+h1('6b. Inspection Agency Features');
+h2('Agency dashboard');
+p('An agency member sees their assignments, the acceptance and report deadlines, and overdue work. Each assignment links to its report. Coordinators can review member identity verification and qualification expiry. Members with invoice permission see invoices, who pays them, their status and amount. Inspectors see only work assigned to them. A failed read can be retried.');
+p('If a connection retries a booking, a finding or an evidence upload, the system returns the original successful answer instead of creating it again. A customer who asks for a copy of their data also receives their agreed purchase-order contract, signature, amounts and approval decisions. Another buyer’s purchase orders are kept private.');
+
 h1('7. Admin Features — Secure Access, Roles and Dashboard');
 h2('7.1 Staff sign-in');
 p('Staff, customers and delivery partners sign in through what is visibly the same screen. The three surfaces are three different programs with three different jobs, but the page somebody lands on reads the same way on all of them: the language chooser, then one panel holding the title, a line saying who the screen is for, and the form, then a line explaining what to do if you have no account. Only that last line differs, because the answers genuinely differ — a customer can often create an account themselves, a member of staff is invited by an administrator, and a delivery partner is created by the marketplace.');

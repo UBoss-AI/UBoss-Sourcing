@@ -7,4 +7,10 @@
 # fixed in the commit that introduced it. See scripts/secret-scan.ps1.
 #
 # Switched on once per clone:  git config core.hooksPath .githooks
+# Prefer PowerShell 7 when present. Its module path matches environments that
+# launch Git from pwsh; Windows PowerShell can inherit that path and fail to
+# load Get-FileHash. Both branches run the same mandatory scanner.
+if command -v pwsh.exe >/dev/null 2>&1; then
+  exec pwsh.exe -NoProfile -ExecutionPolicy Bypass -File scripts/secret-scan.ps1
+fi
 exec powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/secret-scan.ps1

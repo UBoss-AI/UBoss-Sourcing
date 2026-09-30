@@ -7606,3 +7606,7 @@ screenshot") rather than linking them. The names run from
 `01-customer-home.png` to `45-admin-data-requests.png`. A few numbers appear
 twice (for example `22-admin-chat-enquiries.png` and `22-admin-reports.png`),
 because the set was captured in more than one run.
+
+## Inspection agency dashboard
+
+Agency members open `/inspection` to see assignments, acceptance and report deadlines, overdue work, and links to each report. Coordinators can review member identity-verification dates and credential expiry. Members with invoice permission see submitted invoices, payer, status and the exact amount in its currency. Inspectors receive only jobs assigned to them; invoices and the agency roster are omitted by the server. Failed reads offer a retry.

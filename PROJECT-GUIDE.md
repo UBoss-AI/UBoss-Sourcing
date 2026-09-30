@@ -19872,6 +19872,15 @@ UBoss-Software/
 
 ---
 
+
+## Inspection agency dashboard
+
+Agency members open `/inspection` to see assignments, acceptance and report deadlines, overdue work, and links to each report. Coordinators can review member identity-verification dates and credential expiry. Members with invoice permission see submitted invoices, payer, status and the exact amount in its currency. Inspectors receive only jobs assigned to them; invoices and the agency roster are omitted by the server. Failed reads offer a retry.
+
+Inspection creates that can duplicate jobs, findings, evidence, shipment bindings or setup records require an `Idempotency-Key`. The agency and admin clients send it; the existing central replay mechanism returns the original successful response for a retry. Saved answers and state transitions retain their service guards. Customer privacy exports now include the immutable RFQ purchase order, signature, amounts and approval decisions under the customer's RFQ requests; they omit other members' user identifiers.
+
+The mandatory pre-push secret-scan hook prefers PowerShell 7 (`pwsh.exe`) when available, with Windows PowerShell as fallback. Both run the same checksum-verified full-history scan. This avoids loading Windows PowerShell with an inherited PowerShell 7 module path.
+
 # 16. Keeping this document true
 
 **This document and its Hinglish twin must be updated whenever the project

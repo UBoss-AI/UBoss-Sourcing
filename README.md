@@ -4669,3 +4669,7 @@ else in this repository fails when it is not — see "The AI, and checking it is
 actually on".
 
 `CLAUDE.md` states this as a requirement and lists what counts as a change.
+
+### Inspection agency dashboard
+
+The agency portal shows assignments, acceptance/report deadlines, overdue work, member verification and credential expiry, report links and invoices. Invoice visibility requires agency invoice permission; inspectors see only their assigned jobs.

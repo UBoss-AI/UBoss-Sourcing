@@ -137,3 +137,8 @@ renaming it now would change nothing; this is the only fix that clears it."""
 [[allowlists]]
   description = "docs/API.md - the example refresh response, same invented shape as the sign-in example above."
   regexes = ['''eyJzdWIiOi\.\.\.\.bm9u''']
+
+[[allowlists]]
+  description = "Row 11 browser evidence: deterministic synthetic company-invitation URL token, first committed in d52998b5. Read-only hash lookup confirms no matching invitation in local development or test databases; it cannot join a company. Exact token only, no path exclusion."
+  regexTarget = "secret"
+  regexes = ['''^devrow1101m3pepdawmhde8rncddz7dcg101m3pepdawmhde8rncddz7dcg2$''']

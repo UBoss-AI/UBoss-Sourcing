@@ -16,9 +16,9 @@ import { useToast } from '@/components/toast-context';
 import { Badge, Button, Card, EmptyState, ErrorState, Input, LoadingState, PageHeader, Select, Textarea } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
-import { formatDateTime } from '@/lib/format';
+import { formatDateTime, formatMoneyMinor } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
-import { agencyAction, fetchAgencyJob, fetchAgencyJobs, fetchAgencyMe, inspectionKeys, uploadAgencyEvidence } from '@/lib/inspection';
+import { agencyAction, fetchAgencyDashboard, fetchAgencyJob, fetchAgencyMe, inspectionKeys, uploadAgencyEvidence } from '@/lib/inspection';
 
 interface JobDetail {
   job: { id: string; jobNumber: string; status: string; kind: string; scheduledFor: string | null; inspectionPoint: { label?: string; city?: string } | null; report: { status: string; result: string | null } | null; defects?: { id: string; ncrNumber: string; severity: string; description: string }[] };
@@ -34,34 +34,47 @@ export function AgencyDashboardPage(): React.JSX.Element {
   const { business } = useStorefront();
   useDocumentMeta({ title: t('inspection.agencyTitle'), noIndex: true }, business.displayName);
   const me = useQuery({ queryKey: [...inspectionKeys.agency, 'me'], queryFn: fetchAgencyMe, retry: false });
-  const jobs = useQuery({ queryKey: inspectionKeys.agency, queryFn: fetchAgencyJobs, enabled: me.isSuccess });
+  const dashboard = useQuery({ queryKey: [...inspectionKeys.agency, 'dashboard'], queryFn: fetchAgencyDashboard, enabled: me.isSuccess });
 
   if (me.isPending) return <LoadingState />;
-  if (me.isError) return <EmptyState title={t('inspection.notAMember')} description={t('inspection.notAMemberBody')} />;
+  if (me.isError) return <ErrorState error={me.error} onRetry={() => { void me.refetch(); }} />;
+  if (dashboard.isPending) return <LoadingState />;
+  if (dashboard.isError) return <ErrorState error={dashboard.error} onRetry={() => { void dashboard.refetch(); }} />;
+  const d = dashboard.data;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
+    <div className="mx-auto max-w-5xl space-y-4 px-4 py-8">
       <PageHeader
         title={t('inspection.agencyTitle')}
         description={`${me.data.membership.agencyName} · ${me.data.membership.fullName} · ${me.data.membership.role}`}
       />
-      {jobs.isPending ? (
-        <LoadingState />
-      ) : jobs.isError ? (
-        <ErrorState error={jobs.error} onRetry={() => { void jobs.refetch(); }} />
-      ) : jobs.data.length === 0 ? (
+      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {(['offered', 'toAssign', 'assigned', 'inProgress', 'awaitingQa', 'completed', 'overdue'] as const).map((key) => <div key={key} className="rounded-lg border border-border-subtle p-3"><dt className="text-sm text-ink-muted">{t(`inspection.dashboard.${key}`)}</dt><dd className="text-xl font-semibold">{d.counts[key]}</dd></div>)}
+      </dl>
+      {d.jobs.length === 0 ? (
         <EmptyState title={t('inspection.noJobs')} />
       ) : (
         <Card bodyClassName="divide-y divide-border-subtle">
-          {jobs.data.map((job) => (
+          {d.jobs.map((job) => (
             <div key={job.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 text-sm">
               <Link to={`/inspection/jobs/${job.id}`} className="font-medium text-brand hover:underline">{job.jobNumber}</Link>
               <span className="text-xs text-ink-muted">{formatDateTime(job.scheduledFor)}</span>
               <Badge>{job.status}</Badge>
+              <span>{t('inspection.dashboard.acceptDue')}: {formatDateTime(job.acceptDueAt)}</span>
+              <span>{t('inspection.dashboard.reportDue')}: {formatDateTime(job.reportDueAt)}</span>
+              <Badge>{t(`inspection.dashboard.${job.slaState}`)}</Badge>
+              <span>{t('inspection.inspector')}: {d.inspectors.find((member) => member.id === job.inspectorMemberId)?.fullName ?? '—'}</span>
+              <Link to={`/inspection/jobs/${job.id}`} className="text-brand hover:underline">{t('inspection.report')}</Link>
             </div>
           ))}
         </Card>
       )}
+      {d.inspectors.length > 0 && <Card title={t('inspection.dashboard.inspectors')} bodyClassName="divide-y divide-border-subtle">
+        {d.inspectors.map((member) => <div key={member.id} className="flex flex-wrap gap-3 px-5 py-3 text-sm"><span>{member.fullName}</span><Badge>{member.role}</Badge><Badge>{member.status}</Badge><span>{t('inspection.dashboard.identity')}: {formatDateTime(member.identityVerifiedAt)}</span><span>{t('inspection.dashboard.expires')}: {formatDateTime(member.credentialExpiresAt)}</span></div>)}
+      </Card>}
+      {me.data.membership.permissions.includes('inspection.invoice.write') && <Card title={t('inspection.dashboard.invoices')} bodyClassName="divide-y divide-border-subtle">
+        {d.invoices.length === 0 ? <EmptyState title={t('inspection.dashboard.noInvoices')} /> : d.invoices.map((invoice) => <div key={invoice.id} className="flex flex-wrap gap-3 px-5 py-3 text-sm"><span>{invoice.invoiceNumber}</span><span>{invoice.jobNumber}</span><span>{formatMoneyMinor(invoice.amountMinor, invoice.currency)}</span><Badge>{invoice.status}</Badge><span>{invoice.payer}</span></div>)}
+      </Card>}
     </div>
   );
 }

@@ -2,9 +2,9 @@
   "recommendation": "NO-GO",
   "recommendationWhy": "CI on main is green (commit 1a4d157, all 13 checks, backend included), but most P0 rows are still unverified or unbuilt (RFQ, inspection screens, payouts) and legal texts are missing.",
   "checkpoint": {
-    "lastCompleted": 82,
-    "next": 9,
-    "latestTest": "2026-09-30 pass 7: rows 26, 34, 36, 38, 39, 82. Row 30 has a full returns API but no customer screen (build next).",
+    "lastCompleted": 45,
+    "next": 50,
+    "latestTest": "Full local verify: backend 289 files / 5023 tests; customer 164 files / 1665 tests; admin 35 files / 323 tests. All passed. Affected lint/typecheck, backend build and both frontend builds passed. Reference docs and all eight-language catalogues passed. Word/Markdown mismatch count: 0. No human, device-matrix or production test claimed.",
     "blocker": "Row 9 needs approved launch policy text and legal sign-off. Row 12 has no payout adapter and awaits the marketplace D13 decision. Row 20 still needs the paid-sample checkout flow using existing checkout with tax and shipping calculated separately."
   },
   "notes": [
@@ -819,12 +819,15 @@
     {
       "id": 45,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
+      "status": "FIXED_AND_VERIFIED",
       "pass4Done": false,
       "manual": [
         "Partly built: the agency portal lists jobs by status, but the dashboard does not yet show SLA, inspector load, reports and invoices (the /inspection/agency/dashboard route returns them).",
         "Once finished, verify it the same way as the inspection rows above."
-      ]
+      ],
+      "evidence": "Agency dashboard now reads the existing scoped dashboard API: assignments, acceptance/report deadlines, overdue totals, members, report links and permission-filtered invoices. Customer AgencyPages.test.tsx 4/4; backend inspection-http.test.ts 2/2 (full lifecycle plus dashboard authorization and invoice visibility).",
+      "verification": "Full local verify: backend 289 files / 5023 tests; customer 164 files / 1665 tests; admin 35 files / 323 tests. All passed. Affected lint/typecheck, backend build and both frontend builds passed. Reference docs and all eight-language catalogues passed. Word/Markdown mismatch count: 0. No human, device-matrix or production test claimed.",
+      "testResult": "Full local verify: backend 289 files / 5023 tests; customer 164 files / 1665 tests; admin 35 files / 323 tests. All passed. Affected lint/typecheck, backend build and both frontend builds passed. Reference docs and all eight-language catalogues passed. Word/Markdown mismatch count: 0. No human, device-matrix or production test claimed."
     },
     {
       "id": 46,

@@ -1429,6 +1429,7 @@ export async function buildCustomerBundle(
             events: { orderBy: { createdAt: 'asc' }, take: 1_000 },
             messages: { orderBy: { id: 'asc' }, take: 2_000 },
             samples: { orderBy: { createdAt: 'asc' } },
+            purchaseOrder: { include: { approvals: { orderBy: { createdAt: 'asc' } } } },
             quotes: {
               include: {
                 sellerAccount: { select: { displayName: true } },
@@ -1513,6 +1514,26 @@ export async function buildCustomerBundle(
             })),
           })),
           // Samples asked for, where they were sent and what was decided.
+          purchaseOrder: request.purchaseOrder === null ? null : {
+            reference: request.purchaseOrder.reference,
+            status: request.purchaseOrder.status,
+            acceptedTermsHash: request.purchaseOrder.acceptedTermsHash,
+            contractHash: request.purchaseOrder.contractHash,
+            contract: request.purchaseOrder.contractJson,
+            buyerSku: request.purchaseOrder.buyerSku,
+            currency: request.purchaseOrder.currency,
+            goodsTotalMinor: money(request.purchaseOrder.goodsTotalMinor),
+            toolingMinor: money(request.purchaseOrder.toolingMinor),
+            shippingMinor: money(request.purchaseOrder.shippingMinor),
+            grandTotalMinor: money(request.purchaseOrder.grandTotalMinor),
+            eAcceptedAt: iso(request.purchaseOrder.eAcceptedAt),
+            signatureName: request.purchaseOrder.signatureName,
+            signatureTitle: request.purchaseOrder.signatureTitle,
+            approvedAt: iso(request.purchaseOrder.approvedAt),
+            rejectedAt: iso(request.purchaseOrder.rejectedAt),
+            rejectionReason: request.purchaseOrder.rejectionReason,
+            approvals: request.purchaseOrder.approvals.map(approval => ({ stage: approval.stage, decision: approval.decision, reason: approval.reason, at: iso(approval.decidedAt) })),
+          },
           samples: request.samples.map((sample) => ({
             reference: sample.reference,
             status: sample.status,

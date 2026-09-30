@@ -6329,6 +6329,13 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 
 ---
 
+
+## Inspection agency dashboard
+
+Agency members open `/inspection` to see assignments, acceptance and report deadlines, overdue work, and links to each report. Coordinators can review member identity-verification dates and credential expiry. Members with invoice permission see submitted invoices, payer, status and the exact amount in its currency. Inspectors receive only jobs assigned to them; invoices and the agency roster are omitted by the server. Failed reads offer a retry.
+
+Duplicate-producing inspection writes use the existing central replay policy with a required request key. Customer privacy exports include RFQ purchase-order contracts, e-acceptance, amounts and approval decisions for their own requests.
+
 # 14. Related documents
 
 | Document | Answers |

@@ -4,7 +4,7 @@
  * rows 23, 41, 45-54, 94, 95). The server decides every status, result and
  * permission; this file only carries its answers and the requests.
  */
-import { api, postFile } from '@/lib/api';
+import { api, newIdempotencyKey, postFile } from '@/lib/api';
 
 export interface InspectionDefect {
   id: string;
@@ -81,7 +81,20 @@ export interface AgencyJobRow {
   scheduledFor: string | null;
   sellerName?: string;
   orderNumber?: string;
+  acceptDueAt: string | null;
+  reportDueAt: string | null;
+  slaState: 'ON_TIME' | 'ACCEPT_OVERDUE' | 'REPORT_OVERDUE';
+  inspectorMemberId: string | null;
 }
+
+export interface AgencyDashboard {
+  counts: Record<'offered' | 'toAssign' | 'assigned' | 'inProgress' | 'awaitingQa' | 'completed' | 'overdue', number>;
+  jobs: AgencyJobRow[];
+  inspectors: { id: string; fullName: string; role: string; status: string; identityVerifiedAt: string | null; credentialExpiresAt: string | null }[];
+  invoices: { id: string; jobNumber: string; invoiceNumber: string; amountMinor: string; currency: string; payer: string; status: string }[];
+}
+
+export const fetchAgencyDashboard = (): Promise<AgencyDashboard> => api.get('/inspection/agency/dashboard');
 
 export const fetchAgencyMe = (): Promise<{ membership: { agencyName: string; fullName: string; role: string; permissions: string[] } }> =>
   api.get('/inspection/agency/me');
@@ -95,12 +108,12 @@ export async function fetchAgencyJob(jobId: string): Promise<Record<string, unkn
 }
 
 export const agencyAction = (jobId: string, action: string, body: unknown = {}): Promise<unknown> =>
-  api.post(`/inspection/agency/jobs/${jobId}/${action}`, body);
+  api.post(`/inspection/agency/jobs/${jobId}/${action}`, body, { idempotencyKey: newIdempotencyKey() });
 
 export function uploadAgencyEvidence(jobId: string, file: File, fields: Record<string, string>): Promise<unknown> {
   const form = new FormData();
   for (const [key, value] of Object.entries(fields)) form.append(key, value);
   form.append('capturedAt', new Date().toISOString());
   form.append('file', file);
-  return postFile(`/inspection/agency/jobs/${jobId}/evidence`, form);
+  return postFile(`/inspection/agency/jobs/${jobId}/evidence`, form, { idempotencyKey: newIdempotencyKey() });
 }

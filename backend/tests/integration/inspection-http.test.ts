@@ -16,8 +16,8 @@ import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
 import { ensureRequirement } from '../../src/modules/inspection/gate.service.js';
 import {
-  asCustomer,
-  asStaff,
+  asCustomer as customerCall,
+  asStaff as staffCall,
   buildOrderDesk,
   cleanUpOrderDesk,
   customer,
@@ -26,6 +26,7 @@ import {
   type OrderDesk,
   type Session,
   type StaffSession,
+  type CallOptions,
 } from '../support/order-desk-fixture.js';
 
 const TAG = 'ihttp7';
@@ -40,6 +41,11 @@ let qa: Session;
 let groupId = '';
 let agencyId = '';
 let jobId = '';
+
+const asCustomer: typeof customerCall = (app, session, method, path, options: CallOptions = {}) =>
+  customerCall(app, session, method, path, { idempotencyKey: newId(), ...options });
+const asStaff: typeof staffCall = (app, session, method, path, options: CallOptions = {}) =>
+  staffCall(app, session, method, path, { idempotencyKey: newId(), ...options });
 
 /** A 1x1 PNG, the smallest real image the evidence store will accept. */
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
@@ -58,7 +64,7 @@ function uploadEvidence(session: Session, url: string, fields: Record<string, st
   return app.inject({
     method: 'POST',
     url: `/api/v1${url}`,
-    headers: { cookie: session.cookie, 'x-csrf-token': session.csrf, 'x-forwarded-for': session.ip, 'content-type': `multipart/form-data; boundary=${boundary}` },
+    headers: { cookie: session.cookie, 'x-csrf-token': session.csrf, 'x-forwarded-for': session.ip, 'idempotency-key': newId(), 'content-type': `multipart/form-data; boundary=${boundary}` },
     payload: body,
   });
 }
@@ -122,14 +128,22 @@ describe('an inspection from booking to a signed FAIL', () => {
       expect(verified.statusCode, verified.body).toBe(200);
     }
 
-    const booked = await asStaff(app, admin, 'POST', '/inspection/jobs', {
-      payload: {
+    const booking = {
         sellerOrderGroupId: groupId, agencyId, scheduledFor: new Date(Date.now() + 3 * 86_400_000).toISOString(),
         inspectionPointType: 'SELLER_PREMISES', inspectionPoint: { label: 'Factory', addressLine: '1 Mill Road', city: 'Pune', country: 'IN' }, payer: 'BUYER',
-      },
+    };
+    const missingKey = await staffCall(app, admin, 'POST', '/inspection/jobs', { payload: booking });
+    expect(missingKey.statusCode, missingKey.body).toBe(400);
+    const bookingKey = newId();
+    const booked = await asStaff(app, admin, 'POST', '/inspection/jobs', {
+      payload: booking, idempotencyKey: bookingKey,
     });
     expect(booked.statusCode, booked.body).toBe(201);
     jobId = booked.json<{ jobId: string }>().jobId;
+    const replay = await asStaff(app, admin, 'POST', '/inspection/jobs', { payload: booking, idempotencyKey: bookingKey });
+    expect(replay.statusCode, replay.body).toBe(201);
+    expect(replay.json()).toEqual(booked.json());
+    expect(await prisma.inspectionJob.count({ where: { requirement: { orderId: desk.orderId } } })).toBe(1);
 
     const queue = await asStaff(app, admin, 'GET', '/inspection/queue');
     expect(queue.statusCode, queue.body).toBe(200);
@@ -180,7 +194,8 @@ describe('an inspection from booking to a signed FAIL', () => {
 
     await answer();
     const defectId = (await prisma.inspectionDefect.findFirstOrThrow({ where: { jobId }, select: { id: true } })).id;
-    for (const fields of [{ purpose: 'GENERAL', capturedAt: new Date().toISOString() }, { purpose: 'DEFECT', defectId, capturedAt: new Date().toISOString() }]) {
+    const evidenceFields: Record<string, string>[] = [{ purpose: 'GENERAL', capturedAt: new Date().toISOString() }, { purpose: 'DEFECT', defectId, capturedAt: new Date().toISOString() }];
+    for (const fields of evidenceFields) {
       const stored = await uploadEvidence(inspector, `/inspection/agency/jobs/${jobId}/evidence`, fields);
       expect(stored.statusCode, stored.body).toBe(201);
     }
@@ -204,5 +219,25 @@ describe('an inspection from booking to a signed FAIL', () => {
     const rival = await asCustomer(app, desk.rivalBuyer, 'GET', `/inspection/buyer/orders/${desk.orderId}`);
     // Somebody else's order: not found, never another buyer's inspection.
     expect(rival.statusCode, rival.body).toBe(404);
+
+    // The dashboard uses the same agency and assignment boundaries as job reads.
+    const invoiced = await asCustomer(app, coordinator, 'POST', `/inspection/agency/jobs/${jobId}/invoice`, {
+      payload: { invoiceNumber: 'ihttp7-INV', amountMinor: '12345', currency: 'INR' },
+    });
+    expect(invoiced.statusCode, invoiced.body).toBe(200);
+    const dashboard = await asCustomer(app, coordinator, 'GET', '/inspection/agency/dashboard');
+    expect(dashboard.statusCode, dashboard.body).toBe(200);
+    const data = dashboard.json<{ counts: { completed: number }; jobs: { id: string; acceptDueAt: string; reportDueAt: string }[]; inspectors: { fullName: string }[]; invoices: { amountMinor: string }[] }>();
+    expect(data.counts.completed).toBe(1);
+    expect(data.jobs.map((job) => job.id)).toEqual([jobId]);
+    expect(data.jobs[0]?.acceptDueAt).toBeTruthy();
+    expect(data.jobs[0]?.reportDueAt).toBeTruthy();
+    expect(data.inspectors.map((member) => member.fullName)).toContain('aginsp');
+    expect(data.invoices[0]?.amountMinor).toBe('12345');
+    const scoped = await asCustomer(app, inspector, 'GET', '/inspection/agency/dashboard');
+    expect(scoped.statusCode, scoped.body).toBe(200);
+    expect(scoped.json<{ inspectors: unknown[]; invoices: unknown[] }>().inspectors).toEqual([]);
+    expect(scoped.json<{ invoices: unknown[] }>().invoices).toEqual([]);
+    expect((await asCustomer(app, desk.rivalBuyer, 'GET', '/inspection/agency/dashboard')).statusCode).toBe(403);
   }, 120_000);
 });

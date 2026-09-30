@@ -84,6 +84,15 @@ const REQUIRED_SERVICE: Record<string, string> = {
  * first successful response under (route, key) and plays it back.
  */
 const REQUIRED_CENTRAL: Record<string, string> = {
+  [`POST ${P}/inspection/agency/jobs/:id/defects`]: 'Creates an NCR; replay must not count the same defect twice.',
+  [`POST ${P}/inspection/agency/jobs/:id/binding`]: 'Creates shipment binding and release records; replay must not release twice.',
+  [`POST ${P}/inspection/agency/defects/:id/reclassify`]: 'Records an evidenced severity decision; replay must not create another decision.',
+  [`POST ${P}/inspection/agency/jobs/:id/evidence`]: 'Stores private evidence; replay must not duplicate the file.',
+  [`POST ${P}/seller/inspection/jobs/:id/evidence`]: 'Stores private seller evidence; replay must not duplicate the file.',
+  [`POST ${P}/admin/inspection/jobs`]: 'Books a job; replay returns the original booking.',
+  [`POST ${P}/admin/inspection/agencies`]: 'Registers an agency; replay must not create a second agency.',
+  [`POST ${P}/admin/inspection/rules`]: 'Creates an inspection rule; replay must not apply the rule twice.',
+  [`POST ${P}/admin/inspection/plans`]: 'Creates an inspection plan; replay must not create a second plan.',
   [`POST ${P}/admin/orders/:id/payment-links`]: 'Creates a payment link for an amount.',
   [`POST ${P}/admin/orders/:id/invoice`]: 'Issues the tax invoice for an order.',
   [`POST ${P}/admin/invoices/:id/credit`]: 'Credits (cancels) an issued tax invoice.',
@@ -245,6 +254,26 @@ const HARMLESS_CREATE_WORDS = new Set([
  * somebody has asked the question, never to silence the guard test.
  */
 const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
+  {
+    reason: 'Replaces the saved declaration, checklist answer, sampling record, readiness or corrective action for the same record; repeating the body leaves the same business values.',
+    routes: ['inspection/agency/jobs/:id/conflict', 'inspection/agency/jobs/:id/checks', 'inspection/agency/jobs/:id/sampling', 'seller/inspection/jobs/:id/readiness', 'seller/inspection/defects/:id/capa'],
+  },
+  {
+    reason: 'Returns or signs a submitted report through the job state machine, or requests an inspection/release once; the service refuses a repeat after the state has moved.',
+    routes: ['inspection/agency/jobs/:id/report/return', 'inspection/agency/jobs/:id/report/sign', 'inspection/buyer/orders/:id/request', 'admin/inspection/requirements/:id/conditional-release'],
+  },
+  {
+    reason: 'Recomputes the requirement under the current rules and raises it only when needed; a repeat cannot lower the gate.',
+    routes: ['admin/inspection/requirements/:id/reevaluate'],
+  },
+  {
+    reason: 'The unique agency/invoice-number constraint refuses a duplicate invoice.',
+    routes: ['inspection/agency/jobs/:id/invoice'],
+  },
+  {
+    reason: 'Replays the immutable purchase order for the awarded RFQ; unique RFQ and quote constraints prevent a second contract, including concurrent requests.',
+    routes: ['rfqs/:id/purchase-order'],
+  },
   {
     reason:
       'Moves one record through its state machine (review, hold, retire, receive, response, appeal); a repeat finds it already moved and is refused.',

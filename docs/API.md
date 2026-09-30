@@ -3655,3 +3655,8 @@ checkout.
 | **Webhook** | A request another company's server sends us, or we send them, when something happens |
 | **Zod** | The library that checks every request's shape |
 | **Zone** | A group of endpoints that share one kind of caller |
+# Inspection writes and purchase-order privacy exports
+
+Inspection bookings, agency registration, rule and plan creation, defect creation and reclassification, shipment binding, and agency/seller evidence uploads require `Idempotency-Key`. The central replay mechanism returns the first successful response for the same caller, route, key and request. A missing key returns `IDEMPOTENCY_KEY_REQUIRED`. Saved checklist answers, sampling, declarations and guarded transitions retain their service protections.
+
+The customer data export includes RFQ purchase orders under `data.rfqRequests.requests[].purchaseOrder`: immutable contract and hashes, signature, monetary strings, status and approval decisions. Requests are selected by the subject's customer profile. Approval actors' user identifiers are omitted.
