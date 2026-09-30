@@ -26,6 +26,7 @@ import { raiseConsignment } from '@/lib/consignment-logistics';
 import { ConsignmentCarrierPurchasePanel } from './ConsignmentCarrierPurchasePanel';
 import { ConsignmentDocumentsPanel } from './ConsignmentDocumentsPanel';
 import { Link, useParams } from 'react-router-dom';
+import { SellerOrderInspection } from '@/components/inspection/OrderInspections';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
@@ -126,6 +127,7 @@ export function SellerOrderDetailPage(): React.JSX.Element {
         <div className="space-y-6">
           <Lines order={order} />
           {/* L1-L4, where this order was priced on four delivery levels. */}
+          <SellerOrderInspection sellerOrderGroupId={order.id} />
           <SellerOrderLegsPanel sellerOrderId={order.id} canAct={order.status !== 'NEW' && order.status !== 'CANCELLED'} />
           <Consignments order={order} />
           {/* Invoice, packing list and Mark packed, per consignment. Open on a

@@ -122,6 +122,10 @@ export const Permission = {
   DISPUTE_MANAGE: 'dispute.manage',
   DISPUTE_ASSIGN: 'dispute.assign',
   DISPUTE_APPROVE: 'dispute.approve',
+
+  INSPECTION_READ: 'inspection.read',
+  INSPECTION_MANAGE: 'inspection.manage',
+  INSPECTION_RELEASE: 'inspection.release',
 } as const;
 
 export type PermissionKey = (typeof Permission)[keyof typeof Permission];

@@ -145,6 +145,7 @@ import {
   registerCustomerDisputeRoutes,
   registerSellerDisputeRoutes,
 } from './routes/disputes.js';
+import { registerAdminInspectionRoutes, registerAgencyInspectionRoutes, registerBuyerInspectionRoutes, registerSellerInspectionRoutes } from './routes/inspection.js';
 import { resolveHost } from '../modules/seller/storefront.service.js';
 import type { SellerStorefront } from '../modules/seller/storefront.service.js';
 import { AUDIT_EXPORT_HEADERS } from '../modules/audit/audit-log.read.js';
@@ -653,6 +654,11 @@ export async function buildApp() {
   // decided in the console, and chargebacks from signed payment webhooks.
   // See `modules/disputes/`.
   await app.register(registerCustomerDisputeRoutes, { prefix: `${API_PREFIX}/disputes` });
+  // Inspection: agency portal, seller readiness and CAPA, buyer timeline, admin console.
+  await app.register(registerAgencyInspectionRoutes, { prefix: `${API_PREFIX}/inspection/agency` });
+  await app.register(registerBuyerInspectionRoutes, { prefix: `${API_PREFIX}/inspection/buyer` });
+  await app.register(registerSellerInspectionRoutes, { prefix: `${API_PREFIX}/seller` });
+  await app.register(registerAdminInspectionRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerSellerDisputeRoutes, { prefix: `${API_PREFIX}/seller` });
   await app.register(registerAdminDisputeRoutes, { prefix: `${API_PREFIX}/admin` });
   // The sitemap. Unauthenticated because a sitemap has to be, and it discloses

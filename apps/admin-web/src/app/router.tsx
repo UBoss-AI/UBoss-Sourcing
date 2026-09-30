@@ -322,6 +322,19 @@ export const router = createBrowserRouter([
         path: 'reports',
         ...lazyRoute(() => import('@/pages/ReportsPage').then((m) => m.ReportsPage), [Permission.REPORT_READ]),
       },
+      // The inspection console (checklist Master rows 55, 70, 94).
+      {
+        path: 'inspection',
+        ...lazyRoute(() => import('@/pages/inspection/InspectionConsolePages').then((m) => m.InspectionQueuePage), [Permission.INSPECTION_READ]),
+      },
+      {
+        path: 'inspection/:id',
+        ...lazyRoute(() => import('@/pages/inspection/InspectionConsolePages').then((m) => m.InspectionRequirementPage), [Permission.INSPECTION_READ]),
+      },
+      {
+        path: 'inspection-setup',
+        ...lazyRoute(() => import('@/pages/inspection/InspectionConsolePages').then((m) => m.InspectionSetupPage), [Permission.INSPECTION_READ]),
+      },
       // The dispute resolution console (checklist Master row 64).
       {
         path: 'disputes',

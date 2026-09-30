@@ -442,6 +442,13 @@ export const NAVIGATION: NavGroup[] = [
         matchPrefix: true,
       },
       {
+        labelKey: 'nav.inspection',
+        to: '/inspection',
+        icon: DataProtectionIcon,
+        permissions: [Permission.INSPECTION_READ],
+        matchPrefix: true,
+      },
+      {
         labelKey: 'nav.disputes',
         to: '/disputes',
         icon: DataProtectionIcon,

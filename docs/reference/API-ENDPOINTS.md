@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1176 endpoints** in 99 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1212 endpoints** in 103 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,11 +27,11 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 457 |
+| [Admin panel (staff)](#admin-panel-staff) | 476 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 293 |
+| [Seller Hub](#seller-hub) | 298 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 274 |
+| [Customer account](#customer-account) | 286 |
 | [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
@@ -329,6 +329,32 @@ Defined in `backend/src/http/routes/sellers.admin.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/admin/fulfilment-methods/pending` | Staff | Admin(CUSTOMER_READ) | Sellers' delivery methods waiting for approval, oldest submission first. |
 | PATCH | `/api/v1/admin/fulfilment-methods/:methodId` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Approve, refuse or ask for changes to a seller's own delivery method, and decide whether it may ship across borders. Tells the seller and writes an audit entry. |
+
+### `admin/inspection`
+
+Defined in `backend/src/http/routes/inspection.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/inspection/queue` | Staff | Admin(INSPECTION_READ) | Every inspection requirement, filterable by status, with search. |
+| GET | `/api/v1/admin/inspection/requirements/:id` | Staff | Admin(INSPECTION_READ) | One inspection requirement in full. |
+| POST | `/api/v1/admin/inspection/requirements/:id/reevaluate` | Staff | Admin(INSPECTION_MANAGE) | Recompute whether inspection is required for this order under today's rules. |
+| POST | `/api/v1/admin/inspection/jobs` | Staff | Admin(INSPECTION_MANAGE) | Book an inspection: scope, timing, point, agency and payer. Agency eligibility and conflicts are checked. |
+| POST | `/api/v1/admin/inspection/jobs/:id/cancel` | Staff | Admin(INSPECTION_MANAGE) | Cancel a job, with a reason. |
+| POST | `/api/v1/admin/inspection/requirements/:id/conditional-release` | Staff | Admin(INSPECTION_RELEASE) | Ask for a conditional release (manual override): named authority, reason, evidence. |
+| POST | `/api/v1/admin/inspection/releases/:id/approve` | Staff | Admin(INSPECTION_RELEASE) | Approve a colleague's conditional release. Never your own. |
+| POST | `/api/v1/admin/inspection/releases/:id/reject` | Staff | Admin(INSPECTION_RELEASE) | Reject a conditional release, with a reason. |
+| GET | `/api/v1/admin/inspection/agencies` | Staff | Admin(INSPECTION_READ) | The inspection agencies. |
+| POST | `/api/v1/admin/inspection/agencies` | Staff | Admin(INSPECTION_MANAGE) | Register an independent agency. A name matching a seller is refused. |
+| POST | `/api/v1/admin/inspection/agencies/:id/members` | Staff | Admin(INSPECTION_MANAGE) | Add a coordinator, inspector or QA member (an existing storefront account) to an agency. |
+| GET | `/api/v1/admin/inspection/policy` | Staff | Admin(INSPECTION_READ) | The inspection policy: defaults, buyer visibility, override rules. |
+| PUT | `/api/v1/admin/inspection/policy` | Staff | Admin(INSPECTION_MANAGE) | Save the inspection policy. |
+| GET | `/api/v1/admin/inspection/rules` | Staff | Admin(INSPECTION_READ) | The rules engine: when inspection is mandatory, risk-triggered or optional. |
+| POST | `/api/v1/admin/inspection/rules` | Staff | Admin(INSPECTION_MANAGE) | Add a rule (category, value, destination, supplier risk, buyer request). |
+| GET | `/api/v1/admin/inspection/plans` | Staff | Admin(INSPECTION_READ) | Inspection plans: the checklist and sampling for a category. |
+| POST | `/api/v1/admin/inspection/plans` | Staff | Admin(INSPECTION_MANAGE) | Add a plan. |
+| PUT | `/api/v1/admin/inspection/supplier-risk/:id` | Staff | Admin(INSPECTION_MANAGE) | Set a supplier's inspection risk tier, with a reason. |
+| POST | `/api/v1/admin/inspection/invoices/:id/decision` | Staff | Admin(INSPECTION_MANAGE) | Approve, pay, dispute or void an agency invoice. The technical result never changes. |
 
 ### `admin/integrations`
 
@@ -1373,6 +1399,18 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 | GET | `/api/v1/seller/fulfilment/methods/:methodId/rate-cards` | Seller | Seller + Seller(FULFILMENT_READ) | Every price list published for one of the seller's delivery methods, with all its versions and price bands. |
 | POST | `/api/v1/seller/fulfilment/methods/:methodId/rate-cards` | Seller | Seller + Seller(FULFILMENT_WRITE) | Publish what this operation charges. |
 
+### `seller/inspection`
+
+Defined in `backend/src/http/routes/inspection.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/inspection/orders/:id` | Seller | Seller(ORDER_READ) | The inspection on one of your orders: requirement, jobs, report, NCRs and release. |
+| POST | `/api/v1/seller/inspection/jobs/:id/readiness` | Seller | Seller(ORDER_FULFIL) | Declare the lot ready: location, packing state, contact and a signed declaration. |
+| POST | `/api/v1/seller/inspection/defects/:id/capa` | Seller | Seller(ORDER_FULFIL) | Answer an NCR with a corrective action (CAPA). |
+| POST | `/api/v1/seller/inspection/jobs/:id/evidence` | Seller | Seller(ORDER_FULFIL) | Upload readiness or corrective evidence (packing list, photos). The approved report itself cannot be edited. |
+| GET | `/api/v1/seller/inspection/evidence/:id` | Seller | Seller(ORDER_READ) | Download one evidence file on your order. |
+
 ### `seller/instructions`
 
 Defined in `backend/src/http/routes/seller.listings.ts`.
@@ -2178,6 +2216,25 @@ Defined in `backend/src/http/routes/fulfilment.customer.ts`.
 |---|---|---|---|---|
 | POST | `/api/v1/fulfilment/warehouse-options` | Customer | Customer | Which warehouses can fulfil this basket, and on what terms |
 | POST | `/api/v1/fulfilment/warehouse-options/:quoteId/revalidate` | Customer | Customer | Is the option I chose still an offer? |
+
+### `inspection`
+
+Defined in `backend/src/http/routes/inspection.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/inspection/agency/me` | Customer | Customer | Who you are in your inspection agency, and what you may do there. |
+| GET | `/api/v1/inspection/agency/dashboard` | Customer | Customer | Your agency's work: jobs by status, SLA, inspectors, reports and invoices. |
+| GET | `/api/v1/inspection/agency/jobs` | Customer | Customer | Jobs you may see. An inspector sees only the jobs they are named on. |
+| GET | `/api/v1/inspection/agency/calendar` | Customer | Customer | Agency capacity and booked jobs by day. |
+| GET | `/api/v1/inspection/agency/jobs/:id` | Customer | Customer | One job: scope, location, schedule, checklist, sampling, defects, evidence and report. |
+| POST | `/api/v1/inspection/agency/jobs/:id/${path}` | Customer | Customer | *Run "jobs ${path}".* |
+| POST | `/api/v1/inspection/agency/defects/:id/reclassify` | Customer | Customer | Reclassify a defect's severity, with a reason and supporting evidence. |
+| POST | `/api/v1/inspection/agency/jobs/:id/evidence` | Customer | Customer | Upload timestamped evidence (photo, video, document, measurement) to a job. Stored privately and hashed. |
+| GET | `/api/v1/inspection/agency/evidence/:id` | Customer | Customer | Download one evidence file you may see. |
+| GET | `/api/v1/inspection/buyer/orders/:id` | Customer | Customer | The inspection timeline for your order: booked, inspector assigned, started, report, NCR, release. |
+| POST | `/api/v1/inspection/buyer/orders/:id/request` | Customer | Customer | Ask for an inspection on your order before it ships. |
+| GET | `/api/v1/inspection/buyer/evidence/:id` | Customer | Customer | Download one evidence file the buyer may see under the report-visibility policy. |
 
 ### `orders`
 

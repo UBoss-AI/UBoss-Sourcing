@@ -208,6 +208,9 @@ export const router = createBrowserRouter([
 
       // --- Buying: activated customers only ---------------------------------
       { path: 'cart', ...customerRoute(() => import('@/pages/CartPage').then((m) => m.CartPage)) },
+      // The inspection agency portal (checklist Master rows 45-54).
+      { path: 'inspection', ...customerRoute(() => import('@/pages/inspection/AgencyPages').then((m) => m.AgencyDashboardPage)) },
+      { path: 'inspection/jobs/:id', ...customerRoute(() => import('@/pages/inspection/AgencyPages').then((m) => m.AgencyJobPage)) },
       {
         path: 'checkout',
         ...customerRoute(() => import('@/pages/CheckoutPage').then((m) => m.CheckoutPage)),

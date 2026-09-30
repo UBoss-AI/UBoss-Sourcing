@@ -36,6 +36,7 @@ import { OrderDeliveryLevels } from '@/components/OrderDeliveryLevels';
 import { OrderSellerInvoices } from '@/components/OrderSellerInvoices';
 import { OrderPaymentReceipts } from '@/components/OrderPaymentReceipts';
 import { OrderTracking } from '@/components/order-tracking/OrderTracking';
+import { BuyerOrderInspections } from '@/components/inspection/OrderInspections';
 import { CheckIcon, DotIcon, HeadsetIcon, RepeatIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { cx } from '@/lib/cx';
@@ -594,6 +595,7 @@ export function OrderDetailPage(): React.JSX.Element {
 
             {/* Tracking, ETA and proof of delivery: its own component, see the file. */}
             <OrderTracking orderId={order.id} shipments={order.shipments} />
+            <BuyerOrderInspections orderId={order.id} />
 
             {order.customerNote !== null && (
               <div className="mt-4 border-t border-border pt-4">
