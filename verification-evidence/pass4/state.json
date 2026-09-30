@@ -1326,8 +1326,8 @@
     {
       "id": "JOURNEY-066",
       "status": "VERIFIED",
-      "evidence": "AuditLog has actorUserId/actorEmail/actorRoles, action, resourceType/Id, beforeJson/afterJson, ipAddress, userAgent, correlationId, createdAt; reason from the after values; CSV export needs audit.read + export.create; append-only grants for the app user (deploy/scripts/apply-grants.sh, auditMaintenancePrisma for erasure). Tests: tests/integration/audit-log-admin.test.ts ('returns the role at the time, the reason, the address and the device', 'downloads the filtered entries', 'is itself on the trail'), audit-request-context.test.ts. Tamper resistance is by database grant, proven by the CI step \"The application account cannot rewrite its own audit log\".",
-      "verifiedAt": "2026-09-29"
+      "evidence": "Admin audit log (row 73): actor, action, object, before/after, IP, export; append-only app DB account",
+      "verifiedAt": "2026-09-30 (pass 7)"
     },
     {
       "id": "JOURNEY-011",
@@ -1362,8 +1362,8 @@
     {
       "id": "ENH-023",
       "status": "VERIFIED",
-      "evidence": "Supplier pages in sitemap + Organization JSON-LD (catalog-supplier-profile.test.ts, SupplierPage.test.tsx). Branch worktree-agent-a627e5a9c9a1c53e4 merged into main. Storefront verify 1609/1609; backend catalog-supplier-profile, catalog-suppliers, market-pages, catalog-assurance 34/34. Browser 320–1440 on /, /assurance, /markets/de, /suppliers/northwind-fastenings, /cart: no horizontal scroll, axe 0, no errors (verification-evidence/pass4/sfa/).",
-      "verifiedAt": "2026-09-29"
+      "evidence": "Supplier storefront (row 5) with page metadata and structured data",
+      "verifiedAt": "2026-09-30 (pass 7)"
     },
     {
       "id": "DYNAMIC-006",
@@ -1490,6 +1490,60 @@
       "status": "FIXED_AND_VERIFIED",
       "evidence": "Master row 21 implementation and tests prove that agreed RFQ terms convert into one immutable, hashed purchase order with explicit e-acceptance and policy-driven approver/finance stages; live responsive evidence is in verification-evidence/pass4/row21/out-final-fixed/results.json.",
       "verifiedAt": "2026-09-30"
+    },
+    {
+      "id": "HOME-005",
+      "status": "VERIFIED",
+      "evidence": "AccountMenu uses account-nav groups (orders, RFQs, addresses, security) plus sign out; keyboard-navigable menu",
+      "verifiedAt": "2026-09-30 (pass 7)"
+    },
+    {
+      "id": "HOME-010",
+      "status": "VERIFIED",
+      "evidence": "ImageSearchDialog: type/size limits, privacy note, remove picture, camera; similarity disclaimer added pass 7; hero-search tests 87/87",
+      "verifiedAt": "2026-09-30 (pass 7)"
+    },
+    {
+      "id": "HOME-013",
+      "status": "VERIFIED",
+      "evidence": "AI Mode grounded in catalogue, AI/vendor disclosure, product links, RFQ handoff added pass 7; AiModePage tests pass",
+      "verifiedAt": "2026-09-30 (pass 7)"
+    },
+    {
+      "id": "HOME-016",
+      "status": "VERIFIED",
+      "evidence": "Buyer ERP centre (row 86): keys, mapping, sandbox test, retry, reconciliation, revoke; customer-erp suites",
+      "verifiedAt": "2026-09-30 (pass 7)"
+    },
+    {
+      "id": "HOME-018",
+      "status": "VERIFIED",
+      "evidence": "AI Mode notice: AI disclosure, vendor data-use, retention; policy and report-a-wrong-answer links added pass 7",
+      "verifiedAt": "2026-09-30 (pass 7)"
+    },
+    {
+      "id": "UAT-UI-004",
+      "status": "VERIFIED",
+      "evidence": "AI Mode question prefills a new RFQ; the buyer edits the form and only submitted values are sent",
+      "verifiedAt": "2026-09-30 (pass 7)"
+    },
+    {
+      "id": "ENH-009",
+      "status": "VERIFIED",
+      "evidence": "Verified supplier badge detail (row 93): type, issuer, validity, last checked",
+      "verifiedAt": "2026-09-30 (pass 7)"
+    },
+    {
+      "id": "ENH-017",
+      "status": "VERIFIED",
+      "evidence": "RFQ PO approval matrix (row 21): ordered approver and finance stages with maker-checker",
+      "verifiedAt": "2026-09-30 (pass 7)"
+    },
+    {
+      "id": "ENH-028",
+      "status": "VERIFIED",
+      "evidence": "Skeleton states, lazy images, lazy routes and deferred hero globe",
+      "verifiedAt": "2026-09-30 (pass 7)"
     }
   ],
   "pendingBoxes": []

@@ -963,7 +963,10 @@ export function AiModePage(): React.JSX.Element {
                   {t('chat.aiNotice')}{' '}
                   {assistant.vendor !== null &&
                     `${t('chat.aiVendorNotice', { vendor: assistant.vendor.name })} `}
-                  {t('chat.retentionNotice')}
+                  {t('chat.retentionNotice')}{' '}
+                  <Link to="/legal" className="underline underline-offset-2">{t('aiMode.policiesLink')}</Link>
+                  {' · '}
+                  <Link to="/support" className="underline underline-offset-2">{t('aiMode.reportProblem')}</Link>
                 </p>
               </div>
             ) : (

@@ -472,6 +472,7 @@ export function ImageSearchDialog({
                 a picture has been chosen: the picture leaves this site for an
                 AI provider, and the customer should know that first. */}
             <p className="mt-2.5 text-xs text-ink-muted">{t('imageSearch.privacyNote')}</p>
+            <p className="mt-1 text-xs text-ink-muted">{t('imageSearch.similarityNote')}</p>
           </div>
 
           {/* --- Search -------------------------------------------------- */}
