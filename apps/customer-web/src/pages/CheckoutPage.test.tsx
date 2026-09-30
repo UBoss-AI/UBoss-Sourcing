@@ -181,6 +181,11 @@ async function renderCheckout(): Promise<void> {
   await screen.findByText('Pay with Credit Card');
 }
 
+/** Ticks the checkout's terms box, which starts unticked and gates the order. */
+async function agreeToTerms(): Promise<void> {
+  await userEvent.click(await screen.findByRole('checkbox', { name: /i have read and agree/i }));
+}
+
 describe('choosing how to pay', () => {
   it('offers instruments and never names the gateway behind them', async () => {
     serve();
@@ -274,6 +279,7 @@ describe('paying with a card the customer already saved', () => {
 
     await screen.findByText('Visa ···· 4242');
     await userEvent.click(screen.getByRole('radio', { name: /Visa ···· 4242/i }));
+    await agreeToTerms();
     await userEvent.click(screen.getByRole('button', { name: /place order and pay/i }));
 
     await waitFor(() => {
@@ -295,6 +301,7 @@ describe('paying with a card the customer already saved', () => {
 
     const list = await screen.findByText(/use a different card/i);
     await userEvent.click(within(list.closest('label') as HTMLElement).getByRole('radio'));
+    await agreeToTerms();
     await userEvent.click(screen.getByRole('button', { name: /place order and pay/i }));
 
     await waitFor(() => {
@@ -387,6 +394,7 @@ describe('choosing a fulfilment warehouse', () => {
 
     await screen.findByText('Pune Fulfilment Centre');
 
+    await agreeToTerms();
     await userEvent.click(screen.getByRole('button', { name: /place order/i }));
 
     await waitFor(() => {
@@ -412,6 +420,7 @@ describe('choosing a fulfilment warehouse', () => {
     // charges another.
     expect(await screen.findByText(/sent from antwerp depot/i)).toBeInTheDocument();
 
+    await agreeToTerms();
     await userEvent.click(screen.getByRole('button', { name: /place order/i }));
 
     await waitFor(() => {
@@ -438,6 +447,7 @@ describe('choosing a fulfilment warehouse', () => {
     await renderCheckout();
 
     await screen.findByText('Pune Fulfilment Centre');
+    await agreeToTerms();
     await userEvent.click(screen.getByRole('button', { name: /place order/i }));
 
     // Said twice on purpose: in the section they now have to act in, and
@@ -485,6 +495,7 @@ describe('choosing a fulfilment warehouse', () => {
     });
     await renderCheckout();
 
+    await agreeToTerms();
     const place = screen.getByRole('button', { name: /place order/i });
     await waitFor(() => {
       expect(place).toBeEnabled();
@@ -522,6 +533,7 @@ describe('choosing a fulfilment warehouse', () => {
     });
     await renderCheckout();
 
+    await agreeToTerms();
     const place = screen.getByRole('button', { name: /place order/i });
     await waitFor(() => {
       expect(place).toBeEnabled();
@@ -548,6 +560,7 @@ describe('choosing a fulfilment warehouse', () => {
 
     await screen.findByText('Antwerp Depot');
     await userEvent.click(screen.getAllByRole('radio', { name: /antwerp/i })[0]!);
+    await agreeToTerms();
     await userEvent.click(screen.getByRole('button', { name: /place order/i }));
 
     expect(
@@ -589,6 +602,7 @@ describe('when the connection drops while the order is being placed', () => {
     const { keys } = dropFirstCheckout();
     await renderCheckout();
 
+    await agreeToTerms();
     const place = screen.getByRole('button', { name: /place order and pay/i });
     await userEvent.click(place);
 
@@ -625,6 +639,7 @@ describe('when the connection drops while the order is being placed', () => {
 
     const onLine = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
     try {
+      await agreeToTerms();
       await userEvent.click(screen.getByRole('button', { name: /place order and pay/i }));
 
       expect(
@@ -633,5 +648,22 @@ describe('when the connection drops while the order is being placed', () => {
     } finally {
       onLine.mockRestore();
     }
+  });
+});
+
+describe('agreeing to the terms of sale', () => {
+  it('keeps the order button off until the customer ticks the box themselves', async () => {
+    serve();
+    await renderCheckout();
+    const place = await screen.findByRole('button', { name: /place order/i });
+    const box = screen.getByRole('checkbox', { name: /i have read and agree/i });
+    expect(box).not.toBeChecked();
+    expect(place).toBeDisabled();
+    expect(screen.getByRole('link', { name: /terms and conditions/i })).toHaveAttribute('href', '/legal/terms');
+    expect(screen.getByText(/import duties or customs fees/i)).toBeInTheDocument();
+    await userEvent.click(box);
+    await waitFor(() => {
+      expect(place).toBeEnabled();
+    });
   });
 });

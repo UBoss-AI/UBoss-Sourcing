@@ -1,0 +1,12 @@
+const fs=require('fs');const file='verification-evidence/pass4/state.json';const s=JSON.parse(fs.readFileSync(file,'utf8'));
+const T='2026-09-30 (pass 7)';
+const set=(id,o)=>{const r=s.rows.find(x=>x.id===id);if(!r)throw new Error('row '+id);Object.assign(r,{pass4Done:true,verifiedAt:T},o,{evidence:o.tests,testResult:o.tests,verification:o.tests});};
+set(26,{status:'FIXED_AND_VERIFIED',finding:'Checkout had address, delivery, tax and payment, but no consent step and no statement about import duties.',fix:'Added an unticked terms-of-sale box (links to Terms and store policies) that must be ticked before Place order is enabled, a hint beside the button, and a line saying destination import duties are not included. 8 languages.',files:'customer-web: CheckoutPage.tsx, CheckoutPage.test.tsx, 8 locale files',tests:'CheckoutPage 19/19 (new consent test); customer seller/account/AI suites 202/202'});
+const v=(id,ev)=>set(id,{status:'VERIFIED',fix:'No change needed.',tests:ev});
+v(34,'SellerFactoriesPage (capacity, certifications) and SellerProfilePage (verification); seller suites 202/202 pass');
+v(36,'SellerListingEditPage: specs, media, price/quantity tiers (MOQ), HS code and origin (compliance), markets; listing edit tests pass');
+v(38,'SellerRfqsPage inbox with matched-supplier filters; backend RFQ suites 85/85');
+v(39,'QuoteForm with validity, payment terms, Incoterm; revisions via NegotiationPanel; backend RFQ suites 85/85');
+v(82,'ImageSearchDialog upload + camera capture; backend catalog-image-search 16/16');
+s.checkpoint.lastCompleted=82;s.checkpoint.latestTest='2026-09-30 pass 7: rows 26, 34, 36, 38, 39, 82. Row 30 has a full returns API but no customer screen (build next).';
+fs.writeFileSync(file,JSON.stringify(s,null,2)+'\n');

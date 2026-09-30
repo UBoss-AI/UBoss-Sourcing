@@ -368,6 +368,9 @@ bullets([
   'Where whoever listed the product did not state what is in the box, nothing is shown. A figure is never invented to fill the space.',
 ]);
 
+h2('3.2f Agreeing to the terms at checkout');
+p('Before an order can be placed, the customer ticks a box to say they have read and agree to the terms and the store policies. The box starts empty, and both documents are one click away. Until it is ticked, the Place order button stays off and a short note says why. The checkout also says that import duties or customs fees charged by the destination country are not included in the total.');
+
 h2('3.3 What a buyer counts in: cartons and pieces');
 p('There are two ways something is sold here, and which one applies depends on the product. Some of what the shop sells goes out by the carton — a box of five hundred syringes is packed and shipped that way, so the buyer types a number of cartons and every price they have been shown is the price of one carton. Most other things are bought one at a time: a cordless drill, a laptop, a pair of boots. What an outside seller sells is always sold by the piece, at that seller’s own price for one piece.');
 p('This used to be decided for the whole shop at once, and that was wrong as soon as the shop sold more than one kind of thing. Every product the business owned was treated as a carton of five hundred, so a three thousand rupee drill appeared at over sixteen lakh with “one carton has 500 pieces” printed underneath it. How many pieces are in a carton is now recorded against each product, and a product with no carton is priced, counted and sold as a single item.');

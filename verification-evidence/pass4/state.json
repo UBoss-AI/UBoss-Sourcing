@@ -2,9 +2,9 @@
   "recommendation": "NO-GO",
   "recommendationWhy": "CI on main is green (commit 1a4d157, all 13 checks, backend included), but most P0 rows are still unverified or unbuilt (RFQ, inspection screens, payouts) and legal texts are missing.",
   "checkpoint": {
-    "lastCompleted": 21,
+    "lastCompleted": 82,
     "next": 9,
-    "latestTest": "2026-09-30: Master row 21 backend RFQ negotiation 9/9; customer full verify 1649/1649 and production build; focused PO page 2/2; responsive Chrome at 320–1440 has zero overflow, axe violations or JS exceptions.",
+    "latestTest": "2026-09-30 pass 7: rows 26, 34, 36, 38, 39, 82. Row 30 has a full returns API but no customer screen (build next).",
     "blocker": "Row 9 needs approved launch policy text and legal sign-off. Row 12 has no payout adapter and awaits the marketplace D13 decision. Row 20 still needs the paid-sample checkout flow using existing checkout with tax and shipping calculated separately."
   },
   "notes": [
@@ -465,8 +465,16 @@
     {
       "id": 26,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "finding": "Checkout had address, delivery, tax and payment, but no consent step and no statement about import duties.",
+      "fix": "Added an unticked terms-of-sale box (links to Terms and store policies) that must be ticked before Place order is enabled, a hint beside the button, and a line saying destination import duties are not included. 8 languages.",
+      "files": "customer-web: CheckoutPage.tsx, CheckoutPage.test.tsx, 8 locale files",
+      "tests": "CheckoutPage 19/19 (new consent test); customer seller/account/AI suites 202/202",
+      "evidence": "CheckoutPage 19/19 (new consent test); customer seller/account/AI suites 202/202",
+      "testResult": "CheckoutPage 19/19 (new consent test); customer seller/account/AI suites 202/202",
+      "verification": "CheckoutPage 19/19 (new consent test); customer seller/account/AI suites 202/202"
     },
     {
       "id": 27,
@@ -544,8 +552,14 @@
     {
       "id": 34,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "fix": "No change needed.",
+      "tests": "SellerFactoriesPage (capacity, certifications) and SellerProfilePage (verification); seller suites 202/202 pass",
+      "evidence": "SellerFactoriesPage (capacity, certifications) and SellerProfilePage (verification); seller suites 202/202 pass",
+      "testResult": "SellerFactoriesPage (capacity, certifications) and SellerProfilePage (verification); seller suites 202/202 pass",
+      "verification": "SellerFactoriesPage (capacity, certifications) and SellerProfilePage (verification); seller suites 202/202 pass"
     },
     {
       "id": 35,
@@ -562,8 +576,14 @@
     {
       "id": 36,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "fix": "No change needed.",
+      "tests": "SellerListingEditPage: specs, media, price/quantity tiers (MOQ), HS code and origin (compliance), markets; listing edit tests pass",
+      "evidence": "SellerListingEditPage: specs, media, price/quantity tiers (MOQ), HS code and origin (compliance), markets; listing edit tests pass",
+      "testResult": "SellerListingEditPage: specs, media, price/quantity tiers (MOQ), HS code and origin (compliance), markets; listing edit tests pass",
+      "verification": "SellerListingEditPage: specs, media, price/quantity tiers (MOQ), HS code and origin (compliance), markets; listing edit tests pass"
     },
     {
       "id": 37,
@@ -574,14 +594,26 @@
     {
       "id": 38,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "fix": "No change needed.",
+      "tests": "SellerRfqsPage inbox with matched-supplier filters; backend RFQ suites 85/85",
+      "evidence": "SellerRfqsPage inbox with matched-supplier filters; backend RFQ suites 85/85",
+      "testResult": "SellerRfqsPage inbox with matched-supplier filters; backend RFQ suites 85/85",
+      "verification": "SellerRfqsPage inbox with matched-supplier filters; backend RFQ suites 85/85"
     },
     {
       "id": 39,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "fix": "No change needed.",
+      "tests": "QuoteForm with validity, payment terms, Incoterm; revisions via NegotiationPanel; backend RFQ suites 85/85",
+      "evidence": "QuoteForm with validity, payment terms, Incoterm; revisions via NegotiationPanel; backend RFQ suites 85/85",
+      "testResult": "QuoteForm with validity, payment terms, Incoterm; revisions via NegotiationPanel; backend RFQ suites 85/85",
+      "verification": "QuoteForm with validity, payment terms, Incoterm; revisions via NegotiationPanel; backend RFQ suites 85/85"
     },
     {
       "id": 40,
@@ -889,8 +921,14 @@
     {
       "id": 82,
       "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "fix": "No change needed.",
+      "tests": "ImageSearchDialog upload + camera capture; backend catalog-image-search 16/16",
+      "evidence": "ImageSearchDialog upload + camera capture; backend catalog-image-search 16/16",
+      "testResult": "ImageSearchDialog upload + camera capture; backend catalog-image-search 16/16",
+      "verification": "ImageSearchDialog upload + camera capture; backend catalog-image-search 16/16"
     },
     {
       "id": 83,

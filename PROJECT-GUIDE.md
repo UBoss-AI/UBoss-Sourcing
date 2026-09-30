@@ -10555,6 +10555,8 @@ until switched on.
 
 This is the most important flow in the system.
 
+**Consent at checkout.** Before Place order works, the customer must tick an unticked box agreeing to the Terms and the store policies (both linked). The tax line also says destination import duties are not included. The tick is a browser-side gate; it is not saved on the order.
+
 ```
 ┌── 1. ADD TO CART ────────────────────────────────────────────┐
 │ One option:   POST /api/v1/cart/items                        │

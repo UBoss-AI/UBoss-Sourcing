@@ -2195,6 +2195,10 @@ all absent (`BUYER_COMPANIES_DISABLED`).
 
 ## 5.6 Checkout and choosing a fulfilment warehouse (CHK)
 
+### FR-CHK-000 — Agreeing to the terms before ordering
+
+Built. The review step has an unticked box: "I have read and agree to the Terms and Conditions and the returns and refund rules in the store policies", linking to `/legal/terms` and `/legal`. Place order stays off until the customer ticks it themselves, and a hint beside the button says why. Under the tax line, the page says that import duties or customs fees charged by the destination country are not included. The tick is checked in the browser only; it is not yet stored with the order.
+
 ### FR-CHK-001 — One order per checkout (idempotency)
 
 - **Statement.** A buyer presses **Place order**; the system creates exactly

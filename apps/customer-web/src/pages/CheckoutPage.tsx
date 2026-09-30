@@ -224,6 +224,12 @@ export function CheckoutPage(): React.JSX.Element {
 
   const [shippingAddressId, setShippingAddressId] = useState<string | null>(null);
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
+  /**
+   * The customer's agreement to the terms of sale, given on this order.
+   * Starts unticked and must be ticked by them: a pre-ticked box is not
+   * consent, and the order is not placed without it.
+   */
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [billingAddressId, setBillingAddressId] = useState<string | null>(null);
   const [paymentMode, setPaymentMode] = useState<PaymentMode>('ONLINE');
   /**
@@ -748,6 +754,7 @@ export function CheckoutPage(): React.JSX.Element {
   const canSubmit =
     currentCart.checkoutReady &&
     shippingAddressId !== null &&
+    agreedToTerms &&
     !fulfilmentBlocks &&
     !submit.isPending;
 
@@ -1260,6 +1267,7 @@ export function CheckoutPage(): React.JSX.Element {
                 />
               )}
               <TotalRow label={t('checkout.tax')} value={formatMoney(reviewTotals.tax)} />
+              <p className="text-xs text-ink-muted">{t('checkout.dutiesNotIncluded')}</p>
               <TotalRow
                 label={t('checkout.delivery')}
                 value={formatMoney(reviewTotals.shipping)}
@@ -1319,11 +1327,32 @@ export function CheckoutPage(): React.JSX.Element {
               </div>
             )}
 
+            <label className="mt-5 flex items-start gap-2.5 text-sm text-ink">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-border-strong text-brand"
+                checked={agreedToTerms}
+                onChange={(event) => {
+                  setAgreedToTerms(event.target.checked);
+                }}
+              />
+              <span>
+                {t('checkout.agreeToTermsBefore')}{' '}
+                <Link to="/legal/terms" target="_blank" className="font-semibold underline underline-offset-2">
+                  {t('checkout.termsLink')}
+                </Link>{' '}
+                {t('checkout.agreeToTermsAnd')}{' '}
+                <Link to="/legal" target="_blank" className="font-semibold underline underline-offset-2">
+                  {t('checkout.policiesLink')}
+                </Link>
+              </span>
+            </label>
+
             <Button
               variant="action"
               size="lg"
               fullWidth
-              className="mt-5"
+              className="mt-4"
               disabled={!canSubmit}
               isLoading={submit.isPending}
               onClick={() => {
@@ -1350,6 +1379,11 @@ export function CheckoutPage(): React.JSX.Element {
                       : t('fulfilment.mustChoose')}
                 </p>
               )
+            )}
+            {shippingAddressId !== null && !fulfilmentBlocks && !agreedToTerms && (
+              <p className="mt-2 text-center text-xs text-ink-muted">
+                {t('checkout.tickToAgree')}
+              </p>
             )}
 
             {/*
