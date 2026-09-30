@@ -7518,5 +7518,18 @@
   "rfq.po.reject": "Rechazar",
   "rfq.po.decisionSaved": "Approval decision saved.",
   "errors.rfq.RFQ_PURCHASE_ORDER_INVALID": "The purchase-order terms changed or were not accepted. Reload and review them again.",
-  "errors.rfq.RFQ_PURCHASE_ORDER_APPROVAL_INVALID": "This purchase-order approval is no longer available. Reload its current approval state."
+  "errors.rfq.RFQ_PURCHASE_ORDER_APPROVAL_INVALID": "This purchase-order approval is no longer available. Reload its current approval state.",
+  "inspection.packaging.title": "Control de embalaje y etiquetas",
+  "inspection.packaging.back": "Volver a la inspección",
+  "inspection.packaging.unanswered": "Sin responder",
+  "inspection.packaging.outcome": "Resultado",
+  "inspection.packaging.choose": "Elegir resultado",
+  "inspection.packaging.CONFORM": "Conforme",
+  "inspection.packaging.NONCONFORM": "No conforme",
+  "inspection.packaging.NOT_APPLICABLE": "No aplicable",
+  "inspection.packaging.measured": "Valor observado / código de barras / cantidad por caja",
+  "inspection.packaging.note": "Observaciones (obligatorias si no es conforme)",
+  "inspection.packaging.save": "Guardar control",
+  "inspection.packaging.readOnly": "Solo el inspector asignado puede editar los controles durante la inspección.",
+  "inspection.packaging.empty": "Este plan reservado no contiene controles de embalaje o etiquetas."
 }

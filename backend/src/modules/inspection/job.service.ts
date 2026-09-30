@@ -844,6 +844,12 @@ export async function uploadAgencyEvidence(
     if (defect === null) throw notFound('Defect');
   }
 
+  if (input.checkItemCode !== null && input.checkItemCode !== undefined && !checklistOf(job).some((item) => item.code === input.checkItemCode)) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'That check is not on this inspection’s plan.', [
+      { field: 'checkItemCode', code: 'NOT_IN_PLAN' },
+    ]);
+  }
+
   const stored = await storeEvidence(agencyActor(membership, correlationId), {
     ...input,
     requirementId: job.requirementId,

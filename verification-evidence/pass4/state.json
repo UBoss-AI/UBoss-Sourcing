@@ -2,9 +2,9 @@
   "recommendation": "NO-GO",
   "recommendationWhy": "CI on main is green (commit 1a4d157, all 13 checks, backend included), but most P0 rows are still unverified or unbuilt (RFQ, inspection screens, payouts) and legal texts are missing.",
   "checkpoint": {
-    "lastCompleted": 45,
-    "next": 50,
-    "latestTest": "Full local verify: backend 289 files / 5023 tests; customer 164 files / 1665 tests; admin 35 files / 323 tests. All passed. Affected lint/typecheck, backend build and both frontend builds passed. Reference docs and all eight-language catalogues passed. Word/Markdown mismatch count: 0. No human, device-matrix or production test claimed.",
+    "lastCompleted": 50,
+    "next": 54,
+    "latestTest": "PASS — focused UI 10/10, real HTTP 2/2, gate regression 35/35",
     "blocker": "Row 9 needs approved launch policy text and legal sign-off. Row 12 has no payout adapter and awaits the marketplace D13 decision. Row 20 still needs the paid-sample checkout flow using existing checkout with tax and shipping calculated separately."
   },
   "notes": [
@@ -896,12 +896,17 @@
     {
       "id": 50,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
+      "status": "FIXED_AND_VERIFIED",
       "pass4Done": false,
       "manual": [
-        "Partly built: packaging and label items are recorded only if the category plan includes them; no dedicated packaging and label screen.",
-        "Once finished, verify it the same way as the inspection rows above."
-      ]
+        "Agency job → Packaging & label check. Named inspector records the booked check result, observed value, reason and evidence. Nonconforming results require a reason; non-named/completed jobs are read-only."
+      ],
+      "verification": "Dedicated packaging/label screen reads the booked plan and persisted findings. Named inspector saves outcomes, observed values, notes and per-check evidence only in progress; failures preserve drafts. HTTP tests prove agency boundaries, required nonconformance notes, unknown evidence-code rejection and signed-report locking.",
+      "evidence": "PackagingPage.test.tsx 6/6; AgencyPages.test.tsx 4/4; inspection-http.test.ts 2/2; inspection-gate-http + inspection-gate 35/35. Chrome UI fixtures 320/375/768/1024/1440: no overflow, zero axe violations, barcode save verified. Backend/customer typecheck, lint and builds; full customer verify recorded in batch audit.",
+      "files": "PackagingPage.tsx, router.tsx, AgencyPages.tsx, eight locales; backend inspection/job.service.ts and inspection-http.test.ts; paired checklists and guides",
+      "testResult": "PASS — focused UI 10/10, real HTTP 2/2, gate regression 35/35",
+      "verifiedAt": "2026-10-01",
+      "blocker": "—"
     },
     {
       "id": 51,

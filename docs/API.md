@@ -3660,3 +3660,8 @@ checkout.
 Inspection bookings, agency registration, rule and plan creation, defect creation and reclassification, shipment binding, and agency/seller evidence uploads require `Idempotency-Key`. The central replay mechanism returns the first successful response for the same caller, route, key and request. A missing key returns `IDEMPOTENCY_KEY_REQUIRED`. Saved checklist answers, sampling, declarations and guarded transitions retain their service protections.
 
 The customer data export includes RFQ purchase orders under `data.rfqRequests.requests[].purchaseOrder`: immutable contract and hashes, signature, monetary strings, status and approval decisions. Requests are selected by the subject's customer profile. Approval actors' user identifiers are omitted.
+
+
+### Packaging evidence validation
+
+Agency evidence uploads with `checkItemCode` must name an exact item code from the job’s frozen plan. Unknown codes return 400 VALIDATION_FAILED with NOT_IN_PLAN. The existing named-inspector, job-state and agency boundaries apply. Packaging checks continue through the existing checks endpoint, carrying outcome, measuredValue and note; NONCONFORM requires a note.

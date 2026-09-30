@@ -1556,6 +1556,8 @@ page();
 h1('6b. Inspection Agency Features');
 h2('Agency dashboard');
 p('An agency member sees their assignments, the acceptance and report deadlines, and overdue work. Each assignment links to its report. Coordinators can review member identity verification and qualification expiry. Members with invoice permission see invoices, who pays them, their status and amount. Inspectors see only work assigned to them. A failed read can be retried.');
+h2('Packaging and label checks');
+p('The assigned inspector opens a separate packaging and label screen. It shows the booked checks for inner and outer packaging, carton quantities, pallets, shipping marks, barcodes, destination labels and safety symbols. The inspector records a result, the observed value and notes, and attaches evidence to the relevant check. A failed check needs an explanation. Other agency members can read the findings; editing stops when the inspection ends.');
 p('If a connection retries a booking, a finding or an evidence upload, the system returns the original successful answer instead of creating it again. A customer who asks for a copy of their data also receives their agreed purchase-order contract, signature, amounts and approval decisions. Another buyer’s purchase orders are kept private.');
 
 h1('7. Admin Features — Secure Access, Roles and Dashboard');

@@ -122,6 +122,7 @@ export function AgencyJobPage(): React.JSX.Element {
         actions={<Link to="/inspection" className="text-sm font-medium text-brand hover:underline">{t('inspection.backToJobs')}</Link>}
       />
       <Card bodyClassName="space-y-2 px-5 py-4 text-sm">
+        <Link to={`/inspection/jobs/${id}/packaging`} className="text-brand hover:underline">{t('inspection.packaging.title')}</Link>
         <p><Badge>{d.job.status}</Badge> {d.job.kind} · {formatDateTime(d.job.scheduledFor)} · {d.job.inspectionPoint?.label} {d.job.inspectionPoint?.city}</p>
         {d.conflictCheck.agencyProblems.length > 0 && <p className="text-danger">{t('inspection.conflicts')}: {d.conflictCheck.agencyProblems.join(', ')}</p>}
         {d.job.report !== null && <p>{t('inspection.report')}: <strong>{d.job.report.result ?? d.job.report.status}</strong></p>}

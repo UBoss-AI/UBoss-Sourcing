@@ -193,6 +193,19 @@ describe('an inspection from booking to a signed FAIL', () => {
     }
 
     await answer();
+    const checkPath = `/inspection/agency/jobs/${jobId}/checks`;
+    expect((await asCustomer(app, coordinator, 'POST', checkPath, { payload: { itemCode: 'PACK.CARTON_QTY', outcome: 'CONFORM' } })).statusCode).toBe(403);
+    expect((await asCustomer(app, inspector, 'POST', checkPath, { payload: { itemCode: 'PACK.CARTON_QTY', outcome: 'NONCONFORM' } })).statusCode).toBe(400);
+    const observed = await asCustomer(app, inspector, 'POST', checkPath, { payload: { itemCode: 'PACK.CARTON_QTY', outcome: 'CONFORM', measuredValue: '24', note: 'Count verified' } });
+    expect(observed.statusCode, observed.body).toBe(200);
+    const packaging = await uploadEvidence(inspector, `/inspection/agency/jobs/${jobId}/evidence`, { purpose: 'PACKAGING', checkItemCode: 'PACK.CARTON_QTY' });
+    expect(packaging.statusCode, packaging.body).toBe(201);
+    expect((await uploadEvidence(inspector, `/inspection/agency/jobs/${jobId}/evidence`, { purpose: 'PACKAGING', checkItemCode: 'NOT.IN.PLAN' })).statusCode).toBe(400);
+    expect((await uploadEvidence(desk.rivalBuyer, `/inspection/agency/jobs/${jobId}/evidence`, { purpose: 'PACKAGING', checkItemCode: 'PACK.CARTON_QTY' })).statusCode).toBe(403);
+    const findings = await asCustomer(app, inspector, 'GET', `/inspection/agency/jobs/${jobId}`);
+    const packagingView = findings.json<{ job: { job: { checks: { itemCode: string; measuredValue: string; note: string }[]; evidence: { checkItemCode: string; purpose: string }[] } } }>().job.job;
+    expect(packagingView.checks).toContainEqual(expect.objectContaining({ itemCode: 'PACK.CARTON_QTY', measuredValue: '24', note: 'Count verified' }));
+    expect(packagingView.evidence).toContainEqual(expect.objectContaining({ checkItemCode: 'PACK.CARTON_QTY', purpose: 'PACKAGING' }));
     const defectId = (await prisma.inspectionDefect.findFirstOrThrow({ where: { jobId }, select: { id: true } })).id;
     const evidenceFields: Record<string, string>[] = [{ purpose: 'GENERAL', capturedAt: new Date().toISOString() }, { purpose: 'DEFECT', defectId, capturedAt: new Date().toISOString() }];
     for (const fields of evidenceFields) {
@@ -205,6 +218,7 @@ describe('an inspection from booking to a signed FAIL', () => {
     const signed = await asCustomer(app, qa, 'POST', `/inspection/agency/jobs/${jobId}/report/sign`);
     expect(signed.statusCode, signed.body).toBe(200);
     expect(signed.json<{ result: string }>().result).toBe('FAIL');
+    expect((await asCustomer(app, inspector, 'POST', checkPath, { payload: { itemCode: 'PACK.CARTON_QTY', outcome: 'CONFORM' } })).statusCode).toBe(409);
 
     const dispatch = await asCustomer(app, desk.sellerA, 'PATCH', `/seller/orders/${groupId}/status`, { payload: { status: 'READY_FOR_DISPATCH' } });
     expect(dispatch.statusCode, dispatch.body).toBe(409);

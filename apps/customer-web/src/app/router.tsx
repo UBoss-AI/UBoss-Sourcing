@@ -211,6 +211,7 @@ export const router = createBrowserRouter([
       // The inspection agency portal (checklist Master rows 45-54).
       { path: 'inspection', ...customerRoute(() => import('@/pages/inspection/AgencyPages').then((m) => m.AgencyDashboardPage)) },
       { path: 'inspection/jobs/:id', ...customerRoute(() => import('@/pages/inspection/AgencyPages').then((m) => m.AgencyJobPage)) },
+      { path: 'inspection/jobs/:id/packaging', ...customerRoute(() => import('@/pages/inspection/PackagingPage').then((m) => m.PackagingPage)) },
       {
         path: 'checkout',
         ...customerRoute(() => import('@/pages/CheckoutPage').then((m) => m.CheckoutPage)),

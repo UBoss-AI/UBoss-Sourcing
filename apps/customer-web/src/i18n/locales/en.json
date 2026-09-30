@@ -7409,5 +7409,18 @@
   "rfq.po.reject": "Reject",
   "rfq.po.decisionSaved": "Approval decision saved.",
   "errors.rfq.RFQ_PURCHASE_ORDER_INVALID": "The purchase-order terms changed or were not accepted. Reload and review them again.",
-  "errors.rfq.RFQ_PURCHASE_ORDER_APPROVAL_INVALID": "This purchase-order approval is no longer available. Reload its current approval state."
+  "errors.rfq.RFQ_PURCHASE_ORDER_APPROVAL_INVALID": "This purchase-order approval is no longer available. Reload its current approval state.",
+  "inspection.packaging.title": "Packaging & label check",
+  "inspection.packaging.back": "Back to inspection",
+  "inspection.packaging.unanswered": "Unanswered",
+  "inspection.packaging.outcome": "Result",
+  "inspection.packaging.choose": "Choose a result",
+  "inspection.packaging.CONFORM": "Conforms",
+  "inspection.packaging.NONCONFORM": "Does not conform",
+  "inspection.packaging.NOT_APPLICABLE": "Not applicable",
+  "inspection.packaging.measured": "Observed value / barcode / carton quantity",
+  "inspection.packaging.note": "Observations (required for a nonconformance)",
+  "inspection.packaging.save": "Save check",
+  "inspection.packaging.readOnly": "Only the assigned inspector can edit checks while this inspection is in progress.",
+  "inspection.packaging.empty": "This booked plan has no packaging or label checks."
 }

@@ -7409,5 +7409,18 @@
   "rfq.po.reject": "Afwijzen",
   "rfq.po.decisionSaved": "Approval decision saved.",
   "errors.rfq.RFQ_PURCHASE_ORDER_INVALID": "The purchase-order terms changed or were not accepted. Reload and review them again.",
-  "errors.rfq.RFQ_PURCHASE_ORDER_APPROVAL_INVALID": "This purchase-order approval is no longer available. Reload its current approval state."
+  "errors.rfq.RFQ_PURCHASE_ORDER_APPROVAL_INVALID": "This purchase-order approval is no longer available. Reload its current approval state.",
+  "inspection.packaging.title": "Verpakkings- en etiketcontrole",
+  "inspection.packaging.back": "Terug naar inspectie",
+  "inspection.packaging.unanswered": "Onbeantwoord",
+  "inspection.packaging.outcome": "Resultaat",
+  "inspection.packaging.choose": "Kies een resultaat",
+  "inspection.packaging.CONFORM": "Conform",
+  "inspection.packaging.NONCONFORM": "Niet conform",
+  "inspection.packaging.NOT_APPLICABLE": "Niet van toepassing",
+  "inspection.packaging.measured": "Waargenomen waarde / barcode / aantal per doos",
+  "inspection.packaging.note": "Observaties (verplicht bij afwijking)",
+  "inspection.packaging.save": "Controle opslaan",
+  "inspection.packaging.readOnly": "Alleen de toegewezen inspecteur kan controles tijdens de inspectie bewerken.",
+  "inspection.packaging.empty": "Dit geboekte plan bevat geen verpakkings- of etiketcontroles."
 }

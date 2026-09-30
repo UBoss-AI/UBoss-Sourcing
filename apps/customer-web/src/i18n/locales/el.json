@@ -7409,5 +7409,18 @@
   "rfq.po.reject": "Απόρριψη",
   "rfq.po.decisionSaved": "Approval decision saved.",
   "errors.rfq.RFQ_PURCHASE_ORDER_INVALID": "The purchase-order terms changed or were not accepted. Reload and review them again.",
-  "errors.rfq.RFQ_PURCHASE_ORDER_APPROVAL_INVALID": "This purchase-order approval is no longer available. Reload its current approval state."
+  "errors.rfq.RFQ_PURCHASE_ORDER_APPROVAL_INVALID": "This purchase-order approval is no longer available. Reload its current approval state.",
+  "inspection.packaging.title": "Έλεγχος συσκευασίας και ετικετών",
+  "inspection.packaging.back": "Επιστροφή στην επιθεώρηση",
+  "inspection.packaging.unanswered": "Χωρίς απάντηση",
+  "inspection.packaging.outcome": "Αποτέλεσμα",
+  "inspection.packaging.choose": "Επιλέξτε αποτέλεσμα",
+  "inspection.packaging.CONFORM": "Συμμορφώνεται",
+  "inspection.packaging.NONCONFORM": "Δεν συμμορφώνεται",
+  "inspection.packaging.NOT_APPLICABLE": "Δεν εφαρμόζεται",
+  "inspection.packaging.measured": "Παρατηρούμενη τιμή / γραμμωτός κώδικας / ποσότητα κιβωτίου",
+  "inspection.packaging.note": "Παρατηρήσεις (απαιτούνται για μη συμμόρφωση)",
+  "inspection.packaging.save": "Αποθήκευση ελέγχου",
+  "inspection.packaging.readOnly": "Μόνο ο ανατεθειμένος επιθεωρητής μπορεί να επεξεργάζεται ελέγχους κατά την επιθεώρηση.",
+  "inspection.packaging.empty": "Αυτό το κλεισμένο σχέδιο δεν περιλαμβάνει ελέγχους συσκευασίας ή ετικετών."
 }
