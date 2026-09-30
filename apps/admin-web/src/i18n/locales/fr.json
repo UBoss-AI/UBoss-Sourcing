@@ -5095,5 +5095,10 @@
   "logistics.shipment.documentScan.PENDING": "Analyse non terminée",
   "logistics.shipment.documentScan.SKIPPED": "Non analysé",
   "logistics.shipment.documentScan.INFECTED": "Logiciel malveillant détecté",
-  "logistics.shipment.documentScan.FAILED": "Échec de l’analyse"
+  "logistics.shipment.documentScan.FAILED": "Échec de l’analyse",
+  "inspection.reinspection.evidence": "Preuve de correction",
+  "inspection.reinspection.attachFirst": "Joignez une preuve de la correction avant de soumettre.",
+  "inspection.reinspection.original": "Inspection d’origine",
+  "inspection.reinspection.choose": "Choisir l’inspection échouée",
+  "inspection.reinspection.capaFirst": "Une action corrective est requise pour chaque constat ouvert avant la nouvelle inspection."
 }

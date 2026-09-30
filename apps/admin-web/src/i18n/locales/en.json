@@ -5062,5 +5062,10 @@
   "logistics.shipment.documentScan.PENDING": "Scan not finished",
   "logistics.shipment.documentScan.SKIPPED": "Not scanned",
   "logistics.shipment.documentScan.INFECTED": "Malware found",
-  "logistics.shipment.documentScan.FAILED": "Scan failed"
+  "logistics.shipment.documentScan.FAILED": "Scan failed",
+  "inspection.reinspection.evidence": "Corrective evidence",
+  "inspection.reinspection.attachFirst": "Attach evidence of the correction before submitting.",
+  "inspection.reinspection.original": "Original inspection",
+  "inspection.reinspection.choose": "Choose the failed inspection",
+  "inspection.reinspection.capaFirst": "Corrective action is required for every open finding before re-inspection."
 }

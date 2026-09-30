@@ -154,6 +154,7 @@ describe('an inspection from booking to a signed FAIL', () => {
     expect(accepted.statusCode, accepted.body).toBe(200);
     const detail = await asCustomer(app, coordinator, 'GET', `/inspection/agency/jobs/${jobId}`);
     expect(detail.statusCode, detail.body).toBe(200);
+    expect(detail.json<{ job: { job: { report: unknown } } }>().job.job.report).toBeNull();
     const eligible = detail.json<{ job: { eligibleInspectors: { id: string; fullName: string }[] } }>().job.eligibleInspectors;
     const inspectorMember = eligible.find((member) => member.fullName === 'aginsp');
     expect(inspectorMember, detail.body).toBeDefined();
@@ -226,6 +227,18 @@ describe('an inspection from booking to a signed FAIL', () => {
     const buyerView = await asCustomer(app, desk.buyer, 'GET', `/inspection/buyer/orders/${desk.orderId}`);
     expect(buyerView.statusCode, buyerView.body).toBe(200);
     expect(buyerView.json<{ inspections: unknown[] }>().inspections.length).toBe(1);
+    const failedGate = buyerView.json<{ inspections: { requirement: { gate: { allowed: boolean; sentence: string } } }[] }>().inspections[0]?.requirement.gate;
+    expect(failedGate?.allowed).toBe(false);
+    expect(typeof failedGate?.sentence).toBe('string');
+    const savedVisibility = await prisma.inspectionPolicy.findFirstOrThrow({ select: { buyerReportAccess: true } });
+    try {
+      await prisma.inspectionPolicy.updateMany({ data: { buyerReportAccess: 'NONE' } });
+      const hidden = await asCustomer(app, desk.buyer, 'GET', `/inspection/buyer/orders/${desk.orderId}`);
+      expect(hidden.statusCode, hidden.body).toBe(200);
+      expect(hidden.json<{ inspections: { jobs: { report: unknown }[] }[] }>().inspections[0]?.jobs.every((job) => job.report === null)).toBe(true);
+    } finally {
+      await prisma.inspectionPolicy.updateMany({ data: savedVisibility });
+    }
     const sellerView = await asCustomer(app, desk.sellerA, 'GET', `/seller/inspection/orders/${groupId}`);
     expect(sellerView.statusCode, sellerView.body).toBe(200);
     expect(sellerView.body).toContain('Outer seal torn on one carton');
@@ -253,5 +266,50 @@ describe('an inspection from booking to a signed FAIL', () => {
     expect(scoped.json<{ inspectors: unknown[]; invoices: unknown[] }>().inspectors).toEqual([]);
     expect(scoped.json<{ invoices: unknown[] }>().invoices).toEqual([]);
     expect((await asCustomer(app, desk.rivalBuyer, 'GET', '/inspection/agency/dashboard')).statusCode).toBe(403);
+
+    // Corrective evidence and repeat inspection stay linked to the immutable failed report.
+    const originalJobId = jobId;
+    const originalReport = await prisma.inspectionReport.findFirstOrThrow({ where: { jobId: originalJobId, status: 'SIGNED' }, select: { id: true, contentHash: true, result: true } });
+    const repeatBooking = { ...booking, reinspectionOfJobId: originalJobId, scheduledFor: new Date(Date.now() + 4 * 86_400_000).toISOString() };
+    expect((await asStaff(app, admin, 'POST', '/inspection/jobs', { payload: repeatBooking })).statusCode).toBe(409);
+    const capa = { sellerResponse: 'Packaging seal was damaged', correctiveAction: 'Repacked the affected carton and verified all seals' };
+    expect((await asCustomer(app, desk.sellerA, 'POST', `/seller/inspection/defects/${defectId}/capa`, { payload: capa })).statusCode).toBe(400);
+    expect((await uploadEvidence(desk.sellerB, `/seller/inspection/jobs/${originalJobId}/evidence`, { purpose: 'CAPA', defectId })).statusCode).toBe(404);
+    const correction = await uploadEvidence(desk.sellerA, `/seller/inspection/jobs/${originalJobId}/evidence`, { purpose: 'CAPA', defectId });
+    expect(correction.statusCode, correction.body).toBe(201);
+    const corrected = await asCustomer(app, desk.sellerA, 'POST', `/seller/inspection/defects/${defectId}/capa`, { payload: capa });
+    expect(corrected.statusCode, corrected.body).toBe(200);
+    expect((await asStaff(app, admin, 'POST', '/inspection/jobs', { payload: { ...repeatBooking, reinspectionOfJobId: newId() } })).statusCode).toBe(404);
+    const repeat = await asStaff(app, admin, 'POST', '/inspection/jobs', { payload: repeatBooking });
+    expect(repeat.statusCode, repeat.body).toBe(201);
+    jobId = repeat.json<{ jobId: string }>().jobId;
+    expect(await prisma.inspectionJob.findUnique({ where: { id: jobId }, select: { kind: true, reinspectionOfJobId: true } })).toEqual({ kind: 'REINSPECTION', reinspectionOfJobId: originalJobId });
+    for (const [session, path, payload] of [
+      [coordinator, 'accept', { conflictStatement: 'No financial or family link to the seller or buyer.', confirmNoConflict: true }],
+      [coordinator, 'assign', { inspectorMemberId: inspectorMember?.id }],
+    ] as const) {
+      const response = await asCustomer(app, session, 'POST', `/inspection/agency/jobs/${jobId}/${path}`, { payload });
+      expect(response.statusCode, response.body).toBe(200);
+    }
+    const repeatReady = await asCustomer(app, desk.sellerA, 'POST', `/seller/inspection/jobs/${jobId}/readiness`, { payload: { lotReference: 'LOT-1', readyDate: new Date().toISOString().slice(0, 10), locationLabel: 'Factory bay 2', contactName: 'Ravi', contactPhone: '+911234567890', packedStatus: 'PACKED', declaration: true } });
+    expect(repeatReady.statusCode, repeatReady.body).toBe(200);
+    for (const [action, payload] of [
+      ['conflict', { hasConflict: false }], ['start', {}],
+      ['sampling', { lotReference: 'LOT-1', sampledQuantity: 3, acceptedQuantity: 3, rejectedQuantity: 0 }],
+    ] as const) {
+      const response = await asCustomer(app, inspector, 'POST', `/inspection/agency/jobs/${jobId}/${action}`, { payload });
+      expect(response.statusCode, response.body).toBe(200);
+    }
+    await answer();
+    expect((await uploadEvidence(inspector, `/inspection/agency/jobs/${jobId}/evidence`, { purpose: 'GENERAL' })).statusCode).toBe(201);
+    expect((await asCustomer(app, inspector, 'POST', `/inspection/agency/jobs/${jobId}/report/submit`, { payload: { summary: 'Correction verified; all packaging checks conform.' } })).statusCode).toBe(200);
+    const repeatSign = await asCustomer(app, qa, 'POST', `/inspection/agency/jobs/${jobId}/report/sign`);
+    expect(repeatSign.statusCode, repeatSign.body).toBe(200);
+    expect(repeatSign.json<{ result: string }>().result).toBe('PASS');
+    expect(await prisma.inspectionDefect.findUnique({ where: { id: defectId }, select: { status: true } })).toEqual({ status: 'VERIFIED_CLOSED' });
+    expect(await prisma.inspectionReport.findUnique({ where: { id: originalReport.id }, select: { id: true, contentHash: true, result: true } })).toEqual(originalReport);
+    const linked = await asCustomer(app, desk.sellerA, 'GET', `/seller/inspection/orders/${groupId}`);
+    expect(linked.json<{ inspection: { requirement: { gate: { allowed: boolean } } } }>().inspection.requirement.gate.allowed).toBe(true);
+    expect(linked.json<{ inspection: { jobs: { id: string; reinspectionOfJobId: string | null; report: { result: string } | null }[] } }>().inspection.jobs).toContainEqual(expect.objectContaining({ id: jobId, reinspectionOfJobId: originalJobId, report: expect.objectContaining({ result: 'PASS' }) }));
   }, 120_000);
 });

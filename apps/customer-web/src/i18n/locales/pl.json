@@ -7640,5 +7640,10 @@
   "inspection.packaging.note": "Obserwacje (wymagane przy niezgodności)",
   "inspection.packaging.save": "Zapisz kontrolę",
   "inspection.packaging.readOnly": "Tylko przypisany inspektor może edytować kontrole podczas trwającej inspekcji.",
-  "inspection.packaging.empty": "Ten zarezerwowany plan nie zawiera kontroli opakowań ani etykiet."
+  "inspection.packaging.empty": "Ten zarezerwowany plan nie zawiera kontroli opakowań ani etykiet.",
+  "inspection.reinspection.evidence": "Dowód korekty",
+  "inspection.reinspection.attachFirst": "Dołącz dowód korekty przed wysłaniem.",
+  "inspection.reinspection.original": "Pierwotna inspekcja",
+  "inspection.reinspection.choose": "Wybierz nieudaną inspekcję",
+  "inspection.reinspection.capaFirst": "Przed ponowną inspekcją każde otwarte ustalenie wymaga działania korygującego."
 }

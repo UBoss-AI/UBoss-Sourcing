@@ -7531,5 +7531,10 @@
   "inspection.packaging.note": "Observations (obligatoires en cas de non-conformité)",
   "inspection.packaging.save": "Enregistrer le contrôle",
   "inspection.packaging.readOnly": "Seul l’inspecteur affecté peut modifier les contrôles pendant l’inspection.",
-  "inspection.packaging.empty": "Ce plan réservé ne contient aucun contrôle d’emballage ou d’étiquetage."
+  "inspection.packaging.empty": "Ce plan réservé ne contient aucun contrôle d’emballage ou d’étiquetage.",
+  "inspection.reinspection.evidence": "Preuve de correction",
+  "inspection.reinspection.attachFirst": "Joignez une preuve de la correction avant de soumettre.",
+  "inspection.reinspection.original": "Inspection d’origine",
+  "inspection.reinspection.choose": "Choisir l’inspection échouée",
+  "inspection.reinspection.capaFirst": "Une action corrective est requise pour chaque constat ouvert avant la nouvelle inspection."
 }

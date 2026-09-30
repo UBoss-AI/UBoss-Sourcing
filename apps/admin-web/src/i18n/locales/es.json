@@ -5095,5 +5095,10 @@
   "logistics.shipment.documentScan.PENDING": "Análisis sin terminar",
   "logistics.shipment.documentScan.SKIPPED": "Sin analizar",
   "logistics.shipment.documentScan.INFECTED": "Malware detectado",
-  "logistics.shipment.documentScan.FAILED": "Falló el análisis"
+  "logistics.shipment.documentScan.FAILED": "Falló el análisis",
+  "inspection.reinspection.evidence": "Prueba de corrección",
+  "inspection.reinspection.attachFirst": "Adjunte pruebas de la corrección antes de enviar.",
+  "inspection.reinspection.original": "Inspección original",
+  "inspection.reinspection.choose": "Elegir la inspección fallida",
+  "inspection.reinspection.capaFirst": "Se requiere una acción correctiva para cada hallazgo abierto antes de reinspeccionar."
 }

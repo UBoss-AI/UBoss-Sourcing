@@ -25,7 +25,7 @@ interface JobDetail {
   requirement: { orderNumber: string; sellerName: string; level: string };
   checklist: { code?: string; itemCode?: string; label?: string; text?: string }[];
   conflictCheck: { agencyProblems: string[] };
-  me: { role: string; isNamedInspector: boolean; allowedTransitions: string[] };
+  me: { role: string; isNamedInspector: boolean; allowedTransitions: { to: string; requiresReason: boolean }[] };
   eligibleInspectors: { id: string; fullName: string; competent?: boolean; identityVerified?: boolean }[];
 }
 
@@ -110,7 +110,7 @@ export function AgencyJobPage(): React.JSX.Element {
   if (query.isPending) return <LoadingState />;
   if (query.isError) return <ErrorState error={query.error} onRetry={() => { void query.refetch(); }} />;
   const d = query.data;
-  const can = (status: string): boolean => d.me.allowedTransitions.includes(status);
+  const can = (status: string): boolean => d.me.allowedTransitions.some((transition) => transition.to === status);
   const busy = run.isPending;
   const inProgress = d.job.status === 'IN_PROGRESS' && d.me.isNamedInspector;
 

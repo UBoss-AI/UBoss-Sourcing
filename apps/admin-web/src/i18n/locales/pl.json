@@ -5128,5 +5128,10 @@
   "logistics.shipment.documentScan.PENDING": "Skanowanie niezakończone",
   "logistics.shipment.documentScan.SKIPPED": "Nieprzeskanowany",
   "logistics.shipment.documentScan.INFECTED": "Wykryto złośliwe oprogramowanie",
-  "logistics.shipment.documentScan.FAILED": "Skanowanie nie powiodło się"
+  "logistics.shipment.documentScan.FAILED": "Skanowanie nie powiodło się",
+  "inspection.reinspection.evidence": "Dowód korekty",
+  "inspection.reinspection.attachFirst": "Dołącz dowód korekty przed wysłaniem.",
+  "inspection.reinspection.original": "Pierwotna inspekcja",
+  "inspection.reinspection.choose": "Wybierz nieudaną inspekcję",
+  "inspection.reinspection.capaFirst": "Przed ponowną inspekcją każde otwarte ustalenie wymaga działania korygującego."
 }

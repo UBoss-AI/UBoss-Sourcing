@@ -13,7 +13,7 @@ import { Badge, Button, Card, Input, Select, Textarea } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 import { formatDateTime } from '@/lib/format';
-import { submitCapa, submitReadiness, type InspectionDefect, type InspectionJobView, type InspectionView } from '@/lib/inspection';
+import { submitCapa, submitReadiness, uploadCorrectiveEvidence, type InspectionDefect, type InspectionJobView, type InspectionView } from '@/lib/inspection';
 
 function ReadinessForm({ job, onDone }: { job: InspectionJobView; onDone: () => void }): React.JSX.Element {
   const { t } = useI18n();
@@ -50,11 +50,18 @@ function ReadinessForm({ job, onDone }: { job: InspectionJobView; onDone: () => 
   );
 }
 
-function CapaForm({ defect, onDone }: { defect: InspectionDefect; onDone: () => void }): React.JSX.Element {
+function CapaForm({ job, defect, onDone }: { job: InspectionJobView; defect: InspectionDefect; onDone: () => void }): React.JSX.Element {
   const { t } = useI18n();
   const toast = useToast();
   const [response, setResponse] = useState('');
   const [action, setAction] = useState('');
+  const evidence = (job.evidence ?? []).filter((file) => file.purpose === 'CAPA' && file.defectId === defect.id);
+  const [uploaded, setUploaded] = useState(false);
+  const upload = useMutation({
+    mutationFn: (file: File) => uploadCorrectiveEvidence(job.id, defect.id, file),
+    onSuccess: () => { setUploaded(true); toast.success(t('inspection.saved')); onDone(); },
+    onError: (failure) => { toast.error(errorMessage(t, failure)); },
+  });
   const send = useMutation({
     mutationFn: () => submitCapa(defect.id, { sellerResponse: response.trim(), correctiveAction: action.trim() }),
     onSuccess: () => { toast.success(t('inspection.capaSent')); onDone(); },
@@ -62,9 +69,16 @@ function CapaForm({ defect, onDone }: { defect: InspectionDefect; onDone: () => 
   });
   return (
     <div className="mt-2 space-y-2">
+      <label className="block"><span>{t('inspection.reinspection.evidence')}</span><input type="file" className="mt-1 block w-full" disabled={upload.isPending || send.isPending} onChange={(event) => {
+        const file = event.target.files?.[0];
+        if (file !== undefined) upload.mutate(file);
+        event.target.value = '';
+      }} /></label>
+      {evidence.map((file) => <p key={file.id}>{file.fileName}</p>)}
+      {!uploaded && evidence.length === 0 && <p className="text-ink-muted">{t('inspection.reinspection.attachFirst')}</p>}
       <Textarea aria-label={t('inspection.capaResponse')} placeholder={t('inspection.capaResponse')} rows={2} value={response} onChange={(event) => { setResponse(event.target.value); }} />
       <Textarea aria-label={t('inspection.capaAction')} placeholder={t('inspection.capaAction')} rows={2} value={action} onChange={(event) => { setAction(event.target.value); }} />
-      <Button size="sm" variant="secondary" disabled={response.trim() === '' || action.trim() === '' || send.isPending} onClick={() => { send.mutate(); }}>{t('inspection.sendCapa')}</Button>
+      <Button size="sm" variant="secondary" disabled={response.trim() === '' || action.trim().length < 10 || (!uploaded && evidence.length === 0) || send.isPending || upload.isPending} onClick={() => { send.mutate(); }}>{t('inspection.sendCapa')}</Button>
     </div>
   );
 }
@@ -87,6 +101,7 @@ export function InspectionPanel({ view, audience, queryKey }: { view: Inspection
           <p className="font-medium">
             {job.jobNumber} · {job.kind} · <Badge>{job.status}</Badge>
           </p>
+          {job.reinspectionOfJobId != null && <p>{t('inspection.reinspection.original')}: {view.jobs.find((original) => original.id === job.reinspectionOfJobId)?.jobNumber ?? job.reinspectionOfJobId}</p>}
           <p className="text-xs text-ink-muted">
             {[job.agency?.name, job.inspector?.fullName, formatDateTime(job.scheduledFor), job.inspectionPoint?.label, job.payer].filter(Boolean).join(' · ')}
           </p>
@@ -112,7 +127,9 @@ export function InspectionPanel({ view, audience, queryKey }: { view: Inspection
               {(job.defects ?? []).map((defect) => (
                 <li key={defect.id} className="rounded bg-surface-sunken px-2 py-1.5">
                   <Badge tone={defect.severity === 'MINOR' ? 'neutral' : 'action'}>{defect.severity}</Badge> {defect.ncrNumber} — {defect.description} ({defect.status})
-                  {audience === 'SELLER' && (defect.severity !== 'MINOR') && defect.correctiveAction == null && <CapaForm defect={defect} onDone={refresh} />}
+                  {defect.correctiveAction && <p>{defect.correctiveAction}</p>}
+                  {audience === 'SELLER' && defect.correctiveAction != null && (job.evidence ?? []).filter((file) => file.purpose === 'CAPA' && file.defectId === defect.id).map((file) => <p key={file.id}>{file.fileName}</p>)}
+                  {audience === 'SELLER' && job.status === 'COMPLETED' && defect.status !== 'VERIFIED_CLOSED' && defect.correctiveAction == null && <CapaForm job={job} defect={defect} onDone={refresh} />}
                 </li>
               ))}
             </ul>

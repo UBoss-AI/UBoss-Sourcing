@@ -6386,3 +6386,10 @@ The code was trusted in every case below. On 2026-09-24 the other source was cor
 ## Inspection packaging and label checks
 
 The dedicated agency screen `/inspection/jobs/:id/packaging` shows the PACKAGING and LABELLING items frozen in the booked plan: inner/outer packaging, carton count, pallets, marks, barcodes, destination labels and applicable safety symbols. The named inspector can record a result, measured value and notes while the job is IN_PROGRESS; a nonconformance needs a reason. Evidence is linked to its check and visible after saving. Agency readers see saved findings without edit controls. Unknown evidence check codes are refused by the server, and completed reports stay locked. Custom plans show only their own booked items; an empty plan gets an explicit empty state.
+
+
+## Corrective evidence and linked re-inspection
+
+After a signed inspection fails, the seller uploads corrective evidence on each NCR and submits the response and corrective action. All severities can require correction; evidence must be stored before submission. Staff with inspection.manage choose the original failed inspection in the booking form. Booking stays blocked while any completed inspection has an open finding or another job is active. The server enforces these conditions and the original-job relationship. Both seller and admin views display the original inspection number. A passing repeat report closes the corrected findings; the original failed report stays immutable.
+
+Inspection responses now expose report as the latest report visible to that audience (or null), alongside the unchanged revision list. Agency job controls read the server’s transition objects by their to field. This repairs the inherited live-job rendering mismatch and preserves report visibility policies.

@@ -222,6 +222,7 @@ async function requirementBundle(requirementId: string, audience: Audience) {
         ? job.checks.map((check) => ({ ...check, recordedAt: iso(check.recordedAt) }))
         : [],
       reports,
+      report: reports.at(-1) ?? null,
       defects,
       evidence,
       invoices:
@@ -246,6 +247,7 @@ async function requirementBundle(requirementId: string, audience: Audience) {
       groupStatus: requirement.sellerOrderGroup.status,
       level: requirement.level,
       status: requirement.status,
+      gate: { allowed: gate.open, sentence: gateSentence(gate.reason) },
       cardStatus: cardStatusFor(requirement.status, openReinspection),
       reason: requirement.reason,
       ruleName: audience === 'BUYER' ? null : requirement.ruleName,

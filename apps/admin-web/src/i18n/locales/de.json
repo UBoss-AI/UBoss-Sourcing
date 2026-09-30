@@ -5062,5 +5062,10 @@
   "logistics.shipment.documentScan.PENDING": "Prüfung nicht abgeschlossen",
   "logistics.shipment.documentScan.SKIPPED": "Nicht geprüft",
   "logistics.shipment.documentScan.INFECTED": "Schadsoftware gefunden",
-  "logistics.shipment.documentScan.FAILED": "Prüfung fehlgeschlagen"
+  "logistics.shipment.documentScan.FAILED": "Prüfung fehlgeschlagen",
+  "inspection.reinspection.evidence": "Nachweis der Korrektur",
+  "inspection.reinspection.attachFirst": "Vor dem Absenden einen Nachweis der Korrektur anhängen.",
+  "inspection.reinspection.original": "Ursprüngliche Inspektion",
+  "inspection.reinspection.choose": "Fehlgeschlagene Inspektion wählen",
+  "inspection.reinspection.capaFirst": "Vor der Nachprüfung ist für jeden offenen Befund eine Korrekturmaßnahme erforderlich."
 }

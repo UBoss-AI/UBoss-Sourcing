@@ -7422,5 +7422,10 @@
   "inspection.packaging.note": "Observaties (verplicht bij afwijking)",
   "inspection.packaging.save": "Controle opslaan",
   "inspection.packaging.readOnly": "Alleen de toegewezen inspecteur kan controles tijdens de inspectie bewerken.",
-  "inspection.packaging.empty": "Dit geboekte plan bevat geen verpakkings- of etiketcontroles."
+  "inspection.packaging.empty": "Dit geboekte plan bevat geen verpakkings- of etiketcontroles.",
+  "inspection.reinspection.evidence": "Bewijs van correctie",
+  "inspection.reinspection.attachFirst": "Voeg bewijs van de correctie toe voordat u indient.",
+  "inspection.reinspection.original": "Oorspronkelijke inspectie",
+  "inspection.reinspection.choose": "Kies de afgekeurde inspectie",
+  "inspection.reinspection.capaFirst": "Voor elke open bevinding is een corrigerende actie vereist vóór de herinspectie."
 }

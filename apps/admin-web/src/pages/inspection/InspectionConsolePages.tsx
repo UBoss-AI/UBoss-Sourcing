@@ -17,13 +17,14 @@ import { Badge, Button, Card, EmptyState, ErrorState, Input, LoadingState, PageH
 import { useI18n } from '@/i18n/i18n-context';
 import { api } from '@/lib/api';
 import { newIdempotencyKey } from '@/lib/forms';
+import { useSession } from '@/auth/session-context';
 import { errorMessage } from '@/lib/errors';
 import { formatDateTime } from '@/lib/format';
 
 interface QueueRow { id: string; orderNumber?: string; sellerName?: string; level: string; status: string; evaluatedAt?: string | null }
 interface Detail {
   requirement: { id: string; orderNumber: string; sellerName: string; sellerOrderGroupId: string; level: string; status: string; reason: string | null; ruleName: string | null; gate: { sentence: string } };
-  jobs: { id: string; jobNumber: string; status: string; agency: { name?: string } | null; scheduledFor: string | null; report: { result: string | null; status: string } | null }[];
+  jobs: { id: string; jobNumber: string; status: string; reinspectionOfJobId: string | null; defects: { status: string }[]; agency: { name?: string } | null; scheduledFor: string | null; report: { result: string | null; status: string } | null }[];
   releases: { id: string; kind: string; state: string; reason?: string | null }[];
   timeline: { id: string; summary: string; actorLabel: string | null; createdAt: string | null }[];
 }
@@ -72,17 +73,21 @@ export function InspectionQueuePage(): React.JSX.Element {
 export function InspectionRequirementPage(): React.JSX.Element {
   const { id = '' } = useParams();
   const { t } = useI18n();
+  const { can } = useSession();
   const key = ['admin', 'inspection', 'requirement', id];
   const query = useQuery({ queryKey: key, queryFn: () => api.get<{ inspection: Detail }>(`/admin/inspection/requirements/${id}`) });
   const agencies = useQuery({ queryKey: ['admin', 'inspection', 'agencies'], queryFn: () => api.get<{ agencies: { id: string; name: string }[] }>('/admin/inspection/agencies') });
   const run = useRun(key);
   const [reason, setReason] = useState('');
-  const [booking, setBooking] = useState({ agencyId: '', scheduledFor: '', label: '', addressLine: '', city: '', country: '', payer: 'BUYER', pointType: 'SELLER_PREMISES' });
+  const [booking, setBooking] = useState({ agencyId: '', scheduledFor: '', label: '', addressLine: '', city: '', country: '', payer: 'BUYER', pointType: 'SELLER_PREMISES', reinspectionOfJobId: '' });
 
   if (query.isPending) return <LoadingState />;
   if (query.isError) return <ErrorState error={query.error} onRetry={() => { void query.refetch(); }} />;
   const d = query.data.inspection;
   const busy = run.isPending;
+  const repeatable = d.jobs.filter((job) => job.status === 'COMPLETED' && job.report?.result === 'FAIL');
+  const openJob = d.jobs.some((job) => ['REQUESTED', 'ACCEPTED', 'INSPECTOR_ASSIGNED', 'IN_PROGRESS', 'REPORT_SUBMITTED'].includes(job.status));
+  const needsCapa = d.jobs.some((job) => job.status === 'COMPLETED' && job.defects.some((defect) => defect.status === 'OPEN'));
   const set = (field: keyof typeof booking) => (event: { target: { value: string } }): void => { setBooking({ ...booking, [field]: event.target.value }); };
 
   return (
@@ -97,7 +102,7 @@ export function InspectionRequirementPage(): React.JSX.Element {
           <p>{d.requirement.gate.sentence}</p>
           {d.requirement.ruleName !== null && <p className="text-ink-muted">{t('inspection.rule')}: {d.requirement.ruleName} · {d.requirement.reason}</p>}
           {d.jobs.map((job) => (
-            <p key={job.id}><Badge>{job.status}</Badge> {job.jobNumber} · {job.agency?.name} · {formatDateTime(job.scheduledFor)} {job.report !== null && `· ${job.report.result ?? job.report.status}`}</p>
+            <p key={job.id}><Badge>{job.status}</Badge> {job.jobNumber} · {job.agency?.name} · {formatDateTime(job.scheduledFor)} {job.report !== null && `· ${job.report.result ?? job.report.status}`} {job.reinspectionOfJobId !== null && `· ${t('inspection.reinspection.original')}: ${d.jobs.find((original) => original.id === job.reinspectionOfJobId)?.jobNumber ?? job.reinspectionOfJobId}`}</p>
           ))}
           {d.releases.map((release) => (
             <div key={release.id} className="flex flex-wrap items-center gap-2">
@@ -113,7 +118,14 @@ export function InspectionRequirementPage(): React.JSX.Element {
           <Button size="sm" variant="secondary" disabled={busy} onClick={() => { run.mutate({ method: 'post', path: `requirements/${id}/reevaluate` }); }}>{t('inspection.reevaluate')}</Button>
         </Card>
 
-        <Card title={t('inspection.bookTitle')} bodyClassName="space-y-2 px-5 py-4 text-sm">
+        {can('inspection.manage') && <Card title={t('inspection.bookTitle')} bodyClassName="space-y-2 px-5 py-4 text-sm">
+          {repeatable.length > 0 && <>
+            <Select aria-label={t('inspection.reinspection.original')} value={booking.reinspectionOfJobId} onChange={set('reinspectionOfJobId')}>
+              <option value="">{t('inspection.reinspection.choose')}</option>
+              {repeatable.map((job) => <option key={job.id} value={job.id}>{job.jobNumber}</option>)}
+            </Select>
+            {needsCapa && <p>{t('inspection.reinspection.capaFirst')}</p>}
+          </>}
           <Select aria-label={t('inspection.agency')} value={booking.agencyId} onChange={set('agencyId')}>
             <option value="">{t('inspection.anyEligibleAgency')}</option>
             {(agencies.data?.agencies ?? []).map((agency) => <option key={agency.id} value={agency.id}>{agency.name}</option>)}
@@ -128,17 +140,18 @@ export function InspectionRequirementPage(): React.JSX.Element {
           <Select aria-label={t('inspection.payer')} value={booking.payer} onChange={set('payer')}>
             {['BUYER', 'SELLER', 'PLATFORM'].map((value) => <option key={value}>{value}</option>)}
           </Select>
-          <Button variant="primary" disabled={busy || booking.scheduledFor === '' || booking.city === '' || booking.country.length !== 2} onClick={() => {
+          <Button variant="primary" disabled={busy || openJob || (repeatable.length > 0 && (booking.reinspectionOfJobId === '' || needsCapa)) || booking.scheduledFor === '' || booking.city === '' || booking.country.length !== 2} onClick={() => {
             run.mutate({ method: 'post', path: 'jobs', body: {
               sellerOrderGroupId: d.requirement.sellerOrderGroupId, agencyId: booking.agencyId === '' ? null : booking.agencyId,
               scheduledFor: new Date(booking.scheduledFor).toISOString(), inspectionPointType: booking.pointType,
               inspectionPoint: { label: booking.label || booking.city, addressLine: booking.addressLine || booking.city, city: booking.city, country: booking.country.toUpperCase() },
               payer: booking.payer,
+              reinspectionOfJobId: booking.reinspectionOfJobId || null,
             } });
           }}>{t('inspection.book')}</Button>
           <Textarea aria-label={t('inspection.overrideReason')} placeholder={t('inspection.overrideReason')} rows={3} value={reason} onChange={(event) => { setReason(event.target.value); }} />
           <Button variant="secondary" disabled={busy || reason.trim().length < 10} onClick={() => { run.mutate({ method: 'post', path: `requirements/${id}/conditional-release`, body: { reason: reason.trim(), evidenceIds: [] } }); }}>{t('inspection.requestConditional')}</Button>
-        </Card>
+        </Card>}
       </div>
       <Card title={t('inspection.timeline')} className="mt-4" bodyClassName="px-5 py-4 text-sm">
         <ol className="space-y-1">

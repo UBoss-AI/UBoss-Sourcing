@@ -22,6 +22,7 @@ export interface InspectionJobView {
   id: string;
   jobNumber: string;
   kind: string;
+  reinspectionOfJobId?: string | null;
   status: string;
   agency: { name?: string } | null;
   payer: string;
@@ -32,6 +33,7 @@ export interface InspectionJobView {
   inspector: { fullName?: string } | null;
   report: { status: string; result: string | null; summary: string | null; signedAt: string | null; signedByName: string | null } | null;
   defects?: InspectionDefect[];
+  evidence?: { id: string; purpose: string; defectId: string | null; fileName: string }[];
   samplingRecord?: { lotReference?: string; sampledQuantity?: number; acceptedQuantity?: number; rejectedQuantity?: number } | null;
 }
 
@@ -116,4 +118,12 @@ export function uploadAgencyEvidence(jobId: string, file: File, fields: Record<s
   form.append('capturedAt', new Date().toISOString());
   form.append('file', file);
   return postFile(`/inspection/agency/jobs/${jobId}/evidence`, form, { idempotencyKey: newIdempotencyKey() });
+}
+
+export function uploadCorrectiveEvidence(jobId: string, defectId: string, file: File): Promise<unknown> {
+  const form = new FormData();
+  form.append('purpose', 'CAPA');
+  form.append('defectId', defectId);
+  form.append('file', file);
+  return postFile(`/seller/inspection/jobs/${jobId}/evidence`, form, { idempotencyKey: newIdempotencyKey() });
 }

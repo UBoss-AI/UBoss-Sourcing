@@ -1,12 +1,12 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AgencyDashboardPage } from './AgencyPages';
+import { AgencyDashboardPage, AgencyJobPage } from './AgencyPages';
 import { renderWithProviders } from '@/test/harness';
-import { fetchAgencyDashboard, fetchAgencyMe, type AgencyDashboard } from '@/lib/inspection';
+import { fetchAgencyDashboard, fetchAgencyJob, fetchAgencyMe, type AgencyDashboard } from '@/lib/inspection';
 
 vi.mock('@/lib/inspection', async (original) => ({
   ...await original<typeof import('@/lib/inspection')>(),
-  fetchAgencyDashboard: vi.fn(), fetchAgencyMe: vi.fn(),
+  fetchAgencyDashboard: vi.fn(), fetchAgencyMe: vi.fn(), fetchAgencyJob: vi.fn(),
 }));
 
 const dashboard: AgencyDashboard = {
@@ -50,5 +50,11 @@ describe('agency dashboard', () => {
     renderWithProviders(<AgencyDashboardPage />);
     expect(await screen.findByRole('button', { name: /try again/i })).toBeInTheDocument();
     expect(fetchAgencyDashboard).not.toHaveBeenCalled();
+  });
+  it('renders an unsigned job and server transition objects with the packaging link', async () => {
+    vi.mocked(fetchAgencyJob).mockResolvedValue({job:{id:'J',jobNumber:'INS-1',status:'REQUESTED',kind:'INITIAL',scheduledFor:null,inspectionPoint:null,report:null},requirement:{orderNumber:'ORD-1',sellerName:'Acme',level:'MANDATORY'},checklist:[],conflictCheck:{agencyProblems:[]},me:{role:'COORDINATOR',isNamedInspector:false,allowedTransitions:[{to:'ACCEPTED',requiresReason:false}]},eligibleInspectors:[]});
+    renderWithProviders(<AgencyJobPage />);
+    expect(await screen.findByRole('link',{name:'Packaging & label check'})).toBeInTheDocument();
+    expect(screen.getByRole('button',{name:/Accept/})).toBeInTheDocument();
   });
 });

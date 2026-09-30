@@ -5062,5 +5062,10 @@
   "logistics.shipment.documentScan.PENDING": "Scan niet voltooid",
   "logistics.shipment.documentScan.SKIPPED": "Niet gescand",
   "logistics.shipment.documentScan.INFECTED": "Malware gevonden",
-  "logistics.shipment.documentScan.FAILED": "Scan mislukt"
+  "logistics.shipment.documentScan.FAILED": "Scan mislukt",
+  "inspection.reinspection.evidence": "Bewijs van correctie",
+  "inspection.reinspection.attachFirst": "Voeg bewijs van de correctie toe voordat u indient.",
+  "inspection.reinspection.original": "Oorspronkelijke inspectie",
+  "inspection.reinspection.choose": "Kies de afgekeurde inspectie",
+  "inspection.reinspection.capaFirst": "Voor elke open bevinding is een corrigerende actie vereist vóór de herinspectie."
 }

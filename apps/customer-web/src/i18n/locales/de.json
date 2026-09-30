@@ -7422,5 +7422,10 @@
   "inspection.packaging.note": "Beobachtungen (bei Abweichung erforderlich)",
   "inspection.packaging.save": "Prüfung speichern",
   "inspection.packaging.readOnly": "Nur der zugewiesene Prüfer kann während der laufenden Inspektion Prüfungen bearbeiten.",
-  "inspection.packaging.empty": "Dieser gebuchte Plan enthält keine Verpackungs- oder Etikettenprüfungen."
+  "inspection.packaging.empty": "Dieser gebuchte Plan enthält keine Verpackungs- oder Etikettenprüfungen.",
+  "inspection.reinspection.evidence": "Nachweis der Korrektur",
+  "inspection.reinspection.attachFirst": "Vor dem Absenden einen Nachweis der Korrektur anhängen.",
+  "inspection.reinspection.original": "Ursprüngliche Inspektion",
+  "inspection.reinspection.choose": "Fehlgeschlagene Inspektion wählen",
+  "inspection.reinspection.capaFirst": "Vor der Nachprüfung ist für jeden offenen Befund eine Korrekturmaßnahme erforderlich."
 }

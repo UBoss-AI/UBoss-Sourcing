@@ -3665,3 +3665,10 @@ The customer data export includes RFQ purchase orders under `data.rfqRequests.re
 ### Packaging evidence validation
 
 Agency evidence uploads with `checkItemCode` must name an exact item code from the job’s frozen plan. Unknown codes return 400 VALIDATION_FAILED with NOT_IN_PLAN. The existing named-inspector, job-state and agency boundaries apply. Packaging checks continue through the existing checks endpoint, carrying outcome, measuredValue and note; NONCONFORM requires a note.
+
+
+### Latest visible inspection report
+
+Each inspection job view includes report, the latest audience-visible entry from reports, or null when none is visible. Revision history and buyer/seller visibility rules are unchanged. Agency me.allowedTransitions contains objects with to and requiresReason; clients must read to rather than compare objects to status strings. Seller corrective evidence uses purpose CAPA and the defectId on the same job. Re-inspection booking uses reinspectionOfJobId and preserves the existing original-report and corrective-action preconditions.
+
+The requirement also includes gate with allowed and sentence, matching the existing customer/admin panels. The top-level gate retains the full server decision, including any conditional release. The HTTP lifecycle verifies that the failed job blocks dispatch and the valid passing repeat job opens that gate.

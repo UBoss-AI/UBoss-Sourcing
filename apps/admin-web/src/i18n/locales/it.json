@@ -5095,5 +5095,10 @@
   "logistics.shipment.documentScan.PENDING": "Scansione non terminata",
   "logistics.shipment.documentScan.SKIPPED": "Non scansionato",
   "logistics.shipment.documentScan.INFECTED": "Malware rilevato",
-  "logistics.shipment.documentScan.FAILED": "Scansione non riuscita"
+  "logistics.shipment.documentScan.FAILED": "Scansione non riuscita",
+  "inspection.reinspection.evidence": "Prova della correzione",
+  "inspection.reinspection.attachFirst": "Allega prove della correzione prima di inviare.",
+  "inspection.reinspection.original": "Ispezione originale",
+  "inspection.reinspection.choose": "Scegli l’ispezione non superata",
+  "inspection.reinspection.capaFirst": "È richiesta un’azione correttiva per ogni rilievo aperto prima della nuova ispezione."
 }

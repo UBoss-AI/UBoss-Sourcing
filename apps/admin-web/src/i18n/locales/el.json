@@ -5062,5 +5062,10 @@
   "logistics.shipment.documentScan.PENDING": "Η σάρωση δεν ολοκληρώθηκε",
   "logistics.shipment.documentScan.SKIPPED": "Δεν σαρώθηκε",
   "logistics.shipment.documentScan.INFECTED": "Βρέθηκε κακόβουλο λογισμικό",
-  "logistics.shipment.documentScan.FAILED": "Η σάρωση απέτυχε"
+  "logistics.shipment.documentScan.FAILED": "Η σάρωση απέτυχε",
+  "inspection.reinspection.evidence": "Αποδεικτικό διόρθωσης",
+  "inspection.reinspection.attachFirst": "Επισυνάψτε αποδεικτικό διόρθωσης πριν την υποβολή.",
+  "inspection.reinspection.original": "Αρχική επιθεώρηση",
+  "inspection.reinspection.choose": "Επιλέξτε την αποτυχημένη επιθεώρηση",
+  "inspection.reinspection.capaFirst": "Απαιτείται διορθωτική ενέργεια για κάθε ανοικτό εύρημα πριν την επανεπιθεώρηση."
 }

@@ -7422,5 +7422,10 @@
   "inspection.packaging.note": "Παρατηρήσεις (απαιτούνται για μη συμμόρφωση)",
   "inspection.packaging.save": "Αποθήκευση ελέγχου",
   "inspection.packaging.readOnly": "Μόνο ο ανατεθειμένος επιθεωρητής μπορεί να επεξεργάζεται ελέγχους κατά την επιθεώρηση.",
-  "inspection.packaging.empty": "Αυτό το κλεισμένο σχέδιο δεν περιλαμβάνει ελέγχους συσκευασίας ή ετικετών."
+  "inspection.packaging.empty": "Αυτό το κλεισμένο σχέδιο δεν περιλαμβάνει ελέγχους συσκευασίας ή ετικετών.",
+  "inspection.reinspection.evidence": "Αποδεικτικό διόρθωσης",
+  "inspection.reinspection.attachFirst": "Επισυνάψτε αποδεικτικό διόρθωσης πριν την υποβολή.",
+  "inspection.reinspection.original": "Αρχική επιθεώρηση",
+  "inspection.reinspection.choose": "Επιλέξτε την αποτυχημένη επιθεώρηση",
+  "inspection.reinspection.capaFirst": "Απαιτείται διορθωτική ενέργεια για κάθε ανοικτό εύρημα πριν την επανεπιθεώρηση."
 }

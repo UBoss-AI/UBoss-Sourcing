@@ -7531,5 +7531,10 @@
   "inspection.packaging.note": "Observaciones (obligatorias si no es conforme)",
   "inspection.packaging.save": "Guardar control",
   "inspection.packaging.readOnly": "Solo el inspector asignado puede editar los controles durante la inspección.",
-  "inspection.packaging.empty": "Este plan reservado no contiene controles de embalaje o etiquetas."
+  "inspection.packaging.empty": "Este plan reservado no contiene controles de embalaje o etiquetas.",
+  "inspection.reinspection.evidence": "Prueba de corrección",
+  "inspection.reinspection.attachFirst": "Adjunte pruebas de la corrección antes de enviar.",
+  "inspection.reinspection.original": "Inspección original",
+  "inspection.reinspection.choose": "Elegir la inspección fallida",
+  "inspection.reinspection.capaFirst": "Se requiere una acción correctiva para cada hallazgo abierto antes de reinspeccionar."
 }

@@ -7422,5 +7422,10 @@
   "inspection.packaging.note": "Observations (required for a nonconformance)",
   "inspection.packaging.save": "Save check",
   "inspection.packaging.readOnly": "Only the assigned inspector can edit checks while this inspection is in progress.",
-  "inspection.packaging.empty": "This booked plan has no packaging or label checks."
+  "inspection.packaging.empty": "This booked plan has no packaging or label checks.",
+  "inspection.reinspection.evidence": "Corrective evidence",
+  "inspection.reinspection.attachFirst": "Attach evidence of the correction before submitting.",
+  "inspection.reinspection.original": "Original inspection",
+  "inspection.reinspection.choose": "Choose the failed inspection",
+  "inspection.reinspection.capaFirst": "Corrective action is required for every open finding before re-inspection."
 }

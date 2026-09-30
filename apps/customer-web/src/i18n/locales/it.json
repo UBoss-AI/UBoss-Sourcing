@@ -7531,5 +7531,10 @@
   "inspection.packaging.note": "Osservazioni (obbligatorie per non conformità)",
   "inspection.packaging.save": "Salva controllo",
   "inspection.packaging.readOnly": "Solo l’ispettore assegnato può modificare i controlli durante l’ispezione.",
-  "inspection.packaging.empty": "Questo piano prenotato non contiene controlli di imballaggio o etichettatura."
+  "inspection.packaging.empty": "Questo piano prenotato non contiene controlli di imballaggio o etichettatura.",
+  "inspection.reinspection.evidence": "Prova della correzione",
+  "inspection.reinspection.attachFirst": "Allega prove della correzione prima di inviare.",
+  "inspection.reinspection.original": "Ispezione originale",
+  "inspection.reinspection.choose": "Scegli l’ispezione non superata",
+  "inspection.reinspection.capaFirst": "È richiesta un’azione correttiva per ogni rilievo aperto prima della nuova ispezione."
 }

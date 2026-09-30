@@ -2,9 +2,9 @@
   "recommendation": "NO-GO",
   "recommendationWhy": "CI on main is green (commit 1a4d157, all 13 checks, backend included), but most P0 rows are still unverified or unbuilt (RFQ, inspection screens, payouts) and legal texts are missing.",
   "checkpoint": {
-    "lastCompleted": 50,
-    "next": 54,
-    "latestTest": "PASS — focused UI 10/10, real HTTP 2/2, gate regression 35/35",
+    "lastCompleted": 54,
+    "next": 94,
+    "latestTest": "PASS — focused customer 16/16, admin 4/4, complete HTTP repeat lifecycle 2/2, gate regression 35/35",
     "blocker": "Row 9 needs approved launch policy text and legal sign-off. Row 12 has no payout adapter and awaits the marketplace D13 decision. Row 20 still needs the paid-sample checkout flow using existing checkout with tax and shipping calculated separately."
   },
   "notes": [
@@ -959,12 +959,17 @@
     {
       "id": 54,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
+      "status": "FIXED_AND_VERIFIED",
       "pass4Done": false,
       "manual": [
-        "Partly built: re-inspection is supported by the booking API (reinspectionOfJobId) but the admin booking form has no re-inspection option.",
-        "Once finished, verify it the same way as the inspection rows above."
-      ]
+        "Seller uploads corrective evidence and submits CAPA on a completed NCR. Admin chooses the original failed inspection when booking repeat. Repeat PASS closes corrected findings and retains the original report."
+      ],
+      "verification": "Seller uploads corrective evidence against the NCR before CAPA submission. Admin manages linked repeat booking only after corrections; active jobs block duplicate booking. Real HTTP lifecycle signs FAIL, requires CAPA evidence, rejects cross-seller access and invalid original IDs, signs repeat PASS, closes findings and proves original report hash unchanged. Latest visible report alias respects buyer visibility; agency transition objects render correctly.",
+      "evidence": "InspectionPanel 5/5, AgencyPages 5/5, PackagingPage 6/6; admin InspectionConsolePages 4/4. HTTP inspection lifecycle 2/2; gate regression 35/35. Chrome admin UI fixtures 375/1440: no overflow, zero axe violations, linked booking saved. Full customer/admin verification, backend typecheck/lint/build, docs/i18n recorded in batch audit.",
+      "files": "InspectionPanel.tsx, customer lib/inspection.ts, AgencyPages.tsx; admin InspectionConsolePages.tsx; backend views.service.ts and HTTP tests; eight locales on each surface; paired Word/Markdown and guides",
+      "testResult": "PASS — focused customer 16/16, admin 4/4, complete HTTP repeat lifecycle 2/2, gate regression 35/35",
+      "verifiedAt": "2026-10-01",
+      "blocker": "—"
     },
     {
       "id": 55,
