@@ -1,0 +1,180 @@
+{
+ "ranAt": "2026-09-29T11:30:00.638Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "signIn": "/"
+  },
+  {
+   "afterResult": {
+    "members": 2,
+    "invites": 1,
+    "invite": true,
+    "roleSelects": [
+     "Role for Priya Raghunathan-Villanueva"
+    ],
+    "text": "Team\n\nEverybody who can act for this company, and in which role. Only the owner and administrators can invite, change or remove people.\n\nPeople in this company\n\nDeepak Sharma(you)\n\nbuyer@acme.local\n\nJoined 29 Sept 2026\n\nOwner\n\nPriya Raghunathan-Villanueva\n\ndev-colleague-row11@acme.local\n\nJoined 29 Sept 2026\n\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nRemove\nEmail address*\n(required)\nRole\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nSend invitation\nInvitations waiting\n\nfinance.team@ex"
+   },
+   "darkClass": "|",
+   "page": "team-approved",
+   "path": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "w": 320,
+   "finalPath": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Row 11 Team Check Industrial Procurement Private L"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-approved-320.png"
+  },
+  {
+   "afterResult": {
+    "members": 2,
+    "invites": 1,
+    "invite": true,
+    "roleSelects": [
+     "Role for Priya Raghunathan-Villanueva"
+    ],
+    "text": "Team\n\nEverybody who can act for this company, and in which role. Only the owner and administrators can invite, change or remove people.\n\nPeople in this company\n\nDeepak Sharma(you)\n\nbuyer@acme.local\n\nJoined 29 Sept 2026\n\nOwner\n\nPriya Raghunathan-Villanueva\n\ndev-colleague-row11@acme.local\n\nJoined 29 Sept 2026\n\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nRemove\nEmail address*\n(required)\nRole\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nSend invitation\nInvitations waiting\n\nfinance.team@ex"
+   },
+   "darkClass": "|",
+   "page": "team-approved",
+   "path": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "w": 375,
+   "finalPath": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Row 11 Team Check Industrial Procurement Private L"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-approved-375.png"
+  },
+  {
+   "afterResult": {
+    "members": 2,
+    "invites": 1,
+    "invite": true,
+    "roleSelects": [
+     "Role for Priya Raghunathan-Villanueva"
+    ],
+    "text": "Team\n\nEverybody who can act for this company, and in which role. Only the owner and administrators can invite, change or remove people.\n\nPeople in this company\n\nDeepak Sharma(you)\n\nbuyer@acme.local\n\nJoined 29 Sept 2026\n\nOwner\n\nPriya Raghunathan-Villanueva\n\ndev-colleague-row11@acme.local\n\nJoined 29 Sept 2026\n\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nRemove\nEmail address*\n(required)\nRole\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nSend invitation\nInvitations waiting\n\nfinance.team@ex"
+   },
+   "darkClass": "|",
+   "page": "team-approved",
+   "path": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "w": 768,
+   "finalPath": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Row 11 Team Check Industrial Procurement Private L"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-approved-768.png"
+  },
+  {
+   "afterResult": {
+    "members": 2,
+    "invites": 1,
+    "invite": true,
+    "roleSelects": [
+     "Role for Priya Raghunathan-Villanueva"
+    ],
+    "text": "Team\n\nEverybody who can act for this company, and in which role. Only the owner and administrators can invite, change or remove people.\n\nPeople in this company\n\nDeepak Sharma(you)\n\nbuyer@acme.local\n\nJoined 29 Sept 2026\n\nOwner\n\nPriya Raghunathan-Villanueva\n\ndev-colleague-row11@acme.local\n\nJoined 29 Sept 2026\n\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nRemove\nEmail address*\n(required)\nRole\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nSend invitation\nInvitations waiting\n\nfinance.team@ex"
+   },
+   "darkClass": "|",
+   "page": "team-approved",
+   "path": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "w": 1024,
+   "finalPath": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Row 11 Team Check Industrial Procurement Private L"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-approved-1024.png"
+  },
+  {
+   "afterResult": {
+    "members": 2,
+    "invites": 1,
+    "invite": true,
+    "roleSelects": [
+     "Role for Priya Raghunathan-Villanueva"
+    ],
+    "text": "Team\n\nEverybody who can act for this company, and in which role. Only the owner and administrators can invite, change or remove people.\n\nPeople in this company\n\nDeepak Sharma(you)\n\nbuyer@acme.local\n\nJoined 29 Sept 2026\n\nOwner\n\nPriya Raghunathan-Villanueva\n\ndev-colleague-row11@acme.local\n\nJoined 29 Sept 2026\n\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nRemove\nEmail address*\n(required)\nRole\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nSend invitation\nInvitations waiting\n\nfinance.team@ex"
+   },
+   "darkClass": "|",
+   "page": "team-approved",
+   "path": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "w": 1440,
+   "finalPath": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Row 11 Team Check Industrial Procurement Private L"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Role for Priya Raghunathan-V",
+    "Remove Priya Raghunathan-Vil",
+    "INPUT",
+    "Company adminBuyerOrder appr",
+    "Send invitation",
+    "Resend the invitation to fin",
+    "Withdraw the invitation to f",
+    "About Gloviaa Mart",
+    "How assurance works",
+    "Help, policies and legal",
+    "All products",
+    "Shopping from India",
+    "My orders",
+    "Repeat purchases"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-approved-1440.png"
+  }
+ ]
+}

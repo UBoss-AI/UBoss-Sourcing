@@ -1,0 +1,195 @@
+{
+ "ranAt": "2026-09-29T08:23:22.607Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": {
+    "h1": "Northwind Fastenings",
+    "regions": [
+     "About the supplier",
+     "What they sell here"
+    ],
+    "rawKeys": true
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 320,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-320.png"
+  },
+  {
+   "afterResult": {
+    "h1": "Northwind Fastenings",
+    "regions": [
+     "About the supplier",
+     "What they sell here"
+    ],
+    "rawKeys": true
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 375,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-375.png"
+  },
+  {
+   "afterResult": {
+    "h1": "Northwind Fastenings",
+    "regions": [
+     "About the supplier",
+     "What they sell here"
+    ],
+    "rawKeys": true
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 768,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-768.png"
+  },
+  {
+   "afterResult": {
+    "h1": "Northwind Fastenings",
+    "regions": [
+     "About the supplier",
+     "What they sell here"
+    ],
+    "rawKeys": true
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 1024,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-1024.png"
+  },
+  {
+   "afterResult": {
+    "h1": "Northwind Fastenings",
+    "regions": [
+     "About the supplier",
+     "What they sell here"
+    ],
+    "rawKeys": true
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 1440,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "See its 114 products",
+    "Website(opens in a new tab)",
+    "IV Cannula9",
+    "Infusion Set8"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-1440.png"
+  },
+  {
+   "afterResult": "This page has gone missing",
+   "darkClass": "|",
+   "page": "supplier-404",
+   "path": "/suppliers/jkl",
+   "w": 375,
+   "finalPath": "/suppliers/jkl",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 6,
+   "h1": [
+    "This page has gone missing"
+   ],
+   "title": "This page has gone missing · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-404-375.png"
+  }
+ ]
+}

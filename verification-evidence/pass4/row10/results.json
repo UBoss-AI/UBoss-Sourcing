@@ -1,0 +1,520 @@
+{
+ "ranAt": "2026-09-29T09:49:46.104Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "darkClass": "|",
+   "page": "login",
+   "path": "/login",
+   "w": 320,
+   "finalPath": "/login",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Sign in"
+   ],
+   "title": "Sign in · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "login-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "login",
+   "path": "/login",
+   "w": 375,
+   "finalPath": "/login",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Sign in"
+   ],
+   "title": "Sign in · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "login-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "login",
+   "path": "/login",
+   "w": 768,
+   "finalPath": "/login",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Sign in"
+   ],
+   "title": "Sign in · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "login-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "login",
+   "path": "/login",
+   "w": 1024,
+   "finalPath": "/login",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 4,
+   "h1": [
+    "Sign in"
+   ],
+   "title": "Sign in · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "login-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "login",
+   "path": "/login",
+   "w": 1440,
+   "finalPath": "/login",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 4,
+   "h1": [
+    "Sign in"
+   ],
+   "title": "Sign in · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "EnglishNederlandsFrançaisDeu",
+    "Individual",
+    "INPUT"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "login-1440.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "register",
+   "path": "/register",
+   "w": 320,
+   "finalPath": "/register",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Create your account"
+   ],
+   "title": "Create an account · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "register-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "register",
+   "path": "/register",
+   "w": 375,
+   "finalPath": "/register",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Create your account"
+   ],
+   "title": "Create an account · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "register-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "register",
+   "path": "/register",
+   "w": 768,
+   "finalPath": "/register",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Create your account"
+   ],
+   "title": "Create an account · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "register-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "register",
+   "path": "/register",
+   "w": 1024,
+   "finalPath": "/register",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 4,
+   "h1": [
+    "Create your account"
+   ],
+   "title": "Create an account · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "register-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "register",
+   "path": "/register",
+   "w": 1440,
+   "finalPath": "/register",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 4,
+   "h1": [
+    "Create your account"
+   ],
+   "title": "Create an account · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "EnglishNederlandsFrançaisDeu",
+    "INPUT",
+    "INPUT"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "register-1440.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "forgot",
+   "path": "/forgot-password",
+   "w": 320,
+   "finalPath": "/forgot-password",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Reset your password"
+   ],
+   "title": "Reset your password · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "forgot-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "forgot",
+   "path": "/forgot-password",
+   "w": 375,
+   "finalPath": "/forgot-password",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Reset your password"
+   ],
+   "title": "Reset your password · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "forgot-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "forgot",
+   "path": "/forgot-password",
+   "w": 768,
+   "finalPath": "/forgot-password",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Reset your password"
+   ],
+   "title": "Reset your password · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "forgot-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "forgot",
+   "path": "/forgot-password",
+   "w": 1024,
+   "finalPath": "/forgot-password",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Reset your password"
+   ],
+   "title": "Reset your password · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "forgot-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "forgot",
+   "path": "/forgot-password",
+   "w": 1440,
+   "finalPath": "/forgot-password",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Reset your password"
+   ],
+   "title": "Reset your password · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Send the reset link",
+    "Back to sign in",
+    "About Gloviaa Mart",
+    "How assurance works",
+    "Help, policies and legal",
+    "All products",
+    "My orders",
+    "Repeat purchases",
+    "Emailsupport@uboss.local",
+    "Phone+91 80 4000 0000",
+    "Support",
+    "body"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "forgot-1440.png"
+  },
+  {
+   "signIn": "/"
+  },
+  {
+   "afterResult": {
+    "panel": true,
+    "text": "Two-step sign-in\n\nAfter your password, a code from an authenticator app on your phone. Someone who learns your password still cannot sign in.\n\nTwo-step sign-in is off. Your account is protected by you"
+   },
+   "darkClass": "|",
+   "page": "profile-2step",
+   "path": "/account/profile",
+   "w": 320,
+   "finalPath": "/account/profile",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Profile information"
+   ],
+   "title": "Profile information · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "profile-2step-320.png"
+  },
+  {
+   "afterResult": {
+    "panel": true,
+    "text": "Two-step sign-in\n\nAfter your password, a code from an authenticator app on your phone. Someone who learns your password still cannot sign in.\n\nTwo-step sign-in is off. Your account is protected by you"
+   },
+   "darkClass": "|",
+   "page": "profile-2step",
+   "path": "/account/profile",
+   "w": 375,
+   "finalPath": "/account/profile",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Profile information"
+   ],
+   "title": "Profile information · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "profile-2step-375.png"
+  },
+  {
+   "afterResult": {
+    "panel": true,
+    "text": "Two-step sign-in\n\nAfter your password, a code from an authenticator app on your phone. Someone who learns your password still cannot sign in.\n\nTwo-step sign-in is off. Your account is protected by you"
+   },
+   "darkClass": "|",
+   "page": "profile-2step",
+   "path": "/account/profile",
+   "w": 768,
+   "finalPath": "/account/profile",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Profile information"
+   ],
+   "title": "Profile information · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "profile-2step-768.png"
+  },
+  {
+   "afterResult": {
+    "panel": true,
+    "text": "Two-step sign-in\n\nAfter your password, a code from an authenticator app on your phone. Someone who learns your password still cannot sign in.\n\nTwo-step sign-in is off. Your account is protected by you"
+   },
+   "darkClass": "|",
+   "page": "profile-2step",
+   "path": "/account/profile",
+   "w": 1024,
+   "finalPath": "/account/profile",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Profile information"
+   ],
+   "title": "Profile information · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "profile-2step-1024.png"
+  },
+  {
+   "afterResult": {
+    "panel": true,
+    "text": "Two-step sign-in\n\nAfter your password, a code from an authenticator app on your phone. Someone who learns your password still cannot sign in.\n\nTwo-step sign-in is off. Your account is protected by you"
+   },
+   "darkClass": "|",
+   "page": "profile-2step",
+   "path": "/account/profile",
+   "w": 1440,
+   "finalPath": "/account/profile",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Profile information"
+   ],
+   "title": "Profile information · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Turn on two-step sign-in",
+    "What happens when I change m",
+    "When does the change take ef",
+    "Do I lose my order history?",
+    "Why does the number confirma",
+    "What about an order that is ",
+    "Request a copy of my data",
+    "Request erasure",
+    "Deactivate account",
+    "About Gloviaa Mart",
+    "How assurance works",
+    "Help, policies and legal"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "profile-2step-1440.png"
+  }
+ ]
+}

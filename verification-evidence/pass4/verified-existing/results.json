@@ -1,0 +1,740 @@
+{
+ "ranAt": "2026-09-29T12:13:51.931Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": {
+    "logoHref": "/",
+    "logoName": "G\nGloviaa",
+    "mic": true,
+    "greeting": "ONE CONNECTED FLOW\n\nGloviaa Mart\n\nThe Way to the Global Sourcing\n\nSource with Intelligence. Deliver with Confidence.\nSource with Intelligence\n\nSource direct fro"
+   },
+   "darkClass": "|",
+   "page": "home-guest",
+   "path": "/",
+   "w": 320,
+   "finalPath": "/",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-320.png"
+  },
+  {
+   "afterResult": {
+    "logoHref": "/",
+    "logoName": "G\nGloviaa",
+    "mic": true,
+    "greeting": "ONE CONNECTED FLOW\n\nGloviaa Mart\n\nThe Way to the Global Sourcing\n\nSource with Intelligence. Deliver with Confidence.\nSource with Intelligence\n\nSource direct fro"
+   },
+   "darkClass": "|",
+   "page": "home-guest",
+   "path": "/",
+   "w": 375,
+   "finalPath": "/",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 14,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-375.png"
+  },
+  {
+   "afterResult": {
+    "logoHref": "/",
+    "logoName": "G\nGloviaa Mart",
+    "mic": true,
+    "greeting": "ONE CONNECTED FLOW\n\nGloviaa Mart\n\nThe Way to the Global Sourcing\n\nSource with Intelligence. Deliver with Confidence.\nSource with Intelligence\n\nSource direct fro"
+   },
+   "darkClass": "|",
+   "page": "home-guest",
+   "path": "/",
+   "w": 768,
+   "finalPath": "/",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 17,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-768.png"
+  },
+  {
+   "afterResult": {
+    "logoHref": "/",
+    "logoName": "G\nGloviaa Mart\nThe Way to the Global Sou",
+    "mic": true,
+    "greeting": "ONE CONNECTED FLOW\n\nGloviaa Mart\n\nThe Way to the Global Sourcing\n\nSource with Intelligence. Deliver with Confidence.\nSource with Intelligence\n\nSource direct fro"
+   },
+   "darkClass": "|",
+   "page": "home-guest",
+   "path": "/",
+   "w": 1024,
+   "finalPath": "/",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 15,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-1024.png"
+  },
+  {
+   "afterResult": {
+    "logoHref": "/",
+    "logoName": "G\nGloviaa Mart\nThe Way to the Global Sou",
+    "mic": true,
+    "greeting": "ONE CONNECTED FLOW\n\nGloviaa Mart\n\nThe Way to the Global Sourcing\n\nSource with Intelligence. Deliver with Confidence.\nSource with Intelligence\n\nSource direct fro"
+   },
+   "darkClass": "|",
+   "page": "home-guest",
+   "path": "/",
+   "w": 1440,
+   "finalPath": "/",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 15,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-1440.png"
+  },
+  {
+   "signIn": "/"
+  },
+  {
+   "afterResult": {
+    "greeting": "WELCOME BACK, DEEPAK\n\nGloviaa Mart\n\nThe Way to the Global Sourcing\n\nSource with Intelligence. Deliver with Confidence.\nSource with Intelligence\n\nSource direct f"
+   },
+   "darkClass": "|",
+   "page": "home-signed",
+   "path": "/",
+   "w": 320,
+   "finalPath": "/",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 14,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-signed-320.png"
+  },
+  {
+   "afterResult": {
+    "greeting": "WELCOME BACK, DEEPAK\n\nGloviaa Mart\n\nThe Way to the Global Sourcing\n\nSource with Intelligence. Deliver with Confidence.\nSource with Intelligence\n\nSource direct f"
+   },
+   "darkClass": "|",
+   "page": "home-signed",
+   "path": "/",
+   "w": 375,
+   "finalPath": "/",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 14,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-signed-375.png"
+  },
+  {
+   "afterResult": {
+    "greeting": "WELCOME BACK, DEEPAK\n\nGloviaa Mart\n\nThe Way to the Global Sourcing\n\nSource with Intelligence. Deliver with Confidence.\nSource with Intelligence\n\nSource direct f"
+   },
+   "darkClass": "|",
+   "page": "home-signed",
+   "path": "/",
+   "w": 768,
+   "finalPath": "/",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 17,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-signed-768.png"
+  },
+  {
+   "afterResult": {
+    "greeting": "WELCOME BACK, DEEPAK\n\nGloviaa Mart\n\nThe Way to the Global Sourcing\n\nSource with Intelligence. Deliver with Confidence.\nSource with Intelligence\n\nSource direct f"
+   },
+   "darkClass": "|",
+   "page": "home-signed",
+   "path": "/",
+   "w": 1024,
+   "finalPath": "/",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 15,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-signed-1024.png"
+  },
+  {
+   "afterResult": {
+    "greeting": "WELCOME BACK, DEEPAK\n\nGloviaa Mart\n\nThe Way to the Global Sourcing\n\nSource with Intelligence. Deliver with Confidence.\nSource with Intelligence\n\nSource direct f"
+   },
+   "darkClass": "|",
+   "page": "home-signed",
+   "path": "/",
+   "w": 1440,
+   "finalPath": "/",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 15,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart",
+    "Support",
+    "Your account: Deepak",
+    "Cart, empty",
+    "Home"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-signed-1440.png"
+  },
+  {
+   "resolved": "order-tracking",
+   "path": "/account/orders/01M36ECHWRAWV8K15WCEXNRAC7"
+  },
+  {
+   "afterResult": {
+    "ok": true,
+    "text": "My orders\nYour orders\n/\nUB-DEMO-XNRAC7\nUB-DEMO-XNRAC7\n\nPlaced Sep 23, 2026, 11:43 AM\n\nOn its way\n\nOn its way to you.\n\nItems\n\nFirstCry, Toys for Kids, T-001\n\nT-001\n\n₹1,198.00\n\n2 × ₹599.00\n\nincl. ₹0.00 tax\n\nSubtotal\n₹1,198.00\nTax\n₹0.00\nDelivery\n₹0.00\nTotal\n₹1,198.00\nPaid\n₹1,198.00\nProgress\n\nBeing prep"
+   },
+   "darkClass": "|",
+   "page": "order-tracking",
+   "path": "/account/orders/01M36ECHWRAWV8K15WCEXNRAC7",
+   "w": 320,
+   "finalPath": "/account/orders/01M36ECHWRAWV8K15WCEXNRAC7",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "UB-DEMO-XNRAC7"
+   ],
+   "title": "UB-DEMO-XNRAC7 · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "order-tracking-320.png"
+  },
+  {
+   "afterResult": {
+    "ok": true,
+    "text": "My orders\nYour orders\n/\nUB-DEMO-XNRAC7\nUB-DEMO-XNRAC7\n\nPlaced Sep 23, 2026, 11:43 AM\n\nOn its way\n\nOn its way to you.\n\nItems\n\nFirstCry, Toys for Kids, T-001\n\nT-001\n\n₹1,198.00\n\n2 × ₹599.00\n\nincl. ₹0.00 tax\n\nSubtotal\n₹1,198.00\nTax\n₹0.00\nDelivery\n₹0.00\nTotal\n₹1,198.00\nPaid\n₹1,198.00\nProgress\n\nBeing prep"
+   },
+   "darkClass": "|",
+   "page": "order-tracking",
+   "path": "/account/orders/01M36ECHWRAWV8K15WCEXNRAC7",
+   "w": 375,
+   "finalPath": "/account/orders/01M36ECHWRAWV8K15WCEXNRAC7",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "UB-DEMO-XNRAC7"
+   ],
+   "title": "UB-DEMO-XNRAC7 · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "order-tracking-375.png"
+  },
+  {
+   "afterResult": {
+    "ok": true,
+    "text": "ORDERS\nACCOUNT SETTINGS\nPAYMENTS\nINTEGRATIONS\nMY STUFF\nYour orders\n/\nUB-DEMO-XNRAC7\nUB-DEMO-XNRAC7\n\nPlaced Sep 23, 2026, 11:43 AM\n\nOn its way\n\nOn its way to you.\n\nItems\n\nFirstCry, Toys for Kids, T-001\n\nT-001\n\n₹1,198.00\n\n2 × ₹599.00\n\nincl. ₹0.00 tax\n\nSubtotal\n₹1,198.00\nTax\n₹0.00\nDelivery\n₹0.00\nTotal\n"
+   },
+   "darkClass": "|",
+   "page": "order-tracking",
+   "path": "/account/orders/01M36ECHWRAWV8K15WCEXNRAC7",
+   "w": 768,
+   "finalPath": "/account/orders/01M36ECHWRAWV8K15WCEXNRAC7",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "UB-DEMO-XNRAC7"
+   ],
+   "title": "UB-DEMO-XNRAC7 · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "order-tracking-768.png"
+  },
+  {
+   "afterResult": {
+    "ok": true,
+    "text": "ORDERS\nACCOUNT SETTINGS\nPAYMENTS\nINTEGRATIONS\nMY STUFF\nYour orders\n/\nUB-DEMO-XNRAC7\nUB-DEMO-XNRAC7\n\nPlaced Sep 23, 2026, 11:43 AM\n\nOn its way\n\nOn its way to you.\n\nItems\n\nFirstCry, Toys for Kids, T-001\n\nT-001\n\n₹1,198.00\n\n2 × ₹599.00\n\nincl. ₹0.00 tax\n\nSubtotal\n₹1,198.00\nTax\n₹0.00\nDelivery\n₹0.00\nTotal\n"
+   },
+   "darkClass": "|",
+   "page": "order-tracking",
+   "path": "/account/orders/01M36ECHWRAWV8K15WCEXNRAC7",
+   "w": 1024,
+   "finalPath": "/account/orders/01M36ECHWRAWV8K15WCEXNRAC7",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "UB-DEMO-XNRAC7"
+   ],
+   "title": "UB-DEMO-XNRAC7 · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "order-tracking-1024.png"
+  },
+  {
+   "afterResult": {
+    "ok": true,
+    "text": "ORDERS\nACCOUNT SETTINGS\nPAYMENTS\nINTEGRATIONS\nMY STUFF\nYour orders\n/\nUB-DEMO-XNRAC7\nUB-DEMO-XNRAC7\n\nPlaced Sep 23, 2026, 11:43 AM\n\nOn its way\n\nOn its way to you.\n\nItems\n\nFirstCry, Toys for Kids, T-001\n\nT-001\n\n₹1,198.00\n\n2 × ₹599.00\n\nincl. ₹0.00 tax\n\nSubtotal\n₹1,198.00\nTax\n₹0.00\nDelivery\n₹0.00\nTotal\n"
+   },
+   "darkClass": "|",
+   "page": "order-tracking",
+   "path": "/account/orders/01M36ECHWRAWV8K15WCEXNRAC7",
+   "w": 1440,
+   "finalPath": "/account/orders/01M36ECHWRAWV8K15WCEXNRAC7",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "UB-DEMO-XNRAC7"
+   ],
+   "title": "UB-DEMO-XNRAC7 · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart",
+    "Support",
+    "Your account: Deepak",
+    "Cart, empty",
+    "Dashboard"
+   ],
+   "jsErrors": [],
+   "shot": "order-tracking-1440.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "My reviews"
+    ],
+    "text": "My reviews\nMy reviews\n\nRate what you have received and manage the reviews you have written.\n\nWaiting for your rating\nNitrile examination glove, NX-450-M, Blue, Medium\n\nOrder UB-2026-000045, placed Sep"
+   },
+   "darkClass": "|",
+   "page": "my-reviews",
+   "path": "/account/reviews",
+   "w": 320,
+   "finalPath": "/account/reviews",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "My reviews"
+   ],
+   "title": "My reviews · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "my-reviews-320.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "My reviews"
+    ],
+    "text": "My reviews\nMy reviews\n\nRate what you have received and manage the reviews you have written.\n\nWaiting for your rating\nNitrile examination glove, NX-450-M, Blue, Medium\n\nOrder UB-2026-000045, placed Sep"
+   },
+   "darkClass": "|",
+   "page": "my-reviews",
+   "path": "/account/reviews",
+   "w": 375,
+   "finalPath": "/account/reviews",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "My reviews"
+   ],
+   "title": "My reviews · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "my-reviews-375.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "My reviews"
+    ],
+    "text": "ORDERS\nACCOUNT SETTINGS\nPAYMENTS\nINTEGRATIONS\nMY STUFF\nMy reviews\n\nRate what you have received and manage the reviews you have written.\n\nWaiting for your rating\nNitrile examination glove, NX-450-M, Bl"
+   },
+   "darkClass": "|",
+   "page": "my-reviews",
+   "path": "/account/reviews",
+   "w": 768,
+   "finalPath": "/account/reviews",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "My reviews"
+   ],
+   "title": "My reviews · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "my-reviews-768.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "My reviews"
+    ],
+    "text": "ORDERS\nACCOUNT SETTINGS\nPAYMENTS\nINTEGRATIONS\nMY STUFF\nMy reviews\n\nRate what you have received and manage the reviews you have written.\n\nWaiting for your rating\nNitrile examination glove, NX-450-M, Bl"
+   },
+   "darkClass": "|",
+   "page": "my-reviews",
+   "path": "/account/reviews",
+   "w": 1024,
+   "finalPath": "/account/reviews",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "My reviews"
+   ],
+   "title": "My reviews · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "my-reviews-1024.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "My reviews"
+    ],
+    "text": "ORDERS\nACCOUNT SETTINGS\nPAYMENTS\nINTEGRATIONS\nMY STUFF\nMy reviews\n\nRate what you have received and manage the reviews you have written.\n\nWaiting for your rating\nNitrile examination glove, NX-450-M, Bl"
+   },
+   "darkClass": "|",
+   "page": "my-reviews",
+   "path": "/account/reviews",
+   "w": 1440,
+   "finalPath": "/account/reviews",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "My reviews"
+   ],
+   "title": "My reviews · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart",
+    "Support",
+    "Your account: Deepak",
+    "Cart, empty",
+    "Dashboard"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "my-reviews-1440.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "ERP integration"
+    ],
+    "text": "ERP API connections\nERP integration\n\nConnect your own purchasing system so that what you buy here appears there, without anybody re-typing it.\n\nConnect a system\nYour connections\nProduction SAP\nDraft\nS"
+   },
+   "darkClass": "|",
+   "page": "erp-hub",
+   "path": "/account/integrations/erp",
+   "w": 320,
+   "finalPath": "/account/integrations/erp",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "ERP integration"
+   ],
+   "title": "ERP integration · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "erp-hub-320.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "ERP integration"
+    ],
+    "text": "ERP API connections\nERP integration\n\nConnect your own purchasing system so that what you buy here appears there, without anybody re-typing it.\n\nConnect a system\nYour connections\nProduction SAP\nDraft\nS"
+   },
+   "darkClass": "|",
+   "page": "erp-hub",
+   "path": "/account/integrations/erp",
+   "w": 375,
+   "finalPath": "/account/integrations/erp",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "ERP integration"
+   ],
+   "title": "ERP integration · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "erp-hub-375.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "ERP integration"
+    ],
+    "text": "ORDERS\nACCOUNT SETTINGS\nPAYMENTS\nINTEGRATIONS\nMY STUFF\nERP integration\n\nConnect your own purchasing system so that what you buy here appears there, without anybody re-typing it.\n\nConnect a system\nYour"
+   },
+   "darkClass": "|",
+   "page": "erp-hub",
+   "path": "/account/integrations/erp",
+   "w": 768,
+   "finalPath": "/account/integrations/erp",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "ERP integration"
+   ],
+   "title": "ERP integration · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "erp-hub-768.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "ERP integration"
+    ],
+    "text": "ORDERS\nACCOUNT SETTINGS\nPAYMENTS\nINTEGRATIONS\nMY STUFF\nERP integration\n\nConnect your own purchasing system so that what you buy here appears there, without anybody re-typing it.\n\nConnect a system\nYour"
+   },
+   "darkClass": "|",
+   "page": "erp-hub",
+   "path": "/account/integrations/erp",
+   "w": 1024,
+   "finalPath": "/account/integrations/erp",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "ERP integration"
+   ],
+   "title": "ERP integration · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "erp-hub-1024.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "ERP integration"
+    ],
+    "text": "ORDERS\nACCOUNT SETTINGS\nPAYMENTS\nINTEGRATIONS\nMY STUFF\nERP integration\n\nConnect your own purchasing system so that what you buy here appears there, without anybody re-typing it.\n\nConnect a system\nYour"
+   },
+   "darkClass": "|",
+   "page": "erp-hub",
+   "path": "/account/integrations/erp",
+   "w": 1440,
+   "finalPath": "/account/integrations/erp",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "ERP integration"
+   ],
+   "title": "ERP integration · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart",
+    "Support",
+    "Your account: Deepak",
+    "Cart, empty",
+    "Dashboard"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "erp-hub-1440.png"
+  }
+ ]
+}

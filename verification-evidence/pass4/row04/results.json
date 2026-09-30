@@ -1,0 +1,211 @@
+{
+ "ranAt": "2026-09-29T08:08:24.542Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": {
+    "text": "Who sells it and how it reaches you | SOLD BY | Sikka | Reseller · India | Verified since September 2026 | DELIVERY | Choose your country at the top of the page to see whether this can be delivered to you. | INSPECTION BEFORE DISPATCH | No inspection is required for this seller and country.",
+    "overflow": false
+   },
+   "darkClass": "|",
+   "page": "pdp-seller",
+   "path": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "w": 320,
+   "finalPath": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "FirstCry, Toys for Kids, T-001"
+   ],
+   "title": "FirstCry, Toys for Kids, T-001 · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "pdp-seller-320.png"
+  },
+  {
+   "afterResult": {
+    "text": "Who sells it and how it reaches you | SOLD BY | Sikka | Reseller · India | Verified since September 2026 | DELIVERY | Choose your country at the top of the page to see whether this can be delivered to you. | INSPECTION BEFORE DISPATCH | No inspection is required for this seller and country.",
+    "overflow": false
+   },
+   "darkClass": "|",
+   "page": "pdp-seller",
+   "path": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "w": 375,
+   "finalPath": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "FirstCry, Toys for Kids, T-001"
+   ],
+   "title": "FirstCry, Toys for Kids, T-001 · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "pdp-seller-375.png"
+  },
+  {
+   "afterResult": {
+    "text": "Who sells it and how it reaches you | SOLD BY | Sikka | Reseller · India | Verified since September 2026 | DELIVERY | Choose your country at the top of the page to see whether this can be delivered to you. | INSPECTION BEFORE DISPATCH | No inspection is required for this seller and country.",
+    "overflow": false
+   },
+   "darkClass": "|",
+   "page": "pdp-seller",
+   "path": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "w": 768,
+   "finalPath": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "FirstCry, Toys for Kids, T-001"
+   ],
+   "title": "FirstCry, Toys for Kids, T-001 · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "pdp-seller-768.png"
+  },
+  {
+   "afterResult": {
+    "text": "Who sells it and how it reaches you | SOLD BY | Sikka | Reseller · India | Verified since September 2026 | DELIVERY | Choose your country at the top of the page to see whether this can be delivered to you. | INSPECTION BEFORE DISPATCH | No inspection is required for this seller and country.",
+    "overflow": false
+   },
+   "darkClass": "|",
+   "page": "pdp-seller",
+   "path": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "w": 1024,
+   "finalPath": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "FirstCry, Toys for Kids, T-001"
+   ],
+   "title": "FirstCry, Toys for Kids, T-001 · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "pdp-seller-1024.png"
+  },
+  {
+   "afterResult": {
+    "text": "Who sells it and how it reaches you | SOLD BY | Sikka | Reseller · India | Verified since September 2026 | DELIVERY | Choose your country at the top of the page to see whether this can be delivered to you. | INSPECTION BEFORE DISPATCH | No inspection is required for this seller and country.",
+    "overflow": false
+   },
+   "darkClass": "|",
+   "page": "pdp-seller",
+   "path": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "w": 1440,
+   "finalPath": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "FirstCry, Toys for Kids, T-001"
+   ],
+   "title": "FirstCry, Toys for Kids, T-001 · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Sikka",
+    "Sign in to write a review",
+    "Newest firstHighest ratedLow",
+    "About Gloviaa Mart",
+    "All products",
+    "My orders",
+    "Repeat purchases",
+    "Emailsupport@uboss.local",
+    "Phone+91 80 4000 0000",
+    "Support"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "pdp-seller-1440.png"
+  },
+  {
+   "afterResult": {
+    "text": "Who sells it and how it reaches you | SOLD BY | Sikka | Reseller · India | Verified since September 2026 | DELIVERY | Choose your country at the top of the page to see whether this can be delivered to you. | INSPECTION BEFORE DISPATCH | No inspection is required for this seller and country.",
+    "overflow": false
+   },
+   "darkClass": "|",
+   "page": "pdp-own",
+   "path": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "w": 375,
+   "finalPath": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "FirstCry, Toys for Kids, T-001"
+   ],
+   "title": "FirstCry, Toys for Kids, T-001 · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "pdp-own-375.png"
+  },
+  {
+   "afterResult": {
+    "text": "Who sells it and how it reaches you | SOLD BY | Sikka | Reseller · India | Verified since September 2026 | DELIVERY | Choose your country at the top of the page to see whether this can be delivered to you. | INSPECTION BEFORE DISPATCH | No inspection is required for this seller and country.",
+    "overflow": false
+   },
+   "darkClass": "|",
+   "page": "pdp-own",
+   "path": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "w": 1440,
+   "finalPath": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "FirstCry, Toys for Kids, T-001"
+   ],
+   "title": "FirstCry, Toys for Kids, T-001 · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Sikka",
+    "Sign in to write a review",
+    "Newest firstHighest ratedLow",
+    "About Gloviaa Mart",
+    "All products",
+    "My orders",
+    "Repeat purchases",
+    "Emailsupport@uboss.local",
+    "Phone+91 80 4000 0000",
+    "Support"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "pdp-own-1440.png"
+  }
+ ]
+}

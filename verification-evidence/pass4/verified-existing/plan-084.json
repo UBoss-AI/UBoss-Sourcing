@@ -1,0 +1,5 @@
+{"base":"http://localhost:5174","widths":[320,375,768,1024,1440],"focusWidth":1440,"tabs":10,"pages":[
+{"name":"schedules","path":"/account/schedules","signIn":true,"after":"(async()=>{await new Promise(r=>setTimeout(r,1500));return {h1:[...document.querySelectorAll('h1')].map(h=>h.innerText),text:document.querySelector('main')?.innerText.slice(0,200)}})()"},
+{"name":"schedule-cart","path":"/accounts/schedule","signIn":true,"after":"(async()=>{await new Promise(r=>setTimeout(r,1500));return {h1:[...document.querySelectorAll('h1')].map(h=>h.innerText),text:document.querySelector('main')?.innerText.slice(0,200)}})()"},
+{"name":"schedule-new","path":"/schedules/new","signIn":true,"after":"(async()=>{await new Promise(r=>setTimeout(r,1500));return {h1:[...document.querySelectorAll('h1')].map(h=>h.innerText),text:document.querySelector('main')?.innerText.slice(0,200)}})()"}
+]}

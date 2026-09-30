@@ -1,0 +1,186 @@
+{
+ "ranAt": "2026-09-29T09:21:34.330Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": {
+    "h1": "Shopping from India",
+    "sections": [
+     "Prices and currency",
+     "What can be sold to India"
+    ]
+   },
+   "darkClass": "|",
+   "page": "market-in",
+   "path": "/markets/in",
+   "w": 320,
+   "finalPath": "/markets/in",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Shopping from India"
+   ],
+   "title": "Shopping from India · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-in-320.png"
+  },
+  {
+   "afterResult": {
+    "h1": "Shopping from India",
+    "sections": [
+     "Prices and currency",
+     "What can be sold to India"
+    ]
+   },
+   "darkClass": "|",
+   "page": "market-in",
+   "path": "/markets/in",
+   "w": 375,
+   "finalPath": "/markets/in",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Shopping from India"
+   ],
+   "title": "Shopping from India · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-in-375.png"
+  },
+  {
+   "afterResult": {
+    "h1": "Shopping from India",
+    "sections": [
+     "Prices and currency",
+     "What can be sold to India"
+    ]
+   },
+   "darkClass": "|",
+   "page": "market-in",
+   "path": "/markets/in",
+   "w": 768,
+   "finalPath": "/markets/in",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Shopping from India"
+   ],
+   "title": "Shopping from India · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-in-768.png"
+  },
+  {
+   "afterResult": {
+    "h1": "Shopping from India",
+    "sections": [
+     "Prices and currency",
+     "What can be sold to India"
+    ]
+   },
+   "darkClass": "|",
+   "page": "market-in",
+   "path": "/markets/in",
+   "w": 1024,
+   "finalPath": "/markets/in",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Shopping from India"
+   ],
+   "title": "Shopping from India · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-in-1024.png"
+  },
+  {
+   "afterResult": {
+    "h1": "Shopping from India",
+    "sections": [
+     "Prices and currency",
+     "What can be sold to India"
+    ]
+   },
+   "darkClass": "|",
+   "page": "market-in",
+   "path": "/markets/in",
+   "w": 1440,
+   "finalPath": "/markets/in",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Shopping from India"
+   ],
+   "title": "Shopping from India · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Shop as a buyer in India"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-in-1440.png"
+  },
+  {
+   "afterResult": "This page has gone missing",
+   "darkClass": "|",
+   "page": "market-zz",
+   "path": "/markets/zz",
+   "w": 375,
+   "finalPath": "/markets/zz",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 7,
+   "h1": [
+    "This page has gone missing"
+   ],
+   "title": "This page has gone missing · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-zz-375.png"
+  }
+ ]
+}

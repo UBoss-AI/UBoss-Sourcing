@@ -1,0 +1,461 @@
+{
+ "ranAt": "2026-09-29T19:11:36.583Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "signIn": "/"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Your dashboard"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "dashboard",
+   "path": "/account/dashboard",
+   "w": 320,
+   "finalPath": "/account/dashboard",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Your dashboard"
+   ],
+   "title": "Dashboard · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "dashboard-320.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Your dashboard"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "dashboard",
+   "path": "/account/dashboard",
+   "w": 375,
+   "finalPath": "/account/dashboard",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Your dashboard"
+   ],
+   "title": "Dashboard · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "dashboard-375.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Your dashboard"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "dashboard",
+   "path": "/account/dashboard",
+   "w": 768,
+   "finalPath": "/account/dashboard",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Your dashboard"
+   ],
+   "title": "Dashboard · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "dashboard-768.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Your dashboard"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "dashboard",
+   "path": "/account/dashboard",
+   "w": 1024,
+   "finalPath": "/account/dashboard",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Your dashboard"
+   ],
+   "title": "Dashboard · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "dashboard-1024.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Your dashboard"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "dashboard",
+   "path": "/account/dashboard",
+   "w": 1440,
+   "finalPath": "/account/dashboard",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Your dashboard"
+   ],
+   "title": "Dashboard · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "dashboard-1440.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Requests for quotation",
+     "No requests yet"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "rfqs",
+   "path": "/account/rfqs",
+   "w": 320,
+   "finalPath": "/account/rfqs",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Requests for quotation",
+    "No requests yet"
+   ],
+   "title": "Requests for quotation · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "rfqs-320.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Requests for quotation",
+     "No requests yet"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "rfqs",
+   "path": "/account/rfqs",
+   "w": 375,
+   "finalPath": "/account/rfqs",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Requests for quotation",
+    "No requests yet"
+   ],
+   "title": "Requests for quotation · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "rfqs-375.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Requests for quotation",
+     "No requests yet"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "rfqs",
+   "path": "/account/rfqs",
+   "w": 768,
+   "finalPath": "/account/rfqs",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Requests for quotation",
+    "No requests yet"
+   ],
+   "title": "Requests for quotation · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "rfqs-768.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Requests for quotation",
+     "No requests yet"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "rfqs",
+   "path": "/account/rfqs",
+   "w": 1024,
+   "finalPath": "/account/rfqs",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Requests for quotation",
+    "No requests yet"
+   ],
+   "title": "Requests for quotation · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "rfqs-1024.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Requests for quotation",
+     "No requests yet"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "rfqs",
+   "path": "/account/rfqs",
+   "w": 1440,
+   "finalPath": "/account/rfqs",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Requests for quotation",
+    "No requests yet"
+   ],
+   "title": "Requests for quotation · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "rfqs-1440.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "New request for quotation"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "rfq-new",
+   "path": "/account/rfqs/new",
+   "w": 320,
+   "finalPath": "/account/rfqs/new",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "New request for quotation"
+   ],
+   "title": "New request for quotation · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "rfq-new-320.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "New request for quotation"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "rfq-new",
+   "path": "/account/rfqs/new",
+   "w": 375,
+   "finalPath": "/account/rfqs/new",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "New request for quotation"
+   ],
+   "title": "New request for quotation · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "rfq-new-375.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "New request for quotation"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "rfq-new",
+   "path": "/account/rfqs/new",
+   "w": 768,
+   "finalPath": "/account/rfqs/new",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "New request for quotation"
+   ],
+   "title": "New request for quotation · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "rfq-new-768.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "New request for quotation"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "rfq-new",
+   "path": "/account/rfqs/new",
+   "w": 1024,
+   "finalPath": "/account/rfqs/new",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "New request for quotation"
+   ],
+   "title": "New request for quotation · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "rfq-new-1024.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "New request for quotation"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "rfq-new",
+   "path": "/account/rfqs/new",
+   "w": 1440,
+   "finalPath": "/account/rfqs/new",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "New request for quotation"
+   ],
+   "title": "New request for quotation · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "rfq-new-1440.png"
+  }
+ ]
+}

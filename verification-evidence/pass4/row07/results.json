@@ -1,0 +1,168 @@
+{
+ "ranAt": "2026-09-29T09:03:02.703Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": [
+    "Verified suppliers",
+    "Inspection before dispatch",
+    "Paying",
+    "Returns",
+    "If something goes wrong",
+    "What this does not cover"
+   ],
+   "darkClass": "|",
+   "page": "assurance",
+   "path": "/assurance",
+   "w": 320,
+   "finalPath": "/assurance",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "How assurance works"
+   ],
+   "title": "How assurance works · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "assurance-320.png"
+  },
+  {
+   "afterResult": [
+    "Verified suppliers",
+    "Inspection before dispatch",
+    "Paying",
+    "Returns",
+    "If something goes wrong",
+    "What this does not cover"
+   ],
+   "darkClass": "|",
+   "page": "assurance",
+   "path": "/assurance",
+   "w": 375,
+   "finalPath": "/assurance",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 7,
+   "h1": [
+    "How assurance works"
+   ],
+   "title": "How assurance works · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "assurance-375.png"
+  },
+  {
+   "afterResult": [
+    "Verified suppliers",
+    "Inspection before dispatch",
+    "Paying",
+    "Returns",
+    "If something goes wrong",
+    "What this does not cover"
+   ],
+   "darkClass": "|",
+   "page": "assurance",
+   "path": "/assurance",
+   "w": 768,
+   "finalPath": "/assurance",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "How assurance works"
+   ],
+   "title": "How assurance works · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "assurance-768.png"
+  },
+  {
+   "afterResult": [
+    "Verified suppliers",
+    "Inspection before dispatch",
+    "Paying",
+    "Returns",
+    "If something goes wrong",
+    "What this does not cover"
+   ],
+   "darkClass": "|",
+   "page": "assurance",
+   "path": "/assurance",
+   "w": 1024,
+   "finalPath": "/assurance",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "How assurance works"
+   ],
+   "title": "How assurance works · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "assurance-1024.png"
+  },
+  {
+   "afterResult": [
+    "Verified suppliers",
+    "Inspection before dispatch",
+    "Paying",
+    "Returns",
+    "If something goes wrong",
+    "What this does not cover"
+   ],
+   "darkClass": "|",
+   "page": "assurance",
+   "path": "/assurance",
+   "w": 1440,
+   "finalPath": "/assurance",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "How assurance works"
+   ],
+   "title": "How assurance works · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Contact support"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "assurance-1440.png"
+  }
+ ]
+}

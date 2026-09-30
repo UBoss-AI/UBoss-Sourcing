@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1212 endpoints** in 103 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1213 endpoints** in 103 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,7 +27,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 476 |
+| [Admin panel (staff)](#admin-panel-staff) | 477 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 298 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
@@ -347,6 +347,7 @@ Defined in `backend/src/http/routes/inspection.ts`.
 | GET | `/api/v1/admin/inspection/agencies` | Staff | Admin(INSPECTION_READ) | The inspection agencies. |
 | POST | `/api/v1/admin/inspection/agencies` | Staff | Admin(INSPECTION_MANAGE) | Register an independent agency. A name matching a seller is refused. |
 | POST | `/api/v1/admin/inspection/agencies/:id/members` | Staff | Admin(INSPECTION_MANAGE) | Add a coordinator, inspector or QA member (an existing storefront account) to an agency. |
+| PATCH | `/api/v1/admin/inspection/members/:id` | Staff | Admin(INSPECTION_MANAGE) | Update a member: verify their identity after checking the ID document, change role or competence, or disable them. |
 | GET | `/api/v1/admin/inspection/policy` | Staff | Admin(INSPECTION_READ) | The inspection policy: defaults, buyer visibility, override rules. |
 | PUT | `/api/v1/admin/inspection/policy` | Staff | Admin(INSPECTION_MANAGE) | Save the inspection policy. |
 | GET | `/api/v1/admin/inspection/rules` | Staff | Admin(INSPECTION_READ) | The rules engine: when inspection is mandatory, risk-triggered or optional. |

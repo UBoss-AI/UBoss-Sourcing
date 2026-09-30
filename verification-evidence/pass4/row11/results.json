@@ -1,0 +1,426 @@
+{
+ "ranAt": "2026-09-29T10:35:51.403Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "signIn": "/"
+  },
+  {
+   "afterResult": {
+    "panels": [
+     "Orders",
+     "Account settings",
+     "Payments",
+     "Integrations",
+     "My stuff",
+     "Identity check",
+     "Identity details",
+     "Documents",
+     "Importer details",
+     "Gloviaa Mart",
+     "Shop",
+     "Support"
+    ],
+    "locked": false,
+    "selects": [
+     250,
+     250,
+     4,
+     5
+    ],
+    "badge": "Not started"
+   },
+   "darkClass": "|",
+   "page": "identity",
+   "path": "/account/identity",
+   "w": 320,
+   "finalPath": "/account/identity",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Identity and import"
+   ],
+   "title": "Identity and import · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "identity-320.png"
+  },
+  {
+   "afterResult": {
+    "panels": [
+     "Orders",
+     "Account settings",
+     "Payments",
+     "Integrations",
+     "My stuff",
+     "Identity check",
+     "Identity details",
+     "Documents",
+     "Importer details",
+     "Gloviaa Mart",
+     "Shop",
+     "Support"
+    ],
+    "locked": false,
+    "selects": [
+     250,
+     250,
+     4,
+     5
+    ],
+    "badge": "Not started"
+   },
+   "darkClass": "|",
+   "page": "identity",
+   "path": "/account/identity",
+   "w": 375,
+   "finalPath": "/account/identity",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Identity and import"
+   ],
+   "title": "Identity and import · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "identity-375.png"
+  },
+  {
+   "afterResult": {
+    "panels": [
+     "Orders",
+     "Account settings",
+     "Payments",
+     "Integrations",
+     "My stuff",
+     "Identity check",
+     "Identity details",
+     "Documents",
+     "Importer details",
+     "Gloviaa Mart",
+     "Shop",
+     "Support"
+    ],
+    "locked": false,
+    "selects": [
+     250,
+     250,
+     4,
+     5
+    ],
+    "badge": "Not started"
+   },
+   "darkClass": "|",
+   "page": "identity",
+   "path": "/account/identity",
+   "w": 768,
+   "finalPath": "/account/identity",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Identity and import"
+   ],
+   "title": "Identity and import · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "identity-768.png"
+  },
+  {
+   "afterResult": {
+    "panels": [
+     "Orders",
+     "Account settings",
+     "Payments",
+     "Integrations",
+     "My stuff",
+     "Identity check",
+     "Identity details",
+     "Documents",
+     "Importer details",
+     "Gloviaa Mart",
+     "Shop",
+     "Support"
+    ],
+    "locked": false,
+    "selects": [
+     250,
+     250,
+     4,
+     5
+    ],
+    "badge": "Not started"
+   },
+   "darkClass": "|",
+   "page": "identity",
+   "path": "/account/identity",
+   "w": 1024,
+   "finalPath": "/account/identity",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Identity and import"
+   ],
+   "title": "Identity and import · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "identity-1024.png"
+  },
+  {
+   "afterResult": {
+    "panels": [
+     "Orders",
+     "Account settings",
+     "Payments",
+     "Integrations",
+     "My stuff",
+     "Identity check",
+     "Identity details",
+     "Documents",
+     "Importer details",
+     "Gloviaa Mart",
+     "Shop",
+     "Support"
+    ],
+    "locked": false,
+    "selects": [
+     250,
+     250,
+     4,
+     5
+    ],
+    "badge": "Not started"
+   },
+   "darkClass": "|",
+   "page": "identity",
+   "path": "/account/identity",
+   "w": 1440,
+   "finalPath": "/account/identity",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Identity and import"
+   ],
+   "title": "Identity and import · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart",
+    "Support",
+    "Your account: Deepak",
+    "Cart, empty",
+    "Dashboard",
+    "My orders",
+    "Scheduled orders"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "identity-1440.png"
+  },
+  {
+   "afterResult": {
+    "panel": true,
+    "checked": [
+     false,
+     false,
+     false
+    ],
+    "saveDisabled": true,
+    "text": "Marketing choices\n\nAll off until you switch one on. Messages about your orders, payments and account are sent either way.\n\nMarketing choices\nOffers by email\nOffers by text message\nNews about new products\n\nYou have not changed these yet.\n\nSave choices"
+   },
+   "darkClass": "|",
+   "page": "profile-marketing",
+   "path": "/account/profile",
+   "w": 320,
+   "finalPath": "/account/profile",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "Profile information"
+   ],
+   "title": "Profile information · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "profile-marketing-320.png"
+  },
+  {
+   "afterResult": {
+    "panel": true,
+    "checked": [
+     false,
+     false,
+     false
+    ],
+    "saveDisabled": true,
+    "text": "Marketing choices\n\nAll off until you switch one on. Messages about your orders, payments and account are sent either way.\n\nMarketing choices\nOffers by email\nOffers by text message\nNews about new products\n\nYou have not changed these yet.\n\nSave choices"
+   },
+   "darkClass": "|",
+   "page": "profile-marketing",
+   "path": "/account/profile",
+   "w": 375,
+   "finalPath": "/account/profile",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "Profile information"
+   ],
+   "title": "Profile information · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "profile-marketing-375.png"
+  },
+  {
+   "afterResult": {
+    "panel": true,
+    "checked": [
+     false,
+     false,
+     false
+    ],
+    "saveDisabled": true,
+    "text": "Marketing choices\n\nAll off until you switch one on. Messages about your orders, payments and account are sent either way.\n\nMarketing choices\nOffers by email\nOffers by text message\nNews about new products\n\nYou have not changed these yet.\n\nSave choices"
+   },
+   "darkClass": "|",
+   "page": "profile-marketing",
+   "path": "/account/profile",
+   "w": 768,
+   "finalPath": "/account/profile",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "Profile information"
+   ],
+   "title": "Profile information · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "profile-marketing-768.png"
+  },
+  {
+   "afterResult": {
+    "panel": true,
+    "checked": [
+     false,
+     false,
+     false
+    ],
+    "saveDisabled": true,
+    "text": "Marketing choices\n\nAll off until you switch one on. Messages about your orders, payments and account are sent either way.\n\nMarketing choices\nOffers by email\nOffers by text message\nNews about new products\n\nYou have not changed these yet.\n\nSave choices"
+   },
+   "darkClass": "|",
+   "page": "profile-marketing",
+   "path": "/account/profile",
+   "w": 1024,
+   "finalPath": "/account/profile",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "Profile information"
+   ],
+   "title": "Profile information · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "profile-marketing-1024.png"
+  },
+  {
+   "afterResult": {
+    "panel": true,
+    "checked": [
+     false,
+     false,
+     false
+    ],
+    "saveDisabled": true,
+    "text": "Marketing choices\n\nAll off until you switch one on. Messages about your orders, payments and account are sent either way.\n\nMarketing choices\nOffers by email\nOffers by text message\nNews about new products\n\nYou have not changed these yet.\n\nSave choices"
+   },
+   "darkClass": "|",
+   "page": "profile-marketing",
+   "path": "/account/profile",
+   "w": 1440,
+   "finalPath": "/account/profile",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "Profile information"
+   ],
+   "title": "Profile information · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "INPUT",
+    "INPUT",
+    "INPUT",
+    "What happens when I change m",
+    "When does the change take ef",
+    "Do I lose my order history?",
+    "Why does the number confirma",
+    "What about an order that is ",
+    "Request a copy of my data",
+    "Request erasure",
+    "Deactivate account",
+    "About Gloviaa Mart"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "profile-marketing-1440.png"
+  }
+ ]
+}

@@ -1,0 +1,612 @@
+{
+ "ranAt": "2026-09-29T11:28:50.618Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "signIn": "/"
+  },
+  {
+   "afterResult": {
+    "ok": true,
+    "scrollY": 0
+   },
+   "darkClass": "|",
+   "page": "identity",
+   "path": "/account/identity",
+   "w": 320,
+   "finalPath": "/account/identity",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Identity and import"
+   ],
+   "title": "Identity and import · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "identity-320.png"
+  },
+  {
+   "afterResult": {
+    "ok": true,
+    "scrollY": 0
+   },
+   "darkClass": "|",
+   "page": "identity",
+   "path": "/account/identity",
+   "w": 375,
+   "finalPath": "/account/identity",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Identity and import"
+   ],
+   "title": "Identity and import · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "identity-375.png"
+  },
+  {
+   "afterResult": {
+    "ok": true,
+    "scrollY": 0
+   },
+   "darkClass": "|",
+   "page": "identity",
+   "path": "/account/identity",
+   "w": 768,
+   "finalPath": "/account/identity",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Identity and import"
+   ],
+   "title": "Identity and import · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "identity-768.png"
+  },
+  {
+   "afterResult": {
+    "ok": true,
+    "scrollY": 0
+   },
+   "darkClass": "|",
+   "page": "identity",
+   "path": "/account/identity",
+   "w": 1024,
+   "finalPath": "/account/identity",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Identity and import"
+   ],
+   "title": "Identity and import · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "identity-1024.png"
+  },
+  {
+   "afterResult": {
+    "ok": true,
+    "scrollY": 0
+   },
+   "darkClass": "|",
+   "page": "identity",
+   "path": "/account/identity",
+   "w": 1440,
+   "finalPath": "/account/identity",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Identity and import"
+   ],
+   "title": "Identity and import · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart",
+    "Support",
+    "Your account: Deepak",
+    "Cart, empty",
+    "Dashboard",
+    "My orders",
+    "Scheduled orders",
+    "Preorders",
+    "Messages"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "identity-1440.png"
+  },
+  {
+   "afterResult": {
+    "members": 2,
+    "invites": 1,
+    "invite": true,
+    "roleSelects": [
+     "Role for Priya Raghunathan-Villanueva"
+    ],
+    "text": "Team\n\nEverybody who can act for this company, and in which role. Only the owner and administrators can invite, change or remove people.\n\nPeople in this company\n\nDeepak Sharma(you)\n\nbuyer@acme.local · Joined 29 Sept 2026\n\nOwner\n\nPriya Raghunathan-Villanueva\n\ndev-colleague-row11@acme.local · Joined 29 Sept 2026\n\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nRemove\nEmail address*\n(required)\nRole\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nSend invitation\nInvitations waiting\n\nfinance.team@"
+   },
+   "darkClass": "|",
+   "page": "team-approved",
+   "path": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "w": 320,
+   "finalPath": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Row 11 Team Check Industrial Procurement Private L"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-approved-320.png"
+  },
+  {
+   "afterResult": {
+    "members": 2,
+    "invites": 1,
+    "invite": true,
+    "roleSelects": [
+     "Role for Priya Raghunathan-Villanueva"
+    ],
+    "text": "Team\n\nEverybody who can act for this company, and in which role. Only the owner and administrators can invite, change or remove people.\n\nPeople in this company\n\nDeepak Sharma(you)\n\nbuyer@acme.local · Joined 29 Sept 2026\n\nOwner\n\nPriya Raghunathan-Villanueva\n\ndev-colleague-row11@acme.local · Joined 29 Sept 2026\n\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nRemove\nEmail address*\n(required)\nRole\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nSend invitation\nInvitations waiting\n\nfinance.team@"
+   },
+   "darkClass": "|",
+   "page": "team-approved",
+   "path": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "w": 375,
+   "finalPath": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Row 11 Team Check Industrial Procurement Private L"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-approved-375.png"
+  },
+  {
+   "afterResult": {
+    "members": 2,
+    "invites": 1,
+    "invite": true,
+    "roleSelects": [
+     "Role for Priya Raghunathan-Villanueva"
+    ],
+    "text": "Team\n\nEverybody who can act for this company, and in which role. Only the owner and administrators can invite, change or remove people.\n\nPeople in this company\n\nDeepak Sharma(you)\n\nbuyer@acme.local · Joined 29 Sept 2026\n\nOwner\n\nPriya Raghunathan-Villanueva\n\ndev-colleague-row11@acme.local · Joined 29 Sept 2026\n\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nRemove\nEmail address*\n(required)\nRole\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nSend invitation\nInvitations waiting\n\nfinance.team@"
+   },
+   "darkClass": "|",
+   "page": "team-approved",
+   "path": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "w": 768,
+   "finalPath": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Row 11 Team Check Industrial Procurement Private L"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-approved-768.png"
+  },
+  {
+   "afterResult": {
+    "members": 2,
+    "invites": 1,
+    "invite": true,
+    "roleSelects": [
+     "Role for Priya Raghunathan-Villanueva"
+    ],
+    "text": "Team\n\nEverybody who can act for this company, and in which role. Only the owner and administrators can invite, change or remove people.\n\nPeople in this company\n\nDeepak Sharma(you)\n\nbuyer@acme.local · Joined 29 Sept 2026\n\nOwner\n\nPriya Raghunathan-Villanueva\n\ndev-colleague-row11@acme.local · Joined 29 Sept 2026\n\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nRemove\nEmail address*\n(required)\nRole\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nSend invitation\nInvitations waiting\n\nfinance.team@"
+   },
+   "darkClass": "|",
+   "page": "team-approved",
+   "path": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "w": 1024,
+   "finalPath": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Row 11 Team Check Industrial Procurement Private L"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-approved-1024.png"
+  },
+  {
+   "afterResult": {
+    "members": 2,
+    "invites": 1,
+    "invite": true,
+    "roleSelects": [
+     "Role for Priya Raghunathan-Villanueva"
+    ],
+    "text": "Team\n\nEverybody who can act for this company, and in which role. Only the owner and administrators can invite, change or remove people.\n\nPeople in this company\n\nDeepak Sharma(you)\n\nbuyer@acme.local · Joined 29 Sept 2026\n\nOwner\n\nPriya Raghunathan-Villanueva\n\ndev-colleague-row11@acme.local · Joined 29 Sept 2026\n\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nRemove\nEmail address*\n(required)\nRole\nCompany admin\nBuyer\nOrder approver\nFinance\nViewer\nSend invitation\nInvitations waiting\n\nfinance.team@"
+   },
+   "darkClass": "|",
+   "page": "team-approved",
+   "path": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "w": 1440,
+   "finalPath": "/account/companies/01M3PEPD9MYF1Q63Z188AVQDQA",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Row 11 Team Check Industrial Procurement Private L"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Role for Priya Raghunathan-V",
+    "Remove Priya Raghunathan-Vil",
+    "INPUT",
+    "Company adminBuyerOrder appr",
+    "Send invitation",
+    "Resend the invitation to fin",
+    "Withdraw the invitation to f",
+    "About Gloviaa Mart",
+    "How assurance works",
+    "Help, policies and legal",
+    "All products",
+    "Shopping from India",
+    "My orders",
+    "Repeat purchases"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-approved-1440.png"
+  },
+  {
+   "afterResult": {
+    "notApproved": true,
+    "invite": false
+   },
+   "darkClass": "|",
+   "page": "team-draft",
+   "path": "/account/companies/01M3KFB5VB078FKZAHP1D6BWMN",
+   "w": 320,
+   "finalPath": "/account/companies/01M3KFB5VB078FKZAHP1D6BWMN",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "Northwind Fastenings Ltd"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-draft-320.png"
+  },
+  {
+   "afterResult": {
+    "notApproved": true,
+    "invite": false
+   },
+   "darkClass": "|",
+   "page": "team-draft",
+   "path": "/account/companies/01M3KFB5VB078FKZAHP1D6BWMN",
+   "w": 375,
+   "finalPath": "/account/companies/01M3KFB5VB078FKZAHP1D6BWMN",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "Northwind Fastenings Ltd"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-draft-375.png"
+  },
+  {
+   "afterResult": {
+    "notApproved": true,
+    "invite": false
+   },
+   "darkClass": "|",
+   "page": "team-draft",
+   "path": "/account/companies/01M3KFB5VB078FKZAHP1D6BWMN",
+   "w": 768,
+   "finalPath": "/account/companies/01M3KFB5VB078FKZAHP1D6BWMN",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "Northwind Fastenings Ltd"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-draft-768.png"
+  },
+  {
+   "afterResult": {
+    "notApproved": true,
+    "invite": false
+   },
+   "darkClass": "|",
+   "page": "team-draft",
+   "path": "/account/companies/01M3KFB5VB078FKZAHP1D6BWMN",
+   "w": 1024,
+   "finalPath": "/account/companies/01M3KFB5VB078FKZAHP1D6BWMN",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "Northwind Fastenings Ltd"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-draft-1024.png"
+  },
+  {
+   "afterResult": {
+    "notApproved": true,
+    "invite": false
+   },
+   "darkClass": "|",
+   "page": "team-draft",
+   "path": "/account/companies/01M3KFB5VB078FKZAHP1D6BWMN",
+   "w": 1440,
+   "finalPath": "/account/companies/01M3KFB5VB078FKZAHP1D6BWMN",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "Northwind Fastenings Ltd"
+   ],
+   "title": "Company application · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart",
+    "Support",
+    "Your account: Deepak",
+    "Cart, empty",
+    "Dashboard",
+    "My orders",
+    "Scheduled orders",
+    "Preorders",
+    "Messages"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-draft-1440.png"
+  },
+  {
+   "afterResult": {
+    "accept": true,
+    "text": "Your account\nJoin a company\nJoin Row 11 Inviting Company GmbH (dev)\n\nPriya Raghunathan-Villanueva has invited you to act for Row 11 Inviting Company GmbH (dev). Your role would be: Buyer.\n\nThis invitation works until 6 Oct 2026.\n\nAccept and join\nNot now",
+    "url": ""
+   },
+   "darkClass": "|",
+   "page": "join",
+   "path": "/account/join-company?token=devrow1101m3pepdawmhde8rncddz7dcg101m3pepdawmhde8rncddz7dcg2",
+   "w": 320,
+   "finalPath": "/account/join-company",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Join a company"
+   ],
+   "title": "Join a company · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "join-320.png"
+  },
+  {
+   "afterResult": {
+    "accept": true,
+    "text": "Your account\nJoin a company\nJoin Row 11 Inviting Company GmbH (dev)\n\nPriya Raghunathan-Villanueva has invited you to act for Row 11 Inviting Company GmbH (dev). Your role would be: Buyer.\n\nThis invitation works until 6 Oct 2026.\n\nAccept and join\nNot now",
+    "url": ""
+   },
+   "darkClass": "|",
+   "page": "join",
+   "path": "/account/join-company?token=devrow1101m3pepdawmhde8rncddz7dcg101m3pepdawmhde8rncddz7dcg2",
+   "w": 375,
+   "finalPath": "/account/join-company",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Join a company"
+   ],
+   "title": "Join a company · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "join-375.png"
+  },
+  {
+   "afterResult": {
+    "accept": true,
+    "text": "ORDERS\nACCOUNT SETTINGS\nPAYMENTS\nINTEGRATIONS\nMY STUFF\nJoin a company\nJoin Row 11 Inviting Company GmbH (dev)\n\nPriya Raghunathan-Villanueva has invited you to act for Row 11 Inviting Company GmbH (dev). Your role would be: Buyer.\n\nThis invitation works until 6 Oct 2026.\n\nAccept and join\nNot now",
+    "url": ""
+   },
+   "darkClass": "|",
+   "page": "join",
+   "path": "/account/join-company?token=devrow1101m3pepdawmhde8rncddz7dcg101m3pepdawmhde8rncddz7dcg2",
+   "w": 768,
+   "finalPath": "/account/join-company",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Join a company"
+   ],
+   "title": "Join a company · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "join-768.png"
+  },
+  {
+   "afterResult": {
+    "accept": true,
+    "text": "ORDERS\nACCOUNT SETTINGS\nPAYMENTS\nINTEGRATIONS\nMY STUFF\nJoin a company\nJoin Row 11 Inviting Company GmbH (dev)\n\nPriya Raghunathan-Villanueva has invited you to act for Row 11 Inviting Company GmbH (dev). Your role would be: Buyer.\n\nThis invitation works until 6 Oct 2026.\n\nAccept and join\nNot now",
+    "url": ""
+   },
+   "darkClass": "|",
+   "page": "join",
+   "path": "/account/join-company?token=devrow1101m3pepdawmhde8rncddz7dcg101m3pepdawmhde8rncddz7dcg2",
+   "w": 1024,
+   "finalPath": "/account/join-company",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Join a company"
+   ],
+   "title": "Join a company · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "join-1024.png"
+  },
+  {
+   "afterResult": {
+    "accept": true,
+    "text": "ORDERS\nACCOUNT SETTINGS\nPAYMENTS\nINTEGRATIONS\nMY STUFF\nJoin a company\nJoin Row 11 Inviting Company GmbH (dev)\n\nPriya Raghunathan-Villanueva has invited you to act for Row 11 Inviting Company GmbH (dev). Your role would be: Buyer.\n\nThis invitation works until 6 Oct 2026.\n\nAccept and join\nNot now",
+    "url": ""
+   },
+   "darkClass": "|",
+   "page": "join",
+   "path": "/account/join-company?token=devrow1101m3pepdawmhde8rncddz7dcg101m3pepdawmhde8rncddz7dcg2",
+   "w": 1440,
+   "finalPath": "/account/join-company",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Join a company"
+   ],
+   "title": "Join a company · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart",
+    "Support",
+    "Your account: Deepak",
+    "Cart, empty",
+    "Dashboard",
+    "My orders",
+    "Scheduled orders",
+    "Preorders",
+    "Messages"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "join-1440.png"
+  }
+ ]
+}

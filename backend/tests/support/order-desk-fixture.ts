@@ -70,6 +70,11 @@ export async function cleanUpOrderDesk(tag: string): Promise<void> {
     'finance2',
     'desk',
     'catalog',
+    // Inspection agency staff and an inspection admin (inspection-http.test.ts).
+    'agcoord',
+    'aginsp',
+    'agqa',
+    'inspadmin',
   ].map((who) => emailFor(tag, who));
   const userIds = (
     await prisma.user.findMany({ where: { emailNormalized: { in: emails } }, select: { id: true } })
@@ -141,7 +146,7 @@ function jarOf(response: LightMyRequestResponse): Map<string, string> {
   return jar;
 }
 
-async function customer(
+export async function customer(
   app: App,
   tag: string,
   who: string,
@@ -202,7 +207,7 @@ async function customer(
   return session;
 }
 
-async function staff(
+export async function staff(
   app: App,
   tag: string,
   who: string,

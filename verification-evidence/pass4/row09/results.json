@@ -1,0 +1,175 @@
+{
+ "ranAt": "2026-09-29T09:38:51.060Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": {
+    "sections": [
+     "Get help",
+     "Terms and policies"
+    ],
+    "docs": [
+     "Terms and Conditions"
+    ]
+   },
+   "darkClass": "|",
+   "page": "legal-hub",
+   "path": "/legal",
+   "w": 320,
+   "finalPath": "/legal",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Help, policies and legal"
+   ],
+   "title": "Help, policies and legal · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "legal-hub-320.png"
+  },
+  {
+   "afterResult": {
+    "sections": [
+     "Get help",
+     "Terms and policies"
+    ],
+    "docs": [
+     "Terms and Conditions"
+    ]
+   },
+   "darkClass": "|",
+   "page": "legal-hub",
+   "path": "/legal",
+   "w": 375,
+   "finalPath": "/legal",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Help, policies and legal"
+   ],
+   "title": "Help, policies and legal · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "legal-hub-375.png"
+  },
+  {
+   "afterResult": {
+    "sections": [
+     "Get help",
+     "Terms and policies"
+    ],
+    "docs": [
+     "Terms and Conditions"
+    ]
+   },
+   "darkClass": "|",
+   "page": "legal-hub",
+   "path": "/legal",
+   "w": 768,
+   "finalPath": "/legal",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Help, policies and legal"
+   ],
+   "title": "Help, policies and legal · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "legal-hub-768.png"
+  },
+  {
+   "afterResult": {
+    "sections": [
+     "Get help",
+     "Terms and policies"
+    ],
+    "docs": [
+     "Terms and Conditions"
+    ]
+   },
+   "darkClass": "|",
+   "page": "legal-hub",
+   "path": "/legal",
+   "w": 1024,
+   "finalPath": "/legal",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Help, policies and legal"
+   ],
+   "title": "Help, policies and legal · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "legal-hub-1024.png"
+  },
+  {
+   "afterResult": {
+    "sections": [
+     "Get help",
+     "Terms and policies"
+    ],
+    "docs": [
+     "Terms and Conditions"
+    ]
+   },
+   "darkClass": "|",
+   "page": "legal-hub",
+   "path": "/legal",
+   "w": 1440,
+   "finalPath": "/legal",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Help, policies and legal"
+   ],
+   "title": "Help, policies and legal · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Contact support",
+    "How assurance works",
+    "Terms and Conditions"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "legal-hub-1440.png"
+  }
+ ]
+}

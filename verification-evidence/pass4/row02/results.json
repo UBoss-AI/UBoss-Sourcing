@@ -1,0 +1,326 @@
+{
+ "ranAt": "2026-09-29T07:28:18.576Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": {
+    "heading": "Verified suppliers matching “fasten”",
+    "links": [
+     "/products?seller=northwind-fastenings",
+     "/products?seller=trial-fastener-works",
+     "/products?seller=nova-fasteners"
+    ],
+    "overflow": false,
+    "rawKeys": false
+   },
+   "darkClass": "|",
+   "page": "search-fasten",
+   "path": "/search?q=fasten",
+   "w": 320,
+   "finalPath": "/search",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Results for “fasten”"
+   ],
+   "title": "Results for “fasten” · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-fasten-320.png"
+  },
+  {
+   "afterResult": {
+    "heading": "Verified suppliers matching “fasten”",
+    "links": [
+     "/products?seller=northwind-fastenings",
+     "/products?seller=trial-fastener-works",
+     "/products?seller=nova-fasteners"
+    ],
+    "overflow": false,
+    "rawKeys": false
+   },
+   "darkClass": "|",
+   "page": "search-fasten",
+   "path": "/search?q=fasten",
+   "w": 375,
+   "finalPath": "/search",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Results for “fasten”"
+   ],
+   "title": "Results for “fasten” · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-fasten-375.png"
+  },
+  {
+   "afterResult": {
+    "heading": "Verified suppliers matching “fasten”",
+    "links": [
+     "/products?seller=northwind-fastenings",
+     "/products?seller=trial-fastener-works",
+     "/products?seller=nova-fasteners"
+    ],
+    "overflow": false,
+    "rawKeys": false
+   },
+   "darkClass": "|",
+   "page": "search-fasten",
+   "path": "/search?q=fasten",
+   "w": 768,
+   "finalPath": "/search",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Results for “fasten”"
+   ],
+   "title": "Results for “fasten” · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-fasten-768.png"
+  },
+  {
+   "afterResult": {
+    "heading": "Verified suppliers matching “fasten”",
+    "links": [
+     "/products?seller=northwind-fastenings",
+     "/products?seller=trial-fastener-works",
+     "/products?seller=nova-fasteners"
+    ],
+    "overflow": false,
+    "rawKeys": false
+   },
+   "darkClass": "|",
+   "page": "search-fasten",
+   "path": "/search?q=fasten",
+   "w": 1024,
+   "finalPath": "/search",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 39,
+   "h1": [
+    "Results for “fasten”"
+   ],
+   "title": "Results for “fasten” · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-fasten-1024.png"
+  },
+  {
+   "afterResult": {
+    "heading": "Verified suppliers matching “fasten”",
+    "links": [
+     "/products?seller=northwind-fastenings",
+     "/products?seller=trial-fastener-works",
+     "/products?seller=nova-fasteners"
+    ],
+    "overflow": false,
+    "rawKeys": false
+   },
+   "darkClass": "|",
+   "page": "search-fasten",
+   "path": "/search?q=fasten",
+   "w": 1440,
+   "finalPath": "/search",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 41,
+   "h1": [
+    "Results for “fasten”"
+   ],
+   "title": "Results for “fasten” · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "Products",
+    "Next",
+    "All products",
+    "Medical Devices",
+    "Laboratory & Scientific",
+    "Industrial Supplies"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-fasten-1440.png"
+  },
+  {
+   "afterResult": [
+    "Remove filter: From ₹100.00"
+   ],
+   "darkClass": "|",
+   "page": "search-price-chip",
+   "path": "/products?minPrice=10000",
+   "w": 320,
+   "finalPath": "/products",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Products"
+   ],
+   "title": "Products · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-price-chip-320.png"
+  },
+  {
+   "afterResult": [
+    "Remove filter: From ₹100.00"
+   ],
+   "darkClass": "|",
+   "page": "search-price-chip",
+   "path": "/products?minPrice=10000",
+   "w": 375,
+   "finalPath": "/products",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Products"
+   ],
+   "title": "Products · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-price-chip-375.png"
+  },
+  {
+   "afterResult": [
+    "Remove filter: From ₹100.00"
+   ],
+   "darkClass": "|",
+   "page": "search-price-chip",
+   "path": "/products?minPrice=10000",
+   "w": 768,
+   "finalPath": "/products",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Products"
+   ],
+   "title": "Products · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-price-chip-768.png"
+  },
+  {
+   "afterResult": [
+    "Remove filter: From ₹100.00"
+   ],
+   "darkClass": "|",
+   "page": "search-price-chip",
+   "path": "/products?minPrice=10000",
+   "w": 1024,
+   "finalPath": "/products",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 242,
+   "h1": [
+    "Products"
+   ],
+   "title": "Products · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-price-chip-1024.png"
+  },
+  {
+   "afterResult": [
+    "Remove filter: From ₹100.00"
+   ],
+   "darkClass": "|",
+   "page": "search-price-chip",
+   "path": "/products?minPrice=10000",
+   "w": 1440,
+   "finalPath": "/products",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 256,
+   "h1": [
+    "Products"
+   ],
+   "title": "Products · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "Products",
+    "Next",
+    "All products",
+    "Medical Devices",
+    "Laboratory & Scientific",
+    "Industrial Supplies"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-price-chip-1440.png"
+  }
+ ]
+}

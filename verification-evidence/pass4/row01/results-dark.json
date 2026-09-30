@@ -1,0 +1,67 @@
+{
+ "ranAt": "2026-09-29T07:10:26.935Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": {
+    "heading": "Verified suppliers",
+    "valueProp": "Source direct from verified suppliers, priced in your currency and ordered online.",
+    "cards": 8,
+    "firstHref": "/products?seller=glovia-levels-demo",
+    "cardOverflow": 0,
+    "rawKeys": false
+   },
+   "darkClass": "|",
+   "page": "home-dark",
+   "path": "/",
+   "w": 375,
+   "finalPath": "/",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-dark-375.png"
+  },
+  {
+   "afterResult": {
+    "heading": "Verified suppliers",
+    "valueProp": "Source direct from verified suppliers, priced in your currency and ordered online.",
+    "cards": 8,
+    "firstHref": "/products?seller=glovia-levels-demo",
+    "cardOverflow": 0,
+    "rawKeys": false
+   },
+   "darkClass": "|",
+   "page": "home-dark",
+   "path": "/",
+   "w": 1440,
+   "finalPath": "/",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-dark-1440.png"
+  }
+ ]
+}

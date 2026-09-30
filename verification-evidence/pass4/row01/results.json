@@ -1,0 +1,322 @@
+{
+ "ranAt": "2026-09-29T07:09:52.555Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": {
+    "heading": "Verified suppliers",
+    "valueProp": "Source direct from verified suppliers, priced in your currency and ordered online.",
+    "cards": 8,
+    "firstHref": "/products?seller=glovia-levels-demo",
+    "cardOverflow": 0,
+    "rawKeys": false
+   },
+   "darkClass": "|",
+   "page": "home-guest",
+   "path": "/",
+   "w": 320,
+   "finalPath": "/",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-320.png"
+  },
+  {
+   "afterResult": {
+    "heading": "Verified suppliers",
+    "valueProp": "Source direct from verified suppliers, priced in your currency and ordered online.",
+    "cards": 8,
+    "firstHref": "/products?seller=glovia-levels-demo",
+    "cardOverflow": 0,
+    "rawKeys": false
+   },
+   "darkClass": "|",
+   "page": "home-guest",
+   "path": "/",
+   "w": 375,
+   "finalPath": "/",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-375.png"
+  },
+  {
+   "afterResult": {
+    "heading": "Verified suppliers",
+    "valueProp": "Source direct from verified suppliers, priced in your currency and ordered online.",
+    "cards": 8,
+    "firstHref": "/products?seller=glovia-levels-demo",
+    "cardOverflow": 0,
+    "rawKeys": false
+   },
+   "darkClass": "|",
+   "page": "home-guest",
+   "path": "/",
+   "w": 768,
+   "finalPath": "/",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 15,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-768.png"
+  },
+  {
+   "afterResult": {
+    "heading": "Verified suppliers",
+    "valueProp": "Source direct from verified suppliers, priced in your currency and ordered online.",
+    "cards": 8,
+    "firstHref": "/products?seller=glovia-levels-demo",
+    "cardOverflow": 0,
+    "rawKeys": false
+   },
+   "darkClass": "|",
+   "page": "home-guest",
+   "path": "/",
+   "w": 1024,
+   "finalPath": "/",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-1024.png"
+  },
+  {
+   "afterResult": {
+    "heading": "Verified suppliers",
+    "valueProp": "Source direct from verified suppliers, priced in your currency and ordered online.",
+    "cards": 8,
+    "firstHref": "/products?seller=glovia-levels-demo",
+    "cardOverflow": 0,
+    "rawKeys": false
+   },
+   "darkClass": "|",
+   "page": "home-guest",
+   "path": "/",
+   "w": 1440,
+   "finalPath": "/",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 13,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Glovia Levels DemoManufactur",
+    "Northwind FasteningsWholesal",
+    "Trial Fastener WorksReseller",
+    "Nova FastenersManufacturer ·",
+    "QWEReseller · IndiaVerified ",
+    "W&BReseller · IndiaVerified ",
+    "SPM Medicare Pvt Ltd.Reselle",
+    "SikkaReseller · IndiaVerifie",
+    "See all",
+    "Save for later",
+    "FirstCry, Toys for Kids, T-0",
+    "Save for later",
+    "Desktop CO2 and Air Quality ",
+    "Save for later"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-guest-1440.png"
+  },
+  {
+   "afterResult": {
+    "chip": [
+     "Remove filter: Supplier: Nova Fasteners"
+    ]
+   },
+   "darkClass": "|",
+   "page": "catalogue-supplier",
+   "path": "/products?seller=nova-fasteners",
+   "w": 320,
+   "finalPath": "/products",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Products"
+   ],
+   "title": "Products · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "catalogue-supplier-320.png"
+  },
+  {
+   "afterResult": {
+    "chip": [
+     "Remove filter: Supplier: Nova Fasteners"
+    ]
+   },
+   "darkClass": "|",
+   "page": "catalogue-supplier",
+   "path": "/products?seller=nova-fasteners",
+   "w": 375,
+   "finalPath": "/products",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Products"
+   ],
+   "title": "Products · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "catalogue-supplier-375.png"
+  },
+  {
+   "afterResult": {
+    "chip": [
+     "Remove filter: Supplier: Nova Fasteners"
+    ]
+   },
+   "darkClass": "|",
+   "page": "catalogue-supplier",
+   "path": "/products?seller=nova-fasteners",
+   "w": 768,
+   "finalPath": "/products",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Products"
+   ],
+   "title": "Products · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "catalogue-supplier-768.png"
+  },
+  {
+   "afterResult": {
+    "chip": [
+     "Remove filter: Supplier: Nova Fasteners"
+    ]
+   },
+   "darkClass": "|",
+   "page": "catalogue-supplier",
+   "path": "/products?seller=nova-fasteners",
+   "w": 1024,
+   "finalPath": "/products",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 105,
+   "h1": [
+    "Products"
+   ],
+   "title": "Products · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "catalogue-supplier-1024.png"
+  },
+  {
+   "afterResult": {
+    "chip": [
+     "Remove filter: Supplier: Nova Fasteners"
+    ]
+   },
+   "darkClass": "|",
+   "page": "catalogue-supplier",
+   "path": "/products?seller=nova-fasteners",
+   "w": 1440,
+   "finalPath": "/products",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 120,
+   "h1": [
+    "Products"
+   ],
+   "title": "Products · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "Products",
+    "Next",
+    "All products",
+    "Medical Devices"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "catalogue-supplier-1440.png"
+  }
+ ]
+}

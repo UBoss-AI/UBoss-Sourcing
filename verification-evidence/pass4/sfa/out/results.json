@@ -1,0 +1,745 @@
+{
+ "ranAt": "2026-09-29T16:55:02.061Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": {
+    "h1": [
+     "Gloviaa Mart"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "home",
+   "path": "/",
+   "w": 320,
+   "finalPath": "/",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 14,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-320.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Gloviaa Mart"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "home",
+   "path": "/",
+   "w": 375,
+   "finalPath": "/",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 15,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-375.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Gloviaa Mart"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "home",
+   "path": "/",
+   "w": 768,
+   "finalPath": "/",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 18,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-768.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Gloviaa Mart"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "home",
+   "path": "/",
+   "w": 1024,
+   "finalPath": "/",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 16,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-1024.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Gloviaa Mart"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "home",
+   "path": "/",
+   "w": 1440,
+   "finalPath": "/",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 16,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-1440.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "How assurance works"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "assurance",
+   "path": "/assurance",
+   "w": 320,
+   "finalPath": "/assurance",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "How assurance works"
+   ],
+   "title": "How assurance works · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "assurance-320.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "How assurance works"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "assurance",
+   "path": "/assurance",
+   "w": 375,
+   "finalPath": "/assurance",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "How assurance works"
+   ],
+   "title": "How assurance works · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "assurance-375.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "How assurance works"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "assurance",
+   "path": "/assurance",
+   "w": 768,
+   "finalPath": "/assurance",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "How assurance works"
+   ],
+   "title": "How assurance works · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "assurance-768.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "How assurance works"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "assurance",
+   "path": "/assurance",
+   "w": 1024,
+   "finalPath": "/assurance",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "How assurance works"
+   ],
+   "title": "How assurance works · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "assurance-1024.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "How assurance works"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "assurance",
+   "path": "/assurance",
+   "w": 1440,
+   "finalPath": "/assurance",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "How assurance works"
+   ],
+   "title": "How assurance works · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "assurance-1440.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Shopping from Germany"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "market",
+   "path": "/markets/de",
+   "w": 320,
+   "finalPath": "/markets/de",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Shopping from Germany"
+   ],
+   "title": "Shopping from Germany · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-320.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Shopping from Germany"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "market",
+   "path": "/markets/de",
+   "w": 375,
+   "finalPath": "/markets/de",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Shopping from Germany"
+   ],
+   "title": "Shopping from Germany · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-375.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Shopping from Germany"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "market",
+   "path": "/markets/de",
+   "w": 768,
+   "finalPath": "/markets/de",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Shopping from Germany"
+   ],
+   "title": "Shopping from Germany · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-768.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Shopping from Germany"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "market",
+   "path": "/markets/de",
+   "w": 1024,
+   "finalPath": "/markets/de",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Shopping from Germany"
+   ],
+   "title": "Shopping from Germany · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-1024.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Shopping from Germany"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "market",
+   "path": "/markets/de",
+   "w": 1440,
+   "finalPath": "/markets/de",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Shopping from Germany"
+   ],
+   "title": "Shopping from Germany · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-1440.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Northwind Fastenings"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 320,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-320.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Northwind Fastenings"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 375,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-375.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Northwind Fastenings"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 768,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-768.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Northwind Fastenings"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 1024,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-1024.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Northwind Fastenings"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 1440,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-1440.png"
+  },
+  {
+   "signIn": "/"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Your cart is empty"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "cart",
+   "path": "/cart",
+   "w": 320,
+   "finalPath": "/cart",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Your cart is empty"
+   ],
+   "title": "Your cart · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "cart-320.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Your cart is empty"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "cart",
+   "path": "/cart",
+   "w": 375,
+   "finalPath": "/cart",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Your cart is empty"
+   ],
+   "title": "Your cart · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "cart-375.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Your cart is empty"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "cart",
+   "path": "/cart",
+   "w": 768,
+   "finalPath": "/cart",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Your cart is empty"
+   ],
+   "title": "Your cart · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "cart-768.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Your cart is empty"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "cart",
+   "path": "/cart",
+   "w": 1024,
+   "finalPath": "/cart",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Your cart is empty"
+   ],
+   "title": "Your cart · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "cart-1024.png"
+  },
+  {
+   "afterResult": {
+    "h1": [
+     "Your cart is empty"
+    ],
+    "ok": true
+   },
+   "darkClass": "|",
+   "page": "cart",
+   "path": "/cart",
+   "w": 1440,
+   "finalPath": "/cart",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Your cart is empty"
+   ],
+   "title": "Your cart · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "cart-1440.png"
+  }
+ ]
+}

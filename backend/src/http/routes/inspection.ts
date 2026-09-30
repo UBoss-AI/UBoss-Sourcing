@@ -19,6 +19,7 @@ import { SellerPermission } from '../../domain/seller-permissions.js';
 import {
   addAgencyMember,
   createAgency,
+  updateAgencyMember,
   resolveInspectionMembership,
   type InspectionMembership,
 } from '../../modules/inspection/agency.service.js';
@@ -430,6 +431,18 @@ export function registerAdminInspectionRoutes(app: FastifyInstance): Promise<voi
       credentials: optionalText(2000), credentialExpiresAt: z.coerce.date().nullable().optional(),
     }).parse(request.body);
     return reply.status(201).send(await addAgencyMember({ kind: 'OPERATOR', actor: operator(request) }, agencyId, input));
+  });
+
+  // Update a member: verify their identity after checking the ID document, change role or competence, or disable them.
+  app.patch('/inspection/members/:id', { preHandler: requireAdmin(Permission.INSPECTION_MANAGE) }, async (request, reply) => {
+    const { id: memberId } = idParam.parse(request.params);
+    const input = z.object({
+      role: z.enum(['AGENCY_ADMIN', 'COORDINATOR', 'INSPECTOR', 'QA_REVIEWER']).optional(), fullName: text(120).optional(),
+      competenceCategoryIds: z.array(id).max(200).nullable().optional(), credentials: optionalText(2000),
+      credentialExpiresAt: z.coerce.date().nullable().optional(), status: z.enum(['ACTIVE', 'DISABLED']).optional(), verifyIdentity: z.boolean().optional(),
+    }).parse(request.body);
+    await updateAgencyMember({ kind: 'OPERATOR', actor: operator(request) }, memberId, input);
+    return reply.send({ ok: true });
   });
 
   // The inspection policy: defaults, buyer visibility, override rules.

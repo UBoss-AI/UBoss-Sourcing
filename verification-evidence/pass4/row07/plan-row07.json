@@ -1,0 +1,1 @@
+{"base":"http://localhost:5174","widths":[320,375,768,1024,1440],"focusWidth":1440,"tabs":10,"pages":[{"name":"assurance","path":"/assurance","after":"(async()=>{for(let i=0;i<40&&!document.getElementById('assurance-claims');i++)await new Promise(r=>setTimeout(r,200));return [...document.querySelectorAll('section h2')].map(h=>h.textContent)})()"}]}

@@ -1,0 +1,630 @@
+{
+ "ranAt": "2026-09-29T15:08:22.254Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "signIn": "/"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/factories",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "factories",
+   "path": "/seller/factories",
+   "w": 320,
+   "finalPath": "/seller/factories",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "factories-320.png"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/factories",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "factories",
+   "path": "/seller/factories",
+   "w": 375,
+   "finalPath": "/seller/factories",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "factories-375.png"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/factories",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "factories",
+   "path": "/seller/factories",
+   "w": 768,
+   "finalPath": "/seller/factories",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "factories-768.png"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/factories",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "factories",
+   "path": "/seller/factories",
+   "w": 1024,
+   "finalPath": "/seller/factories",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "factories-1024.png"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/factories",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "factories",
+   "path": "/seller/factories",
+   "w": 1440,
+   "finalPath": "/seller/factories",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Back to the shop",
+    "body",
+    "INPUT",
+    "Back to the shop",
+    "body",
+    "INPUT",
+    "Back to the shop",
+    "body",
+    "INPUT",
+    "Back to the shop",
+    "body",
+    "INPUT",
+    "Back to the shop",
+    "body"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "factories-1440.png"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/team",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "team",
+   "path": "/seller/team",
+   "w": 320,
+   "finalPath": "/seller/team",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-320.png"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/team",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "team",
+   "path": "/seller/team",
+   "w": 375,
+   "finalPath": "/seller/team",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-375.png"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/team",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "team",
+   "path": "/seller/team",
+   "w": 768,
+   "finalPath": "/seller/team",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-768.png"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/team",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "team",
+   "path": "/seller/team",
+   "w": 1024,
+   "finalPath": "/seller/team",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-1024.png"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/team",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "team",
+   "path": "/seller/team",
+   "w": 1440,
+   "finalPath": "/seller/team",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Back to the shop",
+    "body",
+    "INPUT",
+    "Back to the shop",
+    "body",
+    "INPUT",
+    "Back to the shop",
+    "body",
+    "INPUT",
+    "Back to the shop",
+    "body",
+    "INPUT",
+    "Back to the shop",
+    "body"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "team-1440.png"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/onboarding",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "onboarding",
+   "path": "/seller/onboarding",
+   "w": 320,
+   "finalPath": "/seller/onboarding",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "onboarding-320.png"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/onboarding",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "onboarding",
+   "path": "/seller/onboarding",
+   "w": 375,
+   "finalPath": "/seller/onboarding",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "onboarding-375.png"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/onboarding",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "onboarding",
+   "path": "/seller/onboarding",
+   "w": 768,
+   "finalPath": "/seller/onboarding",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "onboarding-768.png"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/onboarding",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "onboarding",
+   "path": "/seller/onboarding",
+   "w": 1024,
+   "finalPath": "/seller/onboarding",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "onboarding-1024.png"
+  },
+  {
+   "afterResult": {
+    "path": "/seller/onboarding",
+    "h1": "Enter your Seller Hub password",
+    "mainLen": 0,
+    "snippet": "Northwind Fastenings\n\nSELLER HUB\n\nEnter your Seller Hub password\n\nYou are signed in to the shop. The Hub asks for its ow"
+   },
+   "darkClass": "|",
+   "page": "onboarding",
+   "path": "/seller/onboarding",
+   "w": 1440,
+   "finalPath": "/seller/onboarding",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 1,
+   "h1": [
+    "Enter your Seller Hub password"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Back to the shop",
+    "body",
+    "INPUT",
+    "Back to the shop",
+    "body",
+    "INPUT",
+    "Back to the shop",
+    "body",
+    "INPUT",
+    "Back to the shop",
+    "body",
+    "INPUT",
+    "Back to the shop",
+    "body"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "onboarding-1440.png"
+  },
+  {
+   "afterResult": {
+    "path": "/suppliers/northwind-fastenings",
+    "h1": "Northwind Fastenings",
+    "mainLen": 1914,
+    "snippet": "Home / Verified suppliers\nNorthwind Fastenings\n\nWholesaler · Germany\n\nVerified since September 2026\n\nGloviaa Mart review"
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 320,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-320.png"
+  },
+  {
+   "afterResult": {
+    "path": "/suppliers/northwind-fastenings",
+    "h1": "Northwind Fastenings",
+    "mainLen": 1914,
+    "snippet": "Home / Verified suppliers\nNorthwind Fastenings\n\nWholesaler · Germany\n\nVerified since September 2026\n\nGloviaa Mart review"
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 375,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-375.png"
+  },
+  {
+   "afterResult": {
+    "path": "/suppliers/northwind-fastenings",
+    "h1": "Northwind Fastenings",
+    "mainLen": 1914,
+    "snippet": "Home / Verified suppliers\nNorthwind Fastenings\n\nWholesaler · Germany\n\nVerified since September 2026\n\nGloviaa Mart review"
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 768,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-768.png"
+  },
+  {
+   "afterResult": {
+    "path": "/suppliers/northwind-fastenings",
+    "h1": "Northwind Fastenings",
+    "mainLen": 1914,
+    "snippet": "Home / Verified suppliers\nNorthwind Fastenings\n\nWholesaler · Germany\n\nVerified since September 2026\n\nGloviaa Mart review"
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 1024,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-1024.png"
+  },
+  {
+   "afterResult": {
+    "path": "/suppliers/northwind-fastenings",
+    "h1": "Northwind Fastenings",
+    "mainLen": 1914,
+    "snippet": "Home / Verified suppliers\nNorthwind Fastenings\n\nWholesaler · Germany\n\nVerified since September 2026\n\nGloviaa Mart review"
+   },
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 1440,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "ENIndia₹ INRChange language,",
+    "Seller Hub",
+    "About Gloviaa Mart",
+    "Support",
+    "Your account: Deepak",
+    "Cart, empty",
+    "Home",
+    "Compare",
+    "See its 114 products",
+    "Website(opens in a new tab)",
+    "IV Cannula9"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-1440.png"
+  }
+ ]
+}

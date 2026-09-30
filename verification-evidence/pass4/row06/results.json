@@ -1,0 +1,373 @@
+{
+ "ranAt": "2026-09-29T08:48:43.576Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "afterResult": "true",
+   "darkClass": "|",
+   "page": "add-p1",
+   "path": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "w": 1440,
+   "finalPath": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "FirstCry, Toys for Kids, T-001"
+   ],
+   "title": "FirstCry, Toys for Kids, T-001 · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "Products",
+    "Toys & Games"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "add-p1-1440.png"
+  },
+  {
+   "afterResult": "true",
+   "darkClass": "|",
+   "page": "add-p2",
+   "path": "/product/demo-refrigerant-dehumidifier-with-a-continuous-drain-port",
+   "w": 1440,
+   "finalPath": "/product/demo-refrigerant-dehumidifier-with-a-continuous-drain-port",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Refrigerant Dehumidifier with a Continuous Drain P"
+   ],
+   "title": "Refrigerant Dehumidifier with a Continuous Drain Port · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "Products",
+    "Air Quality"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "add-p2-1440.png"
+  },
+  {
+   "afterResult": "true",
+   "darkClass": "|",
+   "page": "add-s1",
+   "path": "/suppliers/nova-fasteners",
+   "w": 1440,
+   "finalPath": "/suppliers/nova-fasteners",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Nova Fasteners"
+   ],
+   "title": "Nova Fasteners · Nova Fasteners",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "In comparison",
+    "See its 109 products"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "add-s1-1440.png"
+  },
+  {
+   "afterResult": "true",
+   "darkClass": "|",
+   "page": "add-s2",
+   "path": "/suppliers/northwind-fastenings",
+   "w": 1440,
+   "finalPath": "/suppliers/northwind-fastenings",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Northwind Fastenings"
+   ],
+   "title": "Northwind Fastenings · Northwind Fastenings",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "In comparison",
+    "Compare 2 items"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "add-s2-1440.png"
+  },
+  {
+   "afterResult": {
+    "caption": "Products compared side by side",
+    "cols": 2,
+    "rows": 14,
+    "wrapScrolls": true
+   },
+   "darkClass": "|",
+   "page": "compare-products",
+   "path": "/compare?tab=products",
+   "w": 320,
+   "finalPath": "/compare",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Compare"
+   ],
+   "title": "Compare · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "compare-products-320.png"
+  },
+  {
+   "afterResult": {
+    "caption": "Products compared side by side",
+    "cols": 2,
+    "rows": 14,
+    "wrapScrolls": true
+   },
+   "darkClass": "|",
+   "page": "compare-products",
+   "path": "/compare?tab=products",
+   "w": 375,
+   "finalPath": "/compare",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Compare"
+   ],
+   "title": "Compare · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "compare-products-375.png"
+  },
+  {
+   "afterResult": {
+    "caption": "Products compared side by side",
+    "cols": 2,
+    "rows": 14,
+    "wrapScrolls": false
+   },
+   "darkClass": "|",
+   "page": "compare-products",
+   "path": "/compare?tab=products",
+   "w": 768,
+   "finalPath": "/compare",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 8,
+   "h1": [
+    "Compare"
+   ],
+   "title": "Compare · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "compare-products-768.png"
+  },
+  {
+   "afterResult": {
+    "caption": "Products compared side by side",
+    "cols": 2,
+    "rows": 14,
+    "wrapScrolls": false
+   },
+   "darkClass": "|",
+   "page": "compare-products",
+   "path": "/compare?tab=products",
+   "w": 1024,
+   "finalPath": "/compare",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Compare"
+   ],
+   "title": "Compare · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "compare-products-1024.png"
+  },
+  {
+   "afterResult": {
+    "caption": "Products compared side by side",
+    "cols": 2,
+    "rows": 14,
+    "wrapScrolls": false
+   },
+   "darkClass": "|",
+   "page": "compare-products",
+   "path": "/compare?tab=products",
+   "w": 1440,
+   "finalPath": "/compare",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Compare"
+   ],
+   "title": "Compare · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Products (2)",
+    "Suppliers (2)",
+    "FirstCry, Toys for Kids, T-0"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "compare-products-1440.png"
+  },
+  {
+   "afterResult": {
+    "caption": "Suppliers compared side by side",
+    "cols": 2,
+    "rows": 11,
+    "wrapScrolls": true
+   },
+   "darkClass": "|",
+   "page": "compare-suppliers",
+   "path": "/compare?tab=suppliers",
+   "w": 375,
+   "finalPath": "/compare",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Compare"
+   ],
+   "title": "Compare · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "compare-suppliers-375.png"
+  },
+  {
+   "afterResult": {
+    "caption": "Suppliers compared side by side",
+    "cols": 2,
+    "rows": 11,
+    "wrapScrolls": false
+   },
+   "darkClass": "|",
+   "page": "compare-suppliers",
+   "path": "/compare?tab=suppliers",
+   "w": 1440,
+   "finalPath": "/compare",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Compare"
+   ],
+   "title": "Compare · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Products (2)",
+    "Suppliers (2)",
+    "Nova Fasteners"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "compare-suppliers-1440.png"
+  }
+ ]
+}
