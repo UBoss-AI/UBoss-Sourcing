@@ -45,6 +45,7 @@ import { ErrorState } from '@/components/ui';
 import { SourcingSummaryCard } from '@/components/rfq/SourcingSummaryCard';
 import { formatDate, formatRelative } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { readRecentlyViewed } from '@/lib/recently-viewed';
 import { useDashboardParams } from '@/lib/use-dashboard-params';
 import { useInsightStream } from '@/lib/use-insight-stream';
 import {
@@ -112,6 +113,7 @@ export function DashboardPage(): React.JSX.Element {
   }));
 
   const data = query.data;
+  const recent = useMemo(() => readRecentlyViewed().slice(0, 5), []);
 
   const segments = useMemo(
     () =>
@@ -262,6 +264,40 @@ export function DashboardPage(): React.JSX.Element {
               idle: t('aiInsights.idle'),
             }}
           />
+        </BentoCell>
+
+        {/* --- Continue sourcing (row 88): what this browser viewed last, and the cart --- */}
+        <BentoCell span={6} spanMd={3}>
+          <section aria-labelledby="continue-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+            <h2 id="continue-heading" className="text-base font-semibold text-ink">
+              {t('buyerDashboard.continueTitle')}
+            </h2>
+            {recent.length === 0 ? (
+              <p className="mt-1 text-xs text-ink-muted">{t('buyerDashboard.continueEmpty')}</p>
+            ) : (
+              <ul className="mt-3 space-y-2 text-sm">
+                {recent.map((item) => (
+                  <li key={`${item.kind}:${item.slug}`} className="flex items-center justify-between gap-3">
+                    <Link
+                      to={item.kind === 'product' ? `/product/${item.slug}` : `/suppliers/${item.slug}`}
+                      className="min-w-0 truncate font-medium text-brand hover:underline"
+                    >
+                      {item.name}
+                    </Link>
+                    <span className="shrink-0 text-xs text-ink-muted">
+                      {item.kind === 'product' ? t('buyerDashboard.viewedProduct') : t('buyerDashboard.viewedSupplier')}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="mt-3 flex flex-wrap gap-x-4 text-sm">
+              <Link to="/cart" className="font-medium text-brand hover:underline">{t('buyerDashboard.openCart')}</Link>
+              {features.rfq === true && (
+                <Link to="/account/rfqs" className="font-medium text-brand hover:underline">{t('buyerDashboard.openRfqs')}</Link>
+              )}
+            </p>
+          </section>
         </BentoCell>
 
         {/* --- Buy again (row 78): suggestions from the buyer's own orders --- */}

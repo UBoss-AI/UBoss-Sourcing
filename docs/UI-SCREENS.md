@@ -2354,6 +2354,8 @@ it.
 
 The message centre (`/account/messages`) also lists the buyer's open and awarded RFQs under its heading, each linking to that RFQ's supplier conversations.
 
+The buyer dashboard also shows **Continue sourcing**: the last products and suppliers opened in this browser (kept in localStorage, eight at most) with links to the cart and RFQs.
+
 #### `/tools/landed-cost` — Landed cost calculator
 
 Public. Seven inputs (unit price, quantity, freight, inspection fee, duty %, tax %, platform fee %) and a live estimate with each line, total and per unit, plus a disclaimer and a Request quotes link. Linked from the product page beside the RFQ link.

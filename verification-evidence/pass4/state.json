@@ -1041,8 +1041,15 @@
     {
       "id": 88,
       "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "finding": "No recently viewed or continue-sourcing view.",
+      "fix": "Product and supplier pages record views in this browser (guarded localStorage, 8 max); the buyer dashboard shows a Continue sourcing card with them plus links to the cart and RFQs (open RFQs also in the sourcing card). 8 languages.",
+      "tests": "recently-viewed 2/2; Dashboard/Product/Supplier + i18n 108/108; tsc and lint clean",
+      "evidence": "recently-viewed 2/2; Dashboard/Product/Supplier + i18n 108/108; tsc and lint clean",
+      "testResult": "recently-viewed 2/2; Dashboard/Product/Supplier + i18n 108/108; tsc and lint clean",
+      "verification": "recently-viewed 2/2; Dashboard/Product/Supplier + i18n 108/108; tsc and lint clean"
     },
     {
       "id": 89,

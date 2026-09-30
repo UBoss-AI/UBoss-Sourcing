@@ -13,7 +13,9 @@
  * rest is stated as the supplier's own description ("as stated by the
  * supplier"), because the marketplace has not verified it.
  */
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { recordViewed } from '@/lib/recently-viewed';
 import { Link, useParams } from 'react-router-dom';
 import { BuildingIcon, CheckIcon, GlobeIcon, ShieldIcon } from '@/components/icons';
 import { ButtonLink, ErrorState, LoadingState } from '@/components/ui';
@@ -51,6 +53,9 @@ export function SupplierPage(): React.JSX.Element {
   });
 
   const supplier = query.data?.supplier;
+  useEffect(() => {
+    if (supplier !== undefined) recordViewed({ kind: 'supplier', slug, name: supplier.displayName });
+  }, [supplier, slug]);
   useDocumentMeta(
     { title: supplier?.displayName ?? '', description: supplier?.description ?? '' },
     supplier?.displayName ?? '',

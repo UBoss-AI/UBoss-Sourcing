@@ -34,6 +34,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
+import { recordViewed } from '@/lib/recently-viewed';
 import { useStorefront } from '@/app/storefront-context';
 import { useLocale } from '@/app/locale-context';
 import { useToast } from '@/components/toast-context';
@@ -842,6 +843,9 @@ export function ProductPage(): React.JSX.Element {
   });
 
   const product = query.data?.product;
+  useEffect(() => {
+    if (product !== undefined) recordViewed({ kind: 'product', slug: product.slug, name: product.name });
+  }, [product]);
 
   /*
    * The packages this seller sells this in.
