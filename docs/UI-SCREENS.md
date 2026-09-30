@@ -2354,6 +2354,10 @@ it.
 
 The message centre (`/account/messages`) also lists the buyer's open and awarded RFQs under its heading, each linking to that RFQ's supplier conversations.
 
+#### `/tools/landed-cost` — Landed cost calculator
+
+Public. Seven inputs (unit price, quantity, freight, inspection fee, duty %, tax %, platform fee %) and a live estimate with each line, total and per unit, plus a disclaimer and a Request quotes link. Linked from the product page beside the RFQ link.
+
 #### `/account/orders/:id/claim`, `/account/disputes`, `/account/disputes/:reference` — Claims
 
 The operator side is the admin console's `/disputes` queue and `/disputes/:id` case screen (see PRD 5.8).

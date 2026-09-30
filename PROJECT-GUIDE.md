@@ -10555,6 +10555,8 @@ until switched on.
 
 This is the most important flow in the system.
 
+**Landed cost calculator (built).** Public page `/tools/landed-cost`, linked from each product page. The buyer enters unit price, quantity, freight, inspection fee and duty, tax and platform-fee percentages; the page shows goods, freight, duty (on goods plus freight), tax (on that plus duty), inspection, platform fee, total and per unit in the selected currency. BigInt minor units, basis points, rounded half up. An estimate from the buyer's own figures, never a quote.
+
 **Consent at checkout.** Before Place order works, the customer must tick an unticked box agreeing to the Terms and the store policies (both linked). The tax line also says destination import duties are not included. The tick is a browser-side gate; it is not saved on the order.
 
 ```

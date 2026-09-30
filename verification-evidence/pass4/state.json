@@ -1047,8 +1047,15 @@
     {
       "id": 89,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
+      "verifiedAt": "2026-09-30 (pass 7)",
+      "finding": "No landed cost calculator existed.",
+      "fix": "Added public /tools/landed-cost (item, freight, duty, tax, inspection, platform fee; total and per unit; BigInt minor units), linked from the product page. 8 languages.",
+      "tests": "LandedCostPage.test 2/2 (worked example, rounding, parsing); i18n 67/67; tsc and lint clean",
+      "evidence": "LandedCostPage.test 2/2 (worked example, rounding, parsing); i18n 67/67; tsc and lint clean",
+      "testResult": "LandedCostPage.test 2/2 (worked example, rounding, parsing); i18n 67/67; tsc and lint clean",
+      "verification": "LandedCostPage.test 2/2 (worked example, rounding, parsing); i18n 67/67; tsc and lint clean"
     },
     {
       "id": 90,

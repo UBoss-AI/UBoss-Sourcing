@@ -2195,6 +2195,8 @@ all absent (`BUYER_COMPANIES_DISABLED`).
 
 ## 5.6 Checkout and choosing a fulfilment warehouse (CHK)
 
+**Landed cost calculator (built).** Public page `/tools/landed-cost`, linked from each product page. The buyer enters unit price, quantity, freight, inspection fee and duty, tax and platform-fee percentages; the page shows goods, freight, duty (on goods plus freight), tax (on that plus duty), inspection, platform fee, total and per unit in the selected currency. BigInt minor units, basis points, rounded half up. An estimate from the buyer's own figures, never a quote.
+
 ### FR-CHK-000 — Agreeing to the terms before ordering
 
 Built. The review step has an unticked box: "I have read and agree to the Terms and Conditions and the returns and refund rules in the store policies", linking to `/legal/terms` and `/legal`. Place order stays off until the customer ticks it themselves, and a hint beside the button says why. Under the tax line, the page says that import duties or customs fees charged by the destination country are not included. The tick is checked in the browser only; it is not yet stored with the order.

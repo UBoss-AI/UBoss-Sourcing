@@ -2502,6 +2502,10 @@ export function ProductPage(): React.JSX.Element {
               >
                 {t('rfq.cta.requestQuotesForProduct')}
               </Link>
+              {' · '}
+              <Link to="/tools/landed-cost" className="font-medium text-brand underline-offset-2 hover:underline">
+                {t('landedCost.title')}
+              </Link>
             </p>
           )}
         </div>
