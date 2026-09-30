@@ -2059,6 +2059,24 @@
       "status": "VERIFIED",
       "evidence": "inspection-http.test: signed FAIL with a MAJOR NCR; seller dispatch refused 409",
       "verifiedAt": "2026-09-30 (pass 7)"
+    },
+    {
+      "id": "FLOW-005",
+      "status": "VERIFIED",
+      "evidence": "Real HTTP inspection lifecycle: signed FAIL and major NCR refuse dispatch (409); stored CAPA evidence is required; repeat job links the original; signed repeat PASS closes findings; the original report id/hash/result are unchanged. Gate regression 35/35 and extended inspection-http.test.ts 2/2 pass.",
+      "verifiedAt": "2026-10-01"
+    },
+    {
+      "id": "JOURNEY-040",
+      "status": "VERIFIED",
+      "evidence": "Dedicated PackagingPage shows every booked PACKAGING/LABELLING item: inner/outer pack, carton units, pallet, marks, barcode, destination and safety symbols. Full default checklist saved through real HTTP; per-check evidence validated; browser barcode save tested. PackagingPage 6/6; Chrome five widths with zero overflow/axe violations. Full customer verify 1675/1675.",
+      "verifiedAt": "2026-10-01"
+    },
+    {
+      "id": "JOURNEY-043",
+      "status": "VERIFIED",
+      "evidence": "Extended real HTTP lifecycle records correction on the original NCR with new CAPA evidence, books linked repeat inspection, presents corrected LOT-1, captures new inspection evidence and signs PASS. Original report hash remains unchanged; NCR becomes VERIFIED_CLOSED and dispatch gate opens. Admin linked-booking UI 4/4 and Chrome phone/desktop save pass.",
+      "verifiedAt": "2026-10-01"
     }
   ],
   "pendingBoxes": []
