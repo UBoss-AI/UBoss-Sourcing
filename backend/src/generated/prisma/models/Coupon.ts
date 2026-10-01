@@ -336,6 +336,7 @@ export type CouponWhereInput = {
   minimums?: Prisma.CouponMinimumListRelationFilter
   redemptions?: Prisma.CouponRedemptionListRelationFilter
   carts?: Prisma.CartListRelationFilter
+  contentBlocks?: Prisma.ContentBlockListRelationFilter
 }
 
 export type CouponOrderByWithRelationInput = {
@@ -361,6 +362,7 @@ export type CouponOrderByWithRelationInput = {
   minimums?: Prisma.CouponMinimumOrderByRelationAggregateInput
   redemptions?: Prisma.CouponRedemptionOrderByRelationAggregateInput
   carts?: Prisma.CartOrderByRelationAggregateInput
+  contentBlocks?: Prisma.ContentBlockOrderByRelationAggregateInput
   _relevance?: Prisma.CouponOrderByRelevanceInput
 }
 
@@ -390,6 +392,7 @@ export type CouponWhereUniqueInput = Prisma.AtLeast<{
   minimums?: Prisma.CouponMinimumListRelationFilter
   redemptions?: Prisma.CouponRedemptionListRelationFilter
   carts?: Prisma.CartListRelationFilter
+  contentBlocks?: Prisma.ContentBlockListRelationFilter
 }, "id" | "code">
 
 export type CouponOrderByWithAggregationInput = {
@@ -465,6 +468,7 @@ export type CouponCreateInput = {
   minimums?: Prisma.CouponMinimumCreateNestedManyWithoutCouponInput
   redemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCouponInput
   carts?: Prisma.CartCreateNestedManyWithoutAppliedCouponInput
+  contentBlocks?: Prisma.ContentBlockCreateNestedManyWithoutCouponInput
 }
 
 export type CouponUncheckedCreateInput = {
@@ -490,6 +494,7 @@ export type CouponUncheckedCreateInput = {
   minimums?: Prisma.CouponMinimumUncheckedCreateNestedManyWithoutCouponInput
   redemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCouponInput
   carts?: Prisma.CartUncheckedCreateNestedManyWithoutAppliedCouponInput
+  contentBlocks?: Prisma.ContentBlockUncheckedCreateNestedManyWithoutCouponInput
 }
 
 export type CouponUpdateInput = {
@@ -515,6 +520,7 @@ export type CouponUpdateInput = {
   minimums?: Prisma.CouponMinimumUpdateManyWithoutCouponNestedInput
   redemptions?: Prisma.CouponRedemptionUpdateManyWithoutCouponNestedInput
   carts?: Prisma.CartUpdateManyWithoutAppliedCouponNestedInput
+  contentBlocks?: Prisma.ContentBlockUpdateManyWithoutCouponNestedInput
 }
 
 export type CouponUncheckedUpdateInput = {
@@ -540,6 +546,7 @@ export type CouponUncheckedUpdateInput = {
   minimums?: Prisma.CouponMinimumUncheckedUpdateManyWithoutCouponNestedInput
   redemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCouponNestedInput
   carts?: Prisma.CartUncheckedUpdateManyWithoutAppliedCouponNestedInput
+  contentBlocks?: Prisma.ContentBlockUncheckedUpdateManyWithoutCouponNestedInput
 }
 
 export type CouponCreateManyInput = {
@@ -764,6 +771,22 @@ export type CouponUpdateOneRequiredWithoutRedemptionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CouponUpdateToOneWithWhereWithoutRedemptionsInput, Prisma.CouponUpdateWithoutRedemptionsInput>, Prisma.CouponUncheckedUpdateWithoutRedemptionsInput>
 }
 
+export type CouponCreateNestedOneWithoutContentBlocksInput = {
+  create?: Prisma.XOR<Prisma.CouponCreateWithoutContentBlocksInput, Prisma.CouponUncheckedCreateWithoutContentBlocksInput>
+  connectOrCreate?: Prisma.CouponCreateOrConnectWithoutContentBlocksInput
+  connect?: Prisma.CouponWhereUniqueInput
+}
+
+export type CouponUpdateOneWithoutContentBlocksNestedInput = {
+  create?: Prisma.XOR<Prisma.CouponCreateWithoutContentBlocksInput, Prisma.CouponUncheckedCreateWithoutContentBlocksInput>
+  connectOrCreate?: Prisma.CouponCreateOrConnectWithoutContentBlocksInput
+  upsert?: Prisma.CouponUpsertWithoutContentBlocksInput
+  disconnect?: Prisma.CouponWhereInput | boolean
+  delete?: Prisma.CouponWhereInput | boolean
+  connect?: Prisma.CouponWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CouponUpdateToOneWithWhereWithoutContentBlocksInput, Prisma.CouponUpdateWithoutContentBlocksInput>, Prisma.CouponUncheckedUpdateWithoutContentBlocksInput>
+}
+
 export type CouponCreateWithoutCartsInput = {
   id: string
   code: string
@@ -786,6 +809,7 @@ export type CouponCreateWithoutCartsInput = {
   categories?: Prisma.CouponCategoryCreateNestedManyWithoutCouponInput
   minimums?: Prisma.CouponMinimumCreateNestedManyWithoutCouponInput
   redemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCouponInput
+  contentBlocks?: Prisma.ContentBlockCreateNestedManyWithoutCouponInput
 }
 
 export type CouponUncheckedCreateWithoutCartsInput = {
@@ -810,6 +834,7 @@ export type CouponUncheckedCreateWithoutCartsInput = {
   categories?: Prisma.CouponCategoryUncheckedCreateNestedManyWithoutCouponInput
   minimums?: Prisma.CouponMinimumUncheckedCreateNestedManyWithoutCouponInput
   redemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCouponInput
+  contentBlocks?: Prisma.ContentBlockUncheckedCreateNestedManyWithoutCouponInput
 }
 
 export type CouponCreateOrConnectWithoutCartsInput = {
@@ -850,6 +875,7 @@ export type CouponUpdateWithoutCartsInput = {
   categories?: Prisma.CouponCategoryUpdateManyWithoutCouponNestedInput
   minimums?: Prisma.CouponMinimumUpdateManyWithoutCouponNestedInput
   redemptions?: Prisma.CouponRedemptionUpdateManyWithoutCouponNestedInput
+  contentBlocks?: Prisma.ContentBlockUpdateManyWithoutCouponNestedInput
 }
 
 export type CouponUncheckedUpdateWithoutCartsInput = {
@@ -874,6 +900,7 @@ export type CouponUncheckedUpdateWithoutCartsInput = {
   categories?: Prisma.CouponCategoryUncheckedUpdateManyWithoutCouponNestedInput
   minimums?: Prisma.CouponMinimumUncheckedUpdateManyWithoutCouponNestedInput
   redemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCouponNestedInput
+  contentBlocks?: Prisma.ContentBlockUncheckedUpdateManyWithoutCouponNestedInput
 }
 
 export type CouponCreateWithoutCategoriesInput = {
@@ -898,6 +925,7 @@ export type CouponCreateWithoutCategoriesInput = {
   minimums?: Prisma.CouponMinimumCreateNestedManyWithoutCouponInput
   redemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCouponInput
   carts?: Prisma.CartCreateNestedManyWithoutAppliedCouponInput
+  contentBlocks?: Prisma.ContentBlockCreateNestedManyWithoutCouponInput
 }
 
 export type CouponUncheckedCreateWithoutCategoriesInput = {
@@ -922,6 +950,7 @@ export type CouponUncheckedCreateWithoutCategoriesInput = {
   minimums?: Prisma.CouponMinimumUncheckedCreateNestedManyWithoutCouponInput
   redemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCouponInput
   carts?: Prisma.CartUncheckedCreateNestedManyWithoutAppliedCouponInput
+  contentBlocks?: Prisma.ContentBlockUncheckedCreateNestedManyWithoutCouponInput
 }
 
 export type CouponCreateOrConnectWithoutCategoriesInput = {
@@ -962,6 +991,7 @@ export type CouponUpdateWithoutCategoriesInput = {
   minimums?: Prisma.CouponMinimumUpdateManyWithoutCouponNestedInput
   redemptions?: Prisma.CouponRedemptionUpdateManyWithoutCouponNestedInput
   carts?: Prisma.CartUpdateManyWithoutAppliedCouponNestedInput
+  contentBlocks?: Prisma.ContentBlockUpdateManyWithoutCouponNestedInput
 }
 
 export type CouponUncheckedUpdateWithoutCategoriesInput = {
@@ -986,6 +1016,7 @@ export type CouponUncheckedUpdateWithoutCategoriesInput = {
   minimums?: Prisma.CouponMinimumUncheckedUpdateManyWithoutCouponNestedInput
   redemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCouponNestedInput
   carts?: Prisma.CartUncheckedUpdateManyWithoutAppliedCouponNestedInput
+  contentBlocks?: Prisma.ContentBlockUncheckedUpdateManyWithoutCouponNestedInput
 }
 
 export type CouponCreateWithoutMinimumsInput = {
@@ -1010,6 +1041,7 @@ export type CouponCreateWithoutMinimumsInput = {
   categories?: Prisma.CouponCategoryCreateNestedManyWithoutCouponInput
   redemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCouponInput
   carts?: Prisma.CartCreateNestedManyWithoutAppliedCouponInput
+  contentBlocks?: Prisma.ContentBlockCreateNestedManyWithoutCouponInput
 }
 
 export type CouponUncheckedCreateWithoutMinimumsInput = {
@@ -1034,6 +1066,7 @@ export type CouponUncheckedCreateWithoutMinimumsInput = {
   categories?: Prisma.CouponCategoryUncheckedCreateNestedManyWithoutCouponInput
   redemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCouponInput
   carts?: Prisma.CartUncheckedCreateNestedManyWithoutAppliedCouponInput
+  contentBlocks?: Prisma.ContentBlockUncheckedCreateNestedManyWithoutCouponInput
 }
 
 export type CouponCreateOrConnectWithoutMinimumsInput = {
@@ -1074,6 +1107,7 @@ export type CouponUpdateWithoutMinimumsInput = {
   categories?: Prisma.CouponCategoryUpdateManyWithoutCouponNestedInput
   redemptions?: Prisma.CouponRedemptionUpdateManyWithoutCouponNestedInput
   carts?: Prisma.CartUpdateManyWithoutAppliedCouponNestedInput
+  contentBlocks?: Prisma.ContentBlockUpdateManyWithoutCouponNestedInput
 }
 
 export type CouponUncheckedUpdateWithoutMinimumsInput = {
@@ -1098,6 +1132,7 @@ export type CouponUncheckedUpdateWithoutMinimumsInput = {
   categories?: Prisma.CouponCategoryUncheckedUpdateManyWithoutCouponNestedInput
   redemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCouponNestedInput
   carts?: Prisma.CartUncheckedUpdateManyWithoutAppliedCouponNestedInput
+  contentBlocks?: Prisma.ContentBlockUncheckedUpdateManyWithoutCouponNestedInput
 }
 
 export type CouponCreateWithoutRedemptionsInput = {
@@ -1122,6 +1157,7 @@ export type CouponCreateWithoutRedemptionsInput = {
   categories?: Prisma.CouponCategoryCreateNestedManyWithoutCouponInput
   minimums?: Prisma.CouponMinimumCreateNestedManyWithoutCouponInput
   carts?: Prisma.CartCreateNestedManyWithoutAppliedCouponInput
+  contentBlocks?: Prisma.ContentBlockCreateNestedManyWithoutCouponInput
 }
 
 export type CouponUncheckedCreateWithoutRedemptionsInput = {
@@ -1146,6 +1182,7 @@ export type CouponUncheckedCreateWithoutRedemptionsInput = {
   categories?: Prisma.CouponCategoryUncheckedCreateNestedManyWithoutCouponInput
   minimums?: Prisma.CouponMinimumUncheckedCreateNestedManyWithoutCouponInput
   carts?: Prisma.CartUncheckedCreateNestedManyWithoutAppliedCouponInput
+  contentBlocks?: Prisma.ContentBlockUncheckedCreateNestedManyWithoutCouponInput
 }
 
 export type CouponCreateOrConnectWithoutRedemptionsInput = {
@@ -1186,6 +1223,7 @@ export type CouponUpdateWithoutRedemptionsInput = {
   categories?: Prisma.CouponCategoryUpdateManyWithoutCouponNestedInput
   minimums?: Prisma.CouponMinimumUpdateManyWithoutCouponNestedInput
   carts?: Prisma.CartUpdateManyWithoutAppliedCouponNestedInput
+  contentBlocks?: Prisma.ContentBlockUpdateManyWithoutCouponNestedInput
 }
 
 export type CouponUncheckedUpdateWithoutRedemptionsInput = {
@@ -1210,6 +1248,123 @@ export type CouponUncheckedUpdateWithoutRedemptionsInput = {
   categories?: Prisma.CouponCategoryUncheckedUpdateManyWithoutCouponNestedInput
   minimums?: Prisma.CouponMinimumUncheckedUpdateManyWithoutCouponNestedInput
   carts?: Prisma.CartUncheckedUpdateManyWithoutAppliedCouponNestedInput
+  contentBlocks?: Prisma.ContentBlockUncheckedUpdateManyWithoutCouponNestedInput
+}
+
+export type CouponCreateWithoutContentBlocksInput = {
+  id: string
+  code: string
+  name: string
+  description?: string | null
+  discountPercent: runtime.Decimal | runtime.DecimalJsLike | number | string
+  scope?: $Enums.CouponScope
+  status?: $Enums.CouponStatus
+  isPubliclyListed?: boolean
+  validFrom?: Date | string | null
+  validUntil?: Date | string | null
+  usageLimit?: number | null
+  perCustomerLimit?: number | null
+  usageCount?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  createdById?: string | null
+  updatedById?: string | null
+  categories?: Prisma.CouponCategoryCreateNestedManyWithoutCouponInput
+  minimums?: Prisma.CouponMinimumCreateNestedManyWithoutCouponInput
+  redemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCouponInput
+  carts?: Prisma.CartCreateNestedManyWithoutAppliedCouponInput
+}
+
+export type CouponUncheckedCreateWithoutContentBlocksInput = {
+  id: string
+  code: string
+  name: string
+  description?: string | null
+  discountPercent: runtime.Decimal | runtime.DecimalJsLike | number | string
+  scope?: $Enums.CouponScope
+  status?: $Enums.CouponStatus
+  isPubliclyListed?: boolean
+  validFrom?: Date | string | null
+  validUntil?: Date | string | null
+  usageLimit?: number | null
+  perCustomerLimit?: number | null
+  usageCount?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  createdById?: string | null
+  updatedById?: string | null
+  categories?: Prisma.CouponCategoryUncheckedCreateNestedManyWithoutCouponInput
+  minimums?: Prisma.CouponMinimumUncheckedCreateNestedManyWithoutCouponInput
+  redemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCouponInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutAppliedCouponInput
+}
+
+export type CouponCreateOrConnectWithoutContentBlocksInput = {
+  where: Prisma.CouponWhereUniqueInput
+  create: Prisma.XOR<Prisma.CouponCreateWithoutContentBlocksInput, Prisma.CouponUncheckedCreateWithoutContentBlocksInput>
+}
+
+export type CouponUpsertWithoutContentBlocksInput = {
+  update: Prisma.XOR<Prisma.CouponUpdateWithoutContentBlocksInput, Prisma.CouponUncheckedUpdateWithoutContentBlocksInput>
+  create: Prisma.XOR<Prisma.CouponCreateWithoutContentBlocksInput, Prisma.CouponUncheckedCreateWithoutContentBlocksInput>
+  where?: Prisma.CouponWhereInput
+}
+
+export type CouponUpdateToOneWithWhereWithoutContentBlocksInput = {
+  where?: Prisma.CouponWhereInput
+  data: Prisma.XOR<Prisma.CouponUpdateWithoutContentBlocksInput, Prisma.CouponUncheckedUpdateWithoutContentBlocksInput>
+}
+
+export type CouponUpdateWithoutContentBlocksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  scope?: Prisma.EnumCouponScopeFieldUpdateOperationsInput | $Enums.CouponScope
+  status?: Prisma.EnumCouponStatusFieldUpdateOperationsInput | $Enums.CouponStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  validFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  validUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  usageLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  perCustomerLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  usageCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categories?: Prisma.CouponCategoryUpdateManyWithoutCouponNestedInput
+  minimums?: Prisma.CouponMinimumUpdateManyWithoutCouponNestedInput
+  redemptions?: Prisma.CouponRedemptionUpdateManyWithoutCouponNestedInput
+  carts?: Prisma.CartUpdateManyWithoutAppliedCouponNestedInput
+}
+
+export type CouponUncheckedUpdateWithoutContentBlocksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  scope?: Prisma.EnumCouponScopeFieldUpdateOperationsInput | $Enums.CouponScope
+  status?: Prisma.EnumCouponStatusFieldUpdateOperationsInput | $Enums.CouponStatus
+  isPubliclyListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  validFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  validUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  usageLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  perCustomerLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  usageCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categories?: Prisma.CouponCategoryUncheckedUpdateManyWithoutCouponNestedInput
+  minimums?: Prisma.CouponMinimumUncheckedUpdateManyWithoutCouponNestedInput
+  redemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCouponNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutAppliedCouponNestedInput
 }
 
 
@@ -1222,6 +1377,7 @@ export type CouponCountOutputType = {
   minimums: number
   redemptions: number
   carts: number
+  contentBlocks: number
 }
 
 export type CouponCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1229,6 +1385,7 @@ export type CouponCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   minimums?: boolean | CouponCountOutputTypeCountMinimumsArgs
   redemptions?: boolean | CouponCountOutputTypeCountRedemptionsArgs
   carts?: boolean | CouponCountOutputTypeCountCartsArgs
+  contentBlocks?: boolean | CouponCountOutputTypeCountContentBlocksArgs
 }
 
 /**
@@ -1269,6 +1426,13 @@ export type CouponCountOutputTypeCountCartsArgs<ExtArgs extends runtime.Types.Ex
   where?: Prisma.CartWhereInput
 }
 
+/**
+ * CouponCountOutputType without action
+ */
+export type CouponCountOutputTypeCountContentBlocksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ContentBlockWhereInput
+}
+
 
 export type CouponSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1293,6 +1457,7 @@ export type CouponSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   minimums?: boolean | Prisma.Coupon$minimumsArgs<ExtArgs>
   redemptions?: boolean | Prisma.Coupon$redemptionsArgs<ExtArgs>
   carts?: boolean | Prisma.Coupon$cartsArgs<ExtArgs>
+  contentBlocks?: boolean | Prisma.Coupon$contentBlocksArgs<ExtArgs>
   _count?: boolean | Prisma.CouponCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["coupon"]>
 
@@ -1325,6 +1490,7 @@ export type CouponInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   minimums?: boolean | Prisma.Coupon$minimumsArgs<ExtArgs>
   redemptions?: boolean | Prisma.Coupon$redemptionsArgs<ExtArgs>
   carts?: boolean | Prisma.Coupon$cartsArgs<ExtArgs>
+  contentBlocks?: boolean | Prisma.Coupon$contentBlocksArgs<ExtArgs>
   _count?: boolean | Prisma.CouponCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1335,6 +1501,10 @@ export type $CouponPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     minimums: Prisma.$CouponMinimumPayload<ExtArgs>[]
     redemptions: Prisma.$CouponRedemptionPayload<ExtArgs>[]
     carts: Prisma.$CartPayload<ExtArgs>[]
+    /**
+     * Banners and content blocks that promote this coupon.
+     */
+    contentBlocks: Prisma.$ContentBlockPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1722,6 +1892,7 @@ export interface Prisma__CouponClient<T, Null = never, ExtArgs extends runtime.T
   minimums<T extends Prisma.Coupon$minimumsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Coupon$minimumsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CouponMinimumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   redemptions<T extends Prisma.Coupon$redemptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Coupon$redemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CouponRedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   carts<T extends Prisma.Coupon$cartsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Coupon$cartsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CartPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  contentBlocks<T extends Prisma.Coupon$contentBlocksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Coupon$contentBlocksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContentBlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2210,6 +2381,30 @@ export type Coupon$cartsArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   distinct?: Prisma.CartScalarFieldEnum | Prisma.CartScalarFieldEnum[]
+}
+
+/**
+ * Coupon.contentBlocks
+ */
+export type Coupon$contentBlocksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ContentBlock
+   */
+  select?: Prisma.ContentBlockSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ContentBlock
+   */
+  omit?: Prisma.ContentBlockOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ContentBlockInclude<ExtArgs> | null
+  where?: Prisma.ContentBlockWhereInput
+  orderBy?: Prisma.ContentBlockOrderByWithRelationInput | Prisma.ContentBlockOrderByWithRelationInput[]
+  cursor?: Prisma.ContentBlockWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ContentBlockScalarFieldEnum | Prisma.ContentBlockScalarFieldEnum[]
 }
 
 /**

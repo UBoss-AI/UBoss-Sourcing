@@ -19,6 +19,7 @@ import { loadTypeForPackage } from '../../domain/freight-load.js';
 import { Permission } from '../../domain/permissions.js';
 import { customerDeliveryStage, logisticsStage } from '../../domain/logistics-stage.js';
 import { prisma } from '../../infra/prisma.js';
+import { cardStatusesForOrders } from '../../modules/inspection/gate.service.js';
 import {
   availableTransitions,
   decideApproval,
@@ -226,6 +227,7 @@ function serialiseSummary(order: OrderRow & { _count?: { items: number } }): Rec
 export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void> {
   app.addHook('preHandler', requireCustomer);
 
+  // Your orders, newest first, each with its pre-shipment inspection status.
   app.get('/', async (request, reply) => {
     const query = listQuerySchema.parse(request.query);
 
@@ -250,8 +252,11 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
       prisma.order.count({ where }),
     ]);
 
+    // ENH-010: the inspection status that most needs attention, or null when none was decided.
+    const inspection = await cardStatusesForOrders(rows.map((row) => row.id));
+
     return reply.status(200).send({
-      orders: rows.map(serialiseSummary),
+      orders: rows.map((row) => ({ ...serialiseSummary(row), inspectionStatus: inspection.get(row.id) ?? null })),
       pagination: {
         page: query.page,
         limit: query.limit,

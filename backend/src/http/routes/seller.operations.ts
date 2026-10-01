@@ -12,6 +12,11 @@ import { SellerPermission } from '../../domain/seller-permissions.js';
 import { prisma } from '../../infra/prisma.js';
 import { readDashboard } from '../../modules/seller/dashboard.service.js';
 import {
+  PERFORMANCE_WINDOWS,
+  readPerformance,
+  type PerformanceWindow,
+} from '../../modules/seller/performance.service.js';
+import {
   listInventory,
   listMovements,
   recordStockMovement,
@@ -141,6 +146,28 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     const dashboard = await readDashboard(currentSeller(request), query.range);
     return reply.header('cache-control', 'no-store').status(200).send(dashboard);
   });
+
+  // Your performance over 30, 90 or 365 days: RFQ conversion, OTIF delivery, quality, cancellations and claims.
+  app.get(
+    '/performance',
+    { preHandler: requireSeller(SellerPermission.ANALYTICS_READ) },
+    async (request, reply) => {
+      const query = z
+        .object({
+          days: z.coerce
+            .number()
+            .int()
+            .refine((value): value is PerformanceWindow =>
+              (PERFORMANCE_WINDOWS as readonly number[]).includes(value),
+            )
+            .default(90),
+        })
+        .parse(request.query);
+
+      const performance = await readPerformance(currentSeller(request), query.days);
+      return reply.header('cache-control', 'no-store').status(200).send(performance);
+    },
+  );
 
   // --- Places -------------------------------------------------------------
 

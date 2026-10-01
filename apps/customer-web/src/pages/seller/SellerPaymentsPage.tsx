@@ -38,6 +38,7 @@ import {
   type SettlementRow,
 } from '@/lib/seller';
 import type { SellerOutletContext } from './SellerLayout';
+import { ConnectPayoutAccount, SellerFundsPanel } from './SellerFundsPanel';
 
 export function SellerPaymentsPage(): React.JSX.Element {
   const seller = useOutletContext<SellerOutletContext>();
@@ -147,8 +148,11 @@ export function SellerPaymentsPage(): React.JSX.Element {
               )}
             </dl>
           )}
+          <ConnectPayoutAccount />
         </div>
       </Card>
+
+      <SellerFundsPanel />
 
       {/* ---- Statements ---------------------------------------------------- */}
       <Card

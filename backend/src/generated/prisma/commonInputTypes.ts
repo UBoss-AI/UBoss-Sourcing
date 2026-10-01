@@ -5916,6 +5916,23 @@ export type EnumMarketRuleEffectWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumMarketRuleEffectFilter<$PrismaModel>
 }
 
+export type EnumContentBlockPlacementFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContentBlockPlacement | Prisma.EnumContentBlockPlacementFieldRefInput<$PrismaModel>
+  in?: $Enums.ContentBlockPlacement[]
+  notIn?: $Enums.ContentBlockPlacement[]
+  not?: Prisma.NestedEnumContentBlockPlacementFilter<$PrismaModel> | $Enums.ContentBlockPlacement
+}
+
+export type EnumContentBlockPlacementWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContentBlockPlacement | Prisma.EnumContentBlockPlacementFieldRefInput<$PrismaModel>
+  in?: $Enums.ContentBlockPlacement[]
+  notIn?: $Enums.ContentBlockPlacement[]
+  not?: Prisma.NestedEnumContentBlockPlacementWithAggregatesFilter<$PrismaModel> | $Enums.ContentBlockPlacement
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumContentBlockPlacementFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumContentBlockPlacementFilter<$PrismaModel>
+}
+
 export type EnumCustomerKycStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.CustomerKycStatus | Prisma.EnumCustomerKycStatusFieldRefInput<$PrismaModel>
   in?: $Enums.CustomerKycStatus[]
@@ -6441,6 +6458,40 @@ export type EnumRfqSamplePaymentStatusWithAggregatesFilter<$PrismaModel = never>
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel>
+}
+
+export type EnumMasterDataKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.MasterDataKind | Prisma.EnumMasterDataKindFieldRefInput<$PrismaModel>
+  in?: $Enums.MasterDataKind[]
+  notIn?: $Enums.MasterDataKind[]
+  not?: Prisma.NestedEnumMasterDataKindFilter<$PrismaModel> | $Enums.MasterDataKind
+}
+
+export type EnumInspectionDefectSeverityNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.InspectionDefectSeverity | Prisma.EnumInspectionDefectSeverityFieldRefInput<$PrismaModel> | null
+  in?: $Enums.InspectionDefectSeverity[] | null
+  notIn?: $Enums.InspectionDefectSeverity[] | null
+  not?: Prisma.NestedEnumInspectionDefectSeverityNullableFilter<$PrismaModel> | $Enums.InspectionDefectSeverity | null
+}
+
+export type EnumMasterDataKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MasterDataKind | Prisma.EnumMasterDataKindFieldRefInput<$PrismaModel>
+  in?: $Enums.MasterDataKind[]
+  notIn?: $Enums.MasterDataKind[]
+  not?: Prisma.NestedEnumMasterDataKindWithAggregatesFilter<$PrismaModel> | $Enums.MasterDataKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMasterDataKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMasterDataKindFilter<$PrismaModel>
+}
+
+export type EnumInspectionDefectSeverityNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.InspectionDefectSeverity | Prisma.EnumInspectionDefectSeverityFieldRefInput<$PrismaModel> | null
+  in?: $Enums.InspectionDefectSeverity[] | null
+  notIn?: $Enums.InspectionDefectSeverity[] | null
+  not?: Prisma.NestedEnumInspectionDefectSeverityNullableWithAggregatesFilter<$PrismaModel> | $Enums.InspectionDefectSeverity | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumInspectionDefectSeverityNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumInspectionDefectSeverityNullableFilter<$PrismaModel>
 }
 
 export type NestedStringFilter<$PrismaModel = never> = {
@@ -12308,6 +12359,23 @@ export type NestedEnumMarketRuleEffectWithAggregatesFilter<$PrismaModel = never>
   _max?: Prisma.NestedEnumMarketRuleEffectFilter<$PrismaModel>
 }
 
+export type NestedEnumContentBlockPlacementFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContentBlockPlacement | Prisma.EnumContentBlockPlacementFieldRefInput<$PrismaModel>
+  in?: $Enums.ContentBlockPlacement[]
+  notIn?: $Enums.ContentBlockPlacement[]
+  not?: Prisma.NestedEnumContentBlockPlacementFilter<$PrismaModel> | $Enums.ContentBlockPlacement
+}
+
+export type NestedEnumContentBlockPlacementWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContentBlockPlacement | Prisma.EnumContentBlockPlacementFieldRefInput<$PrismaModel>
+  in?: $Enums.ContentBlockPlacement[]
+  notIn?: $Enums.ContentBlockPlacement[]
+  not?: Prisma.NestedEnumContentBlockPlacementWithAggregatesFilter<$PrismaModel> | $Enums.ContentBlockPlacement
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumContentBlockPlacementFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumContentBlockPlacementFilter<$PrismaModel>
+}
+
 export type NestedEnumCustomerKycStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.CustomerKycStatus | Prisma.EnumCustomerKycStatusFieldRefInput<$PrismaModel>
   in?: $Enums.CustomerKycStatus[]
@@ -12833,6 +12901,40 @@ export type NestedEnumRfqSamplePaymentStatusWithAggregatesFilter<$PrismaModel = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumRfqSamplePaymentStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumMasterDataKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.MasterDataKind | Prisma.EnumMasterDataKindFieldRefInput<$PrismaModel>
+  in?: $Enums.MasterDataKind[]
+  notIn?: $Enums.MasterDataKind[]
+  not?: Prisma.NestedEnumMasterDataKindFilter<$PrismaModel> | $Enums.MasterDataKind
+}
+
+export type NestedEnumInspectionDefectSeverityNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.InspectionDefectSeverity | Prisma.EnumInspectionDefectSeverityFieldRefInput<$PrismaModel> | null
+  in?: $Enums.InspectionDefectSeverity[] | null
+  notIn?: $Enums.InspectionDefectSeverity[] | null
+  not?: Prisma.NestedEnumInspectionDefectSeverityNullableFilter<$PrismaModel> | $Enums.InspectionDefectSeverity | null
+}
+
+export type NestedEnumMasterDataKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MasterDataKind | Prisma.EnumMasterDataKindFieldRefInput<$PrismaModel>
+  in?: $Enums.MasterDataKind[]
+  notIn?: $Enums.MasterDataKind[]
+  not?: Prisma.NestedEnumMasterDataKindWithAggregatesFilter<$PrismaModel> | $Enums.MasterDataKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMasterDataKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMasterDataKindFilter<$PrismaModel>
+}
+
+export type NestedEnumInspectionDefectSeverityNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.InspectionDefectSeverity | Prisma.EnumInspectionDefectSeverityFieldRefInput<$PrismaModel> | null
+  in?: $Enums.InspectionDefectSeverity[] | null
+  notIn?: $Enums.InspectionDefectSeverity[] | null
+  not?: Prisma.NestedEnumInspectionDefectSeverityNullableWithAggregatesFilter<$PrismaModel> | $Enums.InspectionDefectSeverity | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumInspectionDefectSeverityNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumInspectionDefectSeverityNullableFilter<$PrismaModel>
 }
 
 

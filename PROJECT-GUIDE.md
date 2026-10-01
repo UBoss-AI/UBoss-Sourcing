@@ -5133,6 +5133,38 @@ screen adding up its own zeroes, and the distinction is not pedantic: a listings
 query that failed also reads zero, and a screen that treated the two the same
 would tell a seller with four hundred products that they have none.
 
+**One workspace.** Besides orders, money and the catalogue, "What needs doing"
+lists the work that sits elsewhere in the Hub: requests for quotation waiting
+for a quote (red when one closes within two days; only with `FEATURE_RFQ`),
+each inspection whose lot has not been declared ready and each order with an
+open NCR waiting for corrective action (both open that order), certificates
+lapsed, refused or expiring within 60 days, listings held for a lapsed
+certificate, and verification checks waiting on the seller. A **Your workspace**
+card links to catalogue, RFQs, orders, inspection, logistics, payouts,
+compliance and performance. These come back from the same
+`GET /seller/dashboard` as `rfqs`, `inspection` and `compliance`, each its own
+tile that can fail alone.
+
+### Performance
+
+`/seller/performance` (`seller.analytics.read`), over 30, 90 or 365 days, from
+existing rows only. Every rate leaves the server as numerator and denominator
+and is shown as "3 of 4"; a rate over nothing is a dash, never 0%.
+
+| Figure | What it counts |
+|---|---|
+| Quote rate | Invitations received in the window that this seller quoted |
+| RFQ conversion | Of those quotes, how many became a purchase order |
+| Fulfilment rate | Orders placed in the window and not cancelled that reached the buyer |
+| On time | Delivered in the window on or before the order's latest promised delivery date. Orders with no promised date are counted apart, not as late |
+| In full | Delivered in the window with no return raised |
+| OTIF | On time and in full on the same order |
+| Dispatch on time | Dispatched in the window by the dispatch deadline |
+| Return rate | Delivered in the window with a return |
+| Inspection fail rate | Inspection reports signed in the window that failed |
+| Cancellation rate | Orders placed in the window that were cancelled |
+| Claims | Buyer claims opened in the window, still open, and per order placed; chargebacks counted apart |
+
 ### Listings
 
 Live offers and unfinished drafts under one set of tabs, because a seller
@@ -6075,6 +6107,50 @@ honest boundary.
    CLEAN because nothing looked would be worse than no scanner at all, because
    every control downstream would be reading a value it had no reason to trust.
 
+#### Held funds, the transaction ledger and seller payouts (D13: facilitator + Stripe Connect)
+
+Off until `FEATURE_ESCROW_LEDGER=true`. The operator is a **facilitator**: the
+buyer's payment is held on the platform's Stripe balance and paid to each
+seller's **own Stripe Connect account** once that seller order meets its
+disclosed release terms. Code: `backend/src/modules/finance/`.
+
+- **One ledger.** Every movement is a balanced, append-only double entry in
+  `ledger_entries` / `ledger_lines` (`ledger.service.ts`): payment captured,
+  sale allocated (seller share held, platform fee and its tax recognised),
+  refund issued and charged to the seller, funds released, reserve released,
+  payout initiated / settled, chargeback lost, and reversals. Each entry's
+  idempotency key comes from what caused it, so the worker sweep
+  (`escrow.sweep`, every 15 minutes) and the finance *Refresh* button can run
+  any number of times.
+- **Release conditions** (`seller_fund_holds`, terms snapshotted at the sale):
+  delivered; `SELLER_FUNDS_RELEASE_AFTER_DAYS` since delivery (no default,
+  required when the flag is on); no open dispute or chargeback on the order
+  (puts the money `ON_HOLD` with code `DISPUTE`, lifted automatically when it
+  closes); an inspection pass where the order needs one. A reserve of
+  `SELLER_FUNDS_RESERVE_BPS` is kept for `SELLER_FUNDS_RESERVE_DAYS`.
+- **Holds and early release.** Finance (`finance.policy.write`) can put money
+  on hold by hand and ask for an early release; a **different** member of
+  staff approves it (`FUND_RELEASE_SAME_APPROVER` otherwise).
+- **Payouts.** *Run payouts* (or `SELLER_FUNDS_AUTO_PAYOUT=true`) sends each
+  seller's available balance as a Stripe transfer to their connected account,
+  under a row lock and with the payout id as the Stripe idempotency key. A
+  refusal reverses the entry and leaves a FAILED payout with the reason.
+- **Onboarding.** With `STRIPE_CONNECT_CLIENT_ID` and `STRIPE_SECRET_KEY` set,
+  Seller Hub -> Payments shows *Connect payout account*: an Express account is
+  created, its `acct_...` id stored on `seller_payout_account_references`, and
+  the seller is sent to Stripe's own onboarding. No bank details touch this
+  system.
+- **Screens.** Admin *Finance -> Ledger* (orders with gross, fee, fee tax,
+  refunds and settlement state; the journal; held funds; refunds and
+  chargebacks with accounting status; reconciliation). Seller Hub -> Payments
+  (gross, fees, refunds, held, reserve, available, in transit, paid out; held
+  funds per order). Buyer order page (*How your payment is protected*: method,
+  currency, status, terms and one milestone per seller).
+- **Reconciliation** checks that every entry balances, every captured payment
+  and succeeded refund is posted for the same amount, each allocation matches
+  the seller order's settlement, and the provider's transfers match settled
+  payouts.
+
 Each of those is a configuration away from working, and none of them lies in the
 meantime.
 
@@ -6123,7 +6199,7 @@ meantime.
 | `/buyer-companies` | Company verification | The queue of businesses applying to buy as a company: counters, filters, search; the last filters used are remembered (9.1a) |
 | `/buyer-companies/:id` | One buyer company | Everything the applicant sent, the automated checks, duplicates, documents, notes, history, and the decision |
 | `/chat-enquiries` | Chat enquiries | Transcripts from AI Mode, and whose account each one belongs to |
-| `/reports` | Reports | Sales, stock and tax reports; exports |
+| `/reports` | Reports | Sales, stock and tax reports; marketplace GMV, supplier quality, inspection and disputes (`report.read`); seller settlements and payouts (`payment.read`); exports |
 | `/data-requests` | Data requests | GDPR access and erasure requests |
 | `/manufacturers` | Manufacturers | Economic operators required by EU product law |
 | `/listing-review` | Listing review | Listings sellers have submitted for quality review, oldest first |
@@ -13311,8 +13387,14 @@ taking part for a sample (`rfq_samples`, Idempotency-Key required): quantity,
 address, date and approval criteria. The supplier accepts (with a cost, or
 free) or declines with a reason, and marks it shipped only by entering the
 courier and tracking number; the buyer confirms it arrived, then approves or
-rejects it (with a reason). Payment is never marked paid - collecting it is
-not built, so a charged sample stays PAYMENT_PENDING. An approved sample gets
+rejects it (with a reason). A sample with a cost or a shipping charge is paid
+through the ordinary checkout: `POST /rfqs/:id/samples/:sampleId/checkout`
+makes an order (source RFQ_SAMPLE, fee taxed with the default tax class, the
+shipping charge added as seller delivery) and the buyer pays it on the order's
+payment screen. The sample becomes PAID only inside the order's move to
+CONFIRMED, which only a signature-verified webhook makes; until then it cannot
+be shipped, and once paid the buyer cannot cancel it. A free sample skips
+payment. An approved sample gets
 a reference code for later inspection. Evidence files are seen by the two
 parties only; every step is on the timeline, notified and audited.
 

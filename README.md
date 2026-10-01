@@ -527,6 +527,14 @@ but nothing is sold until staff approve: a business applies, is reviewed and
 approved, and only then has its own console inside the storefront: listings,
 offers, stock, orders to pack, shipments, returns and settlements.
 
+**Home is one workspace.** Besides sales, orders and payouts it lists requests
+for quotation waiting for a quote, inspections waiting for the lot, open
+inspection faults waiting for corrective action, and certificates, holds and
+checks waiting on the seller, each linking to where it is done.
+**Performance** (`/seller/performance`) shows RFQ conversion, on-time-in-full
+delivery, returns, inspection fail rate, cancellations and claims over 30, 90
+or 365 days, each with the counts behind it.
+
 **Every order says exactly what was bought.** Each line of a seller's order
 has **Ordered product information** - the description, the specifications
 (with the chosen size's or colour's values), the packaging, the minimum and
@@ -875,6 +883,9 @@ The dashboard is one ring of everything waiting across the queues that member
 of staff can act on, the AI panel beside it, and nothing else. The month's
 figures it used to carry live on the screens that own them — Reports, Orders,
 Payments, Inventory, Recurring — all still in the navigation.
+Reports also carries the marketplace: GMV per currency, supplier quality per
+seller (returns, claims, failed inspections, cancellations), inspection and
+dispute figures, and — for `payment.read` — seller settlements and payouts.
 
 **Dead background jobs** (`/operations/dead-jobs`) and **Undeliverable
 emails** (`/operations/failed-notifications`) are the screens behind two of
@@ -2456,6 +2467,27 @@ later goes on the next one as the difference. Running the close twice writes
 nothing twice. **A statement moves no money**: payouts are still not
 configured, and paying one is refused.
 
+#### Held funds and seller payouts (facilitator model)
+
+Off until `FEATURE_ESCROW_LEDGER=true`. The buyer's payment is held, each
+seller order's share is released when it meets its terms, and it is paid to
+the seller's own Stripe Connect account. Finance works it on *Finance ->
+Ledger*; sellers see their balances on *Seller Hub -> Payments*; buyers see how
+their payment is protected on the order page.
+
+| Variable | Default | What it does |
+|---|---|---|
+| `FEATURE_ESCROW_LEDGER` | `false` | The transaction ledger, held funds and payouts |
+| `SELLER_FUNDS_RELEASE_AFTER_DAYS` | none | Days after delivery (the buyer's acceptance window) before money is released, 0–365. **Required when the ledger is on — the server refuses to start without it** |
+| `SELLER_FUNDS_RESERVE_BPS` | `0` | Share of each release kept as a reserve, in basis points (100 = 1%) |
+| `SELLER_FUNDS_RESERVE_DAYS` | `0` | How long the reserve is kept |
+| `SELLER_FUNDS_AUTO_PAYOUT` | `false` | Pay available balances from the worker; off means finance runs payouts by hand |
+| `STRIPE_CONNECT_CLIENT_ID` | empty | With `STRIPE_SECRET_KEY`, turns on seller payout onboarding and payouts through Stripe Connect |
+
+Money is released only when the seller order is delivered, the window has
+passed, no dispute or chargeback is open and any required inspection has
+passed. An early release needs two members of finance staff.
+
 ### Who manages it on the marketplace's side
 
 | Screen | Permission | What it is for |
@@ -2871,7 +2903,9 @@ match). Turning agreed terms into a purchase order is not built yet. The
 buyer can also ask any supplier taking part for a sample and follow it from
 request to shipped (courier and tracking), delivered and approved or rejected
 against written criteria; an approved sample becomes the reference sample.
-Sample payments are not collected by the marketplace. The buyer dashboard
+A charged sample (fee and any shipping charge) is paid through the ordinary
+checkout, taxed like any order, and is marked paid only by the verified
+payment webhook; a free sample skips payment. The buyer dashboard
 gains a Sourcing card with these counts and the next actions waiting on the
 buyer.
 Switched by `FEATURE_RFQ` (default on).

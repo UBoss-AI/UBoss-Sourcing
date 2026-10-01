@@ -798,6 +798,10 @@ model FeatureFlag {
 enum NotificationChannel {
   EMAIL
   SMS
+  /// No provider is wired in. A row is recorded as SUPPRESSED with the reason.
+  WHATSAPP
+  /// Shown in the customer notification centre only; never delivered.
+  IN_APP
 }
 
 model NotificationSetting {
@@ -808,6 +812,11 @@ model NotificationSetting {
 
   emailEnabled Boolean @default(true)
   smsEnabled   Boolean @default(false)
+  /// Recorded only: no WhatsApp provider exists, so nothing is sent.
+  whatsappEnabled Boolean @default(false)
+  /// Whether the event is listed in the customer notification centre.
+  inAppEnabled    Boolean @default(true)
+  whatsappTemplate String? @db.Text
 
   subjectTemplate String @db.VarChar(255)
   bodyTemplate    String @db.Text
@@ -911,6 +920,8 @@ model Category {
   listingDrafts        SellerListingDraft[]
   /// Destination rules that apply to this category and everything under it.
   marketRules          MarketRule[]
+  /// Storefront content blocks shown on this category's page.
+  contentBlocks        ContentBlock[]
   /// Requests for quotation filed in this category.
   rfqRequests          RfqRequest[]
 
@@ -2640,6 +2651,9 @@ enum OrderSource {
   /// Converted from a bulk preorder both parties confirmed. Appended: MariaDB
   /// stores an enum by position.
   PREORDER
+  /// The fee, tax and shipping for a paid RFQ sample (Master row 20). Has no
+  /// lines: the sample is not a catalogue product. Appended.
+  RFQ_SAMPLE
 }
 
 /// How an order's money was arrived at in the currency it was charged in.
@@ -2902,6 +2916,8 @@ model Order {
   /// unique column lives on the request, which is what makes "a preorder
   /// becomes an order at most once" a database fact.
   preorderRequest PreorderRequest?
+  /// The RFQ sample this order collects payment for, where it is one.
+  rfqSample       RfqSample?
 
   /// Invoices and packing lists the SELLERS issued for their parts of this
   /// order - several of each, one per consignment. Not the operator's own
@@ -5614,6 +5630,8 @@ model Coupon {
   minimums    CouponMinimum[]
   redemptions CouponRedemption[]
   carts       Cart[]
+  /// Banners and content blocks that promote this coupon.
+  contentBlocks ContentBlock[]
 
   @@index([status, validFrom, validUntil], map: "ix_coupon_live")
   @@index([status, isPubliclyListed], map: "ix_coupon_listed")
@@ -22814,6 +22832,15 @@ model MarketRule {
   version               String  @db.VarChar(32)
   ownerName             String  @db.VarChar(160)
 
+  /// Value threshold (Master row 69). Null = the rule applies to every order.
+  /// Set = it applies only to an order whose total, in `thresholdCurrency`,
+  /// is at or above this many minor units. An order in another currency is
+  /// treated as meeting it: no conversion is guessed for a compliance rule.
+  /// A rule with a threshold never hides a product from a listing, because
+  /// the order value is not known there; checkout enforces it.
+  minOrderValueMinor BigInt?
+  thresholdCurrency  String? @db.Char(3)
+
   effectiveFrom  DateTime  @db.DateTime(3)
   effectiveUntil DateTime? @db.DateTime(3)
   isActive       Boolean   @default(true)
@@ -22878,6 +22905,56 @@ model MarketProfile {
   createdAt DateTime @default(now()) @db.DateTime(3)
 
   @@map("market_profiles")
+}
+
+/// Where a content block appears on the storefront (Master row 72).
+enum ContentBlockPlacement {
+  /// A banner on the storefront home page.
+  HOME_BANNER
+  /// A block on one category's page.
+  CATEGORY_BLOCK
+}
+
+/// A banner or category content block the operator writes, targeted by
+/// country and language and shown only while published and inside its
+/// schedule. '' in a target means "everyone".
+model ContentBlock {
+  id         String                @id @db.Char(26)
+  placement  ContentBlockPlacement
+  /// Required for CATEGORY_BLOCK, null for HOME_BANNER (CHECK).
+  categoryId String?               @db.Char(26)
+
+  title    String  @db.VarChar(160)
+  body     String? @db.Text
+  /// Root-relative path or https:// URL.
+  imageUrl String? @db.VarChar(1024)
+  linkUrl  String? @db.VarChar(1024)
+  /// An existing coupon this promotes. Its code is shown only while the
+  /// coupon is ACTIVE and publicly listed.
+  couponId String? @db.Char(26)
+
+  /// ISO-3166 alpha-2 upper case, or '' for every country.
+  countryCode  String @default("") @db.VarChar(2)
+  /// A storefront language code, or '' for every language.
+  languageCode String @default("") @db.VarChar(8)
+
+  startsAt    DateTime? @db.DateTime(3)
+  endsAt      DateTime? @db.DateTime(3)
+  isPublished Boolean   @default(false)
+  sortOrder   Int       @default(0)
+
+  createdByUserId String?  @db.Char(26)
+  updatedByUserId String?  @db.Char(26)
+  createdAt       DateTime @default(now()) @db.DateTime(3)
+  updatedAt       DateTime @updatedAt @db.DateTime(3)
+
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_content_block_category")
+  coupon   Coupon?   @relation(fields: [couponId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_content_block_coupon")
+
+  @@index([placement, isPublished, countryCode], map: "ix_content_block_live")
+  @@index([categoryId], map: "ix_content_block_category")
+  @@index([couponId], map: "ix_content_block_coupon")
+  @@map("content_blocks")
 }
 
 /// "cannula" also finds "IV catheter". Maintained by the operator.
@@ -23374,6 +23451,12 @@ model ConsignmentBookingTerms {
   originPort      String? @db.VarChar(5)
   destinationPort String? @db.VarChar(5)
   routeNote       String? @db.VarChar(500)
+
+  /// The day the seller wants it collected, and an optional window that day
+  /// ("09:00" to "13:00"), local to the pickup address.
+  pickupDate       DateTime? @db.Date
+  pickupWindowFrom String?   @db.VarChar(5)
+  pickupWindowTo   String?   @db.VarChar(5)
 
   insured                     Boolean @default(false)
   /// Minor units in `currency`.
@@ -24385,8 +24468,7 @@ enum RfqSampleStatus {
 }
 
 /// Whether a sample costs anything, and whether it is paid. PAID is only
-/// ever set by a real payment event; collecting sample payments is not
-/// built yet, so a sample with a cost stays PAYMENT_PENDING.
+/// ever set when the linked order is confirmed by a verified payment webhook.
 enum RfqSamplePaymentStatus {
   NOT_REQUIRED
   PAYMENT_PENDING
@@ -24419,6 +24501,10 @@ model RfqSample {
   currency      String?                @db.Char(3)
   paymentStatus RfqSamplePaymentStatus @default(NOT_REQUIRED)
   supplierNote  String?                @db.VarChar(1000)
+  /// What the supplier charges to send it, in `currency`; NULL for none.
+  shippingMinor BigInt?
+  /// The order the buyer pays the sample through (source RFQ_SAMPLE).
+  orderId       String?                @unique(map: "uq_rfq_sample_order") @db.Char(26)
 
   courier        String?   @db.VarChar(80)
   trackingNumber String?   @db.VarChar(80)
@@ -24434,9 +24520,40 @@ model RfqSample {
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
-  rfq RfqRequest @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_sample_rfq")
+  rfq   RfqRequest @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_sample_rfq")
+  order Order?     @relation(fields: [orderId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_rfq_sample_order")
 
   @@index([rfqId, sellerAccountId], map: "ix_rfq_sample_rfq")
   @@index([sellerAccountId, status], map: "ix_rfq_sample_seller")
   @@map("rfq_samples")
+}
+
+// ===========================================================================
+// MASTER DATA (Master row 75)
+// ===========================================================================
+
+enum MasterDataKind {
+  UOM
+  INCOTERM
+  DEFECT_CODE
+}
+
+/// Admin-maintained reference lists: units of measure, Incoterms and
+/// inspection defect codes. Categories and currencies have their own tables.
+model MasterDataEntry {
+  id              String                    @id @db.Char(26)
+  kind            MasterDataKind
+  code            String                    @db.VarChar(16)
+  name            String                    @db.VarChar(120)
+  description     String?                   @db.VarChar(500)
+  /// Defect codes only: the severity an inspector starts from.
+  defaultSeverity InspectionDefectSeverity?
+  sortOrder       Int                       @default(0)
+  isActive        Boolean                   @default(true)
+  createdAt       DateTime                  @default(now()) @db.DateTime(3)
+  updatedAt       DateTime                  @updatedAt @db.DateTime(3)
+
+  @@unique([kind, code], map: "uq_master_data_kind_code")
+  @@index([kind, isActive, sortOrder], map: "ix_master_data_kind_order")
+  @@map("master_data_entries")
 }

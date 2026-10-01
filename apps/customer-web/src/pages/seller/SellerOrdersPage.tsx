@@ -26,6 +26,7 @@ import {
   PageHeader,
   Select,
 } from '@/components/ui';
+import { InspectionStatusBadge } from '@/components/InspectionStatusBadge';
 import { Modal } from '@/components/Modal';
 import { useI18n } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
@@ -218,6 +219,7 @@ function OrdersBody(): React.JSX.Element {
                       {row.isOverdue && (
                         <Badge tone="danger">{t('seller.orders.pastDispatch')}</Badge>
                       )}
+                      <InspectionStatusBadge status={row.inspectionStatus} />
                     </div>
                     <p className="mt-1 text-xxs text-ink-subtle">
                       {t('seller.orders.itemCount', { count: row.itemCount })}{' '}

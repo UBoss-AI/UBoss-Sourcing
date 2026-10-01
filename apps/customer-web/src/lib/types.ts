@@ -1309,6 +1309,8 @@ export interface OrderListItem {
   confirmedAt: string | null;
   itemCount: number;
   createdAt: string;
+  /** Pre-shipment inspection card status (ENH-010); null when not decided. */
+  inspectionStatus?: string | null;
 }
 
 export interface OrderItem {

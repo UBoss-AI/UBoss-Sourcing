@@ -29,6 +29,7 @@ import { buildComparison, comparisonCsv, comparisonQuerySchema } from '../../mod
 import {
   attachEvidence,
   buyerMoveSample,
+  checkoutSample,
   listBuyerSamples,
   requestSample,
   sampleCreateSchema,
@@ -579,6 +580,17 @@ export function registerCustomerRfqRoutes(app: FastifyInstance): Promise<void> {
       const { id, sampleId } = sampleParams.parse(request.params);
       const input = sampleReasonSchema.parse(request.body);
       return reply.status(200).send({ sample: await buyerMoveSample(buyerOf(request), id, sampleId, 'REJECTED', input) });
+    },
+  );
+
+  /** Make (or return) the order that collects a charged sample's fee, tax and shipping; paid on the ordinary payment screen. */
+  app.post(
+    '/:id/samples/:sampleId/checkout',
+    { preHandler: requireCustomer, config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      assertPurchasing(request);
+      const { id, sampleId } = sampleParams.parse(request.params);
+      return reply.status(200).send(await checkoutSample(buyerOf(request), id, sampleId));
     },
   );
 

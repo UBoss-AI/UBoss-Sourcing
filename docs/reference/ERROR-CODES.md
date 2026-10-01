@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**511 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**518 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -67,6 +67,8 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Returns](#returns) | 5 |
 | [The buyer experience: cart, checkout, account, alerts, reviews](#the-buyer-experience-cart-checkout-account-alerts-reviews) | 27 |
 | [Requests for quotation (Master rows 16-19)](#requests-for-quotation-master-rows-16-19) | 25 |
+| [Country rules, rate cards and storefront content (Master rows 69, 71, 72)](#country-rules-rate-cards-and-storefront-content-master-rows-69-71-72) | 3 |
+| [Held funds, the transaction ledger and seller payouts (Master rows 58-61, 43)](#held-funds-the-transaction-ledger-and-seller-payouts-master-rows-58-61-43) | 4 |
 
 ## Generic
 
@@ -793,4 +795,21 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `CERTIFICATION_TRANSITION_INVALID` | The certificate's verification cannot move that way from where it is, including a stale reviewer screen (`STALE`). 409. |
 | `TRUST_EVIDENCE_UNUSABLE` | That document cannot be used as evidence: it was replaced, withdrawn or failed its security scan. 409. |
 | `TRUST_EVIDENCE_IN_USE` | That document is evidence for a factory or a certificate and cannot be withdrawn until it is detached. 409. |
+
+## Country rules, rate cards and storefront content (Master rows 69, 71, 72)
+
+| Code | Meaning |
+|---|---|
+| `MARKET_DESTINATION_RESTRICTED` | Something in the basket may not be sent to the delivery country: a country rule blocks its product or category (possibly only above an order value). `details` has one entry per line, `meta.productId` and `meta.reason`. 409. |
+| `MARKET_RULE_INVALID` | A country rule is not acceptable: no product or category for its scope, a threshold without a currency, an end before its start. 400. |
+| `CONTENT_BLOCK_INVALID` | A banner or content block is not acceptable: a category block with no category, an unknown coupon, a link that is not https or root-relative, an end before its start. 400. |
+
+## Held funds, the transaction ledger and seller payouts (Master rows 58-61, 43)
+
+| Code | Meaning |
+|---|---|
+| `ESCROW_LEDGER_DISABLED` | Held funds and the ledger are switched off on this deployment (FEATURE_ESCROW_LEDGER). 409. |
+| `FUND_HOLD_STATE_CONFLICT` | The held funds are not in a state that allows this: placing a hold on money already released, lifting a hold that is not placed. 409. |
+| `FUND_RELEASE_ALREADY_PENDING` | An early release is already waiting for a decision on these funds. 409. |
+| `FUND_RELEASE_SAME_APPROVER` | The person who asked for an early release cannot also approve it. 403. |
 

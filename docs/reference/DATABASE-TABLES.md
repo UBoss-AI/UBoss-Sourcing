@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**354 tables · 331 enums · 812 extra indexes and unique keys**, in 55 groups. The groups follow the section banners in the schema file.
+**356 tables · 333 enums · 817 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -75,11 +75,12 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ which agreement a document is. each account type is asked for its own.](#group-which-agreement-a-document-is-each-account-type-is-asked-for-its-own) | 2 | 2 |
 | [Seller commission invoices](#group-seller-commission-invoices) | 6 | 7 |
 | [/ how strongly an order needs inspecting, decided by the rules engine.](#group-how-strongly-an-order-needs-inspecting-decided-by-the-rules-engine) | 17 | 23 |
-| [/ where one check has got to.](#group-where-one-check-has-got-to) | 18 | 8 |
+| [/ where one check has got to.](#group-where-one-check-has-got-to) | 19 | 9 |
 | [/ where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.](#group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts) | 14 | 11 |
 | [/ what a ledger account represents. balances are never stored; they are the / sum of the account's lines.](#group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines) | 8 | 7 |
 | [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
 | [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 11 | 12 |
+| [Master data (master row 75)](#group-master-data-master-row-75) | 1 | 1 |
 
 <a id="group-identity-access"></a>
 
@@ -625,6 +626,9 @@ Table `notification_settings`
 | `name` | String · VarChar(128) |  |  |  |  |
 | `emailEnabled` | Boolean |  |  | true |  |
 | `smsEnabled` | Boolean |  |  | false |  |
+| `whatsappEnabled` | Boolean |  |  | false | Recorded only: no WhatsApp provider exists, so nothing is sent. |
+| `inAppEnabled` | Boolean |  |  | true | Whether the event is listed in the customer notification centre. |
+| `whatsappTemplate` | String · Text | yes |  |  |  |
 | `subjectTemplate` | String · VarChar(255) |  |  |  |  |
 | `bodyTemplate` | String · Text |  |  |  |  |
 | `internalRecipientsJson` | Json | yes |  |  | Extra internal recipients (Finance, Inventory Manager...) beyond the subject. |
@@ -642,6 +646,8 @@ Table `notification_settings`
 |---|---|
 | `EMAIL` |  |
 | `SMS` |  |
+| `WHATSAPP` | No provider is wired in. A row is recorded as SUPPRESSED with the reason. |
+| `IN_APP` | Shown in the customer notification centre only; never delivered. |
 
 <a id="group-media"></a>
 
@@ -826,6 +832,7 @@ Table `categories`
 - `attributeDefinitions` ← [CategoryAttributeDefinition](#model-categoryattributedefinition) - has many
 - `listingDrafts` ← [SellerListingDraft](#model-sellerlistingdraft) - has many
 - `marketRules` ← [MarketRule](#model-marketrule) - has many
+- `contentBlocks` ← [ContentBlock](#model-contentblock) - has many
 - `rfqRequests` ← [RfqRequest](#model-rfqrequest) - has many
 
 **Indexes and keys**
@@ -2081,6 +2088,7 @@ Table `orders`
 - `erpPush` ← [ErpOrderPush](#model-erporderpush) - has zero or one
 - `sellerOrderGroups` ← [SellerOrderGroup](#model-sellerordergroup) - has many
 - `preorderRequest` ← [PreorderRequest](#model-preorderrequest) - has zero or one
+- `rfqSample` ← [RfqSample](#model-rfqsample) - has zero or one
 - `sellerInvoices` ← [SellerInvoice](#model-sellerinvoice) - has many
 - `packingLists` ← [SellerPackingList](#model-sellerpackinglist) - has many
 - `commissionInvoices` ← [CommissionInvoice](#model-commissioninvoice) - has many
@@ -2275,6 +2283,7 @@ Table `idempotency_records`
 | `ONE_TIME` |  |
 | `RECURRING` |  |
 | `PREORDER` | Converted from a bulk preorder both parties confirmed. Appended: MariaDB stores an enum by position. |
+| `RFQ_SAMPLE` | The fee, tax and shipping for a paid RFQ sample (Master row 20). Has no lines: the sample is not a catalogue product. Appended. |
 
 <a id="enum-fxpricesource"></a>
 
@@ -4562,6 +4571,7 @@ Table `coupons`
 - `minimums` ← [CouponMinimum](#model-couponminimum) - has many
 - `redemptions` ← [CouponRedemption](#model-couponredemption) - has many
 - `carts` ← [Cart](#model-cart) - has many
+- `contentBlocks` ← [ContentBlock](#model-contentblock) - has many
 
 **Indexes and keys**
 
@@ -18478,7 +18488,7 @@ When the buyer may read the report.
 
 ##  / where one check has got to.
 
-[TrustSettings](#model-trustsettings) · [SellerTrustProfile](#model-sellertrustprofile) · [SellerBeneficialOwner](#model-sellerbeneficialowner) · [SellerFactory](#model-sellerfactory) · [SellerFactoryMachine](#model-sellerfactorymachine) · [SellerFactoryEvidence](#model-sellerfactoryevidence) · [SellerCertification](#model-sellercertification) · [SellerTrustCheck](#model-sellertrustcheck) · [SellerScreeningCheck](#model-sellerscreeningcheck) · [SellerProfileChangeRequest](#model-sellerprofilechangerequest) · [SellerListingTrust](#model-sellerlistingtrust) · [SellerListingCertification](#model-sellerlistingcertification) · [SellerOfferComplianceHold](#model-selleroffercompliancehold) · [MarketRule](#model-marketrule) · [MarketLandedCostRate](#model-marketlandedcostrate) · [MarketProfile](#model-marketprofile) · [SearchSynonym](#model-searchsynonym) · [SearchQueryLog](#model-searchquerylog)
+[TrustSettings](#model-trustsettings) · [SellerTrustProfile](#model-sellertrustprofile) · [SellerBeneficialOwner](#model-sellerbeneficialowner) · [SellerFactory](#model-sellerfactory) · [SellerFactoryMachine](#model-sellerfactorymachine) · [SellerFactoryEvidence](#model-sellerfactoryevidence) · [SellerCertification](#model-sellercertification) · [SellerTrustCheck](#model-sellertrustcheck) · [SellerScreeningCheck](#model-sellerscreeningcheck) · [SellerProfileChangeRequest](#model-sellerprofilechangerequest) · [SellerListingTrust](#model-sellerlistingtrust) · [SellerListingCertification](#model-sellerlistingcertification) · [SellerOfferComplianceHold](#model-selleroffercompliancehold) · [MarketRule](#model-marketrule) · [MarketLandedCostRate](#model-marketlandedcostrate) · [MarketProfile](#model-marketprofile) · [ContentBlock](#model-contentblock) · [SearchSynonym](#model-searchsynonym) · [SearchQueryLog](#model-searchquerylog)
 
 ```mermaid
 erDiagram
@@ -18500,6 +18510,8 @@ erDiagram
     SellerCertification ||--o{ SellerOfferComplianceHold : "certification"
     Product |o--o{ MarketRule : "product"
     Category |o--o{ MarketRule : "category"
+    Category |o--o{ ContentBlock : "category"
+    Coupon |o--o{ ContentBlock : "coupon"
     TrustSettings {
         String id PK
     }
@@ -18561,12 +18573,18 @@ erDiagram
         String id PK
         String productId FK
         String categoryId FK
+        BigInt minOrderValueMinor
     }
     MarketLandedCostRate {
         String id PK
     }
     MarketProfile {
         String countryCode PK
+    }
+    ContentBlock {
+        String id PK
+        String categoryId FK
+        String couponId FK
     }
     SearchSynonym {
         String id PK
@@ -19016,6 +19034,8 @@ A destination rule for a product or a whole category (and its sub-categories). E
 | `source` | String · VarChar(255) |  |  |  | The regulation, licence or policy the rule rests on. |
 | `version` | String · VarChar(32) |  |  |  |  |
 | `ownerName` | String · VarChar(160) |  |  |  |  |
+| `minOrderValueMinor` | BigInt | yes |  |  | Value threshold (Master row 69). Null = the rule applies to every order. Set = it applies only to an order whose total, in `thresholdCurrency`, is at or above this many minor units. An order in another currency is treated as meeting it: no conversion is guessed for a compliance rule. A rule with a threshold never… |
+| `thresholdCurrency` | String · Char(3) | yes |  |  |  |
 | `effectiveFrom` | DateTime · DateTime(3) |  |  |  |  |
 | `effectiveUntil` | DateTime · DateTime(3) | yes |  |  |  |
 | `isActive` | Boolean |  |  | true |  |
@@ -19086,6 +19106,46 @@ Operator-written content for one destination's landing page.
 | `updatedById` | String · Char(26) | yes |  |  |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+<a id="model-contentblock"></a>
+
+### ContentBlock
+
+Table `content_blocks`
+
+A banner or category content block the operator writes, targeted by country and language and shown only while published and inside its schedule. '' in a target means "everyone".
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `placement` | [enum ContentBlockPlacement](#enum-contentblockplacement) |  |  |  |  |
+| `categoryId` | String · Char(26) | yes | FK → [Category](#model-category) |  | Required for CATEGORY_BLOCK, null for HOME_BANNER (CHECK). (on delete: Cascade) |
+| `title` | String · VarChar(160) |  |  |  |  |
+| `body` | String · Text | yes |  |  |  |
+| `imageUrl` | String · VarChar(1024) | yes |  |  | Root-relative path or https:// URL. |
+| `linkUrl` | String · VarChar(1024) | yes |  |  |  |
+| `couponId` | String · Char(26) | yes | FK → [Coupon](#model-coupon) |  | An existing coupon this promotes. Its code is shown only while the coupon is ACTIVE and publicly listed. (on delete: SetNull) |
+| `countryCode` | String · VarChar(2) |  |  | "" | ISO-3166 alpha-2 upper case, or '' for every country. |
+| `languageCode` | String · VarChar(8) |  |  | "" | A storefront language code, or '' for every language. |
+| `startsAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `endsAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `isPublished` | Boolean |  |  | false |  |
+| `sortOrder` | Int |  |  | 0 |  |
+| `createdByUserId` | String · Char(26) | yes |  |  |  |
+| `updatedByUserId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `category` → [Category](#model-category) via `categoryId` - many-to-one, optional, on delete **Cascade**, on update **Restrict**
+- `coupon` → [Coupon](#model-coupon) via `couponId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([placement, isPublished, countryCode], map: "ix_content_block_live")`
+- `@@index([categoryId], map: "ix_content_block_category")`
+- `@@index([couponId], map: "ix_content_block_coupon")`
 
 <a id="model-searchsynonym"></a>
 
@@ -19221,6 +19281,17 @@ Result of screening one subject against sanctions / restricted-party lists.
 |---|---|
 | `BLOCK` | The product may not be sold to the destination at all. |
 | `DOCUMENTS_REQUIRED` | It may, and the buyer must hold the listed documents. Shown, not blocked. |
+
+<a id="enum-contentblockplacement"></a>
+
+#### enum ContentBlockPlacement
+
+Where a content block appears on the storefront (Master row 72).
+
+| Value | Meaning |
+|---|---|
+| `HOME_BANNER` | A banner on the storefront home page. |
+| `CATEGORY_BLOCK` | A block on one category's page. |
 
 <a id="group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts"></a>
 
@@ -19656,6 +19727,9 @@ The commercial terms a seller stated when booking a consignment.
 | `originPort` | String · VarChar(5) | yes |  |  | UN/LOCODE, five characters: INNSA, DEHAM. |
 | `destinationPort` | String · VarChar(5) | yes |  |  |  |
 | `routeNote` | String · VarChar(500) | yes |  |  |  |
+| `pickupDate` | DateTime · Date | yes |  |  | The day the seller wants it collected, and an optional window that day ("09:00" to "13:00"), local to the pickup address. |
+| `pickupWindowFrom` | String · VarChar(5) | yes |  |  |  |
+| `pickupWindowTo` | String · VarChar(5) | yes |  |  |  |
 | `insured` | Boolean |  |  | false |  |
 | `insuredValueMinor` | BigInt | yes |  |  | Minor units in `currency`. |
 | `insurancePremiumMinor` | BigInt | yes |  |  |  |
@@ -20374,6 +20448,7 @@ erDiagram
     RfqRequest ||--o| RfqPurchaseOrder : "rfq"
     RfqPurchaseOrder ||--o{ RfqPurchaseOrderApproval : "purchaseOrder"
     RfqRequest ||--o{ RfqSample : "rfq"
+    Order |o--o| RfqSample : "order"
     RfqRequest {
         String id PK
         RfqStatus status
@@ -20437,6 +20512,8 @@ erDiagram
         RfqSampleStatus status
         BigInt costMinor
         RfqSamplePaymentStatus paymentStatus
+        BigInt shippingMinor
+        String orderId FK
     }
 ```
 
@@ -20866,6 +20943,8 @@ A sample asked of one seller on a request (Master row 20), optionally against it
 | `currency` | String · Char(3) | yes |  |  |  |
 | `paymentStatus` | [enum RfqSamplePaymentStatus](#enum-rfqsamplepaymentstatus) |  |  | NOT_REQUIRED |  |
 | `supplierNote` | String · VarChar(1000) | yes |  |  |  |
+| `shippingMinor` | BigInt | yes |  |  | What the supplier charges to send it, in `currency`; NULL for none. |
+| `orderId` | String · Char(26) | yes | UNIQUE, FK → [Order](#model-order) |  | The order the buyer pays the sample through (source RFQ_SAMPLE). (on delete: SetNull) |
 | `courier` | String · VarChar(80) | yes |  |  |  |
 | `trackingNumber` | String · VarChar(80) | yes |  |  |  |
 | `shippedAt` | DateTime · DateTime(3) | yes |  |  |  |
@@ -20880,6 +20959,7 @@ A sample asked of one seller on a request (Master row 20), optionally against it
 **Relations**
 
 - `rfq` → [RfqRequest](#model-rfqrequest) via `rfqId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `order` → [Order](#model-order) via `orderId` - one-to-one, optional, on delete **SetNull**, on update **Restrict**
 
 **Indexes and keys**
 
@@ -21021,11 +21101,62 @@ How a seller came to be asked: matched on category and destination, or picked by
 
 #### enum RfqSamplePaymentStatus
 
-Whether a sample costs anything, and whether it is paid. PAID is only ever set by a real payment event; collecting sample payments is not built yet, so a sample with a cost stays PAYMENT_PENDING.
+Whether a sample costs anything, and whether it is paid. PAID is only ever set when the linked order is confirmed by a verified payment webhook.
 
 | Value | Meaning |
 |---|---|
 | `NOT_REQUIRED` |  |
 | `PAYMENT_PENDING` |  |
 | `PAID` |  |
+
+<a id="group-master-data-master-row-75"></a>
+
+## Master data (master row 75)
+
+[MasterDataEntry](#model-masterdataentry)
+
+```mermaid
+erDiagram
+    MasterDataEntry {
+        String id PK
+    }
+```
+
+<a id="model-masterdataentry"></a>
+
+### MasterDataEntry
+
+Table `master_data_entries`
+
+Admin-maintained reference lists: units of measure, Incoterms and inspection defect codes. Categories and currencies have their own tables.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `kind` | [enum MasterDataKind](#enum-masterdatakind) |  |  |  |  |
+| `code` | String · VarChar(16) |  |  |  |  |
+| `name` | String · VarChar(120) |  |  |  |  |
+| `description` | String · VarChar(500) | yes |  |  |  |
+| `defaultSeverity` | [enum InspectionDefectSeverity](#enum-inspectiondefectseverity) | yes |  |  | Defect codes only: the severity an inspector starts from. |
+| `sortOrder` | Int |  |  | 0 |  |
+| `isActive` | Boolean |  |  | true |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([kind, code], map: "uq_master_data_kind_code")`
+- `@@index([kind, isActive, sortOrder], map: "ix_master_data_kind_order")`
+
+### Enums in Master data (master row 75)
+
+<a id="enum-masterdatakind"></a>
+
+#### enum MasterDataKind
+
+| Value | Meaning |
+|---|---|
+| `UOM` |  |
+| `INCOTERM` |  |
+| `DEFECT_CODE` |  |
 

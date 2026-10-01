@@ -188,6 +188,8 @@ export const JobType = {
   /// and currency (FEATURE_SELLER_SETTLEMENT_STATEMENTS). Daily, keyed on the
   /// date; the statement's own unique key makes a repeat a no-op.
   SELLER_SETTLEMENT_CLOSE: 'seller_settlement.close',
+  /** Post payments and refunds to the ledger, release held funds, pay sellers. */
+  ESCROW_SWEEP: 'escrow.sweep',
 
   /// Run the registry checks for a buyer company that has just been submitted
   /// or resubmitted, then put it in front of a reviewer. A job rather than part

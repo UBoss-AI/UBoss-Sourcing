@@ -104,6 +104,8 @@ const REQUIRED_CENTRAL: Record<string, string> = {
   [`POST ${P}/admin/orders/:id/returns`]: 'Books a return against an order.',
   [`POST ${P}/rfqs`]: 'Starts a draft request for quotation; a double press must not start two.',
   [`POST ${P}/rfqs/:id/samples`]: 'Asks a seller for a sample; a double press must not ask twice.',
+  [`POST ${P}/seller/orders/:id/production/delays`]:
+    'Raises a production exception and tells the buyer; a repeat must not record and announce the same delay twice.',
   [`POST ${P}/rfqs/:id/submit`]:
     'Sends a request for quotation to sellers, writing their invitations and telling each of them.',
 };
@@ -255,12 +257,16 @@ const HARMLESS_CREATE_WORDS = new Set([
  */
 const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
   {
+    reason: 'Claims each seller balance under a row lock and sends it with a provider idempotency key derived from the payout; a repeat finds nothing available.',
+    routes: ['admin/finance/payouts/run'],
+  },
+  {
     reason: 'Replaces the saved declaration, checklist answer, sampling record, readiness or corrective action for the same record; repeating the body leaves the same business values.',
     routes: ['inspection/agency/jobs/:id/conflict', 'inspection/agency/jobs/:id/checks', 'inspection/agency/jobs/:id/sampling', 'seller/inspection/jobs/:id/readiness', 'seller/inspection/defects/:id/capa'],
   },
   {
     reason: 'Returns or signs a submitted report through the job state machine, or requests an inspection/release once; the service refuses a repeat after the state has moved.',
-    routes: ['inspection/agency/jobs/:id/report/return', 'inspection/agency/jobs/:id/report/sign', 'inspection/buyer/orders/:id/request', 'admin/inspection/requirements/:id/conditional-release'],
+    routes: ['inspection/agency/jobs/:id/report/return', 'inspection/agency/jobs/:id/report/sign', 'inspection/buyer/orders/:id/request', 'inspection/buyer/orders/:id/book', 'admin/inspection/requirements/:id/conditional-release'],
   },
   {
     reason: 'Recomputes the requirement under the current rules and raises it only when needed; a repeat cannot lower the gate.',
@@ -273,6 +279,18 @@ const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
   {
     reason: 'Replays the immutable purchase order for the awarded RFQ; unique RFQ and quote constraints prevent a second contract, including concurrent requests.',
     routes: ['rfqs/:id/purchase-order'],
+  },
+  {
+    reason: 'Returns the live order already made for the charged sample; a conditional link of the sample to its order refuses a second one, including concurrent requests.',
+    routes: ['rfqs/:id/samples/:sampleId/checkout'],
+  },
+  {
+    reason: 'Sets the expected date for one production stage (an upsert per stage); repeating the body leaves the same planned date.',
+    routes: ['seller/orders/:id/production/plan'],
+  },
+  {
+    reason: 'Records a production stage once or applies a checked bulk-update preview once; the service refuses a stage already recorded and a preview already applied.',
+    routes: ['seller/orders/:id/production/milestones', 'seller/bulk-imports/:id/apply'],
   },
   {
     reason:
@@ -301,7 +319,7 @@ const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
       'recurring-schedules/:id/skip-next', 'recurring-schedules/occurrences/:occurrenceId/skip',
       'recurring-schedules/:id/occurrences/:occurrenceId/confirm-price',
       'recurring-schedules/:id/occurrences/:occurrenceId/decline-price',
-      'admin/notifications/read-all', 'sellers/session/renew',
+      'admin/notifications/read-all', 'sellers/session/renew', 'admin/trade-documents/versions/:id/validation',
     ],
   },
   {
@@ -332,8 +350,11 @@ const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
       'seller/fulfilment/methods/:methodId/capabilities', 'seller/fulfilment/methods/:methodId/rate-cards',
       'seller/fulfilment/partners/request', 'seller/fulfilment/self-managed', 'seller/invitations/:invitationId/resend',
       'seller/listing-drafts', 'seller/listings/:id/duplicate', 'returns/:id/files', 'sellers/apply',
-      'sellers/lock/open', 'recurring-schedules/from-cart', 'logistics/dispatch-manifests',
+      'sellers/lock/open', 'recurring-schedules/from-cart', 'logistics/dispatch-manifests', 'seller/orders/:id/trade-documents',
+      'seller/orders/:id/trade-documents/certificate-of-origin',
       'logistics/driver/location-consent', 'logistics/driver/trips', 'admin/vat-rates',
+      'admin/master-data/:kind', 'admin/market-rules', 'admin/content-blocks', 'account/saved-searches',
+      'seller/bulk-imports',
     ],
   },
   {

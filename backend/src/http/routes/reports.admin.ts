@@ -38,6 +38,13 @@ import {
   topCustomers,
   topProducts,
 } from '../../modules/reports/report.service.js';
+import {
+  disputeReport,
+  gmvReport,
+  inspectionSummary,
+  settlementReport,
+  supplierQualityReport,
+} from '../../modules/reports/marketplace-report.service.js';
 import { buildInsight } from '../../modules/assistant/insights.service.js';
 import {
   AUDIT_EXPORT_ROWS_HEADER,
@@ -306,6 +313,38 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
 
       const [byStatus, ageing] = await Promise.all([ordersByStatus(window), fulfilmentAgeing()]);
       return reply.status(200).send({ byStatus, fulfilmentAgeing: ageing });
+    },
+  );
+
+  // --- Marketplace --------------------------------------------------------
+
+  // GMV, supplier quality (returns, claims, failed inspections per seller), inspection and dispute figures for a date range.
+  app.get(
+    '/reports/marketplace',
+    { preHandler: requireAdmin(Permission.REPORT_READ) },
+    async (request, reply) => {
+      const query = windowQuery
+        .extend({ limit: z.coerce.number().int().min(1).max(200).default(50) })
+        .parse(request.query);
+      const window = resolveWindow(query.from, query.to);
+
+      const [gmv, supplierQuality, inspection, disputes] = await Promise.all([
+        gmvReport(window),
+        supplierQualityReport(window, query.limit),
+        inspectionSummary(window),
+        disputeReport(window),
+      ]);
+      return reply.status(200).send({ gmv, supplierQuality, inspection, disputes });
+    },
+  );
+
+  // Seller settlements and payouts for a date range, by status and currency, with failed payouts and holds.
+  app.get(
+    '/reports/settlements',
+    { preHandler: requireAdmin(Permission.PAYMENT_READ) },
+    async (request, reply) => {
+      const query = windowQuery.parse(request.query);
+      return reply.status(200).send(await settlementReport(resolveWindow(query.from, query.to)));
     },
   );
 

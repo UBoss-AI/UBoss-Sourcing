@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1219 endpoints** in 104 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1279 endpoints** in 116 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,12 +27,12 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 477 |
+| [Admin panel (staff)](#admin-panel-staff) | 511 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 298 |
+| [Seller Hub](#seller-hub) | 318 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 292 |
-| [Public and storefront](#public-and-storefront) | 52 |
+| [Customer account](#customer-account) | 297 |
+| [Public and storefront](#public-and-storefront) | 53 |
 
 ## Admin panel (staff)
 
@@ -156,6 +156,17 @@ Defined in `backend/src/http/routes/commission-invoices.admin.ts`.
 | POST | `/api/v1/admin/commission-invoices/:id/credit-notes` | Staff | Admin(COMMISSION_CREDIT_NOTE_CREATE) | Issue a credit note against an issued commission invoice. Needs an Idempotency-Key. |
 | POST | `/api/v1/admin/commission-invoices/documents/:id/link` | Staff | Admin(COMMISSION_INVOICE_DOWNLOAD) | Get a five-minute, single-use download link for an issued invoice or credit note PDF. |
 | GET | `/api/v1/admin/commission-invoices/documents/:id/download` | Staff | Admin(COMMISSION_INVOICE_DOWNLOAD) | Download an issued invoice or credit note PDF with a link from the request above; checked against its stored hash. |
+
+### `admin/content-blocks`
+
+Defined in `backend/src/http/routes/content-blocks.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/content-blocks` | Staff | Admin(SETTINGS_READ) | Every banner and category block, drafts included. |
+| POST | `/api/v1/admin/content-blocks` | Staff | Admin(SETTINGS_WRITE) | Add a banner or category block with its targeting and schedule. Audited. |
+| PUT | `/api/v1/admin/content-blocks/:id` | Staff | Admin(SETTINGS_WRITE) | Replace a banner or category block. Audited. |
+| DELETE | `/api/v1/admin/content-blocks/:id` | Staff | Admin(SETTINGS_WRITE) | Delete a banner or category block. Audited. |
 
 ### `admin/coupons`
 
@@ -321,6 +332,27 @@ Defined in `backend/src/http/routes/reports.admin.ts`.
 | GET | `/api/v1/admin/exports` | Staff | Admin(EXPORT_CREATE) | The caller's own 50 most recent exports, with the status of each. Other staff members' exports are never shown. |
 | GET | `/api/v1/admin/exports/:id` | Staff | Admin(EXPORT_CREATE) | Check on one export the caller requested. Once it is ready, and until the link expires, it includes the download token. |
 
+### `admin/finance`
+
+Defined in `backend/src/http/routes/finance.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/finance/ledger/orders` | Staff | Admin(PAYMENT_READ) | Orders with ledger activity, each with gross, fees, tax, refunds and settlement state. |
+| GET | `/api/v1/admin/finance/ledger/orders/:id` | Staff | Admin(PAYMENT_READ) | One order's ledger: its summary, every journal entry, held funds, refunds and chargebacks. |
+| GET | `/api/v1/admin/finance/ledger/entries` | Staff | Admin(PAYMENT_READ) | Journal entries, newest first, filtered by order, seller or kind. |
+| GET | `/api/v1/admin/finance/refunds-chargebacks` | Staff | Admin(PAYMENT_READ) | Refunds and chargebacks with their accounting status in the ledger. |
+| GET | `/api/v1/admin/finance/holds` | Staff | Admin(PAYMENT_READ) | Held funds per seller order, with their release conditions and any pending early release. |
+| POST | `/api/v1/admin/finance/holds/:id/suspend` | Staff | Admin(FINANCE_POLICY_WRITE) | Put held funds on hold by hand, with a reason. |
+| POST | `/api/v1/admin/finance/holds/:id/resume` | Staff | Admin(FINANCE_POLICY_WRITE) | Lift a hold placed by staff. |
+| POST | `/api/v1/admin/finance/holds/:id/release` | Staff | Admin(FINANCE_POLICY_WRITE) | Ask for an early release of held funds; a different member of staff decides it. |
+| POST | `/api/v1/admin/finance/release-requests/:id/decide` | Staff | Admin(FINANCE_POLICY_WRITE) | Approve or reject an early release asked for by someone else. |
+| POST | `/api/v1/admin/finance/escrow/refresh` | Staff | Admin(FINANCE_POLICY_WRITE) | Post new payments and refunds to the ledger and re-check every hold's release terms now. |
+| POST | `/api/v1/admin/finance/payouts/run` | Staff | Admin(FINANCE_POLICY_WRITE) | Send every seller's available balance to their connected payout account. |
+| POST | `/api/v1/admin/finance/reconcile` | Staff | Admin(FINANCE_POLICY_WRITE) | Reconcile the ledger with payments, refunds, settlements and the provider's transfers for a period. |
+| GET | `/api/v1/admin/finance/reconciliations` | Staff | Admin(PAYMENT_READ) | Past reconciliation runs, newest first. |
+| GET | `/api/v1/admin/finance/reconciliations/:id` | Staff | Admin(PAYMENT_READ) | One reconciliation run and the differences it found. |
+
 ### `admin/fulfilment-methods`
 
 Defined in `backend/src/http/routes/sellers.admin.ts`.
@@ -422,7 +454,7 @@ Defined in `backend/src/http/routes/legal.admin.ts`.
 
 ### `admin/logistics`
 
-Defined in `backend/src/http/routes/logistics.admin.ts`, `backend/src/http/routes/logistics-levels.admin.ts`.
+Defined in `backend/src/http/routes/logistics.admin.ts`, `backend/src/http/routes/logistics-levels.admin.ts`, `backend/src/http/routes/market-rules.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -480,6 +512,31 @@ Defined in `backend/src/http/routes/logistics.admin.ts`, `backend/src/http/route
 | POST | `/api/v1/admin/logistics/legs/:id/assign` | Staff | Admin(LOGISTICS_ASSIGN) | Name who carries a UBOSS-run leg: an outside carrier or a delivery company on the platform. The company gets a notification, the seller is told, and a company that loses the leg is told why. Refused once the leg is moving; a leg the seller runs can only be assigned by the seller. |
 | PATCH | `/api/v1/admin/logistics/legs/:id` | Staff | Admin(LOGISTICS_ASSIGN) | Enter the carrier's tracking number, pickup reference or expected dates on a UBOSS-run leg. Refused until a carrier is named, and once the leg is finished. Writes an audit entry. |
 | POST | `/api/v1/admin/logistics/legs/:id/transition` | Staff | Admin(LOGISTICS_ASSIGN) | Move a UBOSS-run leg on: accept, start, hand over, or take it back from a delivery company. Handing over makes the next leg ready; the seller is told and an audit entry is written. A leg a delivery company holds is progressed by that company, not here. |
+| GET | `/api/v1/admin/logistics/lanes` | Staff | Admin(LOGISTICS_READ) | Every operator rate card (lane) with its weight bands. |
+| POST | `/api/v1/admin/logistics/lanes` | Staff | Admin(LOGISTICS_WRITE) | Add a rate card: route, mode, carrier, transit, currency and weight bands. Audited. |
+| PUT | `/api/v1/admin/logistics/lanes/:id` | Staff | Admin(LOGISTICS_WRITE) | Replace a rate card and its bands; bumps its version. Audited. |
+| POST | `/api/v1/admin/logistics/lanes/quote` | Staff | Admin(LOGISTICS_READ) | Test a rate: every serviceable rate card that carries this weight on this route, cheapest first. |
+
+### `admin/market-rules`
+
+Defined in `backend/src/http/routes/market-rules.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/market-rules` | Staff | Admin(SETTINGS_READ) | Every country rule, optionally for one destination country. |
+| POST | `/api/v1/admin/market-rules` | Staff | Admin(SETTINGS_WRITE) | Add a country rule: block or require documents, optionally above an order value. Audited. |
+| PUT | `/api/v1/admin/market-rules/:id` | Staff | Admin(SETTINGS_WRITE) | Replace a country rule. Audited. |
+| DELETE | `/api/v1/admin/market-rules/:id` | Staff | Admin(SETTINGS_WRITE) | Delete a country rule. Audited. |
+
+### `admin/master-data`
+
+Defined in `backend/src/http/routes/master-data.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/master-data/:kind` | Staff | Admin(SETTINGS_READ) | List one master-data list (UOM, INCOTERM or DEFECT_CODE), switched-off entries included. |
+| POST | `/api/v1/admin/master-data/:kind` | Staff | Admin(SETTINGS_WRITE) | Add an entry to a master-data list. Codes are unique per list. Writes an audit entry. |
+| PATCH | `/api/v1/admin/master-data/:kind/:id` | Staff | Admin(SETTINGS_WRITE) | Edit or switch off a master-data entry. Writes an audit entry. |
 
 ### `admin/notifications`
 
@@ -508,7 +565,7 @@ Defined in `backend/src/http/routes/reports.admin.ts`.
 
 ### `admin/orders`
 
-Defined in `backend/src/http/routes/settings.admin.ts`, `backend/src/http/routes/returns.ts`, `backend/src/http/routes/payment-receipts.ts`, `backend/src/http/routes/orders.ts`, `backend/src/http/routes/payments.ts`, `backend/src/http/routes/vat.admin.ts`, `backend/src/http/routes/documents.admin.ts`, `backend/src/http/routes/commission-invoices.admin.ts`.
+Defined in `backend/src/http/routes/settings.admin.ts`, `backend/src/http/routes/returns.ts`, `backend/src/http/routes/payment-receipts.ts`, `backend/src/http/routes/orders.ts`, `backend/src/http/routes/payments.ts`, `backend/src/http/routes/vat.admin.ts`, `backend/src/http/routes/trade-documents.admin.ts`, `backend/src/http/routes/documents.admin.ts`, `backend/src/http/routes/commission-invoices.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -527,6 +584,7 @@ Defined in `backend/src/http/routes/settings.admin.ts`, `backend/src/http/routes
 | POST | `/api/v1/admin/orders/:id/refunds` | Staff | Admin(REFUND_CREATE) | Create a refund |
 | GET | `/api/v1/admin/orders/:id/invoice` | Staff | Admin(INVOICE_READ) | The invoice for an order |
 | POST | `/api/v1/admin/orders/:id/invoice` | Staff | Admin(INVOICE_ISSUE) | Raise the invoice for an order |
+| GET | `/api/v1/admin/orders/:id/trade-documents` | Staff | Admin(ORDER_READ) | Every trade document on one order, every seller and every version, with its validation state. |
 | GET | `/api/v1/admin/orders/:id/seller-documents` | Staff | Admin(INVOICE_READ) | List the invoices, credit notes and packing lists sellers have issued for one order. Drafts are left out. |
 | GET | `/api/v1/admin/orders/:id/commission-invoices` | Staff | Admin(COMMISSION_INVOICE_VIEW) | Show the commission and the commission invoice of every seller order on one buyer order. |
 
@@ -711,6 +769,8 @@ Defined in `backend/src/http/routes/reports.admin.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/admin/reports/sales` | Staff | Admin(REPORT_READ) | The sales report for a date range: totals (sales, tax, shipping, discounts, refunds, net revenue), sales by day or month, top products, top customers and sales by category. |
 | GET | `/api/v1/admin/reports/orders` | Staff | Admin(REPORT_READ) | The orders report: how many orders, and of what value, are in each status for a date range, and how long confirmed orders have been waiting to ship. |
+| GET | `/api/v1/admin/reports/marketplace` | Staff | Admin(REPORT_READ) | GMV, supplier quality (returns, claims, failed inspections per seller), inspection and dispute figures for a date range. |
+| GET | `/api/v1/admin/reports/settlements` | Staff | Admin(PAYMENT_READ) | Seller settlements and payouts for a date range, by status and currency, with failed payouts and holds. |
 | GET | `/api/v1/admin/reports/payments` | Staff | Admin(PAYMENT_READ) | The payments report for a date range: payments by status, amounts captured, failed and refunded, rejected payment notifications and payments not yet reconciled. |
 | GET | `/api/v1/admin/reports/inventory` | Staff | Admin(INVENTORY_READ) | The inventory report: stock on hand valued at the current selling price (optionally only low-stock items), and a summary of stock movements in a date range. |
 | GET | `/api/v1/admin/reports/customers` | Staff | Admin(CUSTOMER_READ) | The customer report for a date range: how many customers there are by status, and how many signed up, activated their account and ordered in that range. |
@@ -863,7 +923,7 @@ Defined in `backend/src/http/routes/settings.admin.ts`.
 | GET | `/api/v1/admin/settings/shipping-methods` | Staff | Admin(SETTINGS_READ) | List the store's delivery methods and their prices. |
 | POST | `/api/v1/admin/settings/shipping-methods` | Staff | Admin(SETTINGS_WRITE) | Add a delivery method with its price, free-delivery threshold, delivery time estimate and regions. Refused if the code is already used. Writes an audit entry. |
 | PATCH | `/api/v1/admin/settings/shipping-methods/:id` | Staff | Admin(SETTINGS_WRITE) | Change a delivery method. Switching one off reports how many active or paused recurring schedules use it, so staff can be warned. Writes an audit entry. |
-| GET | `/api/v1/admin/settings/notifications` | Staff | Admin(SETTINGS_READ) | List the notifications staff have customised, with their templates, recipients and whether each is switched on. Events not listed use the built-in wording. |
+| GET | `/api/v1/admin/settings/notifications` | Staff | Admin(SETTINGS_READ) | List the notifications staff have customised, with their templates, channels, recipients and whether each is switched on, plus the catalogue of built-in events and the wording each uses until customised. |
 | PUT | `/api/v1/admin/settings/notifications` | Staff | Admin(SETTINGS_WRITE) | Customise one notification: its email subject and body, the staff addresses that receive internal alerts, and whether it is sent. Writes an audit entry. |
 | GET | `/api/v1/admin/settings/feature-flags` | Staff | Admin(SETTINGS_READ) | List the store's feature switches and whether each is on. |
 | GET | `/api/v1/admin/settings/feature-flags/:key/impact` | Staff | Admin(SETTINGS_READ) | What would break if this flag were turned off. |
@@ -915,6 +975,15 @@ Defined in `backend/src/http/routes/support.ts`.
 | POST | `/api/v1/admin/support-tickets/:id/attachments/:attachmentId/link` | Staff | Admin(SUPPORT_TICKET_VIEW) | A download link for one file on a ticket: five minutes, single use, this session only. |
 | GET | `/api/v1/admin/support-tickets/:id/attachments/:attachmentId/download` | Staff | Admin(SUPPORT_TICKET_VIEW) | Redeem a download link. Served as a download, never inline. |
 | POST | `/api/v1/admin/support-tickets/:id/assignment` | Staff | Admin(SUPPORT_TICKET_VIEW) | Take a request, give it to a colleague, or put it back in the queue. |
+
+### `admin/trade-documents`
+
+Defined in `backend/src/http/routes/trade-documents.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/trade-documents/versions/:id/file` | Staff | Admin(ORDER_READ) | Open the file of one version of a seller's trade document. |
+| POST | `/api/v1/admin/trade-documents/versions/:id/validation` | Staff | Admin(LOGISTICS_WRITE) | Mark the current version of a trade document valid, or reject it with a reason. |
 
 ### `admin/vat-rates`
 
@@ -1202,6 +1271,18 @@ Defined in `backend/src/http/routes/seller.listings.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/seller/brands` | Seller | Seller(LISTING_READ) | Search the brands this seller is allowed to list under, plus the brands on their recent listings. Also returns advisory warnings about the name typed, which never block anything. |
 
+### `seller/bulk-imports`
+
+Defined in `backend/src/http/routes/seller.workbench.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/bulk-imports/template` | Seller | Seller + Seller(BULK_IMPORT) | The blank CSV template for a bulk listing update: the column headers only. |
+| GET | `/api/v1/seller/bulk-imports` | Seller | Seller + Seller(BULK_IMPORT) | The seller's recent bulk updates, newest first, previews and applied runs alike. |
+| POST | `/api/v1/seller/bulk-imports` | Seller | Seller + TradingSeller(BULK_IMPORT) | Upload a CSV or XLSX and check it against the seller's own listings. Changes nothing; returns the problems and the changes it would make. |
+| GET | `/api/v1/seller/bulk-imports/:id` | Seller | Seller + Seller(BULK_IMPORT) | One bulk update: its counts, row problems and, for an unapplied preview, the changes it would make. |
+| POST | `/api/v1/seller/bulk-imports/:id/apply` | Seller | Seller + TradingSeller(BULK_IMPORT) | Apply a checked preview. The file is re-checked first; any problem and nothing changes. A preview applies once. |
+
 ### `seller/business-profile`
 
 Defined in `backend/src/http/routes/seller.account.ts`.
@@ -1234,7 +1315,7 @@ Defined in `backend/src/http/routes/seller.factories.ts`.
 
 ### `seller/consignments`
 
-Defined in `backend/src/http/routes/seller.operations.ts`, `backend/src/http/routes/seller.documents.ts`.
+Defined in `backend/src/http/routes/seller.operations.ts`, `backend/src/http/routes/seller.documents.ts`, `backend/src/http/routes/seller.shipment-paperwork.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -1263,6 +1344,8 @@ Defined in `backend/src/http/routes/seller.operations.ts`, `backend/src/http/rou
 | POST | `/api/v1/seller/consignments/:id/packing-list/issue` | Public |  | Issue the consignment's packing list: give it its number and store the final PDF. Refused while the draft still has problems; asking again after it is issued returns the same list. Writes an audit entry. |
 | POST | `/api/v1/seller/consignments/:id/packing-list/supersede` | Public |  | Withdraw an issued packing list, with a reason, so the load can be re-packed and a new list issued. Only allowed before the carrier has scanned anything out. Writes an audit entry. |
 | POST | `/api/v1/seller/consignments/:id/pack` | Public |  | Invoice + packing list + packed, together or not at all. |
+| GET | `/api/v1/seller/consignments/:id/booking` | Seller | Seller(ORDER_READ) | The booking of one consignment: mode, Incoterm, ports, pickup date and window, and who carries it. |
+| PUT | `/api/v1/seller/consignments/:id/booking` | Seller | TradingSeller(ORDER_FULFIL) | Book a consignment: store its mode, Incoterm, ports and pickup, and record a hand booking with DHL, FedEx or India Post when one is named. |
 
 ### `seller/dashboard`
 
@@ -1352,6 +1435,15 @@ Defined in `backend/src/http/routes/seller.factories.ts`.
 | POST | `/api/v1/seller/factories/:id/evidence` | Public |  | Attach one of the seller's own documents to a factory as evidence, optionally with where it was taken. |
 | DELETE | `/api/v1/seller/factories/:id/evidence/:evidenceId` | Public |  | Detach a piece of evidence from a factory. On a verified factory this sends it back for review. |
 | POST | `/api/v1/seller/factories/:id/submit` | Public |  | Send a factory for verification: the first time, after a refusal, or after it expired. Needs evidence. |
+
+### `seller/finance`
+
+Defined in `backend/src/http/routes/finance.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/finance/balances` | Seller | Seller(FINANCE_READ) | The seller's receivables: gross, fees, refunds, held, reserve, available, in transit and paid out. |
+| GET | `/api/v1/seller/finance/holds` | Seller | Seller(FINANCE_READ) | The seller's held funds per order, with each release condition and the payout that carried it. |
 
 ### `seller/freight-quotes`
 
@@ -1619,7 +1711,7 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 
 ### `seller/orders`
 
-Defined in `backend/src/http/routes/seller.operations.ts`, `backend/src/http/routes/seller.logistics.ts`, `backend/src/http/routes/seller.documents.ts`.
+Defined in `backend/src/http/routes/seller.operations.ts`, `backend/src/http/routes/seller.workbench.ts`, `backend/src/http/routes/seller.logistics.ts`, `backend/src/http/routes/seller.documents.ts`, `backend/src/http/routes/seller.shipment-paperwork.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -1630,11 +1722,20 @@ Defined in `backend/src/http/routes/seller.operations.ts`, `backend/src/http/rou
 | POST | `/api/v1/seller/orders/:id/consignments` | Seller | Seller + TradingSeller(ORDER_FULFIL) | Raise the consignment a confirmed order is missing. Idempotent. |
 | POST | `/api/v1/seller/orders/:id/freight-quote` | Seller | Seller + Seller(ORDER_FULFIL) | Raise a request for one consignment. |
 | GET | `/api/v1/seller/orders/:id/freight` | Seller | Seller + Seller(ORDER_READ) | Whether this consignment can go by carrier at all, or needs quoting. |
+| GET | `/api/v1/seller/orders/:id/production` | Seller | Seller + Seller(ORDER_READ) | Production milestones and exceptions on one of the seller's orders, with the next stage that can be recorded. |
+| POST | `/api/v1/seller/orders/:id/production/milestones` | Seller | Seller + TradingSeller(ORDER_FULFIL) | Record that a production stage is done. Stages go in order and none can be skipped. Never changes the order's status. |
+| POST | `/api/v1/seller/orders/:id/production/plan` | Seller | Seller + TradingSeller(ORDER_FULFIL) | Set the date a production stage is expected. The buyer is told the date. |
+| POST | `/api/v1/seller/orders/:id/production/delays` | Seller | Seller + TradingSeller(ORDER_FULFIL) | Raise a production exception with a reason and a revised date. The buyer sees the reason, the date and the seller's message, never the internal detail. |
+| POST | `/api/v1/seller/orders/:id/production/delays/:delayId/resolve` | Seller | Seller + TradingSeller(ORDER_FULFIL) | Resolve an open production exception. The note is shown to the buyer. |
 | GET | `/api/v1/seller/orders/:id/legs` | Seller | Seller(ORDER_READ) | The four delivery stages of one of the seller's confirmed orders, with who carries each and how far it has got. |
 | POST | `/api/v1/seller/orders/:id/legs/:level/assign` | Seller | TradingSeller(ORDER_FULFIL) | Name the carrier for one of the seller's own delivery stages on an order: a carrier booked by hand or a delivery company on the platform. Changing the carrier after one is named needs a reason, and the company that loses the work is told. |
 | PATCH | `/api/v1/seller/orders/:id/legs/:level` | Seller | TradingSeller(ORDER_FULFIL) | Enter the tracking number, pickup reference and expected dates on a delivery stage that already has a carrier. |
 | POST | `/api/v1/seller/orders/:id/legs/:level/transition` | Seller | TradingSeller(ORDER_FULFIL) | Move one of the seller's delivery stages on an order forward: accepted, started or handed over. A stage can start only once the one before it has been handed over. |
 | GET | `/api/v1/seller/orders/:id/documents` | Public |  | Every consignment of one of the seller's orders, with its packages, invoices and packing lists. |
+| GET | `/api/v1/seller/orders/:id/trade-documents` | Seller | Seller(ORDER_READ) | The certificate of origin, waybills and other trade documents of one seller order, with what the destination and category rules require. |
+| POST | `/api/v1/seller/orders/:id/trade-documents` | Seller | TradingSeller(ORDER_FULFIL) | Record a new version of a trade document by its number only (a waybill, a shipping bill), with issuer and dates. |
+| POST | `/api/v1/seller/orders/:id/trade-documents/upload` | Seller | TradingSeller(ORDER_FULFIL) | Upload a new version of a trade document as a PDF or image, with its kind, issuer, number and dates as form fields. |
+| POST | `/api/v1/seller/orders/:id/trade-documents/certificate-of-origin` | Seller | TradingSeller(ORDER_FULFIL) | Generate a certificate of origin draft PDF from the order, for an issuing authority to certify. |
 
 ### `seller/packaging`
 
@@ -1661,6 +1762,14 @@ Defined in `backend/src/http/routes/seller.operations.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/seller/payouts` | Seller | Seller + Seller(FINANCE_READ) | The seller's last 100 payouts, newest first, with their status. A failed payout carries the reason and what to do about it. |
+
+### `seller/performance`
+
+Defined in `backend/src/http/routes/seller.operations.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/performance` | Seller | Seller + Seller(ANALYTICS_READ) | Your performance over 30, 90 or 365 days: RFQ conversion, OTIF delivery, quality, cancellations and claims. |
 
 ### `seller/pickups`
 
@@ -1789,6 +1898,14 @@ Defined in `backend/src/http/routes/seller.team.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/seller/team` | Seller | Seller(MEMBER_READ) | The team with each member's role, who invited them and when they last signed in; live invitations; recent access reviews. |
+
+### `seller/trade-documents`
+
+Defined in `backend/src/http/routes/seller.shipment-paperwork.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/trade-documents/versions/:id/file` | Seller | Seller(ORDER_READ) | Download the file of one version of the seller's own trade document. |
 
 ### `sellers`
 
@@ -2252,7 +2369,7 @@ Defined in `backend/src/http/routes/inspection.ts`.
 
 ### `orders`
 
-Defined in `backend/src/http/routes/returns.ts`, `backend/src/http/routes/orders.ts`, `backend/src/http/routes/order-tracking.customer.ts`, `backend/src/http/routes/payment-receipts.ts`, `backend/src/http/routes/logistics-levels.admin.ts`.
+Defined in `backend/src/http/routes/returns.ts`, `backend/src/http/routes/orders.ts`, `backend/src/http/routes/order-tracking.customer.ts`, `backend/src/http/routes/order-shipment-details.customer.ts`, `backend/src/http/routes/order-milestones.customer.ts`, `backend/src/http/routes/payment-receipts.ts`, `backend/src/http/routes/finance.ts`, `backend/src/http/routes/logistics-levels.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -2265,8 +2382,12 @@ Defined in `backend/src/http/routes/returns.ts`, `backend/src/http/routes/orders
 | GET | `/api/v1/orders/:id/tracking` | Customer | Customer | Every consignment on one of the buyer's orders: its timeline in the buyer's words, anything wrong with it, its ETA and its proof of delivery. |
 | POST | `/api/v1/orders/:id/shipments/:shipmentId/proof-of-delivery/:kind/link` | Customer | Customer | A single-use link, valid for a few minutes, to the signature or photograph captured as proof of delivery of one of the buyer's consignments. |
 | GET | `/api/v1/orders/:id/shipments/:shipmentId/proof-of-delivery/:kind/download` | Customer | Customer | Redeem a proof-of-delivery link: works once, only for the person it was made for, and is recorded in the audit log. |
+| GET | `/api/v1/orders/:id/shipment-details` | Customer | Customer | The booking of every consignment on one of the buyer's orders, and the trade documents the buyer may see. |
+| GET | `/api/v1/orders/:id/trade-documents/:versionId/file` | Customer | Customer | Download the current version of a buyer-visible trade document on one of the buyer's orders. |
+| GET | `/api/v1/orders/:id/milestones` | Customer | Customer | Production milestones and exceptions, inspection status, shipments, buyer-visible documents and payment status of one of the buyer's orders. |
 | GET | `/api/v1/orders/:id/receipts` | Customer | Customer | The receipts the buyer can download for one of their own orders: each captured payment and each confirmed refund. |
 | GET | `/api/v1/orders/:id/receipts/:kind/:sourceId` | Customer | Customer | Download the buyer's receipt for one payment or refund on their own order as a PDF; the first download issues its number. |
+| GET | `/api/v1/orders/:id/payment-protection` | Customer | Customer | How the buyer's payment on their own order is held and released: method, status, terms, per-seller milestones, receipts. |
 | GET | `/api/v1/orders/:id/price-breakdown` | Customer | Customer | What the signed-in customer paid on one of their own orders, including delivery level by level and where each level has got to. Another customer's order is not found. |
 
 ### `payments`
@@ -2410,6 +2531,7 @@ Defined in `backend/src/http/routes/rfq.customer.ts`.
 | POST | `/api/v1/rfqs/:id/samples/:sampleId/receive` | Customer | Feature + Customer | Confirm a shipped sample arrived. Only you can say it did; audited. |
 | POST | `/api/v1/rfqs/:id/samples/:sampleId/approve` | Customer | Feature + Customer | Approve a delivered sample against its criteria; it becomes the reference sample. Audited. |
 | POST | `/api/v1/rfqs/:id/samples/:sampleId/reject` | Customer | Feature + Customer | Reject a delivered sample, with a reason the supplier reads. Audited. |
+| POST | `/api/v1/rfqs/:id/samples/:sampleId/checkout` | Customer | Feature + Customer | Make (or return) the order that collects a charged sample's fee, tax and shipping; paid on the ordinary payment screen. |
 | POST | `/api/v1/rfqs/:id/samples/:sampleId/attachments` | Customer | Feature + Customer | Attach evidence about a sample: a photograph, a test report. Seen by you and that supplier. |
 | GET | `/api/v1/rfqs/:id/invitations/:invitationId/messages` | Customer | Feature + Customer | The thread with one invited seller, oldest first; `?after=` for only new ones. |
 | POST | `/api/v1/rfqs/:id/invitations/:invitationId/messages` | Customer | Feature + Customer | Write to one invited seller. A resend with the same clientMessageId is not a second message. |
@@ -2472,7 +2594,7 @@ Defined in `backend/src/http/routes/auth.ts`, `backend/src/http/routes/security.
 
 ### `catalog`
 
-Defined in `backend/src/http/routes/catalog.public.ts`, `backend/src/http/routes/bulk-pricing.ts`, `backend/src/http/routes/product-reviews.ts`.
+Defined in `backend/src/http/routes/catalog.public.ts`, `backend/src/http/routes/bulk-pricing.ts`, `backend/src/http/routes/product-reviews.ts`, `backend/src/http/routes/content-blocks.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -2489,6 +2611,7 @@ Defined in `backend/src/http/routes/catalog.public.ts`, `backend/src/http/routes
 | GET | `/api/v1/catalog/product-cards` | Public |  | Resolve product references into verified cards |
 | GET | `/api/v1/catalog/bulk-pricing` | Public (customer optional) | optionalCustomer | Show what one piece of a product costs at a given quantity, for each way of buying it, so the shopper can see the price drop as the quantity goes up. Anyone can ask; a signed-in business buyer also sees prices kept for business accounts and for their delivery country. |
 | GET | `/api/v1/catalog/products/:slug/reviews` | Public |  | A product's rating summary and one page of its published reviews. |
+| GET | `/api/v1/catalog/content-blocks` | Public |  | The published banners or category blocks live now for a country and language. |
 
 ### `config`
 

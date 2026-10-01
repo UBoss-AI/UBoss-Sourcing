@@ -51,8 +51,10 @@ export async function blockedScopeFor(
 ): Promise<BlockedScope> {
   if (country === null) return { productIds: [], categoryIds: [] };
 
+  // A rule with a value threshold is left out: the order value is not known
+  // while browsing, and checkout enforces it (market-rule-admin.service).
   const rules = await prisma.marketRule.findMany({
-    where: inForce(country, 'BLOCK', now),
+    where: { ...inForce(country, 'BLOCK', now), minOrderValueMinor: null },
     select: { scope: true, productId: true, categoryId: true },
   });
 
@@ -95,6 +97,9 @@ export interface CategoryMarketNote {
   requiredDocuments: string[];
   /** The category the rule was written on - this one, or one above it. */
   categoryName: string;
+  /** Minor units: the rule applies only to an order at or above this. Null = always. */
+  minOrderValueMinor: string | null;
+  thresholdCurrency: string | null;
 }
 
 /**
@@ -125,6 +130,8 @@ export async function categoryMarketNotes(
       effect: true,
       reason: true,
       requiredDocumentsJson: true,
+      minOrderValueMinor: true,
+      thresholdCurrency: true,
       category: { select: { name: true } },
     },
     // Blocks first: they are the answer to "why is this empty".
@@ -138,6 +145,8 @@ export async function categoryMarketNotes(
       ? rule.requiredDocumentsJson.filter((entry): entry is string => typeof entry === 'string')
       : [],
     categoryName: rule.category?.name ?? '',
+    minOrderValueMinor: rule.minOrderValueMinor === null ? null : rule.minOrderValueMinor.toString(),
+    thresholdCurrency: rule.thresholdCurrency,
   }));
 }
 
@@ -168,7 +177,7 @@ export async function productMarketNotes(
       effectiveFrom: { lte: now },
       OR: [{ effectiveUntil: null }, { effectiveUntil: { gt: now } }],
     },
-    select: { effect: true, reason: true, requiredDocumentsJson: true },
+    select: { effect: true, reason: true, requiredDocumentsJson: true, minOrderValueMinor: true, thresholdCurrency: true },
     orderBy: [{ effect: 'asc' }, { createdAt: 'asc' }],
   });
 
@@ -180,6 +189,8 @@ export async function productMarketNotes(
         ? rule.requiredDocumentsJson.filter((entry): entry is string => typeof entry === 'string')
         : [],
       categoryName: '',
+      minOrderValueMinor: rule.minOrderValueMinor === null ? null : rule.minOrderValueMinor.toString(),
+      thresholdCurrency: rule.thresholdCurrency,
     })),
     ...onCategories,
   ].sort((a, b) => (a.effect === b.effect ? 0 : a.effect === 'BLOCK' ? -1 : 1));

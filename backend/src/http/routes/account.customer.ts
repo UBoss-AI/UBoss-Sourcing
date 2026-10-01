@@ -945,8 +945,20 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     const auth = currentUser(request);
     const { limit } = notificationQuerySchema.parse(request.query);
 
+    // Events an operator has taken out of the notification centre
+    // (`inAppEnabled` off) are not listed, whatever was emailed for them.
+    const hidden = await prisma.notificationSetting.findMany({
+      where: { inAppEnabled: false },
+      select: { eventKey: true },
+    });
+
     const rows = await prisma.notificationOutbox.findMany({
-      where: { recipientEmail: auth.email, status: 'SENT' },
+      where: {
+        recipientEmail: auth.email,
+        status: 'SENT',
+        channel: { in: ['EMAIL', 'IN_APP'] },
+        ...(hidden.length > 0 ? { eventKey: { notIn: hidden.map((row) => row.eventKey) } } : {}),
+      },
       orderBy: { sentAt: 'desc' },
       take: limit,
       select: {

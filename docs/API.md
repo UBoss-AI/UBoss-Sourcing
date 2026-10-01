@@ -3672,3 +3672,18 @@ Agency evidence uploads with `checkItemCode` must name an exact item code from t
 Each inspection job view includes report, the latest audience-visible entry from reports, or null when none is visible. Revision history and buyer/seller visibility rules are unchanged. Agency me.allowedTransitions contains objects with to and requiresReason; clients must read to rather than compare objects to status strings. Seller corrective evidence uses purpose CAPA and the defectId on the same job. Re-inspection booking uses reinspectionOfJobId and preserves the existing original-report and corrective-action preconditions.
 
 The requirement also includes gate with allowed and sentence, matching the existing customer/admin panels. The top-level gate retains the full server decision, including any conditional release. The HTTP lifecycle verifies that the failed job blocks dispatch and the valid passing repeat job opens that gate.
+
+## Shipment documents and booking (Master rows 42 and 56)
+
+Seller: `GET/POST /api/v1/seller/orders/:id/trade-documents` (POST records a version by number), `POST .../trade-documents/upload` (multipart; send the fields before the file part), `POST .../trade-documents/certificate-of-origin` (generates a draft PDF), `GET /api/v1/seller/trade-documents/versions/:id/file`, `GET/PUT /api/v1/seller/consignments/:id/booking`. Buyer: `GET /api/v1/orders/:id/shipment-details` returns `{ shipments, documents }`; `GET /api/v1/orders/:id/trade-documents/:versionId/file`. Staff: `GET /api/v1/admin/orders/:id/trade-documents`, `GET /api/v1/admin/trade-documents/versions/:id/file`, `POST /api/v1/admin/trade-documents/versions/:id/validation` with `{ decision: 'VALID' | 'REJECTED', note }`. Files are served with `Cache-Control: no-store`. Refusals use `TRADE_DOCUMENT_INVALID` and `BOOKING_TERMS_INVALID` (400), `MEDIA_TYPE_NOT_ALLOWED` for a file that is not a PDF or image, and `SHIPMENT_TRANSITION_NOT_ALLOWED` (409) for a booking change after collection.
+
+## Held funds, ledger and payouts (Master rows 58–61, 43, 12)
+
+Anything that moves money needs `FEATURE_ESCROW_LEDGER` (`ESCROW_LEDGER_DISABLED`, 409, otherwise). Money is minor units as strings.
+
+- `GET /orders/:id/payment-protection` (buyer, own order): payment method and status, release terms, each seller's `fundsStatus` and conditions, receipts. No seller fee or share.
+- `GET /seller/finance/balances`, `GET /seller/finance/holds` (`FINANCE_READ`).
+- `GET /admin/finance/ledger/orders`, `/ledger/orders/:id`, `/ledger/entries`, `/refunds-chargebacks`, `/holds`, `/reconciliations`, `/reconciliations/:id` (`payment.read`).
+- `POST /admin/finance/holds/:id/suspend`, `/holds/:id/resume`, `/holds/:id/release`, `/release-requests/:id/decide`, `/escrow/refresh`, `/payouts/run`, `/reconcile` (`finance.policy.write`). A repeat is harmless: hold changes are state-guarded, there is one open release request per hold, and a payout run claims each balance under a row lock and sends it with `ledger-payout:<payoutId>` as the Stripe `Idempotency-Key`.
+- New error codes: `ESCROW_LEDGER_DISABLED` (409), `FUND_HOLD_STATE_CONFLICT` (409), `FUND_RELEASE_ALREADY_PENDING` (409), `FUND_RELEASE_SAME_APPROVER` (403).
+- `POST /seller/payout-account/onboarding` returns a real Stripe account link when `STRIPE_CONNECT_CLIENT_ID` and `STRIPE_SECRET_KEY` are set, and stores the connected account id.

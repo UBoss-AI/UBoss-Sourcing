@@ -47,6 +47,7 @@ import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
 import { HeroSearch } from '@/components/hero-search/HeroSearch';
 import { CollectionShelves } from '@/components/home/CollectionShelves';
+import { HomeBanners } from '@/components/home/ContentBlocks';
 import { InlineProducts } from '@/components/home/InlineProducts';
 import { AssuranceExplainer, NewlyVerifiedSuppliers, YourMarketBlock } from '@/components/home/HomeTrustBlocks';
 import { ValueProposition, VerifiedSuppliers } from '@/components/home/VerifiedSuppliers';
@@ -557,6 +558,10 @@ export function HomePage(): React.JSX.Element {
       <Greeting />
 
       <div className="relative mx-auto max-w-content px-4 pb-6 sm:pb-8">
+        {/* The operator's banners for this shopper's country and language
+            (Master row 72). Absent when none are live. */}
+        <HomeBanners />
+
         <CategoryStrip />
 
         {/* Who is selling: sellers the operator reviewed and approved, each

@@ -22,7 +22,7 @@ import { prisma } from '../../infra/prisma.js';
  * committed - a sales report that ignored unpaid orders would understate the
  * pipeline the operations team is working.
  */
-const REVENUE_STATUSES = [
+export const REVENUE_STATUSES = [
   'PENDING_APPROVAL',
   'PENDING_PAYMENT',
   'CONFIRMED',

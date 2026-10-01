@@ -99,6 +99,42 @@ export interface SellerDashboard {
   documentsExpiringSoon: { id: string; kind: string; expiresOn: string }[];
   closedLocations: { id: string; name: string; reason: string | null }[];
 
+  /**
+   * Requests for quotation waiting on this seller: invited or opened, on a
+   * request that is still open and whose deadline has not passed.
+   * `closingSoon` is the part of that whose deadline is within two days.
+   */
+  rfqs: { awaitingResponse: number; closingSoon: number };
+
+  /**
+   * Inspection work only the seller can move. `readinessDue` is a booked
+   * inspection whose lot has not been declared ready; `capaDue` is a defect
+   * (NCR) still open and waiting for the seller's corrective action. Each item
+   * names the order it belongs to, because that is where the action is taken.
+   */
+  inspection: {
+    readinessDue: number;
+    capaDue: number;
+    items: {
+      kind: 'READINESS' | 'CAPA';
+      sellerOrderGroupId: string;
+      sellerOrderNumber: string;
+      dueAt: string | null;
+    }[];
+  };
+
+  /**
+   * Compliance the seller has to act on: certificates about to lapse or
+   * already lapsed or refused, listings held because a certificate lapsed, and
+   * verification checks waiting on the seller's input.
+   */
+  compliance: {
+    certificatesExpiringSoon: number;
+    certificatesLapsed: number;
+    listingsOnHold: number;
+    verificationNeedsInput: number;
+  };
+
   onboarding: {
     percentComplete: number;
     canSubmit: boolean;
@@ -164,6 +200,9 @@ export async function readDashboard(
     draftCounts,
     onboarding,
     payout,
+    rfqs,
+    inspection,
+    compliance,
   ] = await Promise.all([
     tile('orders', unavailable, [] as StatusCount[], async () => {
       const grouped = await prisma.sellerOrderGroup.groupBy({
@@ -304,6 +343,26 @@ export async function readDashboard(
 
     tile('onboarding', unavailable, null, () => readOnboarding(membership)),
     tile('payout', unavailable, null, () => readPayoutAccount(membership)),
+    tile('rfqs', unavailable, { awaitingResponse: 0, closingSoon: 0 }, () =>
+      rfqsAwaiting(sellerAccountId, now),
+    ),
+    tile(
+      'inspection',
+      unavailable,
+      { readinessDue: 0, capaDue: 0, items: [] },
+      () => inspectionActions(sellerAccountId),
+    ),
+    tile(
+      'compliance',
+      unavailable,
+      {
+        certificatesExpiringSoon: 0,
+        certificatesLapsed: 0,
+        listingsOnHold: 0,
+        verificationNeedsInput: 0,
+      },
+      () => complianceActions(sellerAccountId, now),
+    ),
   ]);
 
   const countOf = (rows: StatusCount[], status: string): number =>
@@ -421,6 +480,130 @@ export async function readDashboard(
       pendingRequirements: payout?.pendingRequirements ?? [],
     },
 
+    rfqs,
+    inspection,
+    compliance,
+
     unavailable,
   };
+}
+
+/** Invitations still waiting for this seller's quote or decline. */
+async function rfqsAwaiting(
+  sellerAccountId: string,
+  now: Date,
+): Promise<SellerDashboard['rfqs']> {
+  const open = {
+    sellerAccountId,
+    status: { in: ['INVITED', 'VIEWED'] as ('INVITED' | 'VIEWED')[] },
+  };
+  const [awaitingResponse, closingSoon] = await Promise.all([
+    prisma.rfqInvitation.count({
+      where: {
+        ...open,
+        rfq: {
+          status: 'OPEN',
+          OR: [{ responseDeadline: null }, { responseDeadline: { gt: now } }],
+        },
+      },
+    }),
+    prisma.rfqInvitation.count({
+      where: {
+        ...open,
+        rfq: {
+          status: 'OPEN',
+          responseDeadline: { gt: now, lte: new Date(now.getTime() + 2 * 86_400_000) },
+        },
+      },
+    }),
+  ]);
+  return { awaitingResponse, closingSoon };
+}
+
+/** Booked inspections waiting for the lot to be declared ready, and open NCRs. */
+async function inspectionActions(sellerAccountId: string): Promise<SellerDashboard['inspection']> {
+  const groupSelect = { sellerOrderGroup: { select: { id: true, sellerOrderNumber: true } } };
+
+  const [readinessDue, capaDue, readinessJobs, openDefects] = await Promise.all([
+    prisma.inspectionJob.count({
+      where: {
+        requirement: { sellerAccountId },
+        status: { in: ['REQUESTED', 'ACCEPTED', 'INSPECTOR_ASSIGNED'] },
+        readinessSubmittedAt: null,
+      },
+    }),
+    prisma.inspectionDefect.count({
+      where: { status: 'OPEN', job: { requirement: { sellerAccountId } } },
+    }),
+    prisma.inspectionJob.findMany({
+      where: {
+        requirement: { sellerAccountId },
+        status: { in: ['REQUESTED', 'ACCEPTED', 'INSPECTOR_ASSIGNED'] },
+        readinessSubmittedAt: null,
+      },
+      orderBy: { scheduledFor: 'asc' },
+      take: 5,
+      select: { scheduledFor: true, requirement: { select: groupSelect } },
+    }),
+    prisma.inspectionDefect.findMany({
+      where: { status: 'OPEN', job: { requirement: { sellerAccountId } } },
+      orderBy: { recordedAt: 'asc' },
+      take: 5,
+      select: { job: { select: { requirement: { select: groupSelect } } } },
+    }),
+  ]);
+
+  const items: SellerDashboard['inspection']['items'] = [];
+  for (const job of readinessJobs) {
+    items.push({
+      kind: 'READINESS',
+      sellerOrderGroupId: job.requirement.sellerOrderGroup.id,
+      sellerOrderNumber: job.requirement.sellerOrderGroup.sellerOrderNumber,
+      dueAt: job.scheduledFor.toISOString(),
+    });
+  }
+  // One row per order for CAPA: three NCRs on one order are one place to go.
+  const seen = new Set<string>();
+  for (const defect of openDefects) {
+    const group = defect.job.requirement.sellerOrderGroup;
+    if (seen.has(group.id)) continue;
+    seen.add(group.id);
+    items.push({
+      kind: 'CAPA',
+      sellerOrderGroupId: group.id,
+      sellerOrderNumber: group.sellerOrderNumber,
+      dueAt: null,
+    });
+  }
+
+  return { readinessDue, capaDue, items };
+}
+
+/** Certificates, compliance holds and verification checks needing the seller. */
+async function complianceActions(
+  sellerAccountId: string,
+  now: Date,
+): Promise<SellerDashboard['compliance']> {
+  const [certificatesExpiringSoon, certificatesLapsed, listingsOnHold, verificationNeedsInput] =
+    await Promise.all([
+      prisma.sellerCertification.count({
+        where: {
+          sellerAccountId,
+          archivedAt: null,
+          state: 'VERIFIED',
+          expiresOn: { gte: now, lte: new Date(now.getTime() + 60 * 86_400_000) },
+        },
+      }),
+      prisma.sellerCertification.count({
+        where: { sellerAccountId, archivedAt: null, state: { in: ['EXPIRED', 'REJECTED'] } },
+      }),
+      prisma.sellerOfferComplianceHold.count({
+        where: { releasedAt: null, offer: { sellerAccountId } },
+      }),
+      prisma.sellerVerificationCase.count({
+        where: { sellerAccountId, isCurrent: true, state: { in: ['AWAITING_INPUT', 'FAILED'] } },
+      }),
+    ]);
+
+  return { certificatesExpiringSoon, certificatesLapsed, listingsOnHold, verificationNeedsInput };
 }

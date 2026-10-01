@@ -32,12 +32,14 @@ export type RfqSampleAvgAggregateOutputType = {
   version: number | null
   quantity: runtime.Decimal | null
   costMinor: number | null
+  shippingMinor: number | null
 }
 
 export type RfqSampleSumAggregateOutputType = {
   version: number | null
   quantity: runtime.Decimal | null
   costMinor: bigint | null
+  shippingMinor: bigint | null
 }
 
 export type RfqSampleMinAggregateOutputType = {
@@ -58,6 +60,8 @@ export type RfqSampleMinAggregateOutputType = {
   currency: string | null
   paymentStatus: $Enums.RfqSamplePaymentStatus | null
   supplierNote: string | null
+  shippingMinor: bigint | null
+  orderId: string | null
   courier: string | null
   trackingNumber: string | null
   shippedAt: Date | null
@@ -88,6 +92,8 @@ export type RfqSampleMaxAggregateOutputType = {
   currency: string | null
   paymentStatus: $Enums.RfqSamplePaymentStatus | null
   supplierNote: string | null
+  shippingMinor: bigint | null
+  orderId: string | null
   courier: string | null
   trackingNumber: string | null
   shippedAt: Date | null
@@ -118,6 +124,8 @@ export type RfqSampleCountAggregateOutputType = {
   currency: number
   paymentStatus: number
   supplierNote: number
+  shippingMinor: number
+  orderId: number
   courier: number
   trackingNumber: number
   shippedAt: number
@@ -136,12 +144,14 @@ export type RfqSampleAvgAggregateInputType = {
   version?: true
   quantity?: true
   costMinor?: true
+  shippingMinor?: true
 }
 
 export type RfqSampleSumAggregateInputType = {
   version?: true
   quantity?: true
   costMinor?: true
+  shippingMinor?: true
 }
 
 export type RfqSampleMinAggregateInputType = {
@@ -162,6 +172,8 @@ export type RfqSampleMinAggregateInputType = {
   currency?: true
   paymentStatus?: true
   supplierNote?: true
+  shippingMinor?: true
+  orderId?: true
   courier?: true
   trackingNumber?: true
   shippedAt?: true
@@ -192,6 +204,8 @@ export type RfqSampleMaxAggregateInputType = {
   currency?: true
   paymentStatus?: true
   supplierNote?: true
+  shippingMinor?: true
+  orderId?: true
   courier?: true
   trackingNumber?: true
   shippedAt?: true
@@ -222,6 +236,8 @@ export type RfqSampleCountAggregateInputType = {
   currency?: true
   paymentStatus?: true
   supplierNote?: true
+  shippingMinor?: true
+  orderId?: true
   courier?: true
   trackingNumber?: true
   shippedAt?: true
@@ -339,6 +355,8 @@ export type RfqSampleGroupByOutputType = {
   currency: string | null
   paymentStatus: $Enums.RfqSamplePaymentStatus
   supplierNote: string | null
+  shippingMinor: bigint | null
+  orderId: string | null
   courier: string | null
   trackingNumber: string | null
   shippedAt: Date | null
@@ -392,6 +410,8 @@ export type RfqSampleWhereInput = {
   currency?: Prisma.StringNullableFilter<"RfqSample"> | string | null
   paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFilter<"RfqSample"> | $Enums.RfqSamplePaymentStatus
   supplierNote?: Prisma.StringNullableFilter<"RfqSample"> | string | null
+  shippingMinor?: Prisma.BigIntNullableFilter<"RfqSample"> | bigint | number | null
+  orderId?: Prisma.StringNullableFilter<"RfqSample"> | string | null
   courier?: Prisma.StringNullableFilter<"RfqSample"> | string | null
   trackingNumber?: Prisma.StringNullableFilter<"RfqSample"> | string | null
   shippedAt?: Prisma.DateTimeNullableFilter<"RfqSample"> | Date | string | null
@@ -403,6 +423,7 @@ export type RfqSampleWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"RfqSample"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RfqSample"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
+  order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
 }
 
 export type RfqSampleOrderByWithRelationInput = {
@@ -423,6 +444,8 @@ export type RfqSampleOrderByWithRelationInput = {
   currency?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   supplierNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  shippingMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  orderId?: Prisma.SortOrderInput | Prisma.SortOrder
   courier?: Prisma.SortOrderInput | Prisma.SortOrder
   trackingNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   shippedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -434,12 +457,14 @@ export type RfqSampleOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   rfq?: Prisma.RfqRequestOrderByWithRelationInput
+  order?: Prisma.OrderOrderByWithRelationInput
   _relevance?: Prisma.RfqSampleOrderByRelevanceInput
 }
 
 export type RfqSampleWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   reference?: string
+  orderId?: string
   referenceCode?: string
   AND?: Prisma.RfqSampleWhereInput | Prisma.RfqSampleWhereInput[]
   OR?: Prisma.RfqSampleWhereInput[]
@@ -459,6 +484,7 @@ export type RfqSampleWhereUniqueInput = Prisma.AtLeast<{
   currency?: Prisma.StringNullableFilter<"RfqSample"> | string | null
   paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFilter<"RfqSample"> | $Enums.RfqSamplePaymentStatus
   supplierNote?: Prisma.StringNullableFilter<"RfqSample"> | string | null
+  shippingMinor?: Prisma.BigIntNullableFilter<"RfqSample"> | bigint | number | null
   courier?: Prisma.StringNullableFilter<"RfqSample"> | string | null
   trackingNumber?: Prisma.StringNullableFilter<"RfqSample"> | string | null
   shippedAt?: Prisma.DateTimeNullableFilter<"RfqSample"> | Date | string | null
@@ -469,7 +495,8 @@ export type RfqSampleWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"RfqSample"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RfqSample"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
-}, "id" | "reference" | "referenceCode">
+  order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
+}, "id" | "reference" | "orderId" | "referenceCode">
 
 export type RfqSampleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -489,6 +516,8 @@ export type RfqSampleOrderByWithAggregationInput = {
   currency?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   supplierNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  shippingMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  orderId?: Prisma.SortOrderInput | Prisma.SortOrder
   courier?: Prisma.SortOrderInput | Prisma.SortOrder
   trackingNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   shippedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -527,6 +556,8 @@ export type RfqSampleScalarWhereWithAggregatesInput = {
   currency?: Prisma.StringNullableWithAggregatesFilter<"RfqSample"> | string | null
   paymentStatus?: Prisma.EnumRfqSamplePaymentStatusWithAggregatesFilter<"RfqSample"> | $Enums.RfqSamplePaymentStatus
   supplierNote?: Prisma.StringNullableWithAggregatesFilter<"RfqSample"> | string | null
+  shippingMinor?: Prisma.BigIntNullableWithAggregatesFilter<"RfqSample"> | bigint | number | null
+  orderId?: Prisma.StringNullableWithAggregatesFilter<"RfqSample"> | string | null
   courier?: Prisma.StringNullableWithAggregatesFilter<"RfqSample"> | string | null
   trackingNumber?: Prisma.StringNullableWithAggregatesFilter<"RfqSample"> | string | null
   shippedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RfqSample"> | Date | string | null
@@ -556,6 +587,7 @@ export type RfqSampleCreateInput = {
   currency?: string | null
   paymentStatus?: $Enums.RfqSamplePaymentStatus
   supplierNote?: string | null
+  shippingMinor?: bigint | number | null
   courier?: string | null
   trackingNumber?: string | null
   shippedAt?: Date | string | null
@@ -567,6 +599,7 @@ export type RfqSampleCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   rfq: Prisma.RfqRequestCreateNestedOneWithoutSamplesInput
+  order?: Prisma.OrderCreateNestedOneWithoutRfqSampleInput
 }
 
 export type RfqSampleUncheckedCreateInput = {
@@ -587,6 +620,8 @@ export type RfqSampleUncheckedCreateInput = {
   currency?: string | null
   paymentStatus?: $Enums.RfqSamplePaymentStatus
   supplierNote?: string | null
+  shippingMinor?: bigint | number | null
+  orderId?: string | null
   courier?: string | null
   trackingNumber?: string | null
   shippedAt?: Date | string | null
@@ -616,6 +651,7 @@ export type RfqSampleUpdateInput = {
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFieldUpdateOperationsInput | $Enums.RfqSamplePaymentStatus
   supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   courier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -627,6 +663,7 @@ export type RfqSampleUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutSamplesNestedInput
+  order?: Prisma.OrderUpdateOneWithoutRfqSampleNestedInput
 }
 
 export type RfqSampleUncheckedUpdateInput = {
@@ -647,6 +684,8 @@ export type RfqSampleUncheckedUpdateInput = {
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFieldUpdateOperationsInput | $Enums.RfqSamplePaymentStatus
   supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -677,6 +716,8 @@ export type RfqSampleCreateManyInput = {
   currency?: string | null
   paymentStatus?: $Enums.RfqSamplePaymentStatus
   supplierNote?: string | null
+  shippingMinor?: bigint | number | null
+  orderId?: string | null
   courier?: string | null
   trackingNumber?: string | null
   shippedAt?: Date | string | null
@@ -706,6 +747,7 @@ export type RfqSampleUpdateManyMutationInput = {
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFieldUpdateOperationsInput | $Enums.RfqSamplePaymentStatus
   supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   courier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -736,6 +778,8 @@ export type RfqSampleUncheckedUpdateManyInput = {
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFieldUpdateOperationsInput | $Enums.RfqSamplePaymentStatus
   supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -746,6 +790,11 @@ export type RfqSampleUncheckedUpdateManyInput = {
   requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RfqSampleNullableScalarRelationFilter = {
+  is?: Prisma.RfqSampleWhereInput | null
+  isNot?: Prisma.RfqSampleWhereInput | null
 }
 
 export type RfqSampleListRelationFilter = {
@@ -782,6 +831,8 @@ export type RfqSampleCountOrderByAggregateInput = {
   currency?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   supplierNote?: Prisma.SortOrder
+  shippingMinor?: Prisma.SortOrder
+  orderId?: Prisma.SortOrder
   courier?: Prisma.SortOrder
   trackingNumber?: Prisma.SortOrder
   shippedAt?: Prisma.SortOrder
@@ -798,6 +849,7 @@ export type RfqSampleAvgOrderByAggregateInput = {
   version?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   costMinor?: Prisma.SortOrder
+  shippingMinor?: Prisma.SortOrder
 }
 
 export type RfqSampleMaxOrderByAggregateInput = {
@@ -818,6 +870,8 @@ export type RfqSampleMaxOrderByAggregateInput = {
   currency?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   supplierNote?: Prisma.SortOrder
+  shippingMinor?: Prisma.SortOrder
+  orderId?: Prisma.SortOrder
   courier?: Prisma.SortOrder
   trackingNumber?: Prisma.SortOrder
   shippedAt?: Prisma.SortOrder
@@ -848,6 +902,8 @@ export type RfqSampleMinOrderByAggregateInput = {
   currency?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   supplierNote?: Prisma.SortOrder
+  shippingMinor?: Prisma.SortOrder
+  orderId?: Prisma.SortOrder
   courier?: Prisma.SortOrder
   trackingNumber?: Prisma.SortOrder
   shippedAt?: Prisma.SortOrder
@@ -864,6 +920,39 @@ export type RfqSampleSumOrderByAggregateInput = {
   version?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   costMinor?: Prisma.SortOrder
+  shippingMinor?: Prisma.SortOrder
+}
+
+export type RfqSampleCreateNestedOneWithoutOrderInput = {
+  create?: Prisma.XOR<Prisma.RfqSampleCreateWithoutOrderInput, Prisma.RfqSampleUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.RfqSampleCreateOrConnectWithoutOrderInput
+  connect?: Prisma.RfqSampleWhereUniqueInput
+}
+
+export type RfqSampleUncheckedCreateNestedOneWithoutOrderInput = {
+  create?: Prisma.XOR<Prisma.RfqSampleCreateWithoutOrderInput, Prisma.RfqSampleUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.RfqSampleCreateOrConnectWithoutOrderInput
+  connect?: Prisma.RfqSampleWhereUniqueInput
+}
+
+export type RfqSampleUpdateOneWithoutOrderNestedInput = {
+  create?: Prisma.XOR<Prisma.RfqSampleCreateWithoutOrderInput, Prisma.RfqSampleUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.RfqSampleCreateOrConnectWithoutOrderInput
+  upsert?: Prisma.RfqSampleUpsertWithoutOrderInput
+  disconnect?: Prisma.RfqSampleWhereInput | boolean
+  delete?: Prisma.RfqSampleWhereInput | boolean
+  connect?: Prisma.RfqSampleWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RfqSampleUpdateToOneWithWhereWithoutOrderInput, Prisma.RfqSampleUpdateWithoutOrderInput>, Prisma.RfqSampleUncheckedUpdateWithoutOrderInput>
+}
+
+export type RfqSampleUncheckedUpdateOneWithoutOrderNestedInput = {
+  create?: Prisma.XOR<Prisma.RfqSampleCreateWithoutOrderInput, Prisma.RfqSampleUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.RfqSampleCreateOrConnectWithoutOrderInput
+  upsert?: Prisma.RfqSampleUpsertWithoutOrderInput
+  disconnect?: Prisma.RfqSampleWhereInput | boolean
+  delete?: Prisma.RfqSampleWhereInput | boolean
+  connect?: Prisma.RfqSampleWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RfqSampleUpdateToOneWithWhereWithoutOrderInput, Prisma.RfqSampleUpdateWithoutOrderInput>, Prisma.RfqSampleUncheckedUpdateWithoutOrderInput>
 }
 
 export type RfqSampleCreateNestedManyWithoutRfqInput = {
@@ -916,6 +1005,146 @@ export type EnumRfqSamplePaymentStatusFieldUpdateOperationsInput = {
   set?: $Enums.RfqSamplePaymentStatus
 }
 
+export type RfqSampleCreateWithoutOrderInput = {
+  id: string
+  reference: string
+  sellerAccountId: string
+  quoteId?: string | null
+  status?: $Enums.RfqSampleStatus
+  version?: number
+  quantity: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitOfMeasure?: string | null
+  deliveryAddress: string
+  requestedByDate?: Date | string | null
+  approvalCriteria: string
+  notes?: string | null
+  costMinor?: bigint | number | null
+  currency?: string | null
+  paymentStatus?: $Enums.RfqSamplePaymentStatus
+  supplierNote?: string | null
+  shippingMinor?: bigint | number | null
+  courier?: string | null
+  trackingNumber?: string | null
+  shippedAt?: Date | string | null
+  deliveredAt?: Date | string | null
+  decidedAt?: Date | string | null
+  decisionReason?: string | null
+  referenceCode?: string | null
+  requestedByUserId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rfq: Prisma.RfqRequestCreateNestedOneWithoutSamplesInput
+}
+
+export type RfqSampleUncheckedCreateWithoutOrderInput = {
+  id: string
+  reference: string
+  rfqId: string
+  sellerAccountId: string
+  quoteId?: string | null
+  status?: $Enums.RfqSampleStatus
+  version?: number
+  quantity: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitOfMeasure?: string | null
+  deliveryAddress: string
+  requestedByDate?: Date | string | null
+  approvalCriteria: string
+  notes?: string | null
+  costMinor?: bigint | number | null
+  currency?: string | null
+  paymentStatus?: $Enums.RfqSamplePaymentStatus
+  supplierNote?: string | null
+  shippingMinor?: bigint | number | null
+  courier?: string | null
+  trackingNumber?: string | null
+  shippedAt?: Date | string | null
+  deliveredAt?: Date | string | null
+  decidedAt?: Date | string | null
+  decisionReason?: string | null
+  referenceCode?: string | null
+  requestedByUserId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RfqSampleCreateOrConnectWithoutOrderInput = {
+  where: Prisma.RfqSampleWhereUniqueInput
+  create: Prisma.XOR<Prisma.RfqSampleCreateWithoutOrderInput, Prisma.RfqSampleUncheckedCreateWithoutOrderInput>
+}
+
+export type RfqSampleUpsertWithoutOrderInput = {
+  update: Prisma.XOR<Prisma.RfqSampleUpdateWithoutOrderInput, Prisma.RfqSampleUncheckedUpdateWithoutOrderInput>
+  create: Prisma.XOR<Prisma.RfqSampleCreateWithoutOrderInput, Prisma.RfqSampleUncheckedCreateWithoutOrderInput>
+  where?: Prisma.RfqSampleWhereInput
+}
+
+export type RfqSampleUpdateToOneWithWhereWithoutOrderInput = {
+  where?: Prisma.RfqSampleWhereInput
+  data: Prisma.XOR<Prisma.RfqSampleUpdateWithoutOrderInput, Prisma.RfqSampleUncheckedUpdateWithoutOrderInput>
+}
+
+export type RfqSampleUpdateWithoutOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  quoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumRfqSampleStatusFieldUpdateOperationsInput | $Enums.RfqSampleStatus
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitOfMeasure?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedByDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalCriteria?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  costMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFieldUpdateOperationsInput | $Enums.RfqSamplePaymentStatus
+  supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  courier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referenceCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutSamplesNestedInput
+}
+
+export type RfqSampleUncheckedUpdateWithoutOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  rfqId?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  quoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumRfqSampleStatusFieldUpdateOperationsInput | $Enums.RfqSampleStatus
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitOfMeasure?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedByDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalCriteria?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  costMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFieldUpdateOperationsInput | $Enums.RfqSamplePaymentStatus
+  supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  courier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referenceCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type RfqSampleCreateWithoutRfqInput = {
   id: string
   reference: string
@@ -933,6 +1162,7 @@ export type RfqSampleCreateWithoutRfqInput = {
   currency?: string | null
   paymentStatus?: $Enums.RfqSamplePaymentStatus
   supplierNote?: string | null
+  shippingMinor?: bigint | number | null
   courier?: string | null
   trackingNumber?: string | null
   shippedAt?: Date | string | null
@@ -943,6 +1173,7 @@ export type RfqSampleCreateWithoutRfqInput = {
   requestedByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  order?: Prisma.OrderCreateNestedOneWithoutRfqSampleInput
 }
 
 export type RfqSampleUncheckedCreateWithoutRfqInput = {
@@ -962,6 +1193,8 @@ export type RfqSampleUncheckedCreateWithoutRfqInput = {
   currency?: string | null
   paymentStatus?: $Enums.RfqSamplePaymentStatus
   supplierNote?: string | null
+  shippingMinor?: bigint | number | null
+  orderId?: string | null
   courier?: string | null
   trackingNumber?: string | null
   shippedAt?: Date | string | null
@@ -1021,6 +1254,8 @@ export type RfqSampleScalarWhereInput = {
   currency?: Prisma.StringNullableFilter<"RfqSample"> | string | null
   paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFilter<"RfqSample"> | $Enums.RfqSamplePaymentStatus
   supplierNote?: Prisma.StringNullableFilter<"RfqSample"> | string | null
+  shippingMinor?: Prisma.BigIntNullableFilter<"RfqSample"> | bigint | number | null
+  orderId?: Prisma.StringNullableFilter<"RfqSample"> | string | null
   courier?: Prisma.StringNullableFilter<"RfqSample"> | string | null
   trackingNumber?: Prisma.StringNullableFilter<"RfqSample"> | string | null
   shippedAt?: Prisma.DateTimeNullableFilter<"RfqSample"> | Date | string | null
@@ -1050,6 +1285,8 @@ export type RfqSampleCreateManyRfqInput = {
   currency?: string | null
   paymentStatus?: $Enums.RfqSamplePaymentStatus
   supplierNote?: string | null
+  shippingMinor?: bigint | number | null
+  orderId?: string | null
   courier?: string | null
   trackingNumber?: string | null
   shippedAt?: Date | string | null
@@ -1079,6 +1316,7 @@ export type RfqSampleUpdateWithoutRfqInput = {
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFieldUpdateOperationsInput | $Enums.RfqSamplePaymentStatus
   supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   courier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1089,6 +1327,7 @@ export type RfqSampleUpdateWithoutRfqInput = {
   requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUpdateOneWithoutRfqSampleNestedInput
 }
 
 export type RfqSampleUncheckedUpdateWithoutRfqInput = {
@@ -1108,6 +1347,8 @@ export type RfqSampleUncheckedUpdateWithoutRfqInput = {
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFieldUpdateOperationsInput | $Enums.RfqSamplePaymentStatus
   supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1137,6 +1378,8 @@ export type RfqSampleUncheckedUpdateManyWithoutRfqInput = {
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFieldUpdateOperationsInput | $Enums.RfqSamplePaymentStatus
   supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1169,6 +1412,8 @@ export type RfqSampleSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   currency?: boolean
   paymentStatus?: boolean
   supplierNote?: boolean
+  shippingMinor?: boolean
+  orderId?: boolean
   courier?: boolean
   trackingNumber?: boolean
   shippedAt?: boolean
@@ -1180,6 +1425,7 @@ export type RfqSampleSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   createdAt?: boolean
   updatedAt?: boolean
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
+  order?: boolean | Prisma.RfqSample$orderArgs<ExtArgs>
 }, ExtArgs["result"]["rfqSample"]>
 
 
@@ -1202,6 +1448,8 @@ export type RfqSampleSelectScalar = {
   currency?: boolean
   paymentStatus?: boolean
   supplierNote?: boolean
+  shippingMinor?: boolean
+  orderId?: boolean
   courier?: boolean
   trackingNumber?: boolean
   shippedAt?: boolean
@@ -1214,15 +1462,17 @@ export type RfqSampleSelectScalar = {
   updatedAt?: boolean
 }
 
-export type RfqSampleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reference" | "rfqId" | "sellerAccountId" | "quoteId" | "status" | "version" | "quantity" | "unitOfMeasure" | "deliveryAddress" | "requestedByDate" | "approvalCriteria" | "notes" | "costMinor" | "currency" | "paymentStatus" | "supplierNote" | "courier" | "trackingNumber" | "shippedAt" | "deliveredAt" | "decidedAt" | "decisionReason" | "referenceCode" | "requestedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqSample"]>
+export type RfqSampleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reference" | "rfqId" | "sellerAccountId" | "quoteId" | "status" | "version" | "quantity" | "unitOfMeasure" | "deliveryAddress" | "requestedByDate" | "approvalCriteria" | "notes" | "costMinor" | "currency" | "paymentStatus" | "supplierNote" | "shippingMinor" | "orderId" | "courier" | "trackingNumber" | "shippedAt" | "deliveredAt" | "decidedAt" | "decisionReason" | "referenceCode" | "requestedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqSample"]>
 export type RfqSampleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
+  order?: boolean | Prisma.RfqSample$orderArgs<ExtArgs>
 }
 
 export type $RfqSamplePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "RfqSample"
   objects: {
     rfq: Prisma.$RfqRequestPayload<ExtArgs>
+    order: Prisma.$OrderPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1251,6 +1501,14 @@ export type $RfqSamplePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     currency: string | null
     paymentStatus: $Enums.RfqSamplePaymentStatus
     supplierNote: string | null
+    /**
+     * What the supplier charges to send it, in `currency`; NULL for none.
+     */
+    shippingMinor: bigint | null
+    /**
+     * The order the buyer pays the sample through (source RFQ_SAMPLE).
+     */
+    orderId: string | null
     courier: string | null
     trackingNumber: string | null
     shippedAt: Date | null
@@ -1606,6 +1864,7 @@ readonly fields: RfqSampleFieldRefs;
 export interface Prisma__RfqSampleClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   rfq<T extends Prisma.RfqRequestDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RfqRequestDefaultArgs<ExtArgs>>): Prisma.Prisma__RfqRequestClient<runtime.Types.Result.GetResult<Prisma.$RfqRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  order<T extends Prisma.RfqSample$orderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RfqSample$orderArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1652,6 +1911,8 @@ export interface RfqSampleFieldRefs {
   readonly currency: Prisma.FieldRef<"RfqSample", 'String'>
   readonly paymentStatus: Prisma.FieldRef<"RfqSample", 'RfqSamplePaymentStatus'>
   readonly supplierNote: Prisma.FieldRef<"RfqSample", 'String'>
+  readonly shippingMinor: Prisma.FieldRef<"RfqSample", 'BigInt'>
+  readonly orderId: Prisma.FieldRef<"RfqSample", 'String'>
   readonly courier: Prisma.FieldRef<"RfqSample", 'String'>
   readonly trackingNumber: Prisma.FieldRef<"RfqSample", 'String'>
   readonly shippedAt: Prisma.FieldRef<"RfqSample", 'DateTime'>
@@ -2007,6 +2268,25 @@ export type RfqSampleDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many RfqSamples to delete.
    */
   limit?: number
+}
+
+/**
+ * RfqSample.order
+ */
+export type RfqSample$orderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
 }
 
 /**

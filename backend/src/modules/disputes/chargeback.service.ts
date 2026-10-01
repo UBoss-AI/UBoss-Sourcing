@@ -28,6 +28,8 @@
  * no refund was ever recorded.
  */
 import type { VerifiedEvent } from '../payments/provider.js';
+import { env } from '../../config/env.js';
+import { recordRefund } from '../finance/escrow.service.js';
 import {
   chargebackStatusFor,
   nextChargebackStatus,
@@ -71,12 +73,13 @@ export interface ChargebackOutcome {
  *
  * The ledger is its own module; this is the one place a chargeback's final
  * outcome is handed to it, inside the same transaction as the outcome itself.
- * Until that module is present the ledger has nothing to post here and this
- * returns without writing.
+ * A lost chargeback is posted as money taken back from the platform balance
+ * (its Refund row carries the amount) and charged to the sellers as a refund
+ * is. A won chargeback moved no money in the ledger, so it writes nothing.
  */
 async function postChargebackOutcomeToLedger(
-  _tx: PrismaTransaction,
-  _outcome: {
+  tx: PrismaTransaction,
+  outcome: {
     disputeId: string;
     orderId: string;
     status: 'WON' | 'LOST';
@@ -85,7 +88,8 @@ async function postChargebackOutcomeToLedger(
     refundId: string | null;
   },
 ): Promise<void> {
-  return Promise.resolve();
+  if (!env.FEATURE_ESCROW_LEDGER || outcome.status !== 'LOST' || outcome.refundId === null) return;
+  await recordRefund(tx, outcome.refundId, 'CHARGEBACK_LOST', outcome.disputeId);
 }
 
 /**

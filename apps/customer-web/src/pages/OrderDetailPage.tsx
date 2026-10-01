@@ -35,8 +35,11 @@ import { GrandTotalRow, TotalRow } from '@/components/Totals';
 import { OrderDeliveryLevels } from '@/components/OrderDeliveryLevels';
 import { OrderSellerInvoices } from '@/components/OrderSellerInvoices';
 import { OrderPaymentReceipts } from '@/components/OrderPaymentReceipts';
+import { PaymentProtectionCard } from '@/components/PaymentProtectionCard';
 import { OrderTracking } from '@/components/order-tracking/OrderTracking';
+import { OrderShipmentDetails } from '@/components/OrderShipmentDetails';
 import { BuyerOrderInspections } from '@/components/inspection/OrderInspections';
+import { OrderMilestoneTimeline } from '@/components/OrderMilestoneTimeline';
 import { CheckIcon, DotIcon, HeadsetIcon, RepeatIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { cx } from '@/lib/cx';
@@ -594,7 +597,10 @@ export function OrderDetailPage(): React.JSX.Element {
             )}
 
             {/* Tracking, ETA and proof of delivery: its own component, see the file. */}
+            <OrderMilestoneTimeline orderId={order.id} />
             <OrderTracking orderId={order.id} shipments={order.shipments} />
+            {/* How each consignment ships, and its trade documents (Master rows 42, 56). */}
+            <OrderShipmentDetails orderId={order.id} />
             <BuyerOrderInspections orderId={order.id} />
 
             {order.customerNote !== null && (
@@ -613,6 +619,7 @@ export function OrderDetailPage(): React.JSX.Element {
           {/* The sellers' tax invoices, once issued. Renders nothing before. */}
           <OrderSellerInvoices orderId={order.id} />
           {/* A receipt per captured payment and confirmed refund. Nothing before payment. */}
+          <PaymentProtectionCard orderId={order.id} />
           <OrderPaymentReceipts orderId={order.id} />
           <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
             <h2 className="text-title-sm text-ink">{t('orderDetail.needSomething')}</h2>

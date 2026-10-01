@@ -700,6 +700,19 @@ export async function agencyJobDetail(membership: InspectionMembership, jobId: s
       competent: ((member.competenceCategoryIdsJson as string[] | null) ?? []).some((id) => facts.categoryIds.includes(id)),
     })),
     bindings: bundle.bindings,
+    // ENH-012: the consignments the goods can be bound to, with what the seller recorded.
+    consignments: (
+      await prisma.logisticsShipment.findMany({
+        where: { sellerOrderGroupId: job.requirement.sellerOrderGroupId, status: { not: 'CANCELLED' } },
+        orderBy: { createdAt: 'asc' },
+        select: { id: true, shipmentReference: true, packages: { select: { containerNumber: true, sealNumber: true } } },
+      })
+    ).map((shipment) => ({
+      id: shipment.id,
+      shipmentReference: shipment.shipmentReference,
+      containerNumbers: [...new Set(shipment.packages.map((pack) => pack.containerNumber).filter((value): value is string => value !== null))],
+      sealNumbers: [...new Set(shipment.packages.map((pack) => pack.sealNumber).filter((value): value is string => value !== null))],
+    })),
   };
 }
 

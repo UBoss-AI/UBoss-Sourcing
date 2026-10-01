@@ -44,6 +44,7 @@ import {
 } from './routes/account.customer.js';
 import { registerAdminPrivacyRoutes } from './routes/privacy.admin.js';
 import { registerAdminVatRoutes } from './routes/vat.admin.js';
+import { registerAdminMasterDataRoutes } from './routes/master-data.admin.js';
 import { registerAdminGpsrRoutes } from './routes/gpsr.admin.js';
 import { registerAdminLegalRoutes } from './routes/legal.admin.js';
 import { registerPublicLegalRoutes } from './routes/legal.public.js';
@@ -66,6 +67,11 @@ import {
   registerCustomerPaymentReceiptRoutes,
 } from './routes/payment-receipts.js';
 import { registerCustomerOrderTrackingRoutes } from './routes/order-tracking.customer.js';
+import { registerCustomerOrderShipmentDetailRoutes } from './routes/order-shipment-details.customer.js';
+import { registerSellerShipmentPaperworkRoutes } from './routes/seller.shipment-paperwork.js';
+import { registerAdminTradeDocumentRoutes } from './routes/trade-documents.admin.js';
+import { registerCustomerOrderMilestoneRoutes } from './routes/order-milestones.customer.js';
+import { registerSellerWorkbenchRoutes } from './routes/seller.workbench.js';
 import { registerCustomerPaymentMethodRoutes } from './routes/payment-methods.customer.js';
 import { registerCustomerSavedSearchRoutes } from './routes/saved-searches.customer.js';
 import { registerCustomerAutoPayRoutes } from './routes/autopay.customer.js';
@@ -119,6 +125,8 @@ import {
 } from './routes/logistics-levels.admin.js';
 import { registerSellerLogisticsRoutes } from './routes/seller.logistics.js';
 import { registerAdminPlatformFeeRuleRoutes } from './routes/platform-fee-rules.admin.js';
+import { registerAdminMarketRuleRoutes } from './routes/market-rules.admin.js';
+import { registerAdminContentBlockRoutes, registerPublicContentBlockRoutes } from './routes/content-blocks.js';
 import { registerSellerPreorderRoutes } from './routes/seller.preorders.js';
 import { registerPreorderRoutes } from './routes/preorders.js';
 import { registerAdminPreorderRoutes } from './routes/preorders.admin.js';
@@ -134,6 +142,11 @@ import { registerBulkPricingRoutes } from './routes/bulk-pricing.js';
 import { registerDocumentRoutes } from './routes/documents.js';
 import { registerAdminDocumentRoutes } from './routes/documents.admin.js';
 import { registerCommissionInvoiceAdminRoutes } from './routes/commission-invoices.admin.js';
+import {
+  registerAdminFinanceRoutes,
+  registerCustomerPaymentProtectionRoutes,
+  registerSellerFinanceRoutes,
+} from './routes/finance.js';
 import { registerCarrierWebhookRoutes } from './routes/carrier-webhooks.js';
 import {
   registerAdminSupportRoutes,
@@ -702,6 +715,7 @@ export async function buildApp() {
   await app.register(registerAdminDirectoryRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminInventoryRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminSettingsRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerAdminMasterDataRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminCouponRoutes, { prefix: `${API_PREFIX}/admin` });
 
   // Returns on all three surfaces: the buyer asks, the seller answers, staff
@@ -730,8 +744,16 @@ export async function buildApp() {
   await app.register(registerCustomerOrderRoutes, { prefix: `${API_PREFIX}/orders` });
   // The carrier timeline, ETA and proof of delivery of the buyer's own orders.
   await app.register(registerCustomerOrderTrackingRoutes, { prefix: `${API_PREFIX}/orders` });
+  // How each consignment of the buyer's order ships, and its trade documents.
+  await app.register(registerCustomerOrderShipmentDetailRoutes, { prefix: `${API_PREFIX}/orders` });
+  // Production, inspection, shipment, document and payment milestones of the buyer's own orders.
+  await app.register(registerCustomerOrderMilestoneRoutes, { prefix: `${API_PREFIX}/orders` });
   // Payment and refund receipts: the buyer's own, and the staff copy.
   await app.register(registerCustomerPaymentReceiptRoutes, { prefix: `${API_PREFIX}/orders` });
+  // Held funds, the transaction ledger and seller payouts (D13).
+  await app.register(registerCustomerPaymentProtectionRoutes, { prefix: `${API_PREFIX}/orders` });
+  await app.register(registerSellerFinanceRoutes, { prefix: `${API_PREFIX}/seller` });
+  await app.register(registerAdminFinanceRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminPaymentReceiptRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminOrderRoutes, { prefix: `${API_PREFIX}/admin` });
 
@@ -827,6 +849,8 @@ export async function buildApp() {
   await app.register(registerSellerInvitationRoutes, { prefix: `${API_PREFIX}/sellers` });
   await app.register(registerSellerListingRoutes, { prefix: `${API_PREFIX}/seller` });
   await app.register(registerSellerOperationsRoutes, { prefix: `${API_PREFIX}/seller` });
+  // Bulk listing updates and production milestones.
+  await app.register(registerSellerWorkbenchRoutes, { prefix: `${API_PREFIX}/seller` });
   // The seller's own accounting system. Under `/seller` like everything else
   // in the Hub, and resolved from the session - there is no seller id in any
   // of its paths, for the reason stated above.
@@ -853,6 +877,9 @@ export async function buildApp() {
   // Seller invoices and packing lists: the seller's side, the buyer's and the
   // public check, and read-only for the operator.
   await app.register(registerSellerDocumentRoutes, { prefix: `${API_PREFIX}/seller` });
+  // Trade documents (certificate of origin, waybills) and shipment booking.
+  await app.register(registerSellerShipmentPaperworkRoutes, { prefix: `${API_PREFIX}/seller` });
+  await app.register(registerAdminTradeDocumentRoutes, { prefix: `${API_PREFIX}/admin` });
   // Seller Hub -> Factories: plants, machines, evidence and certificates, and
   // sending them for verification. The operator decides under /admin.
   await app.register(registerSellerFactoryRoutes, { prefix: `${API_PREFIX}/seller` });
@@ -918,6 +945,10 @@ export async function buildApp() {
   await app.register(registerAdminLogisticsLevelRoutes, { prefix: `${API_PREFIX}/admin` });
   // Fee rules, seller fee tiers and maker-checker on fee changes (finance).
   await app.register(registerAdminPlatformFeeRuleRoutes, { prefix: `${API_PREFIX}/admin` });
+  // Country rules, lane rate cards and storefront content (Master rows 69, 71, 72).
+  await app.register(registerAdminMarketRuleRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerAdminContentBlockRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerPublicContentBlockRoutes, { prefix: `${API_PREFIX}/catalog` });
   // The legs a delivery company holds, in its own portal.
   await app.register(registerLogisticsPortalLegRoutes, { prefix: `${API_PREFIX}/logistics` });
   // The buyer's delivery quote and an order's price breakdown.

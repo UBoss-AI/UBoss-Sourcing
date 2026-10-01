@@ -21,8 +21,18 @@ export type MarketRuleModel = runtime.Types.Result.DefaultSelection<Prisma.$Mark
 
 export type AggregateMarketRule = {
   _count: MarketRuleCountAggregateOutputType | null
+  _avg: MarketRuleAvgAggregateOutputType | null
+  _sum: MarketRuleSumAggregateOutputType | null
   _min: MarketRuleMinAggregateOutputType | null
   _max: MarketRuleMaxAggregateOutputType | null
+}
+
+export type MarketRuleAvgAggregateOutputType = {
+  minOrderValueMinor: number | null
+}
+
+export type MarketRuleSumAggregateOutputType = {
+  minOrderValueMinor: bigint | null
 }
 
 export type MarketRuleMinAggregateOutputType = {
@@ -36,6 +46,8 @@ export type MarketRuleMinAggregateOutputType = {
   source: string | null
   version: string | null
   ownerName: string | null
+  minOrderValueMinor: bigint | null
+  thresholdCurrency: string | null
   effectiveFrom: Date | null
   effectiveUntil: Date | null
   isActive: boolean | null
@@ -56,6 +68,8 @@ export type MarketRuleMaxAggregateOutputType = {
   source: string | null
   version: string | null
   ownerName: string | null
+  minOrderValueMinor: bigint | null
+  thresholdCurrency: string | null
   effectiveFrom: Date | null
   effectiveUntil: Date | null
   isActive: boolean | null
@@ -77,6 +91,8 @@ export type MarketRuleCountAggregateOutputType = {
   source: number
   version: number
   ownerName: number
+  minOrderValueMinor: number
+  thresholdCurrency: number
   effectiveFrom: number
   effectiveUntil: number
   isActive: number
@@ -87,6 +103,14 @@ export type MarketRuleCountAggregateOutputType = {
   _all: number
 }
 
+
+export type MarketRuleAvgAggregateInputType = {
+  minOrderValueMinor?: true
+}
+
+export type MarketRuleSumAggregateInputType = {
+  minOrderValueMinor?: true
+}
 
 export type MarketRuleMinAggregateInputType = {
   id?: true
@@ -99,6 +123,8 @@ export type MarketRuleMinAggregateInputType = {
   source?: true
   version?: true
   ownerName?: true
+  minOrderValueMinor?: true
+  thresholdCurrency?: true
   effectiveFrom?: true
   effectiveUntil?: true
   isActive?: true
@@ -119,6 +145,8 @@ export type MarketRuleMaxAggregateInputType = {
   source?: true
   version?: true
   ownerName?: true
+  minOrderValueMinor?: true
+  thresholdCurrency?: true
   effectiveFrom?: true
   effectiveUntil?: true
   isActive?: true
@@ -140,6 +168,8 @@ export type MarketRuleCountAggregateInputType = {
   source?: true
   version?: true
   ownerName?: true
+  minOrderValueMinor?: true
+  thresholdCurrency?: true
   effectiveFrom?: true
   effectiveUntil?: true
   isActive?: true
@@ -188,6 +218,18 @@ export type MarketRuleAggregateArgs<ExtArgs extends runtime.Types.Extensions.Int
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: MarketRuleAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: MarketRuleSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: MarketRuleMinAggregateInputType
@@ -218,6 +260,8 @@ export type MarketRuleGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   _count?: MarketRuleCountAggregateInputType | true
+  _avg?: MarketRuleAvgAggregateInputType
+  _sum?: MarketRuleSumAggregateInputType
   _min?: MarketRuleMinAggregateInputType
   _max?: MarketRuleMaxAggregateInputType
 }
@@ -234,6 +278,8 @@ export type MarketRuleGroupByOutputType = {
   source: string
   version: string
   ownerName: string
+  minOrderValueMinor: bigint | null
+  thresholdCurrency: string | null
   effectiveFrom: Date
   effectiveUntil: Date | null
   isActive: boolean
@@ -242,6 +288,8 @@ export type MarketRuleGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: MarketRuleCountAggregateOutputType | null
+  _avg: MarketRuleAvgAggregateOutputType | null
+  _sum: MarketRuleSumAggregateOutputType | null
   _min: MarketRuleMinAggregateOutputType | null
   _max: MarketRuleMaxAggregateOutputType | null
 }
@@ -276,6 +324,8 @@ export type MarketRuleWhereInput = {
   source?: Prisma.StringFilter<"MarketRule"> | string
   version?: Prisma.StringFilter<"MarketRule"> | string
   ownerName?: Prisma.StringFilter<"MarketRule"> | string
+  minOrderValueMinor?: Prisma.BigIntNullableFilter<"MarketRule"> | bigint | number | null
+  thresholdCurrency?: Prisma.StringNullableFilter<"MarketRule"> | string | null
   effectiveFrom?: Prisma.DateTimeFilter<"MarketRule"> | Date | string
   effectiveUntil?: Prisma.DateTimeNullableFilter<"MarketRule"> | Date | string | null
   isActive?: Prisma.BoolFilter<"MarketRule"> | boolean
@@ -299,6 +349,8 @@ export type MarketRuleOrderByWithRelationInput = {
   source?: Prisma.SortOrder
   version?: Prisma.SortOrder
   ownerName?: Prisma.SortOrder
+  minOrderValueMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  thresholdCurrency?: Prisma.SortOrderInput | Prisma.SortOrder
   effectiveFrom?: Prisma.SortOrder
   effectiveUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -326,6 +378,8 @@ export type MarketRuleWhereUniqueInput = Prisma.AtLeast<{
   source?: Prisma.StringFilter<"MarketRule"> | string
   version?: Prisma.StringFilter<"MarketRule"> | string
   ownerName?: Prisma.StringFilter<"MarketRule"> | string
+  minOrderValueMinor?: Prisma.BigIntNullableFilter<"MarketRule"> | bigint | number | null
+  thresholdCurrency?: Prisma.StringNullableFilter<"MarketRule"> | string | null
   effectiveFrom?: Prisma.DateTimeFilter<"MarketRule"> | Date | string
   effectiveUntil?: Prisma.DateTimeNullableFilter<"MarketRule"> | Date | string | null
   isActive?: Prisma.BoolFilter<"MarketRule"> | boolean
@@ -349,6 +403,8 @@ export type MarketRuleOrderByWithAggregationInput = {
   source?: Prisma.SortOrder
   version?: Prisma.SortOrder
   ownerName?: Prisma.SortOrder
+  minOrderValueMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  thresholdCurrency?: Prisma.SortOrderInput | Prisma.SortOrder
   effectiveFrom?: Prisma.SortOrder
   effectiveUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -357,8 +413,10 @@ export type MarketRuleOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.MarketRuleCountOrderByAggregateInput
+  _avg?: Prisma.MarketRuleAvgOrderByAggregateInput
   _max?: Prisma.MarketRuleMaxOrderByAggregateInput
   _min?: Prisma.MarketRuleMinOrderByAggregateInput
+  _sum?: Prisma.MarketRuleSumOrderByAggregateInput
 }
 
 export type MarketRuleScalarWhereWithAggregatesInput = {
@@ -376,6 +434,8 @@ export type MarketRuleScalarWhereWithAggregatesInput = {
   source?: Prisma.StringWithAggregatesFilter<"MarketRule"> | string
   version?: Prisma.StringWithAggregatesFilter<"MarketRule"> | string
   ownerName?: Prisma.StringWithAggregatesFilter<"MarketRule"> | string
+  minOrderValueMinor?: Prisma.BigIntNullableWithAggregatesFilter<"MarketRule"> | bigint | number | null
+  thresholdCurrency?: Prisma.StringNullableWithAggregatesFilter<"MarketRule"> | string | null
   effectiveFrom?: Prisma.DateTimeWithAggregatesFilter<"MarketRule"> | Date | string
   effectiveUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"MarketRule"> | Date | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"MarketRule"> | boolean
@@ -395,6 +455,8 @@ export type MarketRuleCreateInput = {
   source: string
   version: string
   ownerName: string
+  minOrderValueMinor?: bigint | number | null
+  thresholdCurrency?: string | null
   effectiveFrom: Date | string
   effectiveUntil?: Date | string | null
   isActive?: boolean
@@ -418,6 +480,8 @@ export type MarketRuleUncheckedCreateInput = {
   source: string
   version: string
   ownerName: string
+  minOrderValueMinor?: bigint | number | null
+  thresholdCurrency?: string | null
   effectiveFrom: Date | string
   effectiveUntil?: Date | string | null
   isActive?: boolean
@@ -437,6 +501,8 @@ export type MarketRuleUpdateInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
+  minOrderValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  thresholdCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -460,6 +526,8 @@ export type MarketRuleUncheckedUpdateInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
+  minOrderValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  thresholdCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -481,6 +549,8 @@ export type MarketRuleCreateManyInput = {
   source: string
   version: string
   ownerName: string
+  minOrderValueMinor?: bigint | number | null
+  thresholdCurrency?: string | null
   effectiveFrom: Date | string
   effectiveUntil?: Date | string | null
   isActive?: boolean
@@ -500,6 +570,8 @@ export type MarketRuleUpdateManyMutationInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
+  minOrderValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  thresholdCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -521,6 +593,8 @@ export type MarketRuleUncheckedUpdateManyInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
+  minOrderValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  thresholdCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -558,6 +632,8 @@ export type MarketRuleCountOrderByAggregateInput = {
   source?: Prisma.SortOrder
   version?: Prisma.SortOrder
   ownerName?: Prisma.SortOrder
+  minOrderValueMinor?: Prisma.SortOrder
+  thresholdCurrency?: Prisma.SortOrder
   effectiveFrom?: Prisma.SortOrder
   effectiveUntil?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -565,6 +641,10 @@ export type MarketRuleCountOrderByAggregateInput = {
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type MarketRuleAvgOrderByAggregateInput = {
+  minOrderValueMinor?: Prisma.SortOrder
 }
 
 export type MarketRuleMaxOrderByAggregateInput = {
@@ -578,6 +658,8 @@ export type MarketRuleMaxOrderByAggregateInput = {
   source?: Prisma.SortOrder
   version?: Prisma.SortOrder
   ownerName?: Prisma.SortOrder
+  minOrderValueMinor?: Prisma.SortOrder
+  thresholdCurrency?: Prisma.SortOrder
   effectiveFrom?: Prisma.SortOrder
   effectiveUntil?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -598,6 +680,8 @@ export type MarketRuleMinOrderByAggregateInput = {
   source?: Prisma.SortOrder
   version?: Prisma.SortOrder
   ownerName?: Prisma.SortOrder
+  minOrderValueMinor?: Prisma.SortOrder
+  thresholdCurrency?: Prisma.SortOrder
   effectiveFrom?: Prisma.SortOrder
   effectiveUntil?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -605,6 +689,10 @@ export type MarketRuleMinOrderByAggregateInput = {
   updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type MarketRuleSumOrderByAggregateInput = {
+  minOrderValueMinor?: Prisma.SortOrder
 }
 
 export type MarketRuleCreateNestedManyWithoutCategoryInput = {
@@ -709,6 +797,8 @@ export type MarketRuleCreateWithoutCategoryInput = {
   source: string
   version: string
   ownerName: string
+  minOrderValueMinor?: bigint | number | null
+  thresholdCurrency?: string | null
   effectiveFrom: Date | string
   effectiveUntil?: Date | string | null
   isActive?: boolean
@@ -730,6 +820,8 @@ export type MarketRuleUncheckedCreateWithoutCategoryInput = {
   source: string
   version: string
   ownerName: string
+  minOrderValueMinor?: bigint | number | null
+  thresholdCurrency?: string | null
   effectiveFrom: Date | string
   effectiveUntil?: Date | string | null
   isActive?: boolean
@@ -780,6 +872,8 @@ export type MarketRuleScalarWhereInput = {
   source?: Prisma.StringFilter<"MarketRule"> | string
   version?: Prisma.StringFilter<"MarketRule"> | string
   ownerName?: Prisma.StringFilter<"MarketRule"> | string
+  minOrderValueMinor?: Prisma.BigIntNullableFilter<"MarketRule"> | bigint | number | null
+  thresholdCurrency?: Prisma.StringNullableFilter<"MarketRule"> | string | null
   effectiveFrom?: Prisma.DateTimeFilter<"MarketRule"> | Date | string
   effectiveUntil?: Prisma.DateTimeNullableFilter<"MarketRule"> | Date | string | null
   isActive?: Prisma.BoolFilter<"MarketRule"> | boolean
@@ -799,6 +893,8 @@ export type MarketRuleCreateWithoutProductInput = {
   source: string
   version: string
   ownerName: string
+  minOrderValueMinor?: bigint | number | null
+  thresholdCurrency?: string | null
   effectiveFrom: Date | string
   effectiveUntil?: Date | string | null
   isActive?: boolean
@@ -820,6 +916,8 @@ export type MarketRuleUncheckedCreateWithoutProductInput = {
   source: string
   version: string
   ownerName: string
+  minOrderValueMinor?: bigint | number | null
+  thresholdCurrency?: string | null
   effectiveFrom: Date | string
   effectiveUntil?: Date | string | null
   isActive?: boolean
@@ -866,6 +964,8 @@ export type MarketRuleCreateManyCategoryInput = {
   source: string
   version: string
   ownerName: string
+  minOrderValueMinor?: bigint | number | null
+  thresholdCurrency?: string | null
   effectiveFrom: Date | string
   effectiveUntil?: Date | string | null
   isActive?: boolean
@@ -885,6 +985,8 @@ export type MarketRuleUpdateWithoutCategoryInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
+  minOrderValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  thresholdCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -906,6 +1008,8 @@ export type MarketRuleUncheckedUpdateWithoutCategoryInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
+  minOrderValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  thresholdCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -926,6 +1030,8 @@ export type MarketRuleUncheckedUpdateManyWithoutCategoryInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
+  minOrderValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  thresholdCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -946,6 +1052,8 @@ export type MarketRuleCreateManyProductInput = {
   source: string
   version: string
   ownerName: string
+  minOrderValueMinor?: bigint | number | null
+  thresholdCurrency?: string | null
   effectiveFrom: Date | string
   effectiveUntil?: Date | string | null
   isActive?: boolean
@@ -965,6 +1073,8 @@ export type MarketRuleUpdateWithoutProductInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
+  minOrderValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  thresholdCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -986,6 +1096,8 @@ export type MarketRuleUncheckedUpdateWithoutProductInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
+  minOrderValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  thresholdCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1006,6 +1118,8 @@ export type MarketRuleUncheckedUpdateManyWithoutProductInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
+  minOrderValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  thresholdCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1029,6 +1143,8 @@ export type MarketRuleSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   source?: boolean
   version?: boolean
   ownerName?: boolean
+  minOrderValueMinor?: boolean
+  thresholdCurrency?: boolean
   effectiveFrom?: boolean
   effectiveUntil?: boolean
   isActive?: boolean
@@ -1054,6 +1170,8 @@ export type MarketRuleSelectScalar = {
   source?: boolean
   version?: boolean
   ownerName?: boolean
+  minOrderValueMinor?: boolean
+  thresholdCurrency?: boolean
   effectiveFrom?: boolean
   effectiveUntil?: boolean
   isActive?: boolean
@@ -1063,7 +1181,7 @@ export type MarketRuleSelectScalar = {
   updatedAt?: boolean
 }
 
-export type MarketRuleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scope" | "productId" | "categoryId" | "countryCode" | "effect" | "reason" | "requiredDocumentsJson" | "source" | "version" | "ownerName" | "effectiveFrom" | "effectiveUntil" | "isActive" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["marketRule"]>
+export type MarketRuleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scope" | "productId" | "categoryId" | "countryCode" | "effect" | "reason" | "requiredDocumentsJson" | "source" | "version" | "ownerName" | "minOrderValueMinor" | "thresholdCurrency" | "effectiveFrom" | "effectiveUntil" | "isActive" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["marketRule"]>
 export type MarketRuleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.MarketRule$productArgs<ExtArgs>
   category?: boolean | Prisma.MarketRule$categoryArgs<ExtArgs>
@@ -1099,6 +1217,16 @@ export type $MarketRulePayload<ExtArgs extends runtime.Types.Extensions.Internal
     source: string
     version: string
     ownerName: string
+    /**
+     * Value threshold (Master row 69). Null = the rule applies to every order.
+     * Set = it applies only to an order whose total, in `thresholdCurrency`,
+     * is at or above this many minor units. An order in another currency is
+     * treated as meeting it: no conversion is guessed for a compliance rule.
+     * A rule with a threshold never hides a product from a listing, because
+     * the order value is not known there; checkout enforces it.
+     */
+    minOrderValueMinor: bigint | null
+    thresholdCurrency: string | null
     effectiveFrom: Date
     effectiveUntil: Date | null
     isActive: boolean
@@ -1488,6 +1616,8 @@ export interface MarketRuleFieldRefs {
   readonly source: Prisma.FieldRef<"MarketRule", 'String'>
   readonly version: Prisma.FieldRef<"MarketRule", 'String'>
   readonly ownerName: Prisma.FieldRef<"MarketRule", 'String'>
+  readonly minOrderValueMinor: Prisma.FieldRef<"MarketRule", 'BigInt'>
+  readonly thresholdCurrency: Prisma.FieldRef<"MarketRule", 'String'>
   readonly effectiveFrom: Prisma.FieldRef<"MarketRule", 'DateTime'>
   readonly effectiveUntil: Prisma.FieldRef<"MarketRule", 'DateTime'>
   readonly isActive: Prisma.FieldRef<"MarketRule", 'Boolean'>

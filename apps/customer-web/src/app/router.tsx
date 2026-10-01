@@ -824,6 +824,12 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'bulk-import',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerBulkImportPage').then((m) => m.SellerBulkImportPage),
+        ),
+      },
+      {
         path: 'orders',
         ...accountPage(() =>
           import('@/pages/seller/SellerOrdersPage').then((m) => m.SellerOrdersPage),
@@ -893,6 +899,12 @@ export const router = createBrowserRouter([
         path: 'notifications',
         ...accountPage(() =>
           import('@/pages/seller/SellerNotificationsPage').then((m) => m.SellerNotificationsPage),
+        ),
+      },
+      {
+        path: 'performance',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerPerformancePage').then((m) => m.SellerPerformancePage),
         ),
       },
       {

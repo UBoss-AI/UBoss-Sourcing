@@ -119,9 +119,21 @@ const PREORDER_CHAT_CODES = new Set([
   'PREORDER_CHAT_ATTACHMENTS_UNAVAILABLE',
 ]);
 
+/** Country rules, rate cards and storefront content (Master rows 69, 71, 72), under `errors.market.*`. */
+const MARKET_CODES = new Set([
+  'MARKET_DESTINATION_RESTRICTED',
+  'MARKET_RULE_INVALID',
+  'CONTENT_BLOCK_INVALID',
+  'LOGISTICS_LANE_INVALID',
+]);
+
 export function errorMessage(t: Translate, error: unknown, fallback?: string): string {
   if (error instanceof ApiError) {
     if (LOGISTICS_CODES.has(error.code)) return t(`errors.levels.${error.code}` as TranslationKey);
+    if (MARKET_CODES.has(error.code)) {
+      const reason = error.details[0]?.meta?.reason;
+      return t(`errors.market.${error.code}` as TranslationKey, { reason: typeof reason === 'string' ? reason : '', detail: error.message });
+    }
     if (PREORDER_CODES.has(error.code)) {
       const meta = error.details[0]?.meta ?? {};
       const count = (key: string): string =>

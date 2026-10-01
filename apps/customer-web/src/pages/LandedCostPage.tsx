@@ -13,8 +13,8 @@ import { useLocale } from '@/app/locale-context';
 import { useStorefront } from '@/app/storefront-context';
 import { Card, Field, Input, PageHeader } from '@/components/ui';
 import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
-import { currencyExponent, formatMoneyMinor, majorToMinor } from '@/lib/format';
-import { landedCost, percentToBasisPoints, type LandedCostInput } from '@/lib/landed-cost';
+import { currencyExponent, formatDate, formatMoneyMinor, majorToMinor } from '@/lib/format';
+import { deliveryRange, landedCost, percentToBasisPoints, type LandedCostInput } from '@/lib/landed-cost';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
 const FIELDS = ['unitPrice', 'quantity', 'freight', 'inspection', 'duty', 'tax', 'platformFee'] as const;
@@ -52,6 +52,8 @@ export function LandedCostPage(): React.JSX.Element {
   const valid = Object.values(parsed).every((value) => value !== null);
   const result = valid ? landedCost(parsed as LandedCostInput) : null;
   const show = (minor: bigint): string => formatMoneyMinor(minor.toString(), currency);
+  const [transit, setTransit] = useState({ min: '', max: '' });
+  const range = transit.min === '' && transit.max === '' ? null : deliveryRange(new Date(), transit.min, transit.max);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -72,6 +74,22 @@ export function LandedCostPage(): React.JSX.Element {
               )}
             </Field>
           ))}
+          <div className="grid grid-cols-2 gap-3">
+            {(['min', 'max'] as const).map((bound) => (
+              <Field key={bound} label={t(`landedCost.field.${bound}Days` as TranslationKey)}>
+                {({ inputId }) => (
+                  <Input
+                    id={inputId}
+                    inputMode="numeric"
+                    value={transit[bound]}
+                    onChange={(event) => {
+                      setTransit((current) => ({ ...current, [bound]: event.target.value.trim() }));
+                    }}
+                  />
+                )}
+              </Field>
+            ))}
+          </div>
         </Card>
         <Card title={t('landedCost.resultTitle')} bodyClassName="px-5 py-5 text-sm">
           {result === null ? (
@@ -93,6 +111,16 @@ export function LandedCostPage(): React.JSX.Element {
                 <dd className="tabular">{show(result.perUnit)}</dd>
               </div>
             </dl>
+          )}
+          {(transit.min !== '' || transit.max !== '') && (
+            <div className="mt-4 flex justify-between gap-3 border-t border-border-subtle pt-2">
+              <span className="text-ink-muted">{t('landedCost.line.delivery')}</span>
+              {range === null ? (
+                <span role="alert" className="text-danger">{t('landedCost.invalidDays')}</span>
+              ) : (
+                <span className="tabular" data-testid="landed-delivery">{formatDate(`${range.earliest}T12:00:00`)} – {formatDate(`${range.latest}T12:00:00`)}</span>
+              )}
+            </div>
           )}
           <p className="mt-4 text-xs text-ink-muted">{t('landedCost.disclaimer')}</p>
           {features.rfq === true && (

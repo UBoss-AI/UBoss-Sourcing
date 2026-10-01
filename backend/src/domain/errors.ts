@@ -1972,6 +1972,30 @@ export const ErrorCode = {
   /// That document is evidence for a factory or a certificate and cannot be
   /// withdrawn until it is detached. 409.
   TRUST_EVIDENCE_IN_USE: 'TRUST_EVIDENCE_IN_USE',
+  // --- Country rules, rate cards and storefront content (Master rows 69, 71, 72) ---
+  /// Something in the basket may not be sent to the delivery country: a
+  /// country rule blocks its product or category (possibly only above an
+  /// order value). `details` has one entry per line, `meta.productId` and
+  /// `meta.reason`. 409.
+  MARKET_DESTINATION_RESTRICTED: 'MARKET_DESTINATION_RESTRICTED',
+  /// A country rule is not acceptable: no product or category for its scope,
+  /// a threshold without a currency, an end before its start. 400.
+  MARKET_RULE_INVALID: 'MARKET_RULE_INVALID',
+  /// A banner or content block is not acceptable: a category block with no
+  /// category, an unknown coupon, a link that is not https or root-relative,
+  /// an end before its start. 400.
+  CONTENT_BLOCK_INVALID: 'CONTENT_BLOCK_INVALID',
+  // --- Held funds, the transaction ledger and seller payouts (Master rows 58-61, 43) ---
+  /// Held funds and the ledger are switched off on this deployment
+  /// (FEATURE_ESCROW_LEDGER). 409.
+  ESCROW_LEDGER_DISABLED: 'ESCROW_LEDGER_DISABLED',
+  /// The held funds are not in a state that allows this: placing a hold on
+  /// money already released, lifting a hold that is not placed. 409.
+  FUND_HOLD_STATE_CONFLICT: 'FUND_HOLD_STATE_CONFLICT',
+  /// An early release is already waiting for a decision on these funds. 409.
+  FUND_RELEASE_ALREADY_PENDING: 'FUND_RELEASE_ALREADY_PENDING',
+  /// The person who asked for an early release cannot also approve it. 403.
+  FUND_RELEASE_SAME_APPROVER: 'FUND_RELEASE_SAME_APPROVER',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

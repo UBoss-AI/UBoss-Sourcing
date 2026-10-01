@@ -8,6 +8,7 @@ vi.mock('@/lib/inspection', async (original) => ({
   ...await original<typeof import('@/lib/inspection')>(),
   fetchAgencyMe: vi.fn(),
   fetchAgencyDashboard: vi.fn(),
+  fetchAgencyCalendar: vi.fn(() => Promise.resolve({ capacity: 2, days: [] })),
 }));
 
 const past = '2026-01-01T00:00:00Z';

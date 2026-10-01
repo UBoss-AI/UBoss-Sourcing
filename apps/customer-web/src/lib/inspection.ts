@@ -163,3 +163,24 @@ export function uploadCorrectiveEvidence(jobId: string, defectId: string, file: 
   form.append('file', file);
   return postFile(`/seller/inspection/jobs/${jobId}/evidence`, form, { idempotencyKey: newIdempotencyKey() });
 }
+
+/** ENH-011: one day of the agency calendar - capacity, booked jobs and seller readiness. */
+export interface AgencyCalendarDay {
+  date: string;
+  booked: number;
+  capacity: number;
+  full: boolean;
+  jobs: {
+    id: string;
+    jobNumber: string;
+    status: string;
+    time: string;
+    inspectionPointType: string;
+    inspectionPoint: { label?: string; city?: string; port?: string; country?: string } | null;
+    readiness: 'READY' | 'NOT_READY';
+    readyDate: string | null;
+  }[];
+}
+
+export const fetchAgencyCalendar = (from: string, days = 14): Promise<{ capacity: number; days: AgencyCalendarDay[] }> =>
+  api.get('/inspection/agency/calendar', { query: { from, days } });

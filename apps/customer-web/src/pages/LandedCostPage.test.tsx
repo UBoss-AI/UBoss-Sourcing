@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyBasisPoints, landedCost, percentToBasisPoints } from '@/lib/landed-cost';
+import { applyBasisPoints, deliveryRange, landedCost, percentToBasisPoints } from '@/lib/landed-cost';
 
 describe('landed cost', () => {
   it('adds goods, freight, duty on goods plus freight, tax on that plus duty, inspection and fee', () => {
@@ -23,5 +23,14 @@ describe('landed cost', () => {
     expect(percentToBasisPoints('12.5')).toBe(1250n);
     expect(percentToBasisPoints('abc')).toBeNull();
     expect(applyBasisPoints(1n, 5000n)).toBe(1n);
+  });
+
+  it('turns minimum and maximum transit days into an expected delivery range (ENH-006)', () => {
+    const from = new Date(2026, 9, 28, 15, 0);
+    expect(deliveryRange(from, '5', '12')).toEqual({ earliest: '2026-11-02', latest: '2026-11-09' });
+    expect(deliveryRange(from, '0', '0')).toEqual({ earliest: '2026-10-28', latest: '2026-10-28' });
+    expect(deliveryRange(from, '9', '3')).toBeNull();
+    expect(deliveryRange(from, '2.5', '4')).toBeNull();
+    expect(deliveryRange(from, '', '4')).toBeNull();
   });
 });

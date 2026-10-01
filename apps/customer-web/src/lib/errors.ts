@@ -201,6 +201,11 @@ function navigatorLocale(): string {
     : 'en';
 }
 
+/** Country rules, rate cards and storefront content (Master rows 69, 71, 72), under `errors.market.*`. */
+const MARKET_CODES = new Set([
+  'MARKET_DESTINATION_RESTRICTED',
+]);
+
 export function errorMessage(t: Translate, error: unknown, fallback?: string): string {
   if (error instanceof NetworkError) {
     return error.isOffline ? t('common.youAppearOffline') : t('common.couldNotReachStore');
@@ -318,6 +323,10 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
     if (error.code === 'REVIEW_NOT_ELIGIBLE') return t('reviews.error.notEligible');
 
     // Requests for quotation. A stale screen is told to reload, whatever the code.
+    if (MARKET_CODES.has(error.code)) {
+      const reason = error.details[0]?.meta?.reason;
+      return t(`errors.market.${error.code}` as TranslationKey, { reason: typeof reason === 'string' ? reason : '', detail: error.message });
+    }
     if (RFQ_CODES.has(error.code)) {
       if (error.details.some((detail) => detail.code === 'STALE')) return t('errors.rfq.STALE');
       return t(`errors.rfq.${error.code}` as TranslationKey);

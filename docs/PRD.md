@@ -3294,16 +3294,23 @@ status write is conditional on the status and version that were read.
      (buyer, rejection with a reason). Anything else is
      `RFQ_SAMPLE_TRANSITION_NOT_ALLOWED`.
   3. Nothing is marked done without its event: shipped needs the tracking
-     details, delivered needs the buyer, and payment is never marked PAID -
-     a sample with a cost stays PAYMENT_PENDING and the screens say payment
-     is not collected here.
+     details and delivered needs the buyer. A supplier may state a sample
+     cost and a shipping charge. A charged sample is paid through the
+     ordinary checkout: "Pay for the sample" makes an order (source
+     RFQ_SAMPLE, no lines; the fee taxed with the default tax class for the
+     request's destination, the shipping charge added as seller delivery) and
+     the buyer pays it on the order's payment screen. The sample becomes PAID
+     only when that order is confirmed by a signature-verified payment
+     webhook. It cannot be shipped before that, nor cancelled by the buyer
+     after it; cancelling an unpaid sample cancels its unpaid order. A free
+     sample skips payment.
   4. Approval sets a reference-sample code (`REF-<reference>`), the sample a
      later inspection is measured against.
   5. Evidence files (purpose SAMPLE) are seen only by the buyer and that
      supplier. Every step is on the timeline, told to the other side and
      audited.
-- **Status.** Built (checklist Master row 20). **Not built:** collecting
-  payment for a sample; linking a reference sample into an inspection
+- **Status.** Built (checklist Master row 20), including paid samples.
+  **Not built:** refunding a paid sample that is rejected; linking a reference sample into an inspection
   booking (the code is recorded for that).
 
 ### FR-RFQ-007 — Sourcing on the buyer dashboard (checklist Master row 15)
@@ -3527,6 +3534,7 @@ selling involves) is public.
 - **Fee rules (screen built).** On top of a policy, finance drafts **fee rules**: value bands, volume tiers, seller tiers and promotions (`/admin/platform-fee-rules`, screen **Finance → Fee rules**). **Maker-checker:** a rule is drafted, submitted, and published only by a *different* member of finance staff than whoever created, edited or submitted it (`PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN`, 403); the screen disables Approve for that person and says why. A rejection needs a reason of ten characters and returns the rule to draft with it. A published rule is never edited: **Replace** drafts a rule that supersedes it and approving that one retires the old one in the same step. A rule applies only to orders confirmed while it is live.
 - **Rules.** The platform fee is a **deduction from the seller's proceeds, never added to what a buyer pays**. Rates are exact decimals, amounts BigInt, rounding half-up once per step; no rate is a constant in code. Needs `finance.policy.*` / `finance.tax.verify`.
 - **Settlement statements.** A daily worker job closes the last finished period into **one statement per seller and currency** (status `PENDING_PAYOUT`, number `STL-YYYY-MM-NNNN`), shown in **Seller Hub → Payments**. The operator decides the period (`SELLER_SETTLEMENT_PERIOD`: `MONTHLY` or `WEEKLY`, UTC) and the return window (`SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS`, no default): an order counts only if delivered at least that many days before the period ended. Lines are copied from each order's settlement record, never recalculated: sale (+), the seller's own delivery (+), platform fee (−), tax on the fee (−), refunds (−). Each order is sold on exactly one statement; a later refund goes on the next statement as the difference only. The statement header must satisfy gross − commission − processing fee − refunds + adjustments = net before it is written. Re-running the close writes nothing twice (`uq_seller_settlement_period_currency`). The Seller Hub shows the period as the days it covers and labels each line by its kind in the reader's language, followed by the seller order number.
+- **Held funds, the ledger and payouts (D13; built, behind `FEATURE_ESCROW_LEDGER`).** Facilitator model: the buyer's payment is held on the platform's Stripe balance; each seller order's share (gross − platform fee − fee tax) is held with its release terms snapshotted at the sale; it is released when the order is delivered, `SELLER_FUNDS_RELEASE_AFTER_DAYS` (no default) have passed, no dispute or chargeback is open and any required inspection passed; a reserve (`SELLER_FUNDS_RESERVE_BPS` for `SELLER_FUNDS_RESERVE_DAYS`) can be kept. Every movement is a balanced, append-only double entry, idempotent on its cause. Finance (`payment.read` to view, `finance.policy.write` to act) sees one ledger per order (gross, fees, tax, refunds, settlement), places and lifts holds, asks for an early release that a different person approves, runs payouts to each seller's Stripe Connect account (or `SELLER_FUNDS_AUTO_PAYOUT`) and reconciles the ledger with payments, refunds, settlements and the provider's transfers. Refunds and lost chargebacks are posted and charged to the seller order that carries them. Sellers (`FINANCE_READ`) see gross, fees, refunds, held, reserve, available, in transit, paid out and held funds per order, and connect their payout account through a Stripe account link (`STRIPE_CONNECT_CLIENT_ID`; the `acct_` id and onboarding state are stored, never bank details). Buyers see method, currency, status, the release terms and one milestone per seller. Not built: Connect webhooks (account status is read when the seller returns and on refresh), chargeback fees, converting a payout between currencies.
 - **Status.** Settlement calculation: built. **Settlement statements: built, behind a flag** — `FEATURE_SELLER_SETTLEMENT_STATEMENTS` (default `false`); before 29 Sep 2026 nothing created them, so the statements page was always empty. A statement moves no money. **Payouts** (moving money) — Unconfigured by design (FR-PAY-009); paying a statement is refused with `SELLER_PAYOUT_PROVIDER_UNCONFIGURED`. The operator's own invoice to the seller for this fee is §5.14a; once a statement exists, a commission invoice shows its reference, and its collection becomes "taken from settlement" only when that statement is paid, which cannot happen while payouts are unconfigured.
 
 ### FR-SEL-013 — Seller team and roles
@@ -4561,9 +4569,41 @@ at the sender's company, seller or carrier sees them.
 ### FR-RPT-002 — Reports
 
 - **Statement.** Staff with `report.read` see reports for sales, orders,
-  payments, inventory, customers, recurring and operations.
-- **Rules.** Every figure is an aggregate, never a sum of a page; money stays BigInt and leaves as a string; windows are half-open; product reports read order-item snapshots. Reports are never restated in another currency.
-- **Status.** Built.
+  payments, inventory, customers, recurring and operations, and marketplace
+  reports (checklist Master row 74): **GMV** per currency (goods value of
+  orders not abandoned or cancelled, before tax and shipping, and the part
+  sold by marketplace sellers with its commission), **supplier quality** (per
+  seller: orders, returns, buyer claims, failed inspections and cancellations
+  in the period, worst first), **inspection** (reports signed and failed,
+  reports overdue, where every inspection stands, open NCRs by severity) and
+  **disputes** (by kind and status, decisions by outcome, amount awarded per
+  currency, seller responses overdue). Staff with `payment.read` also see the
+  **settlement** report: seller statements by status and currency (gross,
+  commission, refunds, net payable), payouts by status, settlements on hold
+  and failed payouts.
+- **Rules.** Every figure is an aggregate, never a sum of a page; money stays BigInt and leaves as a string; windows are half-open; product reports read order-item snapshots. Reports are never restated in another currency, and an amount is never added across currencies. A rate is shown with its counts, and a rate over nothing is a dash.
+- **Status.** Built. `GET /admin/reports/marketplace`, `GET /admin/reports/settlements`.
+
+### FR-RPT-006 — Seller Hub home and seller performance (checklist Master rows 33, 44, 92)
+
+- **Statement.** The Seller Hub home is one workspace: besides sales, orders
+  and payouts it lists requests for quotation waiting for a quote (where RFQs
+  are on), inspections waiting for the lot to be declared ready, open NCRs
+  waiting for corrective action, certificates lapsed, refused or expiring
+  within 60 days, listings held for a lapsed certificate and verification
+  checks waiting on the seller, with one link each to catalogue, RFQs, orders,
+  inspection, logistics, payouts, compliance and performance. A **Performance**
+  page (`seller.analytics.read`) shows, over 30, 90 or 365 days: RFQ quote rate
+  and conversion (purchase orders / quotes, over invitations received in the
+  window), order fulfilment rate, OTIF (delivered on or before the latest
+  promised delivery date with no return), on time, in full, dispatch on time,
+  return rate, inspection fail rate, open NCRs, cancellation rate, claims
+  opened and open, claims per order and chargebacks.
+- **Rules.** Computed from existing rows; nothing is stored. Every figure is
+  scoped to the signed-in seller. Rates leave as numerator and denominator;
+  orders with no promised delivery date are counted apart, not as late. Each
+  home tile can fail alone and is then listed as unavailable.
+- **Status.** Built. `GET /seller/dashboard`, `GET /seller/performance`.
 
 ### FR-RPT-003 — Exports
 
@@ -6393,3 +6433,9 @@ The dedicated agency screen `/inspection/jobs/:id/packaging` shows the PACKAGING
 After a signed inspection fails, the seller uploads corrective evidence on each NCR and submits the response and corrective action. All severities can require correction; evidence must be stored before submission. Staff with inspection.manage choose the original failed inspection in the booking form. Booking stays blocked while any completed inspection has an open finding or another job is active. The server enforces these conditions and the original-job relationship. Both seller and admin views display the original inspection number. A passing repeat report closes the corrected findings; the original failed report stays immutable.
 
 Inspection responses now expose report as the latest report visible to that audience (or null), alongside the unchanged revision list. Agency job controls read the server’s transition objects by their to field. This repairs the inherited live-job rendering mismatch and preserves report visibility policies.
+
+## Shipment documents and shipment booking (Master rows 42 and 56) — built
+
+**Shipment documents.** On a seller order, the seller keeps the papers a consignment travels with besides the commercial invoice and packing list (which are issued in the panel above it): certificate of origin, bill of lading, air waybill, shipping bill, inspection certificate, export and import licences, other, and any category document a destination or category trade rule requires. Each save is a new version with the issuer, the document number, the issue date and the expiry date; older versions are kept. The seller can generate a certificate of origin draft PDF from the order (watermarked, for an issuing authority to certify) or upload a PDF or image. Marketplace staff with logistics.write mark the current version valid or rejected (a rejection needs a reason); a version past its expiry date shows as expired. The buyer sees the certificate of origin, bill of lading, air waybill, inspection certificate, import licence and category documents on their order, current version only, never a rejected one. The shipping bill, export licence and "other" stay between the seller and the marketplace.
+
+**Shipment booking.** For each consignment the seller states the mode (road, air, sea, rail, courier, multimodal), the Incoterm and its named place, the origin and destination ports (UN/LOCODE), a route note, and the pickup date and time window. A cross-border air or sea consignment must name both ports. The seller may name DHL, FedEx or India Post: that records a hand booking through the existing path, with no carrier API call and no invented tracking number. Booking through the seller's own carrier account and offering the consignment to a delivery company stay where they were. Once collected, the booking can no longer change. The buyer sees each consignment's booking and carrier on the order page.

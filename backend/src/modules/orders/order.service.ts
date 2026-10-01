@@ -61,6 +61,7 @@ import { tokenMatches } from '../logistics/level-pricing.service.js';
 import { QUOTE_DP, invertRate } from '../../domain/fx.js';
 import { conversionFor, convert } from '../catalog/bulk-price.service.js';
 import { orderFxSnapshotFrom } from '../catalog/derived-price.service.js';
+import { assertBasketAllowedForDestination } from '../catalog/market-rule-admin.service.js';
 import { FX_POLICY_VERSION } from '../settings/fx-snapshot.service.js';
 import {
   NotificationEvent,
@@ -412,6 +413,15 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
   }
 
   assertCheckoutReady(resolved);
+
+  // Country rules (Master row 69): nothing a rule in force blocks for the
+  // delivery country leaves here, including a rule that applies only above an
+  // order value - judged on the total just priced.
+  await assertBasketAllowedForDestination(
+    shippingSnapshot.country,
+    resolved.sourceItems.map((item) => item.productId),
+    { amountMinor: resolved.pricing.totals.grandTotalMinor, currency: resolved.currency },
+  );
 
   /*
    * The four-level delivery the buyer agreed to, checked against the delivery
@@ -1132,6 +1142,11 @@ export async function transitionOrder(
        */
       const preorders = await import('../preorders/request.service.js');
       await preorders.onPreorderOrderConfirmed(input.orderId, tx);
+
+      // Likewise the RFQ sample this order collects payment for: the only
+      // way a charged sample becomes PAID. A no-op for every other order.
+      const samples = await import('../rfq/sample.service.js');
+      await samples.onSampleOrderConfirmed(input.orderId, tx);
     }
 
     /*

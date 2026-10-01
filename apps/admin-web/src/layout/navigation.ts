@@ -359,6 +359,14 @@ export const NAVIGATION: NavGroup[] = [
         matchPrefix: true,
       },
       {
+        // The operator's own rate cards (Master row 71).
+        labelKey: 'nav.rateCards',
+        to: '/logistics/rate-cards',
+        icon: CarrierIcon,
+        permissions: [Permission.LOGISTICS_READ],
+        matchPrefix: true,
+      },
+      {
         labelKey: 'nav.logisticsPartners',
         to: '/logistics/partners',
         icon: CarrierIcon,
@@ -420,6 +428,14 @@ export const NAVIGATION: NavGroup[] = [
         to: '/finance/commission-invoices',
         icon: CommissionInvoiceIcon,
         permissions: [Permission.COMMISSION_INVOICE_VIEW],
+        matchPrefix: true,
+      },
+      {
+        // Where every order's money is: held, released, refunded, paid out.
+        labelKey: 'nav.ledger',
+        to: '/finance/ledger',
+        icon: CommissionInvoiceIcon,
+        permissions: [Permission.PAYMENT_READ],
         matchPrefix: true,
       },
     ],
@@ -495,12 +511,44 @@ export const NAVIGATION: NavGroup[] = [
         matchPrefix: true,
       },
       {
+        // Country / compliance rules (Master row 69). Before Settings so the
+        // longer path is its own entry.
+        labelKey: 'nav.countryRules',
+        to: '/settings/country-rules',
+        icon: SettingsIcon,
+        permissions: [Permission.SETTINGS_READ],
+        matchPrefix: true,
+      },
+      {
+        // Storefront banners and category blocks (Master row 72).
+        labelKey: 'nav.storefrontContent',
+        to: '/settings/content',
+        icon: CouponsIcon,
+        permissions: [Permission.SETTINGS_READ],
+        matchPrefix: true,
+      },
+      {
         // The Terms and Conditions new accounts agree to. Before Settings so
         // the longer path is its own entry rather than a child of /settings.
         labelKey: 'nav.legalDocuments',
         to: '/settings/legal-documents',
         icon: LegalDocumentIcon,
         permissions: [Permission.LEGAL_DOCUMENT_READ],
+        matchPrefix: true,
+      },
+      {
+        // Before Settings, like legal documents, so each is its own entry.
+        labelKey: 'nav.masterData',
+        to: '/settings/master-data',
+        icon: SettingsIcon,
+        permissions: [Permission.SETTINGS_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.notificationTemplates',
+        to: '/settings/notification-templates',
+        icon: SettingsIcon,
+        permissions: [Permission.SETTINGS_READ],
         matchPrefix: true,
       },
       {

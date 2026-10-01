@@ -394,6 +394,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        // The operator's own rate cards and the "test a rate" form (Master row 71).
+        path: 'logistics/rate-cards',
+        ...lazyRoute(
+          () => import('@/pages/logistics/RateCardsPage').then((m) => m.RateCardsPage),
+          [Permission.LOGISTICS_READ],
+        ),
+      },
+      {
         path: 'logistics/partners',
         ...lazyRoute(
           () => import('@/pages/logistics/PartnersPage').then((m) => m.LogisticsPartnersPage),
@@ -499,6 +507,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        // The transaction ledger per order, held funds, refunds and chargebacks, payouts and reconciliation.
+        path: 'finance/ledger',
+        ...lazyRoute(
+          () => import('@/pages/finance/LedgerPage').then((m) => m.LedgerPage),
+          [Permission.PAYMENT_READ],
+        ),
+      },
+      {
         path: 'finance/commission-invoices/:id',
         ...lazyRoute(
           () => import('@/pages/finance/CommissionInvoiceDetailPage').then((m) => m.CommissionInvoiceDetailPage),
@@ -530,6 +546,22 @@ export const router = createBrowserRouter([
         ]),
       },
       {
+        // Country / compliance rules: what may not be sent where (Master row 69).
+        path: 'settings/country-rules',
+        ...lazyRoute(
+          () => import('@/pages/settings/CountryRulesPage').then((m) => m.CountryRulesPage),
+          [Permission.SETTINGS_READ],
+        ),
+      },
+      {
+        // Storefront banners and category content blocks (Master row 72).
+        path: 'settings/content',
+        ...lazyRoute(
+          () => import('@/pages/settings/ContentBlocksPage').then((m) => m.ContentBlocksPage),
+          [Permission.SETTINGS_READ],
+        ),
+      },
+      {
         // The Terms and Conditions every new account agrees to: drafts, publishing, history.
         path: 'settings/legal-documents',
         ...lazyRoute(
@@ -549,6 +581,21 @@ export const router = createBrowserRouter([
         ...lazyRoute(
           () => import('@/pages/settings/LegalDocumentsPage').then((m) => m.LegalDocumentEditorPage),
           [Permission.LEGAL_DOCUMENT_READ],
+        ),
+      },
+      {
+        // Units of measure, Incoterms and inspection defect codes (Master row 75).
+        path: 'settings/master-data',
+        ...lazyRoute(() => import('@/pages/settings/MasterDataPage').then((m) => m.MasterDataPage), [
+          Permission.SETTINGS_READ,
+        ]),
+      },
+      {
+        // Event templates and their email / in-app / WhatsApp / SMS channels (Master row 76).
+        path: 'settings/notification-templates',
+        ...lazyRoute(
+          () => import('@/pages/settings/NotificationTemplatesPage').then((m) => m.NotificationTemplatesPage),
+          [Permission.SETTINGS_READ],
         ),
       },
       {

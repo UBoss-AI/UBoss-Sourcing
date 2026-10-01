@@ -10,9 +10,13 @@
  * code: the reference sample a later inspection is measured against.
  *
  * Nothing is recorded as done that did not happen: SHIPPED needs the courier
- * and tracking number, DELIVERED needs the buyer, and payment is never marked
- * PAID - collecting money for samples is not built, so a sample with a cost
- * stays PAYMENT_PENDING. Both sides may attach evidence (purpose SAMPLE); only
+ * and tracking number, DELIVERED needs the buyer. A sample with a cost or a
+ * shipping charge is paid through the ordinary checkout: `checkoutSample`
+ * makes an order (source RFQ_SAMPLE, tax worked out like any order's) and the
+ * buyer pays it on the usual payment screen. The sample becomes PAID only in
+ * `onSampleOrderConfirmed`, which runs inside the order's move to CONFIRMED -
+ * and that move is reached only from a signature-verified payment event. A
+ * charged sample cannot be shipped before it is paid, nor cancelled after. Both sides may attach evidence (purpose SAMPLE); only
  * the buyer and that seller see it. Every step is on the timeline, told to the
  * other side and audited.
  */
@@ -30,6 +34,10 @@ import {
 import type { Prisma } from '../../generated/prisma/client.js';
 import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
+import { logger } from '../../infra/logger.js';
+import { priceLines } from '../../domain/pricing.js';
+import { nextOrderNumber, transitionOrder } from '../orders/order.service.js';
+import { applyLineTax, loadTaxContext } from '../tax/vat.service.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { dispatchPendingNotifications, enqueueNotification, NotificationEvent } from '../notifications/notification.service.js';
 import { notifySeller } from '../seller/notification.service.js';
@@ -65,6 +73,8 @@ export const sampleAcceptSchema = z
   .object({
     expectedVersion: z.number().int().min(0),
     costMinor: z.string().regex(/^(?:0|[1-9]\d{0,14})$/).nullable().default(null),
+    /** What sending it costs the buyer, in the same currency. No charge, or zero, is none. */
+    shippingMinor: z.string().regex(/^(?:0|[1-9]\d{0,14})$/).nullable().default(null),
     currency: z.string().regex(/^[A-Z]{3}$/).nullable().default(null),
     note: text(1000),
   })
@@ -98,6 +108,9 @@ export interface SampleView {
   approvalCriteria: string;
   notes: string | null;
   cost: ReturnType<typeof serialiseMoney> | null;
+  shipping: ReturnType<typeof serialiseMoney> | null;
+  /** The order the buyer pays a charged sample through, once made. */
+  orderId: string | null;
   paymentStatus: 'NOT_REQUIRED' | 'PAYMENT_PENDING' | 'PAID';
   supplierNote: string | null;
   courier: string | null;
@@ -139,6 +152,8 @@ async function views(rows: SampleRow[], party: 'BUYER' | 'SUPPLIER'): Promise<Sa
     approvalCriteria: row.approvalCriteria,
     notes: row.notes,
     cost: row.costMinor === null || row.currency === null ? null : serialiseMoney(row.costMinor, row.currency),
+    shipping: row.shippingMinor === null || row.currency === null ? null : serialiseMoney(row.shippingMinor, row.currency),
+    orderId: row.orderId,
     paymentStatus: row.paymentStatus,
     supplierNote: row.supplierNote,
     courier: row.courier,
@@ -149,9 +164,16 @@ async function views(rows: SampleRow[], party: 'BUYER' | 'SUPPLIER'): Promise<Sa
     decisionReason: row.decisionReason,
     referenceCode: row.referenceCode,
     evidence: files.filter((file) => file.sampleId === row.id).map(attachmentView),
-    actions: allowedSampleTransitions(row.status, party),
+    actions: allowedSampleTransitions(row.status, party).filter((to) => paymentAllows(row, to)),
     createdAt: row.createdAt.toISOString(),
   }));
+}
+
+/** A charged sample ships only once paid, and a paid one is not cancelled here. */
+function paymentAllows(sample: Pick<SampleRow, 'paymentStatus'>, to: RfqSampleStatusName): boolean {
+  if (to === 'SHIPPED') return sample.paymentStatus !== 'PAYMENT_PENDING';
+  if (to === 'CANCELLED') return sample.paymentStatus !== 'PAID';
+  return true;
 }
 
 async function nextReference(tx: PrismaTransaction): Promise<string> {
@@ -300,6 +322,13 @@ interface Move {
 
 async function move(sample: SampleRow, rfq: { id: string; reference: string; title: string; customerProfileId: string }, change: Move): Promise<void> {
   assertSampleTransition({ from: sample.status, to: change.to, actor: change.party, reason: change.reason ?? null });
+  if (!paymentAllows(sample, change.to)) {
+    throw conflict(
+      ErrorCode.RFQ_SAMPLE_TRANSITION_NOT_ALLOWED,
+      sample.paymentStatus === 'PAID' ? 'This sample is paid for and cannot be cancelled here.' : 'This sample is not paid for yet.',
+      [{ code: sample.paymentStatus }],
+    );
+  }
   if (sample.version !== change.expectedVersion) {
     throw conflict(ErrorCode.RFQ_SAMPLE_TRANSITION_NOT_ALLOWED, 'This sample changed while you had it open. Reload it.', [{ code: 'STALE' }]);
   }
@@ -372,6 +401,7 @@ export async function buyerMoveSample(
           ? { decidedAt: now, decisionReason: input.reason }
           : { decisionReason: input.reason };
   await move(sample, rfq, { party: 'BUYER', userId: buyer.userId, email: buyer.email, to, expectedVersion: input.expectedVersion, reason: input.reason, data });
+  if (to === 'CANCELLED' && sample.orderId !== null) await cancelUnpaidOrder(sample.orderId, buyer, `Sample ${sample.reference} cancelled`);
   return one(sample.id, 'BUYER');
 }
 
@@ -402,7 +432,9 @@ export async function acceptSample(
   input: z.infer<typeof sampleAcceptSchema>,
 ): Promise<SampleView> {
   const { rfq, sample } = await supplierSample(supplier, rfqId, sampleId);
-  const charged = input.costMinor !== null && input.costMinor !== '0';
+  const cost = BigInt(input.costMinor ?? '0');
+  const shipping = BigInt(input.shippingMinor ?? '0');
+  const charged = cost > 0n || shipping > 0n;
   if (charged && input.currency === null) {
     throw badRequest(ErrorCode.VALIDATION_FAILED, 'Give the currency of the sample cost.', [{ field: 'currency', code: 'PAIR_REQUIRED' }]);
   }
@@ -417,9 +449,10 @@ export async function acceptSample(
     to: 'ACCEPTED',
     expectedVersion: input.expectedVersion,
     data: {
-      costMinor: charged ? BigInt(input.costMinor ?? '0') : null,
+      costMinor: charged ? cost : null,
+      shippingMinor: charged && shipping > 0n ? shipping : null,
       currency: charged ? input.currency : null,
-      // Charged means owed. Nothing here marks it paid: only a real payment would.
+      // Charged means owed. Nothing here marks it paid: only a verified payment does.
       paymentStatus: charged ? 'PAYMENT_PENDING' : 'NOT_REQUIRED',
       supplierNote: input.note,
     },
@@ -486,4 +519,213 @@ export async function sampleForEvidence(rfqId: string, sampleId: string, sellerA
 /** Link a stored SAMPLE file to its sample. */
 export async function attachEvidence(attachmentId: string, sampleId: string): Promise<void> {
   await prisma.rfqAttachment.update({ where: { id: attachmentId }, data: { sampleId } });
+}
+
+// ---------------------------------------------------------------------------
+// Paying for a sample
+// ---------------------------------------------------------------------------
+
+const LIVE_ORDER_STATUSES: readonly string[] = ['PENDING_APPROVAL', 'PENDING_PAYMENT', 'CONFIRMED'];
+
+/**
+ * The order the buyer pays a charged sample through. The fee is one priced
+ * line with the deployment's default tax class, taxed for the request's
+ * destination like any order; the supplier's shipping charge is added as
+ * seller delivery. Pressed twice, it returns the same order; a cancelled one
+ * is replaced. The order is paid on the ordinary payment screen, and the
+ * sample becomes PAID only when a verified payment confirms it.
+ */
+export async function checkoutSample(buyer: RfqBuyer, rfqId: string, sampleId: string): Promise<{ orderId: string; sample: SampleView }> {
+  const { rfq, sample } = await buyerSample(buyer, rfqId, sampleId);
+  if (sample.status !== 'ACCEPTED' || sample.paymentStatus !== 'PAYMENT_PENDING' || sample.currency === null) {
+    throw conflict(ErrorCode.RFQ_SAMPLE_TRANSITION_NOT_ALLOWED, 'This sample has nothing to pay.', [{ code: sample.paymentStatus }]);
+  }
+  if (sample.orderId !== null) {
+    const existing = await prisma.order.findUnique({ where: { id: sample.orderId }, select: { id: true, status: true } });
+    if (existing !== null && LIVE_ORDER_STATUSES.includes(existing.status)) return { orderId: existing.id, sample: await one(sample.id, 'BUYER') };
+  }
+
+  const [profile, taxClass] = await Promise.all([
+    prisma.customerProfile.findUniqueOrThrow({
+      where: { id: buyer.customerProfileId },
+      select: { fullName: true, vatNumber: true, vatNumberValid: true, requiresOrderApproval: true },
+    }),
+    prisma.taxClass.findFirst({ where: { isDefault: true, isActive: true } }),
+  ]);
+  if (taxClass === null) {
+    throw conflict(ErrorCode.RFQ_SAMPLE_TRANSITION_NOT_ALLOWED, 'No default tax class is set up, so the sample cannot be priced.', [
+      { code: 'TAX_UNAVAILABLE' },
+    ]);
+  }
+  const taxSetup = await loadTaxContext({
+    destinationCountry: rfq.destinationCountry,
+    vatNumber: profile.vatNumber,
+    vatNumberValid: profile.vatNumberValid ?? false,
+  });
+  const name = `Sample ${sample.reference}`;
+  const lineTax = applyLineTax(
+    taxSetup,
+    { vatCategory: taxClass.vatCategory, flatRatePercent: taxClass.ratePercent.toString(), taxInclusive: taxClass.isInclusive, productName: name },
+    sample.costMinor ?? 0n,
+  );
+  if (lineTax.problem !== null) {
+    throw conflict(ErrorCode.RFQ_SAMPLE_TRANSITION_NOT_ALLOWED, lineTax.problem, [{ code: 'TAX_UNAVAILABLE' }]);
+  }
+  // The one pricing engine; the shipping charge goes in as seller delivery,
+  // the path every seller's delivery charge takes at checkout.
+  const pricing = priceLines(
+    [
+      {
+        product: {
+          productId: sample.id,
+          variantId: null,
+          name,
+          sku: sample.reference,
+          variantName: null,
+          unitPriceMinor: lineTax.unitPriceMinor,
+          taxClassCode: taxClass.code,
+          taxRatePercent: lineTax.taxRatePercent,
+          taxInclusive: lineTax.taxInclusive,
+          isRecurringEligible: false,
+          imageUrl: null,
+        },
+        quantity: 1,
+      },
+    ],
+    { sellerDeliveryMinor: sample.shippingMinor ?? 0n },
+  );
+
+  const orderId = newId();
+  const now = new Date();
+  const initialStatus = profile.requiresOrderApproval ? 'PENDING_APPROVAL' : 'PENDING_PAYMENT';
+  const address = {
+    contactName: profile.fullName,
+    contactPhone: '',
+    line1: sample.deliveryAddress,
+    line2: null,
+    city: '',
+    state: '',
+    postalCode: '',
+    country: rfq.destinationCountry ?? '',
+  };
+  await prisma.$transaction(async (tx) => {
+    await tx.order.create({
+      data: {
+        id: orderId,
+        orderNumber: await nextOrderNumber(tx),
+        customerProfileId: buyer.customerProfileId,
+        buyerCompanyId: rfq.buyerCompanyId,
+        buyerContextKind: rfq.buyerCompanyId === null ? 'INDIVIDUAL' : 'COMPANY',
+        source: 'RFQ_SAMPLE',
+        status: initialStatus,
+        currency: sample.currency ?? '',
+        subtotalMinor: pricing.totals.subtotalMinor,
+        discountMinor: pricing.totals.discountMinor,
+        taxMinor: pricing.totals.taxMinor,
+        shippingMinor: pricing.totals.shippingMinor,
+        grandTotalMinor: pricing.totals.grandTotalMinor,
+        billingAddressJson: address,
+        shippingAddressJson: address,
+        paymentMode: 'ONLINE',
+        customerNote: `${name} · RFQ ${rfq.reference}`,
+        placedAt: now,
+        taxTreatment: taxSetup.context.treatment,
+        taxCountry: taxSetup.context.rateCountry,
+        sellerVatNumberSnapshot: taxSetup.context.sellerVatNumber,
+        buyerVatNumberSnapshot: taxSetup.context.buyerVatNumber,
+        // The supplier typed this price in this currency; nothing was converted.
+        fxPriceSource: 'MANUAL',
+      },
+    });
+    await tx.orderStatusHistory.create({
+      data: {
+        id: newId(),
+        orderId,
+        fromStatus: null,
+        toStatus: initialStatus,
+        actorType: 'CUSTOMER',
+        actorUserId: buyer.userId,
+        reason: `Payment for ${name}`,
+      },
+    });
+    if (profile.requiresOrderApproval) {
+      await tx.orderApproval.create({
+        data: { id: newId(), orderId, status: 'PENDING', requiredReason: 'Approval required by account policy.' },
+      });
+    }
+    // Conditional on the link read, so two presses cannot both attach an order.
+    const linked = await tx.rfqSample.updateMany({
+      where: { id: sample.id, orderId: sample.orderId, status: 'ACCEPTED', paymentStatus: 'PAYMENT_PENDING' },
+      data: { orderId },
+    });
+    if (linked.count !== 1) {
+      throw conflict(ErrorCode.RFQ_SAMPLE_TRANSITION_NOT_ALLOWED, 'This sample changed while you had it open. Reload it.', [{ code: 'STALE' }]);
+    }
+    await recordAudit(
+      {
+        action: AuditAction.RFQ_SAMPLE_UPDATED,
+        resourceType: 'rfq_request',
+        resourceId: rfq.id,
+        actorType: 'CUSTOMER',
+        actorUserId: buyer.userId,
+        actorEmail: buyer.email,
+        after: { sampleId: sample.id, orderId, grandTotalMinor: pricing.totals.grandTotalMinor },
+      },
+      tx,
+    );
+  });
+  return { orderId, sample: await one(sample.id, 'BUYER') };
+}
+
+/**
+ * Called inside `transitionOrder`'s move to CONFIRMED - reached only from a
+ * signature-verified payment event - so a paid order and a paid sample cannot
+ * disagree. A no-op for every other order.
+ */
+export async function onSampleOrderConfirmed(orderId: string, tx: PrismaTransaction): Promise<void> {
+  const sample = await tx.rfqSample.findUnique({ where: { orderId } });
+  if (sample === null) return;
+  const paid = await tx.rfqSample.updateMany({
+    where: { id: sample.id, paymentStatus: 'PAYMENT_PENDING' },
+    data: { paymentStatus: 'PAID', version: { increment: 1 } },
+  });
+  if (paid.count !== 1) {
+    logger.warn({ sampleId: sample.id, orderId, paymentStatus: sample.paymentStatus }, 'payment confirmed for a sample that was not awaiting it');
+    return;
+  }
+  const rfq = await tx.rfqRequest.findUniqueOrThrow({ where: { id: sample.rfqId }, select: { id: true, reference: true, title: true } });
+  await recordEvent(tx, {
+    rfqId: rfq.id,
+    kind: 'SAMPLE_PAID',
+    actorParty: 'SYSTEM',
+    actorUserId: null,
+    sellerAccountId: sample.sellerAccountId,
+    meta: { sampleId: sample.id, reference: sample.reference, orderId },
+  });
+  await tellSeller(tx, rfq, sample.sellerAccountId, `sample ${sample.reference} is paid and can be shipped`, `rfq:${rfq.id}:sample:${sample.id}:paid`);
+  await recordAudit(
+    {
+      action: AuditAction.RFQ_SAMPLE_UPDATED,
+      resourceType: 'rfq_request',
+      resourceId: rfq.id,
+      actorType: 'SYSTEM',
+      before: { sampleId: sample.id, paymentStatus: 'PAYMENT_PENDING' },
+      after: { sampleId: sample.id, paymentStatus: 'PAID', orderId },
+    },
+    tx,
+  );
+}
+
+/** A cancelled sample's unpaid order is cancelled with it; a paid one is never touched here. */
+async function cancelUnpaidOrder(orderId: string, buyer: RfqBuyer, reason: string): Promise<void> {
+  const order = await prisma.order.findUnique({ where: { id: orderId }, select: { status: true } });
+  if (order === null || (order.status !== 'PENDING_PAYMENT' && order.status !== 'PENDING_APPROVAL')) return;
+  await transitionOrder({
+    orderId,
+    to: 'CANCELLED',
+    actor: { userId: buyer.userId, email: buyer.email, type: 'CUSTOMER' },
+    reason,
+  }).catch((error: unknown) => {
+    logger.warn({ err: error, orderId }, 'could not cancel the unpaid order of a cancelled sample');
+  });
 }

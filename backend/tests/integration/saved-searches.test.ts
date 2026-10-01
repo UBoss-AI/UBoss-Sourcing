@@ -74,6 +74,7 @@ async function cleanUp(): Promise<void> {
   await prisma.cart.deleteMany({ where: { customerProfileId: { in: profileIds } } });
   await prisma.product.deleteMany({ where: { slug: { startsWith: PREFIX } } });
   await prisma.category.deleteMany({ where: { slug: { startsWith: PREFIX } } });
+  await prisma.taxClass.deleteMany({ where: { code: { startsWith: PREFIX } } });
   await prisma.session.deleteMany({ where: { userId: { in: userIds } } });
   await prisma.authToken.deleteMany({ where: { userId: { in: userIds } } });
   await prisma.userRole.deleteMany({ where: { userId: { in: userIds } } });
@@ -193,7 +194,11 @@ describe('saved searches', () => {
 
 describe('saved search alert job', () => {
   it('queues one alert for a repriced match, moves the window, and stays quiet after', async () => {
-    const taxClass = await prisma.taxClass.findFirstOrThrow({ select: { id: true } });
+    // Its own tax class: a shared one may not exist on a fresh database.
+    const taxClass = await prisma.taxClass.create({
+      data: { id: newId(), code: `${PREFIX}TAX`, name: `${PREFIX}tax`, ratePercent: '0.000000', isInclusive: false },
+      select: { id: true },
+    });
     const currency = await prisma.currency.findFirstOrThrow({ select: { code: true } });
     const categoryId = newId();
     await prisma.category.create({

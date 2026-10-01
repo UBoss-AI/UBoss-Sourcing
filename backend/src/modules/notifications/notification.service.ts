@@ -1166,6 +1166,20 @@ const FALLBACK_TEMPLATE = {
   body: 'You have a new notification from {{businessName}}.\n',
 };
 
+/** Recorded on every WhatsApp row: this product ships no WhatsApp provider. */
+export const WHATSAPP_NO_PROVIDER = 'No WhatsApp provider is configured; nothing was sent.';
+
+/**
+ * Every built-in event with the wording it uses when nobody has customised
+ * it. The admin template screen lists these beside the customised rows.
+ */
+export function notificationCatalogue(): { eventKey: string; subject: string; body: string }[] {
+  return [...new Set(Object.values(NotificationEvent))].sort().map((eventKey) => {
+    const template = DEFAULT_TEMPLATES[eventKey] ?? FALLBACK_TEMPLATE;
+    return { eventKey, subject: template.subject, body: template.body };
+  });
+}
+
 /**
  * Queue a notification.
  *
@@ -1221,21 +1235,57 @@ export async function enqueueNotification(
 
   const id = newId();
 
+  /*
+   * Channels (Master row 76). With no settings row every event goes by email
+   * and is listed in the notification centre, as before. With email switched
+   * off, an event the operator still wants in-app is recorded as an IN_APP row
+   * that is SENT on arrival - nothing is delivered, and no delivery job is
+   * queued for it - so the customer's notification centre can still list it.
+   */
+  const emailOn = setting === null || setting.emailEnabled;
+  const inAppOnly = !emailOn && setting?.inAppEnabled === true;
+  if (!emailOn && !inAppOnly) {
+    logger.debug({ eventKey: input.eventKey }, 'notification has no enabled channel');
+    return null;
+  }
+
   const row = {
     id,
     eventKey: input.eventKey,
-    channel: 'EMAIL' as const,
+    channel: inAppOnly ? ('IN_APP' as const) : ('EMAIL' as const),
     recipientEmail: input.recipientEmail,
     recipientName: input.recipientName ?? null,
     subject: renderTemplate(template.subject, variables).slice(0, 255),
     body: renderTemplate(template.body, variables),
     payloadJson: variables,
-    status: 'PENDING' as const,
+    status: inAppOnly ? ('SENT' as const) : ('PENDING' as const),
     nextAttemptAt: input.sendAt ?? new Date(),
+    ...(inAppOnly ? { sentAt: input.sendAt ?? new Date() } : {}),
     ...(input.dedupeKey !== undefined ? { dedupeKey: input.dedupeKey } : {}),
     ...(input.relatedType !== undefined ? { relatedType: input.relatedType } : {}),
     ...(input.relatedId !== undefined ? { relatedId: input.relatedId } : {}),
   };
+
+  /*
+   * WhatsApp has no provider in this product. Switching it on records, per
+   * notification, that it was not sent and why - SUPPRESSED, so it is never
+   * retried and never handed to the email worker - rather than pretending.
+   */
+  const whatsappRow =
+    setting?.whatsappEnabled === true
+      ? {
+          ...row,
+          id: newId(),
+          channel: 'WHATSAPP' as const,
+          body: renderTemplate(setting.whatsappTemplate ?? template.body, variables),
+          status: 'SUPPRESSED' as const,
+          sentAt: null,
+          lastError: WHATSAPP_NO_PROVIDER,
+          ...(input.dedupeKey !== undefined
+            ? { dedupeKey: `${input.dedupeKey}:whatsapp`.slice(0, 191) }
+            : {}),
+        }
+      : null;
 
   if (input.dedupeKey !== undefined) {
     // skipDuplicates rather than a caught unique violation: inside a caller's
@@ -1253,9 +1303,15 @@ export async function enqueueNotification(
     await client.notificationOutbox.create({ data: row });
   }
 
+  if (whatsappRow !== null) {
+    await client.notificationOutbox.createMany({ data: [whatsappRow], skipDuplicates: true });
+    logger.warn({ eventKey: input.eventKey }, 'WhatsApp is enabled for this event but no provider is configured');
+  }
+
   // Standalone call: dispatch the delivery job immediately. Inside a
   // transaction, leave it to `dispatchPendingNotifications` after commit.
-  if (tx === undefined) {
+  // An in-app-only row is already SENT and has nothing to deliver.
+  if (tx === undefined && !inAppOnly) {
     await queue.enqueue(
       JobType.NOTIFICATION_SEND,
       { outboxId: id },

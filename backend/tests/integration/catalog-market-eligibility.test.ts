@@ -310,7 +310,7 @@ describe('category page: market notes and suppliers (Master row 3)', () => {
   it('tells a shopper there why a blocked shelf is empty - on the child of a blocked category too', async () => {
     const child = await notes(`${PREFIX}child`, BLOCKED_IN);
     expect(child).toEqual([
-      { effect: 'BLOCK', reason: `${PREFIX}test rule`, requiredDocuments: [], categoryName: 'Market root' },
+      { effect: 'BLOCK', reason: `${PREFIX}test rule`, requiredDocuments: [], categoryName: 'Market root', minOrderValueMinor: null, thresholdCurrency: null },
     ]);
   });
 
@@ -321,6 +321,8 @@ describe('category page: market notes and suppliers (Master row 3)', () => {
         reason: `${PREFIX}An import licence is needed.`,
         requiredDocuments: ['Import licence'],
         categoryName: 'Market other',
+        minOrderValueMinor: null,
+        thresholdCurrency: null,
       },
     ]);
   });

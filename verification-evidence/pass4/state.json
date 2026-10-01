@@ -432,17 +432,20 @@
     {
       "id": 20,
       "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
-      "status": "BLOCKED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "finding": "Built: sample requests on an RFQ with quantity, cost, currency, courier, address, tracking, date, approval criteria, supplier answer, accept/reject with reason, evidence, REF- reference code, timeline, notifications, idempotent create; never marked shipped/delivered/paid without the real event (rfq-samples.test.ts, SamplesPanel.test.tsx).",
-      "fix": "In main.",
-      "testResult": "Merged into main (RFQ branch, 6 row commits). Backend verify 4977 pass (the 23 failures were a shared-test-DB collision; those 4 files pass 57/57 alone), storefront verify 1647/1647; browser /account/dashboard, /account/rfqs, /account/rfqs/new 320–1440: no horizontal scroll, axe 0 (verification-evidence/pass4/rfq/). Seller Hub RFQ screens covered by SellerRfqPages.test.tsx (Hub needs its own sign-in).",
-      "verifiedAt": "2026-09-30",
+      "fix": "Paid-sample checkout: a charged sample creates an RFQ_SAMPLE order priced and taxed by the existing checkout; PAID only on the signed payment webhook; cannot ship unpaid; free samples skip payment.",
+      "testResult": "rfq-samples.test, payments.test, SamplesPanel.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verifiedAt": "2026-10-01 (pass 7)",
       "blocker": "Linking an accepted reference sample to the final bulk-order inspection needs the inspection screens and routes, which are not built. Collecting payment for a sample is not built either.",
       "manual": [
-        "Blocked: needs the paid-sample checkout (sample fee, tax and shipping through the existing checkout).",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Buyer: on an accepted charged sample choose Pay for the sample, pay on the order page; supplier can ship once PAID.",
+        "Automated proof: rfq-samples.test, payments.test, SamplesPanel.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean."
+      ],
+      "tests": "rfq-samples.test, payments.test, SamplesPanel.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "evidence": "rfq-samples.test, payments.test, SamplesPanel.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verification": "rfq-samples.test, payments.test, SamplesPanel.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean"
     },
     {
       "id": 21,
@@ -474,12 +477,18 @@
     {
       "id": 22,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: no B2B order milestones (production, inspection, shipment, documents, payment) exist yet.",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Buyer: /account/orders/<id> → Order milestones.",
+        "Automated proof: seller-bulk-import-production.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Buyer order milestones timeline: production, exceptions, inspection, shipments, buyer-visible documents, payment.",
+      "tests": "seller-bulk-import-production.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "evidence": "seller-bulk-import-production.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "testResult": "seller-bulk-import-production.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verification": "seller-bulk-import-production.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean"
     },
     {
       "id": 23,
@@ -658,12 +667,18 @@
     {
       "id": 33,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: the seller dashboard shows sales, orders and payouts but no RFQ, inspection or compliance items. Inspection must be built first.",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Seller: open /seller - RFQ, inspection and compliance action rows and the workspace card.",
+        "Automated proof: seller-performance-reports.test + anonymous-access 11/11; SellerDashboardPage.test 2/2; customer i18n 69/69."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Seller dashboard adds RFQs to answer, inspection actions (readiness, CAPA), compliance actions (certificates, holds, verification) and a workspace card.",
+      "tests": "seller-performance-reports.test + anonymous-access 11/11; SellerDashboardPage.test 2/2; customer i18n 69/69",
+      "evidence": "seller-performance-reports.test + anonymous-access 11/11; SellerDashboardPage.test 2/2; customer i18n 69/69",
+      "testResult": "seller-performance-reports.test + anonymous-access 11/11; SellerDashboardPage.test 2/2; customer i18n 69/69",
+      "verification": "seller-performance-reports.test + anonymous-access 11/11; SellerDashboardPage.test 2/2; customer i18n 69/69"
     },
     {
       "id": 34,
@@ -719,12 +734,18 @@
     {
       "id": 37,
       "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: bulk catalogue import exists for the operator (admin Product import) but not for sellers.",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Seller: Seller Hub → Bulk update; upload, preview, apply.",
+        "Automated proof: seller-bulk-import-production.test, seller-bulk-import-sheet unit, SellerBulkImportPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Seller bulk update: CSV/XLSX preview and apply for own offers (price, was-price, MOQ, status, stock), apply once, nothing on any error.",
+      "tests": "seller-bulk-import-production.test, seller-bulk-import-sheet unit, SellerBulkImportPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "evidence": "seller-bulk-import-production.test, seller-bulk-import-sheet unit, SellerBulkImportPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "testResult": "seller-bulk-import-production.test, seller-bulk-import-sheet unit, SellerBulkImportPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verification": "seller-bulk-import-production.test, seller-bulk-import-sheet unit, SellerBulkImportPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean"
     },
     {
       "id": 38,
@@ -763,12 +784,18 @@
     {
       "id": 40,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: no seller production milestones (confirm, manufacture, ready, exceptions).",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Seller: /seller/orders/<id> → Production.",
+        "Automated proof: seller-bulk-import-production.test, SellerProductionPanel.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Production milestones: raw material, in production, QA, ready, planned dates, exceptions with reason; no status change.",
+      "tests": "seller-bulk-import-production.test, SellerProductionPanel.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "evidence": "seller-bulk-import-production.test, SellerProductionPanel.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "testResult": "seller-bulk-import-production.test, SellerProductionPanel.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verification": "seller-bulk-import-production.test, SellerProductionPanel.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean"
     },
     {
       "id": 41,
@@ -789,32 +816,50 @@
     {
       "id": 42,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: no shipment document pack (invoice, packing list, COO, BL/AWB).",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Seller: /seller/orders/<id> → Shipment documents; add a version. Buyer: /account/orders/<id> → Shipment details.",
+        "Automated proof: seller-shipment-paperwork.test + anonymous-access 14/14; ShipmentPaperwork.test 7/7; ConsignmentDocuments/Logistics and OrderDetailPage tests pass; customer i18n pass."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Shipment documents: certificate of origin (draft PDF or upload), bill of lading, air waybill, shipping bill, inspection certificate, licences, category documents; versioned with issuer, number, issue/expiry, validation state; invoices and packing lists counted; trade-rule documents met/missing; buyer sees visible current versions only.",
+      "tests": "seller-shipment-paperwork.test + anonymous-access 14/14; ShipmentPaperwork.test 7/7; ConsignmentDocuments/Logistics and OrderDetailPage tests pass; customer i18n pass",
+      "evidence": "seller-shipment-paperwork.test + anonymous-access 14/14; ShipmentPaperwork.test 7/7; ConsignmentDocuments/Logistics and OrderDetailPage tests pass; customer i18n pass",
+      "testResult": "seller-shipment-paperwork.test + anonymous-access 14/14; ShipmentPaperwork.test 7/7; ConsignmentDocuments/Logistics and OrderDetailPage tests pass; customer i18n pass",
+      "verification": "seller-shipment-paperwork.test + anonymous-access 14/14; ShipmentPaperwork.test 7/7; ConsignmentDocuments/Logistics and OrderDetailPage tests pass; customer i18n pass"
     },
     {
       "id": 43,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: settlements and fees are shown, but reserves and reconciliation need the payout build (decision D13: facilitator + Stripe Connect).",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Seller: Seller Hub → Payments (with FEATURE_ESCROW_LEDGER=true).",
+        "Automated proof: escrow-ledger.test, seller-payout.test, SellerFundsPanel.test, SellerPaymentsPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Seller payments: gross, fees, fee tax, refunds, held, reserve, available, in transit, paid out, reconciliation; held funds per order (feature flag FEATURE_ESCROW_LEDGER).",
+      "tests": "escrow-ledger.test, seller-payout.test, SellerFundsPanel.test, SellerPaymentsPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "evidence": "escrow-ledger.test, seller-payout.test, SellerFundsPanel.test, SellerPaymentsPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "testResult": "escrow-ledger.test, seller-payout.test, SellerFundsPanel.test, SellerPaymentsPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verification": "escrow-ledger.test, seller-payout.test, SellerFundsPanel.test, SellerPaymentsPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean"
     },
     {
       "id": 44,
       "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: no seller performance analytics (conversion, OTIF, quality, cancellations, claims).",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Seller: Seller Hub → Performance; switch 30/90/365 days.",
+        "Automated proof: seller-performance-reports.test 11/11; SellerPerformancePage.test 2/2."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Seller performance page /seller/performance: RFQ conversion, OTIF, on time, in full, dispatch on time, returns, inspection fail rate, open NCRs, cancellations, claims, chargebacks, each with numerator and denominator.",
+      "tests": "seller-performance-reports.test 11/11; SellerPerformancePage.test 2/2",
+      "evidence": "seller-performance-reports.test 11/11; SellerPerformancePage.test 2/2",
+      "testResult": "seller-performance-reports.test 11/11; SellerPerformancePage.test 2/2",
+      "verification": "seller-performance-reports.test 11/11; SellerPerformancePage.test 2/2"
     },
     {
       "id": 45,
@@ -993,12 +1038,18 @@
     {
       "id": 56,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: no shipment booking (mode, carrier, route, Incoterm, pickup, port).",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Seller: /seller/orders/<id> → Shipment booking; save. Buyer: order page shows mode, terms, ports, pickup, carrier.",
+        "Automated proof: seller-shipment-paperwork.test + anonymous-access 14/14; ShipmentPaperwork.test 7/7; ConsignmentDocuments/Logistics and OrderDetailPage tests pass; customer i18n pass."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Shipment booking per consignment: mode, Incoterm and place, UN/LOCODE ports, route, pickup date and window, carrier (manual booking via createManualBooking, no fake API call); locked once collected; buyer sees the booking.",
+      "tests": "seller-shipment-paperwork.test + anonymous-access 14/14; ShipmentPaperwork.test 7/7; ConsignmentDocuments/Logistics and OrderDetailPage tests pass; customer i18n pass",
+      "evidence": "seller-shipment-paperwork.test + anonymous-access 14/14; ShipmentPaperwork.test 7/7; ConsignmentDocuments/Logistics and OrderDetailPage tests pass; customer i18n pass",
+      "testResult": "seller-shipment-paperwork.test + anonymous-access 14/14; ShipmentPaperwork.test 7/7; ConsignmentDocuments/Logistics and OrderDetailPage tests pass; customer i18n pass",
+      "verification": "seller-shipment-paperwork.test + anonymous-access 14/14; ShipmentPaperwork.test 7/7; ConsignmentDocuments/Logistics and OrderDetailPage tests pass; customer i18n pass"
     },
     {
       "id": 57,
@@ -1020,42 +1071,66 @@
     {
       "id": 58,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: escrow / milestone payments wait on the Stripe Connect payout build (D13).",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Buyer: order page → How your payment is protected.",
+        "Automated proof: escrow-ledger.test, PaymentProtectionCard.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Buyer payment protection: method, currency, status, release terms and milestones per seller (facilitator model).",
+      "tests": "escrow-ledger.test, PaymentProtectionCard.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "evidence": "escrow-ledger.test, PaymentProtectionCard.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "testResult": "escrow-ledger.test, PaymentProtectionCard.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verification": "escrow-ledger.test, PaymentProtectionCard.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean"
     },
     {
       "id": 59,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: no transaction ledger screen; waits on the payout build (D13).",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Admin: Finance → Ledger.",
+        "Automated proof: escrow-ledger.test, LedgerPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Double-entry append-only ledger with reconciliation; admin Finance → Ledger.",
+      "tests": "escrow-ledger.test, LedgerPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "evidence": "escrow-ledger.test, LedgerPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "testResult": "escrow-ledger.test, LedgerPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verification": "escrow-ledger.test, LedgerPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean"
     },
     {
       "id": 60,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: seller settlement release and bank payout wait on the payout build (D13).",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Admin: Finance → Ledger → holds and payouts.",
+        "Automated proof: escrow-ledger.test, seller-payout.test, stripe-connect-adapter unit; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Seller settlement: release on delivery + window + no open dispute + inspection pass; holds; reserve; Stripe Connect transfer payout; reconciliation.",
+      "tests": "escrow-ledger.test, seller-payout.test, stripe-connect-adapter unit; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "evidence": "escrow-ledger.test, seller-payout.test, stripe-connect-adapter unit; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "testResult": "escrow-ledger.test, seller-payout.test, stripe-connect-adapter unit; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verification": "escrow-ledger.test, seller-payout.test, stripe-connect-adapter unit; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean"
     },
     {
       "id": 61,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: chargeback accounting screen waits on the payout build (D13). Buyer refunds and disputes are built (rows 24, 30, 64).",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Admin: Finance → Ledger → refunds and chargebacks.",
+        "Automated proof: escrow-ledger.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Refunds and chargebacks posted to the ledger with accounting status in the finance view.",
+      "tests": "escrow-ledger.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "evidence": "escrow-ledger.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "testResult": "escrow-ledger.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verification": "escrow-ledger.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean"
     },
     {
       "id": 62,
@@ -1181,12 +1256,18 @@
     {
       "id": 69,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: no country compliance rules (restricted goods, documents, thresholds).",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Admin: Settings → Country rules.",
+        "Automated proof: country-rules-rate-cards-content.test, catalog-market-eligibility.test, RulesRatesContent.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Country compliance rules admin with value thresholds; checkout refuses restricted baskets (MARKET_DESTINATION_RESTRICTED); listings hide blocked products.",
+      "tests": "country-rules-rate-cards-content.test, catalog-market-eligibility.test, RulesRatesContent.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "evidence": "country-rules-rate-cards-content.test, catalog-market-eligibility.test, RulesRatesContent.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "testResult": "country-rules-rate-cards-content.test, catalog-market-eligibility.test, RulesRatesContent.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verification": "country-rules-rate-cards-content.test, catalog-market-eligibility.test, RulesRatesContent.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean"
     },
     {
       "id": 70,
@@ -1207,22 +1288,34 @@
     {
       "id": 71,
       "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: no logistics rate cards or serviceability rules in the admin.",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Admin: Logistics → Rate cards → Test a rate.",
+        "Automated proof: country-rules-rate-cards-content.test, RulesRatesContent.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Logistics rate cards (lanes and weight bands, versioned) with serviceability and a test-a-rate quote in minor units.",
+      "tests": "country-rules-rate-cards-content.test, RulesRatesContent.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "evidence": "country-rules-rate-cards-content.test, RulesRatesContent.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "testResult": "country-rules-rate-cards-content.test, RulesRatesContent.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verification": "country-rules-rate-cards-content.test, RulesRatesContent.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean"
     },
     {
       "id": 72,
       "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: no CMS / banners / promotions module.",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Admin: Settings → Storefront content; check the home page.",
+        "Automated proof: country-rules-rate-cards-content.test, ContentBlocks.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Storefront content: home banners and category blocks targeted by country/language, scheduled, published, optional linked coupon.",
+      "tests": "country-rules-rate-cards-content.test, ContentBlocks.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "evidence": "country-rules-rate-cards-content.test, ContentBlocks.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "testResult": "country-rules-rate-cards-content.test, ContentBlocks.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verification": "country-rules-rate-cards-content.test, ContentBlocks.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean"
     },
     {
       "id": 73,
@@ -1243,32 +1336,50 @@
     {
       "id": 74,
       "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: reports cover sales, orders, payments, inventory and customers; GMV by supplier quality, inspection, disputes and settlement reports are missing, and inspection must exist first.",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Admin: Reports → marketplace panel.",
+        "Automated proof: seller-performance-reports.test 11/11; MarketplaceReports.test + admin i18n 16/16."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Admin marketplace reports: GMV per currency, seller share and commission, supplier quality per seller, inspection, disputes, settlements and payouts.",
+      "tests": "seller-performance-reports.test 11/11; MarketplaceReports.test + admin i18n 16/16",
+      "evidence": "seller-performance-reports.test 11/11; MarketplaceReports.test + admin i18n 16/16",
+      "testResult": "seller-performance-reports.test 11/11; MarketplaceReports.test + admin i18n 16/16",
+      "verification": "seller-performance-reports.test 11/11; MarketplaceReports.test + admin i18n 16/16"
     },
     {
       "id": 75,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: categories and currencies exist; units of measure, Incoterms and defect codes as master data do not.",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Admin: Settings → Master data; add, edit, switch off an Incoterm, unit or defect code.",
+        "Automated proof: master-data-and-notification-channels.test (with notification-branding, anonymous-access) 11/11; MasterDataPage.test 3/3; admin i18n+settings 34/34."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Master data: master_data_entries (UOM, Incoterms 2020, defect codes; seeded), admin /settings/master-data CRUD with audit.",
+      "tests": "master-data-and-notification-channels.test (with notification-branding, anonymous-access) 11/11; MasterDataPage.test 3/3; admin i18n+settings 34/34",
+      "evidence": "master-data-and-notification-channels.test (with notification-branding, anonymous-access) 11/11; MasterDataPage.test 3/3; admin i18n+settings 34/34",
+      "testResult": "master-data-and-notification-channels.test (with notification-branding, anonymous-access) 11/11; MasterDataPage.test 3/3; admin i18n+settings 34/34",
+      "verification": "master-data-and-notification-channels.test (with notification-branding, anonymous-access) 11/11; MasterDataPage.test 3/3; admin i18n+settings 34/34"
     },
     {
       "id": 76,
       "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: email and SMS templates can be edited through the API (settings/notifications) but there is no admin screen, and WhatsApp / in-app templates do not exist.",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Admin: Settings → Notification templates; edit an event and toggle channels.",
+        "Automated proof: master-data-and-notification-channels.test 11/11 (with others); NotificationTemplatesPage.test 3/3."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Notification templates: admin /settings/notification-templates lists every event, edits subject/body, toggles email, SMS, WhatsApp, in-app; email switch enforced; in-app controls the customer notification centre; WhatsApp recorded as not sent when no provider is configured.",
+      "tests": "master-data-and-notification-channels.test 11/11 (with others); NotificationTemplatesPage.test 3/3",
+      "evidence": "master-data-and-notification-channels.test 11/11 (with others); NotificationTemplatesPage.test 3/3",
+      "testResult": "master-data-and-notification-channels.test 11/11 (with others); NotificationTemplatesPage.test 3/3",
+      "verification": "master-data-and-notification-channels.test 11/11 (with others); NotificationTemplatesPage.test 3/3"
     },
     {
       "id": 77,
@@ -1536,12 +1647,18 @@
     {
       "id": 92,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: same gap as row 33 - Seller Hub home lacks RFQ, inspection and compliance queues.",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Seller: open /seller and use the workspace card.",
+        "Automated proof: seller-performance-reports.test 11/11; SellerDashboardPage.test 2/2."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Seller Hub home: single workspace card linking catalogue, RFQs, orders, inspection, logistics, payouts, compliance and performance, with waiting items.",
+      "tests": "seller-performance-reports.test 11/11; SellerDashboardPage.test 2/2",
+      "evidence": "seller-performance-reports.test 11/11; SellerDashboardPage.test 2/2",
+      "testResult": "seller-performance-reports.test 11/11; SellerDashboardPage.test 2/2",
+      "verification": "seller-performance-reports.test 11/11; SellerDashboardPage.test 2/2"
     },
     {
       "id": 93,
@@ -2241,6 +2358,78 @@
       "id": "UAT-UI-011",
       "status": "VERIFIED",
       "evidence": "fingerprint change refuses dispatch (gate-http and unit tests); backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "ENH-010",
+      "status": "VERIFIED",
+      "evidence": "Inspection status badge on buyer OrdersPage and Seller Hub SellerOrdersPage (GET /orders inspectionStatus via cardStatusesForOrders); InspectionStatusBadge.test (7 statuses), OrdersPage test, inspection-card-and-scope.test",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "ENH-011",
+      "status": "VERIFIED",
+      "evidence": "Agency calendar card (GET /inspection/agency/calendar): 14 days, capacity, Full, time, port/city, readiness; AgencyPages.test",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "ENH-012",
+      "status": "VERIFIED",
+      "evidence": "Binding form on agency job page after PASS (container, seal, quantity, time, witness); AgencyPages.test",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-045",
+      "status": "VERIFIED",
+      "evidence": "Binding + savePackages/splitConsignment call onInspectedScopeChanged: scope_changed event, REEVALUATION_REQUIRED, seller notified; inspection-card-and-scope.test",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "ENH-006",
+      "status": "VERIFIED",
+      "evidence": "Landed cost shows goods, freight, duty, tax, inspection, platform fee and expected delivery range; LandedCostPage test",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-031",
+      "status": "VERIFIED",
+      "evidence": "production milestones; seller-bulk-import-production.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-033",
+      "status": "VERIFIED",
+      "evidence": "trade-documents service, invoice and packing list; seller-shipment-paperwork.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-048",
+      "status": "VERIFIED",
+      "evidence": "versioned trade documents with issuer, expiry, validation, buyer visibility; seller-shipment-paperwork.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-050",
+      "status": "VERIFIED",
+      "evidence": "payment protection and receipts; escrow-ledger.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-053",
+      "status": "VERIFIED",
+      "evidence": "release conditions, reserve, payouts, reconciliation; escrow-ledger.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "ENH-007",
+      "status": "VERIFIED",
+      "evidence": "market eligibility hides blocked products for the destination; catalog-market-eligibility.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-024",
+      "status": "VERIFIED",
+      "evidence": "orders list filters, track, returns; order page invoice, cancel, support, reorder; OrdersPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
       "verifiedAt": "2026-10-01 (pass 7)"
     }
   ],

@@ -3157,6 +3157,13 @@ export type MarketLandedCostRate = Prisma.MarketLandedCostRateModel
  */
 export type MarketProfile = Prisma.MarketProfileModel
 /**
+ * Model ContentBlock
+ * A banner or category content block the operator writes, targeted by
+ * country and language and shown only while published and inside its
+ * schedule. '' in a target means "everyone".
+ */
+export type ContentBlock = Prisma.ContentBlockModel
+/**
  * Model SearchSynonym
  * "cannula" also finds "IV catheter". Maintained by the operator.
  */
@@ -3390,3 +3397,9 @@ export type RfqPurchaseOrderApproval = Prisma.RfqPurchaseOrderApprovalModel
  * `domain/rfq-sample-state.ts`, conditionally on the status read.
  */
 export type RfqSample = Prisma.RfqSampleModel
+/**
+ * Model MasterDataEntry
+ * Admin-maintained reference lists: units of measure, Incoterms and
+ * inspection defect codes. Categories and currencies have their own tables.
+ */
+export type MasterDataEntry = Prisma.MasterDataEntryModel

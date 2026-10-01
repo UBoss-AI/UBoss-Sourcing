@@ -27,6 +27,8 @@ import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import type { SellerMembership } from '../seller/account.service.js';
 import { recordSellerAudit } from '../seller/audit.service.js';
+import { onInspectedScopeChanged } from '../inspection/gate.service.js';
+import type { InspectionActor } from '../inspection/context.js';
 
 type Client = PrismaTransaction | typeof prisma;
 
@@ -382,6 +384,13 @@ export async function savePackages(
       tx,
     });
   });
+
+  // After commit: a change to inspected goods alerts and re-evaluates (ENH-012).
+  await onInspectedScopeChanged(prisma, shipment.id, sellerActor(membership), 'The packages, container or seal');
+}
+
+function sellerActor(membership: SellerMembership): InspectionActor {
+  return { party: 'SELLER', userId: null, label: membership.displayName };
 }
 
 /**
@@ -482,7 +491,7 @@ export async function splitConsignment(
   const group = await loadGroup(original.sellerOrderGroupId ?? '');
   const { createShipment } = await import('../logistics/shipment-create.service.js');
 
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const lines = await ensureShipmentLines(tx, original, group);
     const carried = new Map(lines.map((line) => [line.orderItemId, line.quantity]));
 
@@ -621,4 +630,7 @@ export async function splitConsignment(
 
     return { shipmentId: created.id, shipmentReference: created.shipmentReference };
   });
+
+  await onInspectedScopeChanged(prisma, original.id, sellerActor(membership), 'The consignment split');
+  return result;
 }

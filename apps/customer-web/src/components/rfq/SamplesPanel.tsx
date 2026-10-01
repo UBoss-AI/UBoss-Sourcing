@@ -10,6 +10,7 @@
  */
 import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { useLocale } from '@/app/locale-context';
 import { useToast } from '@/components/toast-context';
 import { Badge, Button, Card, EmptyState, ErrorState, Field, Input, LoadingState, Select, Textarea } from '@/components/ui';
@@ -35,6 +36,9 @@ export interface Sample {
   approvalCriteria: string;
   notes: string | null;
   cost: { minor: string; formatted: string; currency: string } | null;
+  shipping?: { minor: string; formatted: string; currency: string } | null;
+  /** The order a charged sample is paid through, once the buyer starts paying. */
+  orderId?: string | null;
   paymentStatus: 'NOT_REQUIRED' | 'PAYMENT_PENDING' | 'PAID';
   supplierNote: string | null;
   courier: string | null;
@@ -73,6 +77,19 @@ export function SamplesPanel({
   const refresh = (): void => {
     void queryClient.invalidateQueries({ queryKey });
   };
+
+  const navigate = useNavigate();
+  // A charged sample is paid like any order: make (or reuse) its order, then pay on the order's own screen.
+  const pay = useMutation({
+    mutationFn: (sample: Sample) => api.post<{ orderId: string }>(`/rfqs/${rfqId}/samples/${sample.id}/checkout`, {}),
+    onSuccess: (result) => {
+      void navigate(`/account/orders/${result.orderId}`);
+    },
+    onError: (error) => {
+      toast.error(errorMessage(t, error));
+      refresh();
+    },
+  });
 
   const act = useMutation({
     mutationFn: ({ sample, to, body }: { sample: Sample; to: string; body: Record<string, unknown> }) =>
@@ -132,9 +149,32 @@ export function SamplesPanel({
                 <dt className="inline text-ink-muted">{t('rfq.sample.cost')}: </dt>
                 <dd className="inline text-ink">
                   {sample.cost === null ? t('rfq.sample.free') : formatMoney(sample.cost)}
-                  {sample.paymentStatus === 'PAYMENT_PENDING' && <span className="block text-xs text-warning">{t('rfq.sample.paymentPending')}</span>}
+                  {sample.paymentStatus === 'PAID' && <Badge tone="success">{t('rfq.sample.paid')}</Badge>}
+                  {sample.paymentStatus === 'PAYMENT_PENDING' && (
+                    <span className="block text-xs text-warning">
+                      {t((party === 'BUYER' ? 'rfq.sample.awaitingPaymentBuyer' : 'rfq.sample.awaitingPaymentSupplier') as TranslationKey)}
+                    </span>
+                  )}
+                  {party === 'BUYER' && sample.status === 'ACCEPTED' && sample.paymentStatus === 'PAYMENT_PENDING' && (
+                    <Button
+                      className="mt-2"
+                      variant="primary"
+                      disabled={pay.isPending}
+                      onClick={() => {
+                        pay.mutate(sample);
+                      }}
+                    >
+                      {t('rfq.sample.pay')}
+                    </Button>
+                  )}
                 </dd>
               </div>
+              {sample.shipping !== null && sample.shipping !== undefined && (
+                <div>
+                  <dt className="inline text-ink-muted">{t('rfq.sample.shippingCost')}: </dt>
+                  <dd className="inline text-ink">{formatMoney(sample.shipping)}</dd>
+                </div>
+              )}
               {sample.courier !== null && (
                 <div>
                   <dt className="inline text-ink-muted">{t('rfq.sample.shipment')}: </dt>
@@ -203,6 +243,7 @@ function SampleActions({
   const { currencies, currency: localeCurrency } = useLocale();
   const [reason, setReason] = useState('');
   const [cost, setCost] = useState('');
+  const [shipping, setShipping] = useState('');
   const [currency, setCurrency] = useState(localeCurrency);
   const [courier, setCourier] = useState('');
   const [tracking, setTracking] = useState('');
@@ -225,6 +266,13 @@ function SampleActions({
               <Input id={inputId} aria-describedby={describedBy} inputMode="decimal" value={cost} onChange={(event) => { setCost(event.target.value); }} />
             )}
           </Field>
+          <div className="row-start-2">
+            <Field label={t('rfq.sample.shippingLabel')} hint={t('rfq.sample.shippingHint')}>
+              {({ inputId, describedBy }) => (
+                <Input id={inputId} aria-describedby={describedBy} inputMode="decimal" value={shipping} onChange={(event) => { setShipping(event.target.value); }} />
+              )}
+            </Field>
+          </div>
           <Field label={t('rfq.field.currency')}>
             {({ inputId }) => (
               <Select id={inputId} value={currency} onChange={(event) => { setCurrency(event.target.value); }}>
@@ -258,7 +306,13 @@ function SampleActions({
               const trimmed = reason.trim();
               if (to === 'ACCEPTED') {
                 const minor = cost.trim().length === 0 ? null : majorToMinor(cost, currencyExponent(currency));
-                onAct(to, { costMinor: minor, currency: minor === null ? null : currency, note: null });
+                const shippingMinor = shipping.trim().length === 0 ? null : majorToMinor(shipping, currencyExponent(currency));
+                onAct(to, {
+                  costMinor: minor,
+                  shippingMinor,
+                  currency: minor === null && shippingMinor === null ? null : currency,
+                  note: null,
+                });
               } else if (to === 'SHIPPED') {
                 onAct(to, { courier: courier.trim(), trackingNumber: tracking.trim() });
               } else {

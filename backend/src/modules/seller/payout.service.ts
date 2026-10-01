@@ -35,6 +35,7 @@ import { prisma } from '../../infra/prisma.js';
 import { recordSellerAudit } from './audit.service.js';
 import { assertSellerPermission, type SellerMembership } from './account.service.js';
 import { markStep } from './onboarding.service.js';
+import { stripeConnectAdapter } from './stripe-connect.adapter.js';
 
 // ---------------------------------------------------------------------------
 // The adapter boundary
@@ -44,6 +45,16 @@ export interface PayoutOnboardingLink {
   /** Where to send the seller. */
   url: string;
   expiresAt: Date;
+  /** The connected account the link onboards, created on the first call. */
+  providerAccountId?: string;
+}
+
+/** One transfer the provider made, for reconciliation. */
+export interface ProviderTransfer {
+  id: string;
+  amountMinor: bigint;
+  currency: string;
+  destination: string;
 }
 
 export interface PayoutAccountStatus {
@@ -54,6 +65,9 @@ export interface PayoutAccountStatus {
   pendingRequirements: string[];
   bankName: string | null;
   accountLast4: string | null;
+  bankAccountStatus?: string | null;
+  detailsSubmitted?: boolean;
+  payoutCurrency?: string | null;
 }
 
 /**
@@ -71,6 +85,8 @@ export interface PayoutProviderAdapter {
   /** Create or resume the provider's own onboarding for this seller. */
   startOnboarding(input: {
     sellerAccountId: string;
+    /** The connected account already created for this seller, if any. */
+    existingProviderAccountId: string | null;
     displayName: string;
     countryCode: string;
     email: string | null;
@@ -89,6 +105,9 @@ export interface PayoutProviderAdapter {
     idempotencyKey: string;
     reference: string;
   }): Promise<{ providerPayoutId: string; status: 'PENDING' | 'IN_TRANSIT' | 'PAID' }>;
+
+  /** The provider's transfers in a period, for reconciliation. Optional. */
+  listTransfers?(since: Date, until: Date): Promise<ProviderTransfer[]>;
 }
 
 /**
@@ -143,20 +162,21 @@ const unconfiguredAdapter: PayoutProviderAdapter = {
  * screen, the dashboard and the payout worker all read. When a Stripe Connect
  * adapter is written it is registered here and nothing else changes.
  */
+let adapterOverride: PayoutProviderAdapter | null = null;
+
+/** Tests only: put a stand-in provider in place (null restores the real choice). */
+export function setPayoutAdapterForTests(adapter: PayoutProviderAdapter | null): void {
+  adapterOverride = adapter;
+}
+
 export function payoutAdapter(): PayoutProviderAdapter {
+  if (adapterOverride !== null) return adapterOverride;
   // Deliberately a single check rather than a chain of `if` per provider: a
   // deployment either has a payout provider or it does not, and a half-
   // configured one must read as "not configured" rather than as "try it and
   // see".
-  const connectClientId = (process.env['STRIPE_CONNECT_CLIENT_ID'] ?? '').trim();
-
-  if (connectClientId.length > 0 && env.STRIPE_SECRET_KEY.length > 0) {
-    // No Stripe Connect adapter exists yet. Falling through to the unconfigured
-    // one rather than throwing keeps a misconfigured deployment usable - the
-    // seller sees "not set up" instead of a 500 on every page of onboarding -
-    // and the log line is what tells the operator their variable is being
-    // ignored.
-    return unconfiguredAdapter;
+  if (env.STRIPE_CONNECT_CLIENT_ID.trim().length > 0 && env.STRIPE_SECRET_KEY.length > 0) {
+    return stripeConnectAdapter(env.STRIPE_SECRET_KEY);
   }
 
   return unconfiguredAdapter;
@@ -278,14 +298,36 @@ export async function startPayoutOnboarding(
 
   if (account === null) throw notFound('Seller account');
 
+  const existing = await prisma.sellerPayoutAccountReference.findUnique({
+    where: { sellerAccountId: membership.sellerAccountId },
+    select: { providerAccountId: true, provider: true },
+  });
+
   const link = await adapter.startOnboarding({
     sellerAccountId: membership.sellerAccountId,
+    existingProviderAccountId: existing?.provider === adapter.name ? existing.providerAccountId : null,
     displayName: account.displayName,
     countryCode: account.registrationCountry,
     email: account.businessProfile?.representativeEmail ?? account.businessProfile?.supportEmail ?? null,
     returnUrl: urls.returnUrl,
     refreshUrl: urls.refreshUrl,
   });
+
+  // The connected account id is stored the moment it exists, so the seller
+  // coming back - or not - never leaves an account nobody can find again.
+  if (link.providerAccountId !== undefined) {
+    await prisma.sellerPayoutAccountReference.upsert({
+      where: { sellerAccountId: membership.sellerAccountId },
+      create: {
+        id: newId(),
+        sellerAccountId: membership.sellerAccountId,
+        provider: adapter.name,
+        providerAccountId: link.providerAccountId,
+        state: 'REQUIREMENTS_DUE',
+      },
+      update: { provider: adapter.name, providerAccountId: link.providerAccountId },
+    });
+  }
 
   await recordSellerAudit({
     sellerAccountId: membership.sellerAccountId,
@@ -327,6 +369,9 @@ export async function refreshPayoutAccount(sellerAccountId: string): Promise<voi
       pendingRequirementsJson: status.pendingRequirements as never,
       bankName: status.bankName,
       accountLast4: status.accountLast4,
+      ...(status.bankAccountStatus !== undefined ? { bankAccountStatus: status.bankAccountStatus } : {}),
+      ...(status.detailsSubmitted !== undefined ? { detailsSubmitted: status.detailsSubmitted } : {}),
+      ...(status.payoutCurrency !== undefined ? { payoutCurrency: status.payoutCurrency } : {}),
       lastSyncedAt: new Date(),
     },
   });

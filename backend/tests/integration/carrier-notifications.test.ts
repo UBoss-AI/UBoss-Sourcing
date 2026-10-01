@@ -53,7 +53,13 @@ async function cleanUp(): Promise<void> {
 
   const shipmentIds = (
     await prisma.logisticsShipment.findMany({
-      where: { sellerAccountId: { in: sellerIds } },
+      // The operator's own consignment has no seller, so it is found by its parties.
+      where: {
+        OR: [
+          { sellerAccountId: { in: sellerIds } },
+          { sellerAccountId: null, sellerCompanyName: 'The operator', receivingCompanyName: 'St Luke Hospital' },
+        ],
+      },
       select: { id: true },
     })
   ).map((row) => row.id);

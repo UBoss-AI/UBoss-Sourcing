@@ -48,6 +48,9 @@ export type ConsignmentBookingTermsMinAggregateOutputType = {
   originPort: string | null
   destinationPort: string | null
   routeNote: string | null
+  pickupDate: Date | null
+  pickupWindowFrom: string | null
+  pickupWindowTo: string | null
   insured: boolean | null
   insuredValueMinor: bigint | null
   insurancePremiumMinor: bigint | null
@@ -68,6 +71,9 @@ export type ConsignmentBookingTermsMaxAggregateOutputType = {
   originPort: string | null
   destinationPort: string | null
   routeNote: string | null
+  pickupDate: Date | null
+  pickupWindowFrom: string | null
+  pickupWindowTo: string | null
   insured: boolean | null
   insuredValueMinor: bigint | null
   insurancePremiumMinor: bigint | null
@@ -88,6 +94,9 @@ export type ConsignmentBookingTermsCountAggregateOutputType = {
   originPort: number
   destinationPort: number
   routeNote: number
+  pickupDate: number
+  pickupWindowFrom: number
+  pickupWindowTo: number
   insured: number
   insuredValueMinor: number
   insurancePremiumMinor: number
@@ -122,6 +131,9 @@ export type ConsignmentBookingTermsMinAggregateInputType = {
   originPort?: true
   destinationPort?: true
   routeNote?: true
+  pickupDate?: true
+  pickupWindowFrom?: true
+  pickupWindowTo?: true
   insured?: true
   insuredValueMinor?: true
   insurancePremiumMinor?: true
@@ -142,6 +154,9 @@ export type ConsignmentBookingTermsMaxAggregateInputType = {
   originPort?: true
   destinationPort?: true
   routeNote?: true
+  pickupDate?: true
+  pickupWindowFrom?: true
+  pickupWindowTo?: true
   insured?: true
   insuredValueMinor?: true
   insurancePremiumMinor?: true
@@ -162,6 +177,9 @@ export type ConsignmentBookingTermsCountAggregateInputType = {
   originPort?: true
   destinationPort?: true
   routeNote?: true
+  pickupDate?: true
+  pickupWindowFrom?: true
+  pickupWindowTo?: true
   insured?: true
   insuredValueMinor?: true
   insurancePremiumMinor?: true
@@ -269,6 +287,9 @@ export type ConsignmentBookingTermsGroupByOutputType = {
   originPort: string | null
   destinationPort: string | null
   routeNote: string | null
+  pickupDate: Date | null
+  pickupWindowFrom: string | null
+  pickupWindowTo: string | null
   insured: boolean
   insuredValueMinor: bigint | null
   insurancePremiumMinor: bigint | null
@@ -312,6 +333,9 @@ export type ConsignmentBookingTermsWhereInput = {
   originPort?: Prisma.StringNullableFilter<"ConsignmentBookingTerms"> | string | null
   destinationPort?: Prisma.StringNullableFilter<"ConsignmentBookingTerms"> | string | null
   routeNote?: Prisma.StringNullableFilter<"ConsignmentBookingTerms"> | string | null
+  pickupDate?: Prisma.DateTimeNullableFilter<"ConsignmentBookingTerms"> | Date | string | null
+  pickupWindowFrom?: Prisma.StringNullableFilter<"ConsignmentBookingTerms"> | string | null
+  pickupWindowTo?: Prisma.StringNullableFilter<"ConsignmentBookingTerms"> | string | null
   insured?: Prisma.BoolFilter<"ConsignmentBookingTerms"> | boolean
   insuredValueMinor?: Prisma.BigIntNullableFilter<"ConsignmentBookingTerms"> | bigint | number | null
   insurancePremiumMinor?: Prisma.BigIntNullableFilter<"ConsignmentBookingTerms"> | bigint | number | null
@@ -333,6 +357,9 @@ export type ConsignmentBookingTermsOrderByWithRelationInput = {
   originPort?: Prisma.SortOrderInput | Prisma.SortOrder
   destinationPort?: Prisma.SortOrderInput | Prisma.SortOrder
   routeNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupWindowFrom?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupWindowTo?: Prisma.SortOrderInput | Prisma.SortOrder
   insured?: Prisma.SortOrder
   insuredValueMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   insurancePremiumMinor?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -358,6 +385,9 @@ export type ConsignmentBookingTermsWhereUniqueInput = Prisma.AtLeast<{
   originPort?: Prisma.StringNullableFilter<"ConsignmentBookingTerms"> | string | null
   destinationPort?: Prisma.StringNullableFilter<"ConsignmentBookingTerms"> | string | null
   routeNote?: Prisma.StringNullableFilter<"ConsignmentBookingTerms"> | string | null
+  pickupDate?: Prisma.DateTimeNullableFilter<"ConsignmentBookingTerms"> | Date | string | null
+  pickupWindowFrom?: Prisma.StringNullableFilter<"ConsignmentBookingTerms"> | string | null
+  pickupWindowTo?: Prisma.StringNullableFilter<"ConsignmentBookingTerms"> | string | null
   insured?: Prisma.BoolFilter<"ConsignmentBookingTerms"> | boolean
   insuredValueMinor?: Prisma.BigIntNullableFilter<"ConsignmentBookingTerms"> | bigint | number | null
   insurancePremiumMinor?: Prisma.BigIntNullableFilter<"ConsignmentBookingTerms"> | bigint | number | null
@@ -379,6 +409,9 @@ export type ConsignmentBookingTermsOrderByWithAggregationInput = {
   originPort?: Prisma.SortOrderInput | Prisma.SortOrder
   destinationPort?: Prisma.SortOrderInput | Prisma.SortOrder
   routeNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupWindowFrom?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupWindowTo?: Prisma.SortOrderInput | Prisma.SortOrder
   insured?: Prisma.SortOrder
   insuredValueMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   insurancePremiumMinor?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -407,6 +440,9 @@ export type ConsignmentBookingTermsScalarWhereWithAggregatesInput = {
   originPort?: Prisma.StringNullableWithAggregatesFilter<"ConsignmentBookingTerms"> | string | null
   destinationPort?: Prisma.StringNullableWithAggregatesFilter<"ConsignmentBookingTerms"> | string | null
   routeNote?: Prisma.StringNullableWithAggregatesFilter<"ConsignmentBookingTerms"> | string | null
+  pickupDate?: Prisma.DateTimeNullableWithAggregatesFilter<"ConsignmentBookingTerms"> | Date | string | null
+  pickupWindowFrom?: Prisma.StringNullableWithAggregatesFilter<"ConsignmentBookingTerms"> | string | null
+  pickupWindowTo?: Prisma.StringNullableWithAggregatesFilter<"ConsignmentBookingTerms"> | string | null
   insured?: Prisma.BoolWithAggregatesFilter<"ConsignmentBookingTerms"> | boolean
   insuredValueMinor?: Prisma.BigIntNullableWithAggregatesFilter<"ConsignmentBookingTerms"> | bigint | number | null
   insurancePremiumMinor?: Prisma.BigIntNullableWithAggregatesFilter<"ConsignmentBookingTerms"> | bigint | number | null
@@ -426,6 +462,9 @@ export type ConsignmentBookingTermsCreateInput = {
   originPort?: string | null
   destinationPort?: string | null
   routeNote?: string | null
+  pickupDate?: Date | string | null
+  pickupWindowFrom?: string | null
+  pickupWindowTo?: string | null
   insured?: boolean
   insuredValueMinor?: bigint | number | null
   insurancePremiumMinor?: bigint | number | null
@@ -447,6 +486,9 @@ export type ConsignmentBookingTermsUncheckedCreateInput = {
   originPort?: string | null
   destinationPort?: string | null
   routeNote?: string | null
+  pickupDate?: Date | string | null
+  pickupWindowFrom?: string | null
+  pickupWindowTo?: string | null
   insured?: boolean
   insuredValueMinor?: bigint | number | null
   insurancePremiumMinor?: bigint | number | null
@@ -466,6 +508,9 @@ export type ConsignmentBookingTermsUpdateInput = {
   originPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   destinationPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pickupWindowFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupWindowTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   insured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   insuredValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   insurancePremiumMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
@@ -487,6 +532,9 @@ export type ConsignmentBookingTermsUncheckedUpdateInput = {
   originPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   destinationPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pickupWindowFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupWindowTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   insured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   insuredValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   insurancePremiumMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
@@ -507,6 +555,9 @@ export type ConsignmentBookingTermsCreateManyInput = {
   originPort?: string | null
   destinationPort?: string | null
   routeNote?: string | null
+  pickupDate?: Date | string | null
+  pickupWindowFrom?: string | null
+  pickupWindowTo?: string | null
   insured?: boolean
   insuredValueMinor?: bigint | number | null
   insurancePremiumMinor?: bigint | number | null
@@ -526,6 +577,9 @@ export type ConsignmentBookingTermsUpdateManyMutationInput = {
   originPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   destinationPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pickupWindowFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupWindowTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   insured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   insuredValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   insurancePremiumMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
@@ -546,6 +600,9 @@ export type ConsignmentBookingTermsUncheckedUpdateManyInput = {
   originPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   destinationPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pickupWindowFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupWindowTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   insured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   insuredValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   insurancePremiumMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
@@ -577,6 +634,9 @@ export type ConsignmentBookingTermsCountOrderByAggregateInput = {
   originPort?: Prisma.SortOrder
   destinationPort?: Prisma.SortOrder
   routeNote?: Prisma.SortOrder
+  pickupDate?: Prisma.SortOrder
+  pickupWindowFrom?: Prisma.SortOrder
+  pickupWindowTo?: Prisma.SortOrder
   insured?: Prisma.SortOrder
   insuredValueMinor?: Prisma.SortOrder
   insurancePremiumMinor?: Prisma.SortOrder
@@ -603,6 +663,9 @@ export type ConsignmentBookingTermsMaxOrderByAggregateInput = {
   originPort?: Prisma.SortOrder
   destinationPort?: Prisma.SortOrder
   routeNote?: Prisma.SortOrder
+  pickupDate?: Prisma.SortOrder
+  pickupWindowFrom?: Prisma.SortOrder
+  pickupWindowTo?: Prisma.SortOrder
   insured?: Prisma.SortOrder
   insuredValueMinor?: Prisma.SortOrder
   insurancePremiumMinor?: Prisma.SortOrder
@@ -623,6 +686,9 @@ export type ConsignmentBookingTermsMinOrderByAggregateInput = {
   originPort?: Prisma.SortOrder
   destinationPort?: Prisma.SortOrder
   routeNote?: Prisma.SortOrder
+  pickupDate?: Prisma.SortOrder
+  pickupWindowFrom?: Prisma.SortOrder
+  pickupWindowTo?: Prisma.SortOrder
   insured?: Prisma.SortOrder
   insuredValueMinor?: Prisma.SortOrder
   insurancePremiumMinor?: Prisma.SortOrder
@@ -684,6 +750,9 @@ export type ConsignmentBookingTermsCreateWithoutShipmentInput = {
   originPort?: string | null
   destinationPort?: string | null
   routeNote?: string | null
+  pickupDate?: Date | string | null
+  pickupWindowFrom?: string | null
+  pickupWindowTo?: string | null
   insured?: boolean
   insuredValueMinor?: bigint | number | null
   insurancePremiumMinor?: bigint | number | null
@@ -703,6 +772,9 @@ export type ConsignmentBookingTermsUncheckedCreateWithoutShipmentInput = {
   originPort?: string | null
   destinationPort?: string | null
   routeNote?: string | null
+  pickupDate?: Date | string | null
+  pickupWindowFrom?: string | null
+  pickupWindowTo?: string | null
   insured?: boolean
   insuredValueMinor?: bigint | number | null
   insurancePremiumMinor?: bigint | number | null
@@ -738,6 +810,9 @@ export type ConsignmentBookingTermsUpdateWithoutShipmentInput = {
   originPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   destinationPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pickupWindowFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupWindowTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   insured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   insuredValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   insurancePremiumMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
@@ -757,6 +832,9 @@ export type ConsignmentBookingTermsUncheckedUpdateWithoutShipmentInput = {
   originPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   destinationPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pickupWindowFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupWindowTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   insured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   insuredValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   insurancePremiumMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
@@ -779,6 +857,9 @@ export type ConsignmentBookingTermsSelect<ExtArgs extends runtime.Types.Extensio
   originPort?: boolean
   destinationPort?: boolean
   routeNote?: boolean
+  pickupDate?: boolean
+  pickupWindowFrom?: boolean
+  pickupWindowTo?: boolean
   insured?: boolean
   insuredValueMinor?: boolean
   insurancePremiumMinor?: boolean
@@ -802,6 +883,9 @@ export type ConsignmentBookingTermsSelectScalar = {
   originPort?: boolean
   destinationPort?: boolean
   routeNote?: boolean
+  pickupDate?: boolean
+  pickupWindowFrom?: boolean
+  pickupWindowTo?: boolean
   insured?: boolean
   insuredValueMinor?: boolean
   insurancePremiumMinor?: boolean
@@ -812,7 +896,7 @@ export type ConsignmentBookingTermsSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ConsignmentBookingTermsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "shipmentId" | "sellerAccountId" | "incoterm" | "incotermPlace" | "mode" | "originPort" | "destinationPort" | "routeNote" | "insured" | "insuredValueMinor" | "insurancePremiumMinor" | "insuranceBasisPointsApplied" | "currency" | "updatedByLabel" | "createdAt" | "updatedAt", ExtArgs["result"]["consignmentBookingTerms"]>
+export type ConsignmentBookingTermsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "shipmentId" | "sellerAccountId" | "incoterm" | "incotermPlace" | "mode" | "originPort" | "destinationPort" | "routeNote" | "pickupDate" | "pickupWindowFrom" | "pickupWindowTo" | "insured" | "insuredValueMinor" | "insurancePremiumMinor" | "insuranceBasisPointsApplied" | "currency" | "updatedByLabel" | "createdAt" | "updatedAt", ExtArgs["result"]["consignmentBookingTerms"]>
 export type ConsignmentBookingTermsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   shipment?: boolean | Prisma.LogisticsShipmentDefaultArgs<ExtArgs>
 }
@@ -841,6 +925,13 @@ export type $ConsignmentBookingTermsPayload<ExtArgs extends runtime.Types.Extens
     originPort: string | null
     destinationPort: string | null
     routeNote: string | null
+    /**
+     * The day the seller wants it collected, and an optional window that day
+     * ("09:00" to "13:00"), local to the pickup address.
+     */
+    pickupDate: Date | null
+    pickupWindowFrom: string | null
+    pickupWindowTo: string | null
     insured: boolean
     /**
      * Minor units in `currency`.
@@ -1234,6 +1325,9 @@ export interface ConsignmentBookingTermsFieldRefs {
   readonly originPort: Prisma.FieldRef<"ConsignmentBookingTerms", 'String'>
   readonly destinationPort: Prisma.FieldRef<"ConsignmentBookingTerms", 'String'>
   readonly routeNote: Prisma.FieldRef<"ConsignmentBookingTerms", 'String'>
+  readonly pickupDate: Prisma.FieldRef<"ConsignmentBookingTerms", 'DateTime'>
+  readonly pickupWindowFrom: Prisma.FieldRef<"ConsignmentBookingTerms", 'String'>
+  readonly pickupWindowTo: Prisma.FieldRef<"ConsignmentBookingTerms", 'String'>
   readonly insured: Prisma.FieldRef<"ConsignmentBookingTerms", 'Boolean'>
   readonly insuredValueMinor: Prisma.FieldRef<"ConsignmentBookingTerms", 'BigInt'>
   readonly insurancePremiumMinor: Prisma.FieldRef<"ConsignmentBookingTerms", 'BigInt'>

@@ -407,6 +407,18 @@ async function maintenance(): Promise<void> {
         { dedupeKey: `seller_settlement_close:${new Date().toISOString().slice(0, 10)}` },
       );
     }
+
+    /*
+     * Held funds and seller payouts, every quarter of an hour, only when the
+     * operator has switched the ledger on.
+     */
+    if (env.FEATURE_ESCROW_LEDGER) {
+      await queue.enqueue(
+        JobType.ESCROW_SWEEP,
+        {},
+        { dedupeKey: `escrow_sweep:${String(Math.floor(Date.now() / 900_000))}` },
+      );
+    }
   } catch (error) {
     // Maintenance must never take the loop down; the next tick retries it.
     logger.error({ err: error }, 'maintenance pass failed');

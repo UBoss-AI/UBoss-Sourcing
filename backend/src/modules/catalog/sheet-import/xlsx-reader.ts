@@ -261,6 +261,19 @@ export function readWorkbook(filePath: string): Worksheet[] {
     );
   }
 
+  return readWorkbookBuffer(buffer, filePath);
+}
+
+/**
+ * The same reader over bytes already in memory - an upload, which never
+ * touches the disk. `label` names the file in error messages.
+ */
+export function readWorkbookBuffer(buffer: Buffer, label = 'The file'): Worksheet[] {
+  const filePath = label;
+  if (buffer.length > MAX_FILE_BYTES) {
+    throw new Error(`${filePath} is too large to be a spreadsheet of listings.`);
+  }
+
   const entries = readCentralDirectory(buffer);
   const byName = new Map(entries.map((entry) => [entry.name, entry]));
 

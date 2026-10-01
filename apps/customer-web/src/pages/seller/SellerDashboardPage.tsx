@@ -22,6 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Badge, Button, Card, ErrorState, LoadingState, PageHeader } from '@/components/ui';
 import { cx } from '@/lib/cx';
 import { useI18n } from '@/i18n/i18n-context';
+import { useStorefront } from '@/app/storefront-context';
 import { formatMinor, fetchDashboard, type SellerDashboard } from '@/lib/seller';
 import type { SellerOutletContext } from './SellerLayout';
 
@@ -396,10 +397,26 @@ function DashboardBody({
 }): React.JSX.Element {
   const { t } = useI18n();
 
+  const { features } = useStorefront();
+  const rfqEnabled = features.rfq === true;
+
   const unavailable = new Set(data.unavailable.map((entry) => entry.tile));
 
+  const complianceOutstanding =
+    data.compliance.certificatesExpiringSoon +
+    data.compliance.certificatesLapsed +
+    data.compliance.listingsOnHold +
+    data.compliance.verificationNeedsInput;
+
   const actionsOutstanding =
-    data.newOrders + data.overdueOrders + data.listingsNeedingChanges + data.outOfStockSkus;
+    data.newOrders +
+    data.overdueOrders +
+    data.listingsNeedingChanges +
+    data.outOfStockSkus +
+    (rfqEnabled ? data.rfqs.awaitingResponse : 0) +
+    data.inspection.readinessDue +
+    data.inspection.capaDue +
+    complianceOutstanding;
 
   /*
    * Nothing listed, nothing ordered: the tiles are not drawn at all.
@@ -636,6 +653,65 @@ function DashboardBody({
                 to="/seller/orders?status=NEW"
                 tone="warning"
               />
+              {rfqEnabled && (
+                <ActionRow
+                  title={t('seller.dashboard.action.rfqTitle')}
+                  detail={
+                    data.rfqs.closingSoon > 0
+                      ? t('seller.dashboard.action.rfqClosingSoon', { closing: String(data.rfqs.closingSoon) })
+                      : t('seller.dashboard.action.rfqDetail')
+                  }
+                  count={data.rfqs.awaitingResponse}
+                  to="/seller/rfqs"
+                  tone={data.rfqs.closingSoon > 0 ? 'danger' : 'warning'}
+                />
+              )}
+              {data.inspection.items.map((item) => (
+                <ActionRow
+                  key={`${item.kind}-${item.sellerOrderGroupId}`}
+                  title={
+                    item.kind === 'READINESS'
+                      ? t('seller.dashboard.action.readinessTitle', { order: item.sellerOrderNumber })
+                      : t('seller.dashboard.action.capaTitle', { order: item.sellerOrderNumber })
+                  }
+                  detail={
+                    item.kind === 'READINESS'
+                      ? t('seller.dashboard.action.readinessDetail')
+                      : t('seller.dashboard.action.capaDetail')
+                  }
+                  count={1}
+                  to={`/seller/orders/${item.sellerOrderGroupId}`}
+                  tone={item.kind === 'CAPA' ? 'danger' : 'warning'}
+                />
+              ))}
+              <ActionRow
+                title={t('seller.dashboard.action.certificatesLapsedTitle')}
+                detail={t('seller.dashboard.action.certificatesLapsedDetail')}
+                count={data.compliance.certificatesLapsed}
+                to="/seller/factories"
+                tone="danger"
+              />
+              <ActionRow
+                title={t('seller.dashboard.action.listingsOnHoldTitle')}
+                detail={t('seller.dashboard.action.listingsOnHoldDetail')}
+                count={data.compliance.listingsOnHold}
+                to="/seller/listings"
+                tone="danger"
+              />
+              <ActionRow
+                title={t('seller.dashboard.action.certificatesExpiringTitle')}
+                detail={t('seller.dashboard.action.certificatesExpiringDetail')}
+                count={data.compliance.certificatesExpiringSoon}
+                to="/seller/factories"
+                tone="warning"
+              />
+              <ActionRow
+                title={t('seller.dashboard.action.verificationTitle')}
+                detail={t('seller.dashboard.action.verificationDetail')}
+                count={data.compliance.verificationNeedsInput}
+                to="/seller/onboarding"
+                tone="warning"
+              />
               <ActionRow
                 title={t('seller.dashboard.action.changesTitle')}
                 detail={t('seller.dashboard.action.changesDetail')}
@@ -677,7 +753,40 @@ function DashboardBody({
 
         <SetupCard data={data} />
       </section>
+
+      {/* ---- One workspace -------------------------------------------------- */}
+      <Card title={t('seller.dashboard.workspace')} description={t('seller.dashboard.workspaceIntro')}>
+        <nav aria-label={t('seller.dashboard.workspace')} className="grid gap-3 px-6 py-5 sm:grid-cols-2 xl:grid-cols-4">
+          <Shortcut to="/seller/listings" label={t('seller.dashboard.shortcut.catalog')} value={String(data.activeListings)} />
+          {rfqEnabled && (
+            <Shortcut to="/seller/rfqs" label={t('seller.dashboard.shortcut.rfqs')} value={String(data.rfqs.awaitingResponse)} />
+          )}
+          <Shortcut to="/seller/orders" label={t('seller.dashboard.shortcut.orders')} value={String(data.newOrders + data.ordersToDispatch)} />
+          <Shortcut
+            to="/seller/orders"
+            label={t('seller.dashboard.shortcut.inspection')}
+            value={String(data.inspection.readinessDue + data.inspection.capaDue)}
+          />
+          <Shortcut to="/seller/logistics" label={t('seller.dashboard.shortcut.logistics')} />
+          <Shortcut to="/seller/payments" label={t('seller.dashboard.shortcut.payouts')} />
+          <Shortcut to="/seller/factories" label={t('seller.dashboard.shortcut.compliance')} value={String(complianceOutstanding)} />
+          <Shortcut to="/seller/performance" label={t('seller.dashboard.shortcut.performance')} />
+        </nav>
+      </Card>
     </div>
+  );
+}
+
+/** A way into one part of the Seller Hub, with what is waiting there when that is known. */
+function Shortcut({ to, label, value }: { to: string; label: string; value?: string }): React.JSX.Element {
+  return (
+    <Link
+      to={to}
+      className="flex items-center justify-between gap-3 rounded-md border border-border px-4 py-3 text-sm font-medium text-ink hover:border-border-hover hover:bg-surface-hover"
+    >
+      <span>{label}</span>
+      {value !== undefined && <span className="tabular text-ink-muted">{value}</span>}
+    </Link>
   );
 }
 

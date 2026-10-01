@@ -104,6 +104,21 @@ describe('the order history', () => {
     expect(requestedStatus()).toBeNull();
   });
 
+  it('shows each order’s inspection status, and nothing when none was decided (ENH-010)', async () => {
+    answerWith([
+      order({ inspectionStatus: 'NCR' }),
+      order({ id: 'order-2', orderNumber: 'ORD-1002', inspectionStatus: 'RELEASED' }),
+      order({ id: 'order-3', orderNumber: 'ORD-1003', inspectionStatus: null }),
+    ]);
+    renderPage();
+
+    expect(await screen.findByText('ORD-1003')).toBeInTheDocument();
+    const list = screen.getByRole('list');
+    expect(within(list).getByText(/Inspection NCR open|inspection.card.NCR/)).toBeInTheDocument();
+    expect(within(list).getByText(/Inspection released|inspection.card.RELEASED/)).toBeInTheDocument();
+    expect(within(list).queryAllByText(/inspection.card.|^Inspection /)).toHaveLength(2);
+  });
+
   it('counts products in words that are translated, singular and plural', async () => {
     answerWith([order({ itemCount: 1 }), order({ id: 'order-2', orderNumber: 'ORD-1002', itemCount: 3 })]);
     renderPage();

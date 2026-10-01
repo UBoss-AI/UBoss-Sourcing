@@ -777,6 +777,16 @@ const sellerSettlementClose: JobHandler = async () => {
 };
 
 /**
+ * Held funds: post captured payments and refunds to the ledger, re-check
+ * every hold's release terms, and pay out when automatic payouts are on.
+ * A no-op unless FEATURE_ESCROW_LEDGER is on; every step is idempotent.
+ */
+const escrowSweep: JobHandler = async () => {
+  const { runEscrowSweep } = await import('../modules/finance/escrow.service.js');
+  await runEscrowSweep();
+};
+
+/**
  * Run a scheduled connector sync.
  *
  * Always a real import, never a dry run: a scheduled sync exists to apply
@@ -987,6 +997,7 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.SELLER_ERP_DISPATCH]: sellerErpDispatch,
   [JobType.SELLER_ERP_RECONCILE]: sellerErpReconcile,
   [JobType.SELLER_SETTLEMENT_CLOSE]: sellerSettlementClose,
+  [JobType.ESCROW_SWEEP]: escrowSweep,
   [JobType.BUYER_COMPANY_CHECKS]: buyerCompanyChecks,
   [JobType.SELLER_DOCUMENT_EXPIRY_SWEEP]: sellerDocumentExpirySweep,
 });

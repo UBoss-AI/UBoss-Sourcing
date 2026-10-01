@@ -546,7 +546,8 @@ async function createSession(
   },
 ): Promise<CheckoutSessionResult> {
   const base = storefrontReturnBase(params.storefrontOrigin);
-  const summary = itemSummary(order.items);
+  // An RFQ sample's order has no lines; its note names the sample.
+  const summary = order.items.length === 0 ? (order.customerNote ?? '') : itemSummary(order.items);
 
   return provider.createCheckoutSession({
     paymentTransactionId: params.attemptId,

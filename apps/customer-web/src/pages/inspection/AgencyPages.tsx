@@ -3,7 +3,11 @@
  *
  *   /inspection            dashboard: who you are, your jobs by status and SLA
  *   /inspection/jobs/:id   one job: scope, conflict check, inspector, checklist,
- *                          sampling, defects (NCR), evidence, report, sign-off
+ *                          sampling, defects (NCR), evidence, report, sign-off,
+ *                          and binding the passed goods to a container and seal
+ *
+ * The dashboard also carries the agency calendar (ENH-011): capacity per day,
+ * each booked job's time and place, and whether the seller is ready.
  *
  * The server's `me.allowedTransitions`, `me.role` and `me.isNamedInspector`
  * decide which actions appear; every action is checked again on the server.
@@ -14,11 +18,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { useToast } from '@/components/toast-context';
 import { Badge, Button, Card, EmptyState, ErrorState, Input, LoadingState, PageHeader, Select, Textarea } from '@/components/ui';
-import { useI18n } from '@/i18n/i18n-context';
+import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
-import { formatDateTime, formatMoneyMinor } from '@/lib/format';
+import { formatDate, formatDateTime, formatMoneyMinor } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
-import { agencyAction, fetchAgencyDashboard, fetchAgencyJob, fetchAgencyMe, inspectionKeys, uploadAgencyEvidence } from '@/lib/inspection';
+import { agencyAction, fetchAgencyCalendar, fetchAgencyDashboard, fetchAgencyJob, fetchAgencyMe, inspectionKeys, uploadAgencyEvidence } from '@/lib/inspection';
+
+/** Keys added with ENH-011/012; typed loosely until every locale carries them. */
+const tk = (key: string): TranslationKey => key as TranslationKey;
 
 interface JobDetail {
   job: { id: string; jobNumber: string; status: string; kind: string; scheduledFor: string | null; inspectionPoint: { label?: string; city?: string } | null; report: { status: string; result: string | null } | null; defects?: { id: string; ncrNumber: string; severity: string; description: string }[] };
@@ -27,6 +34,64 @@ interface JobDetail {
   conflictCheck: { agencyProblems: string[] };
   me: { role: string; isNamedInspector: boolean; allowedTransitions: { to: string; requiresReason: boolean }[] };
   eligibleInspectors: { id: string; fullName: string; competent?: boolean; identityVerified?: boolean }[];
+  consignments?: { id: string; shipmentReference: string; containerNumbers: string[]; sealNumbers: string[] }[];
+  bindings?: { id: string; containerNumber: string | null; sealNumber: string | null; stuffedQuantity: number; stuffedAt: string | null; witnessName: string | null }[];
+}
+
+function isoDay(date: Date): string {
+  return `${String(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+/** ENH-011: two weeks of capacity, booked jobs (time, port or place) and seller readiness. */
+export function AgencyCalendarCard(): React.JSX.Element {
+  const { t } = useI18n();
+  const [from, setFrom] = useState(() => isoDay(new Date()));
+  const calendar = useQuery({ queryKey: [...inspectionKeys.agency, 'calendar', from], queryFn: () => fetchAgencyCalendar(from) });
+  const shift = (days: number): void => {
+    const [year = 1970, month = 1, day = 1] = from.split('-').map(Number);
+    setFrom(isoDay(new Date(year, month - 1, day + days)));
+  };
+
+  return (
+    <Card title={t(tk('inspection.calendar.title'))} bodyClassName="space-y-3 px-5 py-4 text-sm">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button size="sm" variant="secondary" onClick={() => { shift(-14); }}>{t(tk('inspection.calendar.previous'))}</Button>
+        <Input type="date" aria-label={t(tk('inspection.calendar.from'))} value={from} onChange={(event) => { if (event.target.value !== '') setFrom(event.target.value); }} />
+        <Button size="sm" variant="secondary" onClick={() => { shift(14); }}>{t(tk('inspection.calendar.next'))}</Button>
+      </div>
+      {calendar.isPending ? <LoadingState /> : calendar.isError ? <ErrorState error={calendar.error} onRetry={() => { void calendar.refetch(); }} /> : (
+        <ul className="divide-y divide-border-subtle" aria-label={t(tk('inspection.calendar.title'))}>
+          {calendar.data.days.map((day) => (
+            <li key={day.date} className="space-y-1 py-2" data-testid={`calendar-day-${day.date}`}>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-medium">{formatDate(`${day.date}T12:00:00`)}</span>
+                <span className="text-ink-muted">{t(tk('inspection.calendar.capacity'), { booked: String(day.booked), capacity: String(day.capacity) })}</span>
+                {day.full && <Badge tone="danger">{t(tk('inspection.calendar.full'))}</Badge>}
+              </div>
+              {day.jobs.map((job) => (
+                <div key={job.id} className="flex flex-wrap items-center gap-2 pl-4">
+                  <span className="tabular">{job.time}</span>
+                  <Link to={`/inspection/jobs/${job.id}`} className="font-medium text-brand hover:underline">{job.jobNumber}</Link>
+                  <Badge>{job.status}</Badge>
+                  <span>{placeOf(job.inspectionPoint) ?? job.inspectionPointType}</span>
+                  <Badge tone={job.readiness === 'READY' ? 'success' : 'warning'}>
+                    {job.readiness === 'READY' ? t(tk('inspection.calendar.ready')) : t(tk('inspection.calendar.notReady'))}
+                  </Badge>
+                  {job.readyDate !== null && <span className="text-ink-muted">{t(tk('inspection.calendar.readyDate'))}: {formatDate(`${job.readyDate}T12:00:00`)}</span>}
+                </div>
+              ))}
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}
+
+function placeOf(point: { label?: string; city?: string; port?: string; country?: string } | null): string | null {
+  if (point === null) return null;
+  const parts = [point.port ?? point.label, point.city, point.country].filter((part): part is string => part !== undefined && part !== '');
+  return parts.length === 0 ? null : parts.join(', ');
 }
 
 export function AgencyDashboardPage(): React.JSX.Element {
@@ -53,6 +118,7 @@ export function AgencyDashboardPage(): React.JSX.Element {
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {(['offered', 'toAssign', 'assigned', 'inProgress', 'awaitingQa', 'completed', 'overdue'] as const).map((key) => <div key={key} className="rounded-lg border border-border-subtle p-3"><dt className="text-sm text-ink-muted">{t(`inspection.dashboard.${key}`)}</dt><dd className="text-xl font-semibold">{d.counts[key]}</dd></div>)}
       </dl>
+      <AgencyCalendarCard />
       {overdue.length > 0 && (
         <Card title={t('inspection.dashboard.slaTitle')} bodyClassName="divide-y divide-border-subtle">
           {overdue.map((job) => (
@@ -119,6 +185,7 @@ export function AgencyJobPage(): React.JSX.Element {
   const [inspector, setInspector] = useState('');
   const [sampling, setSampling] = useState({ lotReference: '', sampledQuantity: '', acceptedQuantity: '', rejectedQuantity: '' });
   const [defect, setDefect] = useState({ severity: 'MAJOR', requirementRef: '', description: '', defectQuantity: '1' });
+  const [binding, setBinding] = useState({ logisticsShipmentId: '', containerNumber: '', sealNumber: '', stuffedQuantity: '', stuffedAt: '', witnessName: '' });
 
   const run = useMutation({
     mutationFn: (step: { action: string; body?: unknown }) => agencyAction(id, step.action, step.body),
@@ -141,6 +208,14 @@ export function AgencyJobPage(): React.JSX.Element {
   const can = (status: string): boolean => d.me.allowedTransitions.some((transition) => transition.to === status);
   const busy = run.isPending;
   const inProgress = d.job.status === 'IN_PROGRESS' && d.me.isNamedInspector;
+  // ENH-012: only the named inspector binds, and only goods that passed.
+  const canBind = d.me.isNamedInspector && d.job.report?.result === 'PASS';
+  const bindings = d.bindings ?? [];
+  const bindingReady =
+    binding.logisticsShipmentId !== '' &&
+    /^[1-9]\d{0,8}$/.test(binding.stuffedQuantity) &&
+    binding.stuffedAt !== '' &&
+    (binding.containerNumber.trim() !== '' || binding.sealNumber.trim() !== '');
 
   return (
     <div className="mx-auto max-w-5xl space-y-4 px-4 py-8">
@@ -240,6 +315,47 @@ export function AgencyJobPage(): React.JSX.Element {
           </label>
         </Card>
       )}
+
+      {canBind || bindings.length > 0 ? (
+        <Card title={t(tk('inspection.binding.title'))} bodyClassName="space-y-3 px-5 py-4 text-sm">
+          {bindings.length > 0 && (
+            <ul className="space-y-1">
+              {bindings.map((row) => (
+                <li key={row.id}>{row.containerNumber ?? '—'} · {row.sealNumber ?? '—'} · {row.stuffedQuantity} · {formatDateTime(row.stuffedAt)}{row.witnessName !== null ? ` · ${row.witnessName}` : ''}</li>
+              ))}
+            </ul>
+          )}
+          {canBind && (
+            <>
+              <div className="grid gap-2 sm:grid-cols-3">
+                <Select aria-label={t(tk('inspection.binding.consignment'))} value={binding.logisticsShipmentId} onChange={(event) => { setBinding({ ...binding, logisticsShipmentId: event.target.value }); }}>
+                  <option value="">{t(tk('inspection.binding.chooseConsignment'))}</option>
+                  {(d.consignments ?? []).map((consignment) => (
+                    <option key={consignment.id} value={consignment.id}>
+                      {[consignment.shipmentReference, ...consignment.containerNumbers, ...consignment.sealNumbers].join(' · ')}
+                    </option>
+                  ))}
+                </Select>
+                <Input aria-label={t(tk('inspection.binding.containerNumber'))} placeholder={t(tk('inspection.binding.containerNumber'))} maxLength={32} value={binding.containerNumber} onChange={(event) => { setBinding({ ...binding, containerNumber: event.target.value }); }} />
+                <Input aria-label={t(tk('inspection.binding.sealNumber'))} placeholder={t(tk('inspection.binding.sealNumber'))} maxLength={32} value={binding.sealNumber} onChange={(event) => { setBinding({ ...binding, sealNumber: event.target.value }); }} />
+                <Input aria-label={t(tk('inspection.binding.stuffedQuantity'))} placeholder={t(tk('inspection.binding.stuffedQuantity'))} inputMode="numeric" value={binding.stuffedQuantity} onChange={(event) => { setBinding({ ...binding, stuffedQuantity: event.target.value }); }} />
+                <Input type="datetime-local" aria-label={t(tk('inspection.binding.stuffedAt'))} value={binding.stuffedAt} onChange={(event) => { setBinding({ ...binding, stuffedAt: event.target.value }); }} />
+                <Input aria-label={t(tk('inspection.binding.witness'))} placeholder={t(tk('inspection.binding.witness'))} maxLength={120} value={binding.witnessName} onChange={(event) => { setBinding({ ...binding, witnessName: event.target.value }); }} />
+              </div>
+              <Button size="sm" variant="primary" disabled={busy || !bindingReady} onClick={() => {
+                run.mutate({ action: 'binding', body: {
+                  logisticsShipmentId: binding.logisticsShipmentId,
+                  containerNumber: binding.containerNumber.trim() || null,
+                  sealNumber: binding.sealNumber.trim() || null,
+                  stuffedQuantity: Number(binding.stuffedQuantity),
+                  stuffedAt: new Date(binding.stuffedAt).toISOString(),
+                  witnessName: binding.witnessName.trim() || null,
+                } });
+              }}>{t(tk('inspection.binding.save'))}</Button>
+            </>
+          )}
+        </Card>
+      ) : null}
 
       {(d.job.defects ?? []).length > 0 && (
         <Card title={t('inspection.defects')} bodyClassName="px-5 py-4 text-sm">

@@ -2760,8 +2760,9 @@ export async function applyCapturedPayment(params: {
         'could not settle the scheduled occurrence behind a captured payment',
       );
     });
-  } else {
-    // An ordinary order. A no-op where no ERP is configured.
+  } else if (order.source !== 'RFQ_SAMPLE') {
+    // An ordinary order. A no-op where no ERP is configured. An RFQ sample's
+    // order has no lines and ships from the supplier, so it is not pushed.
     const { pushOrderToErp } = await import('../integrations/erp-order.service.js');
 
     await pushOrderToErp({

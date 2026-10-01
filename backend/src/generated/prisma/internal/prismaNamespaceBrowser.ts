@@ -369,6 +369,7 @@ export const ModelName = {
   MarketRule: 'MarketRule',
   MarketLandedCostRate: 'MarketLandedCostRate',
   MarketProfile: 'MarketProfile',
+  ContentBlock: 'ContentBlock',
   SearchSynonym: 'SearchSynonym',
   SearchQueryLog: 'SearchQueryLog',
   CustomerKyc: 'CustomerKyc',
@@ -404,7 +405,8 @@ export const ModelName = {
   RfqQuoteVersion: 'RfqQuoteVersion',
   RfqPurchaseOrder: 'RfqPurchaseOrder',
   RfqPurchaseOrderApproval: 'RfqPurchaseOrderApproval',
-  RfqSample: 'RfqSample'
+  RfqSample: 'RfqSample',
+  MasterDataEntry: 'MasterDataEntry'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -690,6 +692,9 @@ export const NotificationSettingScalarFieldEnum = {
   name: 'name',
   emailEnabled: 'emailEnabled',
   smsEnabled: 'smsEnabled',
+  whatsappEnabled: 'whatsappEnabled',
+  inAppEnabled: 'inAppEnabled',
+  whatsappTemplate: 'whatsappTemplate',
   subjectTemplate: 'subjectTemplate',
   bodyTemplate: 'bodyTemplate',
   internalRecipientsJson: 'internalRecipientsJson',
@@ -7837,6 +7842,8 @@ export const MarketRuleScalarFieldEnum = {
   source: 'source',
   version: 'version',
   ownerName: 'ownerName',
+  minOrderValueMinor: 'minOrderValueMinor',
+  thresholdCurrency: 'thresholdCurrency',
   effectiveFrom: 'effectiveFrom',
   effectiveUntil: 'effectiveUntil',
   isActive: 'isActive',
@@ -7885,6 +7892,30 @@ export const MarketProfileScalarFieldEnum = {
 } as const
 
 export type MarketProfileScalarFieldEnum = (typeof MarketProfileScalarFieldEnum)[keyof typeof MarketProfileScalarFieldEnum]
+
+
+export const ContentBlockScalarFieldEnum = {
+  id: 'id',
+  placement: 'placement',
+  categoryId: 'categoryId',
+  title: 'title',
+  body: 'body',
+  imageUrl: 'imageUrl',
+  linkUrl: 'linkUrl',
+  couponId: 'couponId',
+  countryCode: 'countryCode',
+  languageCode: 'languageCode',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  isPublished: 'isPublished',
+  sortOrder: 'sortOrder',
+  createdByUserId: 'createdByUserId',
+  updatedByUserId: 'updatedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContentBlockScalarFieldEnum = (typeof ContentBlockScalarFieldEnum)[keyof typeof ContentBlockScalarFieldEnum]
 
 
 export const SearchSynonymScalarFieldEnum = {
@@ -8128,6 +8159,9 @@ export const ConsignmentBookingTermsScalarFieldEnum = {
   originPort: 'originPort',
   destinationPort: 'destinationPort',
   routeNote: 'routeNote',
+  pickupDate: 'pickupDate',
+  pickupWindowFrom: 'pickupWindowFrom',
+  pickupWindowTo: 'pickupWindowTo',
   insured: 'insured',
   insuredValueMinor: 'insuredValueMinor',
   insurancePremiumMinor: 'insurancePremiumMinor',
@@ -8632,6 +8666,8 @@ export const RfqSampleScalarFieldEnum = {
   currency: 'currency',
   paymentStatus: 'paymentStatus',
   supplierNote: 'supplierNote',
+  shippingMinor: 'shippingMinor',
+  orderId: 'orderId',
   courier: 'courier',
   trackingNumber: 'trackingNumber',
   shippedAt: 'shippedAt',
@@ -8645,6 +8681,22 @@ export const RfqSampleScalarFieldEnum = {
 } as const
 
 export type RfqSampleScalarFieldEnum = (typeof RfqSampleScalarFieldEnum)[keyof typeof RfqSampleScalarFieldEnum]
+
+
+export const MasterDataEntryScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  code: 'code',
+  name: 'name',
+  description: 'description',
+  defaultSeverity: 'defaultSeverity',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MasterDataEntryScalarFieldEnum = (typeof MasterDataEntryScalarFieldEnum)[keyof typeof MasterDataEntryScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -8862,6 +8914,7 @@ export const NotificationSettingOrderByRelevanceFieldEnum = {
   id: 'id',
   eventKey: 'eventKey',
   name: 'name',
+  whatsappTemplate: 'whatsappTemplate',
   subjectTemplate: 'subjectTemplate',
   bodyTemplate: 'bodyTemplate'
 } as const
@@ -13244,6 +13297,7 @@ export const MarketRuleOrderByRelevanceFieldEnum = {
   source: 'source',
   version: 'version',
   ownerName: 'ownerName',
+  thresholdCurrency: 'thresholdCurrency',
   createdById: 'createdById',
   updatedById: 'updatedById'
 } as const
@@ -13275,6 +13329,23 @@ export const MarketProfileOrderByRelevanceFieldEnum = {
 } as const
 
 export type MarketProfileOrderByRelevanceFieldEnum = (typeof MarketProfileOrderByRelevanceFieldEnum)[keyof typeof MarketProfileOrderByRelevanceFieldEnum]
+
+
+export const ContentBlockOrderByRelevanceFieldEnum = {
+  id: 'id',
+  categoryId: 'categoryId',
+  title: 'title',
+  body: 'body',
+  imageUrl: 'imageUrl',
+  linkUrl: 'linkUrl',
+  couponId: 'couponId',
+  countryCode: 'countryCode',
+  languageCode: 'languageCode',
+  createdByUserId: 'createdByUserId',
+  updatedByUserId: 'updatedByUserId'
+} as const
+
+export type ContentBlockOrderByRelevanceFieldEnum = (typeof ContentBlockOrderByRelevanceFieldEnum)[keyof typeof ContentBlockOrderByRelevanceFieldEnum]
 
 
 export const SearchSynonymOrderByRelevanceFieldEnum = {
@@ -13450,6 +13521,8 @@ export const ConsignmentBookingTermsOrderByRelevanceFieldEnum = {
   originPort: 'originPort',
   destinationPort: 'destinationPort',
   routeNote: 'routeNote',
+  pickupWindowFrom: 'pickupWindowFrom',
+  pickupWindowTo: 'pickupWindowTo',
   currency: 'currency',
   updatedByLabel: 'updatedByLabel'
 } as const
@@ -13776,6 +13849,7 @@ export const RfqSampleOrderByRelevanceFieldEnum = {
   notes: 'notes',
   currency: 'currency',
   supplierNote: 'supplierNote',
+  orderId: 'orderId',
   courier: 'courier',
   trackingNumber: 'trackingNumber',
   decisionReason: 'decisionReason',
@@ -13784,4 +13858,14 @@ export const RfqSampleOrderByRelevanceFieldEnum = {
 } as const
 
 export type RfqSampleOrderByRelevanceFieldEnum = (typeof RfqSampleOrderByRelevanceFieldEnum)[keyof typeof RfqSampleOrderByRelevanceFieldEnum]
+
+
+export const MasterDataEntryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description'
+} as const
+
+export type MasterDataEntryOrderByRelevanceFieldEnum = (typeof MasterDataEntryOrderByRelevanceFieldEnum)[keyof typeof MasterDataEntryOrderByRelevanceFieldEnum]
 

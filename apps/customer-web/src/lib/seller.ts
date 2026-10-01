@@ -436,6 +436,26 @@ export interface SellerDashboard {
     missingConfigurationKey: string | null;
     pendingRequirements: string[];
   };
+  /** RFQ invitations still waiting for a quote or a decline. */
+  rfqs: { awaitingResponse: number; closingSoon: number };
+  /** Inspection work only the seller can move: lot readiness and CAPA on open NCRs. */
+  inspection: {
+    readinessDue: number;
+    capaDue: number;
+    items: {
+      kind: 'READINESS' | 'CAPA';
+      sellerOrderGroupId: string;
+      sellerOrderNumber: string;
+      dueAt: string | null;
+    }[];
+  };
+  /** Certificates, compliance holds and verification checks needing the seller. */
+  compliance: {
+    certificatesExpiringSoon: number;
+    certificatesLapsed: number;
+    listingsOnHold: number;
+    verificationNeedsInput: number;
+  };
   /** Tiles that could not be computed. Rendered as unavailable, not as zero. */
   unavailable: { tile: string; reason: string }[];
 }
@@ -1433,6 +1453,8 @@ export interface SellerOrderRow {
   placedAt: string | null;
   dispatchDueAt: string | null;
   isOverdue: boolean;
+  /** Pre-shipment inspection card status (ENH-010); null when not decided. */
+  inspectionStatus?: string | null;
   currency: string;
   goodsTotalMinor: string;
   sellerNetMinor: string;

@@ -253,6 +253,14 @@ function BellIcon({ className }: IconProps): React.JSX.Element {
 }
 
 /** Activity. A clock face turned back — a record of what already happened. */
+function PerformanceIcon({ className }: IconProps): React.JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path d="M4 19h16M7 16v-4M12 16V8M17 16v-7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function ActivityIcon({ className }: IconProps): React.JSX.Element {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
@@ -377,6 +385,15 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
     icon: InventoryIcon,
     needsApproval: true,
   },
+  // Price, minimum order, on/off sale and stock for many listings from one
+  // spreadsheet. Beside Inventory: it is the same work done in bulk.
+  {
+    to: '/seller/bulk-import',
+    labelKey: 'seller.nav.bulkImport',
+    icon: ListingsIcon,
+    needsApproval: true,
+    permission: 'seller.bulk_import.run',
+  },
   { to: '/seller/orders', labelKey: 'seller.nav.orders', icon: OrdersIcon, needsApproval: true },
   // Bulk requests that are not orders yet: a buyer asking whether this seller
   // can make a quantity by a date. Beside Orders, because an accepted and paid
@@ -414,6 +431,13 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
     labelKey: 'seller.nav.payments',
     icon: PaymentsIcon,
     needsApproval: false,
+  },
+  {
+    to: '/seller/performance',
+    labelKey: 'seller.nav.performance',
+    icon: PerformanceIcon,
+    needsApproval: true,
+    permission: 'seller.analytics.read',
   },
   // Beside Payments: the invoice series, signatory and LUT the seller's own
   // tax invoices are issued under.

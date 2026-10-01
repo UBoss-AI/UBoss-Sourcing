@@ -55,6 +55,7 @@ import {
   setCatalogTranslationKey,
   translateCatalogue,
 } from '../../modules/catalog/catalog-translation.service.js';
+import { notificationCatalogue } from '../../modules/notifications/notification.service.js';
 import { processorReport } from '../../modules/settings/processors.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 import {
@@ -366,14 +367,17 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
 
   /**
    * List the notifications staff have customised, with their templates,
-   * recipients and whether each is switched on. Events not listed use the
-   * built-in wording.
+   * channels, recipients and whether each is switched on, plus the catalogue
+   * of built-in events and the wording each uses until customised.
    */
   app.get(
     '/settings/notifications',
     { preHandler: requireAdmin(Permission.SETTINGS_READ) },
     async (_request, reply) =>
-      reply.status(200).send({ notifications: await listNotificationSettings() }),
+      reply.status(200).send({
+        notifications: await listNotificationSettings(),
+        catalogue: notificationCatalogue(),
+      }),
   );
 
   /**
@@ -395,6 +399,11 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
           // logged and dropped. The UI should surface that.
           internalRecipients: z.array(z.string().email()).max(20).optional(),
           emailEnabled: z.boolean().optional(),
+          smsEnabled: z.boolean().optional(),
+          // Recorded only: no WhatsApp provider ships with this product.
+          whatsappEnabled: z.boolean().optional(),
+          inAppEnabled: z.boolean().optional(),
+          whatsappTemplate: z.string().max(4_096).nullable().optional(),
           isActive: z.boolean().optional(),
         })
         .parse(request.body);

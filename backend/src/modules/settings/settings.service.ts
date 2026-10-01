@@ -579,6 +579,9 @@ export async function listNotificationSettings(): Promise<Record<string, unknown
     name: row.name,
     emailEnabled: row.emailEnabled,
     smsEnabled: row.smsEnabled,
+    whatsappEnabled: row.whatsappEnabled,
+    inAppEnabled: row.inAppEnabled,
+    whatsappTemplate: row.whatsappTemplate,
     subjectTemplate: row.subjectTemplate,
     bodyTemplate: row.bodyTemplate,
     internalRecipients: row.internalRecipientsJson,
@@ -593,6 +596,10 @@ export interface NotificationSettingInput {
   bodyTemplate?: string;
   internalRecipients?: string[];
   emailEnabled?: boolean;
+  smsEnabled?: boolean;
+  whatsappEnabled?: boolean;
+  inAppEnabled?: boolean;
+  whatsappTemplate?: string | null;
   isActive?: boolean;
 }
 
@@ -623,6 +630,10 @@ export async function upsertNotificationSetting(
           ? { internalRecipientsJson: input.internalRecipients as never }
           : {}),
         ...(input.emailEnabled !== undefined ? { emailEnabled: input.emailEnabled } : {}),
+        ...(input.smsEnabled !== undefined ? { smsEnabled: input.smsEnabled } : {}),
+        ...(input.whatsappEnabled !== undefined ? { whatsappEnabled: input.whatsappEnabled } : {}),
+        ...(input.inAppEnabled !== undefined ? { inAppEnabled: input.inAppEnabled } : {}),
+        ...(input.whatsappTemplate !== undefined ? { whatsappTemplate: input.whatsappTemplate } : {}),
         ...(input.isActive !== undefined ? { isActive: input.isActive } : {}),
       },
       create: {
@@ -633,6 +644,10 @@ export async function upsertNotificationSetting(
         bodyTemplate: input.bodyTemplate ?? 'You have a new notification.',
         internalRecipientsJson: (input.internalRecipients ?? []) as never,
         emailEnabled: input.emailEnabled ?? true,
+        smsEnabled: input.smsEnabled ?? false,
+        whatsappEnabled: input.whatsappEnabled ?? false,
+        inAppEnabled: input.inAppEnabled ?? true,
+        whatsappTemplate: input.whatsappTemplate ?? null,
         isActive: input.isActive ?? true,
       },
     });

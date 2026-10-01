@@ -41,7 +41,9 @@ export type AuthTokenType = (typeof AuthTokenType)[keyof typeof AuthTokenType]
 
 export const NotificationChannel = {
   EMAIL: 'EMAIL',
-  SMS: 'SMS'
+  SMS: 'SMS',
+  WHATSAPP: 'WHATSAPP',
+  IN_APP: 'IN_APP'
 } as const
 
 export type NotificationChannel = (typeof NotificationChannel)[keyof typeof NotificationChannel]
@@ -189,7 +191,8 @@ export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 export const OrderSource = {
   ONE_TIME: 'ONE_TIME',
   RECURRING: 'RECURRING',
-  PREORDER: 'PREORDER'
+  PREORDER: 'PREORDER',
+  RFQ_SAMPLE: 'RFQ_SAMPLE'
 } as const
 
 export type OrderSource = (typeof OrderSource)[keyof typeof OrderSource]
@@ -3311,6 +3314,14 @@ export const MarketRuleEffect = {
 export type MarketRuleEffect = (typeof MarketRuleEffect)[keyof typeof MarketRuleEffect]
 
 
+export const ContentBlockPlacement = {
+  HOME_BANNER: 'HOME_BANNER',
+  CATEGORY_BLOCK: 'CATEGORY_BLOCK'
+} as const
+
+export type ContentBlockPlacement = (typeof ContentBlockPlacement)[keyof typeof ContentBlockPlacement]
+
+
 export const CustomerKycStatus = {
   NOT_STARTED: 'NOT_STARTED',
   SUBMITTED: 'SUBMITTED',
@@ -3631,3 +3642,12 @@ export const RfqSamplePaymentStatus = {
 } as const
 
 export type RfqSamplePaymentStatus = (typeof RfqSamplePaymentStatus)[keyof typeof RfqSamplePaymentStatus]
+
+
+export const MasterDataKind = {
+  UOM: 'UOM',
+  INCOTERM: 'INCOTERM',
+  DEFECT_CODE: 'DEFECT_CODE'
+} as const
+
+export type MasterDataKind = (typeof MasterDataKind)[keyof typeof MasterDataKind]

@@ -94,7 +94,7 @@ export async function categoryBlockedFor(
   });
   if (category === null) return null;
   const notes = await categoryMarketNotes(destinationCountry, category);
-  const block = notes.find((note) => note.effect === 'BLOCK');
+  const block = notes.find((note) => note.effect === 'BLOCK' && note.minOrderValueMinor === null);
   return block === undefined ? null : block.reason;
 }
 

@@ -18,6 +18,7 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
+import { InspectionStatusBadge } from '@/components/InspectionStatusBadge';
 import { PageEmptyState } from '@/components/PageEmptyState';
 import { ChevronRightIcon, RepeatIcon } from '@/components/icons';
 import {
@@ -228,6 +229,7 @@ export function OrdersPage(): React.JSX.Element {
                     <Badge tone={orderStatusTone(order.status)}>
                       {orderStatusLabel(t, order.status)}
                     </Badge>
+                    <InspectionStatusBadge status={order.inspectionStatus} />
                   </div>
                 </div>
 

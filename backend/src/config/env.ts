@@ -201,6 +201,28 @@ const envSchema = z
     SELLER_SETTLEMENT_PERIOD: z.enum(['WEEKLY', 'MONTHLY']).default('MONTHLY'),
     /// Days after delivery before a seller order counts toward a statement.
     SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS: intFromString(0, 365).optional(),
+
+    // --- Held funds, the transaction ledger and seller payouts (D13) ---
+    //
+    // The operator is a facilitator: a buyer's payment is held on the
+    // platform, allocated to each seller when the sale is made, released when
+    // the seller order meets its disclosed terms, and paid to the seller's own
+    // Stripe Connect account. Off until an operator turns it on; the release
+    // delay after delivery decides money, so it has no default.
+    FEATURE_ESCROW_LEDGER: booleanFromString.default(false),
+    /// Days after delivery (the buyer's acceptance and dispute window) before
+    /// a seller order's money is released.
+    SELLER_FUNDS_RELEASE_AFTER_DAYS: intFromString(0, 365).optional(),
+    /// Share of each release kept back as a reserve, in basis points (100 = 1%).
+    SELLER_FUNDS_RESERVE_BPS: intFromString(0, 10_000).default(0),
+    /// Days a reserve is kept before it joins the seller's available balance.
+    SELLER_FUNDS_RESERVE_DAYS: intFromString(0, 365).default(0),
+    /// Send available balances to connected accounts from the worker. Off:
+    /// finance starts each payout run by hand.
+    SELLER_FUNDS_AUTO_PAYOUT: booleanFromString.default(false),
+    /// The Stripe Connect platform's client id (ca_...). With
+    /// STRIPE_SECRET_KEY it turns on seller payout onboarding and payouts.
+    STRIPE_CONNECT_CLIENT_ID: z.string().default(''),
     COOKIE_DOMAIN: z.string().default(''),
     COOKIE_SECURE: booleanFromString.default(false),
     COOKIE_SAME_SITE: z.enum(['lax', 'strict', 'none']).default('lax'),
@@ -2210,6 +2232,15 @@ const envSchema = z
     // A statement that includes an order is a statement that says "this is
     // yours". When that becomes true is the operator's decision, never a
     // default this software picked for them.
+    if (value.FEATURE_ESCROW_LEDGER && value.SELLER_FUNDS_RELEASE_AFTER_DAYS === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['SELLER_FUNDS_RELEASE_AFTER_DAYS'],
+        message:
+          'must be set when FEATURE_ESCROW_LEDGER is on: how many days after delivery a seller ' +
+          "order's held money is released (the buyer's acceptance window). There is no default.",
+      });
+    }
     if (
       value.FEATURE_SELLER_SETTLEMENT_STATEMENTS &&
       value.SELLER_SETTLEMENT_PAYABLE_AFTER_DAYS === undefined

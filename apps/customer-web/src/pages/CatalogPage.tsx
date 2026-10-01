@@ -31,6 +31,7 @@
  */
 import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { CategoryContentBlocks } from '@/components/home/ContentBlocks';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { useLocale } from '@/app/locale-context';
@@ -1408,6 +1409,9 @@ export function CatalogPage(): React.JSX.Element {
 
       {/* Who sells this here, whether it can come to the shopper, and a way
           to ask - on a single category only. */}
+      {/* The operator's content blocks for this category (Master row 72). */}
+      {singleCategory !== null && <CategoryContentBlocks slug={singleCategory} />}
+
       {singleCategory !== null && categoryDetail.data !== undefined && (
         <CategorySourcing
           slug={singleCategory}

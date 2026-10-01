@@ -3541,6 +3541,7 @@ File: `pages/seller/SellerLayout.tsx`.
   | Logistics | `/seller/logistics` | Always (can be set up before approval) |
   | Carriers | `/seller/carriers` | After approval |
   | Payments | `/seller/payments` | Always |
+  | Performance | `/seller/performance` | After approval, for members who can read analytics |
   | Invoicing | `/seller/invoicing` | Always |
   | ERP integrations | `/seller/integrations` | After approval |
   | Notifications | `/seller/notifications` | Always |
@@ -3597,6 +3598,7 @@ place and logo controls by permission.
 | `/seller/logistics` | Logistics |
 | `/seller/fulfilment` | How your orders are delivered |
 | `/seller/notifications` | Notifications |
+| `/seller/performance` | Performance |
 | `/seller/activity` | Activity |
 | `/seller/integrations` | TallyPrime |
 | `/seller/profile` | Seller profile |
@@ -3626,12 +3628,47 @@ place and logo controls by permission.
     the change on the period before) and **Next payout** (or "Not set up" when
     the marketplace has no payout provider).
   - **Catalogue health**: live listings, being reviewed, need changes, drafts.
-  - **What needs doing**: late orders, orders to accept, listings to fix,
-    products out of stock or running low, documents expiring, closed places.
-    Or "You are up to date."
+  - **What needs doing**: late orders, requests for quotation waiting for a
+    quote (red when one closes within two days; only where RFQs are switched
+    on), each inspection waiting for the lot to be declared ready and each
+    order with an open NCR waiting for corrective action (each opens that
+    order), certificates lapsed, refused or expiring within 60 days, listings
+    held because a certificate lapsed, verification checks waiting for the
+    seller, orders to accept, listings to fix, products out of stock or
+    running low, documents expiring, closed places. Or "You are up to date."
   - **Setup**: how complete the account is, and **Continue**.
+  - **Your workspace**: one link each to catalogue, RFQs, orders, inspection,
+    logistics, payouts, compliance and performance, with what is waiting
+    there where that is known.
 
 **API call:** `GET /api/v1/seller/dashboard?range=today|week|month|quarter`
+(now also returns `rfqs`, `inspection` and `compliance`; each can fail on
+its own and is then listed in `unavailable`).
+
+#### `/seller/performance` — Performance
+
+| | |
+|---|---|
+| **Who** | Members with `seller.analytics.read` |
+| **File** | `pages/seller/SellerPerformancePage.tsx`, `lib/seller-performance.ts` |
+
+**Purpose.** How the seller converts, delivers and holds up on quality.
+
+**On the screen.** A window: 30, 90 or 365 days. Four cards, each tile showing
+a percentage, the counts behind it ("3 of 4") and one line saying what it
+counts. A rate over nothing is a dash, never 0%.
+
+- **Conversion**: RFQs invited, quote rate (quoted / invited), RFQ conversion
+  (purchase orders / quotes, over the invitations received in the window),
+  order fulfilment (delivered / placed and not cancelled).
+- **Delivery**: OTIF (delivered on or before the promised delivery date with
+  no return), on time, in full, dispatch on time. Orders with no promised date
+  are counted apart and left out of the rate.
+- **Quality**: return rate, inspection fail rate (failed / signed reports),
+  open NCRs, cancellation rate.
+- **Claims**: claims opened, still open, claims per order placed, chargebacks.
+
+**API call:** `GET /api/v1/seller/performance?days=30|90|365`
 
 #### `/seller/onboarding` — Your seller application
 
@@ -6287,7 +6324,7 @@ of supply), a status badge and, once issued, a payment badge.
 | **File** | `src/pages/ReportsPage.tsx` |
 | **Local screenshot** | `22-admin-reports.png` / `23-admin-reports.png` |
 
-**Purpose.** Sales and order figures, and full exports as CSV files.
+**Purpose.** Sales, order and marketplace figures, and full exports as CSV files.
 
 **On the screen.** **Period** (7, 30, 90 days, 12 months). Figures: orders,
 gross sales, collected, net revenue, tax, shipping, discounts, refunded.
@@ -6296,10 +6333,23 @@ orders, payments, customers, inventory or products and **Request export** (an
 export covers everything, not the chosen period); the list shows each export's
 state and **Download** when ready.
 
+Marketplace cards, for the same period: **GMV** per currency (goods value of
+orders not abandoned or cancelled, before tax and shipping) and the part sold
+by marketplace sellers with the commission earned; **Supplier quality** (per
+seller, worst first: orders, returns, claims, failed inspections and
+cancellations, each as "part / whole (%)"); **Inspection** (reports signed,
+fail rate, reports overdue, where every inspection stands, open NCRs by
+severity); **Disputes** (by kind and status, decisions by outcome, amount
+awarded per currency, seller responses overdue). **Settlement** (statements by
+status and currency with gross, commission and net payable; payouts by status;
+settlements on hold; failed payouts) is shown only to `payment.read`.
+
 **API calls**
 
 - `GET /api/v1/admin/reports/sales?from=…&to=…`
 - `GET /api/v1/admin/reports/orders?from=…&to=…`
+- `GET /api/v1/admin/reports/marketplace?from=…&to=…` (`report.read`)
+- `GET /api/v1/admin/reports/settlements?from=…&to=…` (`payment.read`)
 - `GET` and `POST /api/v1/admin/exports`, `GET /api/v1/admin/exports/:id`
 - `GET /api/v1/exports/download/:token` (the file)
 
@@ -7622,3 +7672,13 @@ The dedicated agency screen `/inspection/jobs/:id/packaging` shows the PACKAGING
 After a signed inspection fails, the seller uploads corrective evidence on each NCR and submits the response and corrective action. All severities can require correction; evidence must be stored before submission. Staff with inspection.manage choose the original failed inspection in the booking form. Booking stays blocked while any completed inspection has an open finding or another job is active. The server enforces these conditions and the original-job relationship. Both seller and admin views display the original inspection number. A passing repeat report closes the corrected findings; the original failed report stays immutable.
 
 Inspection responses now expose report as the latest report visible to that audience (or null), alongside the unchanged revision list. Agency job controls read the server’s transition objects by their to field. This repairs the inherited live-job rendering mismatch and preserves report visibility policies.
+
+## Seller order: shipment documents and booking; buyer order: shipment details (Master rows 42 and 56)
+
+Seller order detail (`/seller/orders/:id`): each consignment in the carrier card has a **Shipment booking** form — mode, Incoterm, named place, outside carrier (DHL, FedEx, India Post, or keep the current carrier), origin and destination port, pickup date, window from and to, route note — locked once collected. Below the invoice and packing list panel, **Shipment documents** lists each document with consignment, version, review state, whether the buyer sees it, issuer, number, expiry, a link to the file and earlier versions; shows the documents a trade rule requires; and offers a form to record a new version (kind, consignment or whole order, issuer, number, issue and expiry dates, optional file) and a **Generate certificate of origin draft** button. Buyer order detail (`/account/orders/:id`): a **Shipment details** card, after tracking, with each booked consignment's mode, Incoterm and place, ports, pickup, route and carrier with tracking number, and the documents the buyer may open. It is hidden when there is nothing to show.
+
+## Held funds, ledger and payouts (Master rows 58–61, 43, 12)
+
+- **Admin → Finance → Ledger** (`/finance/ledger`, `payment.read`): tabs *Orders* (gross, fee, fee tax, refunds, seller share, settlement state; a row opens its journal, holds, refunds and chargebacks), *Held funds* (conditions; hold and resume; request an early release; approve or reject somebody else's request), *Refunds & chargebacks* (accounting status), *Reconciliation* (run for the last 30 days and see the differences). *Refresh* and *Run payouts* need `finance.policy.write`.
+- **Seller Hub → Payments**: *Connect payout account* (Stripe account link, the connected account id, what Stripe still needs) inside the payout account card; *Balances* (gross, fees, fee tax, refunds, held, reserve, available, in transit, paid out, last reconciled); *Held funds* (per seller order: status, amounts, conditions, payout reference). Balances and held funds are hidden while the ledger is off.
+- **Storefront → order detail**: *How your payment is protected*, above the receipts — method, currency, amount paid, status, release terms and one milestone per seller with its conditions.

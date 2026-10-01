@@ -25,8 +25,11 @@ import { SellerOrderLegsPanel } from './SellerOrderLegsPanel';
 import { raiseConsignment } from '@/lib/consignment-logistics';
 import { ConsignmentCarrierPurchasePanel } from './ConsignmentCarrierPurchasePanel';
 import { ConsignmentDocumentsPanel } from './ConsignmentDocumentsPanel';
+import { ShipmentBookingPanel } from './ShipmentBookingPanel';
+import { TradeDocumentsPanel } from './TradeDocumentsPanel';
 import { Link, useParams } from 'react-router-dom';
 import { SellerOrderInspection } from '@/components/inspection/OrderInspections';
+import { SellerProductionPanel } from './SellerProductionPanel';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
@@ -127,6 +130,8 @@ export function SellerOrderDetailPage(): React.JSX.Element {
         <div className="space-y-6">
           <Lines order={order} />
           {/* L1-L4, where this order was priced on four delivery levels. */}
+          {/* Raw material, production, QA, ready and exceptions (Master row 40). */}
+          {order.status !== 'NEW' && <SellerProductionPanel sellerOrderId={order.id} />}
           <SellerOrderInspection sellerOrderGroupId={order.id} />
           <SellerOrderLegsPanel sellerOrderId={order.id} canAct={order.status !== 'NEW' && order.status !== 'CANCELLED'} />
           <Consignments order={order} />
@@ -136,6 +141,8 @@ export function SellerOrderDetailPage(): React.JSX.Element {
             sellerOrderId={order.id}
             canAct={order.status !== 'NEW'}
           />
+          {/* Certificate of origin, waybills and category documents (Master row 42). */}
+          <TradeDocumentsPanel sellerOrderId={order.id} canAct={order.status !== 'NEW' && order.status !== 'CANCELLED'} />
           <Shipments order={order} />
           <Returns order={order} />
         </div>
@@ -342,6 +349,9 @@ function Consignments({ order }: { order: SellerOrderDetail }): React.JSX.Elemen
             ) : (
               <p className="text-sm text-ink-muted">{consignment.reference}</p>
             )}
+
+            {/* Mode, Incoterm, ports, pickup and carrier (Master row 56). */}
+            <ShipmentBookingPanel shipmentId={consignment.id} />
 
             {/* Where it is now: the buyer's milestones, ETA and proof of delivery. */}
             <SellerConsignmentTracking shipmentId={consignment.id} reference={consignment.reference} />
