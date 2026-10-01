@@ -212,6 +212,27 @@ else
   fi
 fi
 
+# -----------------------------------------------------------------------------
+# The last restore test (SEC-010)
+#
+# A backup that has not been restored is a hope. deploy/scripts/verify-restore.sh
+# writes the date of its last PASS here; an installation that has never run it,
+# or not for a month, is told so every five minutes until somebody does.
+# -----------------------------------------------------------------------------
+RESTORE_MAX_DAYS="${UBOSS_RESTORE_TEST_MAX_DAYS:-35}"
+LAST_RESTORE_FILE="${UBOSS_STATE_DIR:-/var/lib/uboss}/last-restore-test"
+if [[ ! -s "$LAST_RESTORE_FILE" ]]; then
+  fail "no restore test has ever passed on this machine - run deploy/scripts/verify-restore.sh"
+else
+  last_restore="$(head -1 "$LAST_RESTORE_FILE")"
+  restore_age_d=$(( ( $(date +%s) - $(date -d "$last_restore" +%s 2>/dev/null || echo 0) ) / 86400 ))
+  if (( restore_age_d > RESTORE_MAX_DAYS )); then
+    fail "the last passing restore test was ${restore_age_d} days ago (threshold ${RESTORE_MAX_DAYS} days)"
+  else
+    ok "last restore test ${restore_age_d} days ago"
+  fi
+fi
+
 # Binary logs, only if point-in-time recovery has been set up at all. An
 # installation that has accepted a 24-hour recovery point should not be nagged
 # about it every five minutes; one that has set it up should hear immediately

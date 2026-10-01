@@ -7170,10 +7170,10 @@ The write is `PATCH /api/v1/admin/settings/policy-links`, needs
 to the business profile. Staff without `SETTINGS_WRITE` see the rows and no
 controls.
 
-## The five staff roles
+## The seven staff roles
 
 A member of staff has a role, and a role is a fixed bundle of permissions.
-There are 76 staff permission keys, like `product.write` or `order.approve`.
+There are 79 staff permission keys, like `product.write` or `order.approve`.
 
 | Role | Can do |
 |---|---|
@@ -7182,6 +7182,11 @@ There are 76 staff permission keys, like `product.write` or `order.approve`.
 | **Inventory Manager** | Stock receipts, adjustments, reservations, warehouses, alerts |
 | **Order Manager** | Orders, fulfilment, cancellation, returns |
 | **Finance / Approver** | Payment review, payment links, refunds, high-value approvals |
+| **Support Agent** | Reads orders; answers support tickets and preorder chats. Never refunds, cancels or decides |
+| **Compliance Officer** | Seller, factory and business-buyer verification, suspension, privacy requests, audit log, risk review. No money, no catalogue |
+
+Who may reach which record, and the tests that prove it, are in
+`docs/AUTHORIZATION-MATRIX.md`.
 
 Buyer company review has three keys of its own: `buyer_company.read` (Business
 Owner, Finance / Approver and Order Manager), `buyer_company.review` (Business
@@ -17432,6 +17437,27 @@ job the older one cannot handle bounces back to the queue until it dies.
 ---
 
 # 12. Security
+
+## Fraud and risk review
+
+The worker runs the rules in `risk_rules` on every maintenance pass
+(`modules/risk/risk.service.ts`): failed sign-ins, a password or MFA change
+after failures, sellers sharing a tax or company number, reused or late
+inspection evidence, refunds, coupon redemptions and order velocity, and
+several high signals on one subject. Each match becomes a `risk_signals` row
+with its facts, deduplicated per window. **Admin → Risk review** decides each
+one (confirmed or false positive, with a reason; never about yourself; a
+changed decision is an audited override). A signal blocks nothing by itself.
+The thresholds are placeholders until the business approves them.
+
+## Sensitive files and where staff open them
+
+Staff reads of KYC, KYB, seller documents and inspection evidence are
+audited. `STAFF_SENSITIVE_DATA_COUNTRIES` (empty by default) limits the
+countries staff may open them and privacy requests from, using the country
+header the reverse proxy sets (`STAFF_COUNTRY_HEADER`). Missing header with a
+list set means refused. Customers can also ask for a **correction** of their
+data (Art. 16) from **Your data**.
 
 ## Passwords
 

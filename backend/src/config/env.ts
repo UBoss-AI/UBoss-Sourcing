@@ -1512,6 +1512,17 @@ const envSchema = z
     /// record for the life of the installation.
     RETENTION_AUDIT_LOG_DAYS: intFromString(0, 3650).default(730),
 
+    /// Controlled cross-border access to identity, KYB, bank and privacy files.
+    /// A comma-separated list of ISO country codes (e.g. "IN,DE") staff may
+    /// open those files from. Empty (the default) applies no country rule -
+    /// permissions and the audit log still apply. Which countries are allowed
+    /// is the operator's legal decision, not this software's.
+    STAFF_SENSITIVE_DATA_COUNTRIES: originList.default([]),
+    /// The request header a trusted reverse proxy sets to the caller's
+    /// country (Cloudflare sends cf-ipcountry; nginx GeoIP can set any name).
+    /// Only read when the list above is set. A missing header is refused.
+    STAFF_COUNTRY_HEADER: z.string().trim().toLowerCase().min(1).max(64).default('cf-ipcountry'),
+
     /// Delivered notifications, with the rendered body still on them. Easy to
     /// overlook and worth the longest look: an order confirmation is the
     /// customer's name and delivery address written out in prose, so the

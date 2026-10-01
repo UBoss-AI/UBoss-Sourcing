@@ -34,6 +34,7 @@ import {
   type KycActor,
 } from '../../modules/customers/customer-kyc.service.js';
 import { currentUser, requireAdmin, requireCustomer } from '../plugins/auth.js';
+import { assertStaffDataRegion } from '../plugins/data-region.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 const documentParam = z.object({ id: z.string().length(26), documentId: z.string().length(26) });
@@ -171,6 +172,7 @@ export function registerAdminCustomerKycRoutes(app: FastifyInstance): Promise<vo
           error: { code: ErrorCode.NOT_FOUND, message: 'Document not found.', details: [], correlationId: request.correlationId },
         });
       }
+      assertStaffDataRegion(request);
       const file = await readKycDocumentForStaff(documentId, actorOf(request));
       return reply
         .header('content-type', file.mimeType)

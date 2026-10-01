@@ -24,7 +24,7 @@ import {
   type InspectionMembership,
 } from '../../modules/inspection/agency.service.js';
 import { readPolicy, type InspectionActor } from '../../modules/inspection/context.js';
-import { readEvidenceBytes } from '../../modules/inspection/evidence.service.js';
+import { readEvidenceBytes, type EvidenceViewer } from '../../modules/inspection/evidence.service.js';
 import {
   acceptJob,
   assignInspector,
@@ -121,6 +121,12 @@ const evidenceFields = z.object({
   latitude: z.coerce.number().min(-90).max(90).nullable().optional(),
   longitude: z.coerce.number().min(-180).max(180).nullable().optional(),
 });
+
+/** Who is reading a piece of evidence, for the audit log. */
+function viewerOf(request: FastifyRequest, party: EvidenceViewer['party']): EvidenceViewer {
+  const auth = currentUser(request);
+  return { party, userId: auth.id, email: auth.email, ipAddress: request.ip, correlationId: request.correlationId };
+}
 
 function sendEvidence(reply: FastifyReply, file: { bytes: Buffer; contentType: string; fileName: string }): FastifyReply {
   return sendAttachment(reply.header('Cache-Control', 'no-store'), { body: file.bytes, contentType: file.contentType, fileName: file.fileName });
@@ -233,7 +239,7 @@ export function registerAgencyInspectionRoutes(app: FastifyInstance): Promise<vo
   app.get('/evidence/:id', async (request, reply) => {
     const { id: evidenceId } = idParam.parse(request.params);
     if (!(await agencyMaySeeEvidence(await membershipOf(request), evidenceId))) throw notFound('Evidence');
-    return sendEvidence(reply, await readEvidenceBytes(evidenceId));
+    return sendEvidence(reply, await readEvidenceBytes(evidenceId, viewerOf(request, 'AGENCY')));
   });
 
   return Promise.resolve();
@@ -289,7 +295,7 @@ export function registerSellerInspectionRoutes(app: FastifyInstance): Promise<vo
   app.get('/inspection/evidence/:id', { preHandler: requireSeller(SellerPermission.ORDER_READ) }, async (request, reply) => {
     const { id: evidenceId } = idParam.parse(request.params);
     if (!(await sellerMaySeeEvidence(currentSeller(request).sellerAccountId, evidenceId))) throw notFound('Evidence');
-    return sendEvidence(reply, await readEvidenceBytes(evidenceId));
+    return sendEvidence(reply, await readEvidenceBytes(evidenceId, viewerOf(request, 'SELLER')));
   });
 
   return Promise.resolve();
@@ -355,7 +361,7 @@ export function registerBuyerInspectionRoutes(app: FastifyInstance): Promise<voi
   app.get('/evidence/:id', async (request, reply) => {
     const { id: evidenceId } = idParam.parse(request.params);
     if (!(await buyerMaySeeEvidence(currentUser(request).customerProfileId ?? '', evidenceId))) throw notFound('Evidence');
-    return sendEvidence(reply, await readEvidenceBytes(evidenceId));
+    return sendEvidence(reply, await readEvidenceBytes(evidenceId, viewerOf(request, 'BUYER')));
   });
 
   return Promise.resolve();

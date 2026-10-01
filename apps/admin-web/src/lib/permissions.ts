@@ -126,17 +126,23 @@ export const Permission = {
   INSPECTION_READ: 'inspection.read',
   INSPECTION_MANAGE: 'inspection.manage',
   INSPECTION_RELEASE: 'inspection.release',
+
+  RISK_READ: 'risk.read',
+  RISK_REVIEW: 'risk.review',
+  RISK_RULE_WRITE: 'risk.rule.write',
 } as const;
 
 export type PermissionKey = (typeof Permission)[keyof typeof Permission];
 
-/** Human labels for the six roles, for the staff screen and the profile menu. */
+/** Human labels for the eight roles, for the staff screen and the profile menu. */
 export const ROLE_LABELS: Record<string, string> = {
   business_owner: 'Business Owner',
   catalog_manager: 'Catalog Manager',
   inventory_manager: 'Inventory Manager',
   order_manager: 'Order Manager',
   finance_approver: 'Finance Approver',
+  support_agent: 'Support Agent',
+  compliance_officer: 'Compliance Officer',
   customer: 'Customer',
 };
 

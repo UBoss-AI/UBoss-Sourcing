@@ -44,7 +44,11 @@ import { NotificationEvent, enqueueNotification } from '../notifications/notific
 import { buildCustomerBundle } from './export-bundle.service.js';
 import { describeKept, executeErasure, findErasureBlockers } from './erasure.service.js';
 
-export const DataRequestType = { EXPORT: 'EXPORT', ERASURE: 'ERASURE' } as const;
+export const DataRequestType = {
+  EXPORT: 'EXPORT',
+  ERASURE: 'ERASURE',
+  RECTIFICATION: 'RECTIFICATION',
+} as const;
 export type DataRequestTypeValue = (typeof DataRequestType)[keyof typeof DataRequestType];
 
 /** Art. 12(3): "without undue delay and in any event within one month". */
@@ -116,12 +120,21 @@ export async function createDataRequest(
     select: { id: true, dueAt: true },
   });
 
+  // A correction is only actionable when it says what is wrong.
+  if (input.type === DataRequestType.RECTIFICATION && (input.note ?? '').trim().length < 10) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'Say what is wrong and what it should say.', [
+      { field: 'note', code: 'REQUIRED' },
+    ]);
+  }
+
   if (open !== null) {
     throw conflict(
       ErrorCode.DATA_REQUEST_ALREADY_OPEN,
       input.type === DataRequestType.EXPORT
         ? 'Your copy is already being prepared. You will be emailed when it is ready.'
-        : 'Your erasure request has already been received and is being reviewed.',
+        : input.type === DataRequestType.RECTIFICATION
+          ? 'Your correction request has already been received and is being reviewed.'
+          : 'Your erasure request has already been received and is being reviewed.',
       [{ code: 'ALREADY_OPEN', meta: { requestId: open.id, dueAt: open.dueAt.toISOString() } }],
     );
   }
@@ -168,7 +181,7 @@ export async function createDataRequest(
       },
     );
   } else {
-    // An erasure needs a person. The bell carries `data_request.read` rather
+    // An erasure or a correction needs a person. The bell carries `data_request.read` rather
     // than `customer.read`: knowing that a named individual has asked to be
     // erased is its own piece of information, and not everyone who may look up
     // a customer should receive it unprompted.
@@ -370,6 +383,29 @@ export async function approveRequest(input: DecisionInput): Promise<void> {
       tx,
     );
   });
+
+  // A correction has no file to build: staff made (or refused) the change
+  // when they decided, so approving it closes the request and says what was
+  // done. The note is the record of the decision.
+  if (row.type === DataRequestType.RECTIFICATION) {
+    const note = input.note?.trim() ?? '';
+    if (note.length === 0) {
+      await prisma.dataRequest.update({ where: { id: row.id }, data: { status: 'PENDING', handledById: null, handledAt: null, decisionNote: null } });
+      throw badRequest(ErrorCode.VALIDATION_FAILED, 'Say what was corrected.', [{ field: 'note', code: 'REQUIRED' }]);
+    }
+    await prisma.dataRequest.update({ where: { id: row.id }, data: { status: 'COMPLETED', completedAt: new Date() } });
+    await recordAudit({
+      action: AuditAction.DATA_REQUEST_FULFILLED,
+      resourceType: 'data_request',
+      resourceId: row.id,
+      actorType: 'ADMIN',
+      actorUserId: input.actorUserId,
+      actorEmail: input.actorEmail,
+      after: { type: row.type, correction: note.slice(0, 1024) },
+      correlationId: input.correlationId ?? null,
+    });
+    return;
+  }
 
   await queue.enqueue(
     JobType.DATA_REQUEST_FULFIL,

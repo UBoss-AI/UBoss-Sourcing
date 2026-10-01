@@ -352,6 +352,10 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'risk',
+        ...lazyRoute(() => import('@/pages/RiskReviewPage').then((m) => m.RiskReviewPage), [Permission.RISK_READ]),
+      },
+      {
         path: 'manufacturers',
         ...lazyRoute(
           () => import('@/pages/ManufacturersPage').then((m) => m.ManufacturersPage),

@@ -200,7 +200,7 @@ What the rehearsal does, and the order is the point:
 
 ## 6. Accounts and least privilege
 
-Five accounts. The application's credential must not be able to change the
+Six accounts. The application's credential must not be able to change the
 schema, and must not be able to rewrite what it did.
 
 | Account | Used by | Privileges | Where its password lives |
@@ -209,6 +209,7 @@ schema, and must not be able to rewrite what it did.
 | `uboss_maintenance` | GDPR erasure and the audit retention sweep, nothing else | On `audit_logs` only: `SELECT`, `DELETE`, and `UPDATE` of the **columns** `actorEmail`, `ipAddress` and `userAgent` (plus `updatedAt`, which Prisma stamps on every update). No `INSERT`, no other column, no other table | `DATABASE_MAINTENANCE_URL`, same file. **Production refuses to start without it** |
 | `uboss_migrate` | `prisma migrate deploy`, during a release only | `ALL PRIVILEGES` on the database. Nothing server-wide | `MIGRATE_DATABASE_URL`, same file, read by `release.sh` and never by the API |
 | `uboss_backup` | the nightly dump | `SELECT, LOCK TABLES, SHOW VIEW, EVENT, TRIGGER` on the database, and **nothing at the server level** — see below | `UBOSS_BACKUP_DATABASE_URL` |
+| `uboss_restore` | `deploy/scripts/verify-restore.sh` (monthly restore test) | `ALL PRIVILEGES` on ``uboss_restore_check_%`` **only** — it can create and drop its own scratch databases and cannot read or write `uboss` | `UBOSS_RESTORE_DATABASE_URL`, given on the command line or in `/etc/uboss/backup.env` |
 | `uboss_binlog` | `ship-binlogs.sh` | `REPLICATION SLAVE, BINLOG MONITOR, RELOAD` server-wide. **No `SELECT` on any table** — it reads the log of changes, never the data | `UBOSS_BINLOG_URL` in `/etc/uboss/backup.env` |
 
 `root` is reachable over the local socket only, is never in a connection

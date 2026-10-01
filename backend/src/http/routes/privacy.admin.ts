@@ -27,10 +27,11 @@ import {
   retentionSchedule,
 } from '../../modules/privacy/privacy-controls.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
+import { assertStaffDataRegion } from '../plugins/data-region.js';
 
 const listQuery = z.object({
   status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'REJECTED', 'FAILED']).optional(),
-  type: z.enum(['EXPORT', 'ERASURE']).optional(),
+  type: z.enum(['EXPORT', 'ERASURE', 'RECTIFICATION']).optional(),
   page: z.coerce.number().int().min(1).optional(),
   limit: z.coerce.number().int().min(1).max(100).optional(),
 });
@@ -59,6 +60,7 @@ export function registerAdminPrivacyRoutes(app: FastifyInstance): Promise<void> 
     '/data-requests',
     { preHandler: requireAdmin(Permission.DATA_REQUEST_READ) },
     async (request, reply) => {
+      assertStaffDataRegion(request);
       const query = listQuery.parse(request.query);
       const result = await listRequests(query);
       return reply.status(200).send(result);
@@ -76,6 +78,7 @@ export function registerAdminPrivacyRoutes(app: FastifyInstance): Promise<void> 
     '/data-requests/:requestId',
     { preHandler: requireAdmin(Permission.DATA_REQUEST_READ) },
     async (request, reply) => {
+      assertStaffDataRegion(request);
       const { requestId } = idParam.parse(request.params);
       const result = await getRequestForAdmin(requestId);
       return reply.status(200).send(result);
@@ -93,6 +96,7 @@ export function registerAdminPrivacyRoutes(app: FastifyInstance): Promise<void> 
     '/data-requests/:requestId/approve',
     { preHandler: requireAdmin(Permission.DATA_REQUEST_ACTION) },
     async (request, reply) => {
+      assertStaffDataRegion(request);
       const { requestId } = idParam.parse(request.params);
       const body = decisionSchema.parse(request.body ?? {});
       const actor = actorFrom(request);
@@ -114,6 +118,7 @@ export function registerAdminPrivacyRoutes(app: FastifyInstance): Promise<void> 
     '/data-requests/:requestId/reject',
     { preHandler: requireAdmin(Permission.DATA_REQUEST_ACTION) },
     async (request, reply) => {
+      assertStaffDataRegion(request);
       const { requestId } = idParam.parse(request.params);
       const body = decisionSchema.parse(request.body ?? {});
       const actor = actorFrom(request);

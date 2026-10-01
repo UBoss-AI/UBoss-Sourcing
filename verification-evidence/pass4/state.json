@@ -2431,6 +2431,24 @@
       "status": "VERIFIED",
       "evidence": "orders list filters, track, returns; order page invoice, cancel, support, reorder; OrdersPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean",
       "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "SEC-002",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. New least-privilege staff roles Support Agent and Compliance Officer (permissions.ts), pinned by tests/unit/staff-least-privilege.test.ts (8). New tests/integration/authorization-matrix.test.ts (14): rival buyer refused order, invoice, receipts, tracking, payment protection, documents and inspection timeline (404); rival cancel by changed id refused; seller B refused seller A's order part, documents, inspection, readiness declaration and settlements; buyer session refused on Seller Hub; second agency and unassigned inspector refused job, list, start, decline and evidence; evidence reads audited; support refused refund, privacy, ledger and staff; compliance refused refund and ledger; self-escalation of roles refused (403) and owner role change audited; deactivated buyer gets 401 on the next request. Existing suites rerun green: session-isolation, logistics-tenant-isolation, logistics-driver-location, rfq-create, rfq-responses, seller-team, auth, customers, staff-temporary-password, inspection-http, inspection-gate-http. Matrix documented in docs/AUTHORIZATION-MATRIX.md.",
+      "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "SEC-007",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. Technical controls verified: privacy notice and versioned Terms consent with hash (ConsentRecord, legal-documents tests); optional marketing opt-ins separate and off by default; retention schedule from env and processing register (privacy-controls tests); export and erasure (data-subject-rights 20 tests, export-bundle-completeness); NEW Art. 16 correction requests (RECTIFICATION type, migration 20261030100000; privacy-rectification.test.ts 4: note required, one open, hidden from others, support refused, approval needs a note, audited, no double decision; YourDataPanel.test.tsx in customer app); privacy requests restricted to Business Owner and Compliance Officer; staff reads of KYC/KYB/seller documents and NEW inspection evidence reads audited; NEW controlled cross-border access STAFF_SENSITIVE_DATA_COUNTRIES with proxy country header, fail-closed (authorization-matrix test); log redaction (SEC-003). Legal wording and counsel approval of notices, retention periods and transfer safeguards remain with LIVE-014.",
+      "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "SEC-008",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. Configurable fraud foundation: risk_rules and risk_signals (migration 20261030110000), worker runRiskScan with rules LOGIN_FAILURES, SENSITIVE_CHANGE_AFTER_FAILURES, DUPLICATE_SELLER_IDENTIFIER, EVIDENCE_REUSED, EVIDENCE_LATE_UPLOAD, REFUND_FREQUENCY, REFUND_VALUE, PROMO_REDEMPTIONS, ORDER_VELOCITY, MULTIPLE_HIGH_RISK; explained facts, severity, dedupe key, admin bell for HIGH/CRITICAL; review queue with reason, self-review refused, false positive and audited override; rule edits owner-only, versioned, audited; no automatic adverse action. tests/integration/risk-signals.test.ts (6): triggered vs below threshold, no duplicate on rescan, masked tax number, takeover pattern, composite critical, permissions, review and override audit, notification resolved, rule versioning; late-evidence rule in authorization-matrix test; admin RiskReviewPage.test.tsx (2). Production threshold values need the business risk owner's approval (shown as placeholders in the console); bank-detail duplicates are held by the payout provider and not checked.",
+      "verifiedAt": "2026-10-01 (pass 8)"
     }
   ],
   "pendingBoxes": []

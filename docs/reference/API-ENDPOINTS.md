@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1279 endpoints** in 116 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1283 endpoints** in 117 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,7 +27,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 511 |
+| [Admin panel (staff)](#admin-panel-staff) | 515 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 318 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
@@ -803,6 +803,17 @@ Defined in `backend/src/http/routes/returns.ts`.
 | POST | `/api/v1/admin/returns/:id/replacement` | Staff | Admin(ORDER_RETURN) | Close an inspected return with a replacement sent instead of a refund. A note saying what was sent is required. |
 | POST | `/api/v1/admin/returns/:id/files/:fileId/link` | Staff | Admin(ORDER_READ) | A five-minute, single-use link to one file of a return. |
 | GET | `/api/v1/admin/returns/:id/files/:fileId/download` | Staff | Admin(ORDER_READ) | Download a file of a return with a link from the route above. |
+
+### `admin/risk`
+
+Defined in `backend/src/http/routes/risk.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/risk/signals` | Staff | Admin(RISK_READ) | Risk signals, newest first, filtered by status or rule. |
+| POST | `/api/v1/admin/risk/signals/:id/decision` | Staff | Admin(RISK_REVIEW) | Decide a risk signal: confirmed or a false positive, with a reason. Changing an earlier decision is recorded as an override. |
+| GET | `/api/v1/admin/risk/rules` | Staff | Admin(RISK_READ) | The fraud rules, their thresholds and whether the business has approved them for production. |
+| PATCH | `/api/v1/admin/risk/rules/:code` | Staff | Admin(RISK_RULE_WRITE) | Change one rule or approve its values for production. Needs the version you read. |
 
 ### `admin/schedules`
 

@@ -271,6 +271,16 @@ export const Permission = {
   /// be able to do. Business Owner only by default; a deployment with a named
   /// data protection officer grants it to them explicitly.
   DATA_REQUEST_ACTION: 'data_request.action',
+
+  // --- Fraud and risk (SEC-008) ---
+  /// Reading the risk-signal queue and the rules that raise it.
+  RISK_READ: 'risk.read',
+  /// Deciding a signal: confirmed or a false positive, with a reason.
+  RISK_REVIEW: 'risk.review',
+  /// Changing a rule's thresholds or approving them for production. Business
+  /// Owner only: a reviewer who could also loosen the rules could silence the
+  /// signals they are meant to review.
+  RISK_RULE_WRITE: 'risk.rule.write',
 } as const;
 
 export type PermissionKey = (typeof Permission)[keyof typeof Permission];
@@ -284,6 +294,8 @@ export const Role = {
   INVENTORY_MANAGER: 'inventory_manager',
   ORDER_MANAGER: 'order_manager',
   FINANCE_APPROVER: 'finance_approver',
+  SUPPORT_AGENT: 'support_agent',
+  COMPLIANCE_OFFICER: 'compliance_officer',
   CUSTOMER: 'customer',
 } as const;
 
@@ -488,6 +500,70 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       Permission.REPORT_READ,
       Permission.EXPORT_CREATE,
       Permission.AUDIT_READ,
+      // Refund abuse and payment velocity are money questions.
+      Permission.RISK_READ,
+      Permission.RISK_REVIEW,
+    ]),
+  },
+
+  {
+    key: Role.SUPPORT_AGENT,
+    name: 'Support Agent',
+    description: 'Answers support requests and preorder chats; reads orders, never moves money.',
+    // Least privilege for a front-line desk. It reads what a customer asks
+    // about and answers them, and that is all: no refund, no cancellation, no
+    // payment, no settings, no staff and no decision on a dispute. Anything
+    // that changes an order or money goes to the order desk or finance.
+    permissions: Object.freeze([
+      Permission.SETTINGS_READ,
+      Permission.CATEGORY_READ,
+      Permission.PRODUCT_READ,
+      Permission.CUSTOMER_READ,
+      Permission.ASSISTANT_CHAT_READ,
+      Permission.PREORDER_CHAT_VIEW,
+      Permission.PREORDER_CHAT_REPLY,
+      Permission.SUPPORT_TICKET_VIEW,
+      Permission.SUPPORT_TICKET_REPLY,
+      Permission.DISPUTE_VIEW,
+      Permission.REVIEW_READ,
+      Permission.ORDER_READ,
+      Permission.INSPECTION_READ,
+      Permission.LOGISTICS_READ,
+      Permission.INVOICE_READ,
+    ]),
+  },
+
+  {
+    key: Role.COMPLIANCE_OFFICER,
+    name: 'Compliance Officer',
+    description:
+      'Seller and buyer verification, privacy requests and the audit log; no money and no catalogue changes.',
+    // Verification and privacy, kept apart from both money and selling. It
+    // decides seller, factory and business-buyer applications, works data
+    // subject requests and reads the audit log. It holds no refund, payment,
+    // finance policy, catalogue write, staff or role permission, so the person
+    // who approves a supplier can neither pay them nor change what they sell.
+    permissions: Object.freeze([
+      Permission.SETTINGS_READ,
+      Permission.CATEGORY_READ,
+      Permission.PRODUCT_READ,
+      Permission.REVIEW_READ,
+      Permission.CUSTOMER_READ,
+      Permission.CUSTOMER_STATUS_WRITE,
+      Permission.BUYER_COMPANY_READ,
+      Permission.BUYER_COMPANY_REVIEW,
+      Permission.BUYER_COMPANY_SUSPEND,
+      Permission.DISPUTE_VIEW,
+      Permission.ORDER_READ,
+      Permission.INSPECTION_READ,
+      Permission.LEGAL_DOCUMENT_READ,
+      Permission.DATA_REQUEST_READ,
+      Permission.DATA_REQUEST_ACTION,
+      Permission.AUDIT_READ,
+      Permission.REPORT_READ,
+      // Fake suppliers and fake evidence are verification questions.
+      Permission.RISK_READ,
+      Permission.RISK_REVIEW,
     ]),
   },
 

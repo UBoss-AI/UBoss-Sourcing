@@ -138,6 +138,9 @@ const PREORDER_EVENTS = new Set([
  */
 const DATA_REQUEST_RAISED = 'data_request.raised';
 
+/** A fraud rule raised a high or critical signal. Clears when it is reviewed. */
+const RISK_SIGNAL_RAISED = 'risk_signal.raised';
+
 /** A consignment could not be delivered. Clears when the parcel moves again. */
 const LOGISTICS_DELIVERY_FAILED = 'logistics.delivery_failed';
 
@@ -411,6 +414,13 @@ function describe(notification: ConsoleNotification, t: ReturnType<typeof useI18
       detail: t('notifications.dataRequest.detail', {
         email: textVariable(variables, 'email', '—'),
       }),
+    };
+  }
+
+  if (notification.kind === RISK_SIGNAL_RAISED) {
+    return {
+      title: t('notifications.riskSignal.title', { severity: humanise(textVariable(variables, 'severity', '—')) }),
+      detail: t('notifications.riskSignal.detail', { rule: humanise(textVariable(variables, 'rule', '—')) }),
     };
   }
 

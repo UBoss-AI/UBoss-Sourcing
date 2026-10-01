@@ -5388,7 +5388,7 @@ CHECK to `consent_records`. Nothing is seeded.
 |---|---|---|
 | [`DataRequest`](reference/DATABASE-TABLES.md#model-datarequest) | `data_requests` | one request: subject, type, status, due date, decision, download token |
 
-**Enums.** `DataRequestType`: `EXPORT`, `ERASURE`. `DataRequestStatus`:
+**Enums.** `DataRequestType`: `EXPORT`, `ERASURE`, `RECTIFICATION` (Art. 16, added in `20261030100000_data_request_rectification`; `subjectNote` holds what is wrong, `decisionNote` what was corrected). `DataRequestStatus`:
 `PENDING`, `IN_PROGRESS`, `COMPLETED`, `REJECTED`, `FAILED`.
 
 **Rules.** `dueAt` is set at receipt and the admin queue sorts by it
@@ -6099,3 +6099,12 @@ The tables from `20261016800100_transaction_ledger_and_payouts` are now written 
 - Seller-owned accounts (`SELLER_HELD`, `SELLER_RESERVE`, `SELLER_AVAILABLE`, `PAYOUTS_IN_TRANSIT`) use the seller id as `ownerKey`; the rest use `PLATFORM`. A seller's balances are credit (negative) sums.
 - `seller_fund_holds` moves `HELD → ON_HOLD (DISPUTE or MANUAL) → HELD → RELEASED` through guarded `updateMany` calls, so a race releases once. `payoutId` links released holds to the payout that carried them.
 - `seller_payouts` made from the ledger have no `settlementId`, and `idempotencyKey = ledger-payout:<id>`.
+
+## Fraud and risk signals (SEC-008)
+
+Migration `20261030110000_risk_signals` adds two tables.
+
+- `risk_rules` - one row per rule, keyed by `code` (for example `LOGIN_FAILURES`): `enabled`, `severity` (LOW, MEDIUM, HIGH, CRITICAL), `threshold`, `windowMinutes`, and for value rules `thresholdMinor` (BIGINT minor units) with `currency`. `approvedForProduction` is false until the business approves the values; `version` is the optimistic lock for edits. The migration inserts ten rules with placeholder values.
+- `risk_signals` - one row per pattern found: `ruleCode`, `severity`, `subjectType` and `subjectId` (a user, a buyer profile, a seller identifier fingerprint, an evidence file or hash), `observed` against `threshold`, `facts` (JSON: the records behind it; tax numbers only as fingerprint plus last four characters), and the review: `status` (OPEN, CONFIRMED, FALSE_POSITIVE), `reviewedById`, `reviewedAt`, `reviewReason`. `dedupeKey` is unique (`uq_risk_signal_dedupe`): rule, subject and time bucket, or a fingerprint of the group for standing patterns, so a rescan inserts nothing new. Indexed by `(status, detectedAt)` for the queue and `(subjectType, subjectId)`.
+
+Neither table has a foreign key: a signal must survive the record it is about, and the subject may be a fingerprint rather than a row. Reviews and rule changes are written to `audit_logs`.

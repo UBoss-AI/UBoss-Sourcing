@@ -48,6 +48,7 @@ import {
   listMethodsAwaitingDecision,
 } from '../../modules/seller/fulfilment-method.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
+import { assertStaffDataRegion } from '../plugins/data-region.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 
@@ -323,6 +324,7 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
       const params = idParam.parse(request.params);
       const auth = currentUser(request);
 
+      assertStaffDataRegion(request);
       const link = await createAdminDocumentLink(auth.id, params.id, request.correlationId);
 
       return reply.header('cache-control', 'no-store').status(200).send(link);
@@ -345,6 +347,7 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
 
       // Null for the seller scope: an operator may read any seller's document,
       // and which one this is has already been decided by the id in the token.
+      assertStaffDataRegion(request);
       const file = await redeemDocumentLink('admin', auth.id, params.id, query.token, null);
 
       return reply

@@ -51,7 +51,7 @@ import { Permission } from '@/lib/permissions';
 import type { BadgeTone } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 
-type RequestType = 'EXPORT' | 'ERASURE';
+type RequestType = 'EXPORT' | 'ERASURE' | 'RECTIFICATION';
 type RequestStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECTED' | 'FAILED';
 
 interface DataRequestRow {
@@ -133,6 +133,10 @@ function DecisionDialog({
   });
 
   const irreversible = mode === 'approve' && request.type === 'ERASURE';
+  // Approving a correction closes it, so the note of what was changed is the
+  // record of the decision and the server refuses one without it.
+  const correction = request.type === 'RECTIFICATION';
+  const noteRequired = mode === 'reject' || correction;
 
   return (
     <Modal
@@ -148,7 +152,7 @@ function DecisionDialog({
           <Button
             variant={mode === 'approve' ? 'primary' : 'danger'}
             isLoading={submit.isPending}
-            disabled={mode === 'reject' && note.trim().length === 0}
+            disabled={noteRequired && note.trim().length === 0}
             onClick={() => {
               setError(null);
               submit.mutate();
@@ -182,7 +186,9 @@ function DecisionDialog({
           <span className="text-xs font-medium text-ink">
             {mode === 'reject'
               ? t('dataRequests.reasonRequired')
-              : t('dataRequests.noteOptional')}
+              : correction
+                ? t('dataRequests.correctionNoteRequired')
+                : t('dataRequests.noteOptional')}
           </span>
           <Textarea
             className="mt-1.5"
@@ -285,7 +291,11 @@ export function DataRequestsPage(): React.JSX.Element {
       nowrap: true,
       render: (row) => (
         <Badge tone={row.type === 'ERASURE' ? 'danger' : 'neutral'}>
-          {row.type === 'ERASURE' ? t('dataRequests.typeErasure') : t('dataRequests.typeExport')}
+          {row.type === 'ERASURE'
+            ? t('dataRequests.typeErasure')
+            : row.type === 'RECTIFICATION'
+              ? t('dataRequests.typeCorrection')
+              : t('dataRequests.typeExport')}
         </Badge>
       ),
     },
@@ -428,6 +438,7 @@ export function DataRequestsPage(): React.JSX.Element {
               <option value="">{t('dataRequests.anyRight')}</option>
               <option value="EXPORT">{t('dataRequests.typeExport')}</option>
               <option value="ERASURE">{t('dataRequests.typeErasure')}</option>
+              <option value="RECTIFICATION">{t('dataRequests.typeCorrection')}</option>
             </Select>
           </ToolbarField>
         </Toolbar>

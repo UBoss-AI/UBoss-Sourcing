@@ -3379,3 +3379,16 @@ export type RfqSample = Prisma.RfqSampleModel
  * inspection defect codes. Categories and currencies have their own tables.
  */
 export type MasterDataEntry = Prisma.MasterDataEntryModel
+/**
+ * Model RiskRule
+ * One configurable fraud rule. The defaults are placeholders: the risk owner
+ * sets production values and marks them approved (`approvedForProduction`).
+ */
+export type RiskRule = Prisma.RiskRuleModel
+/**
+ * Model RiskSignal
+ * A rule that fired, with the facts that made it fire. Raised by the worker's
+ * scan; reviewed by a person. `dedupeKey` makes a rescan of the same window
+ * a no-op, so one pattern is one signal.
+ */
+export type RiskSignal = Prisma.RiskSignalModel

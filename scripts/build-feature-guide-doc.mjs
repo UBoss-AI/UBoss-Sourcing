@@ -786,6 +786,7 @@ bullets([
   'A requested new email receives a confirmation link; the old email receives a security warning.',
   'Confirming a new sign-in email revokes existing sessions because the sign-in identity has changed.',
   'A customer can request their data and can deactivate or close their account through the governed account flow.',
+  'A customer can also ask for a correction. They say what is wrong and what it should say. A member of staff checks it, makes the change or explains why not, and the customer sees the answer on the same page. The deadline of one month is shown.',
 ]);
 h2('6.3 My stuff');
 table(['Feature', 'Customer benefit'], [
@@ -1585,7 +1586,10 @@ table(['Staff role', 'Main abilities'], [
   ['Inventory Manager', 'Inventory receipts, adjustments, reservations, warehouses and stock alerts.'],
   ['Order Manager', 'Orders, fulfilment, shipment status, cancellation, return handling, reading product reviews, and reading and answering support tickets.'],
   ['Finance / Approver', 'Payment review, payment links, refunds and approval work, the marketplace’s own invoices to sellers for its fee, and reading support tickets.'],
+  ['Support Agent', 'Reads orders and answers support tickets and chat questions. Cannot refund, cancel, change an order or decide a dispute.'],
+  ['Compliance Officer', 'Checks and approves sellers, factories and company buyers, suspends accounts, handles privacy requests, reads the audit log and reviews risk signals. Cannot move money or change the catalogue.'],
 ], [3100, 6600]);
+p('A person can only give a role to someone else if they already hold everything that role allows, so nobody can raise their own access. Removing a person signs them out at once.');
 p('The page may hide controls a role cannot use, but the server also checks the permission on every protected request.');
 h2('7.3 Dashboard and notification bell');
 p('The console opens on the work waiting for the team this morning, and on nothing else: one ring, and beside it a short written summary of what the ring shows. Beneath the ring, staff who are allowed to see reports also get a short strip of key figures and a health tile. The detailed trading figures live on the screens that own them — Reports, Orders, Payments, Inventory, Recurring — all still in the menu.');
@@ -2083,7 +2087,8 @@ bullets([
   'Where the person gave a reason, such as why an account was suspended, the entry shows it. Where the action came from a browser, the entry shows the device, for example Chrome on Windows.',
   'Staff who may read the audit log and also export data can download the entries they are looking at as a spreadsheet file. The file follows the filters on the screen, holds up to 10,000 entries, newest first, and shows the same details as the screen. If more entries match, the system says so and asks the person to narrow the filters.',
   'Every download is itself written to the audit log, with who took it and what it held, before the file is handed over. A download that cannot be recorded is not given out.',
-  'Data requests area supports governed privacy work such as access and erasure requests.',
+  'Data requests area supports governed privacy work: a copy of the data, erasure and correction requests. Approving a correction needs a note of what was changed.',
+  'Risk review lists warnings the system raised about possible fraud: many failed sign-ins, a password changed right after failed sign-ins, two sellers giving the same tax number, the same inspection photo used on two inspections, a photo uploaded long after it was taken, and many refunds, coupons or orders from one buyer in a short time. A reviewer marks each one as confirmed or a false alarm and must say why. A warning never blocks anyone by itself. The limits start as suggestions and the business sets the real ones.',
   'The audit record is written with the change so a business action cannot quietly happen without a trace.',
   'The system itself cannot change or delete an audit record once it is written. There are two exceptions, both required by privacy law, and a separate, tightly limited database account does them. When a person’s account is erased, their name, email and address details are removed from the audit records, but the record of what happened stays. And records are deleted after the retention period the operator sets.',
 ]);
@@ -2443,6 +2448,7 @@ bullets([
   'Passwords use secure password hashing; reset/activation/contact tokens are time-limited and single-use.',
   'Every staff session is challenged for a code from an authenticator app, and recovery codes are issued once for a lost phone.',
   'Permissions are enforced on the server for protected actions.',
+  'Every time staff open an identity document, a company document, a seller document or an inspection photo, the system records who opened it.',
   'An account is only opened when the server itself has checked that the person agreed to the Terms that apply today. The record of which Terms, in which language and when is written together with the account, and nothing about it is taken from the person’s browser.',
   'Preorder chats: a customer can only ever open their own conversations, sellers cannot see them at all, staff need the right role, and a signed-out or disabled account loses the live connection within seconds. Messages are shown as plain text, so nothing a person types can run as code.',
   'Rate limits help protect login, API and expensive assistant actions.',
@@ -2528,6 +2534,7 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Requests for quotation', 'On by default and can be switched off by a setting. Off, the Request quotes links, the account’s requests pages and the Seller Hub inbox disappear, and nothing can be sent or answered. Requests already raised are kept. Files on a request appear only when a virus scanner is connected. The business sets how far ahead a deadline may be and how many suppliers one request may reach.'],
   ['Second reviewer for risky company applications', 'Off by default and turned on by a setting. The business chooses whether applications of raised risk, or only high risk, need two different reviewers to approve them.'],
   ['Order approvals', 'Enabled when the business wants certain orders to wait for an approver.'],
+  ['Opening sensitive files only from chosen countries', 'Off by default. When the business lists the countries staff may work from, staff can open identity, company and seller documents and privacy requests only from those countries. The country is supplied by the business’s own web server, not by the browser.'],
   ['Recurring and scheduled orders', 'Enabled when the business offers Buy Later and Subscribe & Reorder.'],
   ['Any-product scheduling', 'Controls whether all published products or only selected products may be repeated.'],
   ['Card payment on Stripe’s own page', 'Appears once the business connects its Stripe account. Until then the payment page says card payment is not set up on this store yet. The business also sets, in its Stripe account, which ways to pay are offered and the name, logo and colours shown on Stripe’s page.'],

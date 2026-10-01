@@ -406,7 +406,9 @@ export const ModelName = {
   RfqPurchaseOrder: 'RfqPurchaseOrder',
   RfqPurchaseOrderApproval: 'RfqPurchaseOrderApproval',
   RfqSample: 'RfqSample',
-  MasterDataEntry: 'MasterDataEntry'
+  MasterDataEntry: 'MasterDataEntry',
+  RiskRule: 'RiskRule',
+  RiskSignal: 'RiskSignal'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -8699,6 +8701,46 @@ export const MasterDataEntryScalarFieldEnum = {
 export type MasterDataEntryScalarFieldEnum = (typeof MasterDataEntryScalarFieldEnum)[keyof typeof MasterDataEntryScalarFieldEnum]
 
 
+export const RiskRuleScalarFieldEnum = {
+  code: 'code',
+  enabled: 'enabled',
+  severity: 'severity',
+  threshold: 'threshold',
+  windowMinutes: 'windowMinutes',
+  thresholdMinor: 'thresholdMinor',
+  currency: 'currency',
+  approvedForProduction: 'approvedForProduction',
+  updatedById: 'updatedById',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RiskRuleScalarFieldEnum = (typeof RiskRuleScalarFieldEnum)[keyof typeof RiskRuleScalarFieldEnum]
+
+
+export const RiskSignalScalarFieldEnum = {
+  id: 'id',
+  ruleCode: 'ruleCode',
+  severity: 'severity',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  observed: 'observed',
+  threshold: 'threshold',
+  facts: 'facts',
+  dedupeKey: 'dedupeKey',
+  status: 'status',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
+  reviewReason: 'reviewReason',
+  detectedAt: 'detectedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RiskSignalScalarFieldEnum = (typeof RiskSignalScalarFieldEnum)[keyof typeof RiskSignalScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -13868,4 +13910,26 @@ export const MasterDataEntryOrderByRelevanceFieldEnum = {
 } as const
 
 export type MasterDataEntryOrderByRelevanceFieldEnum = (typeof MasterDataEntryOrderByRelevanceFieldEnum)[keyof typeof MasterDataEntryOrderByRelevanceFieldEnum]
+
+
+export const RiskRuleOrderByRelevanceFieldEnum = {
+  code: 'code',
+  currency: 'currency',
+  updatedById: 'updatedById'
+} as const
+
+export type RiskRuleOrderByRelevanceFieldEnum = (typeof RiskRuleOrderByRelevanceFieldEnum)[keyof typeof RiskRuleOrderByRelevanceFieldEnum]
+
+
+export const RiskSignalOrderByRelevanceFieldEnum = {
+  id: 'id',
+  ruleCode: 'ruleCode',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  dedupeKey: 'dedupeKey',
+  reviewedById: 'reviewedById',
+  reviewReason: 'reviewReason'
+} as const
+
+export type RiskSignalOrderByRelevanceFieldEnum = (typeof RiskSignalOrderByRelevanceFieldEnum)[keyof typeof RiskSignalOrderByRelevanceFieldEnum]
 

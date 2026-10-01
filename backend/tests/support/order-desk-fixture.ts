@@ -75,6 +75,13 @@ export async function cleanUpOrderDesk(tag: string): Promise<void> {
     'aginsp',
     'agqa',
     'inspadmin',
+    // A second agency, a second inspector, the least-privilege staff roles
+    // and a buyer who is deactivated (authorization-matrix.test.ts).
+    'agcoordb',
+    'aginsp2',
+    'support',
+    'compliance',
+    'gone',
   ].map((who) => emailFor(tag, who));
   const userIds = (
     await prisma.user.findMany({ where: { emailNormalized: { in: emails } }, select: { id: true } })

@@ -166,7 +166,7 @@ const profileUpdateSchema = z.object({
  * does not grant is still only a request.
  */
 const dataRequestSchema = z.object({
-  type: z.enum(['EXPORT', 'ERASURE']),
+  type: z.enum(['EXPORT', 'ERASURE', 'RECTIFICATION']),
   note: z.string().max(1024).nullable().optional(),
 });
 

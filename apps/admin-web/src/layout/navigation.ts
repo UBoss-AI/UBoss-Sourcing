@@ -479,6 +479,13 @@ export const NAVIGATION: NavGroup[] = [
         matchPrefix: true,
         attentionKeys: ['dataRequests'],
       },
+      {
+        labelKey: 'nav.risk',
+        to: '/risk',
+        icon: DataProtectionIcon,
+        permissions: [Permission.RISK_READ],
+        matchPrefix: true,
+      },
     ],
   },
   {

@@ -122,6 +122,9 @@ export const AdminNotificationKind = {
   /// An ALERT. A statutory clock is running on it, and a badge that cleared
   /// because somebody read the row would be a badge that hid a deadline.
   DATA_REQUEST_RAISED: 'data_request.raised',
+  /// A fraud rule raised a high or critical signal (SEC-008). Variables: rule,
+  /// severity, subjectType. Clears when a reviewer decides the signal.
+  RISK_SIGNAL_RAISED: 'risk_signal.raised',
   /// A carrier reported something serious about a consignment. The variables
   /// are shipmentReference, receivingCompany, exceptionType and severity.
   ///
@@ -299,6 +302,12 @@ const KIND_POLICY: Readonly<Record<string, KindPolicy>> = Object.freeze({
     resolvedInstead: 'the data request itself',
   }),
 
+  [AdminNotificationKind.RISK_SIGNAL_RAISED]: Object.freeze({
+    class: 'ALERT',
+    resolutionPolicy: 'DOMAIN_ONLY',
+    resolvedInstead: 'the review of the risk signal',
+  }),
+
   [AdminNotificationKind.LOGISTICS_EXCEPTION_RAISED]: Object.freeze({
     class: 'ALERT',
     resolutionPolicy: 'DOMAIN_ONLY',
@@ -405,6 +414,8 @@ export const ResolutionKey = {
   shipmentAssignment: (shipmentId: string): string => `shipment-assignment:${shipmentId}`,
   sellerDocument: (documentId: string): string => `seller-document:${documentId}`,
   dataRequest: (requestId: string): string => `data-request:${requestId}`,
+  /** One fraud/risk signal, until a reviewer decides it. */
+  riskSignal: (signalId: string): string => `risk-signal:${signalId}`,
   /** A UBOSS-controlled level of one seller with no published price. */
   levelPrice: (sellerAccountId: string, level: string): string =>
     `level-price:${sellerAccountId}:${level}`,

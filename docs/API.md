@@ -2757,7 +2757,7 @@ Self-service. The customer is always the one in the session.
 | `GET`/`PUT /api/v1/account/locale` | Country, currency, language |
 | `GET /api/v1/account/coupons`, `/notifications`, `/wishlist` | Coupons, sent emails (subjects only), saved products |
 | `GET /api/v1/account/closure`, `POST /api/v1/account/deactivate` | What closing would do; close the account (deletes nothing) |
-| `GET`/`POST /api/v1/account/data-requests` | Data-protection requests: a copy of your data, or erasure |
+| `GET`/`POST /api/v1/account/data-requests` | Data-protection requests: a copy of your data, erasure, or a correction (`RECTIFICATION`, needs a `note` of at least 10 characters) |
 | `POST /api/v1/account/dashboard/insights`, `/insights/stream` | AI explanation of the dashboard figures |
 
 In a company buyer context, `/api/v1/account/addresses` is the company's
@@ -3109,7 +3109,8 @@ Everything under `/api/v1/admin`, each behind its named permission.
 | Commission invoices to sellers | `/admin/commission-invoices`, `/candidates`, `/settings`, `/:id/issue`, `/:id/credit-notes`, `/admin/seller-orders/:id/commission-invoice` (see [Commission invoices to sellers](#commission-invoices-to-sellers-commission-invoicesadmints)) | `commission_invoice.*`, `commission_credit_note.create` |
 | Reports and exports | `/admin/dashboard`, `/admin/reports/*`, `POST /admin/exports`, `/admin/audit-logs`, `POST /admin/audit-logs/export` (needs `audit.read` and `export.create`) | `report.read`, `export.create`, `audit.read` |
 | Notifications | `/admin/notifications`, `/admin/attention` | Any staff |
-| Privacy | `/admin/data-requests`, `/:requestId/approve`, `/reject` | `data_request.*` |
+| Privacy | `/admin/data-requests`, `/:requestId/approve`, `/reject`. With `STAFF_SENSITIVE_DATA_COUNTRIES` set, these and the KYC/KYB/seller document routes refuse a caller whose proxy country header is missing or not listed: 403 `PERMISSION_DENIED`, detail `DATA_REGION_NOT_ALLOWED` | `data_request.*` |
+| Fraud and risk | `GET /admin/risk/signals`, `POST /admin/risk/signals/:id/decision` (`{ decision: CONFIRMED or FALSE_POSITIVE, reason }`; 403 detail `SELF_REVIEW` for a signal about yourself; 409 when unchanged), `GET /admin/risk/rules`, `PATCH /admin/risk/rules/:code` (needs `expectedVersion`; 409 when stale; `thresholdMinor` is a string) | `risk.read`, `risk.review`, `risk.rule.write` |
 | AI chat transcripts | `/admin/assistant/conversations` | `assistant_chat.read` |
 
 `POST` and `PATCH /admin/products` accept `b2cMaxOrderQuantity` for the

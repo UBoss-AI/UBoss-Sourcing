@@ -5966,6 +5966,11 @@ enum DataRequestType {
   /// Art. 17 erasure. Never a row delete - see `erasure.service.ts` for why
   /// the order history has to survive in pseudonymised form.
   ERASURE
+
+  /// Art. 16 rectification: the subject says what is wrong and what it should
+  /// say. Staff correct it (or explain why not) and record the decision; the
+  /// software never rewrites a record on the strength of the request alone.
+  RECTIFICATION
 }
 
 enum DataRequestStatus {
@@ -24556,4 +24561,75 @@ model MasterDataEntry {
   @@unique([kind, code], map: "uq_master_data_kind_code")
   @@index([kind, isActive, sortOrder], map: "ix_master_data_kind_order")
   @@map("master_data_entries")
+}
+
+// ---------------------------------------------------------------------------
+// Fraud and risk signals (checklist SEC-008)
+// ---------------------------------------------------------------------------
+
+enum RiskSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RiskSignalStatus {
+  /// Waiting for a person. A signal never blocks anything on its own.
+  OPEN
+  /// A reviewer agreed it is suspicious; any action is taken separately.
+  CONFIRMED
+  /// A reviewer decided it is not suspicious. Kept, so the rule can be tuned.
+  FALSE_POSITIVE
+}
+
+/// One configurable fraud rule. The defaults are placeholders: the risk owner
+/// sets production values and marks them approved (`approvedForProduction`).
+model RiskRule {
+  /// e.g. LOGIN_FAILURES. Fixed by the code that evaluates it.
+  code                  String       @id @db.VarChar(48)
+  enabled               Boolean      @default(true)
+  severity              RiskSeverity
+  /// How many events in the window raise a signal.
+  threshold             Int
+  windowMinutes         Int
+  /// For value rules: the amount, in minor units of `currency`.
+  thresholdMinor        BigInt?
+  currency              String?      @db.Char(3)
+  /// False until the business has approved the values for production use.
+  approvedForProduction Boolean      @default(false)
+  updatedById           String?      @db.Char(26)
+  version               Int          @default(1)
+  createdAt             DateTime     @default(now()) @db.DateTime(3)
+  updatedAt             DateTime     @updatedAt @db.DateTime(3)
+
+  @@map("risk_rules")
+}
+
+/// A rule that fired, with the facts that made it fire. Raised by the worker's
+/// scan; reviewed by a person. `dedupeKey` makes a rescan of the same window
+/// a no-op, so one pattern is one signal.
+model RiskSignal {
+  id           String           @id @db.Char(26)
+  ruleCode     String           @db.VarChar(48)
+  severity     RiskSeverity
+  /// USER, SELLER_ACCOUNT, CUSTOMER_PROFILE, INSPECTION_EVIDENCE...
+  subjectType  String           @db.VarChar(32)
+  subjectId    String           @db.VarChar(64)
+  /// What was observed against what the rule allows, and the records behind it.
+  observed     Int
+  threshold    Int
+  facts        Json
+  dedupeKey    String           @unique(map: "uq_risk_signal_dedupe") @db.VarChar(191)
+  status       RiskSignalStatus @default(OPEN)
+  reviewedById String?          @db.Char(26)
+  reviewedAt   DateTime?        @db.DateTime(3)
+  reviewReason String?          @db.VarChar(1024)
+  detectedAt   DateTime         @default(now()) @db.DateTime(3)
+  createdAt    DateTime         @default(now()) @db.DateTime(3)
+  updatedAt    DateTime         @updatedAt @db.DateTime(3)
+
+  @@index([status, detectedAt], map: "ix_risk_signal_queue")
+  @@index([subjectType, subjectId], map: "ix_risk_signal_subject")
+  @@map("risk_signals")
 }

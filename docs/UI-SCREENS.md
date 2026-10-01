@@ -2839,7 +2839,7 @@ and closing the account. Each panel has its own **Edit**, **Save** and
 | Marketing choices | Three checkboxes: **Offers by email**, **Offers by text message**, **News about new products** — all off until turned on — and when they were last changed. **Save choices** is enabled only when something changed | Saves and records the change in the audit log. Messages about orders, payments and the account are not affected | `GET` and `PUT /api/v1/account/preferences/marketing` |
 | Your purchasing limits | Minimum and maximum per order, spent this month, whether orders need approval. Read-only | These are set by the store on your account | (part of the profile) |
 | Questions about these changes | Five short questions and answers | — | — |
-| Your data | **Request a copy of my data**, **Request erasure** (asks to confirm first). A list of your requests with their status | Staff handle the request. When a copy is ready, a **Download my data (JSON)** link appears. The list checks for news every few seconds while a request is open | `GET` and `POST /api/v1/account/data-requests`; download from `/api/v1/my-data/download/:token` |
+| Your data | **Request a copy of my data**, **Request erasure** (asks to confirm first), **Ask for a correction** (a dialog asking what is wrong and what it should say; sending needs at least 10 characters). A list of your requests with their status | Staff handle the request; a correction shows staff's note of what was corrected. When a copy is ready, a **Download my data (JSON)** link appears. The list checks for news every few seconds while a request is open | `GET` and `POST /api/v1/account/data-requests`; download from `/api/v1/my-data/download/:token` |
 | Closing this account | **Deactivate account** opens a dialog that first lists what will happen (schedules paused, Auto-Pay withdrawn, unpaid orders still owed). Confirm with your password | Closes the account, emails you, and signs you out | `GET /api/v1/account/closure`, `POST /api/v1/account/deactivate` |
 | Account record | Member since, orders placed | — | (part of the profile) |
 
@@ -4675,6 +4675,7 @@ explains and offers **Email me a new link** and **Go to sign in**.
 | Insight | Reports | `/reports` | `report.read` | |
 | Insight | Audit log | `/audit` | `audit.read` | |
 | Insight | Data requests | `/data-requests` | `data_request.read` | Requests waiting |
+| Insight | Risk review | `/risk` | `risk.read` | — |
 | Administration | Integrations | `/integrations` | `integration.read` or `payment_gateway.write` | |
 | Administration | Customer ERP | `/customer-erp` | `integration.read` | |
 | Administration | Staff | `/staff` | `staff.read` | |
@@ -6393,10 +6394,31 @@ recorded on the log as `audit.exported`.
 under GDPR, ordered by legal deadline.
 
 **On the screen.** A red "Past the legal deadline" warning when any are late.
-Filters: status and right (copy or erasure). Columns: Subject, Right, Status,
+Filters: status and right (copy, erasure or correction). Columns: Subject, Right, Status,
 Deadline ("x days left" or "Overdue by x days"), Requested, Decision. Approving
 an erasure warns "This cannot be undone" and lists anything blocking it.
-Refusing needs a reason, which is emailed to the customer.
+Refusing needs a reason, which is emailed to the customer. Approving a
+correction needs a note of what was corrected; the customer sees it.
+
+#### `/risk` — Risk review
+
+| | |
+|---|---|
+| **Who** | `risk.read`. Decide: `risk.review`. Edit rules: `risk.rule.write` |
+| **File** | `src/pages/RiskReviewPage.tsx` |
+
+**Purpose.** Fraud and risk signals raised by the worker's rules, for a person
+to decide. Nothing here suspends, cancels or holds anything.
+
+**On the screen.** A warning when active rules still use placeholder values not
+approved for production. A status filter (Open by default). Columns: Rule,
+Severity, About, Seen / limit, Detected, Status, and **Decide** (or **Change
+decision**). The dialog shows the facts, a Confirmed / False positive choice and
+a required reason; changing an earlier decision is labelled an override. A
+Rules table lists each rule's threshold, window and state; a rule writer can
+edit the threshold and window, switch a rule off and mark its values approved.
+Empty, loading, error and no-access states use the shared table. Calls
+`/api/v1/admin/risk/*`. High and critical signals also appear in the bell.
 
 **API calls:** `GET /api/v1/admin/data-requests?…`,
 `GET /api/v1/admin/data-requests/:id`,

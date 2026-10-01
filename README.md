@@ -1105,6 +1105,31 @@ for the chart, not a second screen beside it.
 The dashboards follow the theme toggle like every other screen: deep navy in
 dark, a cool near-white in light, both audited by `npm run audit:contrast`.
 
+## Staff roles, privacy and fraud review
+
+- **Seven staff roles.** Business Owner, Catalog Manager, Inventory Manager,
+  Order Manager, Finance / Approver, **Support Agent** (answers customers, reads
+  orders, never moves money) and **Compliance Officer** (verification, privacy
+  requests, audit log, risk review; no money, no catalogue). Who may reach which
+  record, and the tests that prove it: `docs/AUTHORIZATION-MATRIX.md`.
+- **Privacy requests.** Customers ask for a copy, erasure or a **correction** of
+  their data from **Account → Your data**; staff with `data_request.action`
+  decide them against the one-month deadline.
+- **Sensitive files by country.** Set `STAFF_SENSITIVE_DATA_COUNTRIES` (for
+  example `IN,DE`) to let staff open KYC, KYB and seller documents and privacy
+  requests only from those countries, read from the header your reverse proxy
+  sets (`STAFF_COUNTRY_HEADER`, default `cf-ipcountry`). Empty means no
+  country rule. Which countries is your legal decision.
+- **Fraud and risk review.** The worker raises explained, deduplicated signals
+  for failed sign-ins, takeover patterns, sellers sharing a tax number, reused
+  or late inspection evidence, refund, coupon and order velocity. **Admin → Risk
+  review** decides each one; nothing is blocked automatically. The thresholds
+  ship as placeholders: your risk owner sets and approves them before go-live.
+- **Restore tests and alert owners.** `deploy/scripts/verify-restore.sh` proves
+  the newest backup restores into a scratch database and records the evidence;
+  `monitor.sh` alerts when the last passing test is too old. Name the owner of
+  each alert in `docs/INCIDENT-READINESS.md` before going live.
+
 ## Configuration
 
 Everything is read from `backend/.env` and validated at boot by

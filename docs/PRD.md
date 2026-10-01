@@ -374,10 +374,10 @@ These are deliberately **not** what this product is trying to be.
   their own records, checked on the server (a request for another customer's
   record answers 404, not 403).
 
-## 3.3 Staff: the five staff roles
+## 3.3 Staff: the seven staff roles
 
 Roles and permissions are defined in `backend/src/domain/permissions.ts`. The
-code defines **six** roles: five staff roles plus `customer`, which holds no
+code defines **eight** roles: seven staff roles plus `customer`, which holds no
 admin permission. Authorisation is **deny-by-default**: every admin route
 declares the permission it needs, and the server checks it on every request.
 Hiding a button in the console is politeness, not security.
@@ -389,6 +389,8 @@ Hiding a button in the console is politeness, not security.
 | `inventory_manager` | Inventory Manager | Stock receipts, adjustments, reservations, warehouses and alerts. |
 | `order_manager` | Order Manager | Orders, fulfilment, cancellation and return handling. |
 | `finance_approver` | Finance / Approver | Payment review, payment links, refunds and high-value approvals. |
+| `support_agent` | Support Agent | Answers support requests and preorder chats; reads orders, never moves money. |
+| `compliance_officer` | Compliance Officer | Seller and buyer verification, privacy requests and the audit log; no money and no catalogue changes. |
 | `customer` | Customer | Website account; **no admin permission**. |
 
 **No escalation:** `canGrantRole` lets an administrator grant a role only if
@@ -397,7 +399,7 @@ they already hold **every** permission in it, and only if they hold
 
 ### 3.3.1 Staff permission matrix
 
-76 permission keys. **Y** = granted by default. **BO** Business Owner, **CM**
+79 permission keys. **Y** = granted by default. **BO** Business Owner, **CM**
 Catalog Manager, **IM** Inventory Manager, **OM** Order Manager, **FA** Finance /
 Approver.
 
@@ -482,6 +484,28 @@ Approver.
 | Legal documents | `legal_document.publish` | Publish a draft; its words are then frozen | Y | | | | |
 | Privacy | `data_request.read` | Read the data-subject request queue | Y | | | | |
 | Privacy | `data_request.action` | Decide a data request (erasure is irreversible) | Y | | | | |
+| Risk | `risk.read` | Read the fraud and risk signal queue and the rules | Y | | | | Y |
+| Risk | `risk.review` | Decide a risk signal (confirmed or false positive), with a reason | Y | | | | Y |
+| Risk | `risk.rule.write` | Change a fraud rule's thresholds or approve them for production | Y | | | | |
+
+### 3.3.2 Support Agent and Compliance Officer
+
+Two narrower roles for least privilege (SEC-002). The full matrix is in
+`docs/AUTHORIZATION-MATRIX.md`; the role table in code is pinned by
+`tests/unit/staff-least-privilege.test.ts`.
+
+- **Support Agent:** `settings.read`, `category.read`, `product.read`,
+  `customer.read`, `assistant_chat.read`, `preorder_chat.view`/`reply`,
+  `support_ticket.view`/`reply`, `dispute.view`, `review.read`, `order.read`,
+  `inspection.read`, `logistics.read`, `invoice.read`. No refund, cancel,
+  fulfil, dispute decision, privacy, export, audit, settings or staff permission.
+- **Compliance Officer:** `settings.read`, `category.read`, `product.read`,
+  `review.read`, `customer.read`, `customer.status.write` (seller, factory and
+  account verification decisions and suspension), `buyer_company.read`/
+  `review`/`suspend`, `dispute.view`, `order.read`, `inspection.read`,
+  `legal_document.read`, `data_request.read`/`action`, `audit.read`,
+  `report.read`, `risk.read`/`review`. No refund, payment, finance policy,
+  catalogue write, invoice, settings, staff or role permission.
 
 Things that look like omissions and are deliberate: the Catalog Manager has no
 payment permission; the Finance Approver cannot delete catalogue items; the
@@ -4655,6 +4679,24 @@ at the sender's company, seller or carrier sees them.
 
 - **Rules.** Only strictly necessary cookies (session, refresh, CSRF) and localStorage for language, locale and declined offers; no analytics or tracking pixels ship. No cookie banner is needed for what ships.
 - **Status.** Built.
+
+### FR-PRV-005 — Art. 16 correction requests
+
+- **Statement.** In **Account → Your data** a customer asks for a correction and says what is wrong and what it should say (at least 10 characters). Staff holding `data_request.action` decide it in **Data requests**; approving a correction needs a note of what was corrected, which the customer sees.
+- **Rules.** One open correction request at a time; the one-month deadline is shown. The software never rewrites a record on the strength of the request alone - staff make the change. Request, decision and actor are in the audit log.
+- **Status.** Built.
+
+### FR-PRV-006 — Controlled cross-border access to sensitive files
+
+- **Statement.** `STAFF_SENSITIVE_DATA_COUNTRIES` (ISO codes, empty by default) limits where staff may open identity (KYC), business (KYB) and seller documents and privacy requests from. The country comes from a header the operator's reverse proxy sets (`STAFF_COUNTRY_HEADER`, default `cf-ipcountry`).
+- **Rules.** With a list set, a request from another country, or without the header, is refused (403, `DATA_REGION_NOT_ALLOWED`). With no list, nothing changes. Which countries to allow is the operator's legal decision. Every staff read of these files, and of inspection evidence, is audited.
+- **Status.** Built, off by default.
+
+### FR-PRV-007 — Fraud and risk signals (SEC-008)
+
+- **Statement.** The worker evaluates configurable rules on every maintenance pass: repeated failed sign-ins; a password or MFA change after failures; sellers sharing a tax or company number; the same evidence file on several inspections; evidence uploaded long after capture; refund count and value per buyer; coupon redemptions per buyer; orders per buyer; several high-risk signals on one subject. Each match is a **risk signal** with its facts. **Admin → Risk review** lists them; `risk.review` decides each one as confirmed or a false positive with a reason.
+- **Rules.** A signal never suspends, cancels or holds anything on its own. Duplicate signals are prevented by a dedupe key per pattern and window. A reviewer cannot decide a signal about themselves. Changing an earlier decision is allowed and recorded as an override with the old and new decision. High and critical signals ring the admin bell until reviewed. Thresholds live in `risk_rules`, start as placeholders marked not approved for production, and are changed only with `risk.rule.write` (versioned, audited). Tax numbers are stored as a fingerprint plus the last four characters. Bank-detail duplicates are not checked: bank accounts are held by the payout provider.
+- **Status.** Built. Production thresholds need the business's risk owner.
 
 ---
 

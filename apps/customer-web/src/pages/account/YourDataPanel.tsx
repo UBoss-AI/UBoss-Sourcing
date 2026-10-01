@@ -1,5 +1,5 @@
 /**
- * Your data — the customer's side of GDPR Art. 15, 17 and 20.
+ * Your data — the customer's side of GDPR Art. 15, 16, 17 and 20.
  *
  * A right nobody can find is a right nobody has. The obligations behind this
  * panel are usually met with a sentence in a privacy policy saying to email
@@ -34,9 +34,14 @@ import { formatDateTime } from '@/lib/format';
 import { useI18n } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 
+type RequestType = 'EXPORT' | 'ERASURE' | 'RECTIFICATION';
+
+/** A correction must say what is wrong; the server refuses fewer characters. */
+const MIN_CORRECTION = 10;
+
 interface DataRequest {
   id: string;
-  type: 'EXPORT' | 'ERASURE';
+  type: RequestType;
   status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECTED' | 'FAILED';
   requestedAt: string;
   dueAt: string;
@@ -76,6 +81,8 @@ export function YourDataPanel(): React.JSX.Element {
   const queryClient = useQueryClient();
 
   const [confirmErasure, setConfirmErasure] = useState(false);
+  const [correcting, setCorrecting] = useState(false);
+  const [correction, setCorrection] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
 
   const query = useQuery({
@@ -104,22 +111,36 @@ export function YourDataPanel(): React.JSX.Element {
       (request.status === 'PENDING' || request.status === 'IN_PROGRESS'),
   );
 
+  const openCorrection = requests.find(
+    (request) =>
+      request.type === 'RECTIFICATION' &&
+      (request.status === 'PENDING' || request.status === 'IN_PROGRESS'),
+  );
+
   const ready = requests.find(
     (request) => request.type === 'EXPORT' && request.downloadToken !== null,
   );
 
   const raise = useMutation({
-    mutationFn: (type: 'EXPORT' | 'ERASURE') => api.post('/account/data-requests', { type }),
+    mutationFn: (type: RequestType) =>
+      api.post('/account/data-requests', type === 'RECTIFICATION' ? { type, note: correction.trim() } : { type }),
     onSuccess: (_result, type) => {
       setFormError(null);
       setConfirmErasure(false);
+      setCorrecting(false);
+      setCorrection('');
       void queryClient.invalidateQueries({ queryKey: ['account', 'data-requests'] });
       toast.success(
-        type === 'EXPORT' ? t('yourData.exportStarted') : t('yourData.erasureReceived'),
+        type === 'EXPORT'
+          ? t('yourData.exportStarted')
+          : type === 'RECTIFICATION'
+            ? t('yourData.correctionReceived')
+            : t('yourData.erasureReceived'),
       );
     },
     onError: (error) => {
       setConfirmErasure(false);
+      setCorrecting(false);
       if (error instanceof NetworkError) {
         setFormError(errorMessage(t, error));
         return;
@@ -190,6 +211,18 @@ export function YourDataPanel(): React.JSX.Element {
         >
           {openErasure === undefined ? t('yourData.requestErasure') : t('yourData.erasureInProgress')}
         </Button>
+
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={openCorrection !== undefined}
+          onClick={() => {
+            setFormError(null);
+            setCorrecting(true);
+          }}
+        >
+          {openCorrection === undefined ? t('yourData.requestCorrection') : t('yourData.correctionInProgress')}
+        </Button>
       </div>
 
       <p className="mt-3 text-xs text-ink-muted">{t('yourData.rightsFootnote')}</p>
@@ -213,7 +246,9 @@ export function YourDataPanel(): React.JSX.Element {
                     <span className="font-medium text-ink">
                       {request.type === 'EXPORT'
                         ? t('yourData.typeExport')
-                        : t('yourData.typeErasure')}
+                        : request.type === 'RECTIFICATION'
+                          ? t('yourData.typeCorrection')
+                          : t('yourData.typeErasure')}
                     </span>
                     <Badge tone={statusTone(request.status)}>
                       {t(`yourData.status.${request.status}` as 'yourData.status.PENDING')}
@@ -271,6 +306,44 @@ export function YourDataPanel(): React.JSX.Element {
           <li>{t('yourData.confirmPointReview')}</li>
           <li>{t('yourData.confirmPointExportFirst')}</li>
         </ul>
+      </Modal>
+
+      <Modal
+        isOpen={correcting}
+        onClose={() => { setCorrecting(false); }}
+        title={t('yourData.correctionTitle')}
+        description={t('yourData.correctionDescription')}
+        footer={
+          <>
+            <Button type="button" variant="secondary" onClick={() => { setCorrecting(false); }}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              type="button"
+              disabled={correction.trim().length < MIN_CORRECTION}
+              isLoading={raise.isPending}
+              onClick={() => { raise.mutate('RECTIFICATION'); }}
+            >
+              {t('yourData.correctionSubmit')}
+            </Button>
+          </>
+        }
+      >
+        <label htmlFor="correction-note" className="block text-sm font-medium text-ink">
+          {t('yourData.correctionLabel')}
+        </label>
+        <textarea
+          id="correction-note"
+          rows={4}
+          maxLength={1024}
+          value={correction}
+          onChange={(event) => { setCorrection(event.target.value); }}
+          className="mt-1.5 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand"
+          aria-describedby="correction-hint"
+        />
+        <p id="correction-hint" className="mt-1 text-xs text-ink-muted">
+          {t('yourData.correctionHint')}
+        </p>
       </Modal>
     </section>
   );

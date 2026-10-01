@@ -43,6 +43,7 @@ import {
   registerDataBundleDownloadRoute,
 } from './routes/account.customer.js';
 import { registerAdminPrivacyRoutes } from './routes/privacy.admin.js';
+import { registerAdminRiskRoutes } from './routes/risk.admin.js';
 import { registerAdminVatRoutes } from './routes/vat.admin.js';
 import { registerAdminMasterDataRoutes } from './routes/master-data.admin.js';
 import { registerAdminGpsrRoutes } from './routes/gpsr.admin.js';
@@ -824,6 +825,7 @@ export async function buildApp() {
   await app.register(registerAdminReportRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminNotificationRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminPrivacyRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerAdminRiskRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminVatRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminGpsrRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminLegalRoutes, { prefix: `${API_PREFIX}/admin` });

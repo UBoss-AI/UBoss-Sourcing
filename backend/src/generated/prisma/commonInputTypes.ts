@@ -6494,6 +6494,40 @@ export type EnumInspectionDefectSeverityNullableWithAggregatesFilter<$PrismaMode
   _max?: Prisma.NestedEnumInspectionDefectSeverityNullableFilter<$PrismaModel>
 }
 
+export type EnumRiskSeverityFilter<$PrismaModel = never> = {
+  equals?: $Enums.RiskSeverity | Prisma.EnumRiskSeverityFieldRefInput<$PrismaModel>
+  in?: $Enums.RiskSeverity[]
+  notIn?: $Enums.RiskSeverity[]
+  not?: Prisma.NestedEnumRiskSeverityFilter<$PrismaModel> | $Enums.RiskSeverity
+}
+
+export type EnumRiskSeverityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RiskSeverity | Prisma.EnumRiskSeverityFieldRefInput<$PrismaModel>
+  in?: $Enums.RiskSeverity[]
+  notIn?: $Enums.RiskSeverity[]
+  not?: Prisma.NestedEnumRiskSeverityWithAggregatesFilter<$PrismaModel> | $Enums.RiskSeverity
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRiskSeverityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRiskSeverityFilter<$PrismaModel>
+}
+
+export type EnumRiskSignalStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RiskSignalStatus | Prisma.EnumRiskSignalStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RiskSignalStatus[]
+  notIn?: $Enums.RiskSignalStatus[]
+  not?: Prisma.NestedEnumRiskSignalStatusFilter<$PrismaModel> | $Enums.RiskSignalStatus
+}
+
+export type EnumRiskSignalStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RiskSignalStatus | Prisma.EnumRiskSignalStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RiskSignalStatus[]
+  notIn?: $Enums.RiskSignalStatus[]
+  not?: Prisma.NestedEnumRiskSignalStatusWithAggregatesFilter<$PrismaModel> | $Enums.RiskSignalStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRiskSignalStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRiskSignalStatusFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[]
@@ -12935,6 +12969,40 @@ export type NestedEnumInspectionDefectSeverityNullableWithAggregatesFilter<$Pris
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumInspectionDefectSeverityNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumInspectionDefectSeverityNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumRiskSeverityFilter<$PrismaModel = never> = {
+  equals?: $Enums.RiskSeverity | Prisma.EnumRiskSeverityFieldRefInput<$PrismaModel>
+  in?: $Enums.RiskSeverity[]
+  notIn?: $Enums.RiskSeverity[]
+  not?: Prisma.NestedEnumRiskSeverityFilter<$PrismaModel> | $Enums.RiskSeverity
+}
+
+export type NestedEnumRiskSeverityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RiskSeverity | Prisma.EnumRiskSeverityFieldRefInput<$PrismaModel>
+  in?: $Enums.RiskSeverity[]
+  notIn?: $Enums.RiskSeverity[]
+  not?: Prisma.NestedEnumRiskSeverityWithAggregatesFilter<$PrismaModel> | $Enums.RiskSeverity
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRiskSeverityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRiskSeverityFilter<$PrismaModel>
+}
+
+export type NestedEnumRiskSignalStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RiskSignalStatus | Prisma.EnumRiskSignalStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RiskSignalStatus[]
+  notIn?: $Enums.RiskSignalStatus[]
+  not?: Prisma.NestedEnumRiskSignalStatusFilter<$PrismaModel> | $Enums.RiskSignalStatus
+}
+
+export type NestedEnumRiskSignalStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RiskSignalStatus | Prisma.EnumRiskSignalStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RiskSignalStatus[]
+  notIn?: $Enums.RiskSignalStatus[]
+  not?: Prisma.NestedEnumRiskSignalStatusWithAggregatesFilter<$PrismaModel> | $Enums.RiskSignalStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRiskSignalStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRiskSignalStatusFilter<$PrismaModel>
 }
 
 

@@ -25,6 +25,7 @@ import {
   scanForMalware,
 } from '../../infra/malware-scan.js';
 import { prisma } from '../../infra/prisma.js';
+import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { sniffDocumentType, sniffMediaType, storage } from '../../infra/storage/index.js';
 import type { InspectionActor } from './context.js';
 
@@ -203,14 +204,38 @@ function toStored(row: {
 }
 
 /** The bytes of one evidence file. The caller has checked who may see it. */
-export async function readEvidenceBytes(evidenceId: string): Promise<{
+export interface EvidenceViewer {
+  party: 'AGENCY' | 'SELLER' | 'BUYER';
+  userId: string;
+  email: string;
+  ipAddress?: string | null;
+  correlationId?: string | null;
+}
+
+/**
+ * The bytes of one evidence file. The caller has already decided the viewer
+ * may see it; every read is written to the audit log with who read it, from
+ * which side, so access to inspection evidence can be reconstructed later.
+ */
+export async function readEvidenceBytes(evidenceId: string, viewer: EvidenceViewer): Promise<{
   bytes: Buffer;
   contentType: string;
   fileName: string;
 }> {
   const row = await prisma.inspectionEvidence.findUniqueOrThrow({
     where: { id: evidenceId },
-    select: { storageKey: true, contentType: true, fileName: true },
+    select: { storageKey: true, contentType: true, fileName: true, jobId: true },
+  });
+  await recordAudit({
+    action: AuditAction.INSPECTION_EVIDENCE_DOWNLOADED,
+    resourceType: 'inspection_evidence',
+    resourceId: evidenceId,
+    actorType: 'CUSTOMER',
+    actorUserId: viewer.userId,
+    actorEmail: viewer.email,
+    after: { party: viewer.party, jobId: row.jobId },
+    ipAddress: viewer.ipAddress ?? null,
+    correlationId: viewer.correlationId ?? null,
   });
   return { bytes: await storage.get(row.storageKey), contentType: row.contentType, fileName: row.fileName };
 }

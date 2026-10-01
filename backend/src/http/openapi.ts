@@ -1223,7 +1223,8 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     description:
       'EXPORT (GDPR Art. 15 and 20) is fulfilled automatically and answers 202. ERASURE ' +
       '(Art. 17) is queued for a decision by staff, because Art. 17(3) has exemptions that ' +
-      'need a person to weigh. One open request of each type at a time - a second does not ' +
+      'need a person to weigh. RECTIFICATION (Art. 16) needs a note saying what is wrong, and is ' +
+      'decided by staff, who record what was corrected. One open request of each type at a time - a second does not ' +
       'restart the one-month clock in Art. 12(3).',
     tags: ['Account'],
     auth: 'customer',
@@ -1231,7 +1232,7 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
       type: 'object',
       required: ['type'],
       properties: {
-        type: { type: 'string', enum: ['EXPORT', 'ERASURE'] },
+        type: { type: 'string', enum: ['EXPORT', 'ERASURE', 'RECTIFICATION'] },
         note: { type: 'string', maxLength: 1024, nullable: true },
       },
     }),

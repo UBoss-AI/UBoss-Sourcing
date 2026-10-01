@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**356 tables · 333 enums · 817 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
+**358 tables · 335 enums · 819 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -80,7 +80,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ what a ledger account represents. balances are never stored; they are the / sum of the account's lines.](#group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines) | 8 | 7 |
 | [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
 | [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 11 | 12 |
-| [Master data (master row 75)](#group-master-data-master-row-75) | 1 | 1 |
+| [Master data (master row 75)](#group-master-data-master-row-75) | 3 | 3 |
 
 <a id="group-identity-access"></a>
 
@@ -4930,6 +4930,7 @@ Table `data_requests`
 |---|---|
 | `EXPORT` | Art. 15 access and Art. 20 portability. Two distinct rights that are satisfied by the same machine-readable bundle, so they share a type. |
 | `ERASURE` | Art. 17 erasure. Never a row delete - see `erasure.service.ts` for why the order history has to survive in pseudonymised form. |
+| `RECTIFICATION` | Art. 16 rectification: the subject says what is wrong and what it should say. Staff correct it (or explain why not) and record the decision; the software never rewrites a record on the strength of the request alone. |
 
 <a id="enum-datarequeststatus"></a>
 
@@ -21113,12 +21114,20 @@ Whether a sample costs anything, and whether it is paid. PAID is only ever set w
 
 ## Master data (master row 75)
 
-[MasterDataEntry](#model-masterdataentry)
+[MasterDataEntry](#model-masterdataentry) · [RiskRule](#model-riskrule) · [RiskSignal](#model-risksignal)
 
 ```mermaid
 erDiagram
     MasterDataEntry {
         String id PK
+    }
+    RiskRule {
+        String code PK
+        BigInt thresholdMinor
+    }
+    RiskSignal {
+        String id PK
+        RiskSignalStatus status
     }
 ```
 
@@ -21148,6 +21157,61 @@ Admin-maintained reference lists: units of measure, Incoterms and inspection def
 - `@@unique([kind, code], map: "uq_master_data_kind_code")`
 - `@@index([kind, isActive, sortOrder], map: "ix_master_data_kind_order")`
 
+<a id="model-riskrule"></a>
+
+### RiskRule
+
+Table `risk_rules`
+
+One configurable fraud rule. The defaults are placeholders: the risk owner sets production values and marks them approved (`approvedForProduction`).
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `code` | String · VarChar(48) |  | PK |  | e.g. LOGIN_FAILURES. Fixed by the code that evaluates it. |
+| `enabled` | Boolean |  |  | true |  |
+| `severity` | [enum RiskSeverity](#enum-riskseverity) |  |  |  |  |
+| `threshold` | Int |  |  |  | How many events in the window raise a signal. |
+| `windowMinutes` | Int |  |  |  |  |
+| `thresholdMinor` | BigInt | yes |  |  | For value rules: the amount, in minor units of `currency`. |
+| `currency` | String · Char(3) | yes |  |  |  |
+| `approvedForProduction` | Boolean |  |  | false | False until the business has approved the values for production use. |
+| `updatedById` | String · Char(26) | yes |  |  |  |
+| `version` | Int |  |  | 1 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+<a id="model-risksignal"></a>
+
+### RiskSignal
+
+Table `risk_signals`
+
+A rule that fired, with the facts that made it fire. Raised by the worker's scan; reviewed by a person. `dedupeKey` makes a rescan of the same window a no-op, so one pattern is one signal.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `ruleCode` | String · VarChar(48) |  |  |  |  |
+| `severity` | [enum RiskSeverity](#enum-riskseverity) |  |  |  |  |
+| `subjectType` | String · VarChar(32) |  |  |  | USER, SELLER_ACCOUNT, CUSTOMER_PROFILE, INSPECTION_EVIDENCE... |
+| `subjectId` | String · VarChar(64) |  |  |  |  |
+| `observed` | Int |  |  |  | What was observed against what the rule allows, and the records behind it. |
+| `threshold` | Int |  |  |  |  |
+| `facts` | Json |  |  |  |  |
+| `dedupeKey` | String · VarChar(191) |  | UNIQUE |  |  |
+| `status` | [enum RiskSignalStatus](#enum-risksignalstatus) |  |  | OPEN |  |
+| `reviewedById` | String · Char(26) | yes |  |  |  |
+| `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reviewReason` | String · VarChar(1024) | yes |  |  |  |
+| `detectedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@index([status, detectedAt], map: "ix_risk_signal_queue")`
+- `@@index([subjectType, subjectId], map: "ix_risk_signal_subject")`
+
 ### Enums in Master data (master row 75)
 
 <a id="enum-masterdatakind"></a>
@@ -21159,4 +21223,25 @@ Admin-maintained reference lists: units of measure, Incoterms and inspection def
 | `UOM` |  |
 | `INCOTERM` |  |
 | `DEFECT_CODE` |  |
+
+<a id="enum-riskseverity"></a>
+
+#### enum RiskSeverity
+
+| Value | Meaning |
+|---|---|
+| `LOW` |  |
+| `MEDIUM` |  |
+| `HIGH` |  |
+| `CRITICAL` |  |
+
+<a id="enum-risksignalstatus"></a>
+
+#### enum RiskSignalStatus
+
+| Value | Meaning |
+|---|---|
+| `OPEN` | Waiting for a person. A signal never blocks anything on its own. |
+| `CONFIRMED` | A reviewer agreed it is suspicious; any action is taken separately. |
+| `FALSE_POSITIVE` | A reviewer decided it is not suspicious. Kept, so the rule can be tuned. |
 

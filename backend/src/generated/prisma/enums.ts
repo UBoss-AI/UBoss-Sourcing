@@ -610,7 +610,8 @@ export type AssistantMessageRole = (typeof AssistantMessageRole)[keyof typeof As
 
 export const DataRequestType = {
   EXPORT: 'EXPORT',
-  ERASURE: 'ERASURE'
+  ERASURE: 'ERASURE',
+  RECTIFICATION: 'RECTIFICATION'
 } as const
 
 export type DataRequestType = (typeof DataRequestType)[keyof typeof DataRequestType]
@@ -3651,3 +3652,22 @@ export const MasterDataKind = {
 } as const
 
 export type MasterDataKind = (typeof MasterDataKind)[keyof typeof MasterDataKind]
+
+
+export const RiskSeverity = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL'
+} as const
+
+export type RiskSeverity = (typeof RiskSeverity)[keyof typeof RiskSeverity]
+
+
+export const RiskSignalStatus = {
+  OPEN: 'OPEN',
+  CONFIRMED: 'CONFIRMED',
+  FALSE_POSITIVE: 'FALSE_POSITIVE'
+} as const
+
+export type RiskSignalStatus = (typeof RiskSignalStatus)[keyof typeof RiskSignalStatus]

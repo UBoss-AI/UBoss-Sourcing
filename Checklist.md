@@ -8,8 +8,8 @@
 - Next unchecked Master row: 9 (NEEDS_HUMAN_VERIFICATION), 12 (NEEDS_HUMAN_VERIFICATION), 20 (BLOCKED); first technically workable row: 22
 - Master checked: 95
 - Master unchecked: 2 (row 9: approved policy texts; row 12: legal review)
-- Entire document checked: 233
-- Entire document unchecked: 131
+- Entire document checked: 236
+- Entire document unchecked: 128
 - Verified: 15 Master rows in current state.
 - Fixed and verified: 58 Master rows in current state.
 - In progress: none; Master 54 verified and ticked. Further automatable features remain.
@@ -21,8 +21,18 @@
 - Latest test command: customer/admin verify; backend typecheck/lint/build; inspection HTTP and gate regression; docs/i18n; Chrome repeat-booking fixtures; Word package/layout verification.
 - Latest test result: Master 54 full customer verify 165 files / 1675 tests and admin verify 36 files / 327 tests passed. Real HTTP repeat lifecycle 2/2 and gate regression 35/35 passed. Backend types/lint/build; docs/i18n passed. Chrome 375/1440: zero overflow/axe violations; linked booking saved. Word opens without repair (29 pages), changed page 5 visually checked; mismatch count 0.
 - Working tree: intended batch changes only; pre-existing untracked backup/evidence retained. Generated logs and temporary files are ignored.
-- Updated at: 2026-10-01, sequential pass 10: Master 54 completed; continue to 94.
+- Updated at: 2026-10-01, pass 8 batch 1: Section 12 SEC-002/007/008 ticked; Section 17 next.
 
+
+### Pass 8 — Sections 12, 14 and 17 (Word headings, not Master rows)
+
+Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (the file the owner named in this session). Baseline 233/364 checked; Section 12 6/4, Section 14 1/20, Section 17 31/36.
+
+**Batch 1 (Section 12) — ticked: SEC-002, SEC-007, SEC-008.** Evidence is in the boxes table below. Full local verify on the batch tree: backend 303 files / 5129 tests, admin 42 / 344, customer 180 / 1730, all passed (run one at a time after an earlier parallel run was stopped for low memory). Reference docs regenerated and checked.
+
+**SEC-010 — left open (needs people and production infrastructure).** Built: `deploy/scripts/verify-restore.sh` (restores into a generated `uboss_restore_check_*` database with its own least-privilege account, writes a JSON evidence line), `monitor.sh` alert when the last passing restore test is older than `UBOSS_RESTORE_TEST_MAX_DAYS`, `docs/INCIDENT-READINESS.md` (alert ownership table, DR rehearsal checklist, evidence format, rehearsal record). Both scripts pass `bash -n`; neither has been run on a server (no ShellCheck on this machine). Remaining human action: name every alert owner in section 3 of that document, wire `UBOSS_ALERT_COMMAND` and prove an alert arrives, run `verify-restore.sh` on a backup fetched from off-site, and complete one DR rehearsal on production infrastructure recorded in section 6.
+
+Next: Section 17 (17.1 public discovery first), then Section 14.
 
 ### Sequential continuation from d52998b5 — Master 45
 
@@ -128,7 +138,6 @@ These boxes are sign-offs, blank forms or checks on real devices, servers or peo
 | TEMPLATE-010 | Pass | QA lead fills in Pass / Fail / N/A per test run |
 | TEMPLATE-011 | Fail | QA lead fills in Pass / Fail / N/A per test run |
 | TEMPLATE-012 | N/A | QA lead fills in Pass / Fail / N/A per test run |
-| SEC-008 | Fraud controls for account takeover, fake suppliers, fake inspection evidence, refund abuse, promo abuse and s | Fraud controls need a risk owner to define thresholds and review cases |
 | SEC-010 | Backup, restore, disaster recovery, monitoring, incident response and security alert ownership tested before g | Backup, restore and disaster recovery must be rehearsed on the real servers |
 | LIVE-001 | All P0 screens approved by Product Owner and QA. | Product owner, QA, security, legal and operations sign this off before launch |
 | LIVE-002 | Responsive behavior validated on supported devices/browsers. | Product owner, QA, security, legal and operations sign this off before launch |
@@ -362,6 +371,9 @@ Boxes outside the Master table (Definition of Done, Security, Go-live, Journeys 
 | JOURNEY-053 | Release funds after configured conditions. Checks: Delivery/acceptance/dispute window; inspection release where applicable; reserves; bank status; retry; reconciliation. | **VERIFIED** | release conditions, reserve, payouts, reconciliation; escrow-ledger.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean | ☑ | 2026-10-01 (pass 7) |
 | ENH-007 | Hide or flag products that cannot legally/logistically ship to selected country. | **VERIFIED** | market eligibility hides blocked products for the destination; catalog-market-eligibility.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean | ☑ | 2026-10-01 (pass 7) |
 | JOURNEY-024 | Order history and next actions. Checks: Filter/status; invoice; cancel eligibility; track; support; return/refund; buy again. | **VERIFIED** | orders list filters, track, returns; order page invoice, cancel, support, reorder; OrdersPage.test; Full verify: backend 299 files / 5097 tests, customer-web 177 / 1723, admin-web 41 / 342, docs:check ok, secret scan clean | ☑ | 2026-10-01 (pass 7) |
+| SEC-002 | Least-privilege RBAC plus object-level authorization for orders, RFQs, documents and inspection jobs. | **VERIFIED** | Pass 8. New least-privilege staff roles Support Agent and Compliance Officer (permissions.ts), pinned by tests/unit/staff-least-privilege.test.ts (8). New tests/integration/authorization-matrix.test.ts (14): rival buyer refused order, invoice, receipts, tracking, payment protection, documents and inspection timeline (404); rival cancel by changed id refused; seller B refused seller A's order part, documents, inspection, readiness declaration and settlements; buyer session refused on Seller Hub; second agency and unassigned inspector refused job, list, start, decline and evidence; evidence reads audited; support refused refund, privacy, ledger and staff; compliance refused refund and ledger; self-escalation of roles refused (403) and owner role change audited; deactivated buyer gets 401 on the next request. Existing suites rerun green: session-isolation, logistics-tenant-isolation, logistics-driver-location, rfq-create, rfq-responses, seller-team, auth, customers, staff-temporary-password, inspection-http, inspection-gate-http. Matrix documented in docs/AUTHORIZATION-MATRIX.md. | ☑ | 2026-10-01 (pass 8) |
+| SEC-007 | Privacy notices, consent where required, purpose limitation, retention schedules, data-subject handling and controlled cross-border data access. | **VERIFIED** | Pass 8. Technical controls verified: privacy notice and versioned Terms consent with hash (ConsentRecord, legal-documents tests); optional marketing opt-ins separate and off by default; retention schedule from env and processing register (privacy-controls tests); export and erasure (data-subject-rights 20 tests, export-bundle-completeness); NEW Art. 16 correction requests (RECTIFICATION type, migration 20261030100000; privacy-rectification.test.ts 4: note required, one open, hidden from others, support refused, approval needs a note, audited, no double decision; YourDataPanel.test.tsx in customer app); privacy requests restricted to Business Owner and Compliance Officer; staff reads of KYC/KYB/seller documents and NEW inspection evidence reads audited; NEW controlled cross-border access STAFF_SENSITIVE_DATA_COUNTRIES with proxy country header, fail-closed (authorization-matrix test); log redaction (SEC-003). Legal wording and counsel approval of notices, retention periods and transfer safeguards remain with LIVE-014. | ☑ | 2026-10-01 (pass 8) |
+| SEC-008 | Fraud controls for account takeover, fake suppliers, fake inspection evidence, refund abuse, promo abuse and suspicious transaction velocity. | **VERIFIED** | Pass 8. Configurable fraud foundation: risk_rules and risk_signals (migration 20261030110000), worker runRiskScan with rules LOGIN_FAILURES, SENSITIVE_CHANGE_AFTER_FAILURES, DUPLICATE_SELLER_IDENTIFIER, EVIDENCE_REUSED, EVIDENCE_LATE_UPLOAD, REFUND_FREQUENCY, REFUND_VALUE, PROMO_REDEMPTIONS, ORDER_VELOCITY, MULTIPLE_HIGH_RISK; explained facts, severity, dedupe key, admin bell for HIGH/CRITICAL; review queue with reason, self-review refused, false positive and audited override; rule edits owner-only, versioned, audited; no automatic adverse action. tests/integration/risk-signals.test.ts (6): triggered vs below threshold, no duplicate on rescan, masked tax number, takeover pattern, composite critical, permissions, review and override audit, notification resolved, rule versioning; late-evidence rule in authorization-matrix test; admin RiskReviewPage.test.tsx (2). Production threshold values need the business risk owner's approval (shown as placeholders in the console); bank-detail duplicates are held by the payout provider and not checked. | ☑ | 2026-10-01 (pass 8) |
 
 Reconciliation for these boxes: Word and this report agree
 

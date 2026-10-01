@@ -35,6 +35,7 @@ import {
   redeemDocumentLink,
 } from '../../modules/buyer-companies/documents.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
+import { assertStaffDataRegion } from '../plugins/data-region.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 
@@ -294,6 +295,7 @@ export function registerAdminBuyerCompanyRoutes(app: FastifyInstance): Promise<v
     { preHandler: requireAdmin(Permission.BUYER_COMPANY_READ) },
     async (request, reply) => {
       const { id } = idParam.parse(request.params);
+      assertStaffDataRegion(request);
       return reply.status(200).send(await createDocumentLink(currentUser(request).id, id));
     },
   );
@@ -305,6 +307,7 @@ export function registerAdminBuyerCompanyRoutes(app: FastifyInstance): Promise<v
     async (request, reply) => {
       const { id } = idParam.parse(request.params);
       const { token } = z.object({ token: z.string().min(16).max(128) }).parse(request.query);
+      assertStaffDataRegion(request);
       const file = await redeemDocumentLink(
         currentUser(request).id,
         id,

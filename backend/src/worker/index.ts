@@ -25,6 +25,7 @@ import { pruneAdminNotifications } from '../modules/notifications/admin-notifica
 import { dispatchPendingNotifications } from '../modules/notifications/notification.service.js';
 import { purgeExpiredExports } from '../modules/reports/export.service.js';
 import { runSavedSearchAlerts } from '../modules/catalog/saved-search.service.js';
+import { runRiskScan } from '../modules/risk/risk.service.js';
 import { PermanentJobError, handlerFor } from './handlers.js';
 
 /** Identifies this worker in `leaseOwner`, so a stuck lease can be traced. */
@@ -160,6 +161,10 @@ async function maintenance(): Promise<void> {
 
     // Saved-search alerts. Each search is looked at no more than once a day,
     // so a pass with nothing due is one indexed query.
+    // Fraud and risk rules (SEC-008). Raises signals for review; never acts on them.
+    const riskSignals = await runRiskScan();
+    if (riskSignals > 0) logger.info({ riskSignals }, 'raised risk signals');
+
     const savedSearchAlerts = await runSavedSearchAlerts();
     if (savedSearchAlerts > 0) logger.info({ savedSearchAlerts }, 'queued saved-search alerts');
 
