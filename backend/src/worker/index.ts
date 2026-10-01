@@ -24,6 +24,7 @@ import { JobType, queue, type ClaimedJob } from '../infra/queue/index.js';
 import { pruneAdminNotifications } from '../modules/notifications/admin-notification.service.js';
 import { dispatchPendingNotifications } from '../modules/notifications/notification.service.js';
 import { purgeExpiredExports } from '../modules/reports/export.service.js';
+import { runSavedSearchAlerts } from '../modules/catalog/saved-search.service.js';
 import { PermanentJobError, handlerFor } from './handlers.js';
 
 /** Identifies this worker in `leaseOwner`, so a stuck lease can be traced. */
@@ -156,6 +157,11 @@ async function maintenance(): Promise<void> {
     if (prunedNotifications > 0) {
       logger.info({ prunedNotifications }, 'pruned expired console notifications');
     }
+
+    // Saved-search alerts. Each search is looked at no more than once a day,
+    // so a pass with nothing due is one indexed query.
+    const savedSearchAlerts = await runSavedSearchAlerts();
+    if (savedSearchAlerts > 0) logger.info({ savedSearchAlerts }, 'queued saved-search alerts');
 
     // One of each in flight at a time, whatever the tick rate.
     const slot = String(Math.floor(Date.now() / MAINTENANCE_INTERVAL_MS));

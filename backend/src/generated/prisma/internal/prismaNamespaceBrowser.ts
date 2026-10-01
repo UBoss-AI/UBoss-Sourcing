@@ -155,6 +155,7 @@ export const ModelName = {
   ErpWebhookReceipt: 'ErpWebhookReceipt',
   CustomerAutoPaySetting: 'CustomerAutoPaySetting',
   WishlistItem: 'WishlistItem',
+  SavedSearch: 'SavedSearch',
   ProductInstruction: 'ProductInstruction',
   ProductReview: 'ProductReview',
   SupportTicket: 'SupportTicket',
@@ -2667,6 +2668,21 @@ export const WishlistItemScalarFieldEnum = {
 } as const
 
 export type WishlistItemScalarFieldEnum = (typeof WishlistItemScalarFieldEnum)[keyof typeof WishlistItemScalarFieldEnum]
+
+
+export const SavedSearchScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  name: 'name',
+  query: 'query',
+  filters: 'filters',
+  alertsEnabled: 'alertsEnabled',
+  lastNotifiedAt: 'lastNotifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SavedSearchScalarFieldEnum = (typeof SavedSearchScalarFieldEnum)[keyof typeof SavedSearchScalarFieldEnum]
 
 
 export const ProductInstructionScalarFieldEnum = {
@@ -10084,6 +10100,16 @@ export const WishlistItemOrderByRelevanceFieldEnum = {
 } as const
 
 export type WishlistItemOrderByRelevanceFieldEnum = (typeof WishlistItemOrderByRelevanceFieldEnum)[keyof typeof WishlistItemOrderByRelevanceFieldEnum]
+
+
+export const SavedSearchOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  name: 'name',
+  query: 'query'
+} as const
+
+export type SavedSearchOrderByRelevanceFieldEnum = (typeof SavedSearchOrderByRelevanceFieldEnum)[keyof typeof SavedSearchOrderByRelevanceFieldEnum]
 
 
 export const ProductInstructionOrderByRelevanceFieldEnum = {

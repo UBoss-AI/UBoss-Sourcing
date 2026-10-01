@@ -375,6 +375,11 @@ export async function executeErasure(input: {
         await tx.wishlistItem.deleteMany({ where: { customerProfileId: profile.id } })
       ).count;
 
+      // Saved searches: the subject's own search terms, kept for nobody else.
+      deleted.savedSearches = (
+        await tx.savedSearch.deleteMany({ where: { customerProfileId: profile.id } })
+      ).count;
+
       /*
        * Instructions left on products without buying them.
        *

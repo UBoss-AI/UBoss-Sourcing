@@ -23,14 +23,14 @@ beforeEach(() => {
 describe('agency dashboard', () => {
   it('shows deadlines, SLA, assigned inspector, report links and exact invoice amounts', async () => {
     renderWithProviders(<AgencyDashboardPage />);
-    expect(await screen.findByRole('link', { name: 'INS-45' })).toBeInTheDocument();
-    expect(screen.getByText('Report overdue')).toBeInTheDocument();
-    expect(screen.getByText(/Accept by:/)).toBeInTheDocument();
-    expect(screen.getByText(/Report due:/)).toBeInTheDocument();
-    expect(screen.getByText('Inspector: Priya')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Report' })).toHaveAttribute('href', '/inspection/jobs/J');
-    expect(screen.getByText('INV-45')).toBeInTheDocument();
-    expect(screen.getByText(/123\.45/)).toBeInTheDocument();
+    expect((await screen.findAllByRole('link', { name: 'INS-45' })).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Report overdue').length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Accept by:/)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/Report due:/)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Inspector: Priya')[0]).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: 'Report' })[0]).toHaveAttribute('href', '/inspection/jobs/J');
+    expect(screen.getAllByText('INV-45')[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/123\.45/)[0]).toBeInTheDocument();
   });
   it('keeps invoice controls out of the inspector view and handles an empty assignment list', async () => {
     vi.mocked(fetchAgencyMe).mockResolvedValue({ membership: { agencyName: 'Independent QA', fullName: 'Inspector', role: 'INSPECTOR', permissions: [] } });

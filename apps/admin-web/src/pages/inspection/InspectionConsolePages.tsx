@@ -24,7 +24,7 @@ import { formatDateTime } from '@/lib/format';
 interface QueueRow { id: string; orderNumber?: string; sellerName?: string; level: string; status: string; evaluatedAt?: string | null }
 interface Detail {
   requirement: { id: string; orderNumber: string; sellerName: string; sellerOrderGroupId: string; level: string; status: string; reason: string | null; ruleName: string | null; gate: { sentence: string } };
-  jobs: { id: string; jobNumber: string; status: string; reinspectionOfJobId: string | null; defects: { status: string }[]; agency: { name?: string } | null; scheduledFor: string | null; report: { result: string | null; status: string } | null }[];
+  jobs: { id: string; jobNumber: string; kind?: string; status: string; reinspectionOfJobId: string | null; defects: { status: string }[]; agency: { name?: string } | null; scheduledFor: string | null; report: { result: string | null; status: string } | null }[];
   releases: { id: string; kind: string; state: string; reason?: string | null }[];
   timeline: { id: string; summary: string; actorLabel: string | null; createdAt: string | null }[];
 }
@@ -85,7 +85,10 @@ export function InspectionRequirementPage(): React.JSX.Element {
   if (query.isError) return <ErrorState error={query.error} onRetry={() => { void query.refetch(); }} />;
   const d = query.data.inspection;
   const busy = run.isPending;
-  const repeatable = d.jobs.filter((job) => job.status === 'COMPLETED' && job.report?.result === 'FAIL');
+  // A finished job whose goods failed or still carry findings can be inspected again once each finding has its corrective action.
+  const repeatable = d.jobs.filter(
+    (job) => job.status === 'COMPLETED' && (job.report?.result === 'FAIL' || job.defects.length > 0) && !d.jobs.some((later) => later.reinspectionOfJobId === job.id && later.status !== 'CANCELLED' && later.status !== 'DECLINED'),
+  );
   const openJob = d.jobs.some((job) => ['REQUESTED', 'ACCEPTED', 'INSPECTOR_ASSIGNED', 'IN_PROGRESS', 'REPORT_SUBMITTED'].includes(job.status));
   const needsCapa = d.jobs.some((job) => job.status === 'COMPLETED' && job.defects.some((defect) => defect.status === 'OPEN'));
   const set = (field: keyof typeof booking) => (event: { target: { value: string } }): void => { setBooking({ ...booking, [field]: event.target.value }); };
@@ -102,7 +105,7 @@ export function InspectionRequirementPage(): React.JSX.Element {
           <p>{d.requirement.gate.sentence}</p>
           {d.requirement.ruleName !== null && <p className="text-ink-muted">{t('inspection.rule')}: {d.requirement.ruleName} · {d.requirement.reason}</p>}
           {d.jobs.map((job) => (
-            <p key={job.id}><Badge>{job.status}</Badge> {job.jobNumber} · {job.agency?.name} · {formatDateTime(job.scheduledFor)} {job.report !== null && `· ${job.report.result ?? job.report.status}`} {job.reinspectionOfJobId !== null && `· ${t('inspection.reinspection.original')}: ${d.jobs.find((original) => original.id === job.reinspectionOfJobId)?.jobNumber ?? job.reinspectionOfJobId}`}</p>
+            <p key={job.id}><Badge>{job.status}</Badge> {job.kind === 'REINSPECTION' && <Badge tone="warning">{t('inspection.reinspection.badge')}</Badge>} {job.jobNumber} · {job.agency?.name} · {formatDateTime(job.scheduledFor)} {job.report !== null && `· ${job.report.result ?? job.report.status}`} {job.reinspectionOfJobId !== null && `· ${t('inspection.reinspection.original')}: ${d.jobs.find((original) => original.id === job.reinspectionOfJobId)?.jobNumber ?? job.reinspectionOfJobId}`} {d.jobs.filter((later) => later.reinspectionOfJobId === job.id).map((later) => `· ${t('inspection.reinspection.repeatedBy')}: ${later.jobNumber} (${later.status})`).join(' ')}</p>
           ))}
           {d.releases.map((release) => (
             <div key={release.id} className="flex flex-wrap items-center gap-2">

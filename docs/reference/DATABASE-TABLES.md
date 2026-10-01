@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**353 tables · 331 enums · 810 extra indexes and unique keys**, in 55 groups. The groups follow the section banners in the schema file.
+**354 tables · 331 enums · 812 extra indexes and unique keys**, in 55 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -53,7 +53,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ the roles union product law recognises for whoever put a product on the / market. named after the law rather than after the supply chain: an / "importer" here is the art. 4 reg. 2019/1020 economic operator, not / whichever company happens to have shipped the container.](#group-the-roles-union-product-law-recognises-for-whoever-put-a-product-on-the-market-named-after-the-law-rather-than-after-the-supply-chain-an-importer-here-is-the-art-4-reg-2019-1020-economic-operator-not-whichever-company-happens-to-have-shipped-the-container) | 1 | 1 |
 | [/ risk class, under the annex viii rules. / / class i is subdivided because the subdivision decides whether a notified / body is involved at all: a plain class i device is self-certified, but one / that is supplied sterile, has a measuring function, or is a reusable / surgical instrument needs a notified body for that specific aspect. a / validator that treated "class i" as one thing would let a sterile syringe / publish with no nb number, which is the exact case it exists to catch.](#group-risk-class-under-the-annex-viii-rules-class-i-is-subdivided-because-the-subdivision-decides-whether-a-notified-body-is-involved-at-all-a-plain-class-i-device-is-self-certified-but-one-that-is-supplied-sterile-has-a-measuring-function-or-is-a-reusable-surgical-instrument-needs-a-notified-body-for-that-specific-aspect-a-validator-that-treated-class-i-as-one-thing-would-let-a-sterile-syringe-publish-with-no-nb-number-which-is-the-exact-case-it-exists-to-catch) | 2 | 1 |
 | [/ where the ERP connection stands. / / the order matters and the gaps matter. draft -&gt; testing -&gt; connected is the / setup path, and active is reachable only from connected: a connection that / has never answered a test cannot start carrying orders. see / `ERP-connection-state.ts`, which is the only thing allowed to move a row / between these.](#group-where-the-erp-connection-stands-the-order-matters-and-the-gaps-matter-draft-testing-connected-is-the-setup-path-and-active-is-reachable-only-from-connected-a-connection-that-has-never-answered-a-test-cannot-start-carrying-orders-see-erp-connection-state-ts-which-is-the-only-thing-allowed-to-move-a-row-between-these) | 7 | 10 |
-| [Saved for later](#group-saved-for-later) | 1 | 0 |
+| [Saved for later](#group-saved-for-later) | 2 | 0 |
 | [Instructions left on a product without buying it](#group-instructions-left-on-a-product-without-buying-it) | 1 | 0 |
 | [/ whether a review is shown on the storefront. / / two members. a review is published the moment it is written - there is no / queue a buyer waits in - and a member of staff can hide one afterwards and / put it back. appending a member later is safe; reordering is not, because / MariaDB stores an enum by position.](#group-whether-a-review-is-shown-on-the-storefront-two-members-a-review-is-published-the-moment-it-is-written-there-is-no-queue-a-buyer-waits-in-and-a-member-of-staff-can-hide-one-afterwards-and-put-it-back-appending-a-member-later-is-safe-reordering-is-not-because-mariadb-stores-an-enum-by-position) | 1 | 1 |
 | [/ where a ticket is in its life. see `domain/support-ticket-state.ts`. / / append only - MariaDB stores an enum by position.](#group-where-a-ticket-is-in-its-life-see-domain-support-ticket-state-ts-append-only-mariadb-stores-an-enum-by-position) | 4 | 9 |
@@ -1725,6 +1725,7 @@ Table `customer_profiles`
 - `couponRedemptions` ← [CouponRedemption](#model-couponredemption) - has many
 - `limits` ← [CustomerLimit](#model-customerlimit) - has many
 - `wishlistItems` ← [WishlistItem](#model-wishlistitem) - has many
+- `savedSearches` ← [SavedSearch](#model-savedsearch) - has many
 - `productInstructions` ← [ProductInstruction](#model-productinstruction) - has many
 - `productReviews` ← [ProductReview](#model-productreview) - has many
 - `supportTickets` ← [SupportTicket](#model-supportticket) - has many
@@ -5738,16 +5739,21 @@ What a customer wants done when an off-session charge fails.
 
 ## Saved for later
 
-[WishlistItem](#model-wishlistitem)
+[WishlistItem](#model-wishlistitem) · [SavedSearch](#model-savedsearch)
 
 ```mermaid
 erDiagram
     CustomerProfile ||--o{ WishlistItem : "customerProfile"
     Product ||--o{ WishlistItem : "product"
+    CustomerProfile ||--o{ SavedSearch : "customerProfile"
     WishlistItem {
         String id PK
         String customerProfileId FK
         String productId FK
+    }
+    SavedSearch {
+        String id PK
+        String customerProfileId FK
     }
 ```
 
@@ -5776,6 +5782,35 @@ Table `wishlist_items`
 - `@@unique([customerProfileId, productId, variantKey], map: "uq_wishlist_item")`
 - `@@index([customerProfileId, createdAt], map: "ix_wishlist_customer_time")`
 - `@@index([productId], map: "ix_wishlist_product")`
+
+<a id="model-savedsearch"></a>
+
+### SavedSearch
+
+Table `saved_searches`
+
+A buyer's saved sourcing search, and whether they want to hear about new matches. The query is the storefront search term; `filters` holds the narrowing the buyer had on (category slug, destination country, price range in minor units of one currency) as JSON. The alert job reads products published or repriced since `lastNotifiedAt` and sends one e-mail per search. Capped per buyer by the service (SAVED_SEARCH_LIMIT_REACHED).
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `customerProfileId` | String · Char(26) |  | FK → [CustomerProfile](#model-customerprofile) |  | (on delete: Cascade) |
+| `name` | String · VarChar(120) |  |  |  |  |
+| `query` | String · VarChar(200) |  |  |  |  |
+| `filters` | Json | yes |  |  |  |
+| `alertsEnabled` | Boolean |  |  | true |  |
+| `lastNotifiedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@index([customerProfileId, createdAt], map: "ix_saved_search_customer_time")`
+- `@@index([alertsEnabled, lastNotifiedAt], map: "ix_saved_search_alert_due")`
 
 <a id="group-instructions-left-on-a-product-without-buying-it"></a>
 

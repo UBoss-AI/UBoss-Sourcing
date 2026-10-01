@@ -71,6 +71,39 @@ export async function fetchSellerInspection(groupId: string): Promise<Inspection
 export const requestBuyerInspection = (orderId: string, sellerOrderGroupId: string, note: string | null): Promise<unknown> =>
   api.post(`/inspection/buyer/orders/${orderId}/request`, { sellerOrderGroupId, note });
 
+/** One agency a buyer may choose; `problems` says why one cannot take the job on that day or in that country. */
+export interface BuyerAgencyChoice {
+  id: string;
+  name: string;
+  eligible: boolean;
+  problems: string[];
+}
+
+export async function fetchBuyerAgencyChoices(
+  orderId: string,
+  query: { sellerOrderGroupId: string; country: string; scheduledFor: string },
+): Promise<BuyerAgencyChoice[]> {
+  const params = new URLSearchParams({ sellerOrderGroupId: query.sellerOrderGroupId, scheduledFor: query.scheduledFor });
+  if (query.country.length === 2) params.set('country', query.country);
+  return (await api.get<{ agencies: BuyerAgencyChoice[] }>(`/inspection/buyer/orders/${orderId}/agencies?${params.toString()}`)).agencies;
+}
+
+export interface BuyerBookingInput {
+  sellerOrderGroupId: string;
+  agencyId: string;
+  scheduledFor: string;
+  inspectionPointType: 'SELLER_PREMISES' | 'WAREHOUSE' | 'PORT' | 'OTHER';
+  inspectionPoint: { label: string; addressLine: string; city: string; country: string };
+  payer: 'BUYER' | 'SELLER';
+  specialRequirements?: string | null;
+}
+
+export const bookBuyerInspection = (orderId: string, body: BuyerBookingInput): Promise<{ jobId: string; jobNumber: string }> =>
+  api.post(`/inspection/buyer/orders/${orderId}/book`, body);
+
+/** A job still in flight: a second one cannot be booked while one of these exists. */
+export const OPEN_JOB_STATUSES = ['REQUESTED', 'ACCEPTED', 'INSPECTOR_ASSIGNED', 'IN_PROGRESS', 'REPORT_SUBMITTED'];
+
 export const submitReadiness = (jobId: string, body: unknown): Promise<unknown> => api.post(`/seller/inspection/jobs/${jobId}/readiness`, body);
 
 export const submitCapa = (defectId: string, body: { sellerResponse: string; correctiveAction: string }): Promise<unknown> =>
@@ -79,9 +112,11 @@ export const submitCapa = (defectId: string, body: { sellerResponse: string; cor
 export interface AgencyJobRow {
   id: string;
   jobNumber: string;
+  kind?: string;
   status: string;
   scheduledFor: string | null;
   sellerName?: string;
+  sellerOrderNumber?: string;
   orderNumber?: string;
   acceptDueAt: string | null;
   reportDueAt: string | null;
@@ -93,6 +128,7 @@ export interface AgencyDashboard {
   counts: Record<'offered' | 'toAssign' | 'assigned' | 'inProgress' | 'awaitingQa' | 'completed' | 'overdue', number>;
   jobs: AgencyJobRow[];
   inspectors: { id: string; fullName: string; role: string; status: string; identityVerifiedAt: string | null; credentialExpiresAt: string | null }[];
+  reports?: { id: string; jobId: string; jobNumber: string; revision: number; status: string; result: string | null; submittedAt: string | null; signedAt: string | null; returnedAt: string | null }[];
   invoices: { id: string; jobNumber: string; invoiceNumber: string; amountMinor: string; currency: string; payer: string; status: string }[];
 }
 

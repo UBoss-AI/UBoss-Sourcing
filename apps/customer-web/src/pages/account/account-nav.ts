@@ -39,6 +39,7 @@ import {
   LocationIcon,
   ReceiptIcon,
   RepeatIcon,
+  SearchIcon,
   ShieldIcon,
   StarIcon,
   TicketIcon,
@@ -66,6 +67,7 @@ export type AccountNavId =
   | 'erp'
   | 'coupons'
   | 'wishlist'
+  | 'savedSearches'
   | 'reviews'
   | 'notifications'
   | 'support'
@@ -265,6 +267,14 @@ export const ACCOUNT_NAV: Readonly<Record<AccountNavId, AccountNavItem>> = {
     menuLabelKey: 'account.nav.wishlist',
     icon: HeartIcon,
   },
+  // Searches the buyer saved, with new-match e-mail alerts.
+  savedSearches: {
+    id: 'savedSearches',
+    to: '/account/saved-searches',
+    labelKey: 'savedSearch.navLabel',
+    menuLabelKey: 'savedSearch.navLabel',
+    icon: SearchIcon,
+  },
   // Products received but not rated yet, and the reviews written. Only where
   // the deployment has reviews switched on.
   reviews: {
@@ -353,7 +363,7 @@ export function accountNavGroups(flags: AccountNavFlags): AccountNavGroup[] {
     { titleKey: 'account.group.integrations', items: include(['erp'], flags) },
     {
       titleKey: 'account.group.myStuff',
-      items: include(['coupons', 'wishlist', 'reviews', 'notifications', 'supportRequests'], flags),
+      items: include(['coupons', 'wishlist', 'savedSearches', 'reviews', 'notifications', 'supportRequests'], flags),
     },
   ];
 
@@ -381,7 +391,7 @@ export function accountMenuGroups(flags: AccountNavFlags): AccountNavGroup[] {
     },
     {
       titleKey: 'account.group.details',
-      items: include(['identity', 'companies', 'addresses', 'wishlist', 'reviews', 'notifications', 'erp', 'support'], flags),
+      items: include(['identity', 'companies', 'addresses', 'wishlist', 'savedSearches', 'reviews', 'notifications', 'erp', 'support'], flags),
     },
   ];
 

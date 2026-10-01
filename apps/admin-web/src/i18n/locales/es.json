@@ -164,6 +164,8 @@
   "nav.disputes": "Controversias",
   "nav.inspection": "Inspección",
   "inspection.queueTitle": "Inspección",
+  "inspection.reinspection.badge": "Nueva inspección",
+  "inspection.reinspection.repeatedBy": "Revisado de nuevo por",
   "inspection.queueDescription": "Todos los pedidos que requieran o en los que se haya solicitado una inspección independiente.",
   "inspection.queueEmpty": "No se han encontrado inspecciones que coincidan.",
   "inspection.statusFilter": "Estado (p. ej., OBLIGATORIO)",

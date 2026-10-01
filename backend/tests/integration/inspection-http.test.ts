@@ -261,6 +261,8 @@ describe('an inspection from booking to a signed FAIL', () => {
     expect(data.jobs[0]?.reportDueAt).toBeTruthy();
     expect(data.inspectors.map((member) => member.fullName)).toContain('aginsp');
     expect(data.invoices[0]?.amountMinor).toBe('12345');
+    const reports = dashboard.json<{ reports: { jobId: string; status: string; result: string | null }[] }>().reports;
+    expect(reports).toContainEqual(expect.objectContaining({ jobId, result: 'FAIL' }));
     const scoped = await asCustomer(app, inspector, 'GET', '/inspection/agency/dashboard');
     expect(scoped.statusCode, scoped.body).toBe(200);
     expect(scoped.json<{ inspectors: unknown[]; invoices: unknown[] }>().inspectors).toEqual([]);
@@ -312,4 +314,63 @@ describe('an inspection from booking to a signed FAIL', () => {
     expect(linked.json<{ inspection: { requirement: { gate: { allowed: boolean } } } }>().inspection.requirement.gate.allowed).toBe(true);
     expect(linked.json<{ inspection: { jobs: { id: string; reinspectionOfJobId: string | null; report: { result: string } | null }[] } }>().inspection.jobs).toContainEqual(expect.objectContaining({ id: jobId, reinspectionOfJobId: originalJobId, report: expect.objectContaining({ result: 'PASS' }) }));
   }, 120_000);
+});
+
+describe('the buyer books an inspection themselves', () => {
+  let buyerMayRequestBefore = true;
+
+  beforeAll(async () => {
+    // Start this order part again with no rule asking for an inspection, so
+    // the buyer's own booking is what makes it inspectable.
+    await prisma.inspectionRequirement.deleteMany({ where: { orderId: desk.orderId } });
+    await prisma.inspectionRule.deleteMany({ where: { name: RULE_NAME } });
+    await prisma.sellerOrderGroup.update({ where: { id: groupId }, data: { status: 'PROCESSING', deliveredAt: null } });
+    const policy = await prisma.inspectionPolicy.findFirst({ select: { buyerMayRequest: true } });
+    buyerMayRequestBefore = policy?.buyerMayRequest ?? true;
+    await prisma.inspectionPolicy.updateMany({ data: { buyerMayRequest: true } });
+  });
+
+  afterAll(async () => {
+    await prisma.inspectionPolicy.updateMany({ data: { buyerMayRequest: buyerMayRequestBefore } });
+  });
+
+  it('lists eligible agencies, books with the buyer paying, and refuses a second booking', async () => {
+    expect(agencyId).not.toBe('');
+    const scheduledFor = new Date(Date.now() + 5 * 86_400_000).toISOString();
+    const listPath = `/inspection/buyer/orders/${desk.orderId}/agencies?sellerOrderGroupId=${groupId}&country=IN&scheduledFor=${encodeURIComponent(scheduledFor)}`;
+
+    expect((await app.inject({ method: 'GET', url: `/api/v1${listPath}` })).statusCode).toBe(401);
+    expect((await asCustomer(app, desk.rivalBuyer, 'GET', listPath)).statusCode).toBe(404);
+    const listed = await asCustomer(app, desk.buyer, 'GET', listPath);
+    expect(listed.statusCode, listed.body).toBe(200);
+    expect(listed.json<{ agencies: { id: string; eligible: boolean }[] }>().agencies).toContainEqual(expect.objectContaining({ id: agencyId, eligible: true }));
+
+    const booking = {
+      sellerOrderGroupId: groupId, agencyId, scheduledFor, inspectionPointType: 'WAREHOUSE',
+      inspectionPoint: { label: 'Seller warehouse', addressLine: '2 Dock Road', city: 'Pune', country: 'IN' },
+      payer: 'SELLER',
+    };
+    const bookPath = `/inspection/buyer/orders/${desk.orderId}/book`;
+    expect((await asCustomer(app, desk.rivalBuyer, 'POST', bookPath, { payload: { ...booking, payer: 'BUYER' } })).statusCode).toBe(404);
+    expect((await asCustomer(app, desk.buyer, 'POST', bookPath, { payload: { ...booking, payer: 'PLATFORM' } })).statusCode).toBe(400);
+    // Nothing requires an inspection here, so the buyer asked for it and pays for it.
+    const sellerPays = await asCustomer(app, desk.buyer, 'POST', bookPath, { payload: booking });
+    expect(sellerPays.statusCode, sellerPays.body).toBe(400);
+
+    const booked = await asCustomer(app, desk.buyer, 'POST', bookPath, { payload: { ...booking, payer: 'BUYER', reinspectionOfJobId: jobId } });
+    expect(booked.statusCode, booked.body).toBe(201);
+    const buyerJobId = booked.json<{ jobId: string }>().jobId;
+    expect(await prisma.inspectionJob.findUnique({
+      where: { id: buyerJobId },
+      select: { kind: true, reinspectionOfJobId: true, bookedByParty: true, payer: true, agencyId: true, inspectionPointType: true },
+    })).toEqual({ kind: 'INITIAL', reinspectionOfJobId: null, bookedByParty: 'BUYER', payer: 'BUYER', agencyId, inspectionPointType: 'WAREHOUSE' });
+    expect(await prisma.inspectionRequirement.findUnique({ where: { sellerOrderGroupId: groupId }, select: { level: true, buyerRequested: true } }))
+      .toEqual({ level: 'BUYER_REQUESTED', buyerRequested: true });
+
+    const again = await asCustomer(app, desk.buyer, 'POST', bookPath, { payload: { ...booking, payer: 'BUYER' } });
+    expect(again.statusCode, again.body).toBe(409);
+
+    const view = await asCustomer(app, desk.buyer, 'GET', `/inspection/buyer/orders/${desk.orderId}`);
+    expect(view.json<{ inspections: { jobs: { id: string; payer: string }[] }[] }>().inspections[0]?.jobs).toContainEqual(expect.objectContaining({ id: buyerJobId, payer: 'BUYER' }));
+  }, 60_000);
 });

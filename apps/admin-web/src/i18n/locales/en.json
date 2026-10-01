@@ -164,6 +164,8 @@
   "nav.disputes": "Disputes",
   "nav.inspection": "Inspection",
   "inspection.queueTitle": "Inspection",
+  "inspection.reinspection.badge": "Re-inspection",
+  "inspection.reinspection.repeatedBy": "Re-inspected by",
   "inspection.queueDescription": "Every order that needs, or asked for, an independent inspection.",
   "inspection.queueEmpty": "No inspections match.",
   "inspection.statusFilter": "Status (e.g. REQUIRED)",

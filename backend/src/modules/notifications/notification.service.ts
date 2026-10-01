@@ -261,6 +261,10 @@ export const NotificationEvent = {
   RFQ_INVITATION: 'rfq.invitation',
   RFQ_UPDATE_FOR_SELLER: 'rfq.update_for_seller',
   RFQ_UPDATE_FOR_BUYER: 'rfq.update_for_buyer',
+  /// Saved searches. Told to the BUYER: products matching a search they saved
+  /// were published or repriced since the last alert. A count, up to three
+  /// product names and a link back to the search - nothing about any seller.
+  SAVED_SEARCH_MATCHES: 'saved_search.matches',
 } as const;
 
 export type NotificationEventKey = (typeof NotificationEvent)[keyof typeof NotificationEvent];
@@ -1146,6 +1150,14 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'Hello {{recipientName}},\n\n' +
         'Your request for quotation {{rfqReference}} ({{title}}) has moved on: {{step}}.\n\n' +
         'Open it here:\n{{rfqUrl}}\n',
+    },
+    [NotificationEvent.SAVED_SEARCH_MATCHES]: {
+      subject: 'New matches for your saved search "{{searchName}}"',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        '{{matchCount}} new or repriced products match your saved search "{{searchName}}", including: {{examples}}.\n\n' +
+        'See them here:\n{{searchUrl}}\n\n' +
+        'You can turn these alerts off on your saved searches page:\n{{manageUrl}}\n',
     },
   });
 

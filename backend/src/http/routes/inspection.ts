@@ -29,6 +29,8 @@ import {
   acceptJob,
   assignInspector,
   bookInspection,
+  bookInspectionAsBuyer,
+  buyerAgencyChoices,
   declareConflict,
   declineJob,
   reclassifyDefect,
@@ -317,6 +319,36 @@ export function registerBuyerInspectionRoutes(app: FastifyInstance): Promise<voi
       { orderId, ...input },
     );
     return reply.status(201).send(result ?? { ok: true });
+  });
+
+  // The inspection agencies you may choose for one part of your order, on a day and in a country.
+  app.get('/orders/:id/agencies', async (request, reply) => {
+    const { id: orderId } = idParam.parse(request.params);
+    const query = z
+      .object({ sellerOrderGroupId: id, country: z.string().length(2).optional(), scheduledFor: z.coerce.date() })
+      .parse(request.query);
+    const agencies = await buyerAgencyChoices(currentUser(request).customerProfileId ?? '', {
+      orderId,
+      sellerOrderGroupId: query.sellerOrderGroupId,
+      country: query.country ?? null,
+      scheduledFor: query.scheduledFor,
+    });
+    return reply.header('Cache-Control', 'no-store').send({ agencies });
+  });
+
+  // Book an inspection on your order before it ships: agency, date, inspection point and who pays.
+  app.post('/orders/:id/book', async (request, reply) => {
+    const { id: orderId } = idParam.parse(request.params);
+    const auth = currentUser(request);
+    const input = bookingSchema
+      .omit({ reinspectionOfJobId: true, payer: true })
+      .extend({ payer: z.enum(['BUYER', 'SELLER']) })
+      .parse(request.body);
+    const result = await bookInspectionAsBuyer(
+      { party: 'BUYER', userId: auth.id, label: auth.email, email: auth.email, correlationId: request.correlationId, customerProfileId: auth.customerProfileId ?? '' },
+      { orderId, ...input },
+    );
+    return reply.status(201).send(result);
   });
 
   // Download one evidence file the buyer may see under the report-visibility policy.

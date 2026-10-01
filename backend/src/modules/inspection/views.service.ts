@@ -477,7 +477,7 @@ export async function agencyJobList(membership: InspectionMembership, filters: {
 /** SCREEN-045: assignments, SLA, inspectors, reports and invoices, for one agency. */
 export async function agencyDashboard(membership: InspectionMembership) {
   const jobs = await agencyJobList(membership, {});
-  const [inspectors, invoices, agency] = await Promise.all([
+  const [inspectors, invoices, agency, reports] = await Promise.all([
     membership.assignmentScoped
       ? Promise.resolve([])
       : prisma.inspectionAgencyMember.findMany({
@@ -509,6 +509,21 @@ export async function agencyDashboard(membership: InspectionMembership) {
       where: { id: membership.agencyId },
       select: { name: true, dailyCapacity: true, status: true, independenceStatement: true },
     }),
+    prisma.inspectionReport.findMany({
+      where: { job: agencyJobWhere(membership) },
+      orderBy: { submittedAt: 'desc' },
+      take: 50,
+      select: {
+        id: true,
+        revision: true,
+        status: true,
+        result: true,
+        submittedAt: true,
+        signedAt: true,
+        returnedAt: true,
+        job: { select: { id: true, jobNumber: true } },
+      },
+    }),
   ]);
 
   const count = (statuses: InspectionJobStatusName[]): number => jobs.filter((job) => statuses.includes(job.status)).length;
@@ -531,6 +546,17 @@ export async function agencyDashboard(membership: InspectionMembership) {
       idDocumentNumber: maskDocumentNumber(member.idDocumentNumber),
       identityVerifiedAt: iso(member.identityVerifiedAt),
       credentialExpiresAt: iso(member.credentialExpiresAt),
+    })),
+    reports: reports.map((report) => ({
+      id: report.id,
+      jobId: report.job.id,
+      jobNumber: report.job.jobNumber,
+      revision: report.revision,
+      status: report.status,
+      result: report.result,
+      submittedAt: iso(report.submittedAt),
+      signedAt: iso(report.signedAt),
+      returnedAt: iso(report.returnedAt),
     })),
     invoices: invoices.map((invoice) => ({
       id: invoice.id,

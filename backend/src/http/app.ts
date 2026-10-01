@@ -67,6 +67,7 @@ import {
 } from './routes/payment-receipts.js';
 import { registerCustomerOrderTrackingRoutes } from './routes/order-tracking.customer.js';
 import { registerCustomerPaymentMethodRoutes } from './routes/payment-methods.customer.js';
+import { registerCustomerSavedSearchRoutes } from './routes/saved-searches.customer.js';
 import { registerCustomerAutoPayRoutes } from './routes/autopay.customer.js';
 import { registerCustomerSecurityRoutes } from './routes/security.customer.js';
 import { registerAdminErpRoutes } from './routes/erp.admin.js';
@@ -744,6 +745,11 @@ export async function buildApp() {
   // storefront's own screens for them live.
   await app.register(registerCustomerPaymentMethodRoutes, {
     prefix: `${API_PREFIX}/account/payment-methods`,
+  });
+
+  // Saved searches and their new-match alerts. The buyer's own, like saved cards.
+  await app.register(registerCustomerSavedSearchRoutes, {
+    prefix: `${API_PREFIX}/account/saved-searches`,
   });
 
   // The customer's standing authority to be charged. Under /account for the

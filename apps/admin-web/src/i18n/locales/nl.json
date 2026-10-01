@@ -164,6 +164,8 @@
   "nav.disputes": "Geschillen",
   "nav.inspection": "Inspectie",
   "inspection.queueTitle": "Inspectie",
+  "inspection.reinspection.badge": "Herinspectie",
+  "inspection.reinspection.repeatedBy": "Opnieuw gecontroleerd door",
   "inspection.queueDescription": "Elke bestelling waarvoor een onafhankelijke keuring vereist is of is aangevraagd.",
   "inspection.queueEmpty": "Er zijn geen overeenkomende inspecties gevonden.",
   "inspection.statusFilter": "Status (bijv. VERPLICHT)",

@@ -59,6 +59,9 @@ export const SECTIONS = Object.freeze({
     // Lines saved without buying them. A record of what somebody was thinking
     // of ordering, which is plainly theirs, and short enough to disclose whole.
     'wishlist',
+    // Searches they saved and whether they asked for alerts. Their own words
+    // and choices, so disclosed whole.
+    'savedSearches',
     // What they asked a seller for, on products they did not buy. Their own
     // words about their own requirements, held indefinitely until they take
     // them back, so plainly theirs and disclosed whole.
@@ -470,6 +473,7 @@ export async function buildCustomerBundle(
     wishlist,
     productInstructions,
     productReviews,
+    savedSearches,
   ] = await Promise.all([
       prisma.address.findMany({
         where: { customerProfileId: profile.id },
@@ -801,6 +805,22 @@ export async function buildCustomerBundle(
           product: { select: { name: true, sku: true } },
         },
       }),
+
+      // Searches they saved, and whether they asked to be e-mailed about new
+      // matches. Their own words and choices, so disclosed whole.
+      prisma.savedSearch.findMany({
+        where: { customerProfileId: profile.id },
+        orderBy: { createdAt: 'asc' },
+        select: {
+          name: true,
+          query: true,
+          filters: true,
+          alertsEnabled: true,
+          lastNotifiedAt: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
     ]);
 
   return envelope(subject, {
@@ -960,6 +980,16 @@ export async function buildCustomerBundle(
       hiddenAt: review.status === 'HIDDEN' && review.moderatedAt !== null ? iso(review.moderatedAt) : null,
       writtenAt: iso(review.createdAt),
       lastChangedAt: iso(review.updatedAt),
+    })),
+
+    savedSearches: savedSearches.map((search) => ({
+      name: search.name,
+      searchTerm: search.query,
+      filters: search.filters,
+      alertsEnabled: search.alertsEnabled,
+      lastAlertAt: search.lastNotifiedAt === null ? null : iso(search.lastNotifiedAt),
+      savedAt: iso(search.createdAt),
+      lastChangedAt: iso(search.updatedAt),
     })),
 
     couponRedemptions: redemptions.map((redemption) => ({

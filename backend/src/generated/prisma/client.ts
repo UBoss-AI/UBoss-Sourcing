@@ -863,6 +863,16 @@ export type CustomerAutoPaySetting = Prisma.CustomerAutoPaySettingModel
  */
 export type WishlistItem = Prisma.WishlistItemModel
 /**
+ * Model SavedSearch
+ * A buyer's saved sourcing search, and whether they want to hear about new
+ * matches. The query is the storefront search term; `filters` holds the
+ * narrowing the buyer had on (category slug, destination country, price range
+ * in minor units of one currency) as JSON. The alert job reads products
+ * published or repriced since `lastNotifiedAt` and sends one e-mail per
+ * search. Capped per buyer by the service (SAVED_SEARCH_LIMIT_REACHED).
+ */
+export type SavedSearch = Prisma.SavedSearchModel
+/**
  * Model ProductInstruction
  * *
  *  * What a shopper needs done to a product, said before there is an order.

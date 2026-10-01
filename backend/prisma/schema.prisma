@@ -2359,6 +2359,7 @@ model CustomerProfile {
   couponRedemptions CouponRedemption[]
   limits            CustomerLimit[]
   wishlistItems     WishlistItem[]
+  savedSearches     SavedSearch[]
   productInstructions ProductInstruction[]
   productReviews      ProductReview[]
   supportTickets      SupportTicket[]
@@ -7225,6 +7226,33 @@ model WishlistItem {
   @@index([customerProfileId, createdAt], map: "ix_wishlist_customer_time")
   @@index([productId], map: "ix_wishlist_product")
   @@map("wishlist_items")
+}
+
+/// A buyer's saved sourcing search, and whether they want to hear about new
+/// matches. The query is the storefront search term; `filters` holds the
+/// narrowing the buyer had on (category slug, destination country, price range
+/// in minor units of one currency) as JSON. The alert job reads products
+/// published or repriced since `lastNotifiedAt` and sends one e-mail per
+/// search. Capped per buyer by the service (SAVED_SEARCH_LIMIT_REACHED).
+model SavedSearch {
+  id                String @id @db.Char(26)
+  customerProfileId String @db.Char(26)
+
+  name    String @db.VarChar(120)
+  query   String @db.VarChar(200)
+  filters Json?
+
+  alertsEnabled  Boolean   @default(true)
+  lastNotifiedAt DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade, map: "fk_saved_search_customer")
+
+  @@index([customerProfileId, createdAt], map: "ix_saved_search_customer_time")
+  @@index([alertsEnabled, lastNotifiedAt], map: "ix_saved_search_alert_due")
+  @@map("saved_searches")
 }
 
 // ===========================================================================

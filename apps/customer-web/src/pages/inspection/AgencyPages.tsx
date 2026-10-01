@@ -41,6 +41,8 @@ export function AgencyDashboardPage(): React.JSX.Element {
   if (dashboard.isPending) return <LoadingState />;
   if (dashboard.isError) return <ErrorState error={dashboard.error} onRetry={() => { void dashboard.refetch(); }} />;
   const d = dashboard.data;
+  const overdue = d.jobs.filter((job) => job.slaState !== 'ON_TIME');
+  const reports = d.reports ?? [];
 
   return (
     <div className="mx-auto max-w-5xl space-y-4 px-4 py-8">
@@ -51,6 +53,20 @@ export function AgencyDashboardPage(): React.JSX.Element {
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {(['offered', 'toAssign', 'assigned', 'inProgress', 'awaitingQa', 'completed', 'overdue'] as const).map((key) => <div key={key} className="rounded-lg border border-border-subtle p-3"><dt className="text-sm text-ink-muted">{t(`inspection.dashboard.${key}`)}</dt><dd className="text-xl font-semibold">{d.counts[key]}</dd></div>)}
       </dl>
+      {overdue.length > 0 && (
+        <Card title={t('inspection.dashboard.slaTitle')} bodyClassName="divide-y divide-border-subtle">
+          {overdue.map((job) => (
+            <div key={job.id} className="flex flex-wrap items-center gap-3 px-5 py-3 text-sm">
+              <Link to={`/inspection/jobs/${job.id}`} className="font-medium text-brand hover:underline">{job.jobNumber}</Link>
+              <Badge tone="danger">{t(`inspection.dashboard.${job.slaState}`)}</Badge>
+              <span>
+                {job.slaState === 'ACCEPT_OVERDUE' ? t('inspection.dashboard.acceptDue') : t('inspection.dashboard.reportDue')}:{' '}
+                {formatDateTime(job.slaState === 'ACCEPT_OVERDUE' ? job.acceptDueAt : job.reportDueAt)}
+              </span>
+            </div>
+          ))}
+        </Card>
+      )}
       {d.jobs.length === 0 ? (
         <EmptyState title={t('inspection.noJobs')} />
       ) : (
@@ -60,9 +76,10 @@ export function AgencyDashboardPage(): React.JSX.Element {
               <Link to={`/inspection/jobs/${job.id}`} className="font-medium text-brand hover:underline">{job.jobNumber}</Link>
               <span className="text-xs text-ink-muted">{formatDateTime(job.scheduledFor)}</span>
               <Badge>{job.status}</Badge>
+              {job.kind === 'REINSPECTION' && <Badge tone="warning">{t('inspection.reinspection.badge')}</Badge>}
               <span>{t('inspection.dashboard.acceptDue')}: {formatDateTime(job.acceptDueAt)}</span>
               <span>{t('inspection.dashboard.reportDue')}: {formatDateTime(job.reportDueAt)}</span>
-              <Badge>{t(`inspection.dashboard.${job.slaState}`)}</Badge>
+              <Badge tone={job.slaState === 'ON_TIME' ? 'success' : 'danger'}>{t(`inspection.dashboard.${job.slaState}`)}</Badge>
               <span>{t('inspection.inspector')}: {d.inspectors.find((member) => member.id === job.inspectorMemberId)?.fullName ?? '—'}</span>
               <Link to={`/inspection/jobs/${job.id}`} className="text-brand hover:underline">{t('inspection.report')}</Link>
             </div>
@@ -72,6 +89,17 @@ export function AgencyDashboardPage(): React.JSX.Element {
       {d.inspectors.length > 0 && <Card title={t('inspection.dashboard.inspectors')} bodyClassName="divide-y divide-border-subtle">
         {d.inspectors.map((member) => <div key={member.id} className="flex flex-wrap gap-3 px-5 py-3 text-sm"><span>{member.fullName}</span><Badge>{member.role}</Badge><Badge>{member.status}</Badge><span>{t('inspection.dashboard.identity')}: {formatDateTime(member.identityVerifiedAt)}</span><span>{t('inspection.dashboard.expires')}: {formatDateTime(member.credentialExpiresAt)}</span></div>)}
       </Card>}
+      <Card title={t('inspection.dashboard.reports')} bodyClassName="divide-y divide-border-subtle">
+        {reports.length === 0 ? <EmptyState title={t('inspection.dashboard.noReports')} /> : reports.map((report) => (
+          <div key={report.id} className="flex flex-wrap items-center gap-3 px-5 py-3 text-sm">
+            <Link to={`/inspection/jobs/${report.jobId}`} className="font-medium text-brand hover:underline">{report.jobNumber}</Link>
+            <span>{t('inspection.dashboard.revision', { revision: String(report.revision) })}</span>
+            <Badge>{report.status}</Badge>
+            {report.result !== null && <Badge tone={report.result === 'PASS' ? 'success' : 'warning'}>{report.result}</Badge>}
+            <span className="text-xs text-ink-muted">{formatDateTime(report.signedAt ?? report.submittedAt)}</span>
+          </div>
+        ))}
+      </Card>
       {me.data.membership.permissions.includes('inspection.invoice.write') && <Card title={t('inspection.dashboard.invoices')} bodyClassName="divide-y divide-border-subtle">
         {d.invoices.length === 0 ? <EmptyState title={t('inspection.dashboard.noInvoices')} /> : d.invoices.map((invoice) => <div key={invoice.id} className="flex flex-wrap gap-3 px-5 py-3 text-sm"><span>{invoice.invoiceNumber}</span><span>{invoice.jobNumber}</span><span>{formatMoneyMinor(invoice.amountMinor, invoice.currency)}</span><Badge>{invoice.status}</Badge><span>{invoice.payer}</span></div>)}
       </Card>}

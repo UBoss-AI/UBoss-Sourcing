@@ -164,6 +164,8 @@
   "nav.disputes": "Litiges",
   "nav.inspection": "Inspection",
   "inspection.queueTitle": "Inspection",
+  "inspection.reinspection.badge": "Nouvelle inspection",
+  "inspection.reinspection.repeatedBy": "Ré-inspecté par",
   "inspection.queueDescription": "Toute commande nécessitant ou faisant l'objet d'une demande d'inspection indépendante.",
   "inspection.queueEmpty": "Aucune inspection ne correspond.",
   "inspection.statusFilter": "Statut (par exemple : OBLIGATOIRE)",

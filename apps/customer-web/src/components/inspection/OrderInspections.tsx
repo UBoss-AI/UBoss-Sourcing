@@ -4,8 +4,14 @@
  * inspection exists, so orders without one look exactly as before.
  */
 import { useQuery } from '@tanstack/react-query';
+import { BuyerBookingForm } from '@/components/inspection/BuyerBookingForm';
 import { InspectionPanel } from '@/components/inspection/InspectionPanel';
-import { fetchBuyerInspections, fetchSellerInspection, inspectionKeys } from '@/lib/inspection';
+import { OPEN_JOB_STATUSES, fetchBuyerInspections, fetchSellerInspection, inspectionKeys, type InspectionView } from '@/lib/inspection';
+
+/** The buyer may book while nothing is in flight and nothing has been inspected yet. */
+function buyerMayBook(view: InspectionView): boolean {
+  return !view.jobs.some((job) => OPEN_JOB_STATUSES.includes(job.status) || job.status === 'COMPLETED');
+}
 
 export function BuyerOrderInspections({ orderId }: { orderId: string }): React.JSX.Element | null {
   const key = inspectionKeys.buyer(orderId);
@@ -13,7 +19,12 @@ export function BuyerOrderInspections({ orderId }: { orderId: string }): React.J
   if (query.data === undefined || query.data.length === 0) return null;
   return (
     <div className="space-y-3">
-      {query.data.map((view) => <InspectionPanel key={view.requirement.id} view={view} audience="BUYER" queryKey={key} />)}
+      {query.data.map((view) => (
+        <div key={view.requirement.id} className="space-y-2">
+          <InspectionPanel view={view} audience="BUYER" queryKey={key} />
+          {buyerMayBook(view) && <BuyerBookingForm orderId={orderId} view={view} queryKey={key} />}
+        </div>
+      ))}
     </div>
   );
 }

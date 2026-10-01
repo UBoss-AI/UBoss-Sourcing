@@ -53,6 +53,7 @@ import { SubCategoryRail } from '@/components/catalog/SubCategoryRail';
 import { findCategoryInTree, rootCategorySlug } from '@/lib/category-tree';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { SupplierMatches } from '@/components/catalog/SupplierMatches';
+import { SaveSearchButton } from '@/components/catalog/SaveSearchButton';
 import { CategorySourcing, type CategoryMarketNote } from '@/components/catalog/CategorySourcing';
 import type {
   CatalogFilterFacets,
@@ -1371,6 +1372,15 @@ export function CatalogPage(): React.JSX.Element {
           <p className="text-sm text-ink-muted" aria-live="polite">
             {countLabel}
           </p>
+          {/* Signed-in buyers only, and only for a search term. */}
+          <SaveSearchButton
+            q={q}
+            category={category}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            currency={currency}
+            country={country}
+          />
         </div>
       </header>
 

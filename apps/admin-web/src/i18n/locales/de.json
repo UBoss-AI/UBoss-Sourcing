@@ -164,6 +164,8 @@
   "nav.disputes": "Streitigkeiten",
   "nav.inspection": "Prüfung",
   "inspection.queueTitle": "Prüfung",
+  "inspection.reinspection.badge": "Nachprüfung",
+  "inspection.reinspection.repeatedBy": "Erneut geprüft von",
   "inspection.queueDescription": "Jeder Auftrag, bei dem eine unabhängige Prüfung erforderlich ist oder angefordert wurde.",
   "inspection.queueEmpty": "Es wurden keine Inspektionen gefunden.",
   "inspection.statusFilter": "Status (z. B. ERFORDERLICH)",

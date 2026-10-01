@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1213 endpoints** in 103 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1219 endpoints** in 104 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -31,7 +31,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 298 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 286 |
+| [Customer account](#customer-account) | 292 |
 | [Public and storefront](#public-and-storefront) | 52 |
 
 ## Admin panel (staff)
@@ -2090,6 +2090,17 @@ Defined in `backend/src/http/routes/account.customer.ts`.
 | GET | `/api/v1/account/profile` | Customer | Customer | The signed-in customer profile and spend summary |
 | PATCH | `/api/v1/account/profile` | Customer | Customer | Update the customer's own profile details, such as name, organisation, job title and phone. Writes an audit entry recorded as the customer's own change. |
 
+### `account/saved-searches`
+
+Defined in `backend/src/http/routes/saved-searches.customer.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/account/saved-searches` | Customer | Customer | The buyer's saved searches, newest first, with the most they may keep. |
+| POST | `/api/v1/account/saved-searches` | Customer | Customer | Save a search term and its filters, with new-match e-mail alerts on unless asked otherwise. |
+| PATCH | `/api/v1/account/saved-searches/:id` | Customer | Customer | Rename one of the buyer's saved searches, or switch its alerts on or off. |
+| DELETE | `/api/v1/account/saved-searches/:id` | Customer | Customer | Delete one of the buyer's saved searches. |
+
 ### `account/wishlist`
 
 Defined in `backend/src/http/routes/account.customer.ts`.
@@ -2235,6 +2246,8 @@ Defined in `backend/src/http/routes/inspection.ts`.
 | GET | `/api/v1/inspection/agency/evidence/:id` | Customer | Customer | Download one evidence file you may see. |
 | GET | `/api/v1/inspection/buyer/orders/:id` | Customer | Customer | The inspection timeline for your order: booked, inspector assigned, started, report, NCR, release. |
 | POST | `/api/v1/inspection/buyer/orders/:id/request` | Customer | Customer | Ask for an inspection on your order before it ships. |
+| GET | `/api/v1/inspection/buyer/orders/:id/agencies` | Customer | Customer | The inspection agencies you may choose for one part of your order, on a day and in a country. |
+| POST | `/api/v1/inspection/buyer/orders/:id/book` | Customer | Customer | Book an inspection on your order before it ships: agency, date, inspection point and who pays. |
 | GET | `/api/v1/inspection/buyer/evidence/:id` | Customer | Customer | Download one evidence file the buyer may see under the report-visibility policy. |
 
 ### `orders`

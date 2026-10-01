@@ -164,6 +164,8 @@
   "nav.disputes": "Spory",
   "nav.inspection": "Kontrola",
   "inspection.queueTitle": "Kontrola",
+  "inspection.reinspection.badge": "Ponowna kontrola",
+  "inspection.reinspection.repeatedBy": "Ponowna kontrola przeprowadzona przez",
   "inspection.queueDescription": "Każde zamówienie, które wymaga lub w którym zgłoszono prośbę o przeprowadzenie niezależnej kontroli.",
   "inspection.queueEmpty": "Nie znaleziono żadnych wyników odpowiadających zapytaniu.",
   "inspection.statusFilter": "Status (np. WYMAGANE)",

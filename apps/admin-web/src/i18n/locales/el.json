@@ -164,6 +164,8 @@
   "nav.disputes": "Διαφορές",
   "nav.inspection": "Επιθεώρηση",
   "inspection.queueTitle": "Επιθεώρηση",
+  "inspection.reinspection.badge": "Επανέλεγχος",
+  "inspection.reinspection.repeatedBy": "Επανελέγχθηκε από",
   "inspection.queueDescription": "Κάθε παραγγελία για την οποία απαιτείται ή έχει ζητηθεί ανεξάρτητη επιθεώρηση.",
   "inspection.queueEmpty": "Δεν βρέθηκαν αντίστοιχες επιθεωρήσεις.",
   "inspection.statusFilter": "Κατάσταση (π.χ. ΑΠΑΡΑΙΤΗΤΟ)",

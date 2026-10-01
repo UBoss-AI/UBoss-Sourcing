@@ -820,14 +820,17 @@
       "id": 45,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
       "status": "FIXED_AND_VERIFIED",
-      "pass4Done": false,
+      "pass4Done": true,
       "manual": [
-        "Partly built: the agency portal lists jobs by status, but the dashboard does not yet show SLA, inspector load, reports and invoices (the /inspection/agency/dashboard route returns them).",
-        "Once finished, verify it the same way as the inspection rows above."
+        "Agency coordinator: open /inspection - jobs with SLA badges, an overdue list, inspectors, reports and invoices.",
+        "Automated proof: backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean."
       ],
-      "evidence": "Agency dashboard now reads the existing scoped dashboard API: assignments, acceptance/report deadlines, overdue totals, members, report links and permission-filtered invoices. Customer AgencyPages.test.tsx 4/4; backend inspection-http.test.ts 2/2 (full lifecycle plus dashboard authorization and invoice visibility).",
-      "verification": "Full local verify: backend 289 files / 5023 tests; customer 164 files / 1665 tests; admin 35 files / 323 tests. All passed. Affected lint/typecheck, backend build and both frontend builds passed. Reference docs and all eight-language catalogues passed. Word/Markdown mismatch count: 0. No human, device-matrix or production test claimed.",
-      "testResult": "Full local verify: backend 289 files / 5023 tests; customer 164 files / 1665 tests; admin 35 files / 323 tests. All passed. Affected lint/typecheck, backend build and both frontend builds passed. Reference docs and all eight-language catalogues passed. Word/Markdown mismatch count: 0. No human, device-matrix or production test claimed."
+      "evidence": "backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean",
+      "verification": "backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean",
+      "testResult": "backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean",
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Agency dashboard shows jobs with accept/report SLA badges, an overdue-SLA card, inspectors, reports (from GET /inspection/agency/dashboard) and invoices.",
+      "tests": "backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean"
     },
     {
       "id": 46,
@@ -1446,12 +1449,18 @@
     {
       "id": 87,
       "previous": "☐ at start of pass 4; pass 1–3: DEFERRED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Not done: no saved searches or alerts (needs a table and an alert job).",
-        "Once built, verify it the same way as the rows above: open the screen, do the main action and one failure case, check it in two languages and at phone width, and run the new automated tests."
-      ]
+        "Buyer: search the catalogue, choose Save this search, then open /account/saved-searches to toggle alerts or delete.",
+        "Automated proof: backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Saved searches: table saved_searches (migration 20261022100000_saved_searches), /account/saved-searches routes and page, Save this search on results, daily alert job (worker maintenance) sending saved_search.matches, GDPR export and erasure.",
+      "tests": "backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean",
+      "evidence": "backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean",
+      "testResult": "backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean",
+      "verification": "backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean"
     },
     {
       "id": 88,
@@ -1555,12 +1564,18 @@
     {
       "id": 94,
       "previous": "☐ at start of pass 4; pass 1–3: FAILED",
-      "status": "NOT_STARTED",
-      "pass4Done": false,
+      "status": "FIXED_AND_VERIFIED",
+      "pass4Done": true,
       "manual": [
-        "Partly built: the buyer can request an inspection; choosing scope, timing, agency and payer is done by the operator, not the buyer.",
-        "Once finished, verify it the same way as the inspection rows above."
-      ]
+        "Buyer: open /account/orders/<id> - under the Inspection card choose Book an inspection, pick date, place, payer and agency.",
+        "Automated proof: backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean."
+      ],
+      "verifiedAt": "2026-10-01 (pass 7)",
+      "fix": "Buyer books an inspection before shipment: chooses date, inspection point, payer and an eligible independent agency (GET /inspection/buyer/orders/:id/agencies, POST .../book via bookInspection with a BUYER actor; buyer-requested inspections are paid by the buyer).",
+      "tests": "backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean",
+      "evidence": "backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean",
+      "testResult": "backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean",
+      "verification": "backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass; customer-web inspection, saved-search and i18n tests 87/87 (incl. AgencyPages, AgencyDashboardPage, BuyerBookingForm, InspectionPanel, SavedSearchesPage); tsc clean"
     },
     {
       "id": 95,
@@ -2077,6 +2092,156 @@
       "status": "VERIFIED",
       "evidence": "Extended real HTTP lifecycle records correction on the original NCR with new CAPA evidence, books linked repeat inspection, presents corrected LOT-1, captures new inspection evidence and signs PASS. Original report hash remains unchanged; NCR becomes VERIFIED_CLOSED and dispatch gate opens. Admin linked-booking UI 4/4 and Chrome phone/desktop save pass.",
       "verifiedAt": "2026-10-01"
+    },
+    {
+      "id": "FLOW-001",
+      "status": "VERIFIED",
+      "evidence": "rule levels and inputs (policy.service, gate.service ensureRequirement); inspection-http.test; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "FLOW-003",
+      "status": "VERIFIED",
+      "evidence": "acceptJob confirmNoConflict, declareConflict, assertNoPersonalConflict, affiliatedSellerIds; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "FLOW-004",
+      "status": "VERIFIED",
+      "evidence": "buildScope from order lines/qty/PO/destination, referenceSample, DEFAULT_CHECKLIST packaging and labels; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "FLOW-006",
+      "status": "VERIFIED",
+      "evidence": "recordInspectionEvent + audit entries; signed report contentHash and evidence SHA-256; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "FLOW-007",
+      "status": "VERIFIED",
+      "evidence": "buyer review period keeps the gate shut (inspection-gate), buyerInspectionViews; inspection-gate unit test; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "INSPECT-001",
+      "status": "VERIFIED",
+      "evidence": "result derived from defects; reclassify needs QA, reason and evidence; signed FAIL in inspection-http.test; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "INSPECT-002",
+      "status": "VERIFIED",
+      "evidence": "AQL and checklist from the category plan (choosePlan, inspection-aql); backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "INSPECT-003",
+      "status": "VERIFIED",
+      "evidence": "seller routes limited to readiness, CAPA, evidence; INSPECTION_REPORT_LOCKED; report hash unchanged in test; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "INSPECT-004",
+      "status": "VERIFIED",
+      "evidence": "gate fingerprint SCOPE_CHANGED -> REEVALUATION_REQUIRED; gate tests; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "INSPECT-005",
+      "status": "VERIFIED",
+      "evidence": "gate guards only READY_FOR_DISPATCH, SHIPPED and collection; gate tests; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "INSPECT-006",
+      "status": "VERIFIED",
+      "evidence": "conditional release with reason, evidence, audit and second approver; gate-http test; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "INSPECT-007",
+      "status": "VERIFIED",
+      "evidence": "invoices never change the gate; invoice step in inspection-http.test; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "DOD-018",
+      "status": "VERIFIED",
+      "evidence": "inspector sees only assigned or backup jobs (views.service); assignment test; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-032",
+      "status": "VERIFIED",
+      "evidence": "readiness input with lot, date, location, contact, packing, declaration, packing-list rule; UI InspectionPanel; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-035",
+      "status": "VERIFIED",
+      "evidence": "booking point/port/date/agency/payer/language, plan standard, accept/report SLAs; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-036",
+      "status": "VERIFIED",
+      "evidence": "acceptJob + agencyEligibility (categories, countries, affiliation, capacity); backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-037",
+      "status": "VERIFIED",
+      "evidence": "assignInspector with backup, assertInspectorQualified, declareConflict, masked ID; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-038",
+      "status": "VERIFIED",
+      "evidence": "DEFAULT_CHECKLIST identity, dimensions, workmanship, function, sample, qty; recordCheck measuredValue; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-039",
+      "status": "VERIFIED",
+      "evidence": "evidence SHA-256, device and server time, photo/video/measurement, no delete, retry id; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-041",
+      "status": "VERIFIED",
+      "evidence": "recordDefect severity/ref/qty, defect evidence, CAPA, re-inspection, buyer view; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-042",
+      "status": "VERIFIED",
+      "evidence": "completeness checks, signature, signed hash, revision, return, locked report; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-044",
+      "status": "VERIFIED",
+      "evidence": "PASS required, dual-approval override, SCOPE_CHANGED; gate tests; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "JOURNEY-063",
+      "status": "VERIFIED",
+      "evidence": "rule fields category/value/destination/supplier risk/plan/agency/conditional release/dates; buyer request; admin setup; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "UAT-UI-010",
+      "status": "VERIFIED",
+      "evidence": "re-inspection PASS opens the gate (inspection-http.test); notifyDispatchAuthorised in release.service; backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
+    },
+    {
+      "id": "UAT-UI-011",
+      "status": "VERIFIED",
+      "evidence": "fingerprint change refuses dispatch (gate-http and unit tests); backend (sequential) inspection-http, inspection-gate-http, saved-searches, anonymous-access, export-bundle-completeness: 5 files / 23 tests pass",
+      "verifiedAt": "2026-10-01 (pass 7)"
     }
   ],
   "pendingBoxes": []

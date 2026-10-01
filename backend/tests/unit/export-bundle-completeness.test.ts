@@ -61,6 +61,7 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   CouponRedemption: 'couponRedemptions',
   CustomerLimit: 'purchasingLimits',
   WishlistItem: 'wishlist',
+  SavedSearch: 'savedSearches',
 
   // What a shopper asked a seller for, on a product they did not buy. Their
   // own words, held until they take them back, so disclosed in full.

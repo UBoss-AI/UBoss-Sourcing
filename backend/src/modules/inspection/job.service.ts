@@ -61,6 +61,7 @@ import { storeEvidence, type EvidenceInput, type StoredEvidence } from './eviden
 import { currentScope, orderFactsFor, refreshRequirementStatus } from './gate.service.js';
 import { choosePlan, type PlanSnapshot } from './policy.service.js';
 import { afterReportSigned } from './release.service.js';
+import { requestInspectionAsBuyer } from './requirement.service.js';
 
 type Tx = PrismaTransaction;
 
@@ -341,6 +342,111 @@ export async function bookInspection(
   });
 
   return result;
+}
+
+/** The order part a buyer is acting on, checked to be theirs. */
+async function buyerGroupFacts(customerProfileId: string, orderId: string, sellerOrderGroupId: string) {
+  const group = await prisma.sellerOrderGroup.findFirst({
+    where: { id: sellerOrderGroupId, orderId, order: { customerProfileId } },
+    select: { id: true, sellerAccountId: true },
+  });
+  if (group === null) throw notFound('Order');
+  return group;
+}
+
+/**
+ * SCREEN-094: the agencies a buyer may choose for one part of their order,
+ * on one day and in one country. An agency that is not independent of the
+ * seller is left out entirely rather than shown with its reason, so the
+ * buyer is never told who a seller is affiliated with.
+ */
+export async function buyerAgencyChoices(
+  customerProfileId: string,
+  input: { orderId: string; sellerOrderGroupId: string; country: string | null; scheduledFor: Date },
+): Promise<Array<{ id: string; name: string; eligible: boolean; problems: string[] }>> {
+  const group = await buyerGroupFacts(customerProfileId, input.orderId, input.sellerOrderGroupId);
+  const facts = await orderFactsFor(prisma, group.id);
+  const agencies = await prisma.inspectionAgency.findMany({
+    where: { status: 'ACTIVE' },
+    orderBy: { name: 'asc' },
+    take: 100,
+    select: { id: true, name: true },
+  });
+
+  const country = input.country === null ? null : input.country.trim().toUpperCase();
+  const rows = await Promise.all(
+    agencies.map(async (agency) => {
+      const problems = await agencyEligibility(prisma, {
+        agencyId: agency.id,
+        sellerAccountId: group.sellerAccountId,
+        orderId: input.orderId,
+        categoryIds: facts.categoryIds,
+        country,
+        scheduledFor: input.scheduledFor,
+      });
+      return { ...agency, problems: problems.map((problem) => problem.code) };
+    }),
+  );
+
+  return rows
+    .filter((row) => !row.problems.includes('AFFILIATED_WITH_SELLER') && !row.problems.includes('MEMBER_IS_SELLER'))
+    .map((row) => ({ ...row, eligible: row.problems.length === 0 }));
+}
+
+/**
+ * SCREEN-094: the buyer books the inspection themselves - scope comes from
+ * the order, they choose agency, date, place and payer. Every rule of an
+ * operator booking still applies (eligibility, one open job, before
+ * dispatch). Extra buyer rules: the marketplace must take buyer requests, a
+ * buyer cannot book a re-inspection or put it on the platform's bill, and an
+ * inspection no rule requires - one the buyer asked for - is paid by the buyer.
+ */
+export async function bookInspectionAsBuyer(
+  actor: InspectionActor & { customerProfileId: string },
+  input: Omit<BookingInput, 'reinspectionOfJobId' | 'payer'> & { orderId: string; payer: 'BUYER' | 'SELLER' },
+): Promise<{ jobId: string; jobNumber: string }> {
+  const policy = await readPolicy();
+  if (!policy.buyerMayRequest) {
+    throw conflict(ErrorCode.INSPECTION_BOOKING_NOT_ALLOWED, 'This marketplace does not take inspection requests from buyers.', [
+      { code: 'BUYER_REQUESTS_OFF' },
+    ]);
+  }
+
+  await buyerGroupFacts(actor.customerProfileId, input.orderId, input.sellerOrderGroupId);
+
+  // No rule asks for an inspection yet: record the buyer's request first,
+  // which is what makes this order part inspectable at all.
+  const before = await prisma.inspectionRequirement.findUnique({
+    where: { sellerOrderGroupId: input.sellerOrderGroupId },
+    select: { level: true },
+  });
+  if (before === null || before.level === 'NOT_REQUIRED') {
+    await requestInspectionAsBuyer(actor, { orderId: input.orderId, sellerOrderGroupId: input.sellerOrderGroupId, note: null });
+  }
+
+  const requirement = await prisma.inspectionRequirement.findUnique({
+    where: { sellerOrderGroupId: input.sellerOrderGroupId },
+    select: { level: true },
+  });
+  if (requirement?.level === 'BUYER_REQUESTED' && input.payer !== 'BUYER') {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'An inspection you asked for is paid by you.', [
+      { field: 'payer', code: 'BUYER_PAYS_OWN_REQUEST' },
+    ]);
+  }
+
+  return bookInspection(actor, {
+    sellerOrderGroupId: input.sellerOrderGroupId,
+    agencyId: input.agencyId ?? null,
+    scheduledFor: input.scheduledFor,
+    inspectionPointType: input.inspectionPointType,
+    inspectionPoint: input.inspectionPoint,
+    payer: input.payer,
+    language: input.language ?? null,
+    poReference: input.poReference ?? null,
+    referenceSample: input.referenceSample ?? null,
+    specialRequirements: input.specialRequirements ?? null,
+    reinspectionOfJobId: null,
+  });
 }
 
 /** An operator or the booker calls a job off, with a reason. */

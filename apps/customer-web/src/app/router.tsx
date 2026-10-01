@@ -573,6 +573,13 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            // Saved searches and their new-match alerts.
+            path: 'saved-searches',
+            ...accountPage(() =>
+              import('@/pages/account/SavedSearchesPage').then((m) => m.SavedSearchesPage),
+            ),
+          },
+          {
             // Products received but not rated yet, and the reviews written.
             path: 'reviews',
             ...accountPage(() =>
