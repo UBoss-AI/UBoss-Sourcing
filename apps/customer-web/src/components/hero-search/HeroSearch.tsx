@@ -67,6 +67,7 @@
  * optional, so unlike before there is always a row.
  */
 import { useCallback, useRef, useState } from 'react';
+import { track } from '@/lib/analytics';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
 import { CameraIcon, CloseIcon, MicIcon, SearchIcon, SparkIcon } from '@/components/icons';
@@ -258,6 +259,7 @@ export function HeroSearch(): React.JSX.Element {
    * everything", and the catalogue page with no `q` is exactly that.
    */
   const submit = (): void => {
+    track('search_submitted', '/');
     // A second press while the first is still on its way is dropped, not
     // queued: the catalogue is a lazy route, and on a slow connection the
     // chunk takes long enough for somebody to press again. The spinner on the

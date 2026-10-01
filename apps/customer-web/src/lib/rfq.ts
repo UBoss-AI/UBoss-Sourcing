@@ -6,6 +6,7 @@
  * buyer who asks for 12.5 tonnes must see 12.5, not 12.499999.
  */
 import { api, BASE_URL, newIdempotencyKey, postFile } from './api';
+import { track } from '@/lib/analytics';
 import type { Money } from './format';
 
 export const RFQ_STATUSES = ['DRAFT', 'OPEN', 'CLOSED', 'AWARDED', 'CANCELLED'] as const;
@@ -240,7 +241,9 @@ export async function deleteRfqDraft(id: string): Promise<void> {
 }
 
 export async function submitRfq(id: string, expectedVersion: number, idempotencyKey: string): Promise<BuyerRfq> {
-  return (await api.post<{ rfq: BuyerRfq }>(`/rfqs/${id}/submit`, { expectedVersion }, { idempotencyKey })).rfq;
+  const { rfq } = await api.post<{ rfq: BuyerRfq }>(`/rfqs/${id}/submit`, { expectedVersion }, { idempotencyKey });
+  track('rfq_submitted', '/account/rfqs/:id');
+  return rfq;
 }
 
 /** Publish a new version of a sent requirement, with what changed and why. */

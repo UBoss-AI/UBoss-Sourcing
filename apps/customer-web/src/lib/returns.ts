@@ -6,6 +6,7 @@
  * its answers.
  */
 import { api, newIdempotencyKey, postFile } from '@/lib/api';
+import { track } from '@/lib/analytics';
 import type { Money } from '@/lib/format';
 
 export const RETURN_REASONS = [
@@ -95,11 +96,15 @@ export async function createReturn(
   files: File[],
   key: string = newIdempotencyKey(),
 ): Promise<{ return: ReturnSummary }> {
+  let created: { return: ReturnSummary };
   if (files.length === 0) {
-    return api.post(`/orders/${orderId}/returns`, input, { idempotencyKey: key });
+    created = await api.post(`/orders/${orderId}/returns`, input, { idempotencyKey: key });
+  } else {
+    const form = new FormData();
+    form.append('payload', JSON.stringify(input));
+    for (const file of files) form.append('files', file);
+    created = await postFile(`/orders/${orderId}/returns`, form, { idempotencyKey: key });
   }
-  const form = new FormData();
-  form.append('payload', JSON.stringify(input));
-  for (const file of files) form.append('files', file);
-  return postFile(`/orders/${orderId}/returns`, form, { idempotencyKey: key });
+  track('return_requested', '/account/orders/:id/return');
+  return created;
 }

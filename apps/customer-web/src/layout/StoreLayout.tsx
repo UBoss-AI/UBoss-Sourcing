@@ -14,6 +14,7 @@
  *     changed.
  */
 import { useEffect, useRef, useState } from 'react';
+import { usePageViewTracking } from '@/lib/analytics';
 import { Outlet, useLocation } from 'react-router-dom';
 import { ServiceBanner } from '@/app/ServiceBanner';
 import { CountryPicker } from '@/components/CountryPicker';
@@ -78,6 +79,7 @@ function OfflineBanner(): React.JSX.Element {
 }
 
 export function StoreLayout(): React.JSX.Element {
+  usePageViewTracking();
   const { t } = useI18n();
 
   const isOnline = useOnlineStatus();

@@ -5471,5 +5471,22 @@
   "risk.rule.REFUND_VALUE": "Montant élevé de remboursements pour un acheteur",
   "risk.rule.PROMO_REDEMPTIONS": "Nombreux coupons utilisés par un acheteur",
   "risk.rule.ORDER_VELOCITY": "Nombreuses commandes en peu de temps",
-  "risk.rule.MULTIPLE_HIGH_RISK": "Plusieurs signaux à haut risque sur un même sujet"
+  "risk.rule.MULTIPLE_HIGH_RISK": "Plusieurs signaux à haut risque sur un même sujet",
+  "analytics.title": "Analytique produit",
+  "analytics.description": "Comptages quotidiens anonymes de la boutique, rapprochés des transactions elles-mêmes. Aucune personne, session ni adresse n’est conservée.",
+  "analytics.reconciliationCaption": "Analytique comparée aux transactions sources",
+  "analytics.event": "Événement",
+  "analytics.counted": "Comptés",
+  "analytics.source": "Dans les données",
+  "analytics.coverage": "Couverture",
+  "analytics.explanation": "Les données font foi. Un comptage un peu inférieur est normal, car les navigateurs qui refusent le suivi n’envoient rien. Un comptage supérieur, en rouge, signifie qu’une page signale deux fois.",
+  "analytics.topScreens": "Écrans les plus vus",
+  "analytics.screen": "Écran",
+  "analytics.surface": "Espace",
+  "analytics.views": "Vues",
+  "analytics.empty": "Rien de compté sur cette période",
+  "analytics.events.checkout_completed": "Commandes validées vs commandes passées",
+  "analytics.events.rfq_submitted": "Demandes de devis envoyées",
+  "analytics.events.return_requested": "Retours demandés",
+  "analytics.events.dispute_opened": "Litiges ouverts"
 }

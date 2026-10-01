@@ -5471,5 +5471,22 @@
   "risk.rule.REFUND_VALUE": "Importe alto de reembolsos para un comprador",
   "risk.rule.PROMO_REDEMPTIONS": "Muchos cupones canjeados por un comprador",
   "risk.rule.ORDER_VELOCITY": "Muchos pedidos en poco tiempo",
-  "risk.rule.MULTIPLE_HIGH_RISK": "Varias señales de alto riesgo sobre un mismo sujeto"
+  "risk.rule.MULTIPLE_HIGH_RISK": "Varias señales de alto riesgo sobre un mismo sujeto",
+  "analytics.title": "Analítica de producto",
+  "analytics.description": "Recuentos diarios anónimos de la tienda, contrastados con las propias transacciones. No se guarda ninguna persona, sesión ni dirección.",
+  "analytics.reconciliationCaption": "Analítica frente a transacciones de origen",
+  "analytics.event": "Evento",
+  "analytics.counted": "Contados",
+  "analytics.source": "En los registros",
+  "analytics.coverage": "Cobertura",
+  "analytics.explanation": "Los registros mandan. Un recuento algo inferior es normal, porque los navegadores que piden no ser rastreados no envían nada. Un recuento superior, en rojo, indica que una página informa dos veces.",
+  "analytics.topScreens": "Pantallas más vistas",
+  "analytics.screen": "Pantalla",
+  "analytics.surface": "Área",
+  "analytics.views": "Vistas",
+  "analytics.empty": "Nada contado en este periodo",
+  "analytics.events.checkout_completed": "Compras completadas frente a pedidos",
+  "analytics.events.rfq_submitted": "Solicitudes de presupuesto enviadas",
+  "analytics.events.return_requested": "Devoluciones solicitadas",
+  "analytics.events.dispute_opened": "Disputas abiertas"
 }

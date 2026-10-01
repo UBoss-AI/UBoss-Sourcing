@@ -24,6 +24,7 @@
  * seller loses the orders queue.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { usePageViewTracking } from '@/lib/analytics';
 import { useIsFetching, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { takeExpiredNotice } from '@/lib/seller-session';
@@ -924,6 +925,7 @@ function SellerLockGate({
 // ---------------------------------------------------------------------------
 
 export function SellerLayout(): React.JSX.Element {
+  usePageViewTracking();
   const { t } = useI18n();
   const { features } = useStorefront();
   const location = useLocation();

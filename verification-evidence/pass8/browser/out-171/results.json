@@ -1,0 +1,874 @@
+{
+ "ranAt": "2026-10-01T14:14:07.936Z",
+ "browser": "Chrome/153.0.8010.48",
+ "axe": "4.13.0",
+ "results": [
+  {
+   "darkClass": "|",
+   "page": "home",
+   "path": "/",
+   "w": 320,
+   "finalPath": "/",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 18,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "home",
+   "path": "/",
+   "w": 375,
+   "finalPath": "/",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 19,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "home",
+   "path": "/",
+   "w": 768,
+   "finalPath": "/",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 22,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "home",
+   "path": "/",
+   "w": 1024,
+   "finalPath": "/",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 20,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "home",
+   "path": "/",
+   "w": 1440,
+   "finalPath": "/",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 20,
+   "h1": [
+    "Gloviaa Mart"
+   ],
+   "title": "Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "AI Assistant",
+    "Products",
+    "Search the catalogue",
+    "Image searchImage search"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "home-1440.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "search-filters",
+   "path": "/search?q=glove&sample=true&incoterm=FOB&maxMoq=100",
+   "w": 320,
+   "finalPath": "/search",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Results for “glove”"
+   ],
+   "title": "Results for “glove” · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-filters-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "search-filters",
+   "path": "/search?q=glove&sample=true&incoterm=FOB&maxMoq=100",
+   "w": 375,
+   "finalPath": "/search",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Results for “glove”"
+   ],
+   "title": "Results for “glove” · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-filters-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "search-filters",
+   "path": "/search?q=glove&sample=true&incoterm=FOB&maxMoq=100",
+   "w": 768,
+   "finalPath": "/search",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Results for “glove”"
+   ],
+   "title": "Results for “glove” · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-filters-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "search-filters",
+   "path": "/search?q=glove&sample=true&incoterm=FOB&maxMoq=100",
+   "w": 1024,
+   "finalPath": "/search",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 44,
+   "h1": [
+    "Results for “glove”"
+   ],
+   "title": "Results for “glove” · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-filters-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "search-filters",
+   "path": "/search?q=glove&sample=true&incoterm=FOB&maxMoq=100",
+   "w": 1440,
+   "finalPath": "/search",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 44,
+   "h1": [
+    "Results for “glove”"
+   ],
+   "title": "Results for “glove” · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "Products",
+    "Next",
+    "All products",
+    "Medical Devices"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-filters-1440.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "search-empty",
+   "path": "/search?q=zzqqxxnothing",
+   "w": 320,
+   "finalPath": "/search",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Results for “zzqqxxnothing”"
+   ],
+   "title": "Results for “zzqqxxnothing” · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-empty-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "search-empty",
+   "path": "/search?q=zzqqxxnothing",
+   "w": 375,
+   "finalPath": "/search",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 10,
+   "h1": [
+    "Results for “zzqqxxnothing”"
+   ],
+   "title": "Results for “zzqqxxnothing” · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-empty-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "search-empty",
+   "path": "/search?q=zzqqxxnothing",
+   "w": 768,
+   "finalPath": "/search",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Results for “zzqqxxnothing”"
+   ],
+   "title": "Results for “zzqqxxnothing” · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-empty-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "search-empty",
+   "path": "/search?q=zzqqxxnothing",
+   "w": 1024,
+   "finalPath": "/search",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 44,
+   "h1": [
+    "Results for “zzqqxxnothing”"
+   ],
+   "title": "Results for “zzqqxxnothing” · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-empty-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "search-empty",
+   "path": "/search?q=zzqqxxnothing",
+   "w": 1440,
+   "finalPath": "/search",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 44,
+   "h1": [
+    "Results for “zzqqxxnothing”"
+   ],
+   "title": "Results for “zzqqxxnothing” · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "Products",
+    "Next",
+    "All products",
+    "Medical Devices"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "search-empty-1440.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "category",
+   "path": "/category/medical-devices",
+   "w": 320,
+   "finalPath": "/category/medical-devices",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Medical Devices"
+   ],
+   "title": "Medical Devices · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "category-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "category",
+   "path": "/category/medical-devices",
+   "w": 375,
+   "finalPath": "/category/medical-devices",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 11,
+   "h1": [
+    "Medical Devices"
+   ],
+   "title": "Medical Devices · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "category-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "category",
+   "path": "/category/medical-devices",
+   "w": 768,
+   "finalPath": "/category/medical-devices",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 12,
+   "h1": [
+    "Medical Devices"
+   ],
+   "title": "Medical Devices · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "category-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "category",
+   "path": "/category/medical-devices",
+   "w": 1024,
+   "finalPath": "/category/medical-devices",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 150,
+   "h1": [
+    "Medical Devices"
+   ],
+   "title": "Medical Devices · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "category-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "category",
+   "path": "/category/medical-devices",
+   "w": 1440,
+   "finalPath": "/category/medical-devices",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 170,
+   "h1": [
+    "Medical Devices"
+   ],
+   "title": "Medical Devices · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "Products",
+    "Next",
+    "All products",
+    "Medical Devices"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "category-1440.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "product",
+   "path": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "w": 320,
+   "finalPath": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 16,
+   "h1": [
+    "FirstCry, Toys for Kids, T-001"
+   ],
+   "title": "FirstCry, Toys for Kids, T-001 · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "product-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "product",
+   "path": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "w": 375,
+   "finalPath": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 17,
+   "h1": [
+    "FirstCry, Toys for Kids, T-001"
+   ],
+   "title": "FirstCry, Toys for Kids, T-001 · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "product-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "product",
+   "path": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "w": 768,
+   "finalPath": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 17,
+   "h1": [
+    "FirstCry, Toys for Kids, T-001"
+   ],
+   "title": "FirstCry, Toys for Kids, T-001 · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "product-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "product",
+   "path": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "w": 1024,
+   "finalPath": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 16,
+   "h1": [
+    "FirstCry, Toys for Kids, T-001"
+   ],
+   "title": "FirstCry, Toys for Kids, T-001 · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "product-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "product",
+   "path": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "w": 1440,
+   "finalPath": "/product/firstcry-toys-for-kids-t-001-s3ch85",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 17,
+   "h1": [
+    "FirstCry, Toys for Kids, T-001"
+   ],
+   "title": "FirstCry, Toys for Kids, T-001 · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "Products",
+    "Toys & Games",
+    "Open the picture full screen",
+    "View image 1 of 2"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "product-1440.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/glovia-levels-demo",
+   "w": 320,
+   "finalPath": "/suppliers/glovia-levels-demo",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Glovia Levels Demo"
+   ],
+   "title": "Glovia Levels Demo · Glovia Levels Demo",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "supplier-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/glovia-levels-demo",
+   "w": 375,
+   "finalPath": "/suppliers/glovia-levels-demo",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Glovia Levels Demo"
+   ],
+   "title": "Glovia Levels Demo · Glovia Levels Demo",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [],
+   "shot": "supplier-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/glovia-levels-demo",
+   "w": 768,
+   "finalPath": "/suppliers/glovia-levels-demo",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Glovia Levels Demo"
+   ],
+   "title": "Glovia Levels Demo · Glovia Levels Demo",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/glovia-levels-demo",
+   "w": 1024,
+   "finalPath": "/suppliers/glovia-levels-demo",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Glovia Levels Demo"
+   ],
+   "title": "Glovia Levels Demo · Glovia Levels Demo",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "supplier",
+   "path": "/suppliers/glovia-levels-demo",
+   "w": 1440,
+   "finalPath": "/suppliers/glovia-levels-demo",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Glovia Levels Demo"
+   ],
+   "title": "Glovia Levels Demo · Glovia Levels Demo",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Home",
+    "Compare",
+    "See its 1 product",
+    "Line Access1",
+    "About Gloviaa Mart"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "supplier-1440.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "market",
+   "path": "/markets/in",
+   "w": 320,
+   "finalPath": "/markets/in",
+   "cw": 320,
+   "sw": 320,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Shopping from India"
+   ],
+   "title": "Shopping from India · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-320.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "market",
+   "path": "/markets/in",
+   "w": 375,
+   "finalPath": "/markets/in",
+   "cw": 375,
+   "sw": 375,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Shopping from India"
+   ],
+   "title": "Shopping from India · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-375.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "market",
+   "path": "/markets/in",
+   "w": 768,
+   "finalPath": "/markets/in",
+   "cw": 768,
+   "sw": 768,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Shopping from India"
+   ],
+   "title": "Shopping from India · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-768.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "market",
+   "path": "/markets/in",
+   "w": 1024,
+   "finalPath": "/markets/in",
+   "cw": 1024,
+   "sw": 1024,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Shopping from India"
+   ],
+   "title": "Shopping from India · Gloviaa Mart",
+   "axe": [],
+   "focus": null,
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-1024.png"
+  },
+  {
+   "darkClass": "|",
+   "page": "market",
+   "path": "/markets/in",
+   "w": 1440,
+   "finalPath": "/markets/in",
+   "cw": 1440,
+   "sw": 1440,
+   "hScroll": false,
+   "over": [],
+   "smallTargets": 9,
+   "h1": [
+    "Shopping from India"
+   ],
+   "title": "Shopping from India · Gloviaa Mart",
+   "axe": [],
+   "focus": [
+    "Skip to content",
+    "GGloviaaGloviaa MartThe Way ",
+    "Match my device",
+    "EN₹ INRChange language, coun",
+    "Become a seller",
+    "About Gloviaa Mart",
+    "Support",
+    "Sign in",
+    "Cart, empty",
+    "Shop as a buyer in India",
+    "How assurance works",
+    "About Gloviaa Mart",
+    "How assurance works",
+    "Help, policies and legal"
+   ],
+   "jsErrors": [
+    "Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://localhost:5174/@vite/client:454:22)"
+   ],
+   "shot": "market-1440.png"
+  }
+ ]
+}

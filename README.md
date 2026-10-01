@@ -1125,6 +1125,8 @@ dark, a cool near-white in light, both audited by `npm run audit:contrast`.
   or late inspection evidence, refund, coupon and order velocity. **Admin → Risk
   review** decides each one; nothing is blocked automatically. The thresholds
   ship as placeholders: your risk owner sets and approves them before go-live.
+- **Trade-buyer discovery.** Separate buying and selling paths on the home page; search filters for minimum order, origin, lead time, verified certificate, verified supplier, samples and Incoterm; listing sourcing terms (samples, OEM, private label, lead time, Incoterms, verified certificates) set in the Seller Hub and shown on the product page; supplier pages with the registered company name (companies only), factory machines and an inspection summary.
+- **Product analytics without tracking.** Anonymous daily counts by route pattern, no cookie or identifier, nothing sent under Do Not Track or Global Privacy Control; Admin → Reports reconciles them with orders, RFQs, returns and disputes.
 - **Restore tests and alert owners.** `deploy/scripts/verify-restore.sh` proves
   the newest backup restores into a scratch database and records the evidence;
   `monitor.sh` alerts when the last passing test is too old. Name the owner of

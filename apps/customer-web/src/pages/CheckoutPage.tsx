@@ -24,6 +24,7 @@
  * Payment step, because no money moves on this page.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { track } from '@/lib/analytics';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
@@ -216,6 +217,9 @@ function Section({
 }
 
 export function CheckoutPage(): React.JSX.Element {
+  useEffect(() => {
+    track('checkout_started', '/checkout');
+  }, []);
   const { t, intlLocale } = useI18n();
 
   const navigate = useNavigate();

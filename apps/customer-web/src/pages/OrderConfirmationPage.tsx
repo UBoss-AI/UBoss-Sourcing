@@ -17,6 +17,8 @@
  * exactly what makes emailing it a safe way to delegate payment.
  */
 import { Link, useLocation, useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { track } from '@/lib/analytics';
 import { useQuery } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { CheckoutSteps } from '@/components/CheckoutSteps';
@@ -101,6 +103,9 @@ function nextStepFor(
 }
 
 export function OrderConfirmationPage(): React.JSX.Element {
+  useEffect(() => {
+    track('checkout_completed', '/order-confirmation');
+  }, []);
   const { t } = useI18n();
 
   const { orderId } = useParams<{ orderId: string }>();

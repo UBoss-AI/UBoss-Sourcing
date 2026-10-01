@@ -27,8 +27,16 @@
  *     or whose verification lapsed is not shown at all - the same rule as a
  *     certificate, for the same reason.
  *
- * NEVER PUBLISHED: the legal name, registration and tax numbers, contact
- * people, internal notes, verification documents or statuses.
+ *   - **The registered name of a registered company** (LLP, private or public
+ *     limited) - a public-register fact a buyer needs for contracts. Never for
+ *     a sole trader or partnership, whose legal name is a person's name.
+ *   - **Machines** the seller listed on a verified factory (name and count).
+ *   - **An inspection history summary**: counts of reports independent
+ *     agencies SIGNED on this seller's orders in the last twelve months, by
+ *     result. Counts only - never a buyer, an order or a report.
+ *
+ * NEVER PUBLISHED: a sole trader's legal name, registration and tax numbers,
+ * contact people, internal notes, verification documents or statuses.
  */
 import type { SellerKind } from '../../generated/prisma/client.js';
 import { notFound } from '../../domain/errors.js';
@@ -55,6 +63,9 @@ export interface SupplierProfile {
   yearsExporting: number | null;
   responseSlaHours: number | null;
   capabilities: string[];
+  /** Only for registered companies; see the header. */
+  legalName: string | null;
+  inspectionSummary: { months: number; reports: number; passed: number; failed: number } | null;
   factories: {
     name: string;
     city: string;
@@ -65,6 +76,7 @@ export interface SupplierProfile {
     monthlyCapacity: number | null;
     capacityUnit: string | null;
     productsMade: string | null;
+    machines: { name: string; quantity: number | null }[];
     /** When the operator verified it. */
     verifiedAt: string | null;
   }[];
@@ -95,26 +107,50 @@ function safeWebsite(value: string | null | undefined): string | null {
   }
 }
 
+/** Legal forms whose registered name is a public-register fact, not a person's name. */
+const REGISTERED_COMPANY_FORMS = new Set<string>(['LIMITED_LIABILITY_PARTNERSHIP', 'PRIVATE_LIMITED_COMPANY', 'PUBLIC_LIMITED_COMPANY']);
+const INSPECTION_HISTORY_MONTHS = 12;
+
+/**
+ * Signed inspection reports on a seller's orders in the last twelve months,
+ * by result. Null when there were none, so a new supplier is not shown "0 of 0".
+ */
+export async function inspectionSummaryFor(
+  sellerAccountId: string,
+  now: Date = new Date(),
+): Promise<{ months: number; reports: number; passed: number; failed: number } | null> {
+  const since = new Date(now.getTime() - INSPECTION_HISTORY_MONTHS * 30 * 86_400_000);
+  const rows = await prisma.inspectionReport.groupBy({
+    by: ['result'],
+    where: { status: 'SIGNED', signedAt: { gte: since }, job: { requirement: { sellerAccountId } } },
+    _count: { _all: true },
+  });
+  const passed = rows.find((row) => row.result === 'PASS')?._count._all ?? 0;
+  const failed = rows.find((row) => row.result === 'FAIL')?._count._all ?? 0;
+  return passed + failed === 0 ? null : { months: INSPECTION_HISTORY_MONTHS, reports: passed + failed, passed, failed };
+}
+
 export async function supplierProfile(slug: string, now: Date = new Date()): Promise<SupplierProfile> {
   const account = await prisma.sellerAccount.findFirst({
     where: { ...verifiedSupplierWhere(), slug },
     select: {
       id: true,
       slug: true,
+      legalName: true,
       displayName: true,
       kind: true,
       registrationCountry: true,
       approvedAt: true,
       logoStorageKey: true,
       description: true,
-      businessProfile: { select: { websiteUrl: true, yearsInBusiness: true } },
+      businessProfile: { select: { websiteUrl: true, yearsInBusiness: true, legalForm: true } },
     },
   });
   if (account === null) throw notFound('Supplier');
 
   const today = new Date(now.toISOString().slice(0, 10));
 
-  const [trust, verifiedFactories, allFactories, certifications, offers] = await Promise.all([
+  const [trust, verifiedFactories, allFactories, certifications, offers, inspectionSummary] = await Promise.all([
     prisma.sellerTrustProfile.findUnique({
       where: { sellerAccountId: account.id },
       select: {
@@ -140,6 +176,7 @@ export async function supplierProfile(slug: string, now: Date = new Date()): Pro
         monthlyCapacity: true,
         capacityUnit: true,
         productsMade: true,
+        machines: { orderBy: [{ sortOrder: 'asc' }], select: { name: true, quantity: true } },
       },
     }),
     prisma.sellerCertification.findMany({
@@ -166,6 +203,7 @@ export async function supplierProfile(slug: string, now: Date = new Date()): Pro
       select: { productId: true, product: { select: { category: { select: { slug: true, name: true } } } } },
       distinct: ['productId'],
     }),
+    inspectionSummaryFor(account.id, now),
   ]);
 
   const byCategory = new Map<string, { slug: string; name: string; productCount: number }>();
@@ -193,6 +231,8 @@ export async function supplierProfile(slug: string, now: Date = new Date()): Pro
     yearsExporting: trust?.yearsExporting ?? null,
     responseSlaHours: trust?.responseSlaHours ?? null,
     capabilities: strings(trust?.capabilitiesJson),
+    legalName: REGISTERED_COMPANY_FORMS.has(account.businessProfile?.legalForm ?? '') ? account.legalName : null,
+    inspectionSummary,
     factories: allFactories
       .filter((factory) => verifiedFactories.has(factory.id))
       .map(({ id, ...factory }) => ({ ...factory, verifiedAt: verifiedFactories.get(id)?.toISOString() ?? null })),

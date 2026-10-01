@@ -80,6 +80,11 @@ function serve(current: OfferVariantsView): void {
   fetchMock.mockImplementation((url) => {
     const href = typeof url === 'string' ? url : '';
 
+    // The sourcing-terms card on the same page (JOURNEY-029).
+    if (href.endsWith('/sourcing')) {
+      return Promise.resolve(jsonResponse({ terms: null, incoterms: ['FOB'], linkableCertifications: [] }));
+    }
+
     if (href.includes('/seller/locations')) {
       return Promise.resolve(
         jsonResponse({ locations: [{ id: LOCATION_ID, name: 'Main store' }], map: {} }),

@@ -290,6 +290,17 @@ export interface SupplierProfile extends Omit<VerifiedSupplier, 'productCount'> 
   exportMarkets: string[];
   yearsExporting: number | null;
   responseSlaHours: number | null;
+  /**
+   * The registered name, published only for registered companies (LLP,
+   * private and public limited). Null for a sole trader or partnership, whose
+   * legal name is a person's name. Absent from an older API.
+   */
+  legalName?: string | null;
+  /**
+   * Signed inspection reports on this supplier's orders in the last twelve
+   * months, as counts only. Null when there were none. Absent from an older API.
+   */
+  inspectionSummary?: { months: number; reports: number; passed: number; failed: number } | null;
   capabilities: string[];
   /** By city and country only. */
   factories: {
@@ -302,6 +313,8 @@ export interface SupplierProfile extends Omit<VerifiedSupplier, 'productCount'> 
     monthlyCapacity: number | null;
     capacityUnit: string | null;
     productsMade: string | null;
+    /** Machines the seller listed for this verified factory. Absent from an older API. */
+    machines?: { name: string; quantity: number | null }[];
     /** When the operator verified it. Only verified, in-date factories are sent. */
     verifiedAt?: string | null;
   }[];
@@ -849,6 +862,19 @@ export interface ProductSourcing {
     notes: { effect: 'BLOCK' | 'DOCUMENTS_REQUIRED'; reason: string; requiredDocuments: string[] }[];
   };
   handlingTimeDays: number | null;
+  /** What the seller can make. Absent from an older API. */
+  capacity?: { unitsPerWeek: number | null; leadTimeDays: number | null } | null;
+  /** The seller's B2B terms on this product (JOURNEY-004). Absent from an older API. */
+  terms?: {
+    sampleAvailable: boolean;
+    sampleNote: string | null;
+    privateLabelAvailable: boolean;
+    oemAvailable: boolean;
+    leadTimeDaysMin: number | null;
+    leadTimeDaysMax: number | null;
+    incoterms: string[];
+    certifications: { standard: string; issuer: string; expiresOn: string | null }[];
+  } | null;
   countryOfOrigin: string | null;
   inspection: {
     outlook: 'REQUIRED' | 'REQUIRED_FROM_VALUE' | 'DEPENDS_ON_DESTINATION' | 'NOT_REQUIRED' | 'NOT_APPLICABLE';

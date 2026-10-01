@@ -20139,3 +20139,11 @@ Inspection responses now expose report as the latest report visible to that audi
 
 
 Inspection requirement views also expose the server gate as allowed plus a readable sentence, matching the customer and admin panels; the full decision stays available at the top level.
+
+## Discovery, sourcing terms and analytics (pass 8)
+
+- **Home** has separate Buying and Selling cards, and a "Continue where you left off" list the shopper can hide (`components/home/HomeQuickStart.tsx`).
+- **Search filters** for minimum order, origin, lead time, verified certificate, verified supplier, samples and Incoterm live in `components/catalog/SourcingFilters.tsx` and `sourcingConditions` in `routes/catalog.public.ts`.
+- **Listing sourcing terms** (`seller_listing_trust`) are edited in the Seller Hub listing page and shown on the product page (`modules/seller/listing-sourcing.service.ts`).
+- **Supplier page** adds the registered name for companies only, factory machines and an inspection summary (`modules/catalog/supplier-profile.service.ts`).
+- **Analytics** are anonymous daily counters by route pattern (`modules/analytics/analytics.service.ts`, client `lib/analytics.ts`); Admin → Reports reconciles them with orders, RFQs, returns and disputes.

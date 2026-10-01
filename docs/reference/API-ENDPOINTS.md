@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1283 endpoints** in 117 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1288 endpoints** in 119 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,14 +27,23 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 515 |
+| [Admin panel (staff)](#admin-panel-staff) | 517 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 318 |
+| [Seller Hub](#seller-hub) | 320 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
 | [Customer account](#customer-account) | 297 |
-| [Public and storefront](#public-and-storefront) | 53 |
+| [Public and storefront](#public-and-storefront) | 54 |
 
 ## Admin panel (staff)
+
+### `admin/analytics`
+
+Defined in `backend/src/http/routes/analytics.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/analytics/summary` | Staff | Admin(REPORT_READ) | Event totals and the most viewed screens for a range of UTC days. |
+| GET | `/api/v1/admin/analytics/reconciliation` | Staff | Admin(REPORT_READ) | Client-reported events against the source transactions (orders, RFQs, returns, disputes). |
 
 ### `admin/assistant`
 
@@ -1607,6 +1616,8 @@ Defined in `backend/src/http/routes/seller.listings.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/seller/listings` | Seller | Seller(LISTING_READ) | One page of the seller's listings, with a count for each status tab. Can be filtered by status, text, category, brand, warehouse or stock level, and sorted by date, price, stock or quality score. |
+| GET | `/api/v1/seller/listings/:id/sourcing` | Seller | Seller(LISTING_READ) | Sourcing terms on one of your listings: samples, lead time, OEM/private label, Incoterms, linked certificates. |
+| PUT | `/api/v1/seller/listings/:id/sourcing` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Replace the sourcing terms on one of your listings. Only your own verified, in-date certificates can be linked. |
 | GET | `/api/v1/seller/listings/:id` | Seller | Seller(LISTING_READ) | One of the seller's listings in full, for its detail screen. |
 | PATCH | `/api/v1/seller/listings/:id/status` | Seller | Seller(LISTING_READ) + Seller(OFFER_PUBLISH) | Put a listing on sale, pause it (with an optional private note) or archive it. Putting it back on sale is refused while the marketplace has flagged it as needing changes. Writes an audit entry. |
 | PATCH | `/api/v1/seller/listings/:id/price` | Seller | Seller(LISTING_READ) + TradingSeller(OFFER_PRICE_WRITE) | Change a listing's price, "was" price, order quantity limits and simple quantity discounts. Needs the pricing permission and writes an audit entry, so a disputed price change can be traced to who made it and when. |
@@ -2571,6 +2582,14 @@ Defined in `backend/src/http/routes/account.customer.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/account/config` | Public |  | Tell the storefront whether shoppers may create their own accounts, so it knows whether to show the sign-up option. Needs no sign-in. |
+
+### `analytics`
+
+Defined in `backend/src/http/routes/analytics.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/analytics/events` | Public |  | Count a batch of anonymous product events (route patterns only). Stores no identifier. |
 
 ### `assistant`
 

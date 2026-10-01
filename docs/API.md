@@ -3110,6 +3110,7 @@ Everything under `/api/v1/admin`, each behind its named permission.
 | Reports and exports | `/admin/dashboard`, `/admin/reports/*`, `POST /admin/exports`, `/admin/audit-logs`, `POST /admin/audit-logs/export` (needs `audit.read` and `export.create`) | `report.read`, `export.create`, `audit.read` |
 | Notifications | `/admin/notifications`, `/admin/attention` | Any staff |
 | Privacy | `/admin/data-requests`, `/:requestId/approve`, `/reject`. With `STAFF_SENSITIVE_DATA_COUNTRIES` set, these and the KYC/KYB/seller document routes refuse a caller whose proxy country header is missing or not listed: 403 `PERMISSION_DENIED`, detail `DATA_REGION_NOT_ALLOWED` | `data_request.*` |
+| Analytics | `GET /admin/analytics/summary`, `GET /admin/analytics/reconciliation` (`from`, `to` as dates; at most a year; UTC days). Public: `POST /api/v1/analytics/events` with `{ events: [{ event, screen }] }`, at most 20, event from a fixed list, screen a route pattern (an id in it is a 400); no credentials; 204 | `report.read` |
 | Fraud and risk | `GET /admin/risk/signals`, `POST /admin/risk/signals/:id/decision` (`{ decision: CONFIRMED or FALSE_POSITIVE, reason }`; 403 detail `SELF_REVIEW` for a signal about yourself; 409 when unchanged), `GET /admin/risk/rules`, `PATCH /admin/risk/rules/:code` (needs `expectedVersion`; 409 when stale; `thresholdMinor` is a string) | `risk.read`, `risk.review`, `risk.rule.write` |
 | AI chat transcripts | `/admin/assistant/conversations` | `assistant_chat.read` |
 
@@ -3688,3 +3689,7 @@ Anything that moves money needs `FEATURE_ESCROW_LEDGER` (`ESCROW_LEDGER_DISABLED
 - `POST /admin/finance/holds/:id/suspend`, `/holds/:id/resume`, `/holds/:id/release`, `/release-requests/:id/decide`, `/escrow/refresh`, `/payouts/run`, `/reconcile` (`finance.policy.write`). A repeat is harmless: hold changes are state-guarded, there is one open release request per hold, and a payout run claims each balance under a row lock and sends it with `ledger-payout:<payoutId>` as the Stripe `Idempotency-Key`.
 - New error codes: `ESCROW_LEDGER_DISABLED` (409), `FUND_HOLD_STATE_CONFLICT` (409), `FUND_RELEASE_ALREADY_PENDING` (409), `FUND_RELEASE_SAME_APPROVER` (403).
 - `POST /seller/payout-account/onboarding` returns a real Stripe account link when `STRIPE_CONNECT_CLIENT_ID` and `STRIPE_SECRET_KEY` are set, and stores the connected account id.
+
+## Catalogue sourcing filters and listing terms (pass 8)
+
+`GET /api/v1/catalog/products` and `GET /api/v1/catalog/filters` accept `maxMoq` (integer), `origin` (ISO alpha-2), `maxLeadTimeDays` (1–730), `certified`, `verifiedSupplier`, `sample` (`true`) and `incoterm` (EXW, FCA, FAS, FOB, CFR, CIF, CPT, CIP, DAP, DPU, DDP). `GET /api/v1/catalog/products/:slug` now carries `sourcing.capacity` and `sourcing.terms`; `GET /api/v1/catalog/categories/:slug` carries `metaTitle` and `metaDescription`; `GET /api/v1/catalog/suppliers/:slug` carries `legalName` (registered companies only), `inspectionSummary` and `factories[].machines`. Seller Hub: `GET` and `PUT /api/v1/seller/listings/:id/sourcing` (`seller.listing.write` to save).

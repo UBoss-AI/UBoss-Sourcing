@@ -408,7 +408,8 @@ export const ModelName = {
   RfqSample: 'RfqSample',
   MasterDataEntry: 'MasterDataEntry',
   RiskRule: 'RiskRule',
-  RiskSignal: 'RiskSignal'
+  RiskSignal: 'RiskSignal',
+  AnalyticsDailyCount: 'AnalyticsDailyCount'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -7800,6 +7801,7 @@ export const SellerListingTrustScalarFieldEnum = {
   oemAvailable: 'oemAvailable',
   leadTimeDaysMin: 'leadTimeDaysMin',
   leadTimeDaysMax: 'leadTimeDaysMax',
+  incotermsJson: 'incotermsJson',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -8739,6 +8741,19 @@ export const RiskSignalScalarFieldEnum = {
 } as const
 
 export type RiskSignalScalarFieldEnum = (typeof RiskSignalScalarFieldEnum)[keyof typeof RiskSignalScalarFieldEnum]
+
+
+export const AnalyticsDailyCountScalarFieldEnum = {
+  day: 'day',
+  event: 'event',
+  screen: 'screen',
+  surface: 'surface',
+  count: 'count',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AnalyticsDailyCountScalarFieldEnum = (typeof AnalyticsDailyCountScalarFieldEnum)[keyof typeof AnalyticsDailyCountScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -13932,4 +13947,13 @@ export const RiskSignalOrderByRelevanceFieldEnum = {
 } as const
 
 export type RiskSignalOrderByRelevanceFieldEnum = (typeof RiskSignalOrderByRelevanceFieldEnum)[keyof typeof RiskSignalOrderByRelevanceFieldEnum]
+
+
+export const AnalyticsDailyCountOrderByRelevanceFieldEnum = {
+  event: 'event',
+  screen: 'screen',
+  surface: 'surface'
+} as const
+
+export type AnalyticsDailyCountOrderByRelevanceFieldEnum = (typeof AnalyticsDailyCountOrderByRelevanceFieldEnum)[keyof typeof AnalyticsDailyCountOrderByRelevanceFieldEnum]
 

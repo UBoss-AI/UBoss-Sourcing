@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**358 tables · 335 enums · 819 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
+**359 tables · 335 enums · 821 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -80,7 +80,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ what a ledger account represents. balances are never stored; they are the / sum of the account's lines.](#group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines) | 8 | 7 |
 | [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
 | [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 11 | 12 |
-| [Master data (master row 75)](#group-master-data-master-row-75) | 3 | 3 |
+| [Master data (master row 75)](#group-master-data-master-row-75) | 4 | 3 |
 
 <a id="group-identity-access"></a>
 
@@ -18947,6 +18947,7 @@ Sourcing terms one supplier offers on one product.
 | `oemAvailable` | Boolean |  |  | false |  |
 | `leadTimeDaysMin` | Int · SmallInt | yes |  |  | Production lead time for a bulk order, in days. |
 | `leadTimeDaysMax` | Int · SmallInt | yes |  |  |  |
+| `incotermsJson` | Json | yes |  |  | Incoterms 2020 the seller quotes this product on, e.g. ["FOB","CIF"]. From the fixed list in `listing-sourcing.service.ts`; null = not stated. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 
@@ -21114,7 +21115,7 @@ Whether a sample costs anything, and whether it is paid. PAID is only ever set w
 
 ## Master data (master row 75)
 
-[MasterDataEntry](#model-masterdataentry) · [RiskRule](#model-riskrule) · [RiskSignal](#model-risksignal)
+[MasterDataEntry](#model-masterdataentry) · [RiskRule](#model-riskrule) · [RiskSignal](#model-risksignal) · [AnalyticsDailyCount](#model-analyticsdailycount)
 
 ```mermaid
 erDiagram
@@ -21128,6 +21129,9 @@ erDiagram
     RiskSignal {
         String id PK
         RiskSignalStatus status
+    }
+    AnalyticsDailyCount {
+        String id PK
     }
 ```
 
@@ -21211,6 +21215,29 @@ A rule that fired, with the facts that made it fire. Raised by the worker's scan
 
 - `@@index([status, detectedAt], map: "ix_risk_signal_queue")`
 - `@@index([subjectType, subjectId], map: "ix_risk_signal_subject")`
+
+<a id="model-analyticsdailycount"></a>
+
+### AnalyticsDailyCount
+
+Table `analytics_daily_counts`
+
+One counter per UTC day, event and screen pattern. No identifier of any kind: no user, session, cookie or IP address - a page view is "one more view of /product/:slug today", nothing else. Reconciled against the source tables by `modules/analytics/analytics.service.ts`.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `day` | DateTime · Date |  |  |  | The UTC day. |
+| `event` | String · VarChar(48) |  |  |  | e.g. screen_view, checkout_completed. From a fixed list in code. |
+| `screen` | String · VarChar(96) |  |  |  | The route pattern ("/product/:slug"), or '' when the event has none. |
+| `surface` | String · VarChar(16) |  |  |  | STOREFRONT, SELLER_HUB or AGENCY, derived from the pattern. |
+| `count` | Int |  |  | 0 |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@id([day, event, screen])`
+- `@@index([day, surface], map: "ix_analytics_day_surface")`
 
 ### Enums in Master data (master row 75)
 

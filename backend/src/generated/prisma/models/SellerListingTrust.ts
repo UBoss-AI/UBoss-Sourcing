@@ -74,6 +74,7 @@ export type SellerListingTrustCountAggregateOutputType = {
   oemAvailable: number
   leadTimeDaysMin: number
   leadTimeDaysMax: number
+  incotermsJson: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -128,6 +129,7 @@ export type SellerListingTrustCountAggregateInputType = {
   oemAvailable?: true
   leadTimeDaysMin?: true
   leadTimeDaysMax?: true
+  incotermsJson?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -229,6 +231,7 @@ export type SellerListingTrustGroupByOutputType = {
   oemAvailable: boolean
   leadTimeDaysMin: number | null
   leadTimeDaysMax: number | null
+  incotermsJson: runtime.JsonValue | null
   createdAt: Date
   updatedAt: Date
   _count: SellerListingTrustCountAggregateOutputType | null
@@ -266,6 +269,7 @@ export type SellerListingTrustWhereInput = {
   oemAvailable?: Prisma.BoolFilter<"SellerListingTrust"> | boolean
   leadTimeDaysMin?: Prisma.IntNullableFilter<"SellerListingTrust"> | number | null
   leadTimeDaysMax?: Prisma.IntNullableFilter<"SellerListingTrust"> | number | null
+  incotermsJson?: Prisma.JsonNullableFilter<"SellerListingTrust">
   createdAt?: Prisma.DateTimeFilter<"SellerListingTrust"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerListingTrust"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
@@ -283,6 +287,7 @@ export type SellerListingTrustOrderByWithRelationInput = {
   oemAvailable?: Prisma.SortOrder
   leadTimeDaysMin?: Prisma.SortOrderInput | Prisma.SortOrder
   leadTimeDaysMax?: Prisma.SortOrderInput | Prisma.SortOrder
+  incotermsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
@@ -305,6 +310,7 @@ export type SellerListingTrustWhereUniqueInput = Prisma.AtLeast<{
   oemAvailable?: Prisma.BoolFilter<"SellerListingTrust"> | boolean
   leadTimeDaysMin?: Prisma.IntNullableFilter<"SellerListingTrust"> | number | null
   leadTimeDaysMax?: Prisma.IntNullableFilter<"SellerListingTrust"> | number | null
+  incotermsJson?: Prisma.JsonNullableFilter<"SellerListingTrust">
   createdAt?: Prisma.DateTimeFilter<"SellerListingTrust"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerListingTrust"> | Date | string
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
@@ -322,6 +328,7 @@ export type SellerListingTrustOrderByWithAggregationInput = {
   oemAvailable?: Prisma.SortOrder
   leadTimeDaysMin?: Prisma.SortOrderInput | Prisma.SortOrder
   leadTimeDaysMax?: Prisma.SortOrderInput | Prisma.SortOrder
+  incotermsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerListingTrustCountOrderByAggregateInput
@@ -344,6 +351,7 @@ export type SellerListingTrustScalarWhereWithAggregatesInput = {
   oemAvailable?: Prisma.BoolWithAggregatesFilter<"SellerListingTrust"> | boolean
   leadTimeDaysMin?: Prisma.IntNullableWithAggregatesFilter<"SellerListingTrust"> | number | null
   leadTimeDaysMax?: Prisma.IntNullableWithAggregatesFilter<"SellerListingTrust"> | number | null
+  incotermsJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerListingTrust">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerListingTrust"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerListingTrust"> | Date | string
 }
@@ -356,6 +364,7 @@ export type SellerListingTrustCreateInput = {
   oemAvailable?: boolean
   leadTimeDaysMin?: number | null
   leadTimeDaysMax?: number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutListingTrustInput
@@ -373,6 +382,7 @@ export type SellerListingTrustUncheckedCreateInput = {
   oemAvailable?: boolean
   leadTimeDaysMin?: number | null
   leadTimeDaysMax?: number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   certifications?: Prisma.SellerListingCertificationUncheckedCreateNestedManyWithoutListingTrustInput
@@ -386,6 +396,7 @@ export type SellerListingTrustUpdateInput = {
   oemAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   leadTimeDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   leadTimeDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutListingTrustNestedInput
@@ -403,6 +414,7 @@ export type SellerListingTrustUncheckedUpdateInput = {
   oemAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   leadTimeDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   leadTimeDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   certifications?: Prisma.SellerListingCertificationUncheckedUpdateManyWithoutListingTrustNestedInput
@@ -418,6 +430,7 @@ export type SellerListingTrustCreateManyInput = {
   oemAvailable?: boolean
   leadTimeDaysMin?: number | null
   leadTimeDaysMax?: number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -430,6 +443,7 @@ export type SellerListingTrustUpdateManyMutationInput = {
   oemAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   leadTimeDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   leadTimeDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -444,6 +458,7 @@ export type SellerListingTrustUncheckedUpdateManyInput = {
   oemAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   leadTimeDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   leadTimeDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -479,6 +494,7 @@ export type SellerListingTrustCountOrderByAggregateInput = {
   oemAvailable?: Prisma.SortOrder
   leadTimeDaysMin?: Prisma.SortOrder
   leadTimeDaysMax?: Prisma.SortOrder
+  incotermsJson?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -632,6 +648,7 @@ export type SellerListingTrustCreateWithoutProductInput = {
   oemAvailable?: boolean
   leadTimeDaysMin?: number | null
   leadTimeDaysMax?: number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutListingTrustInput
@@ -647,6 +664,7 @@ export type SellerListingTrustUncheckedCreateWithoutProductInput = {
   oemAvailable?: boolean
   leadTimeDaysMin?: number | null
   leadTimeDaysMax?: number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   certifications?: Prisma.SellerListingCertificationUncheckedCreateNestedManyWithoutListingTrustInput
@@ -691,6 +709,7 @@ export type SellerListingTrustScalarWhereInput = {
   oemAvailable?: Prisma.BoolFilter<"SellerListingTrust"> | boolean
   leadTimeDaysMin?: Prisma.IntNullableFilter<"SellerListingTrust"> | number | null
   leadTimeDaysMax?: Prisma.IntNullableFilter<"SellerListingTrust"> | number | null
+  incotermsJson?: Prisma.JsonNullableFilter<"SellerListingTrust">
   createdAt?: Prisma.DateTimeFilter<"SellerListingTrust"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerListingTrust"> | Date | string
 }
@@ -703,6 +722,7 @@ export type SellerListingTrustCreateWithoutSellerAccountInput = {
   oemAvailable?: boolean
   leadTimeDaysMin?: number | null
   leadTimeDaysMax?: number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutListingTrustInput
@@ -718,6 +738,7 @@ export type SellerListingTrustUncheckedCreateWithoutSellerAccountInput = {
   oemAvailable?: boolean
   leadTimeDaysMin?: number | null
   leadTimeDaysMax?: number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   certifications?: Prisma.SellerListingCertificationUncheckedCreateNestedManyWithoutListingTrustInput
@@ -757,6 +778,7 @@ export type SellerListingTrustCreateWithoutCertificationsInput = {
   oemAvailable?: boolean
   leadTimeDaysMin?: number | null
   leadTimeDaysMax?: number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutListingTrustInput
@@ -773,6 +795,7 @@ export type SellerListingTrustUncheckedCreateWithoutCertificationsInput = {
   oemAvailable?: boolean
   leadTimeDaysMin?: number | null
   leadTimeDaysMax?: number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -801,6 +824,7 @@ export type SellerListingTrustUpdateWithoutCertificationsInput = {
   oemAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   leadTimeDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   leadTimeDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutListingTrustNestedInput
@@ -817,6 +841,7 @@ export type SellerListingTrustUncheckedUpdateWithoutCertificationsInput = {
   oemAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   leadTimeDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   leadTimeDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -830,6 +855,7 @@ export type SellerListingTrustCreateManyProductInput = {
   oemAvailable?: boolean
   leadTimeDaysMin?: number | null
   leadTimeDaysMax?: number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -842,6 +868,7 @@ export type SellerListingTrustUpdateWithoutProductInput = {
   oemAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   leadTimeDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   leadTimeDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutListingTrustNestedInput
@@ -857,6 +884,7 @@ export type SellerListingTrustUncheckedUpdateWithoutProductInput = {
   oemAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   leadTimeDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   leadTimeDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   certifications?: Prisma.SellerListingCertificationUncheckedUpdateManyWithoutListingTrustNestedInput
@@ -871,6 +899,7 @@ export type SellerListingTrustUncheckedUpdateManyWithoutProductInput = {
   oemAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   leadTimeDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   leadTimeDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -884,6 +913,7 @@ export type SellerListingTrustCreateManySellerAccountInput = {
   oemAvailable?: boolean
   leadTimeDaysMin?: number | null
   leadTimeDaysMax?: number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -896,6 +926,7 @@ export type SellerListingTrustUpdateWithoutSellerAccountInput = {
   oemAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   leadTimeDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   leadTimeDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutListingTrustNestedInput
@@ -911,6 +942,7 @@ export type SellerListingTrustUncheckedUpdateWithoutSellerAccountInput = {
   oemAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   leadTimeDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   leadTimeDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   certifications?: Prisma.SellerListingCertificationUncheckedUpdateManyWithoutListingTrustNestedInput
@@ -925,6 +957,7 @@ export type SellerListingTrustUncheckedUpdateManyWithoutSellerAccountInput = {
   oemAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   leadTimeDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   leadTimeDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  incotermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -970,6 +1003,7 @@ export type SellerListingTrustSelect<ExtArgs extends runtime.Types.Extensions.In
   oemAvailable?: boolean
   leadTimeDaysMin?: boolean
   leadTimeDaysMax?: boolean
+  incotermsJson?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
@@ -990,11 +1024,12 @@ export type SellerListingTrustSelectScalar = {
   oemAvailable?: boolean
   leadTimeDaysMin?: boolean
   leadTimeDaysMax?: boolean
+  incotermsJson?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SellerListingTrustOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "productId" | "sampleAvailable" | "sampleNote" | "privateLabelAvailable" | "oemAvailable" | "leadTimeDaysMin" | "leadTimeDaysMax" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerListingTrust"]>
+export type SellerListingTrustOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "productId" | "sampleAvailable" | "sampleNote" | "privateLabelAvailable" | "oemAvailable" | "leadTimeDaysMin" | "leadTimeDaysMax" | "incotermsJson" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerListingTrust"]>
 export type SellerListingTrustInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -1022,6 +1057,11 @@ export type $SellerListingTrustPayload<ExtArgs extends runtime.Types.Extensions.
      */
     leadTimeDaysMin: number | null
     leadTimeDaysMax: number | null
+    /**
+     * Incoterms 2020 the seller quotes this product on, e.g. ["FOB","CIF"].
+     * From the fixed list in `listing-sourcing.service.ts`; null = not stated.
+     */
+    incotermsJson: runtime.JsonValue | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["sellerListingTrust"]>
@@ -1405,6 +1445,7 @@ export interface SellerListingTrustFieldRefs {
   readonly oemAvailable: Prisma.FieldRef<"SellerListingTrust", 'Boolean'>
   readonly leadTimeDaysMin: Prisma.FieldRef<"SellerListingTrust", 'Int'>
   readonly leadTimeDaysMax: Prisma.FieldRef<"SellerListingTrust", 'Int'>
+  readonly incotermsJson: Prisma.FieldRef<"SellerListingTrust", 'Json'>
   readonly createdAt: Prisma.FieldRef<"SellerListingTrust", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SellerListingTrust", 'DateTime'>
 }

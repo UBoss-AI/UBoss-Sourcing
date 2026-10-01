@@ -216,6 +216,10 @@ page();
 h1('3. Customer Features — Product Discovery and AI');
 h2('3.1 Home page and catalogue');
 table(['Customer action', 'What the system provides'], [
+  ['Start buying or selling', 'Under the departments the home page shows two separate cards. Buying offers browsing the catalogue, asking several suppliers for a quote and following orders. Selling explains that manufacturers apply to sell and links to the application.'],
+  ['Pick up where I left off', 'The home page lists up to four products or suppliers this browser looked at recently. Pressing Hide removes the list for thirty days. The list is kept in this browser only and is never sent anywhere.'],
+  ['Narrow results like a trade buyer', 'Search and category results can be narrowed by minimum order, country of origin, how long a bulk order takes, a verified certificate, a verified supplier, samples and the Incoterm the supplier quotes on. Each choice becomes part of the web address, so a filtered list can be shared. When nothing matches, the page offers to clear the filters, browse everything, or ask suppliers for a quote.'],
+  ['See what a category is known for', 'A category page shows its most common specifications as buttons. Pressing one narrows the list to products with it.'],
   ['Open the home page', 'The business name, one sentence saying what the marketplace offers, a large search bar, a sideways row of department cards, the verified suppliers, latest / featured catalogue items, cart access and account access.'],
   ['Read the policies', 'A “Help, policies and legal” page, linked from the foot of every page, lists the terms and every policy the marketplace has published — seller terms, privacy, returns, buyer protection, inspection and prohibited products — each opening its full text and version, says which ones are not published yet, and points to support. The marketplace writes and publishes these in its console; once published, a version is never changed, and older versions stay readable.'],
   ['Open the page for my country', 'A page for each country the marketplace sells to, linked from the foot of every page once the buyer has chosen a country. It says which currency prices are shown in, the language used there when one is recorded, the shipping routes into that country (where the goods come from, by which kind of transport, and the usual number of days), with a button to shop as a buyer there, which categories or products cannot be sold to that country or need documents and why, and — when the marketplace has written them — notes on duties, delivery and rules for that country and the categories to start with.'],
@@ -268,6 +272,8 @@ bullets([
   'Press a photograph to open it full screen and make it larger.',
   'Add the item to the cart or save it for later where the relevant feature is available.',
 ]);
+p('For products sold by a supplier, the same block also shows how much the supplier can make a week, and the supplier’s terms when they gave them: how long a bulk order takes, whether a sample is available and on what terms, whether they make to the buyer’s design (OEM) or put the buyer’s brand on it (private label), which Incoterms they quote on, and which of their certificates cover the product. Only certificates the marketplace checked and that are still in date are shown.');
+p('A supplier’s own page shows the registered company name for registered companies, never the personal name of a sole trader. It lists the machines at each checked factory, and how many reports independent inspection agencies signed on the supplier’s orders in the last twelve months, and how many passed and failed.');
 h2('3.2b What a customer reads about a product');
 p('Below the price and the buttons, everything about the product is laid out in the same order on every product page, so a buyer learns where to look. A part appears only when the seller has filled it in; nothing is made up to fill a gap.');
 table(['Part', 'What the customer sees'], [
@@ -1074,6 +1080,8 @@ bullets([
   'Where sellers cannot edit the title, they can ask the marketplace to correct it.',
 ]);
 
+h2('6a.6c Sourcing terms on a listing');
+p('On a listing’s page the seller fills in the terms trade buyers ask about first: whether they send samples and on what terms, whether they make to the buyer’s design or put the buyer’s brand on it, how many days a bulk order takes, and which Incoterms they quote on. They can also link certificates to the product, but only their own certificates that the marketplace checked and that are still in date. The page refuses a shortest lead time that is longer than the longest. Buyers see these terms on the product page and can filter by them. Every change is recorded in the seller’s history.');
 h2('6a.7 Sending a listing for review');
 bullets([
   'A listing can only be sent for review once every required section passes. The button says what is stopping it.',
@@ -2075,6 +2083,7 @@ table(['Staff role', 'What they may do with buyer companies'], [
 h2('11.3 Chat enquiries');
 p('Staff can open AI/chat enquiries to understand questions that originated from the customer assistant. This creates a better support hand-off from product discovery to human help.');
 h2('11.4 Reports');
+p('Reports also show product analytics: how many times each kind of page was viewed and how often buyers finished a checkout, sent a request for quotation, asked for a return or opened a dispute. These are anonymous daily counts. No person, account or address is recorded, and nothing is counted for a browser that asks not to be tracked. Beside each business count the report shows the real number from the orders, requests, returns and disputes themselves, so staff can see that the counts can be trusted. A count higher than the real number is shown in red because it means a page is counting twice.');
 bullets([
   'Run sales, stock, tax and operational reports.',
   'Export report information where the user has permission.',

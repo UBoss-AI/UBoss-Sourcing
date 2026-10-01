@@ -68,6 +68,8 @@ const PUBLIC: string[] = [
   'POST /api/v1/assistant/start',
   'POST /api/v1/auth/invitations/accept',
   'POST /api/v1/auth/login',
+  // Anonymous daily counters: route patterns only, no identifier (Section 17).
+  'POST /api/v1/analytics/events',
   'POST /api/v1/auth/password/forgot',
   'POST /api/v1/auth/password/reset',
   'POST /api/v1/auth/register',

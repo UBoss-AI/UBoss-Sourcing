@@ -359,6 +359,16 @@ const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
   },
   {
     reason:
+      'Adds to an anonymous daily counter; a repeated batch is one more count of a page view, which the reconciliation against source transactions would show, and nothing else changes.',
+    routes: ['analytics/events'],
+  },
+  {
+    reason:
+      'Adds to an anonymous daily counter; a repeated batch is one more count of a page view, which the reconciliation against source transactions would show, and nothing else changes.',
+    routes: ['analytics/events'],
+  },
+  {
+    reason:
       'Changes a login or a secret (a temporary password, a rotated integration secret); a repeat replaces the previous one and the earlier value stops working.',
     routes: ['admin/customers/:id/password-reset', 'admin/staff/:id/temporary-password', 'admin/logistics/integrations/:id/rotate-secret'],
   },

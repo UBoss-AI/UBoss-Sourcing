@@ -22769,6 +22769,9 @@ model SellerListingTrust {
   /// Production lead time for a bulk order, in days.
   leadTimeDaysMin       Int?    @db.SmallInt
   leadTimeDaysMax       Int?    @db.SmallInt
+  /// Incoterms 2020 the seller quotes this product on, e.g. ["FOB","CIF"].
+  /// From the fixed list in `listing-sourcing.service.ts`; null = not stated.
+  incotermsJson         Json?
 
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
@@ -24632,4 +24635,30 @@ model RiskSignal {
   @@index([status, detectedAt], map: "ix_risk_signal_queue")
   @@index([subjectType, subjectId], map: "ix_risk_signal_subject")
   @@map("risk_signals")
+}
+
+// ---------------------------------------------------------------------------
+// Product analytics (checklist Section 17 and LIVE-020)
+// ---------------------------------------------------------------------------
+
+/// One counter per UTC day, event and screen pattern. No identifier of any
+/// kind: no user, session, cookie or IP address - a page view is "one more
+/// view of /product/:slug today", nothing else. Reconciled against the source
+/// tables by `modules/analytics/analytics.service.ts`.
+model AnalyticsDailyCount {
+  /// The UTC day.
+  day     DateTime @db.Date
+  /// e.g. screen_view, checkout_completed. From a fixed list in code.
+  event   String   @db.VarChar(48)
+  /// The route pattern ("/product/:slug"), or '' when the event has none.
+  screen  String   @db.VarChar(96)
+  /// STOREFRONT, SELLER_HUB or AGENCY, derived from the pattern.
+  surface String   @db.VarChar(16)
+  count   Int      @default(0)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  @@id([day, event, screen])
+  @@index([day, surface], map: "ix_analytics_day_surface")
+  @@map("analytics_daily_counts")
 }

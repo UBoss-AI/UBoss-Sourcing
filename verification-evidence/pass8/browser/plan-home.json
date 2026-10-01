@@ -1,0 +1,1 @@
+{ "base": "http://localhost:5174", "widths": [320, 375, 1440], "focusWidth": 1440, "tabs": 14, "pages": [ { "name": "home", "path": "/" } ] }

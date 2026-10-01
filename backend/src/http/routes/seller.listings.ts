@@ -11,6 +11,7 @@
  * checked against that seller and answers 404 when it belongs to somebody else.
  */
 import type { FastifyInstance } from 'fastify';
+import { readListingSourcing, saveListingSourcing } from '../../modules/seller/listing-sourcing.service.js';
 import { z } from 'zod';
 import { env } from '../../config/env.js';
 import { B2C_MAX_ORDER_QUANTITY_CEILING } from '../../domain/b2c-order-limit.js';
@@ -296,6 +297,31 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
 
     const result = await listOffers(currentSeller(request), query);
     return reply.header('cache-control', 'no-store').status(200).send(result);
+  });
+
+  // Sourcing terms on one of your listings: samples, lead time, OEM/private label, Incoterms, linked certificates.
+  app.get('/listings/:id/sourcing', async (request, reply) => {
+    const params = idParam.parse(request.params);
+    return reply.header('cache-control', 'no-store').send(await readListingSourcing(currentSeller(request), params.id));
+  });
+
+  // Replace the sourcing terms on one of your listings. Only your own verified, in-date certificates can be linked.
+  app.put('/listings/:id/sourcing', { preHandler: requireSeller(SellerPermission.LISTING_WRITE) }, async (request, reply) => {
+    const params = idParam.parse(request.params);
+    const body = z
+      .object({
+        sampleAvailable: z.boolean(),
+        sampleNote: z.string().trim().max(255).nullable().default(null),
+        privateLabelAvailable: z.boolean(),
+        oemAvailable: z.boolean(),
+        leadTimeDaysMin: z.number().int().min(0).max(730).nullable(),
+        leadTimeDaysMax: z.number().int().min(0).max(730).nullable(),
+        incoterms: z.array(z.enum(INCOTERMS)).max(INCOTERMS.length),
+        certificationIds: z.array(z.string().length(26)).max(30),
+      })
+      .parse(request.body);
+    const terms = await saveListingSourcing(currentSeller(request), params.id, body, { correlationId: request.correlationId });
+    return reply.send({ terms });
   });
 
   /** One of the seller's listings in full, for its detail screen. */

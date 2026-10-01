@@ -113,6 +113,26 @@ describe('SupplierPage', () => {
     expect(screen.getAllByText('As stated by the supplier.').length).toBeGreaterThanOrEqual(1);
   });
 
+  it('shows a registered company name, factory machines and the inspection record (JOURNEY-005)', async () => {
+    const base = profile();
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        supplier: {
+          ...base,
+          legalName: 'Acme Castings Private Limited',
+          inspectionSummary: { months: 12, reports: 5, passed: 4, failed: 1 },
+          factories: base.factories.map((factory) => ({ ...factory, machines: [{ name: 'CNC lathe', quantity: 6 }] })),
+        },
+      }),
+    );
+    render();
+    expect(await screen.findByText('Registered as Acme Castings Private Limited')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Factories' })).toHaveTextContent('CNC lathe × 6');
+    expect(screen.getByRole('region', { name: 'Independent inspections' })).toHaveTextContent(
+      'In the last 12 months: 5 signed inspection reports, 4 passed and 1 failed.',
+    );
+  });
+
   it('leaves out every section it has nothing for', async () => {
     fetchMock.mockResolvedValue(
       jsonResponse({

@@ -3392,3 +3392,11 @@ export type RiskRule = Prisma.RiskRuleModel
  * a no-op, so one pattern is one signal.
  */
 export type RiskSignal = Prisma.RiskSignalModel
+/**
+ * Model AnalyticsDailyCount
+ * One counter per UTC day, event and screen pattern. No identifier of any
+ * kind: no user, session, cookie or IP address - a page view is "one more
+ * view of /product/:slug today", nothing else. Reconciled against the source
+ * tables by `modules/analytics/analytics.service.ts`.
+ */
+export type AnalyticsDailyCount = Prisma.AnalyticsDailyCountModel

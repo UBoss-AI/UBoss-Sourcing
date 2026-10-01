@@ -30,6 +30,8 @@
  *     validator is how the two quietly stop agreeing.
  */
 import { useEffect, useState } from 'react';
+import { SourcingFilterPanel } from '@/components/catalog/SourcingFilters';
+import { readSourcingFilters, sourcingChips } from '@/lib/sourcing-filters';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { CategoryContentBlocks } from '@/components/home/ContentBlocks';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
@@ -716,6 +718,8 @@ function FilterFields({
         </Field>
       </div>
 
+      <SourcingFilterPanel searchParams={searchParams} setParam={setParam} />
+
       {/* Whatever this catalogue says it can be filtered by. Nothing is
           rendered while that is unknown, rather than a row of empty groups. */}
       {facets?.attributes.map((facet) => (
@@ -730,6 +734,55 @@ function FilterFields({
         />
       ))}
     </div>
+  );
+}
+
+/**
+ * Popular specifications on a category landing (JOURNEY-003).
+ *
+ * The most common attribute values in this category, by how many products
+ * carry them, as one-tap filters. Read from the same facet counts as the
+ * panel, so it never names a specification the shelf does not have, and it is
+ * absent when the category has no filterable attributes.
+ */
+function PopularSpecs({
+  facets,
+  attrTokens,
+  setParam,
+}: {
+  facets: CatalogFilterFacets | undefined;
+  attrTokens: string[];
+  setParam: (updates: Record<string, string | string[] | null>) => void;
+}): React.JSX.Element | null {
+  const { t } = useI18n();
+  const top = (facets?.attributes ?? [])
+    .flatMap((facet) => facet.values.map((value) => ({ name: facet.name, value: value.value, count: value.count })))
+    .filter((entry) => entry.count > 0 && !attrTokens.includes(attrToken(entry.name, entry.value)))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+  if (top.length === 0) return null;
+  return (
+    <section aria-labelledby="popular-specs-heading" className="mt-4">
+      <h2 id="popular-specs-heading" className="text-sm font-semibold text-ink">
+        {t('catalog.popularSpecs')}
+      </h2>
+      <ul className="mt-2 flex flex-wrap gap-2">
+        {top.map((entry) => (
+          <li key={`${entry.name}:${entry.value}`}>
+            <button
+              type="button"
+              className="min-h-9 rounded-full border border-border bg-surface px-3 text-sm text-ink hover:border-brand hover:text-brand"
+              onClick={() => {
+                setParam({ attr: [...attrTokens, attrToken(entry.name, entry.value)] });
+              }}
+            >
+              {entry.name}: {entry.value}{' '}
+              <span className="text-xs tabular text-ink-subtle">({formatNumber(entry.count)})</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -822,6 +875,8 @@ export function CatalogPage(): React.JSX.Element {
    */
   const rawSeller = searchParams.get('seller');
   const seller = rawSeller !== null && /^[a-z0-9-]{1,180}$/.test(rawSeller) ? rawSeller : null;
+  // B2B sourcing filters (JOURNEY-002), sent with the API's own parameter names.
+  const sourcing = readSourcingFilters(searchParams);
 
   /*
    * Which category, or categories, this listing is narrowed to.
@@ -905,7 +960,10 @@ export function CatalogPage(): React.JSX.Element {
   const categoryDetail = useQuery({
     queryKey: ['category', singleCategory, destinationCountry],
     queryFn: () =>
-      api.get<{ category: CategoryNode; marketNotes?: CategoryMarketNote[] }>(
+      api.get<{
+        category: CategoryNode & { metaTitle?: string | null; metaDescription?: string | null };
+        marketNotes?: CategoryMarketNote[];
+      }>(
         `/catalog/categories/${String(singleCategory)}`,
         { query: { country: destinationCountry ?? undefined } },
       ),
@@ -952,6 +1010,7 @@ export function CatalogPage(): React.JSX.Element {
         addedWithin,
         attrTokens,
         seller,
+        sourcing,
         currency,
         country,
         language,
@@ -976,6 +1035,7 @@ export function CatalogPage(): React.JSX.Element {
           addedWithinDays: addedWithin ?? undefined,
           attr: attrTokens,
           seller: seller ?? undefined,
+          ...sourcing,
         },
       }),
     // Keeps the previous page on screen while the next one loads, so paging
@@ -1011,6 +1071,7 @@ export function CatalogPage(): React.JSX.Element {
         onSaleOnly,
         addedWithin,
         seller,
+        sourcing,
         currency,
         country,
       },
@@ -1032,6 +1093,7 @@ export function CatalogPage(): React.JSX.Element {
           onSaleOnly: onSaleOnly ? 'true' : undefined,
           addedWithinDays: addedWithin ?? undefined,
           seller: seller ?? undefined,
+          ...sourcing,
         },
       }),
     // The panel keeps the filters it already has while the next counts load.
@@ -1115,18 +1177,21 @@ export function CatalogPage(): React.JSX.Element {
         ? t('catalog.catalogue')
         : t('catalog.category');
 
+  // The operator's own search-engine title and description for the category,
+  // when they wrote one (JOURNEY-003); otherwise the generated sentence.
+  const categorySeo = q === '' ? categoryDetail.data?.category : undefined;
   useDocumentMeta(
     {
-      title: heading,
-      description:
-        q !== ''
+      title: categorySeo?.metaTitle ?? heading,
+      description: categorySeo?.metaDescription ??
+        (q !== ''
           ? t('catalog.searchResultsFor', { query: q, store: business.displayName })
           : category === null
             ? t('catalog.browseEveryProduct', { store: business.displayName })
             : t('catalog.browseCategoryAt', {
                 category: categoryName,
                 store: business.displayName,
-              }),
+              })),
       // A search results page is thin, per-visitor content. Categories and the
       // full catalogue are the pages worth indexing.
       noIndex: q !== '',
@@ -1146,7 +1211,7 @@ export function CatalogPage(): React.JSX.Element {
    * a chip that claimed to remove it would be a lie — and the category is
    * already stated by the breadcrumb and the heading.
    */
-  const applied: AppliedFilter[] = [];
+  const applied: AppliedFilter[] = [...sourcingChips(t, language, sourcing, setParam)];
 
   if (seller !== null) {
     applied.push({
@@ -1422,6 +1487,10 @@ export function CatalogPage(): React.JSX.Element {
         />
       )}
 
+      {singleCategory !== null && q === '' && (
+        <PopularSpecs facets={facets.data} attrTokens={searchParams.getAll('attr')} setParam={setParam} />
+      )}
+
       {/* A search that found the wrong things, or too few, can become a
           request for quotation in one step (checklist Master row 90). */}
       {features.rfq === true && q.trim().length > 0 && (
@@ -1627,6 +1696,16 @@ export function CatalogPage(): React.JSX.Element {
                 >
                   {t('catalog.browseEverything')}
                 </Link>
+                {/* Nothing listed is not nothing available: verified suppliers
+                    can still quote for it (JOURNEY-002 no-result alternative). */}
+                {features.rfq === true && q.trim().length > 0 && (
+                  <Link
+                    to={`/account/rfqs/new?title=${encodeURIComponent(q.trim().slice(0, 200))}`}
+                    className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-brand shadow-card hover:bg-surface-hover"
+                  >
+                    {t('rfq.cta.requestQuotesFor', { term: q.trim().slice(0, 80) })}
+                  </Link>
+                )}
               </div>
             </div>
           )}

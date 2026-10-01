@@ -487,13 +487,21 @@ function rollUpProductCounts(node: CategoryNode): number {
 export async function findCategoryBySlug(
   slug: string,
   options: { includeInactive?: boolean } = {},
-): Promise<{ id: string; name: string; slug: string; description: string | null } | null> {
+): Promise<{
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  /** The operator's own search-engine title and description, when set (JOURNEY-003). */
+  metaTitle: string | null;
+  metaDescription: string | null;
+} | null> {
   return prisma.category.findFirst({
     where: {
       slug,
       ...(options.includeInactive === true ? { archivedAt: null } : publicCategoryWhere()),
     },
-    select: { id: true, name: true, slug: true, description: true },
+    select: { id: true, name: true, slug: true, description: true, metaTitle: true, metaDescription: true },
   });
 }
 

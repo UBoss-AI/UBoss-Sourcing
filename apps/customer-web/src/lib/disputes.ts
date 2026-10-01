@@ -6,6 +6,7 @@
  * buyer may do now, and these screens offer exactly that and nothing else.
  */
 import { api, newIdempotencyKey, postFile } from '@/lib/api';
+import { track } from '@/lib/analytics';
 import type { Money } from '@/lib/format';
 
 export type DisputeRemedy = 'REFUND_FULL' | 'REFUND_PARTIAL' | 'REPLACEMENT';
@@ -72,8 +73,10 @@ export async function fetchDispute(reference: string): Promise<DisputeView> {
   return (await api.get<{ dispute: DisputeView }>(`/disputes/${reference}`)).dispute;
 }
 
-export function createClaim(input: ClaimInput, key: string): Promise<{ dispute: DisputeView }> {
-  return api.post('/disputes', input, { idempotencyKey: key });
+export async function createClaim(input: ClaimInput, key: string): Promise<{ dispute: DisputeView }> {
+  const created = await api.post<{ dispute: DisputeView }>('/disputes', input, { idempotencyKey: key });
+  track('dispute_opened', '/account/disputes/new');
+  return created;
 }
 
 export function sendClaimMessage(reference: string, body: string): Promise<{ dispute: DisputeView }> {

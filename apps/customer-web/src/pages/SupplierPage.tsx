@@ -122,6 +122,9 @@ export function SupplierPage(): React.JSX.Element {
         )}
         <div className="min-w-0 flex-1">
           <h1 className="break-words text-title-xl text-ink">{profile.displayName}</h1>
+          {typeof profile.legalName === 'string' && profile.legalName !== profile.displayName && (
+            <p className="mt-0.5 text-sm text-ink-muted">{t('supplier.legalName', { name: profile.legalName })}</p>
+          )}
           <p className="mt-1 text-sm text-ink-muted">
             {t(`home.supplierKind.${profile.kind}`)} · {countryName(profile.registrationCountry, language)}
             {profile.yearsInBusiness !== null && <> · {t('supplier.yearsInBusiness', { count: profile.yearsInBusiness, years: formatNumber(profile.yearsInBusiness) })}</>}
@@ -238,6 +241,14 @@ export function SupplierPage(): React.JSX.Element {
                     )}
                   </dl>
                   {factory.productsMade !== null && <p className="mt-1 text-ink-muted">{factory.productsMade}</p>}
+                  {(factory.machines ?? []).length > 0 && (
+                    <p className="mt-1 text-ink-muted">
+                      <span className="font-medium text-ink">{t('supplier.machines')}</span>{' '}
+                      {(factory.machines ?? [])
+                        .map((machine) => (machine.quantity === null ? machine.name : `${machine.name} × ${formatNumber(machine.quantity)}`))
+                        .join(', ')}
+                    </p>
+                  )}
                   {typeof factory.verifiedAt === 'string' && (
                     <p className="mt-1 text-xs text-success">
                       {t('supplier.factoryVerifiedOn', { date: dateFormat.format(new Date(factory.verifiedAt)) })}
@@ -247,6 +258,20 @@ export function SupplierPage(): React.JSX.Element {
               ))}
             </ul>
             <p className="mt-2 text-xs text-ink-muted">{t('supplier.factoriesMeaning')}</p>
+          </Section>
+        )}
+
+        {profile.inspectionSummary !== undefined && profile.inspectionSummary !== null && (
+          <Section id="supplier-inspections" title={t('supplier.inspectionHistory')}>
+            <p className="text-sm text-ink">
+              {t('supplier.inspectionHistorySummary', {
+                reports: formatNumber(profile.inspectionSummary.reports),
+                passed: formatNumber(profile.inspectionSummary.passed),
+                failed: formatNumber(profile.inspectionSummary.failed),
+                months: formatNumber(profile.inspectionSummary.months),
+              })}
+            </p>
+            <p className="mt-1 text-xs text-ink-muted">{t('supplier.inspectionHistoryMeaning')}</p>
           </Section>
         )}
 

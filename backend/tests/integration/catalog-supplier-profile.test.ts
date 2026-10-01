@@ -147,6 +147,7 @@ beforeAll(async () => {
       productsMade: 'Valves and flanges',
     },
   });
+  await prisma.sellerFactoryMachine.create({ data: { id: newId(), factoryId, name: 'CNC lathe', quantity: 6, capacityNote: 'internal note', sortOrder: 1 } });
   await prisma.sellerFactory.create({
     data: { id: newId(), sellerAccountId: sellerId, name: 'Closed plant', addressLine1: 'x', city: 'Nashik', postcode: '1', countryCode: 'IN', archivedAt: new Date() },
   });
@@ -264,13 +265,28 @@ describe('GET /api/v1/catalog/suppliers/:slug', () => {
         monthlyCapacity: 50000,
         capacityUnit: 'pieces',
         productsMade: 'Valves and flanges',
+        machines: [{ name: 'CNC lathe', quantity: 6 }],
         verifiedAt: '2026-01-10T00:00:00.000Z',
       },
     ]);
     for (const secret of ['SECRET STREET', '411001', '18.52', '73.85']) expect(response.body).not.toContain(secret);
   });
 
-  it('never publishes the legal name, identifiers, contacts or notes', async () => {
+  it('publishes the registered name only for a registered company, and no inspection summary without signed reports', async () => {
+    const before = await profile('acme');
+    expect(before.json<{ supplier: { legalName: unknown; inspectionSummary: unknown } }>().supplier).toMatchObject({ legalName: null, inspectionSummary: null });
+    const seller = await prisma.sellerAccount.findFirstOrThrow({ where: { slug: `${PREFIX}acme` }, select: { id: true, legalName: true } });
+    try {
+      await prisma.sellerBusinessProfile.update({ where: { sellerAccountId: seller.id }, data: { legalForm: 'PRIVATE_LIMITED_COMPANY' } });
+      expect((await profile('acme')).json<{ supplier: { legalName: unknown } }>().supplier.legalName).toBe(seller.legalName);
+      await prisma.sellerBusinessProfile.update({ where: { sellerAccountId: seller.id }, data: { legalForm: 'SOLE_PROPRIETORSHIP' } });
+      expect((await profile('acme')).json<{ supplier: { legalName: unknown } }>().supplier.legalName).toBeNull();
+    } finally {
+      await prisma.sellerBusinessProfile.update({ where: { sellerAccountId: seller.id }, data: { legalForm: null } });
+    }
+  });
+
+  it('never publishes the legal name of a seller with no registered company form, identifiers, contacts or notes', async () => {
     const body = (await profile('acme')).body;
     for (const secret of [
       'Private Limited',
@@ -279,6 +295,7 @@ describe('GET /api/v1/catalog/suppliers/:slug', () => {
       'Private Person',
       'private.person@example.com',
       'INTERNAL-NOTE',
+      'internal note',
       'UDYAM',
       '0000000000',
     ]) {

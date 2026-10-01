@@ -5504,5 +5504,22 @@
   "risk.rule.REFUND_VALUE": "Wysoka kwota zwrotów dla jednego kupującego",
   "risk.rule.PROMO_REDEMPTIONS": "Wiele wykorzystanych kuponów przez jednego kupującego",
   "risk.rule.ORDER_VELOCITY": "Wiele zamówień w krótkim czasie",
-  "risk.rule.MULTIPLE_HIGH_RISK": "Kilka sygnałów wysokiego ryzyka dla jednego podmiotu"
+  "risk.rule.MULTIPLE_HIGH_RISK": "Kilka sygnałów wysokiego ryzyka dla jednego podmiotu",
+  "analytics.title": "Analityka produktu",
+  "analytics.description": "Anonimowe dzienne liczniki ze sklepu, porównane z samymi transakcjami. Nie zapisuje się osób, sesji ani adresów.",
+  "analytics.reconciliationCaption": "Analityka a transakcje źródłowe",
+  "analytics.event": "Zdarzenie",
+  "analytics.counted": "Zliczone",
+  "analytics.source": "W danych",
+  "analytics.coverage": "Pokrycie",
+  "analytics.explanation": "Wiążące są dane. Nieco niższy licznik jest normalny, bo przeglądarki, które proszą o brak śledzenia, nic nie wysyłają. Wyższy licznik, na czerwono, oznacza, że strona zgłasza podwójnie.",
+  "analytics.topScreens": "Najczęściej oglądane ekrany",
+  "analytics.screen": "Ekran",
+  "analytics.surface": "Obszar",
+  "analytics.views": "Wyświetlenia",
+  "analytics.empty": "Brak danych w tym okresie",
+  "analytics.events.checkout_completed": "Zakończone zakupy a złożone zamówienia",
+  "analytics.events.rfq_submitted": "Wysłane zapytania ofertowe",
+  "analytics.events.return_requested": "Zgłoszone zwroty",
+  "analytics.events.dispute_opened": "Otwarte spory"
 }

@@ -5438,5 +5438,22 @@
   "risk.rule.REFUND_VALUE": "Hoog terugbetaald bedrag voor één koper",
   "risk.rule.PROMO_REDEMPTIONS": "Veel ingewisselde kortingscodes door één koper",
   "risk.rule.ORDER_VELOCITY": "Veel bestellingen in korte tijd",
-  "risk.rule.MULTIPLE_HIGH_RISK": "Meerdere hoogrisicosignalen bij één onderwerp"
+  "risk.rule.MULTIPLE_HIGH_RISK": "Meerdere hoogrisicosignalen bij één onderwerp",
+  "analytics.title": "Productanalyse",
+  "analytics.description": "Anonieme dagtellingen uit de winkel, vergeleken met de transacties zelf. Er wordt geen persoon, sessie of adres opgeslagen.",
+  "analytics.reconciliationCaption": "Analyse tegenover brontransacties",
+  "analytics.event": "Gebeurtenis",
+  "analytics.counted": "Geteld",
+  "analytics.source": "In de gegevens",
+  "analytics.coverage": "Dekking",
+  "analytics.explanation": "De gegevens zijn leidend. Een iets lagere telling is normaal, omdat browsers die niet gevolgd willen worden niets sturen. Een hogere telling, in rood, betekent dat een pagina dubbel meldt.",
+  "analytics.topScreens": "Meest bekeken schermen",
+  "analytics.screen": "Scherm",
+  "analytics.surface": "Omgeving",
+  "analytics.views": "Weergaven",
+  "analytics.empty": "Niets geteld in deze periode",
+  "analytics.events.checkout_completed": "Afgeronde bestellingen vs geplaatste orders",
+  "analytics.events.rfq_submitted": "Verzonden offerteaanvragen",
+  "analytics.events.return_requested": "Aangevraagde retouren",
+  "analytics.events.dispute_opened": "Geopende geschillen"
 }

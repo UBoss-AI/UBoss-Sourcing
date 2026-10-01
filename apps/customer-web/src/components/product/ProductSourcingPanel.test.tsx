@@ -107,4 +107,36 @@ describe('ProductSourcingPanel', () => {
     renderWithProviders(<ProductSourcingPanel sourcing={undefined} />);
     expect(screen.queryByRole('region')).not.toBeInTheDocument();
   });
+
+  it('shows capacity and the seller’s B2B terms (JOURNEY-004)', () => {
+    renderWithProviders(
+      <ProductSourcingPanel
+        sourcing={sourcing({
+          capacity: { unitsPerWeek: 5000, leadTimeDays: 21 },
+          terms: {
+            sampleAvailable: true,
+            sampleNote: 'Two boxes',
+            privateLabelAvailable: true,
+            oemAvailable: true,
+            leadTimeDaysMin: 15,
+            leadTimeDaysMax: 25,
+            incoterms: ['CIF', 'FOB'],
+            certifications: [{ standard: 'ISO 13485', issuer: 'TUV', expiresOn: '2027-06-30' }],
+          },
+        })}
+      />,
+    );
+    expect(screen.getByText('5,000 units a week')).toBeInTheDocument();
+    expect(screen.getByText('Bulk orders made in 15–25 days')).toBeInTheDocument();
+    expect(screen.getByText('Samples available — Two boxes')).toBeInTheDocument();
+    expect(screen.getByText('Made to your design (OEM) · Your brand on it (private label)')).toBeInTheDocument();
+    expect(screen.getByText('Quoted on: CIF, FOB')).toBeInTheDocument();
+    expect(screen.getByText('Verified certificates: ISO 13485 (TUV)')).toBeInTheDocument();
+  });
+
+  it('shows no terms row when the seller stated none', () => {
+    renderWithProviders(<ProductSourcingPanel sourcing={sourcing({ terms: null, capacity: null })} />);
+    expect(screen.queryByText('Supplier terms')).toBeNull();
+    expect(screen.queryByText('Production capacity')).toBeNull();
+  });
 });

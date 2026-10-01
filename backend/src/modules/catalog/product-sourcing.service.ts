@@ -23,6 +23,7 @@
  *     a seller's goods; the marketplace's own stock is not gated.
  */
 import type { MarketRuleEffect, SellerKind } from '../../generated/prisma/client.js';
+import { publicListingSourcing } from '../seller/listing-sourcing.service.js';
 import { prisma } from '../../infra/prisma.js';
 import { ruleMatches, type OrderFacts } from '../../domain/inspection-rules.js';
 import { activeRules, supplierRiskOf } from '../inspection/gate.service.js';
@@ -59,6 +60,10 @@ export interface ProductSourcing {
   };
   handlingTimeDays: number | null;
   countryOfOrigin: string | null;
+  /** What the seller can make: units a week and the lead time at that rate. */
+  capacity: { unitsPerWeek: number | null; leadTimeDays: number | null } | null;
+  /** The listed seller's sourcing terms on this product (JOURNEY-004). Null when not stated. */
+  terms: Awaited<ReturnType<typeof publicListingSourcing>>;
   inspection: {
     outlook: InspectionOutlook;
     /** For REQUIRED_FROM_VALUE: the lowest threshold, minor units as a string. */
@@ -114,6 +119,8 @@ export async function productSourcingFor(input: {
             handlingTimeDays: true,
             countryOfOrigin: true,
             sellingRegionsJson: true,
+            capacityUnitsPerWeek: true,
+            capacityLeadTimeDays: true,
             sellerAccount: {
               select: {
                 id: true,
@@ -215,6 +222,11 @@ export async function productSourcingFor(input: {
     delivery: { status, notes },
     handlingTimeDays: offer?.handlingTimeDays ?? null,
     countryOfOrigin: offer?.countryOfOrigin ?? null,
+    capacity:
+      listed === null || ((offer?.capacityUnitsPerWeek ?? null) === null && (offer?.capacityLeadTimeDays ?? null) === null)
+        ? null
+        : { unitsPerWeek: offer?.capacityUnitsPerWeek ?? null, leadTimeDays: offer?.capacityLeadTimeDays ?? null },
+    terms: listed === null ? null : await publicListingSourcing(listed.id, input.productId),
     inspection,
   };
 }

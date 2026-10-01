@@ -51,6 +51,7 @@ import type { BadgeTone } from '@/components/ui';
 import type { Money } from '@/lib/types';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
 import { MarketplaceReports } from './MarketplaceReports';
+import { AnalyticsReconciliation } from './AnalyticsReconciliation';
 import type { TranslationKey } from '@/i18n/i18n-context';
 
 interface SalesReport {
@@ -498,6 +499,8 @@ export function ReportsPage(): React.JSX.Element {
         </div>
 
         <MarketplaceReports range={range} />
+
+        <AnalyticsReconciliation range={range} />
 
         <ExportsPanel />
       </div>

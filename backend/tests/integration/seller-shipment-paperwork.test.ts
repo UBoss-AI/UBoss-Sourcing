@@ -70,6 +70,7 @@ async function cleanUp(): Promise<void> {
   await prisma.sellerMember.deleteMany({ where: { sellerAccountId: { in: sellers } } });
   await prisma.sellerAccount.deleteMany({ where: { id: { in: sellers } } });
   await prisma.product.deleteMany({ where: { slug: { startsWith: PREFIX } } });
+  await prisma.taxClass.deleteMany({ where: { code: `${PREFIX}T`.slice(0, 16) } });
   await prisma.category.deleteMany({ where: { slug: `${PREFIX}category` } });
   await prisma.customerProfile.deleteMany({ where: { id: { in: profiles } } });
   await prisma.userRole.deleteMany({ where: { user: { emailNormalized: { in: EMAILS } } } });
@@ -132,7 +133,14 @@ beforeAll(async () => {
   seller = await resolveSellerMembership(sellerPerson);
   rival = await resolveSellerMembership(rivalPerson);
 
-  const taxClass = await prisma.taxClass.findFirstOrThrow({ select: { id: true } });
+  // Any tax class will do; another file may have removed the shared ones, so
+  // create this file's own when there is none (removed again in cleanUp).
+  const taxClass =
+    (await prisma.taxClass.findFirst({ select: { id: true } })) ??
+    (await prisma.taxClass.create({
+      data: { id: newId(), code: `${PREFIX}T`.slice(0, 16), name: 'GST 18%', ratePercent: '18.000000', isActive: true },
+      select: { id: true },
+    }));
   categoryId = (
     await prisma.category.create({ data: { id: newId(), name: 'SSPW', slug: `${PREFIX}category`, isActive: true } })
   ).id;

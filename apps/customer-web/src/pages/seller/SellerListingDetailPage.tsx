@@ -64,6 +64,7 @@ import {
   type VariantTemplateAxis,
 } from '@/lib/seller';
 import { AxisValueEditor, CustomAxisAdder, ProjectionBar } from './VariantStepPanel';
+import { ListingSourcingPanel } from './ListingSourcingPanel';
 
 /**
  * A price for an input box: major units, or empty where there is no price.
@@ -384,6 +385,7 @@ function ListingBody({
       )}
 
       <InstructionsPanel offerId={offerId} />
+      <ListingSourcingPanel offerId={offerId} />
     </div>
   );
 }

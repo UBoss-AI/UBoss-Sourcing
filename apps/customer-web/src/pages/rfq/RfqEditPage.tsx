@@ -11,6 +11,7 @@
  * quotes" on a category or product page arrives here.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { track } from '@/lib/analytics';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocale } from '@/app/locale-context';
@@ -95,6 +96,9 @@ function localProblems(draft: RfqDraftInput, priceText: string, priceMinor: stri
 }
 
 export function RfqEditPage(): React.JSX.Element {
+  useEffect(() => {
+    track('rfq_started', '/account/rfqs/new');
+  }, []);
   const { id } = useParams<{ id: string }>();
   const { t } = useI18n();
   const { business } = useStorefront();

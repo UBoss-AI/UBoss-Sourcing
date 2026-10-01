@@ -5471,5 +5471,22 @@
   "risk.rule.REFUND_VALUE": "Importo elevato di rimborsi per un acquirente",
   "risk.rule.PROMO_REDEMPTIONS": "Molti coupon usati da un acquirente",
   "risk.rule.ORDER_VELOCITY": "Molti ordini in poco tempo",
-  "risk.rule.MULTIPLE_HIGH_RISK": "Diversi segnali ad alto rischio sullo stesso soggetto"
+  "risk.rule.MULTIPLE_HIGH_RISK": "Diversi segnali ad alto rischio sullo stesso soggetto",
+  "analytics.title": "Analisi del prodotto",
+  "analytics.description": "Conteggi giornalieri anonimi dal negozio, confrontati con le transazioni stesse. Nessuna persona, sessione o indirizzo viene salvato.",
+  "analytics.reconciliationCaption": "Analisi rispetto alle transazioni di origine",
+  "analytics.event": "Evento",
+  "analytics.counted": "Contati",
+  "analytics.source": "Nei dati",
+  "analytics.coverage": "Copertura",
+  "analytics.explanation": "Fanno fede i dati. Un conteggio un po’ inferiore è normale, perché i browser che chiedono di non essere tracciati non inviano nulla. Un conteggio superiore, in rosso, indica che una pagina segnala due volte.",
+  "analytics.topScreens": "Schermate più viste",
+  "analytics.screen": "Schermata",
+  "analytics.surface": "Area",
+  "analytics.views": "Visualizzazioni",
+  "analytics.empty": "Nulla conteggiato in questo periodo",
+  "analytics.events.checkout_completed": "Acquisti completati rispetto agli ordini",
+  "analytics.events.rfq_submitted": "Richieste di preventivo inviate",
+  "analytics.events.return_requested": "Resi richiesti",
+  "analytics.events.dispute_opened": "Contestazioni aperte"
 }

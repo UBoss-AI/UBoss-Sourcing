@@ -158,6 +158,23 @@ const filterQuerySchema = z.object({
   onSaleOnly: z.enum(['true', 'false']).optional(),
   /** Published within this many days. Capped at a year; 0 would mean nothing. */
   addedWithinDays: z.coerce.number().int().min(1).max(365).optional(),
+  // --- B2B sourcing filters (JOURNEY-002). Each narrows to products with a
+  // live offer from an approved supplier that meets it; a product sold only
+  // from the marketplace's own stock has no seller terms and drops out.
+  /** Minimum order quantity at most this many units. */
+  maxMoq: z.coerce.number().int().min(1).max(10_000_000).optional(),
+  /** Country of origin, ISO-3166 alpha-2. */
+  origin: z.string().trim().length(2).toUpperCase().optional(),
+  /** A stated bulk lead time of at most this many days. */
+  maxLeadTimeDays: z.coerce.number().int().min(1).max(730).optional(),
+  /** Only listings linked to a certificate the operator verified and that is in date. */
+  certified: z.enum(['true', 'false']).optional(),
+  /** Only products a verified (approved) supplier sells. */
+  verifiedSupplier: z.enum(['true', 'false']).optional(),
+  /** Only listings that offer a sample. */
+  sample: z.enum(['true', 'false']).optional(),
+  /** Quoted on this Incoterm. */
+  incoterm: z.enum(['EXW', 'FCA', 'FAS', 'FOB', 'CFR', 'CIF', 'CPT', 'CIP', 'DAP', 'DPU', 'DDP']).optional(),
   /**
    * Attribute facets, as repeated `attr=Name:Value` pairs.
    *
@@ -1036,6 +1053,8 @@ async function resolveFilters(
     conditions.push({ publishedAt: { gte: since } });
   }
 
+  conditions.push(...sourcingConditions(query));
+
   if (options.includeAttributes) conditions.push(...attributeConditions(attributes));
 
   // What may not be sold to the shopper's destination is left out of the
@@ -1047,6 +1066,54 @@ async function resolveFilters(
   if (conditions.length > 0) productWhere.AND = conditions;
 
   return { productWhere, attributes, unknownCategory: false };
+}
+
+const LIVE_APPROVED_OFFER = {
+  status: 'ACTIVE',
+  archivedAt: null,
+  sellerAccount: { status: 'APPROVED', archivedAt: null, suspendedAt: null },
+} as const;
+
+/**
+ * The B2B sourcing filters. Terms live on the seller's listing
+ * (`seller_listing_trust`) and offer, so each one asks "is there an approved
+ * seller whose terms on this product meet it" - and the listing terms are
+ * looked up for that same seller, never another seller's.
+ */
+function sourcingConditions(query: z.infer<typeof filterQuerySchema>): Prisma.ProductWhereInput[] {
+  const out: Prisma.ProductWhereInput[] = [];
+  if (query.verifiedSupplier === 'true') out.push({ sellerOffers: { some: LIVE_APPROVED_OFFER } });
+  if (query.maxMoq !== undefined) {
+    out.push({ sellerOffers: { some: { ...LIVE_APPROVED_OFFER, minimumOrderQuantity: { lte: query.maxMoq } } } });
+  }
+  if (query.origin !== undefined) {
+    out.push({ sellerOffers: { some: { ...LIVE_APPROVED_OFFER, countryOfOrigin: query.origin } } });
+  }
+  const today = new Date(new Date().toISOString().slice(0, 10));
+  const trust: Prisma.SellerListingTrustWhereInput[] = [];
+  if (query.maxLeadTimeDays !== undefined) trust.push({ leadTimeDaysMax: { lte: query.maxLeadTimeDays } });
+  if (query.sample === 'true') trust.push({ sampleAvailable: true });
+  if (query.incoterm !== undefined) trust.push({ incotermsJson: { array_contains: query.incoterm } });
+  if (query.certified === 'true') {
+    trust.push({
+      certifications: {
+        some: {
+          certification: { state: 'VERIFIED', archivedAt: null, expiredAt: null, OR: [{ expiresOn: null }, { expiresOn: { gte: today } }] },
+        },
+      },
+    });
+  }
+  if (trust.length > 0) {
+    out.push({
+      listingTrust: {
+        some: {
+          AND: trust,
+          sellerAccount: { status: 'APPROVED', archivedAt: null, suspendedAt: null, offers: { some: { status: 'ACTIVE', archivedAt: null } } },
+        },
+      },
+    });
+  }
+  return out;
 }
 
 /**

@@ -22,7 +22,7 @@
 import { Link } from 'react-router-dom';
 import { AlertIcon, BuildingIcon, CheckIcon, GlobeIcon, InfoIcon, ShieldIcon, TruckIcon } from '@/components/icons';
 import { countryName } from '@/lib/iso-countries';
-import { formatMoneyMinor } from '@/lib/format';
+import { formatMoneyMinor, formatNumber } from '@/lib/format';
 import type { ProductSourcing } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 
@@ -55,6 +55,7 @@ export function ProductSourcingPanel({ sourcing }: { sourcing: ProductSourcing |
   const destination = sourcing.destination === null ? '' : countryName(sourcing.destination, language);
   const seller = sourcing.seller;
   const notes = sourcing.delivery.notes;
+  const terms = sourcing.terms ?? null;
   const verifiedOn =
     seller?.verifiedAt == null
       ? null
@@ -181,6 +182,52 @@ export function ProductSourcingPanel({ sourcing }: { sourcing: ProductSourcing |
         {inspection !== null && (
           <Row icon={<ShieldIcon className="h-5 w-5" />} label={t('product.sourcing.inspection')}>
             {inspection}
+          </Row>
+        )}
+        {(sourcing.capacity ?? null) !== null && (
+          <Row icon={<BuildingIcon className="h-5 w-5" />} label={t('product.sourcing.capacity')}>
+            {sourcing.capacity?.unitsPerWeek != null && (
+              <span className="block">{t('product.sourcing.unitsPerWeek', { units: formatNumber(sourcing.capacity.unitsPerWeek) })}</span>
+            )}
+            {sourcing.capacity?.leadTimeDays != null && (
+              <span className="block">{t('product.sourcing.capacityLeadTime', { days: formatNumber(sourcing.capacity.leadTimeDays) })}</span>
+            )}
+          </Row>
+        )}
+
+        {terms !== null && (
+          <Row icon={<CheckIcon className="h-5 w-5" />} label={t('product.sourcing.terms')}>
+            {(terms.leadTimeDaysMin !== null || terms.leadTimeDaysMax !== null) && (
+              <span className="block">
+                {t('product.sourcing.bulkLeadTime', {
+                  range:
+                    terms.leadTimeDaysMin !== null && terms.leadTimeDaysMax !== null && terms.leadTimeDaysMin !== terms.leadTimeDaysMax
+                      ? `${formatNumber(terms.leadTimeDaysMin)}–${formatNumber(terms.leadTimeDaysMax)}`
+                      : formatNumber(terms.leadTimeDaysMax ?? terms.leadTimeDaysMin ?? 0),
+                })}
+              </span>
+            )}
+            <span className="block">
+              {terms.sampleAvailable ? t('product.sourcing.sampleYes') : t('product.sourcing.sampleNo')}
+              {terms.sampleAvailable && terms.sampleNote !== null && ` — ${terms.sampleNote}`}
+            </span>
+            {(terms.oemAvailable || terms.privateLabelAvailable) && (
+              <span className="block">
+                {[terms.oemAvailable ? t('product.sourcing.oem') : null, terms.privateLabelAvailable ? t('product.sourcing.privateLabel') : null]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </span>
+            )}
+            {terms.incoterms.length > 0 && (
+              <span className="block">{t('product.sourcing.incoterms', { terms: terms.incoterms.join(', ') })}</span>
+            )}
+            {terms.certifications.length > 0 && (
+              <span className="block">
+                {t('product.sourcing.certifications', {
+                  list: terms.certifications.map((certificate) => `${certificate.standard} (${certificate.issuer})`).join(', '),
+                })}
+              </span>
+            )}
           </Row>
         )}
       </dl>

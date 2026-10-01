@@ -5438,5 +5438,22 @@
   "risk.rule.REFUND_VALUE": "Υψηλή αξία επιστροφών για έναν αγοραστή",
   "risk.rule.PROMO_REDEMPTIONS": "Πολλές εξαργυρώσεις κουπονιών από έναν αγοραστή",
   "risk.rule.ORDER_VELOCITY": "Πολλές παραγγελίες σε λίγο χρόνο",
-  "risk.rule.MULTIPLE_HIGH_RISK": "Πολλά σήματα υψηλού κινδύνου για ένα αντικείμενο"
+  "risk.rule.MULTIPLE_HIGH_RISK": "Πολλά σήματα υψηλού κινδύνου για ένα αντικείμενο",
+  "analytics.title": "Αναλυτικά προϊόντος",
+  "analytics.description": "Ανώνυμες ημερήσιες μετρήσεις από το κατάστημα, ελεγμένες με τις ίδιες τις συναλλαγές. Δεν αποθηκεύεται πρόσωπο, συνεδρία ή διεύθυνση.",
+  "analytics.reconciliationCaption": "Αναλυτικά έναντι συναλλαγών πηγής",
+  "analytics.event": "Συμβάν",
+  "analytics.counted": "Μετρήθηκαν",
+  "analytics.source": "Στα αρχεία",
+  "analytics.coverage": "Κάλυψη",
+  "analytics.explanation": "Τα αρχεία είναι η αρχή. Μια ελαφρώς χαμηλότερη μέτρηση είναι φυσιολογική, γιατί οι browser που ζητούν να μην παρακολουθούνται δεν στέλνουν τίποτα. Μεγαλύτερη μέτρηση (με κόκκινο) σημαίνει ότι μια σελίδα αναφέρει διπλά.",
+  "analytics.topScreens": "Πιο δημοφιλείς οθόνες",
+  "analytics.screen": "Οθόνη",
+  "analytics.surface": "Περιοχή",
+  "analytics.views": "Προβολές",
+  "analytics.empty": "Δεν μετρήθηκε τίποτα σε αυτή την περίοδο",
+  "analytics.events.checkout_completed": "Ολοκληρωμένες αγορές έναντι παραγγελιών",
+  "analytics.events.rfq_submitted": "Αιτήματα προσφοράς που στάλθηκαν",
+  "analytics.events.return_requested": "Αιτήματα επιστροφής",
+  "analytics.events.dispute_opened": "Διαφορές που ανοίχτηκαν"
 }

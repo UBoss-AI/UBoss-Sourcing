@@ -4677,7 +4677,7 @@ at the sender's company, seller or carrier sees them.
 
 ### FR-PRV-004 — Cookies
 
-- **Rules.** Only strictly necessary cookies (session, refresh, CSRF) and localStorage for language, locale and declined offers; no analytics or tracking pixels ship. No cookie banner is needed for what ships.
+- **Rules.** Only strictly necessary cookies (session, refresh, CSRF) and localStorage for language, locale, declined offers and the hidden-recent-activity choice; no tracking pixels or third-party analytics ship. First-party product analytics are anonymous daily counters (FR-ANL-001): no cookie, identifier or IP address, and nothing is sent when the browser asks for Do Not Track or Global Privacy Control. No cookie banner is needed for what ships.
 - **Status.** Built.
 
 ### FR-PRV-005 — Art. 16 correction requests
@@ -6481,3 +6481,31 @@ Inspection responses now expose report as the latest report visible to that audi
 **Shipment documents.** On a seller order, the seller keeps the papers a consignment travels with besides the commercial invoice and packing list (which are issued in the panel above it): certificate of origin, bill of lading, air waybill, shipping bill, inspection certificate, export and import licences, other, and any category document a destination or category trade rule requires. Each save is a new version with the issuer, the document number, the issue date and the expiry date; older versions are kept. The seller can generate a certificate of origin draft PDF from the order (watermarked, for an issuing authority to certify) or upload a PDF or image. Marketplace staff with logistics.write mark the current version valid or rejected (a rejection needs a reason); a version past its expiry date shows as expired. The buyer sees the certificate of origin, bill of lading, air waybill, inspection certificate, import licence and category documents on their order, current version only, never a rejected one. The shipping bill, export licence and "other" stay between the seller and the marketplace.
 
 **Shipment booking.** For each consignment the seller states the mode (road, air, sea, rail, courier, multimodal), the Incoterm and its named place, the origin and destination ports (UN/LOCODE), a route note, and the pickup date and time window. A cross-border air or sea consignment must name both ports. The seller may name DHL, FedEx or India Post: that records a hand booking through the existing path, with no carrier API call and no invented tracking number. Booking through the seller's own carrier account and offering the consignment to a delivery company stay where they were. Once collected, the booking can no longer change. The buyer sees each consignment's booking and carrier on the order page.
+
+## Discovery and sourcing additions (Section 17.1, pass 8)
+
+### FR-ANL-001 — Privacy-first product analytics
+
+- **Statement.** The storefront and Seller Hub send event names from a fixed list (screen views, search, checkout started and completed, RFQ started and submitted, return requested, dispute opened) with the **route pattern** only, to `POST /api/v1/analytics/events`. The server adds them to per-day counters (`analytics_daily_counts`). Staff with `report.read` see totals, the most viewed screens and a **reconciliation** of client events against the source tables (orders, RFQs, returns, disputes) in **Reports**.
+- **Rules.** No user, session, cookie or IP address is stored; a screen that looks like it carries an id is refused. Do Not Track and Global Privacy Control send nothing. Days are UTC. The source tables are the authority; a count above them is flagged.
+- **Status.** Built. Validating against production traffic is a go-live step (LIVE-020).
+
+### FR-DSC-010 — Home quick start (JOURNEY-001)
+
+- Separate **Buying** (browse, request quotes when RFQ is on, track orders) and **Selling** ("Sell on {{marketplace}}") cards, and a **Continue where you left off** list from this browser's recently viewed items that the shopper can hide for 30 days. Built.
+
+### FR-DSC-011 — B2B search filters (JOURNEY-002)
+
+- Search and category results filter by **minimum order**, **country of origin**, **bulk lead time**, **verified certificate**, **verified supplier**, **samples** and **Incoterm**, as URL parameters (`maxMoq`, `origin`, `maxLeadTimeDays`, `certified`, `verifiedSupplier`, `sample`, `incoterm`) so results can be shared. Each narrows to products an approved supplier sells on those terms. A search with no results offers clearing filters, browsing everything and a request for quotation. Built.
+
+### FR-DSC-012 — Category landing SEO and popular specifications (JOURNEY-003)
+
+- A category page uses the category's own meta title and description when the operator wrote them, and shows up to eight **popular specifications** (most common filterable attribute values) as one-tap filters. Built.
+
+### FR-DSC-013 — Listing sourcing terms (JOURNEY-004, JOURNEY-029)
+
+- **Seller Hub → listing → Sourcing terms**: samples (with terms), OEM, private label, bulk lead-time range, Incoterms quoted, and links to the seller's own **verified, in-date** certificates. The product page shows these for the seller it is priced from, plus production capacity. Saved in `seller_listing_trust` (now with `incotermsJson`); validated (range, certificate ownership and state) and written to the seller audit log. Built.
+
+### FR-DSC-014 — Supplier storefront additions (JOURNEY-005)
+
+- The **registered name** is published only for registered companies (LLP, private or public limited), never for a sole trader or partnership. Verified factories list their **machines**. An **independent inspections** section counts reports agencies signed on the supplier's orders in the last twelve months by result (counts only). Built.

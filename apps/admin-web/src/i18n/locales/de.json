@@ -5438,5 +5438,22 @@
   "risk.rule.REFUND_VALUE": "Hoher Erstattungsbetrag für einen Käufer",
   "risk.rule.PROMO_REDEMPTIONS": "Viele Gutscheineinlösungen durch einen Käufer",
   "risk.rule.ORDER_VELOCITY": "Viele Bestellungen in kurzer Zeit",
-  "risk.rule.MULTIPLE_HIGH_RISK": "Mehrere Hochrisikosignale zu einem Objekt"
+  "risk.rule.MULTIPLE_HIGH_RISK": "Mehrere Hochrisikosignale zu einem Objekt",
+  "analytics.title": "Produktanalyse",
+  "analytics.description": "Anonyme Tageszählungen aus dem Shop, abgeglichen mit den Transaktionen selbst. Keine Person, Sitzung oder Adresse wird gespeichert.",
+  "analytics.reconciliationCaption": "Analyse gegen Quelltransaktionen",
+  "analytics.event": "Ereignis",
+  "analytics.counted": "Gezählt",
+  "analytics.source": "In den Daten",
+  "analytics.coverage": "Abdeckung",
+  "analytics.explanation": "Die Daten sind maßgeblich. Eine etwas niedrigere Zählung ist normal, weil Browser, die nicht verfolgt werden möchten, nichts senden. Eine höhere Zählung (rot) bedeutet, dass eine Seite doppelt meldet.",
+  "analytics.topScreens": "Meistgesehene Seiten",
+  "analytics.screen": "Seite",
+  "analytics.surface": "Bereich",
+  "analytics.views": "Aufrufe",
+  "analytics.empty": "In diesem Zeitraum nichts gezählt",
+  "analytics.events.checkout_completed": "Abgeschlossene Käufe vs. Bestellungen",
+  "analytics.events.rfq_submitted": "Gesendete Angebotsanfragen",
+  "analytics.events.return_requested": "Angeforderte Rücksendungen",
+  "analytics.events.dispute_opened": "Eröffnete Streitfälle"
 }

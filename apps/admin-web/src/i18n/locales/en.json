@@ -5438,5 +5438,22 @@
   "risk.rule.REFUND_VALUE": "High refund value for one buyer",
   "risk.rule.PROMO_REDEMPTIONS": "Many coupon redemptions by one buyer",
   "risk.rule.ORDER_VELOCITY": "Many orders in a short time",
-  "risk.rule.MULTIPLE_HIGH_RISK": "Several high-risk signals on one subject"
+  "risk.rule.MULTIPLE_HIGH_RISK": "Several high-risk signals on one subject",
+  "analytics.title": "Product analytics",
+  "analytics.description": "Anonymous daily counts from the storefront, checked against the transactions themselves. No person, session or address is stored.",
+  "analytics.reconciliationCaption": "Analytics against source transactions",
+  "analytics.event": "Event",
+  "analytics.counted": "Counted",
+  "analytics.source": "In the records",
+  "analytics.coverage": "Coverage",
+  "analytics.explanation": "The records are the authority. A count a little below them is normal, because browsers that ask not to be tracked send nothing. A count above them, shown in red, means a page is reporting twice.",
+  "analytics.topScreens": "Most viewed screens",
+  "analytics.screen": "Screen",
+  "analytics.surface": "Surface",
+  "analytics.views": "Views",
+  "analytics.empty": "Nothing counted in this period",
+  "analytics.events.checkout_completed": "Checkouts completed vs orders placed",
+  "analytics.events.rfq_submitted": "RFQs submitted",
+  "analytics.events.return_requested": "Returns requested",
+  "analytics.events.dispute_opened": "Disputes opened"
 }

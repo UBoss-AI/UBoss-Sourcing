@@ -48,6 +48,7 @@ import { useStorefront } from '@/app/storefront-context';
 import { HeroSearch } from '@/components/hero-search/HeroSearch';
 import { CollectionShelves } from '@/components/home/CollectionShelves';
 import { HomeBanners } from '@/components/home/ContentBlocks';
+import { HomeQuickStart } from '@/components/home/HomeQuickStart';
 import { InlineProducts } from '@/components/home/InlineProducts';
 import { AssuranceExplainer, NewlyVerifiedSuppliers, YourMarketBlock } from '@/components/home/HomeTrustBlocks';
 import { ValueProposition, VerifiedSuppliers } from '@/components/home/VerifiedSuppliers';
@@ -563,6 +564,10 @@ export function HomePage(): React.JSX.Element {
         <HomeBanners />
 
         <CategoryStrip />
+
+        {/* Buyer and supplier paths, and this browser's recent activity, which
+            the shopper can hide (JOURNEY-001). */}
+        <HomeQuickStart />
 
         {/* Who is selling: sellers the operator reviewed and approved, each
             opening the catalogue filtered to what they sell. Absent when

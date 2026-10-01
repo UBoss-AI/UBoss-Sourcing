@@ -14,6 +14,7 @@ import { Role } from '../../src/domain/permissions.js';
 import { buildApp } from '../../src/http/app.js';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
+import { inspectionSummaryFor } from '../../src/modules/catalog/supplier-profile.service.js';
 import { ensureRequirement } from '../../src/modules/inspection/gate.service.js';
 import {
   asCustomer as customerCall,
@@ -219,6 +220,8 @@ describe('an inspection from booking to a signed FAIL', () => {
     const signed = await asCustomer(app, qa, 'POST', `/inspection/agency/jobs/${jobId}/report/sign`);
     expect(signed.statusCode, signed.body).toBe(200);
     expect(signed.json<{ result: string }>().result).toBe('FAIL');
+    // JOURNEY-005: the supplier's public inspection summary counts the signed report.
+    expect(await inspectionSummaryFor(desk.sellerAId)).toMatchObject({ months: 12, reports: 1, passed: 0, failed: 1 });
     expect((await asCustomer(app, inspector, 'POST', checkPath, { payload: { itemCode: 'PACK.CARTON_QTY', outcome: 'CONFORM' } })).statusCode).toBe(409);
 
     const dispatch = await asCustomer(app, desk.sellerA, 'PATCH', `/seller/orders/${groupId}/status`, { payload: { status: 'READY_FOR_DISPATCH' } });

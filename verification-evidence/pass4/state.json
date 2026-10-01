@@ -2449,6 +2449,48 @@
       "status": "VERIFIED",
       "evidence": "Pass 8. Configurable fraud foundation: risk_rules and risk_signals (migration 20261030110000), worker runRiskScan with rules LOGIN_FAILURES, SENSITIVE_CHANGE_AFTER_FAILURES, DUPLICATE_SELLER_IDENTIFIER, EVIDENCE_REUSED, EVIDENCE_LATE_UPLOAD, REFUND_FREQUENCY, REFUND_VALUE, PROMO_REDEMPTIONS, ORDER_VELOCITY, MULTIPLE_HIGH_RISK; explained facts, severity, dedupe key, admin bell for HIGH/CRITICAL; review queue with reason, self-review refused, false positive and audited override; rule edits owner-only, versioned, audited; no automatic adverse action. tests/integration/risk-signals.test.ts (6): triggered vs below threshold, no duplicate on rescan, masked tax number, takeover pattern, composite critical, permissions, review and override audit, notification resolved, rule versioning; late-evidence rule in authorization-matrix test; admin RiskReviewPage.test.tsx (2). Production threshold values need the business risk owner's approval (shown as placeholders in the console); bank-detail duplicates are held by the payout provider and not checked.",
       "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-001",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. Home: hero search (search in one action), department rail, verified suppliers, AI/sourcing hub entry, locale picker in the header, assurance/inspection explainer; NEW HomeQuickStart with separate Buying (browse, request quotes when RFQ is on, track orders) and Selling (Sell on {{marketplace}}) cards and a recent-activity list that can be hidden for 30 days (HomeQuickStart.test.tsx 3/3). Anonymous screen_view analytics on every route (analytics.test.ts client 3, backend analytics.test.ts 4). Chrome 320-1440: no page overflow, zero axe A/AA violations; new links 44px targets.",
+      "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-002",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. Search results: products, verified-supplier matches and filters for price plus NEW MOQ, origin, lead time, verified certificate, verified supplier, samples and Incoterm (catalog.public sourcingConditions; listing-sourcing.test.ts filters each one both ways; SourcingFilters.test.tsx 2/2); every filter is a URL parameter with removable chips (shareable state); no-result state offers clear filters, browse everything and a request for quotation. Chrome 320-1440 on filtered and empty searches: no overflow, zero axe violations.",
+      "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-003",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. Category landing: taxonomy rail and sub-categories, supplier count and pills (CategorySourcing), RFQ call to action, destination compliance notes; NEW Popular specifications chips from facet counts and the category's own meta title/description for SEO (categories/:slug now returns metaTitle/metaDescription). catalog-market-eligibility and CategorySourcing tests rerun green; Chrome 320-1440 zero overflow/axe.",
+      "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-004",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. Product detail: variants, MOQ, quantity tiers, inspection outlook, seller trust, shipping eligibility, compare, RFQ/cart; NEW production capacity and the priced seller's terms (lead time, samples, OEM/private label, Incoterms, verified in-date certificates only) from seller_listing_trust (listing-sourcing.test.ts product-page case; ProductSourcingPanel.test.tsx 2 new). Chrome 320-1440 zero overflow/axe.",
+      "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-005",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. Supplier storefront: factory locations by city, capabilities, capacity, export markets, verified in-date certifications with validity, response SLA, products; NEW registered name for registered companies only (never a sole trader), factory machines, and an independent-inspection summary of signed reports by result (catalog-supplier-profile.test.ts 9/9 incl. legal-form cases; inspection-http asserts inspectionSummaryFor after a signed FAIL; SupplierPage.test.tsx new case). Chrome 320-1440 zero overflow/axe.",
+      "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-007",
+      "status": "VERIFIED",
+      "evidence": "Pass 8 reconciliation. Country landing (Master 8): currency and language, featured categories, shipping lanes with transit days, duties guidance, compliance rules (blocked and documents-required), delivery promise text, operator text only when published (market-pages.test.ts 7, MarketPage.test.tsx 8 rerun green); anonymous screen_view analytics added. Chrome 320-1440 zero overflow/axe.",
+      "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-029",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. Listing editor: structured specifications, HS code with verification state (SellerTradeCodesPanel), export markets, MOQ and price tiers, packaging, media, listing moderation; NEW Sourcing terms card (samples and terms, OEM, private label, lead-time range with validation, Incoterms, link only own verified in-date certificates), audited (seller.listing.sourcing_updated), other sellers refused (listing-sourcing.test.ts 4/4; ListingSourcingPanel.test.tsx 1/1).",
+      "verifiedAt": "2026-10-01 (pass 8)"
     }
   ],
   "pendingBoxes": []

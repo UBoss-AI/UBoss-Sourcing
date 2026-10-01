@@ -1,0 +1,10 @@
+{ "base": "http://localhost:5174", "widths": [320, 375, 768, 1024, 1440], "focusWidth": 1440, "tabs": 14,
+  "pages": [
+    { "name": "home", "path": "/" },
+    { "name": "search-filters", "path": "/search?q=glove&sample=true&incoterm=FOB&maxMoq=100" },
+    { "name": "search-empty", "path": "/search?q=zzqqxxnothing" },
+    { "name": "category", "path": "/category/medical-devices" },
+    { "name": "product", "path": "/product/firstcry-toys-for-kids-t-001-s3ch85" },
+    { "name": "supplier", "path": "/suppliers/glovia-levels-demo" },
+    { "name": "market", "path": "/markets/in" }
+  ] }
