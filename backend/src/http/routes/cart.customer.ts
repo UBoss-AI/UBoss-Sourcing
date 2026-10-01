@@ -7,6 +7,7 @@
  * what an order costs.
  */
 import type { FastifyInstance, FastifyRequest } from 'fastify';
+import { assertAcceptableTerms } from '../../modules/legal/legal-document.service.js';
 import { z } from 'zod';
 import { ErrorCode, badRequest } from '../../domain/errors.js';
 import { PaymentInstrumentValues } from '../../domain/payment-instrument.js';
@@ -201,6 +202,13 @@ const checkoutSchema = z.object({
    */
   logisticsQuoteToken: z.string().max(200).nullable().optional(),
   customerNote: z.string().max(2000).nullable().optional(),
+  /**
+   * The buyer's agreement to the Terms and Conditions for this order, and the
+   * published version they were shown (JOURNEY-022). Required: an order is
+   * never placed on a box ticked only in the browser.
+   */
+  acceptedTerms: z.boolean().default(false),
+  termsDocumentId: z.string().length(26).nullable().optional(),
 });
 
 const itemParam = z.object({ itemId: z.string().length(26) });
@@ -502,8 +510,16 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
         ownerId: auth.customerProfileId ?? auth.id,
         body,
         successStatus: 201,
-        operation: () =>
-          submitCheckout({
+        // Inside the idempotent operation, so a retried request replays the
+        // order it placed. Refused before anything is reserved or charged: the
+        // buyer agrees to the current published Terms, by id, or there is no order.
+        operation: async () => {
+          const terms = await assertAcceptableTerms({
+            kind: 'PLATFORM_TERMS',
+            acceptedTerms: body.acceptedTerms,
+            documentId: body.termsDocumentId,
+          });
+          return submitCheckout({
             customerProfileId: auth.customerProfileId ?? '',
             buyerCompanyId,
             shippingAddressId: body.shippingAddressId,
@@ -529,6 +545,7 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
               : { fulfilmentQuoteId: body.fulfilmentQuoteId }),
             logisticsQuoteToken: body.logisticsQuoteToken ?? null,
             customerNote: body.customerNote ?? null,
+            termsDocumentId: terms.id,
             actor: {
               userId: auth.id,
               email: auth.email,
@@ -536,7 +553,8 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
               ipAddress: request.ip,
               correlationId: request.correlationId,
             },
-          }),
+          });
+        },
       });
 
       // `replayed` lets the client tell "your order was placed" from "your

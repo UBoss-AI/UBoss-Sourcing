@@ -37,7 +37,8 @@
  * confirm the same address. Checking only once is how two accounts end up
  * sharing a sign-in identity.
  */
-import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
+import { AppError, ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
+import { SmsDeliveryError, sendSms, smsConfigured } from '../../infra/sms.js';
 import { env } from '../../config/env.js';
 import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
@@ -331,7 +332,7 @@ export async function requestPhoneChange(
   userId: string,
   newPhone: string,
   actor: CustomerActor,
-): Promise<{ expiresAt: Date }> {
+): Promise<{ expiresAt: Date; channel: 'SMS' | 'EMAIL' }> {
   const phone = newPhone.trim();
 
   const user = await prisma.user.findUnique({
@@ -344,6 +345,26 @@ export async function requestPhoneChange(
   await prisma.user.update({ where: { id: userId }, data: { pendingPhone: phone } });
 
   const issued = await issueToken(userId, 'PHONE_CHANGE', userId);
+  const confirmUrl = buildTokenUrl('PHONE_CHANGE', issued.token, 'CUSTOMER');
+
+  // With the operator's SMS gateway configured, the link goes to the NEW
+  // number, which is what proves control of it (JOURNEY-008). A gateway that
+  // fails is reported, never quietly swapped for email: that would mark a
+  // number confirmed that nobody proved they hold.
+  if (smsConfigured()) {
+    try {
+      await sendSms(phone, `Confirm this number for your account: ${confirmUrl}`);
+    } catch (error) {
+      if (!(error instanceof SmsDeliveryError)) throw error;
+      await prisma.user.update({ where: { id: userId }, data: { pendingPhone: null } });
+      throw new AppError({
+        statusCode: 502,
+        code: ErrorCode.SMS_DELIVERY_FAILED,
+        message: 'The text message could not be sent. Nothing was changed; try again later.',
+      });
+    }
+    return { expiresAt: issued.expiresAt, channel: 'SMS' };
+  }
 
   await enqueueNotification({
     eventKey: NotificationEvent.USER_PHONE_CHANGE_CONFIRM,
@@ -351,7 +372,7 @@ export async function requestPhoneChange(
     recipientEmail: user.email,
     recipientName: user.customerProfile?.fullName ?? null,
     variables: {
-      confirmUrl: buildTokenUrl('PHONE_CHANGE', issued.token, 'CUSTOMER'),
+      confirmUrl,
       expiresAt: issued.expiresAt.toISOString(),
       pendingPhone: phone,
     },
@@ -362,7 +383,7 @@ export async function requestPhoneChange(
 
   await dispatchPendingNotifications();
 
-  return { expiresAt: issued.expiresAt };
+  return { expiresAt: issued.expiresAt, channel: 'EMAIL' };
 }
 
 export async function confirmPhoneChange(

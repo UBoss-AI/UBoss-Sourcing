@@ -20,7 +20,7 @@ const today = new Date().toISOString().slice(0, 10);
 const day = new Date(`${today}T00:00:00.000Z`);
 const SCREEN = '/anl8-test/:slug';
 
-function post(events: unknown, ip = '10.95.0.1') {
+function post(events: unknown, ip = '10.83.0.1') {
   return app.inject({ method: 'POST', url: '/api/v1/analytics/events', headers: { 'x-forwarded-for': ip }, payload: { events } as Record<string, unknown> });
 }
 
@@ -29,8 +29,8 @@ beforeAll(async () => {
   await app.ready();
   await cleanUpOrderDesk(TAG);
   await prisma.analyticsDailyCount.deleteMany({ where: { screen: { startsWith: '/anl8-test' } } });
-  owner = await staff(app, TAG, 'inspadmin', Role.BUSINESS_OWNER, '10.95.0.20');
-  support = await staff(app, TAG, 'support', Role.SUPPORT_AGENT, '10.95.0.21');
+  owner = await staff(app, TAG, 'inspadmin', Role.BUSINESS_OWNER, '10.83.0.20');
+  support = await staff(app, TAG, 'support', Role.SUPPORT_AGENT, '10.83.0.21');
 }, 120_000);
 
 afterAll(async () => {

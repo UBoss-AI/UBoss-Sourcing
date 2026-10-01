@@ -9,6 +9,7 @@
  * rejects "India" after the fact.
  */
 import { useState } from 'react';
+import { isPlausiblePostalCode } from '@/lib/postal-codes';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -41,6 +42,13 @@ function buildSchema(t: Translate) {
   kind: z.enum(['BOTH', 'SHIPPING', 'BILLING']),
   isDefaultShipping: z.boolean(),
   isDefaultBilling: z.boolean(),
+  })
+  // The postcode in the shape its country uses (JOURNEY-022). The server checks
+  // the same table; this says so before Save, in the shopper's language.
+  .superRefine((values, context) => {
+    if (!isPlausiblePostalCode(values.country, values.postalCode)) {
+      context.addIssue({ code: 'custom', path: ['postalCode'], message: t('addressForm.postcodeFormat') });
+    }
   });
 }
 

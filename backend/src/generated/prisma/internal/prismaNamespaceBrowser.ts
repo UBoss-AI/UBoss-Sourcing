@@ -8591,6 +8591,7 @@ export const RfqQuoteVersionScalarFieldEnum = {
   shippingEstimateMinor: 'shippingEstimateMinor',
   taxesDisclosure: 'taxesDisclosure',
   tiersJson: 'tiersJson',
+  exportDocumentsJson: 'exportDocumentsJson',
   comment: 'comment',
   expiresAt: 'expiresAt',
   termsHash: 'termsHash',

@@ -10,6 +10,7 @@
  * next file otherwise).
  */
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { currentTermsId } from '../support/legal.js';
 import type { LightMyRequestResponse } from 'fastify';
 import { buildApp } from '../../src/http/app.js';
 import { env } from '../../src/config/env.js';
@@ -364,7 +365,7 @@ describe('buying for a company that is not approved yet', () => {
     expect(session.login['next']).toBe('READY');
     expect(session.login['buyerContext']).toMatchObject({ kind: 'COMPANY', companyId, companyStatus: 'UNDER_REVIEW', role: 'OWNER' });
 
-    const checkout = await call(session, 'POST', '/api/v1/cart/checkout', { shippingAddressId: newId(), paymentMode: 'ONLINE' }, { 'idempotency-key': newId() });
+    const checkout = await call(session, 'POST', '/api/v1/cart/checkout', { shippingAddressId: newId(), paymentMode: 'ONLINE', acceptedTerms: true, termsDocumentId: await currentTermsId() }, { 'idempotency-key': newId() });
     expect(checkout.statusCode).toBe(403);
     const error = checkout.json<{ error: { code: string; details: { meta: { status: string } }[] } }>().error;
     expect(error.code).toBe('BUYER_COMPANY_NOT_APPROVED');
@@ -525,7 +526,7 @@ describe('approval and after', () => {
 
   it('now lets the company past the purchasing gate', async () => {
     const session = await signIn(EMAIL.alice, 'company');
-    const checkout = await call(session, 'POST', '/api/v1/cart/checkout', { shippingAddressId: newId(), paymentMode: 'ONLINE' }, { 'idempotency-key': newId() });
+    const checkout = await call(session, 'POST', '/api/v1/cart/checkout', { shippingAddressId: newId(), paymentMode: 'ONLINE', acceptedTerms: true, termsDocumentId: await currentTermsId() }, { 'idempotency-key': newId() });
     // Refused for the basket (empty, or no such address), not for the company.
     expect(code(checkout)).not.toBe('BUYER_COMPANY_NOT_APPROVED');
   });
@@ -615,11 +616,11 @@ describe('approval and after', () => {
     expect(suspended.statusCode, suspended.body).toBe(200);
 
     const session = await signIn(EMAIL.alice, 'company');
-    const checkout = await call(session, 'POST', '/api/v1/cart/checkout', { shippingAddressId: newId(), paymentMode: 'ONLINE' }, { 'idempotency-key': newId() });
+    const checkout = await call(session, 'POST', '/api/v1/cart/checkout', { shippingAddressId: newId(), paymentMode: 'ONLINE', acceptedTerms: true, termsDocumentId: await currentTermsId() }, { 'idempotency-key': newId() });
     expect(code(checkout)).toBe('BUYER_COMPANY_NOT_APPROVED');
     // The individual context is untouched.
     const individual = await signIn(EMAIL.alice);
-    const own = await call(individual, 'POST', '/api/v1/cart/checkout', { shippingAddressId: newId(), paymentMode: 'ONLINE' }, { 'idempotency-key': newId() });
+    const own = await call(individual, 'POST', '/api/v1/cart/checkout', { shippingAddressId: newId(), paymentMode: 'ONLINE', acceptedTerms: true, termsDocumentId: await currentTermsId() }, { 'idempotency-key': newId() });
     expect(code(own)).not.toBe('BUYER_COMPANY_NOT_APPROVED');
   });
 

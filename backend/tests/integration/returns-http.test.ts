@@ -47,7 +47,7 @@ const statusOf = async (id: string): Promise<string> =>
 beforeAll(async () => {
   app = await buildApp();
   await app.ready();
-  desk = await buildOrderDesk(app, TAG, 97);
+  desk = await buildOrderDesk(app, TAG, 88);
 }, 180_000);
 
 afterAll(async () => {

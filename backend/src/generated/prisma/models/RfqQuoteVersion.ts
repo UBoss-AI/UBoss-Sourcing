@@ -142,6 +142,7 @@ export type RfqQuoteVersionCountAggregateOutputType = {
   shippingEstimateMinor: number
   taxesDisclosure: number
   tiersJson: number
+  exportDocumentsJson: number
   comment: number
   expiresAt: number
   termsHash: number
@@ -268,6 +269,7 @@ export type RfqQuoteVersionCountAggregateInputType = {
   shippingEstimateMinor?: true
   taxesDisclosure?: true
   tiersJson?: true
+  exportDocumentsJson?: true
   comment?: true
   expiresAt?: true
   termsHash?: true
@@ -389,6 +391,7 @@ export type RfqQuoteVersionGroupByOutputType = {
   shippingEstimateMinor: bigint | null
   taxesDisclosure: string | null
   tiersJson: runtime.JsonValue | null
+  exportDocumentsJson: runtime.JsonValue | null
   comment: string | null
   expiresAt: Date
   termsHash: string
@@ -446,6 +449,7 @@ export type RfqQuoteVersionWhereInput = {
   shippingEstimateMinor?: Prisma.BigIntNullableFilter<"RfqQuoteVersion"> | bigint | number | null
   taxesDisclosure?: Prisma.StringNullableFilter<"RfqQuoteVersion"> | string | null
   tiersJson?: Prisma.JsonNullableFilter<"RfqQuoteVersion">
+  exportDocumentsJson?: Prisma.JsonNullableFilter<"RfqQuoteVersion">
   comment?: Prisma.StringNullableFilter<"RfqQuoteVersion"> | string | null
   expiresAt?: Prisma.DateTimeFilter<"RfqQuoteVersion"> | Date | string
   termsHash?: Prisma.StringFilter<"RfqQuoteVersion"> | string
@@ -481,6 +485,7 @@ export type RfqQuoteVersionOrderByWithRelationInput = {
   shippingEstimateMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   taxesDisclosure?: Prisma.SortOrderInput | Prisma.SortOrder
   tiersJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  exportDocumentsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   comment?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   termsHash?: Prisma.SortOrder
@@ -521,6 +526,7 @@ export type RfqQuoteVersionWhereUniqueInput = Prisma.AtLeast<{
   shippingEstimateMinor?: Prisma.BigIntNullableFilter<"RfqQuoteVersion"> | bigint | number | null
   taxesDisclosure?: Prisma.StringNullableFilter<"RfqQuoteVersion"> | string | null
   tiersJson?: Prisma.JsonNullableFilter<"RfqQuoteVersion">
+  exportDocumentsJson?: Prisma.JsonNullableFilter<"RfqQuoteVersion">
   comment?: Prisma.StringNullableFilter<"RfqQuoteVersion"> | string | null
   expiresAt?: Prisma.DateTimeFilter<"RfqQuoteVersion"> | Date | string
   termsHash?: Prisma.StringFilter<"RfqQuoteVersion"> | string
@@ -556,6 +562,7 @@ export type RfqQuoteVersionOrderByWithAggregationInput = {
   shippingEstimateMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   taxesDisclosure?: Prisma.SortOrderInput | Prisma.SortOrder
   tiersJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  exportDocumentsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   comment?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   termsHash?: Prisma.SortOrder
@@ -598,6 +605,7 @@ export type RfqQuoteVersionScalarWhereWithAggregatesInput = {
   shippingEstimateMinor?: Prisma.BigIntNullableWithAggregatesFilter<"RfqQuoteVersion"> | bigint | number | null
   taxesDisclosure?: Prisma.StringNullableWithAggregatesFilter<"RfqQuoteVersion"> | string | null
   tiersJson?: Prisma.JsonNullableWithAggregatesFilter<"RfqQuoteVersion">
+  exportDocumentsJson?: Prisma.JsonNullableWithAggregatesFilter<"RfqQuoteVersion">
   comment?: Prisma.StringNullableWithAggregatesFilter<"RfqQuoteVersion"> | string | null
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"RfqQuoteVersion"> | Date | string
   termsHash?: Prisma.StringWithAggregatesFilter<"RfqQuoteVersion"> | string
@@ -631,6 +639,7 @@ export type RfqQuoteVersionCreateInput = {
   shippingEstimateMinor?: bigint | number | null
   taxesDisclosure?: string | null
   tiersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  exportDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   comment?: string | null
   expiresAt: Date | string
   termsHash: string
@@ -666,6 +675,7 @@ export type RfqQuoteVersionUncheckedCreateInput = {
   shippingEstimateMinor?: bigint | number | null
   taxesDisclosure?: string | null
   tiersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  exportDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   comment?: string | null
   expiresAt: Date | string
   termsHash: string
@@ -699,6 +709,7 @@ export type RfqQuoteVersionUpdateInput = {
   shippingEstimateMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   taxesDisclosure?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tiersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  exportDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   termsHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -734,6 +745,7 @@ export type RfqQuoteVersionUncheckedUpdateInput = {
   shippingEstimateMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   taxesDisclosure?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tiersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  exportDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   termsHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -768,6 +780,7 @@ export type RfqQuoteVersionCreateManyInput = {
   shippingEstimateMinor?: bigint | number | null
   taxesDisclosure?: string | null
   tiersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  exportDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   comment?: string | null
   expiresAt: Date | string
   termsHash: string
@@ -801,6 +814,7 @@ export type RfqQuoteVersionUpdateManyMutationInput = {
   shippingEstimateMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   taxesDisclosure?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tiersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  exportDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   termsHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -835,6 +849,7 @@ export type RfqQuoteVersionUncheckedUpdateManyInput = {
   shippingEstimateMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   taxesDisclosure?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tiersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  exportDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   termsHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -890,6 +905,7 @@ export type RfqQuoteVersionCountOrderByAggregateInput = {
   shippingEstimateMinor?: Prisma.SortOrder
   taxesDisclosure?: Prisma.SortOrder
   tiersJson?: Prisma.SortOrder
+  exportDocumentsJson?: Prisma.SortOrder
   comment?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   termsHash?: Prisma.SortOrder
@@ -1059,6 +1075,7 @@ export type RfqQuoteVersionCreateWithoutQuoteInput = {
   shippingEstimateMinor?: bigint | number | null
   taxesDisclosure?: string | null
   tiersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  exportDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   comment?: string | null
   expiresAt: Date | string
   termsHash: string
@@ -1092,6 +1109,7 @@ export type RfqQuoteVersionUncheckedCreateWithoutQuoteInput = {
   shippingEstimateMinor?: bigint | number | null
   taxesDisclosure?: string | null
   tiersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  exportDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   comment?: string | null
   expiresAt: Date | string
   termsHash: string
@@ -1155,6 +1173,7 @@ export type RfqQuoteVersionScalarWhereInput = {
   shippingEstimateMinor?: Prisma.BigIntNullableFilter<"RfqQuoteVersion"> | bigint | number | null
   taxesDisclosure?: Prisma.StringNullableFilter<"RfqQuoteVersion"> | string | null
   tiersJson?: Prisma.JsonNullableFilter<"RfqQuoteVersion">
+  exportDocumentsJson?: Prisma.JsonNullableFilter<"RfqQuoteVersion">
   comment?: Prisma.StringNullableFilter<"RfqQuoteVersion"> | string | null
   expiresAt?: Prisma.DateTimeFilter<"RfqQuoteVersion"> | Date | string
   termsHash?: Prisma.StringFilter<"RfqQuoteVersion"> | string
@@ -1188,6 +1207,7 @@ export type RfqQuoteVersionCreateManyQuoteInput = {
   shippingEstimateMinor?: bigint | number | null
   taxesDisclosure?: string | null
   tiersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  exportDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   comment?: string | null
   expiresAt: Date | string
   termsHash: string
@@ -1221,6 +1241,7 @@ export type RfqQuoteVersionUpdateWithoutQuoteInput = {
   shippingEstimateMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   taxesDisclosure?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tiersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  exportDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   termsHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1254,6 +1275,7 @@ export type RfqQuoteVersionUncheckedUpdateWithoutQuoteInput = {
   shippingEstimateMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   taxesDisclosure?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tiersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  exportDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   termsHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1287,6 +1309,7 @@ export type RfqQuoteVersionUncheckedUpdateManyWithoutQuoteInput = {
   shippingEstimateMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   taxesDisclosure?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tiersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  exportDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   termsHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1323,6 +1346,7 @@ export type RfqQuoteVersionSelect<ExtArgs extends runtime.Types.Extensions.Inter
   shippingEstimateMinor?: boolean
   taxesDisclosure?: boolean
   tiersJson?: boolean
+  exportDocumentsJson?: boolean
   comment?: boolean
   expiresAt?: boolean
   termsHash?: boolean
@@ -1360,6 +1384,7 @@ export type RfqQuoteVersionSelectScalar = {
   shippingEstimateMinor?: boolean
   taxesDisclosure?: boolean
   tiersJson?: boolean
+  exportDocumentsJson?: boolean
   comment?: boolean
   expiresAt?: boolean
   termsHash?: boolean
@@ -1370,7 +1395,7 @@ export type RfqQuoteVersionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type RfqQuoteVersionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "quoteId" | "rfqId" | "versionNumber" | "authorParty" | "authorUserId" | "state" | "currency" | "unitPriceMinor" | "quantity" | "moq" | "leadTimeDays" | "capacityPerMonth" | "incoterm" | "incotermPlace" | "paymentTerms" | "inspectionTerms" | "warranty" | "toolingMinor" | "sampleCostMinor" | "shippingEstimateMinor" | "taxesDisclosure" | "tiersJson" | "comment" | "expiresAt" | "termsHash" | "respondedAt" | "respondedByUserId" | "responseNote" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqQuoteVersion"]>
+export type RfqQuoteVersionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "quoteId" | "rfqId" | "versionNumber" | "authorParty" | "authorUserId" | "state" | "currency" | "unitPriceMinor" | "quantity" | "moq" | "leadTimeDays" | "capacityPerMonth" | "incoterm" | "incotermPlace" | "paymentTerms" | "inspectionTerms" | "warranty" | "toolingMinor" | "sampleCostMinor" | "shippingEstimateMinor" | "taxesDisclosure" | "tiersJson" | "exportDocumentsJson" | "comment" | "expiresAt" | "termsHash" | "respondedAt" | "respondedByUserId" | "responseNote" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqQuoteVersion"]>
 export type RfqQuoteVersionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   quote?: boolean | Prisma.RfqQuoteDefaultArgs<ExtArgs>
 }
@@ -1410,6 +1435,11 @@ export type $RfqQuoteVersionPayload<ExtArgs extends runtime.Types.Extensions.Int
      * `[{ minQuantity, unitPriceMinor }]`, ascending.
      */
     tiersJson: runtime.JsonValue | null
+    /**
+     * Export documents the supplier will provide (JOURNEY-016), codes from
+     * EXPORT_DOCUMENTS in domain/rfq-quote.ts. Null when none were offered.
+     */
+    exportDocumentsJson: runtime.JsonValue | null
     comment: string | null
     /**
      * The offer stands until then. An expired offer can be countered, never accepted.
@@ -1814,6 +1844,7 @@ export interface RfqQuoteVersionFieldRefs {
   readonly shippingEstimateMinor: Prisma.FieldRef<"RfqQuoteVersion", 'BigInt'>
   readonly taxesDisclosure: Prisma.FieldRef<"RfqQuoteVersion", 'String'>
   readonly tiersJson: Prisma.FieldRef<"RfqQuoteVersion", 'Json'>
+  readonly exportDocumentsJson: Prisma.FieldRef<"RfqQuoteVersion", 'Json'>
   readonly comment: Prisma.FieldRef<"RfqQuoteVersion", 'String'>
   readonly expiresAt: Prisma.FieldRef<"RfqQuoteVersion", 'DateTime'>
   readonly termsHash: Prisma.FieldRef<"RfqQuoteVersion", 'String'>

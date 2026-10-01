@@ -24,6 +24,8 @@ export const ErrorCode = {
   CONFLICT: 'CONFLICT',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
   SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
+  /** The operator's SMS gateway refused or could not be reached (JOURNEY-008). Try again later; nothing changed. */
+  SMS_DELIVERY_FAILED: 'SMS_DELIVERY_FAILED',
   RATE_LIMITED: 'RATE_LIMITED',
   PAYLOAD_TOO_LARGE: 'PAYLOAD_TOO_LARGE',
   MALWARE_DETECTED: 'MALWARE_DETECTED',

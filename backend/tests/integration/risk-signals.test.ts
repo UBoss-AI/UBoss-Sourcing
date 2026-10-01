@@ -67,9 +67,9 @@ beforeAll(async () => {
   ] as const) {
     await prisma.riskRule.update({ where: { code }, data: { enabled: true, threshold, windowMinutes } });
   }
-  owner = await staff(app, TAG, 'inspadmin', Role.BUSINESS_OWNER, '10.96.0.20');
-  compliance = await staff(app, TAG, 'compliance', Role.COMPLIANCE_OFFICER, '10.96.0.21');
-  support = await staff(app, TAG, 'support', Role.SUPPORT_AGENT, '10.96.0.22');
+  owner = await staff(app, TAG, 'inspadmin', Role.BUSINESS_OWNER, '10.82.0.20');
+  compliance = await staff(app, TAG, 'compliance', Role.COMPLIANCE_OFFICER, '10.82.0.21');
+  support = await staff(app, TAG, 'support', Role.SUPPORT_AGENT, '10.82.0.22');
   complianceUserId = (await prisma.user.findFirstOrThrow({ where: { emailNormalized: emailFor(TAG, 'compliance') } })).id;
   for (const letter of ['a', 'b']) {
     const id = newId();

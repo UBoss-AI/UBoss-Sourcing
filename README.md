@@ -1127,6 +1127,8 @@ dark, a cool near-white in light, both audited by `npm run audit:contrast`.
   ship as placeholders: your risk owner sets and approves them before go-live.
 - **Trade-buyer discovery.** Separate buying and selling paths on the home page; search filters for minimum order, origin, lead time, verified certificate, verified supplier, samples and Incoterm; listing sourcing terms (samples, OEM, private label, lead time, Incoterms, verified certificates) set in the Seller Hub and shown on the product page; supplier pages with the registered company name (companies only), factory machines and an inspection summary.
 - **Product analytics without tracking.** Anonymous daily counts by route pattern, no cookie or identifier, nothing sent under Do Not Track or Global Privacy Control; Admin → Reports reconciles them with orders, RFQs, returns and disputes.
+- **Phone confirmation by SMS.** Set `SMS_HTTP_URL` (HTTPS gateway, JSON `{ to, from, body }`), `SMS_HTTP_TOKEN` and `SMS_SENDER_ID` and a phone change is confirmed by a link texted to the new number; without them it is confirmed through the account email.
+- **Sourcing and checkout.** RFQ matches explain why each supplier was chosen and flag capacity or an open dispute; quotes can promise export documents; the comparison shows a landed estimate and missing terms and downloads as PDF; checkout records the exact Terms version the buyer agreed to.
 - **Restore tests and alert owners.** `deploy/scripts/verify-restore.sh` proves
   the newest backup restores into a scratch database and records the evidence;
   `monitor.sh` alerts when the last passing test is too old. Name the owner of

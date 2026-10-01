@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**518 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**519 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -24,7 +24,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 
 | Group | Codes |
 |---|---|
-| [Generic](#generic) | 10 |
+| [Generic](#generic) | 11 |
 | [Authentication / authorization](#authentication-authorization) | 20 |
 | [Invitations and tokens](#invitations-and-tokens) | 8 |
 | [Catalog](#catalog) | 15 |
@@ -79,6 +79,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `CONFLICT` |  |
 | `INTERNAL_ERROR` |  |
 | `SERVICE_UNAVAILABLE` |  |
+| `SMS_DELIVERY_FAILED` |  |
 | `RATE_LIMITED` |  |
 | `PAYLOAD_TOO_LARGE` |  |
 | `MALWARE_DETECTED` |  |

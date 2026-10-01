@@ -41,6 +41,79 @@ export interface SupplierCard {
   verifiedAt: string | null;
   /** They have a live offer in this category that may be sold into the destination. */
   matchesCategory: boolean;
+  /**
+   * Why they were matched, in fixed codes the screen translates (JOURNEY-014):
+   * LIVE_IN_CATEGORY always; EXPORTS_TO_DESTINATION when their stated export
+   * markets include it; VERIFIED_CERTIFICATE when the operator verified an
+   * in-date certificate of theirs. Absent on a hand-picked card.
+   */
+  reasons?: MatchReason[];
+  /**
+   * What the buyer should know before inviting them: CAPACITY_UNKNOWN (no
+   * stated weekly capacity in this category), CAPACITY_BELOW_QUANTITY (stated
+   * capacity cannot make the quantity by the target date), OPEN_DISPUTE (an
+   * unresolved dispute between this buyer and them - a possible conflict).
+   * Flags inform; they never remove a supplier, and the buyer may exclude any.
+   */
+  flags?: MatchFlag[];
+}
+
+export type MatchReason = 'LIVE_IN_CATEGORY' | 'EXPORTS_TO_DESTINATION' | 'VERIFIED_CERTIFICATE';
+export type MatchFlag = 'CAPACITY_UNKNOWN' | 'CAPACITY_BELOW_QUANTITY' | 'OPEN_DISPUTE';
+
+const OPEN_DISPUTE_STATUSES = ['AWAITING_SELLER', 'UNDER_REVIEW', 'PENDING_APPROVAL', 'APPEALED', 'CHARGEBACK_OPEN', 'NEEDS_RESPONSE', 'CHARGEBACK_UNDER_REVIEW'] as const;
+
+/** Reasons and flags for matched suppliers, read in a handful of grouped queries. */
+async function explain(
+  ids: string[],
+  input: { categoryId: string; destinationCountry: string; customerProfileId: string; quantity?: number | null; deliveryTargetDate?: Date | null },
+  now: Date = new Date(),
+): Promise<Map<string, { reasons: MatchReason[]; flags: MatchFlag[] }>> {
+  const subtree = await subtreeCategoryIds(input.categoryId);
+  const today = new Date(now.toISOString().slice(0, 10));
+  const [trust, certified, capacity, disputes] = await Promise.all([
+    prisma.sellerTrustProfile.findMany({ where: { sellerAccountId: { in: ids } }, select: { sellerAccountId: true, exportMarketsJson: true } }),
+    prisma.sellerCertification.findMany({
+      where: { sellerAccountId: { in: ids }, state: 'VERIFIED', archivedAt: null, expiredAt: null, OR: [{ expiresOn: null }, { expiresOn: { gte: today } }] },
+      select: { sellerAccountId: true },
+      distinct: ['sellerAccountId'],
+    }),
+    prisma.sellerOffer.groupBy({
+      by: ['sellerAccountId'],
+      where: { sellerAccountId: { in: ids }, status: 'ACTIVE', product: { categoryId: { in: subtree } } },
+      _max: { capacityUnitsPerWeek: true },
+    }),
+    prisma.dispute.findMany({
+      where: { sellerAccountId: { in: ids }, customerProfileId: input.customerProfileId, status: { in: [...OPEN_DISPUTE_STATUSES] } },
+      select: { sellerAccountId: true },
+      distinct: ['sellerAccountId'],
+    }),
+  ]);
+  const exportsTo = new Set(
+    trust.filter((row) => Array.isArray(row.exportMarketsJson) && (row.exportMarketsJson as unknown[]).includes(input.destinationCountry)).map((row) => row.sellerAccountId),
+  );
+  const hasCert = new Set(certified.map((row) => row.sellerAccountId));
+  const weekly = new Map(capacity.map((row) => [row.sellerAccountId, row._max.capacityUnitsPerWeek]));
+  const disputed = new Set(disputes.map((row) => row.sellerAccountId).filter((id): id is string => id !== null));
+  const weeks =
+    input.deliveryTargetDate === undefined || input.deliveryTargetDate === null
+      ? null
+      : Math.max(0, (input.deliveryTargetDate.getTime() - now.getTime()) / (7 * 86_400_000));
+  const out = new Map<string, { reasons: MatchReason[]; flags: MatchFlag[] }>();
+  for (const id of ids) {
+    const reasons: MatchReason[] = ['LIVE_IN_CATEGORY'];
+    if (exportsTo.has(id)) reasons.push('EXPORTS_TO_DESTINATION');
+    if (hasCert.has(id)) reasons.push('VERIFIED_CERTIFICATE');
+    const flags: MatchFlag[] = [];
+    const perWeek = weekly.get(id) ?? null;
+    if (perWeek === null) flags.push('CAPACITY_UNKNOWN');
+    else if (input.quantity !== undefined && input.quantity !== null && weeks !== null && perWeek * weeks < input.quantity) {
+      flags.push('CAPACITY_BELOW_QUANTITY');
+    }
+    if (disputed.has(id)) flags.push('OPEN_DISPUTE');
+    out.set(id, { reasons, flags });
+  }
+  return out;
 }
 
 export type MatchOutcome = 'MATCHED' | 'NO_MATCH' | 'BLOCKED' | 'INCOMPLETE';
@@ -130,6 +203,9 @@ export async function matchSuppliers(input: {
   categoryId: string | null;
   destinationCountry: string | null;
   customerProfileId: string;
+  /** The quantity asked for, to flag stated capacity that cannot make it. */
+  quantity?: number | null;
+  deliveryTargetDate?: Date | null;
 }): Promise<MatchResult> {
   if (input.categoryId === null || input.destinationCountry === null) {
     return { outcome: 'INCOMPLETE', suppliers: [], blockedReason: null };
@@ -150,7 +226,18 @@ export async function matchSuppliers(input: {
     select: CARD_SELECT,
     orderBy: { displayName: 'asc' },
   });
-  return { outcome: 'MATCHED', suppliers: rows.map((row) => card(row, true)), blockedReason: null };
+  const insights = await explain(ids, {
+    categoryId: input.categoryId,
+    destinationCountry: input.destinationCountry,
+    customerProfileId: input.customerProfileId,
+    quantity: input.quantity ?? null,
+    deliveryTargetDate: input.deliveryTargetDate ?? null,
+  });
+  return {
+    outcome: 'MATCHED',
+    suppliers: rows.map((row) => ({ ...card(row, true), ...(insights.get(row.id) ?? { reasons: ['LIVE_IN_CATEGORY'], flags: [] }) })),
+    blockedReason: null,
+  };
 }
 
 /**

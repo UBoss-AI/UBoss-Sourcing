@@ -1523,6 +1523,21 @@ const envSchema = z
     /// Only read when the list above is set. A missing header is refused.
     STAFF_COUNTRY_HEADER: z.string().trim().toLowerCase().min(1).max(64).default('cf-ipcountry'),
 
+    /// The operator's SMS gateway (JOURNEY-008), an HTTPS endpoint taking
+    /// { to, from, body } as JSON. Unset = no SMS: phone changes are confirmed
+    /// through the account's email instead, and the screen says so.
+    SMS_HTTP_URL: z
+      .string()
+      .trim()
+      .refine((value) => value === '' || /^https:\/\//.test(value) || /^http:\/\/(localhost|127\.0\.0\.1)(:|\/)/.test(value), {
+        message: 'SMS_HTTP_URL must be an https:// address (http only for localhost).',
+      })
+      .optional(),
+    /// Sent as a Bearer token to the gateway. Never logged.
+    SMS_HTTP_TOKEN: z.string().max(512).optional(),
+    /// The sender name or number the gateway shows.
+    SMS_SENDER_ID: z.string().trim().max(20).default('Marketplace'),
+
     /// Delivered notifications, with the rendered body still on them. Easy to
     /// overlook and worth the longest look: an order confirmation is the
     /// customer's name and delivery address written out in prose, so the

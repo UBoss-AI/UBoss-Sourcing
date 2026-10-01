@@ -95,10 +95,31 @@ describe('RfqComparePage', () => {
     expect(screen.getByRole('note')).toHaveTextContent(/1 EUR = 90\.00000000 INR, published by ecb/);
     expect(screen.getAllByText('Not provided').length).toBeGreaterThan(5);
     expect(screen.getByRole('link', { name: 'Download as CSV' })).toHaveAttribute('href', expect.stringContaining('/rfqs/r1/comparison.csv?sort=total&currency=INR'));
+    // JOURNEY-017: the same rows as a PDF, and the terms each supplier left out.
+    expect(screen.getByRole('link', { name: 'Download PDF' })).toHaveAttribute('href', expect.stringContaining('/rfqs/r1/comparison.pdf?sort=total&currency=INR'));
+    expect(table).toHaveTextContent('Landed estimate (total + tooling + shipping)');
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Shortlist' })[1] as HTMLElement);
     await waitFor(() => {
       expect(fetchMock.mock.calls.some(([url, init]) => String(url).includes('/quotes/q2/shortlist') && (init as RequestInit).method === 'PUT')).toBe(true);
     });
+  });
+
+  it('shows the landed estimate, the export documents and what each supplier did not give (JOURNEY-016/017)', async () => {
+    const one = row({
+      quoted: { currency: 'INR', unitPrice: inr('90000'), applicableUnitPrice: inr('85000'), total: inr('1020000000'), tooling: inr('1000000'), sampleCost: null, shippingEstimate: inr('500000'), landedEstimate: inr('1021500000') },
+      exportDocuments: ['COMMERCIAL_INVOICE', 'PACKING_LIST'],
+      missing: ['warranty', 'paymentTerms'],
+    });
+    fetchMock.mockImplementation(() => Promise.resolve(jsonResponse({ comparison: { ...COMPARISON, rows: [one] } })));
+    renderWithProviders(
+      <Routes>
+        <Route path="/account/rfqs/:id/compare" element={<RfqComparePage />} />
+      </Routes>,
+      { route: '/account/rfqs/r1/compare' },
+    );
+    const table = await screen.findByRole('table', { name: /Quotes side by side/ });
+    expect(table).toHaveTextContent('Commercial invoice, Packing list');
+    expect(table).toHaveTextContent('warranty, payment terms');
   });
 });

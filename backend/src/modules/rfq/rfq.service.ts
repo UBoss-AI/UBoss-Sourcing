@@ -932,6 +932,8 @@ export async function previewMatches(buyer: RfqBuyer, id: string): Promise<Match
     categoryId: row.categoryId,
     destinationCountry: row.destinationCountry,
     customerProfileId: buyer.customerProfileId,
+    quantity: row.quantity === null ? null : Number(row.quantity),
+    deliveryTargetDate: row.deliveryTargetDate,
   });
 }
 

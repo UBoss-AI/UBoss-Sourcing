@@ -6,6 +6,7 @@
  * A term left empty is sent as null and the buyer reads "Not provided".
  */
 import { useState } from 'react';
+import { EXPORT_DOCUMENTS, type ExportDocument } from '@/lib/rfq-quote';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocale } from '@/app/locale-context';
 import { useToast } from '@/components/toast-context';
@@ -52,6 +53,8 @@ export function QuoteForm({
     expiresAt: '',
   });
   const [tiers, setTiers] = useState<{ minQuantity: string; price: string }[]>([]);
+  // The export documents promised with this quote (JOURNEY-016).
+  const [documents, setDocuments] = useState<ExportDocument[]>([]);
   const [files, setFiles] = useState<{ id: string; name: string }[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -102,6 +105,7 @@ export function QuoteForm({
         shippingEstimateMinor: minor(values['shippingEstimate'] ?? ''),
         taxesDisclosure: orNull(values['taxesDisclosure']),
         tiers: tierRows.map((tier) => ({ minQuantity: tier.minQuantity, unitPriceMinor: tier.unitPriceMinor ?? '' })),
+        exportDocuments: EXPORT_DOCUMENTS.filter((code) => documents.includes(code)),
         comment: orNull(values['comment']),
         expiresAt,
         attachmentIds: files.map((file) => file.id),
@@ -226,6 +230,24 @@ export function QuoteForm({
         {text('inspectionTerms', t('rfq.compare.row.inspection'), { multiline: true })}
         {text('warranty', t('rfq.compare.row.warranty'), { multiline: true })}
         {text('taxesDisclosure', t('rfq.compare.row.taxes'), { multiline: true, hint: t('rfq.quote.taxesHint') })}
+      <fieldset className="mt-4">
+        <legend className="text-sm font-medium text-ink">{t('rfq.compare.row.exportDocuments')}</legend>
+        <div className="mt-1 grid gap-x-4 sm:grid-cols-2">
+          {EXPORT_DOCUMENTS.map((code) => (
+            <label key={code} className="flex min-h-11 items-center gap-2 text-sm text-ink">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-border-strong text-brand"
+                checked={documents.includes(code)}
+                onChange={(event) => {
+                  setDocuments(event.target.checked ? [...documents, code] : documents.filter((entry) => entry !== code));
+                }}
+              />
+              {t(`rfq.exportDocument.${code}` as 'rfq.exportDocument.PACKING_LIST')}
+            </label>
+          ))}
+        </div>
+      </fieldset>
         {text('tooling', t('rfq.compare.row.tooling'), { errorKey: 'toolingMinor', inputMode: 'decimal', hint: t('rfq.form.optional') })}
         {text('sampleCost', t('rfq.compare.row.sample'), { errorKey: 'sampleCostMinor', inputMode: 'decimal', hint: t('rfq.form.optional') })}
         {text('shippingEstimate', t('rfq.compare.row.shipping'), { errorKey: 'shippingEstimateMinor', inputMode: 'decimal', hint: t('rfq.form.optional') })}

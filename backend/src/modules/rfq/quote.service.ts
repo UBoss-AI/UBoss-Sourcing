@@ -14,8 +14,8 @@ import { ErrorCode, badRequest, conflict, type AppError, type ErrorDetail } from
 import { serialiseMoney } from '../../domain/money.js';
 import { INCOTERMS, compareQuantities, isQuantity, normaliseQuantity } from '../../domain/rfq.js';
 import { assertInvitationTransition, RESPONSIVE_INVITATION_STATUSES } from '../../domain/rfq-state.js';
-import { offerTermsHash, type OfferTerms } from '../../domain/rfq-quote.js';
-import type { Prisma } from '../../generated/prisma/client.js';
+import { EXPORT_DOCUMENTS, exportDocumentsOf, offerTermsHash, type ExportDocument, type OfferTerms } from '../../domain/rfq-quote.js';
+import { Prisma } from '../../generated/prisma/client.js';
 import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
@@ -74,6 +74,7 @@ export const quoteInputSchema = offerTermsSchema
       .array(z.object({ minQuantity: quantity, unitPriceMinor: positiveMinor }).strict())
       .max(10)
       .default([]),
+    exportDocuments: z.array(z.enum(EXPORT_DOCUMENTS)).max(EXPORT_DOCUMENTS.length).default([]),
   })
   .strict();
 
@@ -126,7 +127,13 @@ export function termsOf(row: VersionRow): OfferTerms {
     taxesDisclosure: row.taxesDisclosure,
     tiers: tiersOf(row.tiersJson),
     expiresAt: row.expiresAt.toISOString(),
+    ...withExportDocuments(exportDocumentsOf(row.exportDocumentsJson)),
   };
+}
+
+/** The field only when something is offered, so older versions hash as they did. */
+function withExportDocuments(documents: ExportDocument[]): { exportDocuments?: ExportDocument[] } {
+  return documents.length === 0 ? {} : { exportDocuments: documents };
 }
 
 const money = (value: bigint | null, currency: string) => (value === null ? null : serialiseMoney(value, currency));
@@ -314,6 +321,7 @@ export async function submitQuote(
     taxesDisclosure: input.taxesDisclosure,
     tiers: input.tiers.map((tier) => ({ minQuantity: normaliseQuantity(tier.minQuantity), unitPriceMinor: tier.unitPriceMinor })),
     expiresAt: new Date(input.expiresAt).toISOString(),
+    ...withExportDocuments(exportDocumentsOf(input.exportDocuments)),
   };
 
   try {
@@ -407,6 +415,7 @@ export function versionData(
     shippingEstimateMinor: terms.shippingEstimateMinor === null ? null : BigInt(terms.shippingEstimateMinor),
     taxesDisclosure: terms.taxesDisclosure,
     tiersJson: terms.tiers,
+    exportDocumentsJson: terms.exportDocuments ?? Prisma.DbNull,
     comment,
     expiresAt: new Date(terms.expiresAt),
     termsHash: offerTermsHash(terms),

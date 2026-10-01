@@ -636,6 +636,7 @@ bullets([
   'Anything set aside for the customer is given back if the preorder is cancelled, expires or is rejected, or if its order is cancelled.',
 ]);
 h2('5.4c Asking suppliers to quote: requests for quotation');
+p('Before a request is sent, each matched supplier shows why it was matched — it sells in the category, exports to the buyer’s country, or holds a checked certificate — and warns when it has not said how much it can make, when its stated capacity may not cover the quantity in time, or when the buyer has an open dispute with it. The buyer can invite everyone or exclude everyone and choose. When comparing quotes, the buyer sees an estimated landed cost (price, tooling and shipping, left empty when shipping was not quoted), which export documents each supplier will provide, and which terms each supplier left out. The comparison can be downloaded as a spreadsheet or a PDF.');
 p('When the product pages do not offer what a buyer needs - a quantity, a specification, a destination, a set of conditions - the buyer can describe it once and let the right suppliers answer. This is a request for quotation.');
 table(['Step', 'What the customer does', 'What the system does back'], [
   ['1', 'Opens Requests for quotation in their account and presses New request, or presses Request quotes on a category page or a product page.', 'Opens the request form. From a category or product page, the category (and the product name as a title) are already filled in.'],
@@ -789,6 +790,7 @@ table(['Account page', 'What the customer can do'], [
 h2('6.2 Privacy and contact protection');
 bullets([
   'Changing an email or telephone number uses a confirmation process instead of instantly overwriting the account identity.',
+  'When the business has connected a text-message service, a new mobile number is confirmed by a link sent to that number. Without one, the link goes to the account email. If the text cannot be sent, nothing changes and the customer is told.',
   'A requested new email receives a confirmation link; the old email receives a security warning.',
   'Confirming a new sign-in email revokes existing sessions because the sign-in identity has changed.',
   'A customer can request their data and can deactivate or close their account through the governed account flow.',

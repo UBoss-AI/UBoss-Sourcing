@@ -103,6 +103,8 @@ describe('asking for a return', () => {
     });
     expect(await screen.findByRole('heading', { name: 'RET-1' })).toBeInTheDocument();
     expect(screen.getByText(/no refund has been issued yet/i)).toBeInTheDocument();
+    // JOURNEY-025: the refund method and when it happens, said before it does.
+    expect(screen.getByText(/goes back to the payment method you used/i)).toBeInTheDocument();
   });
 
   it('says why when the order cannot be returned', async () => {

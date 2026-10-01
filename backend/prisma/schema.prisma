@@ -24371,6 +24371,9 @@ model RfqQuoteVersion {
   taxesDisclosure       String?  @db.VarChar(1000)
   /// `[{ minQuantity, unitPriceMinor }]`, ascending.
   tiersJson             Json?
+  /// Export documents the supplier will provide (JOURNEY-016), codes from
+  /// EXPORT_DOCUMENTS in domain/rfq-quote.ts. Null when none were offered.
+  exportDocumentsJson   Json?
   comment               String?  @db.VarChar(2000)
   /// The offer stands until then. An expired offer can be countered, never accepted.
   expiresAt             DateTime @db.DateTime(3)

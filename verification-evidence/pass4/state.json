@@ -2491,6 +2491,48 @@
       "status": "VERIFIED",
       "evidence": "Pass 8. Listing editor: structured specifications, HS code with verification state (SellerTradeCodesPanel), export markets, MOQ and price tiers, packaging, media, listing moderation; NEW Sourcing terms card (samples and terms, OEM, private label, lead-time range with validation, Incoterms, link only own verified in-date certificates), audited (seller.listing.sourcing_updated), other sellers refused (listing-sourcing.test.ts 4/4; ListingSourcingPanel.test.tsx 1/1).",
       "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-008",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. Email verification, MFA, bot protection (captcha), rate limits, password recovery and new-sign-in alerts already built (auth, customer-mfa, login-alert tests). NEW phone confirmation by SMS through the operator's gateway (SMS_HTTP_URL/TOKEN/SENDER_ID): link texted to the new number, confirming verifies it; gateway refusal is 502 SMS_DELIVERY_FAILED with nothing pending; no gateway falls back to the account email and the API says which (phone-change-sms.test.ts 3/3 against a local mock gateway; ProfileInformationPage.test.tsx 2/2). Live SMS delivery depends on the operator's gateway credentials. Social/enterprise SSO is optional in the checklist and is not built.",
+      "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-014",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. Matches limited to approved sellers live in the category and eligible for the destination, buyer's own business never invited, invite by name and exclude (rfq-create tests). NEW per-supplier reasons (LIVE_IN_CATEGORY, EXPORTS_TO_DESTINATION, VERIFIED_CERTIFICATE) and flags (CAPACITY_UNKNOWN, CAPACITY_BELOW_QUANTITY from stated weekly capacity vs quantity and date, OPEN_DISPUTE); Invite all / Exclude all (rfq-matching-insights.test.ts 2/2; RfqPages.test.tsx new case).",
+      "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-016",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. Quote builder already had price tiers, MOQ, tooling, sample cost, lead time, capacity, Incoterm and place, payment, validity, warranty, inspection terms and taxes disclosure (rfq-responses tests). NEW export documents (9 codes) on the quote, in the hashed terms only when offered so earlier hashes are unchanged, carried through counters and into the purchase order (migration 20261030150000; rfq-quote-comparison.test.ts new case; QuoteForm.test.tsx 1/1; existing negotiation and PO hash tests green).",
+      "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-017",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. Side-by-side price, MOQ, lead time, terms with currency basis and published-rate conversion, missing shown as not provided, CSV export (Master 18 tests). NEW landed estimate (total + tooling + shipping, empty without shipping), per-row missing-terms list, export documents, and PDF export audited like the CSV (rfq-quote-comparison.test.ts 7/7 incl. figures, PDF magic bytes and rival 404; RfqComparePage.test.tsx 2/2).",
+      "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-018",
+      "status": "VERIFIED",
+      "evidence": "Pass 8 reconciliation of Master 19. Offer/counter-offer immutable versions from either side, expiry enforced, comments and version attachments, only the buyer and that quote's seller take part, acceptance by version id + terms hash (refusing own offer, wrong hash, expired), concurrent acceptance safe, accepted terms sealed into one immutable hashed purchase order (rfq-negotiation.test.ts 9 cases, NegotiationPanel.test.tsx); export documents now also carried (JOURNEY-016).",
+      "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-022",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. Serviceability, shipping and warehouse options, duty/tax disclosure, payment instrument choice, server-priced final total and idempotent submission already built (checkout tests). NEW server-side consent: checkout requires acceptedTerms + the current published Terms id, re-checked in the order transaction, recorded as orders.termsDocumentId/termsAcceptedAt (migration 20261030140000; carton-ordering 400/409/recorded assertions; CheckoutPage.test.tsx 20/20). NEW postcode-shape validation for IN, DE, FR, ES, IT, GR, NL, PL, US, GB on server and form (postal-codes.test.ts 3/3; AddressForm.test.tsx 2/2). Fraud: order velocity and coupon rules in the risk review (SEC-008).",
+      "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-025",
+      "status": "VERIFIED",
+      "evidence": "Pass 8. Returns (Master 30): reason codes, photo/video evidence where the reason needs it, eligibility and return window, seller return instructions (label/pickup), received and inspected states, refund or replacement, timeline (returns-http, ReturnPages tests). NEW refund method and timing stated on the return page before a refund is issued (ReturnPages.test.tsx assertion).",
+      "verifiedAt": "2026-10-01 (pass 8)"
     }
   ],
   "pendingBoxes": []

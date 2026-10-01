@@ -97,6 +97,8 @@ interface ContractSnapshot {
     inspectionTerms: string | null;
     sampleRequirement: string;
     warranty: string | null;
+    /** Only when the accepted offer named any, so earlier orders hash as they did. */
+    exportDocuments?: string[];
   };
   documents: { id: string; fileName: string; contentHash: string }[];
 }
@@ -197,6 +199,7 @@ async function buildContract(
       inspectionTerms: agreed.terms.inspectionTerms,
       sampleRequirement: requirement.sampleRequirement,
       warranty: agreed.terms.warranty,
+      ...(agreed.terms.exportDocuments === undefined ? {} : { exportDocuments: agreed.terms.exportDocuments }),
     },
     documents,
   };

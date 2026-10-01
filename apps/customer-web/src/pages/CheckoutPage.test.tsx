@@ -100,8 +100,24 @@ const CARD_INSTRUMENTS = [
   { instrument: 'DEBIT_CARD', canSaveCard: true, savedCardsChargeableHere: true },
 ];
 
+/** The current published Terms, whose id goes with the order (JOURNEY-022). */
+const TERMS_ID = '01JTERMS0000000000000000AA';
+const CURRENT_TERMS = {
+  document: {
+    id: TERMS_ID, kind: 'PLATFORM_TERMS', version: '2026-10-01', locale: 'en', title: 'Terms and Conditions',
+    body: 'Short test text.', changeSummary: null, effectiveAt: '2026-10-01T00:00:00.000Z',
+    publishedAt: '2026-09-30T00:00:00.000Z', contentSha256: 'a'.repeat(64),
+  },
+  requestedLocale: 'en',
+  isFallback: false,
+};
+
 function serve(options: ServeOptions = {}): void {
   fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+    if (url.includes('/legal/current')) {
+      return Promise.resolve(jsonResponse(CURRENT_TERMS));
+    }
+
     if (url.includes('/account/addresses')) {
       return Promise.resolve(jsonResponse({ addresses: [address] }));
     }
@@ -652,6 +668,18 @@ describe('when the connection drops while the order is being placed', () => {
 });
 
 describe('agreeing to the terms of sale', () => {
+  it('sends the agreed Terms version with the order (JOURNEY-022)', async () => {
+    serve();
+    await renderCheckout();
+    await agreeToTerms();
+    await userEvent.click(screen.getByRole('button', { name: /place order/i }));
+    await waitFor(() => {
+      const post = (fetchMock.mock.calls as [string, RequestInit | undefined][]).find(([url]) => url.includes('/cart/checkout'));
+      expect(post).toBeDefined();
+      expect(JSON.parse(post?.[1]?.body as string)).toMatchObject({ acceptedTerms: true, termsDocumentId: TERMS_ID });
+    });
+  });
+
   it('keeps the order button off until the customer ticks the box themselves', async () => {
     serve();
     await renderCheckout();

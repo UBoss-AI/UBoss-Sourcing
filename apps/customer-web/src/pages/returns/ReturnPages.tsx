@@ -306,11 +306,25 @@ function Row({ label, children }: { label: string; children: React.ReactNode }):
 
 function RefundBlock({ item }: { item: ReturnSummary }): React.JSX.Element {
   const { t } = useI18n();
-  if (item.refund === null) return <p className="text-sm text-ink-muted">{t('returns.noRefundYet')}</p>;
+  // Where the money goes and when, said before it happens (JOURNEY-025). No
+  // number of days is promised: the deployment has no refund-time setting to
+  // keep, and the bank's part is outside it.
+  const method = <p className="mt-1 text-xs text-ink-muted">{t('returns.refundMethod')}</p>;
+  if (item.refund === null) {
+    return (
+      <>
+        <p className="text-sm text-ink-muted">{t('returns.noRefundYet')}</p>
+        {method}
+      </>
+    );
+  }
   return (
-    <p className="text-sm text-ink">
-      {t('returns.refundLine', { amount: formatMoney(item.refund.amount), status: item.refund.status })}
-    </p>
+    <>
+      <p className="text-sm text-ink">
+        {t('returns.refundLine', { amount: formatMoney(item.refund.amount), status: item.refund.status })}
+      </p>
+      {method}
+    </>
   );
 }
 

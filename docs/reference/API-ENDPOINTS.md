@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1288 endpoints** in 119 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1289 endpoints** in 119 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -31,7 +31,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 320 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 297 |
+| [Customer account](#customer-account) | 298 |
 | [Public and storefront](#public-and-storefront) | 54 |
 
 ## Admin panel (staff)
@@ -2540,6 +2540,7 @@ Defined in `backend/src/http/routes/rfq.customer.ts`.
 | PUT | `/api/v1/rfqs/:id/quotes/:quoteId/shortlist` | Customer | Feature + Customer | Put a quote on your shortlist, or take it off. Writes an audit entry. |
 | GET | `/api/v1/rfqs/:id/comparison` | Customer | Feature + Customer | The quotes side by side, sortable and filterable, with every figure as quoted and, beside it, converted into `?currency=` at the published rate (source and date given). Missing terms are null, never zero. |
 | GET | `/api/v1/rfqs/:id/comparison.csv` | Customer | Feature + Customer | The same comparison as a CSV file, spreadsheet formulas neutralised. Writes an audit entry. |
+| GET | `/api/v1/rfqs/:id/comparison.pdf` | Customer | Feature + Customer | The same comparison as a PDF to print or file (JOURNEY-017). Audited like the CSV. |
 | POST | `/api/v1/rfqs/:id/quotes/:quoteId/offers` | Customer | Feature + Customer | Send a counter-offer on a quote: new terms as a new, immutable version. Names the version being answered; refused if it moved. Writes an audit entry. |
 | POST | `/api/v1/rfqs/:id/quotes/:quoteId/accept` | Customer | Feature + Customer | Accept the supplier's offer on the table, naming its terms hash. Awards the request, closes every other quote and freezes the terms. Repeating it is answered with the same result. Writes an audit entry. |
 | POST | `/api/v1/rfqs/:id/quotes/:quoteId/reject` | Customer | Feature + Customer | Reject the supplier's offer on the table; the quote closes as rejected. |

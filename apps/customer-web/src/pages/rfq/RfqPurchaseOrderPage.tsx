@@ -59,6 +59,11 @@ function ContractReview({ contract, amounts, buyerSku }: {
             ))}
             <Value label={t('rfq.po.certifications')}>{contract.quality.certifications.length === 0 ? missing : contract.quality.certifications.join(', ')}</Value>
             <Value label={t('rfq.po.warranty')}>{contract.quality.warranty ?? missing}</Value>
+            <Value label={t('rfq.compare.row.exportDocuments')}>
+              {(contract.quality.exportDocuments ?? []).length === 0
+                ? missing
+                : (contract.quality.exportDocuments ?? []).map((code) => t(`rfq.exportDocument.${code}` as 'rfq.exportDocument.PACKING_LIST')).join(', ')}
+            </Value>
           </dl>
         </Card>
         <Card title={t('rfq.po.deliveryTitle')} bodyClassName="px-5 py-5">

@@ -7,8 +7,9 @@
  * and this is the surface where that would expose another customer's data.
  */
 import type { FastifyInstance } from 'fastify';
+import { isPlausiblePostalCode } from '../../domain/postal-codes.js';
 import { z } from 'zod';
-import { notFound } from '../../domain/errors.js';
+import { ErrorCode, badRequest, notFound } from '../../domain/errors.js';
 import { prisma } from '../../infra/prisma.js';
 import {
   addAddress,
@@ -73,6 +74,15 @@ import {
   insightBody,
   streamInsightResponse,
 } from './dashboard-insights.js';
+
+/** A postal code in the shape its country uses (JOURNEY-022); unlisted countries pass. */
+function assertPostalCode(country: string, postalCode: string): void {
+  if (!isPlausiblePostalCode(country, postalCode)) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'Enter the postal code in the format used in that country.', [
+      { field: 'postalCode', code: 'POSTAL_CODE_INVALID', message: 'Enter the postal code in the format used in that country.' },
+    ]);
+  }
+}
 
 const addressSchema = z.object({
   kind: z.enum(['BILLING', 'SHIPPING', 'BOTH']).optional(),
@@ -522,6 +532,7 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
   app.post('/addresses', { preHandler: requireCustomer }, async (request, reply) => {
     const auth = currentUser(request);
     const body = addressSchema.parse(request.body);
+    assertPostalCode(body.country, body.postalCode);
     // A company's address book is kept by the members who buy for it.
     assertBuyerCapability(request, 'PURCHASE', { allowPending: true });
 
@@ -579,6 +590,12 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     const auth = currentUser(request);
     const { addressId } = z.object({ addressId: z.string().length(26) }).parse(request.params);
     const body = addressSchema.partial().parse(request.body);
+    if (body.postalCode !== undefined || body.country !== undefined) {
+      // Checked against the address as it will be after the change. Ownership
+      // is enforced by updateAddress below; this read returns nothing to the caller.
+      const current = await prisma.address.findUnique({ where: { id: addressId }, select: { country: true, postalCode: true } });
+      if (current !== null) assertPostalCode(body.country ?? current.country, body.postalCode ?? current.postalCode);
+    }
 
     // Scoped by the session's profile id, so an address belonging to another
     // customer resolves to "not found" rather than being editable.
@@ -773,7 +790,7 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
         correlationId: request.correlationId,
       });
 
-      return reply.status(202).send({ pendingPhone: body.phone, expiresAt: result.expiresAt });
+      return reply.status(202).send({ pendingPhone: body.phone, expiresAt: result.expiresAt, channel: result.channel });
     },
   );
 

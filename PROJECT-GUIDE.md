@@ -20147,3 +20147,10 @@ Inspection requirement views also expose the server gate as allowed plus a reada
 - **Listing sourcing terms** (`seller_listing_trust`) are edited in the Seller Hub listing page and shown on the product page (`modules/seller/listing-sourcing.service.ts`).
 - **Supplier page** adds the registered name for companies only, factory machines and an inspection summary (`modules/catalog/supplier-profile.service.ts`).
 - **Analytics** are anonymous daily counters by route pattern (`modules/analytics/analytics.service.ts`, client `lib/analytics.ts`); Admin → Reports reconciles them with orders, RFQs, returns and disputes.
+
+## Identity, sourcing and checkout (pass 8)
+
+- Phone changes go by SMS when `SMS_HTTP_URL` is set (`infra/sms.ts`), otherwise by email; the API says which.
+- RFQ matches explain themselves and flag capacity and open disputes (`modules/rfq/matching.service.ts` `explain`).
+- Quotes can promise export documents (`EXPORT_DOCUMENTS`, hashed only when present); the comparison adds a landed estimate, missing terms and a PDF.
+- Checkout records the Terms version on the order (`orders.termsDocumentId`); postcodes are checked per country (`domain/postal-codes.ts`, mirrored in the storefront).

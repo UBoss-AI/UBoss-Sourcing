@@ -50,6 +50,8 @@ export interface RfqPoContract {
     inspectionTerms: string | null;
     sampleRequirement: string;
     warranty: string | null;
+    /** Present only when the accepted offer named any (JOURNEY-016). */
+    exportDocuments?: string[];
   };
   documents: { id: string; fileName: string; contentHash: string }[];
 }

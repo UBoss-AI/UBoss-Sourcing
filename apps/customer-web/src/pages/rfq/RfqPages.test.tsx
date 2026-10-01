@@ -114,6 +114,41 @@ describe('RfqListPage', () => {
 });
 
 describe('RfqEditPage', () => {
+  it('explains each matched supplier, flags capacity, and invites or excludes all (JOURNEY-014)', async () => {
+    const draftRfq = rfq({ status: 'DRAFT', requirement: { ...EMPTY_REQUIREMENT, title: 'Nitrile gloves', categoryId: 'cat', destinationCountry: 'IN', quantity: '12000', unitOfMeasure: 'BOX', responseDeadline: '2026-11-01T12:00:00.000Z' } });
+    fetchMock.mockImplementation((url: string) => {
+      if (url.includes('/form-options')) return Promise.resolve(jsonResponse(OPTIONS));
+      if (url.includes('/catalog/categories')) return Promise.resolve(jsonResponse({ categories: [] }));
+      if (url.includes('/matches')) {
+        return Promise.resolve(
+          jsonResponse({
+            outcome: 'MATCHED',
+            blockedReason: null,
+            suppliers: [
+              { sellerAccountId: 'sa', displayName: 'Alpha Gloves', slug: 'alpha', registrationCountry: 'IN', verifiedAt: null, matchesCategory: true,
+                reasons: ['LIVE_IN_CATEGORY', 'EXPORTS_TO_DESTINATION'], flags: ['CAPACITY_BELOW_QUANTITY'] },
+            ],
+          }),
+        );
+      }
+      return Promise.resolve(jsonResponse({ rfq: draftRfq }));
+    });
+    renderWithProviders(
+      <Routes>
+        <Route path="/account/rfqs/:id/edit" element={<RfqEditPage />} />
+      </Routes>,
+      { route: `/account/rfqs/${draftRfq.id}/edit` },
+    );
+    expect(await screen.findByText('Exports to your destination')).toBeInTheDocument();
+    expect(screen.getByText('Stated capacity may not cover this quantity in time')).toBeInTheDocument();
+    const box = screen.getByRole('checkbox', { name: /Alpha Gloves/ });
+    expect(box).toBeChecked();
+    await userEvent.click(screen.getByRole('button', { name: 'Exclude all, then pick' }));
+    expect(box).not.toBeChecked();
+    await userEvent.click(screen.getByRole('button', { name: 'Invite all matched' }));
+    expect(box).toBeChecked();
+  });
+
   it('marks each field the server refused, beside the field and in the summary', async () => {
     fetchMock.mockImplementation((url: string, init?: RequestInit) => {
       if (url.includes('/form-options')) return Promise.resolve(jsonResponse(OPTIONS));

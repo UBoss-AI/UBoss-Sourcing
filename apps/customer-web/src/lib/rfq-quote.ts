@@ -27,7 +27,23 @@ export interface OfferTerms {
   taxesDisclosure: string | null;
   tiers: { minQuantity: string; unitPriceMinor: string }[];
   expiresAt: string;
+  /** Present only when the supplier promised any (JOURNEY-016). */
+  exportDocuments?: ExportDocument[];
 }
+
+/** Export documents a quote can promise; the server's list, in its order. */
+export const EXPORT_DOCUMENTS = [
+  'COMMERCIAL_INVOICE',
+  'PACKING_LIST',
+  'CERTIFICATE_OF_ORIGIN',
+  'BILL_OF_LADING_OR_AWB',
+  'INSPECTION_CERTIFICATE',
+  'INSURANCE_CERTIFICATE',
+  'TEST_REPORT',
+  'SAFETY_DATA_SHEET',
+  'EXPORT_LICENCE',
+] as const;
+export type ExportDocument = (typeof EXPORT_DOCUMENTS)[number];
 
 export interface OfferVersion {
   id: string;
@@ -85,6 +101,8 @@ export interface ComparisonRow {
     tooling: Money | null;
     sampleCost: Money | null;
     shippingEstimate: Money | null;
+    /** Total + tooling + shipping; null when shipping was not quoted. Absent from an older API. */
+    landedEstimate?: Money | null;
   };
   converted: {
     unitPrice: Money;
@@ -93,6 +111,7 @@ export interface ComparisonRow {
     tooling: Money | null;
     sampleCost: Money | null;
     shippingEstimate: Money | null;
+    landedEstimate?: Money | null;
     conversion: { currency: string; rate: string; rateAsOf: string; provider: string; snapshotId: string | null };
   } | null;
   conversionUnavailable: boolean;
@@ -106,6 +125,10 @@ export interface ComparisonRow {
   warranty: string | null;
   taxesDisclosure: string | null;
   tiers: { minQuantity: string; unitPrice: Money }[];
+  /** Absent from an older API. */
+  exportDocuments?: string[];
+  /** Terms this supplier did not give (JOURNEY-017). Absent from an older API. */
+  missing?: string[];
 }
 
 export interface Comparison {
@@ -136,6 +159,7 @@ export interface QuoteInput {
   shippingEstimateMinor: string | null;
   taxesDisclosure: string | null;
   tiers: { minQuantity: string; unitPriceMinor: string }[];
+  exportDocuments: ExportDocument[];
   comment: string | null;
   expiresAt: string;
   attachmentIds: string[];
@@ -157,6 +181,11 @@ export function comparisonCsvUrl(rfqId: string, currency: string | null, sort: C
   if (currency !== null) params.set('currency', currency);
   if (shortlisted) params.set('shortlisted', 'true');
   return `${BASE_URL}/rfqs/${rfqId}/comparison.csv?${params.toString()}`;
+}
+
+/** The same comparison as a PDF (JOURNEY-017). */
+export function comparisonPdfUrl(rfqId: string, currency: string | null, sort: ComparisonSort, shortlisted: boolean): string {
+  return comparisonCsvUrl(rfqId, currency, sort, shortlisted).replace('/comparison.csv?', '/comparison.pdf?');
 }
 
 export async function setQuoteShortlist(rfqId: string, quoteId: string, shortlisted: boolean): Promise<Quote> {

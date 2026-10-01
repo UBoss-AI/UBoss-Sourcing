@@ -6116,3 +6116,5 @@ Neither table has a foreign key: a signal must survive the record it is about, a
 
 - `orders.termsDocumentId` and `orders.termsAcceptedAt` (migration `20261030140000_order_terms_acceptance`): the published Terms version a buyer agreed to at checkout, foreign key to `legal_documents` with ON DELETE RESTRICT so a document an order was placed under is never deleted. Null for older orders and for orders that do not pass through checkout.
 - `updatedAt` on `analytics_daily_counts`, `master_data_entries`, `risk_rules` and `risk_signals` is declared `@default(now()) @updatedAt`, matching the database default their migrations created (the CI drift check compares the two).
+
+- `rfq_quote_versions.exportDocumentsJson` (migration `20261030150000_rfq_quote_export_documents`): the export documents promised on a version, codes from `EXPORT_DOCUMENTS` in `domain/rfq-quote.ts`; null when none. Included in the canonical terms and hash only when non-empty.

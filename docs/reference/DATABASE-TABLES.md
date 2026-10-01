@@ -20827,6 +20827,7 @@ One immutable set of terms in a quote. Version 1 is the seller's quote; each cou
 | `shippingEstimateMinor` | BigInt | yes |  |  |  |
 | `taxesDisclosure` | String · VarChar(1000) | yes |  |  |  |
 | `tiersJson` | Json | yes |  |  | `[{ minQuantity, unitPriceMinor }]`, ascending. |
+| `exportDocumentsJson` | Json | yes |  |  | Export documents the supplier will provide (JOURNEY-016), codes from EXPORT_DOCUMENTS in domain/rfq-quote.ts. Null when none were offered. |
 | `comment` | String · VarChar(2000) | yes |  |  |  |
 | `expiresAt` | DateTime · DateTime(3) |  |  |  | The offer stands until then. An expired offer can be countered, never accepted. |
 | `termsHash` | String · Char(64) |  |  |  |  |

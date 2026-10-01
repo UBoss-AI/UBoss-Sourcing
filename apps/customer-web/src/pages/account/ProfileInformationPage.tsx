@@ -54,7 +54,7 @@ import {
   PageHeader,
 } from '@/components/ui';
 import { ChevronRightIcon } from '@/components/icons';
-import { api } from '@/lib/api';
+import { api, ApiError } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
 import { formatDateTime } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -178,7 +178,11 @@ function PersonalInformationPanel({
           className="space-y-4"
           onSubmit={(event) => {
             event.preventDefault();
-            void handleSubmit((values) => save.mutateAsync(values))();
+            void handleSubmit(async (values) => {
+              // onError shows the reason; a rejection left uncaught here would
+              // surface as an unhandled promise in the browser.
+              await save.mutateAsync(values).catch(() => undefined);
+            })();
           }}
         >
           {formError !== null && (
@@ -387,7 +391,11 @@ function EmailPanel({ account }: { account: AccountResponse }): React.JSX.Elemen
           className="mt-4 space-y-4 border-t border-border-subtle pt-4"
           onSubmit={(event) => {
             event.preventDefault();
-            void handleSubmit((values) => request.mutateAsync(values))();
+            void handleSubmit(async (values) => {
+              // onError shows the reason; a rejection left uncaught here would
+              // surface as an unhandled promise in the browser.
+              await request.mutateAsync(values).catch(() => undefined);
+            })();
           }}
         >
           {formError !== null && (
@@ -481,15 +489,22 @@ function PhonePanel({ account }: { account: AccountResponse }): React.JSX.Elemen
   });
 
   const request = useMutation({
-    mutationFn: (values: PhoneForm) => api.post('/account/phone-change', { phone: values.phone }),
-    onSuccess: async () => {
+    mutationFn: (values: PhoneForm) =>
+      api.post<{ channel?: 'SMS' | 'EMAIL' }>('/account/phone-change', { phone: values.phone }),
+    onSuccess: async (result) => {
       setFormError(null);
       setIsEditing(false);
       reset({ phone: '' });
-      toast.success(t('profile.checkYourInboxForTheCode'));
+      // Where the link went, said plainly: a text to the new number when the
+      // marketplace has an SMS gateway, otherwise the account's inbox (JOURNEY-008).
+      toast.success(result.channel === 'SMS' ? t('profile.checkYourPhoneForTheLink') : t('profile.checkYourInboxForTheCode'));
       await queryClient.invalidateQueries({ queryKey: ACCOUNT_PROFILE_KEY });
     },
     onError: (error) => {
+      if (error instanceof ApiError && error.code === 'SMS_DELIVERY_FAILED') {
+        setFormError(t('profile.smsCouldNotBeSent'));
+        return;
+      }
       setFormError(errorMessage(t, error, t('profile.phoneCouldNotBeChanged')));
     },
   });
@@ -565,7 +580,11 @@ function PhonePanel({ account }: { account: AccountResponse }): React.JSX.Elemen
           className="mt-4 space-y-4 border-t border-border-subtle pt-4"
           onSubmit={(event) => {
             event.preventDefault();
-            void handleSubmit((values) => request.mutateAsync(values))();
+            void handleSubmit(async (values) => {
+              // onError shows the reason; a rejection left uncaught here would
+              // surface as an unhandled promise in the browser.
+              await request.mutateAsync(values).catch(() => undefined);
+            })();
           }}
         >
           {formError !== null && (

@@ -29,6 +29,8 @@ import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { indicativeConversion, type IndicativeConversion } from '../catalog/indicative-fx.service.js';
 import { csvRow } from '../reports/export.service.js';
+import { PdfBuilder } from '../documents/pdf.js';
+import { getMarketplaceName } from '../settings/marketplace-name.js';
 import type { RfqBuyer } from './access.js';
 import { termsOf } from './quote.service.js';
 import { loadRfqForBuyer, requirementOf } from './rfq.service.js';
@@ -70,6 +72,13 @@ export interface ComparisonRow {
     tooling: Money | null;
     sampleCost: Money | null;
     shippingEstimate: Money | null;
+    /**
+     * Total + tooling + shipping estimate (JOURNEY-017). Null when the
+     * shipping estimate is missing: a quote without one is never shown as
+     * the cheaper landed cost. Duties and taxes are not estimated here - the
+     * supplier's own disclosure is in taxesDisclosure.
+     */
+    landedEstimate: Money | null;
   };
   /** Null when the quote is already in the chosen currency, or no rate is published for the pair. */
   converted: {
@@ -79,6 +88,7 @@ export interface ComparisonRow {
     tooling: Money | null;
     sampleCost: Money | null;
     shippingEstimate: Money | null;
+    landedEstimate: Money | null;
     conversion: ConversionInfo;
   } | null;
   /** Why there is no converted figure when one was asked for. */
@@ -93,7 +103,23 @@ export interface ComparisonRow {
   warranty: string | null;
   taxesDisclosure: string | null;
   tiers: { minQuantity: string; unitPrice: Money }[];
+  exportDocuments: string[];
+  /** The terms this supplier did not give, in the order the table shows them. */
+  missing: ComparableTerm[];
 }
+
+/** Terms a buyer compares, by the name the screen translates. */
+export type ComparableTerm =
+  | 'moq'
+  | 'leadTimeDays'
+  | 'capacityPerMonth'
+  | 'incoterm'
+  | 'paymentTerms'
+  | 'inspectionTerms'
+  | 'warranty'
+  | 'shippingEstimate'
+  | 'taxesDisclosure'
+  | 'exportDocuments';
 
 export interface Comparison {
   rfqId: string;
@@ -151,6 +177,8 @@ export async function buildComparison(
     const applicable = applicablePrice(terms.unitPriceMinor, terms.tiers, terms.quantity);
     const total = lineTotalMinor(BigInt(applicable), terms.quantity);
     const optional = (value: string | null): Minor | null => (value === null ? null : BigInt(value));
+    const landed =
+      terms.shippingEstimateMinor === null ? null : total + BigInt(terms.toolingMinor ?? '0') + BigInt(terms.shippingEstimateMinor);
     const quoted = {
       currency,
       unitPrice: serialiseMoney(BigInt(terms.unitPriceMinor), currency),
@@ -159,6 +187,7 @@ export async function buildComparison(
       tooling: terms.toolingMinor === null ? null : serialiseMoney(BigInt(terms.toolingMinor), currency),
       sampleCost: terms.sampleCostMinor === null ? null : serialiseMoney(BigInt(terms.sampleCostMinor), currency),
       shippingEstimate: terms.shippingEstimateMinor === null ? null : serialiseMoney(BigInt(terms.shippingEstimateMinor), currency),
+      landedEstimate: landed === null ? null : serialiseMoney(landed, currency),
     };
     const conversion = await conversionFor(currency);
     const convert = (value: Minor | null): Money | null =>
@@ -173,6 +202,7 @@ export async function buildComparison(
             tooling: convert(optional(terms.toolingMinor)),
             sampleCost: convert(optional(terms.sampleCostMinor)),
             shippingEstimate: convert(optional(terms.shippingEstimateMinor)),
+            landedEstimate: convert(landed),
             conversion: {
               currency: conversion.toCurrency,
               rate: conversion.rate,
@@ -212,6 +242,8 @@ export async function buildComparison(
       warranty: terms.warranty,
       taxesDisclosure: terms.taxesDisclosure,
       tiers: terms.tiers.map((tier) => ({ minQuantity: tier.minQuantity, unitPrice: serialiseMoney(BigInt(tier.unitPriceMinor), currency) })),
+      exportDocuments: terms.exportDocuments ?? [],
+      missing: missingTerms(terms),
     });
   }
 
@@ -224,6 +256,22 @@ export async function buildComparison(
     currentRequirementVersion: rfq.currentRequirementVersion,
     rows,
   };
+}
+
+/** Which comparable terms a version left out. */
+function missingTerms(terms: ReturnType<typeof termsOf>): ComparableTerm[] {
+  const out: ComparableTerm[] = [];
+  if (terms.moq === null) out.push('moq');
+  if (terms.leadTimeDays === null) out.push('leadTimeDays');
+  if (terms.capacityPerMonth === null) out.push('capacityPerMonth');
+  if (terms.incoterm === null) out.push('incoterm');
+  if (terms.paymentTerms === null) out.push('paymentTerms');
+  if (terms.inspectionTerms === null) out.push('inspectionTerms');
+  if (terms.warranty === null) out.push('warranty');
+  if (terms.shippingEstimateMinor === null) out.push('shippingEstimate');
+  if (terms.taxesDisclosure === null) out.push('taxesDisclosure');
+  if ((terms.exportDocuments ?? []).length === 0) out.push('exportDocuments');
+  return out;
 }
 
 /**
@@ -312,6 +360,10 @@ export async function comparisonCsv(
     'Warranty',
     'Taxes, duties and exclusions',
     'Valid until (UTC)',
+    'Landed estimate (quoted currency)',
+    'Landed estimate (converted, approximate)',
+    'Export documents',
+    'Not provided',
   ];
   const lines = [csvRow(header)];
   for (const row of comparison.rows) {
@@ -351,6 +403,10 @@ export async function comparisonCsv(
         textCell(row.warranty),
         textCell(row.taxesDisclosure),
         row.expiresAt,
+        amount(row.quoted.landedEstimate),
+        amount(row.converted?.landedEstimate),
+        row.exportDocuments.length === 0 ? NOT_PROVIDED : row.exportDocuments.join('; '),
+        row.missing.length === 0 ? '' : row.missing.join('; '),
       ]),
     );
   }
@@ -364,4 +420,67 @@ export async function comparisonCsv(
     after: { rows: comparison.rows.length, currency: comparison.currency },
   });
   return { fileName: `${comparison.reference}-quotes.csv`, content: lines.join('') };
+}
+
+/**
+ * The same comparison as a PDF for people who print or file it (JOURNEY-017).
+ * Built from exactly the rows the screen and the CSV show, one block per
+ * supplier, figures in the quoted currency with the converted ones beside.
+ * Audited like the CSV.
+ */
+export async function comparisonPdf(
+  buyer: RfqBuyer,
+  rfqId: string,
+  query: z.infer<typeof comparisonQuerySchema>,
+  now: Date = new Date(),
+): Promise<{ fileName: string; bytes: Buffer }> {
+  const comparison = await buildComparison(buyer, rfqId, query);
+  const pdf = new PdfBuilder({
+    title: `Quote comparison ${comparison.reference}`,
+    issuedAt: now,
+    author: await getMarketplaceName(prisma),
+    subject: `Quote comparison for ${comparison.reference}`,
+    reference: comparison.reference,
+    watermark: null,
+  });
+  pdf.title(`Quote comparison ${comparison.reference}`, `${String(comparison.rows.length)} quotes · ${now.toISOString().slice(0, 10)}`, null);
+  pdf.paragraph(
+    'Figures are in the currency each supplier quoted. Converted figures are approximate, at the published rate shown. A landed estimate is total + tooling + shipping and is empty when shipping was not quoted; duties are not estimated.',
+    { muted: true, size: 8 },
+  );
+  for (const row of comparison.rows) {
+    pdf.ensureSpace(120);
+    pdf.paragraph(`${row.supplier.displayName} - version ${String(row.versionNumber)}, ${row.status.toLowerCase()}`, { bold: true, size: 10 });
+    const converted = row.converted;
+    pdf.facts(
+      [
+        ['Unit price', `${row.quoted.applicableUnitPrice.formatted} ${row.quoted.currency}`],
+        ['Quantity', row.quantity],
+        ['Total', `${row.quoted.total.formatted} ${row.quoted.currency}`],
+        ['Landed estimate', row.quoted.landedEstimate === null ? NOT_PROVIDED : `${row.quoted.landedEstimate.formatted} ${row.quoted.currency}`],
+        ['Converted total', converted === null ? NOT_PROVIDED : `${converted.total.formatted} ${converted.conversion.currency} (rate ${converted.conversion.rate})`],
+        ['MOQ', textCell(row.moq)],
+        ['Lead time (days)', textCell(row.leadTimeDays)],
+        ['Incoterm', row.incoterm === null ? NOT_PROVIDED : `${row.incoterm}${row.incotermPlace === null ? '' : ` ${row.incotermPlace}`}`],
+        ['Payment', textCell(row.paymentTerms)],
+        ['Warranty', textCell(row.warranty)],
+        ['Export documents', row.exportDocuments.length === 0 ? NOT_PROVIDED : row.exportDocuments.join(', ')],
+        ['Valid until', row.expiresAt.slice(0, 10)],
+      ],
+      3,
+    );
+    if (row.missing.length > 0) pdf.paragraph(`Not provided: ${row.missing.join(', ')}`, { muted: true, size: 8 });
+    pdf.rule();
+  }
+  const { bytes } = await pdf.finish();
+  await recordAudit({
+    action: AuditAction.RFQ_COMPARISON_EXPORTED,
+    resourceType: 'rfq_request',
+    resourceId: comparison.rfqId,
+    actorType: 'CUSTOMER',
+    actorUserId: buyer.userId,
+    actorEmail: buyer.email,
+    after: { rows: comparison.rows.length, currency: comparison.currency, format: 'pdf' },
+  });
+  return { fileName: `${comparison.reference}-quotes.pdf`, bytes };
 }

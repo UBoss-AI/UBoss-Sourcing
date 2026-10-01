@@ -41,10 +41,10 @@ beforeAll(async () => {
   await app.ready();
   await prisma.dataRequest.deleteMany({ where: { subjectUserId: { in: await subjectIds() } } });
   await cleanUpOrderDesk(TAG);
-  subject = await customer(app, TAG, 'buyer', '10.99.0.10');
-  other = await customer(app, TAG, 'rival', '10.99.0.11');
-  compliance = await staff(app, TAG, 'compliance', Role.COMPLIANCE_OFFICER, '10.99.0.12');
-  support = await staff(app, TAG, 'support', Role.SUPPORT_AGENT, '10.99.0.13');
+  subject = await customer(app, TAG, 'buyer', '10.85.0.10');
+  other = await customer(app, TAG, 'rival', '10.85.0.11');
+  compliance = await staff(app, TAG, 'compliance', Role.COMPLIANCE_OFFICER, '10.85.0.12');
+  support = await staff(app, TAG, 'support', Role.SUPPORT_AGENT, '10.85.0.13');
 }, 120_000);
 
 afterAll(async () => {

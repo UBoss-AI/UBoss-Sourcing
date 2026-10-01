@@ -25,7 +25,8 @@ import {
 import { rfqNotFound, type RfqBuyer } from '../../modules/rfq/access.js';
 import { listThread, messageBodySchema, postMessage, threadQuerySchema } from '../../modules/rfq/message.service.js';
 import { prisma } from '../../infra/prisma.js';
-import { buildComparison, comparisonCsv, comparisonQuerySchema } from '../../modules/rfq/comparison.service.js';
+import { buildComparison, comparisonCsv,
+  comparisonPdf, comparisonQuerySchema } from '../../modules/rfq/comparison.service.js';
 import {
   attachEvidence,
   buyerMoveSample,
@@ -415,6 +416,20 @@ export function registerCustomerRfqRoutes(app: FastifyInstance): Promise<void> {
       .header('cache-control', 'no-store')
       .status(200)
       .send(file.content);
+  });
+
+  // The same comparison as a PDF to print or file (JOURNEY-017). Audited like the CSV.
+  app.get('/:id/comparison.pdf', { preHandler: requireCustomer }, async (request, reply) => {
+    const { id } = idParams.parse(request.params);
+    const query = comparisonQuerySchema.parse(request.query);
+    const file = await comparisonPdf(buyerOf(request), id, query);
+    return reply
+      .header('content-type', 'application/pdf')
+      .header('content-disposition', `attachment; filename="${file.fileName}"`)
+      .header('x-content-type-options', 'nosniff')
+      .header('cache-control', 'no-store')
+      .status(200)
+      .send(file.bytes);
   });
 
   /**

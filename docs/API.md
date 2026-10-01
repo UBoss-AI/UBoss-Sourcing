@@ -3693,3 +3693,11 @@ Anything that moves money needs `FEATURE_ESCROW_LEDGER` (`ESCROW_LEDGER_DISABLED
 ## Catalogue sourcing filters and listing terms (pass 8)
 
 `GET /api/v1/catalog/products` and `GET /api/v1/catalog/filters` accept `maxMoq` (integer), `origin` (ISO alpha-2), `maxLeadTimeDays` (1–730), `certified`, `verifiedSupplier`, `sample` (`true`) and `incoterm` (EXW, FCA, FAS, FOB, CFR, CIF, CPT, CIP, DAP, DPU, DDP). `GET /api/v1/catalog/products/:slug` now carries `sourcing.capacity` and `sourcing.terms`; `GET /api/v1/catalog/categories/:slug` carries `metaTitle` and `metaDescription`; `GET /api/v1/catalog/suppliers/:slug` carries `legalName` (registered companies only), `inspectionSummary` and `factories[].machines`. Seller Hub: `GET` and `PUT /api/v1/seller/listings/:id/sourcing` (`seller.listing.write` to save).
+
+## Checkout consent, phone channel, matches and comparison (pass 8)
+
+- `POST /api/v1/cart/checkout` now requires `acceptedTerms: true` and `termsDocumentId` (the current published PLATFORM_TERMS id from `GET /api/v1/legal/current`). Missing: 400 `TERMS_ACCEPTANCE_REQUIRED`; not current: 409 `TERMS_VERSION_OUTDATED`. Checked inside the idempotent operation, so a retried key replays its order.
+- `POST /api/v1/account/addresses` and `PATCH /api/v1/account/addresses/:id` refuse a postal code in the wrong shape for its country: 400 `VALIDATION_FAILED`, detail `{ field: 'postalCode', code: 'POSTAL_CODE_INVALID' }`.
+- `POST /api/v1/account/phone-change` returns `channel`: `SMS` or `EMAIL`. With a gateway configured and failing: 502 `SMS_DELIVERY_FAILED`.
+- `GET /api/v1/rfqs/:id/matches` cards carry `reasons` and `flags`.
+- Quotes accept `exportDocuments` (array of codes). `GET /api/v1/rfqs/:id/comparison` rows carry `quoted.landedEstimate`, `converted.landedEstimate`, `exportDocuments` and `missing`; `GET /api/v1/rfqs/:id/comparison.pdf` returns the same as a PDF.

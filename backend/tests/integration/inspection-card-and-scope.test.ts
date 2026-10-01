@@ -41,7 +41,7 @@ async function listedStatus(): Promise<unknown> {
 beforeAll(async () => {
   app = await buildApp();
   await app.ready();
-  desk = await buildOrderDesk(app, TAG, 97);
+  desk = await buildOrderDesk(app, TAG, 87);
   const group = await prisma.sellerOrderGroup.findFirstOrThrow({ where: { orderId: desk.orderId }, select: { id: true } });
   groupId = group.id;
   // The fixture delivers the order; inspection is decided only before dispatch.

@@ -19,6 +19,7 @@ import { formatMoney, type Money } from '@/lib/format';
 import { formatUtc } from '@/lib/rfq-format';
 import {
   comparisonCsvUrl,
+  comparisonPdfUrl,
   fetchComparison,
   setQuoteShortlist,
   type ComparisonRow,
@@ -108,6 +109,22 @@ export function RfqComparePage(): React.JSX.Element {
     { label: t('rfq.compare.row.sample'), render: (row) => cell(row.quoted.sampleCost, row.converted?.sampleCost) },
     { label: t('rfq.compare.row.shipping'), render: (row) => cell(row.quoted.shippingEstimate, row.converted?.shippingEstimate) },
     { label: t('rfq.compare.row.taxes'), render: (row) => textCell(row.taxesDisclosure) },
+    // Total + tooling + shipping; empty when shipping was not quoted (JOURNEY-017).
+    { label: t('rfq.compare.row.landed'), render: (row) => cell(row.quoted.landedEstimate ?? null, row.converted?.landedEstimate ?? null) },
+    {
+      label: t('rfq.compare.row.exportDocuments'),
+      render: (row) =>
+        (row.exportDocuments ?? []).length === 0
+          ? missing
+          : <>{(row.exportDocuments ?? []).map((code) => t(`rfq.exportDocument.${code}` as 'rfq.exportDocument.PACKING_LIST')).join(', ')}</>,
+    },
+    {
+      label: t('rfq.compare.row.notProvided'),
+      render: (row) =>
+        (row.missing ?? []).length === 0
+          ? <>{t('rfq.compare.allProvided')}</>
+          : <span className="text-warning">{(row.missing ?? []).map((term) => t(`rfq.compare.term.${term}` as 'rfq.compare.term.moq')).join(', ')}</span>,
+    },
     {
       label: t('rfq.compare.row.validUntil'),
       render: (row) => (
@@ -137,6 +154,9 @@ export function RfqComparePage(): React.JSX.Element {
             </Link>
             <ButtonAnchor href={comparisonCsvUrl(id, currency, sort, shortlisted)} download>
               {t('rfq.compare.export')}
+            </ButtonAnchor>
+            <ButtonAnchor href={comparisonPdfUrl(id, currency, sort, shortlisted)} download>
+              {t('rfq.compare.downloadPdf')}
             </ButtonAnchor>
           </>
         }

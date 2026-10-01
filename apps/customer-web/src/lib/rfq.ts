@@ -54,6 +54,10 @@ export interface SupplierCard {
   registrationCountry: string;
   verifiedAt: string | null;
   matchesCategory: boolean;
+  /** Why it matched (JOURNEY-014). Absent on a hand-picked card or an older API. */
+  reasons?: ('LIVE_IN_CATEGORY' | 'EXPORTS_TO_DESTINATION' | 'VERIFIED_CERTIFICATE')[];
+  /** What to know before inviting: capacity and possible conflict. */
+  flags?: ('CAPACITY_UNKNOWN' | 'CAPACITY_BELOW_QUANTITY' | 'OPEN_DISPUTE')[];
 }
 
 export interface RfqAttachment {

@@ -6509,3 +6509,29 @@ Inspection responses now expose report as the latest report visible to that audi
 ### FR-DSC-014 — Supplier storefront additions (JOURNEY-005)
 
 - The **registered name** is published only for registered companies (LLP, private or public limited), never for a sole trader or partnership. Verified factories list their **machines**. An **independent inspections** section counts reports agencies signed on the supplier's orders in the last twelve months by result (counts only). Built.
+
+## Identity, sourcing and checkout additions (Sections 17.2-17.4, pass 8)
+
+### FR-ID-020 — Phone confirmation by SMS (JOURNEY-008)
+
+- With `SMS_HTTP_URL` set (an HTTPS gateway taking `{ to, from, body }` as JSON, Bearer `SMS_HTTP_TOKEN`, sender `SMS_SENDER_ID`), a phone change sends the confirmation link by text message to the NEW number; confirming it marks the number verified. A gateway that refuses is a 502 `SMS_DELIVERY_FAILED` and nothing stays pending - never a silent fall back to email. Without a gateway the link goes to the account email, as before, and the API returns `channel` so the screen says which. Built; live delivery depends on the operator's gateway. Social or enterprise sign-in (SSO) is optional in the checklist and is not built.
+
+### FR-RFQ-030 — Match explanation and flags (JOURNEY-014)
+
+- Each matched supplier carries `reasons` (LIVE_IN_CATEGORY, EXPORTS_TO_DESTINATION, VERIFIED_CERTIFICATE) and `flags` (CAPACITY_UNKNOWN, CAPACITY_BELOW_QUANTITY from stated weekly capacity against quantity and target date, OPEN_DISPUTE with this buyer). Flags never remove a supplier; the buyer can invite all or exclude all and pick. Built.
+
+### FR-RFQ-031 — Export documents on a quote (JOURNEY-016)
+
+- A supplier ticks the export documents they will provide (commercial invoice, packing list, certificate of origin, bill of lading or air waybill, inspection, insurance, test report, safety data sheet, export licence). They are part of the hashed terms - present only when offered, so earlier versions keep their hashes - carried through counter-offers and frozen into the purchase order. Built.
+
+### FR-RFQ-032 — Comparison landed estimate, missing terms and PDF (JOURNEY-017)
+
+- Each row has a landed estimate (total + tooling + shipping estimate; empty when shipping was not quoted; duties not estimated), the export documents, and the list of terms the supplier did not give. The comparison downloads as CSV and as PDF, both audited. Built.
+
+### FR-CHK-020 — Server-side checkout consent and address shape (JOURNEY-022)
+
+- Checkout requires `acceptedTerms: true` and the id of the current published Terms version; the server checks it (again inside the order transaction) and records `orders.termsDocumentId` and `termsAcceptedAt`. An outdated version is a 409 the page answers by reloading the Terms. Addresses are checked for the postal-code shape of IN, DE, FR, ES, IT, GR, NL, PL, US and GB, on the server and in the form. Built.
+
+### FR-RET-020 — Refund method and timing (JOURNEY-025)
+
+- The return page says a refund goes back to the original payment method once the item is received and checked, without promising a number of days. Built.

@@ -231,5 +231,38 @@ describe('the comparison', () => {
     expect(text.split('\r\n').filter((line) => line.length > 0)).toHaveLength(2);
     const audit = await prisma.auditLog.count({ where: { resourceId: sent.id, action: 'rfq.comparison_exported' } });
     expect(audit).toBe(1);
+  });
+
+  it('adds a landed estimate only where shipping was quoted, names missing terms and export documents, and exports a PDF (JOURNEY-016/017)', async () => {
+    const sent = await submitted(world);
+    // ALPHA: shipping and tooling quoted, three export documents promised.
+    const alpha = await as(world, world.sellers.alpha.owner, 'POST', `/seller/rfqs/${sent.id}/quotes`, quote({
+      toolingMinor: '1000000',
+      shippingEstimateMinor: '500000',
+      exportDocuments: ['PACKING_LIST', 'COMMERCIAL_INVOICE', 'CERTIFICATE_OF_ORIGIN', 'PACKING_LIST'],
+    }));
+    expect(alpha.statusCode, alpha.body).toBe(201);
+    // BETA: no shipping, no warranty, no documents.
+    expect((await as(world, world.sellers.beta.owner, 'POST', `/seller/rfqs/${sent.id}/quotes`, quote({ warranty: null }))).statusCode).toBe(201);
+    expect((await as(world, world.sellers.gamma.owner, 'POST', `/seller/rfqs/${sent.id}/quotes`, quote({ exportDocuments: ['NOT_A_DOCUMENT'] }))).statusCode).toBeGreaterThanOrEqual(400);
+
+    const rows = (await as(world, world.buyer, 'GET', `/rfqs/${sent.id}/comparison`)).json<{
+      comparison: { rows: { supplier: { sellerAccountId: string }; quoted: { total: { minor: string }; landedEstimate: { minor: string } | null }; exportDocuments: string[]; missing: string[] }[] };
+    }>().comparison.rows;
+    const a = rows.find((row) => row.supplier.sellerAccountId === world.sellers.alpha.id);
+    const b = rows.find((row) => row.supplier.sellerAccountId === world.sellers.beta.id);
+    // 12,000 at the 10,000 tier of 85,000 = 1,020,000,000; + tooling 1,000,000 + shipping 500,000.
+    expect(a?.quoted.total.minor).toBe('1020000000');
+    expect(a?.quoted.landedEstimate?.minor).toBe('1021500000');
+    expect(a?.exportDocuments).toEqual(['COMMERCIAL_INVOICE', 'PACKING_LIST', 'CERTIFICATE_OF_ORIGIN']);
+    expect(a?.missing).toEqual([]);
+    expect(b?.quoted.landedEstimate).toBeNull();
+    expect(b?.missing).toEqual(['warranty', 'shippingEstimate', 'exportDocuments']);
+
+    const pdf = await as(world, world.buyer, 'GET', `/rfqs/${sent.id}/comparison.pdf`);
+    expect(pdf.statusCode).toBe(200);
+    expect(pdf.headers['content-type']).toContain('application/pdf');
+    expect(pdf.rawPayload.subarray(0, 5).toString()).toBe('%PDF-');
+    expect((await as(world, world.rival, 'GET', `/rfqs/${sent.id}/comparison.pdf`)).statusCode).toBe(404);
   });
 });

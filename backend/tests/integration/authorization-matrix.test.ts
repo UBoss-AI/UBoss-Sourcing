@@ -78,7 +78,7 @@ async function agency(name: string, members: [string, string][], categoryIds: st
 beforeAll(async () => {
   app = await buildApp();
   await app.ready();
-  desk = await buildOrderDesk(app, TAG, 98);
+  desk = await buildOrderDesk(app, TAG, 81);
   await cleanInspection();
   groupId = (await prisma.sellerOrderGroup.findFirstOrThrow({ where: { orderId: desk.orderId, sellerAccountId: desk.sellerAId }, select: { id: true } })).id;
   await prisma.sellerOrderGroup.update({ where: { id: groupId }, data: { status: 'PROCESSING', deliveredAt: null } });
@@ -86,13 +86,13 @@ beforeAll(async () => {
     data: { id: newId(), name: RULE, isActive: true, priority: 1, level: 'MANDATORY', effectiveFrom: new Date(Date.now() - 86_400_000) },
   });
   await prisma.$transaction(async (tx) => { await ensureRequirement(tx, groupId); });
-  owner = await staff(app, TAG, 'inspadmin', Role.BUSINESS_OWNER, '10.98.0.20');
-  support = await staff(app, TAG, 'support', Role.SUPPORT_AGENT, '10.98.0.21');
-  compliance = await staff(app, TAG, 'compliance', Role.COMPLIANCE_OFFICER, '10.98.0.22');
-  coordA = await customer(app, TAG, 'agcoord', '10.98.0.23');
-  inspA = await customer(app, TAG, 'aginsp', '10.98.0.24');
-  insp2 = await customer(app, TAG, 'aginsp2', '10.98.0.25');
-  coordB = await customer(app, TAG, 'agcoordb', '10.98.0.26');
+  owner = await staff(app, TAG, 'inspadmin', Role.BUSINESS_OWNER, '10.81.0.20');
+  support = await staff(app, TAG, 'support', Role.SUPPORT_AGENT, '10.81.0.21');
+  compliance = await staff(app, TAG, 'compliance', Role.COMPLIANCE_OFFICER, '10.81.0.22');
+  coordA = await customer(app, TAG, 'agcoord', '10.81.0.23');
+  inspA = await customer(app, TAG, 'aginsp', '10.81.0.24');
+  insp2 = await customer(app, TAG, 'aginsp2', '10.81.0.25');
+  coordB = await customer(app, TAG, 'agcoordb', '10.81.0.26');
 
   const item = await prisma.orderItem.findFirstOrThrow({ where: { orderId: desk.orderId }, select: { productId: true } });
   const product = await prisma.product.findUniqueOrThrow({ where: { id: item.productId }, select: { categoryId: true } });
@@ -292,7 +292,7 @@ describe('staff scopes', () => {
 
 describe('deactivated accounts', () => {
   it('signs a deactivated buyer out of everything at once', async () => {
-    const gone = await customer(app, TAG, 'gone', '10.98.0.27');
+    const gone = await customer(app, TAG, 'gone', '10.81.0.27');
     expect((await asCustomer(app, gone, 'GET', '/orders')).statusCode).toBe(200);
     const profile = await prisma.customerProfile.findFirstOrThrow({ where: { user: { emailNormalized: emailFor(TAG, 'gone') } }, select: { id: true } });
     const off = await app.inject({

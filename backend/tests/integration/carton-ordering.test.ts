@@ -359,6 +359,21 @@ describe('a shop that sells cartons of 500', () => {
       },
     });
 
+    // JOURNEY-022: no order without agreement to the current published Terms.
+    const post = (payload: Record<string, unknown>) =>
+      app.inject({
+        method: 'POST',
+        url: '/api/v1/cart/checkout',
+        headers: { cookie: cookieHeader, 'x-csrf-token': csrfToken, 'idempotency-key': newId() },
+        payload,
+      });
+    const unagreed = await post({ shippingAddressId: address.id });
+    expect(unagreed.statusCode).toBe(400);
+    expect(unagreed.body).toContain('TERMS_ACCEPTANCE_REQUIRED');
+    const outdated = await post({ shippingAddressId: address.id, acceptedTerms: true, termsDocumentId: newId() });
+    expect(outdated.statusCode).toBe(409);
+    expect(outdated.body).toContain('TERMS_VERSION_OUTDATED');
+
     const checkout = await app.inject({
       method: 'POST',
       url: '/api/v1/cart/checkout',
@@ -367,11 +382,14 @@ describe('a shop that sells cartons of 500', () => {
         'x-csrf-token': csrfToken,
         'idempotency-key': newId(),
       },
-      payload: { shippingAddressId: address.id },
+      payload: { shippingAddressId: address.id, acceptedTerms: true, termsDocumentId: await (await import('../support/legal.js')).currentTermsId() },
     });
     expect(checkout.statusCode, checkout.body).toBe(201);
 
     const { orderId } = JSON.parse(checkout.body) as { orderId: string };
+    const placed = await prisma.order.findUniqueOrThrow({ where: { id: orderId }, select: { termsDocumentId: true, termsAcceptedAt: true } });
+    expect(placed.termsDocumentId).toBe(await (await import('../support/legal.js')).currentTermsId());
+    expect(placed.termsAcceptedAt).not.toBeNull();
     const item = await prisma.orderItem.findFirstOrThrow({ where: { orderId } });
 
     // An invoice that said 1,000 pieces where the buyer ordered 2 cartons is

@@ -14,6 +14,7 @@
  * `order_status_history`. No service writes `orders.status` directly.
  */
 import { captureOrderItemSnapshots } from './order-item-snapshot.service.js';
+import { assertAcceptableTerms } from '../legal/legal-document.service.js';
 import { env } from '../../config/env.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
@@ -219,6 +220,12 @@ export interface CheckoutInput {
    */
   logisticsQuoteToken?: string | null;
   customerNote?: string | null;
+  /**
+   * The published Terms and Conditions the buyer agreed to on this order
+   * (JOURNEY-022). Checked again inside the transaction, so a version
+   * published between the route's check and the write cannot slip through.
+   */
+  termsDocumentId?: string | null;
   actor: OrderActor;
 }
 
@@ -593,6 +600,10 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
 
     const { totals } = resolved.pricing;
 
+    // The Terms the buyer agreed to are still the current version.
+    if (input.termsDocumentId !== undefined && input.termsDocumentId !== null) {
+      await assertAcceptableTerms({ kind: 'PLATFORM_TERMS', acceptedTerms: true, documentId: input.termsDocumentId, client: tx });
+    }
     await tx.order.create({
       data: {
         id: orderId,
@@ -638,6 +649,8 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
         preferredPaymentMethodId:
           input.paymentMode === 'ONLINE' ? (input.preferredPaymentMethodId ?? null) : null,
         customerNote: input.customerNote ?? null,
+        termsDocumentId: input.termsDocumentId ?? null,
+        termsAcceptedAt: input.termsDocumentId === undefined || input.termsDocumentId === null ? null : new Date(),
         placedAt: new Date(),
         // Why this was taxed the way it was, frozen alongside the numbers it
         // produced. Taken from the pricing run rather than recomputed: a VIES

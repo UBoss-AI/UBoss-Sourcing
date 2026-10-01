@@ -91,6 +91,32 @@ export interface OfferTerms {
   taxesDisclosure: string | null;
   tiers: { minQuantity: string; unitPriceMinor: string }[];
   expiresAt: string;
+  /**
+   * The export documents the supplier will provide (JOURNEY-016). Present only
+   * when at least one is offered: a version written before this field existed
+   * hashes exactly as it did, so no accepted hash changes.
+   */
+  exportDocuments?: ExportDocument[];
+}
+
+/** Export documents a quote can promise. Fixed codes the screens translate. */
+export const EXPORT_DOCUMENTS = [
+  'COMMERCIAL_INVOICE',
+  'PACKING_LIST',
+  'CERTIFICATE_OF_ORIGIN',
+  'BILL_OF_LADING_OR_AWB',
+  'INSPECTION_CERTIFICATE',
+  'INSURANCE_CERTIFICATE',
+  'TEST_REPORT',
+  'SAFETY_DATA_SHEET',
+  'EXPORT_LICENCE',
+] as const;
+export type ExportDocument = (typeof EXPORT_DOCUMENTS)[number];
+
+/** The stored list, in the fixed order, without unknown codes. */
+export function exportDocumentsOf(value: unknown): ExportDocument[] {
+  if (!Array.isArray(value)) return [];
+  return EXPORT_DOCUMENTS.filter((code) => value.includes(code));
 }
 
 /** Keys sorted, arrays kept in order: one string for one set of terms. */

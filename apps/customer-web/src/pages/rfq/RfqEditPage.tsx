@@ -808,6 +808,19 @@ function RfqForm({
             <legend className="text-sm font-medium text-ink">
               {t('rfq.form.matchedSuppliers', { matched: String(matches.data.suppliers.length) })}
             </legend>
+            {/* Invite everyone matched, or start from nobody and pick (JOURNEY-014). */}
+            <p className="mt-1 flex flex-wrap gap-x-4 text-sm">
+              <button type="button" className="min-h-9 text-brand underline-offset-2 hover:underline" onClick={() => { set('excludeSellerIds', []); }}>
+                {t('rfq.match.inviteAll')}
+              </button>
+              <button
+                type="button"
+                className="min-h-9 text-brand underline-offset-2 hover:underline"
+                onClick={() => { set('excludeSellerIds', matches.data.suppliers.map((supplier) => supplier.sellerAccountId)); }}
+              >
+                {t('rfq.match.excludeAll')}
+              </button>
+            </p>
             <ul className="mt-2 space-y-2">
               {matches.data.suppliers.map((supplier) => (
                 <li key={supplier.sellerAccountId}>
@@ -825,6 +838,17 @@ function RfqForm({
                     <span>{supplier.displayName}</span>
                     {supplier.verifiedAt !== null && <span className="text-xs text-success">{t('rfq.supplier.verified')}</span>}
                   </label>
+                  {/* Why this supplier, and what to know first (JOURNEY-014). */}
+                  {(supplier.reasons ?? []).length + (supplier.flags ?? []).length > 0 && (
+                    <p className="ml-6 mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs">
+                      {(supplier.reasons ?? []).map((reason) => (
+                        <span key={reason} className="text-ink-muted">{t(`rfq.match.reason.${reason}` as 'rfq.match.reason.LIVE_IN_CATEGORY')}</span>
+                      ))}
+                      {(supplier.flags ?? []).map((flag) => (
+                        <span key={flag} className="font-medium text-warning">{t(`rfq.match.flag.${flag}` as 'rfq.match.flag.CAPACITY_UNKNOWN')}</span>
+                      ))}
+                    </p>
+                  )}
                 </li>
               ))}
             </ul>

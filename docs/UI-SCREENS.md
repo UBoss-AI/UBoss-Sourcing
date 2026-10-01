@@ -7714,3 +7714,12 @@ Seller order detail (`/seller/orders/:id`): each consignment in the carrier card
 - **Seller Hub listing detail**: a **Sourcing terms** card (samples and terms, OEM, private label, lead-time range with a range check, Incoterms, linkable verified certificates).
 - **Admin Reports `/reports`**: a **Product analytics** card with the reconciliation table (Counted, In the records, Coverage; over-reports in red) and the most viewed screens.
 - Every storefront and Seller Hub route sends one anonymous `screen_view` (route pattern only).
+
+## Pass 8 changes to identity, sourcing and checkout screens
+
+- **Profile → Mobile number**: after "Send confirmation link" the toast says whether a text went to the new number or an email to the account; an SMS failure is explained and nothing changes.
+- **RFQ edit, matched suppliers**: each supplier shows why it matched and any flags (capacity not stated, capacity may not cover the quantity, an open dispute with you); **Invite all matched** and **Exclude all, then pick**.
+- **Seller RFQ → quote form**: an **Export documents** group of checkboxes.
+- **Quote comparison**: rows for **Landed estimate**, **Export documents** and **Not provided**; **Download PDF** beside Download as CSV. The purchase order page lists the export documents.
+- **Checkout**: the terms box now sends the current Terms version; if they changed, the box is cleared and the new version must be agreed. **Address form**: the postcode is checked for the country's format before Save.
+- **Return detail**: the Refund card says where and when the money goes back.

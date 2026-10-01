@@ -63,6 +63,7 @@ import type {
 } from '@/lib/types';
 import { DeliveryBreakdown } from '@/components/DeliveryBreakdown';
 import { useI18n } from '@/i18n/i18n-context';
+import { useCurrentTerms } from '@/components/legal/useCurrentTerms';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 
@@ -220,7 +221,7 @@ export function CheckoutPage(): React.JSX.Element {
   useEffect(() => {
     track('checkout_started', '/checkout');
   }, []);
-  const { t, intlLocale } = useI18n();
+  const { t, intlLocale, language } = useI18n();
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -234,6 +235,14 @@ export function CheckoutPage(): React.JSX.Element {
    * consent, and the order is not placed without it.
    */
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  /**
+   * The published Terms version the box refers to. Its id goes to the server
+   * with the order, which checks it is still the current version and records
+   * it on the order (JOURNEY-022) - a box ticked only in the browser is not
+   * evidence of anything.
+   */
+  const currentTerms = useCurrentTerms('PLATFORM_TERMS', language);
+  const termsDocumentId = currentTerms.state.status === 'ready' ? currentTerms.state.current.document.id : null;
   const [billingAddressId, setBillingAddressId] = useState<string | null>(null);
   const [paymentMode, setPaymentMode] = useState<PaymentMode>('ONLINE');
   /**
@@ -622,6 +631,8 @@ export function CheckoutPage(): React.JSX.Element {
           // The signed L1-L4 quote the buyer is looking at. The server re-prices
           // every level and refuses the order if this no longer matches.
           logisticsQuoteToken: cart.data?.cart.delivery?.token ?? null,
+          acceptedTerms: agreedToTerms,
+          termsDocumentId,
         },
         { idempotencyKey },
       );
@@ -652,6 +663,14 @@ export function CheckoutPage(): React.JSX.Element {
       });
     },
     onError: (error) => {
+      // The Terms changed while the page was open: show the new version and
+      // ask for agreement again rather than placing the order on the old one.
+      if (error instanceof ApiError && (error.code === 'TERMS_VERSION_OUTDATED' || error.code === 'TERMS_ACCEPTANCE_REQUIRED')) {
+        setAgreedToTerms(false);
+        currentTerms.reload();
+        setSubmitError(t(`errors.terms.${error.code}` as TranslationKey));
+        return;
+      }
       if (error instanceof NetworkError) {
         // The order may or may not have been created. The same key is still
         // held, so retrying is safe and will not produce a second one —
@@ -759,6 +778,7 @@ export function CheckoutPage(): React.JSX.Element {
     currentCart.checkoutReady &&
     shippingAddressId !== null &&
     agreedToTerms &&
+    termsDocumentId !== null &&
     !fulfilmentBlocks &&
     !submit.isPending;
 
