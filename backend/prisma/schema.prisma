@@ -2853,6 +2853,14 @@ model Order {
   internalNote String? @db.Text
 
   placedAt     DateTime? @db.DateTime(3)
+  /// The Terms and Conditions the buyer agreed to for THIS order (JOURNEY-022):
+  /// the exact published version, checked server-side at checkout. Null for
+  /// orders placed before checkout recorded it, and for orders that do not
+  /// pass through checkout (samples, scheduled occurrences, preorders).
+  termsDocumentId String?   @db.Char(26)
+  termsAcceptedAt DateTime? @db.DateTime(3)
+  /// RESTRICT: a document an order was placed under can never be deleted.
+  termsDocument   LegalDocument? @relation("OrderTerms", fields: [termsDocumentId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_order_terms_document")
   confirmedAt  DateTime? @db.DateTime(3)
   cancelledAt  DateTime? @db.DateTime(3)
   cancelReason String?   @db.VarChar(512)
@@ -2935,6 +2943,7 @@ model Order {
   @@index([status, createdAt], map: "ix_order_status_time")
   @@index([source, createdAt], map: "ix_order_source_time")
   @@index([placedAt], map: "ix_order_placed")
+  @@index([termsDocumentId], map: "fk_order_terms_document")
   /// "What is this warehouse due to pick?" - and the guard that makes
   /// retiring a warehouse a question the panel can answer.
   @@index([fulfilmentLocationId], map: "ix_order_fulfilment_location")
@@ -21029,6 +21038,7 @@ model LegalDocument {
   supersedes   LegalDocument?  @relation("LegalDocumentSupersedes", fields: [supersedesId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_legal_document_supersedes")
   supersededBy LegalDocument[] @relation("LegalDocumentSupersedes")
   acceptances  ConsentRecord[]
+  ordersPlaced Order[]         @relation("OrderTerms")
 
   @@unique([kind, version, locale], map: "uq_legal_document_version_locale")
   @@index([kind, status, effectiveAt], map: "ix_legal_document_current")
@@ -24559,7 +24569,7 @@ model MasterDataEntry {
   sortOrder       Int                       @default(0)
   isActive        Boolean                   @default(true)
   createdAt       DateTime                  @default(now()) @db.DateTime(3)
-  updatedAt       DateTime                  @updatedAt @db.DateTime(3)
+  updatedAt       DateTime                  @default(now()) @updatedAt @db.DateTime(3)
 
   @@unique([kind, code], map: "uq_master_data_kind_code")
   @@index([kind, isActive, sortOrder], map: "ix_master_data_kind_order")
@@ -24604,7 +24614,7 @@ model RiskRule {
   updatedById           String?      @db.Char(26)
   version               Int          @default(1)
   createdAt             DateTime     @default(now()) @db.DateTime(3)
-  updatedAt             DateTime     @updatedAt @db.DateTime(3)
+  updatedAt             DateTime     @default(now()) @updatedAt @db.DateTime(3)
 
   @@map("risk_rules")
 }
@@ -24630,7 +24640,7 @@ model RiskSignal {
   reviewReason String?          @db.VarChar(1024)
   detectedAt   DateTime         @default(now()) @db.DateTime(3)
   createdAt    DateTime         @default(now()) @db.DateTime(3)
-  updatedAt    DateTime         @updatedAt @db.DateTime(3)
+  updatedAt    DateTime         @default(now()) @updatedAt @db.DateTime(3)
 
   @@index([status, detectedAt], map: "ix_risk_signal_queue")
   @@index([subjectType, subjectId], map: "ix_risk_signal_subject")
@@ -24656,7 +24666,7 @@ model AnalyticsDailyCount {
   surface String   @db.VarChar(16)
   count   Int      @default(0)
   createdAt DateTime @default(now()) @db.DateTime(3)
-  updatedAt DateTime @updatedAt @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   @@id([day, event, screen])
   @@index([day, surface], map: "ix_analytics_day_surface")

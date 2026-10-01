@@ -1258,6 +1258,8 @@ export const OrderScalarFieldEnum = {
   customerNote: 'customerNote',
   internalNote: 'internalNote',
   placedAt: 'placedAt',
+  termsDocumentId: 'termsDocumentId',
+  termsAcceptedAt: 'termsAcceptedAt',
   confirmedAt: 'confirmedAt',
   cancelledAt: 'cancelledAt',
   cancelReason: 'cancelReason',
@@ -9336,6 +9338,7 @@ export const OrderOrderByRelevanceFieldEnum = {
   buyerVatNumberSnapshot: 'buyerVatNumberSnapshot',
   customerNote: 'customerNote',
   internalNote: 'internalNote',
+  termsDocumentId: 'termsDocumentId',
   cancelReason: 'cancelReason'
 } as const
 

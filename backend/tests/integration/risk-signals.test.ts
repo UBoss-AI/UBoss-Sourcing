@@ -96,12 +96,16 @@ describe('rules', () => {
     await failures(noisy, 3);
     await failures(quiet, 2);
     expect(await runRiskScan()).toBeGreaterThanOrEqual(1);
-    const login = await prisma.riskSignal.findMany({ where: { ruleCode: RiskRuleCode.LOGIN_FAILURES } });
+    // Scoped to this file's addresses: other files' failed sign-ins may share the window.
+    const login = await prisma.riskSignal.findMany({ where: { ruleCode: RiskRuleCode.LOGIN_FAILURES, facts: { path: '$.email', equals: noisy } } });
     expect(login).toHaveLength(1);
+    expect(await prisma.riskSignal.count({ where: { ruleCode: RiskRuleCode.LOGIN_FAILURES, facts: { path: '$.email', equals: quiet } } })).toBe(0);
     expect(login[0]?.facts).toMatchObject({ email: noisy, approvedForProduction: false });
     expect(login[0]?.observed).toBe(3);
     const before = await prisma.riskSignal.count();
-    expect(await runRiskScan()).toBe(0);
+    await runRiskScan();
+    // A rescan of the same window raises nothing new for this pattern.
+    expect(await prisma.riskSignal.count({ where: { ruleCode: RiskRuleCode.LOGIN_FAILURES, facts: { path: '$.email', equals: noisy } } })).toBe(1);
     expect(await prisma.riskSignal.count()).toBe(before);
   });
 

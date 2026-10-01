@@ -79,8 +79,8 @@ export async function recordEvents(events: IncomingEvent[], now: Date = new Date
   const day = utcDay(now);
   for (const { event, screen, count } of grouped.values()) {
     await prisma.$executeRaw`
-      INSERT INTO analytics_daily_counts (day, event, screen, surface, count)
-      VALUES (${day}, ${event}, ${screen}, ${surfaceOf(screen)}, ${count})
+      INSERT INTO analytics_daily_counts (day, event, screen, surface, count, createdAt, updatedAt)
+      VALUES (${day}, ${event}, ${screen}, ${surfaceOf(screen)}, ${count}, CURRENT_TIMESTAMP(3), CURRENT_TIMESTAMP(3))
       ON DUPLICATE KEY UPDATE count = count + VALUES(count), updatedAt = CURRENT_TIMESTAMP(3)`;
   }
   return events.length;

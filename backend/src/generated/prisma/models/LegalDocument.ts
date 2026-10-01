@@ -283,6 +283,7 @@ export type LegalDocumentWhereInput = {
   supersedes?: Prisma.XOR<Prisma.LegalDocumentNullableScalarRelationFilter, Prisma.LegalDocumentWhereInput> | null
   supersededBy?: Prisma.LegalDocumentListRelationFilter
   acceptances?: Prisma.ConsentRecordListRelationFilter
+  ordersPlaced?: Prisma.OrderListRelationFilter
 }
 
 export type LegalDocumentOrderByWithRelationInput = {
@@ -305,6 +306,7 @@ export type LegalDocumentOrderByWithRelationInput = {
   supersedes?: Prisma.LegalDocumentOrderByWithRelationInput
   supersededBy?: Prisma.LegalDocumentOrderByRelationAggregateInput
   acceptances?: Prisma.ConsentRecordOrderByRelationAggregateInput
+  ordersPlaced?: Prisma.OrderOrderByRelationAggregateInput
   _relevance?: Prisma.LegalDocumentOrderByRelevanceInput
 }
 
@@ -332,6 +334,7 @@ export type LegalDocumentWhereUniqueInput = Prisma.AtLeast<{
   supersedes?: Prisma.XOR<Prisma.LegalDocumentNullableScalarRelationFilter, Prisma.LegalDocumentWhereInput> | null
   supersededBy?: Prisma.LegalDocumentListRelationFilter
   acceptances?: Prisma.ConsentRecordListRelationFilter
+  ordersPlaced?: Prisma.OrderListRelationFilter
 }, "id" | "kind_version_locale">
 
 export type LegalDocumentOrderByWithAggregationInput = {
@@ -397,6 +400,7 @@ export type LegalDocumentCreateInput = {
   supersedes?: Prisma.LegalDocumentCreateNestedOneWithoutSupersededByInput
   supersededBy?: Prisma.LegalDocumentCreateNestedManyWithoutSupersedesInput
   acceptances?: Prisma.ConsentRecordCreateNestedManyWithoutLegalDocumentInput
+  ordersPlaced?: Prisma.OrderCreateNestedManyWithoutTermsDocumentInput
 }
 
 export type LegalDocumentUncheckedCreateInput = {
@@ -418,6 +422,7 @@ export type LegalDocumentUncheckedCreateInput = {
   updatedAt?: Date | string
   supersededBy?: Prisma.LegalDocumentUncheckedCreateNestedManyWithoutSupersedesInput
   acceptances?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutLegalDocumentInput
+  ordersPlaced?: Prisma.OrderUncheckedCreateNestedManyWithoutTermsDocumentInput
 }
 
 export type LegalDocumentUpdateInput = {
@@ -439,6 +444,7 @@ export type LegalDocumentUpdateInput = {
   supersedes?: Prisma.LegalDocumentUpdateOneWithoutSupersededByNestedInput
   supersededBy?: Prisma.LegalDocumentUpdateManyWithoutSupersedesNestedInput
   acceptances?: Prisma.ConsentRecordUpdateManyWithoutLegalDocumentNestedInput
+  ordersPlaced?: Prisma.OrderUpdateManyWithoutTermsDocumentNestedInput
 }
 
 export type LegalDocumentUncheckedUpdateInput = {
@@ -460,6 +466,7 @@ export type LegalDocumentUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededBy?: Prisma.LegalDocumentUncheckedUpdateManyWithoutSupersedesNestedInput
   acceptances?: Prisma.ConsentRecordUncheckedUpdateManyWithoutLegalDocumentNestedInput
+  ordersPlaced?: Prisma.OrderUncheckedUpdateManyWithoutTermsDocumentNestedInput
 }
 
 export type LegalDocumentCreateManyInput = {
@@ -602,6 +609,22 @@ export type LegalDocumentMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type LegalDocumentCreateNestedOneWithoutOrdersPlacedInput = {
+  create?: Prisma.XOR<Prisma.LegalDocumentCreateWithoutOrdersPlacedInput, Prisma.LegalDocumentUncheckedCreateWithoutOrdersPlacedInput>
+  connectOrCreate?: Prisma.LegalDocumentCreateOrConnectWithoutOrdersPlacedInput
+  connect?: Prisma.LegalDocumentWhereUniqueInput
+}
+
+export type LegalDocumentUpdateOneWithoutOrdersPlacedNestedInput = {
+  create?: Prisma.XOR<Prisma.LegalDocumentCreateWithoutOrdersPlacedInput, Prisma.LegalDocumentUncheckedCreateWithoutOrdersPlacedInput>
+  connectOrCreate?: Prisma.LegalDocumentCreateOrConnectWithoutOrdersPlacedInput
+  upsert?: Prisma.LegalDocumentUpsertWithoutOrdersPlacedInput
+  disconnect?: Prisma.LegalDocumentWhereInput | boolean
+  delete?: Prisma.LegalDocumentWhereInput | boolean
+  connect?: Prisma.LegalDocumentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LegalDocumentUpdateToOneWithWhereWithoutOrdersPlacedInput, Prisma.LegalDocumentUpdateWithoutOrdersPlacedInput>, Prisma.LegalDocumentUncheckedUpdateWithoutOrdersPlacedInput>
+}
+
 export type LegalDocumentCreateNestedOneWithoutAcceptancesInput = {
   create?: Prisma.XOR<Prisma.LegalDocumentCreateWithoutAcceptancesInput, Prisma.LegalDocumentUncheckedCreateWithoutAcceptancesInput>
   connectOrCreate?: Prisma.LegalDocumentCreateOrConnectWithoutAcceptancesInput
@@ -684,6 +707,106 @@ export type LegalDocumentUncheckedUpdateManyWithoutSupersedesNestedInput = {
   deleteMany?: Prisma.LegalDocumentScalarWhereInput | Prisma.LegalDocumentScalarWhereInput[]
 }
 
+export type LegalDocumentCreateWithoutOrdersPlacedInput = {
+  id: string
+  kind: $Enums.LegalDocumentKind
+  version: string
+  locale: string
+  status?: $Enums.LegalDocumentStatus
+  title: string
+  body: string
+  changeSummary?: string | null
+  effectiveAt: Date | string
+  contentSha256?: string | null
+  publishedAt?: Date | string | null
+  publishedById?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supersedes?: Prisma.LegalDocumentCreateNestedOneWithoutSupersededByInput
+  supersededBy?: Prisma.LegalDocumentCreateNestedManyWithoutSupersedesInput
+  acceptances?: Prisma.ConsentRecordCreateNestedManyWithoutLegalDocumentInput
+}
+
+export type LegalDocumentUncheckedCreateWithoutOrdersPlacedInput = {
+  id: string
+  kind: $Enums.LegalDocumentKind
+  version: string
+  locale: string
+  status?: $Enums.LegalDocumentStatus
+  title: string
+  body: string
+  changeSummary?: string | null
+  effectiveAt: Date | string
+  contentSha256?: string | null
+  publishedAt?: Date | string | null
+  publishedById?: string | null
+  supersedesId?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supersededBy?: Prisma.LegalDocumentUncheckedCreateNestedManyWithoutSupersedesInput
+  acceptances?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutLegalDocumentInput
+}
+
+export type LegalDocumentCreateOrConnectWithoutOrdersPlacedInput = {
+  where: Prisma.LegalDocumentWhereUniqueInput
+  create: Prisma.XOR<Prisma.LegalDocumentCreateWithoutOrdersPlacedInput, Prisma.LegalDocumentUncheckedCreateWithoutOrdersPlacedInput>
+}
+
+export type LegalDocumentUpsertWithoutOrdersPlacedInput = {
+  update: Prisma.XOR<Prisma.LegalDocumentUpdateWithoutOrdersPlacedInput, Prisma.LegalDocumentUncheckedUpdateWithoutOrdersPlacedInput>
+  create: Prisma.XOR<Prisma.LegalDocumentCreateWithoutOrdersPlacedInput, Prisma.LegalDocumentUncheckedCreateWithoutOrdersPlacedInput>
+  where?: Prisma.LegalDocumentWhereInput
+}
+
+export type LegalDocumentUpdateToOneWithWhereWithoutOrdersPlacedInput = {
+  where?: Prisma.LegalDocumentWhereInput
+  data: Prisma.XOR<Prisma.LegalDocumentUpdateWithoutOrdersPlacedInput, Prisma.LegalDocumentUncheckedUpdateWithoutOrdersPlacedInput>
+}
+
+export type LegalDocumentUpdateWithoutOrdersPlacedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumLegalDocumentKindFieldUpdateOperationsInput | $Enums.LegalDocumentKind
+  version?: Prisma.StringFieldUpdateOperationsInput | string
+  locale?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumLegalDocumentStatusFieldUpdateOperationsInput | $Enums.LegalDocumentStatus
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supersedes?: Prisma.LegalDocumentUpdateOneWithoutSupersededByNestedInput
+  supersededBy?: Prisma.LegalDocumentUpdateManyWithoutSupersedesNestedInput
+  acceptances?: Prisma.ConsentRecordUpdateManyWithoutLegalDocumentNestedInput
+}
+
+export type LegalDocumentUncheckedUpdateWithoutOrdersPlacedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumLegalDocumentKindFieldUpdateOperationsInput | $Enums.LegalDocumentKind
+  version?: Prisma.StringFieldUpdateOperationsInput | string
+  locale?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumLegalDocumentStatusFieldUpdateOperationsInput | $Enums.LegalDocumentStatus
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  changeSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  effectiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  contentSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supersedesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supersededBy?: Prisma.LegalDocumentUncheckedUpdateManyWithoutSupersedesNestedInput
+  acceptances?: Prisma.ConsentRecordUncheckedUpdateManyWithoutLegalDocumentNestedInput
+}
+
 export type LegalDocumentCreateWithoutAcceptancesInput = {
   id: string
   kind: $Enums.LegalDocumentKind
@@ -702,6 +825,7 @@ export type LegalDocumentCreateWithoutAcceptancesInput = {
   updatedAt?: Date | string
   supersedes?: Prisma.LegalDocumentCreateNestedOneWithoutSupersededByInput
   supersededBy?: Prisma.LegalDocumentCreateNestedManyWithoutSupersedesInput
+  ordersPlaced?: Prisma.OrderCreateNestedManyWithoutTermsDocumentInput
 }
 
 export type LegalDocumentUncheckedCreateWithoutAcceptancesInput = {
@@ -722,6 +846,7 @@ export type LegalDocumentUncheckedCreateWithoutAcceptancesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supersededBy?: Prisma.LegalDocumentUncheckedCreateNestedManyWithoutSupersedesInput
+  ordersPlaced?: Prisma.OrderUncheckedCreateNestedManyWithoutTermsDocumentInput
 }
 
 export type LegalDocumentCreateOrConnectWithoutAcceptancesInput = {
@@ -758,6 +883,7 @@ export type LegalDocumentUpdateWithoutAcceptancesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersedes?: Prisma.LegalDocumentUpdateOneWithoutSupersededByNestedInput
   supersededBy?: Prisma.LegalDocumentUpdateManyWithoutSupersedesNestedInput
+  ordersPlaced?: Prisma.OrderUpdateManyWithoutTermsDocumentNestedInput
 }
 
 export type LegalDocumentUncheckedUpdateWithoutAcceptancesInput = {
@@ -778,6 +904,7 @@ export type LegalDocumentUncheckedUpdateWithoutAcceptancesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededBy?: Prisma.LegalDocumentUncheckedUpdateManyWithoutSupersedesNestedInput
+  ordersPlaced?: Prisma.OrderUncheckedUpdateManyWithoutTermsDocumentNestedInput
 }
 
 export type LegalDocumentCreateWithoutSupersededByInput = {
@@ -798,6 +925,7 @@ export type LegalDocumentCreateWithoutSupersededByInput = {
   updatedAt?: Date | string
   supersedes?: Prisma.LegalDocumentCreateNestedOneWithoutSupersededByInput
   acceptances?: Prisma.ConsentRecordCreateNestedManyWithoutLegalDocumentInput
+  ordersPlaced?: Prisma.OrderCreateNestedManyWithoutTermsDocumentInput
 }
 
 export type LegalDocumentUncheckedCreateWithoutSupersededByInput = {
@@ -818,6 +946,7 @@ export type LegalDocumentUncheckedCreateWithoutSupersededByInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   acceptances?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutLegalDocumentInput
+  ordersPlaced?: Prisma.OrderUncheckedCreateNestedManyWithoutTermsDocumentInput
 }
 
 export type LegalDocumentCreateOrConnectWithoutSupersededByInput = {
@@ -843,6 +972,7 @@ export type LegalDocumentCreateWithoutSupersedesInput = {
   updatedAt?: Date | string
   supersededBy?: Prisma.LegalDocumentCreateNestedManyWithoutSupersedesInput
   acceptances?: Prisma.ConsentRecordCreateNestedManyWithoutLegalDocumentInput
+  ordersPlaced?: Prisma.OrderCreateNestedManyWithoutTermsDocumentInput
 }
 
 export type LegalDocumentUncheckedCreateWithoutSupersedesInput = {
@@ -863,6 +993,7 @@ export type LegalDocumentUncheckedCreateWithoutSupersedesInput = {
   updatedAt?: Date | string
   supersededBy?: Prisma.LegalDocumentUncheckedCreateNestedManyWithoutSupersedesInput
   acceptances?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutLegalDocumentInput
+  ordersPlaced?: Prisma.OrderUncheckedCreateNestedManyWithoutTermsDocumentInput
 }
 
 export type LegalDocumentCreateOrConnectWithoutSupersedesInput = {
@@ -904,6 +1035,7 @@ export type LegalDocumentUpdateWithoutSupersededByInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersedes?: Prisma.LegalDocumentUpdateOneWithoutSupersededByNestedInput
   acceptances?: Prisma.ConsentRecordUpdateManyWithoutLegalDocumentNestedInput
+  ordersPlaced?: Prisma.OrderUpdateManyWithoutTermsDocumentNestedInput
 }
 
 export type LegalDocumentUncheckedUpdateWithoutSupersededByInput = {
@@ -924,6 +1056,7 @@ export type LegalDocumentUncheckedUpdateWithoutSupersededByInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   acceptances?: Prisma.ConsentRecordUncheckedUpdateManyWithoutLegalDocumentNestedInput
+  ordersPlaced?: Prisma.OrderUncheckedUpdateManyWithoutTermsDocumentNestedInput
 }
 
 export type LegalDocumentUpsertWithWhereUniqueWithoutSupersedesInput = {
@@ -1000,6 +1133,7 @@ export type LegalDocumentUpdateWithoutSupersedesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededBy?: Prisma.LegalDocumentUpdateManyWithoutSupersedesNestedInput
   acceptances?: Prisma.ConsentRecordUpdateManyWithoutLegalDocumentNestedInput
+  ordersPlaced?: Prisma.OrderUpdateManyWithoutTermsDocumentNestedInput
 }
 
 export type LegalDocumentUncheckedUpdateWithoutSupersedesInput = {
@@ -1020,6 +1154,7 @@ export type LegalDocumentUncheckedUpdateWithoutSupersedesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededBy?: Prisma.LegalDocumentUncheckedUpdateManyWithoutSupersedesNestedInput
   acceptances?: Prisma.ConsentRecordUncheckedUpdateManyWithoutLegalDocumentNestedInput
+  ordersPlaced?: Prisma.OrderUncheckedUpdateManyWithoutTermsDocumentNestedInput
 }
 
 export type LegalDocumentUncheckedUpdateManyWithoutSupersedesInput = {
@@ -1048,11 +1183,13 @@ export type LegalDocumentUncheckedUpdateManyWithoutSupersedesInput = {
 export type LegalDocumentCountOutputType = {
   supersededBy: number
   acceptances: number
+  ordersPlaced: number
 }
 
 export type LegalDocumentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supersededBy?: boolean | LegalDocumentCountOutputTypeCountSupersededByArgs
   acceptances?: boolean | LegalDocumentCountOutputTypeCountAcceptancesArgs
+  ordersPlaced?: boolean | LegalDocumentCountOutputTypeCountOrdersPlacedArgs
 }
 
 /**
@@ -1079,6 +1216,13 @@ export type LegalDocumentCountOutputTypeCountAcceptancesArgs<ExtArgs extends run
   where?: Prisma.ConsentRecordWhereInput
 }
 
+/**
+ * LegalDocumentCountOutputType without action
+ */
+export type LegalDocumentCountOutputTypeCountOrdersPlacedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderWhereInput
+}
+
 
 export type LegalDocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1100,6 +1244,7 @@ export type LegalDocumentSelect<ExtArgs extends runtime.Types.Extensions.Interna
   supersedes?: boolean | Prisma.LegalDocument$supersedesArgs<ExtArgs>
   supersededBy?: boolean | Prisma.LegalDocument$supersededByArgs<ExtArgs>
   acceptances?: boolean | Prisma.LegalDocument$acceptancesArgs<ExtArgs>
+  ordersPlaced?: boolean | Prisma.LegalDocument$ordersPlacedArgs<ExtArgs>
   _count?: boolean | Prisma.LegalDocumentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["legalDocument"]>
 
@@ -1129,6 +1274,7 @@ export type LegalDocumentInclude<ExtArgs extends runtime.Types.Extensions.Intern
   supersedes?: boolean | Prisma.LegalDocument$supersedesArgs<ExtArgs>
   supersededBy?: boolean | Prisma.LegalDocument$supersededByArgs<ExtArgs>
   acceptances?: boolean | Prisma.LegalDocument$acceptancesArgs<ExtArgs>
+  ordersPlaced?: boolean | Prisma.LegalDocument$ordersPlacedArgs<ExtArgs>
   _count?: boolean | Prisma.LegalDocumentCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1138,6 +1284,7 @@ export type $LegalDocumentPayload<ExtArgs extends runtime.Types.Extensions.Inter
     supersedes: Prisma.$LegalDocumentPayload<ExtArgs> | null
     supersededBy: Prisma.$LegalDocumentPayload<ExtArgs>[]
     acceptances: Prisma.$ConsentRecordPayload<ExtArgs>[]
+    ordersPlaced: Prisma.$OrderPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1521,6 +1668,7 @@ export interface Prisma__LegalDocumentClient<T, Null = never, ExtArgs extends ru
   supersedes<T extends Prisma.LegalDocument$supersedesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LegalDocument$supersedesArgs<ExtArgs>>): Prisma.Prisma__LegalDocumentClient<runtime.Types.Result.GetResult<Prisma.$LegalDocumentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   supersededBy<T extends Prisma.LegalDocument$supersededByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LegalDocument$supersededByArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LegalDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   acceptances<T extends Prisma.LegalDocument$acceptancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LegalDocument$acceptancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConsentRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ordersPlaced<T extends Prisma.LegalDocument$ordersPlacedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LegalDocument$ordersPlacedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1978,6 +2126,30 @@ export type LegalDocument$acceptancesArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.ConsentRecordScalarFieldEnum | Prisma.ConsentRecordScalarFieldEnum[]
+}
+
+/**
+ * LegalDocument.ordersPlaced
+ */
+export type LegalDocument$ordersPlacedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
+  orderBy?: Prisma.OrderOrderByWithRelationInput | Prisma.OrderOrderByWithRelationInput[]
+  cursor?: Prisma.OrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
 }
 
 /**

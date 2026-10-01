@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**359 tables · 335 enums · 821 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
+**359 tables · 335 enums · 822 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -1934,6 +1934,7 @@ Table `cart_items`
 erDiagram
     ExchangeRateSnapshot |o--o{ Order : "fxSnapshot"
     CustomerPaymentMethod |o--o{ Order : "preferredPaymentCard"
+    LegalDocument |o--o{ Order : "termsDocument"
     CustomerProfile ||--o{ Order : "customerProfile"
     Cart |o--o{ Order : "cart"
     InventoryLocation |o--o{ Order : "fulfilmentLocation"
@@ -2051,6 +2052,8 @@ Table `orders`
 | `customerNote` | String · Text | yes |  |  |  |
 | `internalNote` | String · Text | yes |  |  |  |
 | `placedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `termsDocumentId` | String · Char(26) | yes | FK → [LegalDocument](#model-legaldocument) |  | The Terms and Conditions the buyer agreed to for THIS order (JOURNEY-022): the exact published version, checked server-side at checkout. Null for orders placed before checkout recorded it, and for orders that do not pass through checkout (samples, scheduled occurrences, preorders). (on delete: Restrict) |
+| `termsAcceptedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `confirmedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `cancelledAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `cancelReason` | String · VarChar(512) | yes |  |  |  |
@@ -2061,6 +2064,7 @@ Table `orders`
 
 - `fxSnapshot` → [ExchangeRateSnapshot](#model-exchangeratesnapshot) via `fxSnapshotId` - many-to-one, optional, on delete **SetNull**
 - `preferredPaymentCard` → [CustomerPaymentMethod](#model-customerpaymentmethod) via `preferredPaymentMethodId` - many-to-one, optional, on delete **SetNull**
+- `termsDocument` → [LegalDocument](#model-legaldocument) via `termsDocumentId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
 - `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - many-to-one, required, on delete **Restrict**
 - `cart` → [Cart](#model-cart) via `cartId` - many-to-one, optional, on delete **SetNull**
 - `fulfilmentLocation` → [InventoryLocation](#model-inventorylocation) via `fulfilmentLocationId` - many-to-one, optional, on delete **Restrict**
@@ -2102,6 +2106,7 @@ Table `orders`
 - `@@index([status, createdAt], map: "ix_order_status_time")`
 - `@@index([source, createdAt], map: "ix_order_source_time")`
 - `@@index([placedAt], map: "ix_order_placed")`
+- `@@index([termsDocumentId], map: "fk_order_terms_document")`
 - `@@index([fulfilmentLocationId], map: "ix_order_fulfilment_location")`
 - `@@index([fulfilmentQuoteId], map: "ix_order_fulfilment_quote")`
 - `@@index([fxSnapshotId], map: "ix_order_fx_snapshot")`
@@ -16910,6 +16915,7 @@ One version of one agreement in one language.
 - `supersedes` → [LegalDocument](#model-legaldocument) via `supersedesId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
 - `supersededBy` ← [LegalDocument](#model-legaldocument) - has many
 - `acceptances` ← [ConsentRecord](#model-consentrecord) - has many
+- `ordersPlaced` ← [Order](#model-order) - has many
 
 **Indexes and keys**
 
@@ -21154,7 +21160,7 @@ Admin-maintained reference lists: units of measure, Incoterms and inspection def
 | `sortOrder` | Int |  |  | 0 |  |
 | `isActive` | Boolean |  |  | true |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
-| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Indexes and keys**
 
@@ -21182,7 +21188,7 @@ One configurable fraud rule. The defaults are placeholders: the risk owner sets 
 | `updatedById` | String · Char(26) | yes |  |  |  |
 | `version` | Int |  |  | 1 |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
-| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 <a id="model-risksignal"></a>
 
@@ -21209,7 +21215,7 @@ A rule that fired, with the facts that made it fire. Raised by the worker's scan
 | `reviewReason` | String · VarChar(1024) | yes |  |  |  |
 | `detectedAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
-| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Indexes and keys**
 
@@ -21232,7 +21238,7 @@ One counter per UTC day, event and screen pattern. No identifier of any kind: no
 | `surface` | String · VarChar(16) |  |  |  | STOREFRONT, SELLER_HUB or AGENCY, derived from the pattern. |
 | `count` | Int |  |  | 0 |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
-| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 **Indexes and keys**
 
