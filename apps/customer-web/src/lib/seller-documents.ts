@@ -287,6 +287,13 @@ export interface TradeCodes {
   id: string;
   hsnCode: string | null;
   countryOfOrigin: string | null;
+  /** The marketplace's review of the HS code (JOURNEY-049). Back to DECLARED whenever the code changes. */
+  hsVerification?: {
+    state: 'DECLARED' | 'VERIFIED' | 'REJECTED';
+    verifiedCode: string | null;
+    note: string | null;
+    verifiedAt: string | null;
+  };
 }
 
 export function fetchTradeCodes(offerId: string): Promise<TradeCodes> {

@@ -527,6 +527,14 @@ export const NAVIGATION: NavGroup[] = [
         matchPrefix: true,
       },
       {
+        // Trade rules, HS code verification and cargo insurance (JOURNEY-046, 049).
+        labelKey: 'nav.tradeCompliance',
+        to: '/settings/trade-compliance',
+        icon: SettingsIcon,
+        permissions: [Permission.SETTINGS_READ],
+        matchPrefix: true,
+      },
+      {
         // Storefront banners and category blocks (Master row 72).
         labelKey: 'nav.storefrontContent',
         to: '/settings/content',

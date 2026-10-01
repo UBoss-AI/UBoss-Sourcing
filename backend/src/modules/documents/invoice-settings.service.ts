@@ -160,14 +160,29 @@ export async function saveTradeCodes(
 ): Promise<Record<string, unknown>> {
   const offer = await prisma.sellerOffer.findUnique({
     where: { id: offerId },
-    select: { sellerAccountId: true },
+    select: { sellerAccountId: true, hsnCode: true },
   });
   if (offer === null || offer.sellerAccountId !== membership.sellerAccountId)
     throw notFound('Listing');
+  // A verification is of a code, not of a listing: a changed code goes back
+  // to the marketplace's review queue (JOURNEY-049).
+  const codeChanged = (offer.hsnCode ?? null) !== (input.hsnCode ?? null);
   const updated = await prisma.sellerOffer.update({
     where: { id: offerId },
-    data: { hsnCode: input.hsnCode, countryOfOrigin: input.countryOfOrigin },
-    select: { id: true, hsnCode: true, countryOfOrigin: true },
+    data: {
+      hsnCode: input.hsnCode,
+      countryOfOrigin: input.countryOfOrigin,
+      ...(codeChanged
+        ? {
+            hsVerificationState: 'DECLARED' as const,
+            hsVerifiedCode: null,
+            hsVerificationNote: null,
+            hsVerifiedAt: null,
+            hsVerifiedByUserId: null,
+          }
+        : {}),
+    },
+    select: TRADE_CODES_SELECT,
   });
   await recordSellerAudit({
     sellerAccountId: membership.sellerAccountId,
@@ -175,10 +190,47 @@ export async function saveTradeCodes(
     actor: { type: 'CUSTOMER', label: membership.displayName },
     resourceType: 'seller_offer',
     resourceId: offerId,
-    after: { hsnCode: input.hsnCode, countryOfOrigin: input.countryOfOrigin },
+    after: {
+      hsnCode: input.hsnCode,
+      countryOfOrigin: input.countryOfOrigin,
+      ...(codeChanged ? { hsVerificationState: 'DECLARED' } : {}),
+    },
     summary: 'HSN code and country of origin saved',
   });
-  return updated;
+  return tradeCodesView(updated);
+}
+
+const TRADE_CODES_SELECT = {
+  id: true,
+  hsnCode: true,
+  countryOfOrigin: true,
+  hsVerificationState: true,
+  hsVerifiedCode: true,
+  hsVerificationNote: true,
+  hsVerifiedAt: true,
+} as const;
+
+function tradeCodesView(offer: {
+  id: string;
+  hsnCode: string | null;
+  countryOfOrigin: string | null;
+  hsVerificationState: 'DECLARED' | 'VERIFIED' | 'REJECTED';
+  hsVerifiedCode: string | null;
+  hsVerificationNote: string | null;
+  hsVerifiedAt: Date | null;
+}): Record<string, unknown> {
+  return {
+    id: offer.id,
+    hsnCode: offer.hsnCode,
+    countryOfOrigin: offer.countryOfOrigin,
+    // The marketplace's review of the code: DECLARED until staff verify or reject it.
+    hsVerification: {
+      state: offer.hsVerificationState,
+      verifiedCode: offer.hsVerifiedCode,
+      note: offer.hsVerificationNote,
+      verifiedAt: offer.hsVerifiedAt?.toISOString() ?? null,
+    },
+  };
 }
 
 export async function readTradeCodes(
@@ -187,9 +239,9 @@ export async function readTradeCodes(
 ): Promise<Record<string, unknown>> {
   const offer = await prisma.sellerOffer.findUnique({
     where: { id: offerId },
-    select: { id: true, sellerAccountId: true, hsnCode: true, countryOfOrigin: true },
+    select: { ...TRADE_CODES_SELECT, sellerAccountId: true },
   });
   if (offer === null || offer.sellerAccountId !== membership.sellerAccountId)
     throw notFound('Listing');
-  return { id: offer.id, hsnCode: offer.hsnCode, countryOfOrigin: offer.countryOfOrigin };
+  return tradeCodesView(offer);
 }

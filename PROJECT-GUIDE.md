@@ -20154,3 +20154,11 @@ Inspection requirement views also expose the server gate as allowed plus a reada
 - RFQ matches explain themselves and flag capacity and open disputes (`modules/rfq/matching.service.ts` `explain`).
 - Quotes can promise export documents (`EXPORT_DOCUMENTS`, hashed only when present); the comparison adds a landed estimate, missing terms and a PDF.
 - Checkout records the Terms version on the order (`orders.termsDocumentId`); postcodes are checked per country (`domain/postal-codes.ts`, mirrored in the storefront).
+
+## Shipment booking and destination documents (JOURNEY-046, 049)
+
+- **Cargo insurance** on a booking is offered only when staff set a premium rate in Settings → Trade compliance (`logistics_trade_settings`; 0 = off, the default). The value is capped at a share of the goods value (11000 basis points = 110% by default). The premium is BigInt minor units, stored with the rate (`domain/cargo-insurance.ts`). Refusals: `SHIPMENT_INSURANCE_NOT_OFFERED` (409), `BOOKING_TERMS_INVALID` (400).
+- **Freight options**: `GET /seller/consignments/:id/freight-options` lists the operator's lanes for the route and weight with `validFrom`/`validTo`; carrier quotes show "valid until". The booking form also shows the countries and why dispatch waits (inspection release, destination hold).
+- **Trade rules** (`trade_compliance_rules`) are edited by staff (`routes/trade-compliance.admin.ts`, `modules/compliance/trade-rule-admin.service.ts`, audited): destination, category (and below), HS prefix, restricted/prohibited, required document and who provides it, HS verification.
+- **HS codes**: staff verify (optionally correcting) or reject in a queue (`modules/compliance/hs-verification.service.ts`); the seller is notified. Changing the code on a listing resets it to DECLARED (`saveTradeCodes`).
+- **Exception hold**: `domain/compliance-hold.ts` decides it; `modules/compliance/destination-compliance.service.ts` gathers the facts. A prohibited match, a seller document without a current VALID version, or an unverified HS code a rule needs refuses READY_FOR_DISPATCH, a dispatch and a collection with `DESTINATION_DOCUMENTS_NOT_READY` (409). Staff override it on the admin order page with a reason (`trade_compliance_overrides`, audited); it covers only the holds open then. Buyer-owed documents are shown to the buyer and never hold the seller.

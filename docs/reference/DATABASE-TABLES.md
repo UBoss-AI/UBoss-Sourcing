@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**359 tables · 335 enums · 822 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
+**360 tables · 335 enums · 823 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -76,7 +76,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [Seller commission invoices](#group-seller-commission-invoices) | 6 | 7 |
 | [/ how strongly an order needs inspecting, decided by the rules engine.](#group-how-strongly-an-order-needs-inspecting-decided-by-the-rules-engine) | 17 | 23 |
 | [/ where one check has got to.](#group-where-one-check-has-got-to) | 19 | 9 |
-| [/ where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.](#group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts) | 14 | 11 |
+| [/ where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.](#group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts) | 15 | 11 |
 | [/ what a ledger account represents. balances are never stored; they are the / sum of the account's lines.](#group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines) | 8 | 7 |
 | [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
 | [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 11 | 12 |
@@ -8952,6 +8952,7 @@ One seller's part of one buyer order.
 - `productionDelays` ← [SellerProductionDelay](#model-sellerproductiondelay) - has many
 - `buyerUpdates` ← [SellerOrderBuyerUpdate](#model-sellerorderbuyerupdate) - has many
 - `tradeDocuments` ← [OrderTradeDocument](#model-ordertradedocument) - has many
+- `complianceOverride` ← [TradeComplianceOverride](#model-tradecomplianceoverride) - has zero or one
 
 **Indexes and keys**
 
@@ -19305,7 +19306,7 @@ Where a content block appears on the storefront (Master row 72).
 
 ##  / where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.
 
-[CustomerKyc](#model-customerkyc) · [CustomerKycDocument](#model-customerkycdocument) · [CustomerPreference](#model-customerpreference) · [SellerProductionMilestone](#model-sellerproductionmilestone) · [SellerProductionDelay](#model-sellerproductiondelay) · [SellerOrderBuyerUpdate](#model-sellerorderbuyerupdate) · [OrderTradeDocument](#model-ordertradedocument) · [OrderTradeDocumentVersion](#model-ordertradedocumentversion) · [OrderTradeDocumentEvent](#model-ordertradedocumentevent) · [TradeComplianceRule](#model-tradecompliancerule) · [ConsignmentBookingTerms](#model-consignmentbookingterms) · [LogisticsTradeSettings](#model-logisticstradesettings) · [LogisticsLane](#model-logisticslane) · [LogisticsLaneBand](#model-logisticslaneband)
+[CustomerKyc](#model-customerkyc) · [CustomerKycDocument](#model-customerkycdocument) · [CustomerPreference](#model-customerpreference) · [SellerProductionMilestone](#model-sellerproductionmilestone) · [SellerProductionDelay](#model-sellerproductiondelay) · [SellerOrderBuyerUpdate](#model-sellerorderbuyerupdate) · [OrderTradeDocument](#model-ordertradedocument) · [OrderTradeDocumentVersion](#model-ordertradedocumentversion) · [OrderTradeDocumentEvent](#model-ordertradedocumentevent) · [TradeComplianceRule](#model-tradecompliancerule) · [TradeComplianceOverride](#model-tradecomplianceoverride) · [ConsignmentBookingTerms](#model-consignmentbookingterms) · [LogisticsTradeSettings](#model-logisticstradesettings) · [LogisticsLane](#model-logisticslane) · [LogisticsLaneBand](#model-logisticslaneband)
 
 ```mermaid
 erDiagram
@@ -19318,6 +19319,7 @@ erDiagram
     SellerOrderGroup ||--o{ OrderTradeDocument : "orderGroup"
     OrderTradeDocument ||--o{ OrderTradeDocumentVersion : "document"
     OrderTradeDocument ||--o{ OrderTradeDocumentEvent : "document"
+    SellerOrderGroup ||--o| TradeComplianceOverride : "sellerOrderGroup"
     LogisticsShipment ||--o| ConsignmentBookingTerms : "shipment"
     LogisticsLane ||--o{ LogisticsLaneBand : "lane"
     CustomerKyc {
@@ -19360,6 +19362,10 @@ erDiagram
     }
     TradeComplianceRule {
         String id PK
+    }
+    TradeComplianceOverride {
+        String id PK
+        String sellerOrderGroupId FK
     }
     ConsignmentBookingTerms {
         String id PK
@@ -19715,6 +19721,36 @@ One of the operator's destination and category rules.
 **Indexes and keys**
 
 - `@@index([destinationCountry, isActive], map: "ix_trade_rule_destination")`
+
+<a id="model-tradecomplianceoverride"></a>
+
+### TradeComplianceOverride
+
+Table `trade_compliance_overrides`
+
+A member of staff's written override of a seller order's pre-dispatch compliance hold (JOURNEY-049). One row per seller order. `holdKeysJson` lists the hold keys (see `domain/compliance-hold.ts`) it covers - the holds that existed when it was granted - so a cause that appears later holds the goods again. Revoking keeps the row and sets `revokedAt`.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerOrderGroupId` | String · Char(26) |  | UNIQUE, FK → [SellerOrderGroup](#model-sellerordergroup) |  | (on delete: Cascade) |
+| `orderId` | String · Char(26) |  |  |  |  |
+| `reason` | String · VarChar(1000) |  |  |  |  |
+| `holdKeysJson` | Json |  |  |  |  |
+| `grantedByStaffId` | String · Char(26) |  |  |  |  |
+| `grantedByLabel` | String · VarChar(160) |  |  |  |  |
+| `revokedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `revokedByStaffId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `sellerOrderGroup` → [SellerOrderGroup](#model-sellerordergroup) via `sellerOrderGroupId` - one-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@index([orderId], map: "ix_trade_override_order")`
 
 <a id="model-consignmentbookingterms"></a>
 

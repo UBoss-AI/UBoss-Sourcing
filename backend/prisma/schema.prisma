@@ -11699,6 +11699,7 @@ model SellerOrderGroup {
   buyerUpdates         SellerOrderBuyerUpdate[]
   /// The export and trade documents for this part of the order.
   tradeDocuments       OrderTradeDocument[]
+  complianceOverride   TradeComplianceOverride?
   @@unique([sellerAccountId, sellerOrderNumber], map: "uq_seller_order_number")
   @@unique([orderId, sellerAccountId], map: "uq_seller_order_group")
   @@index([sellerAccountId, status, createdAt], map: "ix_seller_order_group_status")
@@ -23442,6 +23443,32 @@ model TradeComplianceRule {
 
   @@index([destinationCountry, isActive], map: "ix_trade_rule_destination")
   @@map("trade_compliance_rules")
+}
+
+/// A member of staff's written override of a seller order's pre-dispatch
+/// compliance hold (JOURNEY-049). One row per seller order. `holdKeysJson`
+/// lists the hold keys (see `domain/compliance-hold.ts`) it covers - the holds
+/// that existed when it was granted - so a cause that appears later holds the
+/// goods again. Revoking keeps the row and sets `revokedAt`.
+model TradeComplianceOverride {
+  id                 String @id @db.Char(26)
+  sellerOrderGroupId String @unique(map: "uq_trade_override_group") @db.Char(26)
+  orderId            String @db.Char(26)
+
+  reason           String    @db.VarChar(1000)
+  holdKeysJson     Json
+  grantedByStaffId String    @db.Char(26)
+  grantedByLabel   String    @db.VarChar(160)
+  revokedAt        DateTime? @db.DateTime(3)
+  revokedByStaffId String?   @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  sellerOrderGroup SellerOrderGroup @relation(fields: [sellerOrderGroupId], references: [id], onDelete: Cascade)
+
+  @@index([orderId], map: "ix_trade_override_order")
+  @@map("trade_compliance_overrides")
 }
 
 /// How goods travel.

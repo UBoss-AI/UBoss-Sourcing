@@ -9,6 +9,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 
+import { buyerComplianceActions } from '../../modules/compliance/destination-compliance.service.js';
 import { listBuyerShipmentDetails } from '../../modules/seller/shipment-booking.service.js';
 import {
   buyerTradeDocumentFile,
@@ -20,15 +21,16 @@ import { sendDocumentFile } from './seller.shipment-paperwork.js';
 const orderParam = z.object({ id: z.string().length(26) });
 
 export function registerCustomerOrderShipmentDetailRoutes(app: FastifyInstance): Promise<void> {
-  // The booking of every consignment on one of the buyer's orders, and the trade documents the buyer may see.
+  // The booking of every consignment on one of the buyer's orders, the trade documents the buyer may see, and what the destination rules ask the buyer to produce.
   app.get('/:id/shipment-details', { preHandler: requireCustomer }, async (request, reply) => {
     const { id } = orderParam.parse(request.params);
     const scope = orderScopeWhere(request);
-    const [shipments, documents] = await Promise.all([
+    const [shipments, documents, buyerActions] = await Promise.all([
       listBuyerShipmentDetails(scope, id),
       listBuyerTradeDocuments(scope, id),
+      buyerComplianceActions(scope, id),
     ]);
-    return reply.header('cache-control', 'no-store').send({ shipments, documents });
+    return reply.header('cache-control', 'no-store').send({ shipments, documents, buyerActions });
   });
 
   // Download the current version of a buyer-visible trade document on one of the buyer's orders.

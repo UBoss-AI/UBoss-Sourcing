@@ -10,10 +10,40 @@ import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useToast } from '@/components/toast-context';
-import { Button, Card, Field, Input } from '@/components/ui';
+import { Badge, Button, Card, Field, Input } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
-import { fetchTradeCodes, saveTradeCodes } from '@/lib/seller-documents';
+import { fetchTradeCodes, saveTradeCodes, type TradeCodes } from '@/lib/seller-documents';
+
+/** Where the marketplace's review of the saved HS code stands. */
+function HsVerificationLine({
+  verification,
+  hasCode,
+}: {
+  verification: TradeCodes['hsVerification'];
+  hasCode: boolean;
+}): React.JSX.Element | null {
+  const { t } = useI18n();
+  if (verification === undefined || !hasCode) return null;
+  const tone = verification.state === 'VERIFIED' ? 'success' : verification.state === 'REJECTED' ? 'danger' : 'warning';
+  let text: string;
+  if (verification.state === 'VERIFIED') {
+    text =
+      verification.verifiedCode === null
+        ? t('tradeCodes.verification.VERIFIED')
+        : t('tradeCodes.verification.VERIFIED_AS', { code: verification.verifiedCode });
+  } else if (verification.state === 'REJECTED') {
+    text = t('tradeCodes.verification.REJECTED', { note: verification.note ?? '' });
+  } else {
+    text = t('tradeCodes.verification.DECLARED');
+  }
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs" data-testid="hs-verification">
+      <Badge tone={tone}>{text}</Badge>
+      <span className="text-ink-muted">{t('tradeCodes.verification.resetHint')}</span>
+    </div>
+  );
+}
 
 export function SellerTradeCodesPanel({ offerId }: { offerId: string }): React.JSX.Element {
   const { t } = useI18n();
@@ -102,6 +132,7 @@ export function SellerTradeCodesPanel({ offerId }: { offerId: string }): React.J
           {t('tradeCodes.save')}
         </Button>
       </div>
+      <HsVerificationLine verification={query.data?.hsVerification} hasCode={(query.data?.hsnCode ?? '') !== ''} />
     </Card>
   );
 }

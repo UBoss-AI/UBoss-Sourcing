@@ -40,6 +40,9 @@ const LOGISTICS_CODES = new Set([
   'LOGISTICS_LEG_TRANSITION_INVALID',
   'LOGISTICS_LEG_TRACKING_REQUIRED',
   'LOGISTICS_PARTNER_NOT_ELIGIBLE',
+  // Shipment booking and destination documents (JOURNEY-046, 049).
+  'SHIPMENT_INSURANCE_NOT_OFFERED',
+  'DESTINATION_DOCUMENTS_NOT_READY',
 ]);
 
 /** Requests for quotation. Each has its own sentence under `errors.rfq.*`. */

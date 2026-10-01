@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1289 endpoints** in 119 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1301 endpoints** in 120 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,9 +27,9 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 517 |
+| [Admin panel (staff)](#admin-panel-staff) | 528 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 320 |
+| [Seller Hub](#seller-hub) | 321 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
 | [Customer account](#customer-account) | 298 |
 | [Public and storefront](#public-and-storefront) | 54 |
@@ -371,6 +371,15 @@ Defined in `backend/src/http/routes/sellers.admin.ts`.
 | GET | `/api/v1/admin/fulfilment-methods/pending` | Staff | Admin(CUSTOMER_READ) | Sellers' delivery methods waiting for approval, oldest submission first. |
 | PATCH | `/api/v1/admin/fulfilment-methods/:methodId` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Approve, refuse or ask for changes to a seller's own delivery method, and decide whether it may ship across borders. Tells the seller and writes an audit entry. |
 
+### `admin/hs-verifications`
+
+Defined in `backend/src/http/routes/trade-compliance.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/hs-verifications` | Staff | Admin(PRODUCT_READ) | Listings whose declared HS code is in one review state (DECLARED by default): the HS verification queue. |
+| POST | `/api/v1/admin/hs-verifications/:id/decision` | Staff | Admin(PRODUCT_PUBLISH) | Verify a listing's HS code, optionally correcting it, or reject it with a note. Audited; the seller is told. |
+
 ### `admin/inspection`
 
 Defined in `backend/src/http/routes/inspection.ts`.
@@ -463,7 +472,7 @@ Defined in `backend/src/http/routes/legal.admin.ts`.
 
 ### `admin/logistics`
 
-Defined in `backend/src/http/routes/logistics.admin.ts`, `backend/src/http/routes/logistics-levels.admin.ts`, `backend/src/http/routes/market-rules.admin.ts`.
+Defined in `backend/src/http/routes/logistics.admin.ts`, `backend/src/http/routes/logistics-levels.admin.ts`, `backend/src/http/routes/market-rules.admin.ts`, `backend/src/http/routes/trade-compliance.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -525,6 +534,8 @@ Defined in `backend/src/http/routes/logistics.admin.ts`, `backend/src/http/route
 | POST | `/api/v1/admin/logistics/lanes` | Staff | Admin(LOGISTICS_WRITE) | Add a rate card: route, mode, carrier, transit, currency and weight bands. Audited. |
 | PUT | `/api/v1/admin/logistics/lanes/:id` | Staff | Admin(LOGISTICS_WRITE) | Replace a rate card and its bands; bumps its version. Audited. |
 | POST | `/api/v1/admin/logistics/lanes/quote` | Staff | Admin(LOGISTICS_READ) | Test a rate: every serviceable rate card that carries this weight on this route, cheapest first. |
+| GET | `/api/v1/admin/logistics/trade-settings` | Staff | Admin(LOGISTICS_READ) | The cargo insurance rate and the most that may be insured, in basis points. 0 means insurance is not offered. |
+| PUT | `/api/v1/admin/logistics/trade-settings` | Staff | Admin(LOGISTICS_WRITE) | Change the cargo insurance rate and cap. Audited. |
 
 ### `admin/market-rules`
 
@@ -574,7 +585,7 @@ Defined in `backend/src/http/routes/reports.admin.ts`.
 
 ### `admin/orders`
 
-Defined in `backend/src/http/routes/settings.admin.ts`, `backend/src/http/routes/returns.ts`, `backend/src/http/routes/payment-receipts.ts`, `backend/src/http/routes/orders.ts`, `backend/src/http/routes/payments.ts`, `backend/src/http/routes/vat.admin.ts`, `backend/src/http/routes/trade-documents.admin.ts`, `backend/src/http/routes/documents.admin.ts`, `backend/src/http/routes/commission-invoices.admin.ts`.
+Defined in `backend/src/http/routes/settings.admin.ts`, `backend/src/http/routes/returns.ts`, `backend/src/http/routes/payment-receipts.ts`, `backend/src/http/routes/orders.ts`, `backend/src/http/routes/payments.ts`, `backend/src/http/routes/vat.admin.ts`, `backend/src/http/routes/trade-documents.admin.ts`, `backend/src/http/routes/documents.admin.ts`, `backend/src/http/routes/commission-invoices.admin.ts`, `backend/src/http/routes/trade-compliance.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -596,6 +607,7 @@ Defined in `backend/src/http/routes/settings.admin.ts`, `backend/src/http/routes
 | GET | `/api/v1/admin/orders/:id/trade-documents` | Staff | Admin(ORDER_READ) | Every trade document on one order, every seller and every version, with its validation state. |
 | GET | `/api/v1/admin/orders/:id/seller-documents` | Staff | Admin(INVOICE_READ) | List the invoices, credit notes and packing lists sellers have issued for one order. Drafts are left out. |
 | GET | `/api/v1/admin/orders/:id/commission-invoices` | Staff | Admin(COMMISSION_INVOICE_VIEW) | Show the commission and the commission invoice of every seller order on one buyer order. |
+| GET | `/api/v1/admin/orders/:id/compliance` | Staff | Admin(ORDER_READ) | Destination readiness of every seller order on one order: rules that apply, what holds the goods, any override. |
 
 ### `admin/payment-links`
 
@@ -901,11 +913,13 @@ Defined in `backend/src/http/routes/sellers.admin.ts`.
 
 ### `admin/seller-orders`
 
-Defined in `backend/src/http/routes/commission-invoices.admin.ts`.
+Defined in `backend/src/http/routes/commission-invoices.admin.ts`, `backend/src/http/routes/trade-compliance.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | POST | `/api/v1/admin/seller-orders/:id/commission-invoice` | Staff | Admin(COMMISSION_INVOICE_GENERATE) | Create the draft commission invoice for one seller order, or return the live one. Needs an Idempotency-Key. |
+| POST | `/api/v1/admin/seller-orders/:id/compliance-override` | Staff | Admin(LOGISTICS_WRITE) | Let one seller order's goods leave despite its current compliance holds, with a written reason. Audited. |
+| DELETE | `/api/v1/admin/seller-orders/:id/compliance-override` | Staff | Admin(LOGISTICS_WRITE) | Withdraw a compliance override: the holds apply again. Audited. |
 
 ### `admin/sellers`
 
@@ -1004,6 +1018,17 @@ Defined in `backend/src/http/routes/trade-documents.admin.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/admin/trade-documents/versions/:id/file` | Staff | Admin(ORDER_READ) | Open the file of one version of a seller's trade document. |
 | POST | `/api/v1/admin/trade-documents/versions/:id/validation` | Staff | Admin(LOGISTICS_WRITE) | Mark the current version of a trade document valid, or reject it with a reason. |
+
+### `admin/trade-rules`
+
+Defined in `backend/src/http/routes/trade-compliance.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/trade-rules` | Staff | Admin(SETTINGS_READ) | Every destination and category trade rule, optionally for one destination country. |
+| POST | `/api/v1/admin/trade-rules` | Staff | Admin(SETTINGS_WRITE) | Add a trade rule: restricted or prohibited goods, a required document and who produces it, HS verification. Audited. |
+| PUT | `/api/v1/admin/trade-rules/:id` | Staff | Admin(SETTINGS_WRITE) | Replace a trade rule. Audited. |
+| DELETE | `/api/v1/admin/trade-rules/:id` | Staff | Admin(SETTINGS_WRITE) | Delete a trade rule. Audited. |
 
 ### `admin/vat-rates`
 
@@ -1365,7 +1390,8 @@ Defined in `backend/src/http/routes/seller.operations.ts`, `backend/src/http/rou
 | POST | `/api/v1/seller/consignments/:id/packing-list/supersede` | Public |  | Withdraw an issued packing list, with a reason, so the load can be re-packed and a new list issued. Only allowed before the carrier has scanned anything out. Writes an audit entry. |
 | POST | `/api/v1/seller/consignments/:id/pack` | Public |  | Invoice + packing list + packed, together or not at all. |
 | GET | `/api/v1/seller/consignments/:id/booking` | Seller | Seller(ORDER_READ) | The booking of one consignment: mode, Incoterm, ports, pickup date and window, and who carries it. |
-| PUT | `/api/v1/seller/consignments/:id/booking` | Seller | TradingSeller(ORDER_FULFIL) | Book a consignment: store its mode, Incoterm, ports and pickup, and record a hand booking with DHL, FedEx or India Post when one is named. |
+| GET | `/api/v1/seller/consignments/:id/freight-options` | Seller | Seller(ORDER_READ) | The operator's rate cards that can carry one consignment today: route, mode, carrier, transit, price and validity dates. |
+| PUT | `/api/v1/seller/consignments/:id/booking` | Seller | TradingSeller(ORDER_FULFIL) | Book a consignment: store its mode, Incoterm, ports, pickup and cargo insurance, and record a hand booking with DHL, FedEx or India Post when one is named. |
 
 ### `seller/dashboard`
 
@@ -2404,7 +2430,7 @@ Defined in `backend/src/http/routes/returns.ts`, `backend/src/http/routes/orders
 | GET | `/api/v1/orders/:id/tracking` | Customer | Customer | Every consignment on one of the buyer's orders: its timeline in the buyer's words, anything wrong with it, its ETA and its proof of delivery. |
 | POST | `/api/v1/orders/:id/shipments/:shipmentId/proof-of-delivery/:kind/link` | Customer | Customer | A single-use link, valid for a few minutes, to the signature or photograph captured as proof of delivery of one of the buyer's consignments. |
 | GET | `/api/v1/orders/:id/shipments/:shipmentId/proof-of-delivery/:kind/download` | Customer | Customer | Redeem a proof-of-delivery link: works once, only for the person it was made for, and is recorded in the audit log. |
-| GET | `/api/v1/orders/:id/shipment-details` | Customer | Customer | The booking of every consignment on one of the buyer's orders, and the trade documents the buyer may see. |
+| GET | `/api/v1/orders/:id/shipment-details` | Customer | Customer | The booking of every consignment on one of the buyer's orders, the trade documents the buyer may see, and what the destination rules ask the buyer to produce. |
 | GET | `/api/v1/orders/:id/trade-documents/:versionId/file` | Customer | Customer | Download the current version of a buyer-visible trade document on one of the buyer's orders. |
 | GET | `/api/v1/orders/:id/milestones` | Customer | Customer | Production milestones and exceptions, inspection status, shipments, buyer-visible documents and payment status of one of the buyer's orders. |
 | GET | `/api/v1/orders/:id/receipts` | Customer | Customer | The receipts the buyer can download for one of their own orders: each captured payment and each confirmed refund. |

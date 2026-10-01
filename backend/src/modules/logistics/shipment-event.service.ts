@@ -43,6 +43,8 @@ import type { OrderStatusName } from '../../domain/order-state-machine.js';
 import type { LogisticsPermissionKey } from '../../domain/logistics-permissions.js';
 import { assertInspectionGateOpen } from '../../domain/inspection-gate.js';
 import { evaluateShipmentGate, recordGatePassage } from '../inspection/gate.service.js';
+import { assertComplianceOpen } from '../../domain/compliance-hold.js';
+import { evaluateShipmentCompliance } from '../compliance/destination-compliance.service.js';
 import {
   INSPECTION_GATED_SHIPMENT_STATUSES,
   assertShipmentCorrection,
@@ -421,6 +423,13 @@ async function attemptShipmentEvent(
             input.hasProofOfDelivery === true || shipment.proofOfDelivery !== null,
           inspectionGate,
         });
+      }
+
+      // The destination documents hold (JOURNEY-049), on the same guarded
+      // moves and for every caller, correction or not. A consignment already
+      // collected is past it; it was checked when it left.
+      if (INSPECTION_GATED_SHIPMENT_STATUSES.includes(input.status)) {
+        assertComplianceOpen(await evaluateShipmentCompliance(tx, shipment.id, from), { from, to: input.status });
       }
 
       // The insert that deduplicates. If this throws P2002 the work was

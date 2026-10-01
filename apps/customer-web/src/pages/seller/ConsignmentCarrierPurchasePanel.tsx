@@ -31,7 +31,7 @@ import { useToast } from '@/components/toast-context';
 import { Badge, Button, Field, Input, LoadingState } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Translate } from '@/i18n/i18n-context';
-import { formatMoneyMinor } from '@/lib/format';
+import { formatDateTime, formatMoneyMinor } from '@/lib/format';
 import { errorMessage } from '@/lib/errors';
 import {
   cancelPickup,
@@ -239,6 +239,16 @@ export function ConsignmentCarrierPurchasePanel({
                         total: String(quote.estimatedTransitDays),
                       })}`
                     : ''}
+                </p>
+                {/* Rate validity: the carrier's price holds until its quote expires; after that it cannot be bought. */}
+                <p className="mt-0.5 text-xs" data-testid={`quote-validity-${quote.id}`}>
+                  {new Date(quote.expiresAt).getTime() <= Date.now() ? (
+                    <Badge tone="danger">{t('sellerBuy.priceExpired')}</Badge>
+                  ) : (
+                    <span className="text-ink-muted">
+                      {t('sellerBuy.validUntil', { date: formatDateTime(quote.expiresAt) })}
+                    </span>
+                  )}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-3">

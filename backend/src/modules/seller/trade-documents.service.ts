@@ -19,8 +19,20 @@
  *  - The buyer sees a document only when its kind is buyer-visible, and only
  *    its current version, and never a rejected one.
  */
+import {
+  validationStateOf,
+  type ComplianceHold,
+  type ComplianceItemStatus,
+  type ResponsiblePartyName,
+  type TradeRestrictionName,
+  type TradeValidationState,
+} from '../../domain/compliance-hold.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { newId } from '../../infra/ids.js';
+import {
+  sellerOrderCompliance,
+  type ComplianceOverrideView,
+} from '../compliance/destination-compliance.service.js';
 import { assertNotMalware } from '../../infra/malware-scan.js';
 import { prisma } from '../../infra/prisma.js';
 import { sniffDocumentType, storage } from '../../infra/storage/index.js';
@@ -64,20 +76,9 @@ export function isBuyerVisible(kind: string, override: string | null): boolean {
   return BUYER_VISIBLE_KINDS.has(kind) || kind.startsWith('CATEGORY:');
 }
 
-export type TradeValidationState = 'PENDING_REVIEW' | 'VALID' | 'REJECTED' | 'EXPIRED';
-
-/** EXPIRED wins over everything but a rejection: an expired certificate is not valid. */
-export function validationStateOf(
-  validation: 'PENDING_REVIEW' | 'VALID' | 'REJECTED',
-  expiresOn: Date | null,
-  today: Date = new Date(),
-): TradeValidationState {
-  if (validation === 'REJECTED') return 'REJECTED';
-  if (expiresOn !== null && expiresOn.toISOString().slice(0, 10) < today.toISOString().slice(0, 10)) {
-    return 'EXPIRED';
-  }
-  return validation;
-}
+// The validation state is shared with the pre-dispatch compliance hold, so it
+// lives in the domain and is re-exported here for the callers that had it.
+export { validationStateOf, type TradeValidationState } from '../../domain/compliance-hold.js';
 
 function invalid(message: string, field: string, code: string): never {
   throw badRequest(ErrorCode.TRADE_DOCUMENT_INVALID, message, [{ field, code }]);
@@ -198,12 +199,31 @@ export interface RequiredTradeDocument {
   note: string | null;
   /** Whether a current version exists that is VALID or awaiting review. */
   satisfied: boolean;
+  /** Who has to produce it. Only the seller's own documents hold their goods. */
+  responsibleParty: ResponsiblePartyName;
+  /** What the rule says about the goods: RESTRICTED means allowed only with this document. */
+  restriction: TradeRestrictionName;
+  status: ComplianceItemStatus;
+}
+
+/** Destination readiness for one seller order (JOURNEY-049). */
+export interface SellerOrderComplianceSummary {
+  destination: string;
+  /** Rules that restrict or prohibit the goods, or need the HS code verified, with no document of their own. */
+  restrictions: { ruleName: string; restriction: TradeRestrictionName; requiresHsVerification: boolean; note: string | null; skus: string[] }[];
+  /** What holds the goods before dispatch, and who must act. */
+  holds: ComplianceHold[];
+  /** False while anything uncovered holds the goods. */
+  open: boolean;
+  overridden: boolean;
+  override: ComplianceOverrideView | null;
 }
 
 export interface SellerTradeDocuments {
   documents: TradeDocumentView[];
-  /** What the operator's destination and category rules ask the seller for. */
+  /** What the operator's destination and category rules ask for, from every party. */
   required: RequiredTradeDocument[];
+  compliance: SellerOrderComplianceSummary;
   /** The two documents this system issues, counted per state, for one summary line. */
   issued: { commercialInvoices: number; packingLists: number };
   consignments: { id: string; reference: string }[];
@@ -251,44 +271,53 @@ function destinationCountryOf(address: unknown): string {
   return '';
 }
 
+/**
+ * What the destination and category rules ask for on one seller order, from
+ * every responsible party, and whether anything holds the goods (JOURNEY-049).
+ * Matching - destination, category and everything above it, HS prefix on the
+ * verified code where there is one - is `domain/compliance-hold.ts`.
+ */
 async function requiredFor(
-  group: Awaited<ReturnType<typeof requireGroup>>,
-  documents: TradeDocumentView[],
-): Promise<RequiredTradeDocument[]> {
-  const destination = destinationCountryOf(group.order.shippingAddressJson);
-  const categoryIds = [...new Set(group.lines.map((line) => line.offer.product.categoryId))];
-  const hsCodes = group.lines.map((line) => line.offer.hsnCode ?? '');
-
-  const rules = await prisma.tradeComplianceRule.findMany({
-    where: {
-      isActive: true,
-      responsibleParty: 'SELLER',
-      requiredDocumentKind: { not: null },
-      destinationCountry: { in: ['', destination] },
-      OR: [{ categoryId: null }, { categoryId: { in: categoryIds } }],
+  sellerAccountId: string,
+  orderGroupId: string,
+): Promise<{ required: RequiredTradeDocument[]; compliance: SellerOrderComplianceSummary }> {
+  const { verdict, override } = await sellerOrderCompliance(sellerAccountId, orderGroupId);
+  const required: RequiredTradeDocument[] = [];
+  const restrictions: SellerOrderComplianceSummary['restrictions'] = [];
+  for (const item of verdict.items) {
+    if (item.documentKind !== null) {
+      required.push({
+        kind: item.documentKind,
+        name: item.documentName ?? item.documentKind,
+        ruleName: item.ruleName,
+        note: item.note,
+        satisfied: item.status === 'VALID' || item.status === 'PENDING_REVIEW',
+        responsibleParty: item.responsibleParty,
+        restriction: item.restriction,
+        status: item.status,
+      });
+    }
+    if (item.documentKind === null || item.restriction === 'PROHIBITED' || item.requiresHsVerification) {
+      restrictions.push({
+        ruleName: item.ruleName,
+        restriction: item.restriction,
+        requiresHsVerification: item.requiresHsVerification,
+        note: item.note,
+        skus: item.skus,
+      });
+    }
+  }
+  return {
+    required,
+    compliance: {
+      destination: verdict.destination,
+      restrictions,
+      holds: verdict.holds,
+      open: verdict.open,
+      overridden: verdict.overridden,
+      override,
     },
-    select: { name: true, hsPrefix: true, requiredDocumentKind: true, requiredDocumentName: true, note: true },
-    orderBy: { name: 'asc' },
-  });
-
-  return rules
-    .filter((rule) => rule.hsPrefix === '' || hsCodes.some((code) => code.startsWith(rule.hsPrefix)))
-    .map((rule) => {
-      const kind = rule.requiredDocumentKind ?? '';
-      const satisfied = documents.some(
-        (document) =>
-          document.kind === kind &&
-          document.current !== null &&
-          (document.current.validation === 'VALID' || document.current.validation === 'PENDING_REVIEW'),
-      );
-      return {
-        kind,
-        name: rule.requiredDocumentName ?? kind,
-        ruleName: rule.name,
-        note: rule.note,
-        satisfied,
-      };
-    });
+  };
 }
 
 /** Every trade document of one of the seller's orders, with what the rules require. */
@@ -322,10 +351,12 @@ export async function listSellerTradeDocuments(
   ]);
 
   const documents = rows.map(documentView);
+  const { required, compliance } = await requiredFor(sellerAccountId, group.id);
 
   return {
     documents,
-    required: await requiredFor(group, documents),
+    required,
+    compliance,
     issued: { commercialInvoices: invoices, packingLists },
     consignments: consignments.map((row) => ({ id: row.id, reference: row.shipmentReference })),
   };

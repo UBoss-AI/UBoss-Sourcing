@@ -128,6 +128,7 @@ import {
 import { registerSellerLogisticsRoutes } from './routes/seller.logistics.js';
 import { registerAdminPlatformFeeRuleRoutes } from './routes/platform-fee-rules.admin.js';
 import { registerAdminMarketRuleRoutes } from './routes/market-rules.admin.js';
+import { registerAdminTradeComplianceRoutes } from './routes/trade-compliance.admin.js';
 import { registerAdminContentBlockRoutes, registerPublicContentBlockRoutes } from './routes/content-blocks.js';
 import { registerSellerPreorderRoutes } from './routes/seller.preorders.js';
 import { registerPreorderRoutes } from './routes/preorders.js';
@@ -952,6 +953,8 @@ export async function buildApp() {
   await app.register(registerAdminPlatformFeeRuleRoutes, { prefix: `${API_PREFIX}/admin` });
   // Country rules, lane rate cards and storefront content (Master rows 69, 71, 72).
   await app.register(registerAdminMarketRuleRoutes, { prefix: `${API_PREFIX}/admin` });
+  // Trade rules, HS code verification, cargo insurance and the dispatch hold override (JOURNEY-046, 049).
+  await app.register(registerAdminTradeComplianceRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminContentBlockRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerPublicContentBlockRoutes, { prefix: `${API_PREFIX}/catalog` });
   // The legs a delivery company holds, in its own portal.

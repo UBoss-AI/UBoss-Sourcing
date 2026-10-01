@@ -49,9 +49,54 @@ export interface TradeDocument {
   versions: TradeDocumentVersion[];
 }
 
+export type ResponsibleParty = 'SELLER' | 'BUYER' | 'FORWARDER' | 'OPERATOR';
+export type TradeRestriction = 'NONE' | 'RESTRICTED' | 'PROHIBITED';
+export type ComplianceItemStatus = 'VALID' | 'PENDING_REVIEW' | 'MISSING' | 'REJECTED' | 'EXPIRED' | 'NO_DOCUMENT';
+export type HoldCode = 'PROHIBITED' | 'DOCUMENT_MISSING' | 'DOCUMENT_NOT_VALID' | 'HS_UNVERIFIED' | 'HS_REJECTED';
+
+export interface RequiredTradeDocument {
+  kind: string;
+  name: string;
+  ruleName: string;
+  note: string | null;
+  satisfied: boolean;
+  /** Absent from a server older than JOURNEY-049: read as SELLER / NONE. */
+  responsibleParty?: ResponsibleParty;
+  restriction?: TradeRestriction;
+  status?: ComplianceItemStatus;
+}
+
+/** Destination readiness of one seller order (JOURNEY-049). */
+export interface SellerOrderCompliance {
+  destination: string;
+  restrictions: { ruleName: string; restriction: TradeRestriction; requiresHsVerification: boolean; note: string | null; skus: string[] }[];
+  holds: {
+    key: string;
+    code: HoldCode;
+    ruleName: string;
+    responsibleParty: ResponsibleParty;
+    documentKind: string | null;
+    sku: string | null;
+    covered: boolean;
+  }[];
+  open: boolean;
+  overridden: boolean;
+  override: { reason: string; grantedByLabel: string; grantedAt: string; revokedAt: string | null } | null;
+}
+
+export const OPEN_COMPLIANCE: SellerOrderCompliance = {
+  destination: '',
+  restrictions: [],
+  holds: [],
+  open: true,
+  overridden: false,
+  override: null,
+};
+
 export interface SellerTradeDocuments {
   documents: TradeDocument[];
-  required: { kind: string; name: string; ruleName: string; note: string | null; satisfied: boolean }[];
+  required: RequiredTradeDocument[];
+  compliance: SellerOrderCompliance;
   issued: { commercialInvoices: number; packingLists: number };
   consignments: { id: string; reference: string }[];
 }
@@ -73,6 +118,7 @@ export async function fetchSellerTradeDocuments(sellerOrderId: string): Promise<
   return {
     documents: body.documents ?? [],
     required: body.required ?? [],
+    compliance: body.compliance ?? OPEN_COMPLIANCE,
     issued: body.issued ?? { commercialInvoices: 0, packingLists: 0 },
     consignments: body.consignments ?? [],
   };
@@ -145,6 +191,26 @@ export interface BookingTerms {
   pickupDate: string | null;
   pickupWindowFrom: string | null;
   pickupWindowTo: string | null;
+  /** Cargo insurance (JOURNEY-046). Money is minor units as strings. */
+  insured?: boolean;
+  insuredValueMinor?: string | null;
+  insurancePremiumMinor?: string | null;
+  insuranceBasisPointsApplied?: number | null;
+  insuranceCurrency?: string | null;
+}
+
+export interface InsuranceOffer {
+  offered: boolean;
+  basisPoints: number;
+  maxInsuredBasisPoints: number;
+  goodsValueMinor: string | null;
+  maxInsuredValueMinor: string | null;
+  currency: string | null;
+}
+
+export interface DispatchReadiness {
+  inspection: { open: boolean; reason: string } | null;
+  compliance: { open: boolean; holds: number; overridden: boolean };
 }
 
 export interface CarrierSummary {
@@ -157,14 +223,53 @@ export interface SellerShipmentBooking {
   shipmentId: string;
   reference: string;
   crossBorder: boolean;
+  originCountry?: string;
+  destinationCountry?: string;
+  insurance?: InsuranceOffer;
+  dispatchReadiness?: DispatchReadiness;
   terms: (BookingTerms & { updatedByLabel: string; updatedAt: string }) | null;
   carrier: CarrierSummary;
   canEdit: boolean;
 }
 
-export interface BookingInput extends Omit<BookingTerms, 'mode'> {
+export interface BookingInput
+  extends Omit<BookingTerms, 'mode' | 'insurancePremiumMinor' | 'insuranceBasisPointsApplied' | 'insuranceCurrency'> {
   mode: string;
   manualCarrier: (typeof BOOKING_CARRIERS)[number] | null;
+}
+
+/** One of the operator's rate cards that can carry the consignment, with its validity. */
+export interface FreightOption {
+  laneId: string;
+  laneName: string;
+  mode: TransportMode;
+  carrierName: string;
+  serviceLevel: string;
+  transitDaysMin: number;
+  transitDaysMax: number;
+  currency: string;
+  totalMinor: string;
+  validFrom: string;
+  validTo: string | null;
+}
+
+export interface FreightOptions {
+  originCountry: string;
+  destinationCountry: string;
+  weightGrams: number;
+  options: FreightOption[];
+}
+
+export async function fetchFreightOptions(shipmentId: string): Promise<FreightOptions> {
+  const body = await api.get<Partial<FreightOptions>>(
+    `/seller/consignments/${encodeURIComponent(shipmentId)}/freight-options`,
+  );
+  return {
+    originCountry: body.originCountry ?? '',
+    destinationCountry: body.destinationCountry ?? '',
+    weightGrams: body.weightGrams ?? 0,
+    options: body.options ?? [],
+  };
 }
 
 export function fetchShipmentBooking(shipmentId: string): Promise<{ booking: SellerShipmentBooking }> {
@@ -205,11 +310,19 @@ export interface BuyerShipmentDetails {
     hasFile: boolean;
     validation: TradeValidation;
   }[];
+  /** What the destination rules ask the buyer to produce (JOURNEY-049). */
+  buyerActions: {
+    sellerName: string;
+    ruleName: string;
+    documentName: string | null;
+    restriction: TradeRestriction;
+    note: string | null;
+  }[];
 }
 
 export async function fetchBuyerShipmentDetails(orderId: string): Promise<BuyerShipmentDetails> {
   const body = await api.get<Partial<BuyerShipmentDetails>>(`/orders/${encodeURIComponent(orderId)}/shipment-details`);
-  return { shipments: body.shipments ?? [], documents: body.documents ?? [] };
+  return { shipments: body.shipments ?? [], documents: body.documents ?? [], buyerActions: body.buyerActions ?? [] };
 }
 
 export function buyerTradeDocumentFileUrl(orderId: string, versionId: string): string {

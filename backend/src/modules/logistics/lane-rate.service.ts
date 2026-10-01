@@ -288,6 +288,9 @@ export interface LaneQuote {
   baseMinor: string;
   fuelMinor: string;
   totalMinor: string;
+  /** How long the rate card is in force: a price quoted after `validTo` is not this one. */
+  validFrom: string;
+  validTo: string | null;
 }
 
 /**
@@ -330,6 +333,8 @@ export async function quoteLanes(input: LaneQuoteInput): Promise<LaneQuote[]> {
       baseMinor: price.baseMinor.toString(),
       fuelMinor: price.fuelMinor.toString(),
       totalMinor: price.totalMinor.toString(),
+      validFrom: lane.validFrom.toISOString(),
+      validTo: lane.validTo === null ? null : lane.validTo.toISOString(),
     });
   }
   return quotes.sort((a, b) =>

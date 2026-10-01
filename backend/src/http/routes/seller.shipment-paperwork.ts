@@ -11,6 +11,7 @@ import { z } from 'zod';
 
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import {
+  listFreightOptions,
   readShipmentBooking,
   saveShipmentBooking,
 } from '../../modules/seller/shipment-booking.service.js';
@@ -77,6 +78,8 @@ const bookingSchema = z
     pickupWindowFrom: z.string().trim().max(5).nullable().optional(),
     pickupWindowTo: z.string().trim().max(5).nullable().optional(),
     manualCarrier: z.enum(['DHL', 'FEDEX', 'INDIA_POST']).nullable().optional(),
+    insured: z.boolean().optional(),
+    insuredValueMinor: z.string().trim().max(19).nullable().optional(),
   })
   .strict();
 
@@ -196,7 +199,18 @@ export function registerSellerShipmentPaperworkRoutes(app: FastifyInstance): Pro
     },
   );
 
-  // Book a consignment: store its mode, Incoterm, ports and pickup, and record a hand booking with DHL, FedEx or India Post when one is named.
+  // The operator's rate cards that can carry one consignment today: route, mode, carrier, transit, price and validity dates.
+  app.get(
+    '/consignments/:id/freight-options',
+    { preHandler: requireSeller(SellerPermission.ORDER_READ) },
+    async (request, reply) => {
+      const { id } = idParam.parse(request.params);
+      const freight = await listFreightOptions(currentSeller(request).sellerAccountId, id);
+      return reply.header('cache-control', 'no-store').send(freight);
+    },
+  );
+
+  // Book a consignment: store its mode, Incoterm, ports, pickup and cargo insurance, and record a hand booking with DHL, FedEx or India Post when one is named.
   app.put(
     '/consignments/:id/booking',
     { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: WRITE } },

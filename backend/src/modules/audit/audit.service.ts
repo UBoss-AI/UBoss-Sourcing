@@ -207,6 +207,17 @@ export const AuditAction = {
 
   // Configuration
   SETTINGS_UPDATED: 'settings.updated',
+  /// A destination/category trade rule was added, changed or deleted (JOURNEY-049).
+  TRADE_RULE_SAVED: 'trade_rule.saved',
+  TRADE_RULE_DELETED: 'trade_rule.deleted',
+  /// The cargo insurance rate or cap changed (JOURNEY-046).
+  LOGISTICS_TRADE_SETTINGS_UPDATED: 'logistics.trade_settings_updated',
+  /// Staff verified (possibly correcting) or rejected a listing's HS code.
+  HS_CODE_VERIFIED: 'listing.hs_code_verified',
+  HS_CODE_REJECTED: 'listing.hs_code_rejected',
+  /// Staff let goods leave despite a pre-dispatch compliance hold, or withdrew that.
+  COMPLIANCE_HOLD_OVERRIDDEN: 'compliance.hold_overridden',
+  COMPLIANCE_HOLD_OVERRIDE_REVOKED: 'compliance.hold_override_revoked',
   FEATURE_FLAG_CHANGED: 'feature_flag.changed',
   CONNECTOR_CREATED: 'connector.created',
   CONNECTOR_UPDATED: 'connector.updated',

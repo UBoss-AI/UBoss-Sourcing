@@ -14,15 +14,22 @@ import { useToast } from '@/components/toast-context';
 import { Badge, Button, ErrorState, Field, Input, LoadingState, Select } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
+import { currencyExponent, formatDate, formatMoneyMinor, majorToMinor, minorToMajor } from '@/lib/format';
 import {
   BOOKING_CARRIERS,
   INCOTERMS,
   TRANSPORT_MODES,
+  fetchFreightOptions,
   fetchShipmentBooking,
   saveShipmentBooking,
   type BookingInput,
   type SellerShipmentBooking,
 } from '@/lib/shipment-paperwork';
+
+/** Basis points as a percentage for display, by digit shifting: 35 is "0.35". */
+function basisPointsAsPercent(basisPoints: number): string {
+  return minorToMajor(String(basisPoints), 2).replace(/\.?0+$/, '');
+}
 
 interface FormState {
   mode: string;
@@ -35,11 +42,18 @@ interface FormState {
   pickupWindowFrom: string;
   pickupWindowTo: string;
   manualCarrier: string;
+  insured: boolean;
+  /** Major units, as typed. */
+  insuredValue: string;
 }
 
 function formFrom(booking: SellerShipmentBooking): FormState {
   const terms = booking.terms;
+  const currency = terms?.insuranceCurrency ?? booking.insurance?.currency ?? '';
   return {
+    insured: terms?.insured ?? false,
+    insuredValue:
+      terms?.insuredValueMinor == null ? '' : minorToMajor(terms.insuredValueMinor, currencyExponent(currency)),
     mode: terms?.mode ?? (booking.crossBorder ? 'SEA' : 'ROAD'),
     incoterm: terms?.incoterm ?? (booking.crossBorder ? 'FOB' : 'DAP'),
     incotermPlace: terms?.incotermPlace ?? '',
@@ -91,10 +105,21 @@ function BookingForm({
   const toast = useToast();
   const client = useQueryClient();
   const [form, setForm] = useState<FormState>(() => formFrom(booking));
+  const insurance = booking.insurance;
+  const insuranceCurrency = insurance?.currency ?? '';
 
   const save = useMutation({
     mutationFn: () => {
+      let insuredValueMinor: string | null = null;
+      if (form.insured) {
+        insuredValueMinor = majorToMinor(form.insuredValue, currencyExponent(insuranceCurrency));
+        if (insuredValueMinor === null) throw new Error(t('shipmentBooking.insurance.valueInvalid'));
+      }
       const input: BookingInput = {
+        // Only sent where the marketplace offers insurance; otherwise left as it is.
+        ...(insurance?.offered === true || booking.terms?.insured === true
+          ? { insured: form.insured, insuredValueMinor }
+          : {}),
         mode: form.mode,
         incoterm: form.incoterm,
         incotermPlace: orNull(form.incotermPlace),
@@ -148,6 +173,15 @@ function BookingForm({
         {booking.carrier.trackingNumber !== null &&
           ` · ${t('shipmentBooking.tracking', { number: booking.carrier.trackingNumber })}`}
       </p>
+      {booking.originCountry !== undefined && booking.destinationCountry !== undefined && (
+        <p className="text-xs text-ink-muted" data-testid="booking-route">
+          {t('shipmentBooking.routeCountries', {
+            origin: booking.originCountry,
+            destination: booking.destinationCountry,
+          })}
+        </p>
+      )}
+      <DispatchReadinessNote booking={booking} />
 
       <fieldset disabled={disabled} className="grid gap-3 sm:grid-cols-2">
         <Field label={t('shipmentBooking.field.mode')} required>
@@ -231,7 +265,56 @@ function BookingForm({
             {({ inputId }) => <Input id={inputId} value={form.routeNote} maxLength={500} onChange={set('routeNote')} />}
           </Field>
         </div>
+        <div className="space-y-2 sm:col-span-2" data-testid="booking-insurance">
+          <h5 className="text-xs font-semibold text-ink">{t('shipmentBooking.insurance.title')}</h5>
+          {insurance?.offered === true ? (
+            <>
+              <label className="flex items-center gap-2 text-sm text-ink">
+                <input
+                  type="checkbox"
+                  checked={form.insured}
+                  onChange={(event) => {
+                    const checked = event.currentTarget.checked;
+                    setForm((prev) => ({ ...prev, insured: checked }));
+                  }}
+                />
+                {t('shipmentBooking.insurance.insure')}
+              </label>
+              {form.insured && (
+                <Field
+                  label={t('shipmentBooking.insurance.value', { currency: insuranceCurrency })}
+                  hint={t('shipmentBooking.insurance.hint', {
+                    rate: basisPointsAsPercent(insurance.basisPoints),
+                    max: formatMoneyMinor(insurance.maxInsuredValueMinor, insuranceCurrency),
+                  })}
+                  required
+                >
+                  {({ inputId, describedBy }) => (
+                    <Input
+                      id={inputId}
+                      aria-describedby={describedBy}
+                      inputMode="decimal"
+                      value={form.insuredValue}
+                      onChange={set('insuredValue')}
+                    />
+                  )}
+                </Field>
+              )}
+            </>
+          ) : (
+            <p className="text-xs text-ink-muted">{t('shipmentBooking.insurance.notOffered')}</p>
+          )}
+          {booking.terms?.insured === true && booking.terms.insurancePremiumMinor != null && (
+            <p className="text-xs text-ink-muted" data-testid="booking-premium">
+              {t('shipmentBooking.insurance.premium', {
+                amount: formatMoneyMinor(booking.terms.insurancePremiumMinor, booking.terms.insuranceCurrency ?? insuranceCurrency),
+              })}
+            </p>
+          )}
+        </div>
       </fieldset>
+
+      <FreightOptionsList shipmentId={booking.shipmentId} />
 
       {disabled ? (
         <p className="text-xs text-ink-muted">{t('shipmentBooking.locked')}</p>
@@ -241,5 +324,75 @@ function BookingForm({
         </Button>
       )}
     </form>
+  );
+}
+
+/**
+ * Why the goods may not leave yet: the inspection release and the
+ * destination documents hold. Both are enforced on the server; this only
+ * says so before the seller tries.
+ */
+function DispatchReadinessNote({ booking }: { booking: SellerShipmentBooking }): React.JSX.Element | null {
+  const { t } = useI18n();
+  const readiness = booking.dispatchReadiness;
+  if (readiness === undefined) return null;
+  const waitsForInspection = readiness.inspection !== null && !readiness.inspection.open;
+  const waitsForDocuments = !readiness.compliance.open;
+  if (!waitsForInspection && !waitsForDocuments && !readiness.compliance.overridden) return null;
+  return (
+    <ul className="space-y-1 rounded-md border border-warning/30 bg-warning-soft px-3 py-2 text-xs text-ink" data-testid="booking-readiness">
+      {waitsForInspection && <li>{t('shipmentBooking.readiness.inspection')}</li>}
+      {waitsForDocuments && (
+        <li>{t('shipmentBooking.readiness.documents', { holds: String(readiness.compliance.holds) })}</li>
+      )}
+      {readiness.compliance.overridden && readiness.compliance.open && <li>{t('shipmentBooking.readiness.overridden')}</li>}
+    </ul>
+  );
+}
+
+/** The marketplace's rate cards for this route and weight, each with how long its price holds. */
+function FreightOptionsList({ shipmentId }: { shipmentId: string }): React.JSX.Element | null {
+  const { t } = useI18n();
+  const query = useQuery({
+    queryKey: ['seller', 'consignment', shipmentId, 'freight-options'],
+    queryFn: () => fetchFreightOptions(shipmentId),
+  });
+  if (query.data === undefined) return null;
+  const freight = query.data;
+  return (
+    <section className="space-y-2" aria-label={t('shipmentBooking.freight.title')} data-testid="freight-options">
+      <h5 className="text-xs font-semibold text-ink">{t('shipmentBooking.freight.title')}</h5>
+      <p className="text-xs text-ink-muted">{t('shipmentBooking.freight.intro')}</p>
+      {freight.weightGrams === 0 ? (
+        <p className="text-xs text-ink-muted">{t('shipmentBooking.freight.noWeight')}</p>
+      ) : freight.options.length === 0 ? (
+        <p className="text-xs text-ink-muted">{t('shipmentBooking.freight.none')}</p>
+      ) : (
+        <ul className="divide-y divide-border rounded-md border border-border">
+          {freight.options.map((option) => (
+            <li key={option.laneId} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-sm">
+              <span className="min-w-0">
+                <span className="font-medium text-ink">{option.carrierName}</span>
+                <span className="text-xs text-ink-muted">
+                  {' · '}
+                  {t(`shipmentBooking.mode.${option.mode}`)}
+                  {' · '}
+                  {t('shipmentBooking.freight.transit', {
+                    min: String(option.transitDaysMin),
+                    max: String(option.transitDaysMax),
+                  })}
+                </span>
+                <span className="block text-xs text-ink-muted">
+                  {option.validTo === null
+                    ? t('shipmentBooking.freight.openEnded')
+                    : t('shipmentBooking.freight.validUntil', { date: formatDate(option.validTo) })}
+                </span>
+              </span>
+              <span className="font-medium text-ink">{formatMoneyMinor(option.totalMinor, option.currency)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

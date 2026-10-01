@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Badge, Card } from '@/components/ui';
 import type { BadgeTone } from '@/components/ui';
 import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
+import { formatMoneyMinor } from '@/lib/format';
 import {
   buyerTradeDocumentFileUrl,
   fetchBuyerShipmentDetails,
@@ -35,7 +36,8 @@ export function OrderShipmentDetails({ orderId }: { orderId: string }): React.JS
   if (query.data === undefined) return null;
   const booked = query.data.shipments.filter((row) => row.terms !== null || row.carrier.name !== null);
   const documents = query.data.documents;
-  if (booked.length === 0 && documents.length === 0) return null;
+  const buyerActions = query.data.buyerActions;
+  if (booked.length === 0 && documents.length === 0 && buyerActions.length === 0) return null;
 
   return (
     <Card title={t('orderShipment.title')} bodyClassName="space-y-4 px-6 py-5">
@@ -73,6 +75,17 @@ export function OrderShipmentDetails({ orderId }: { orderId: string }): React.JS
                     </dd>
                   </>
                 )}
+                {shipment.terms.insured === true && (
+                  <>
+                    <dt className="text-ink-muted">{t('orderShipment.insurance')}</dt>
+                    <dd data-testid="buyer-insurance">
+                      {t('orderShipment.insuredFor', {
+                        value: formatMoneyMinor(shipment.terms.insuredValueMinor, shipment.terms.insuranceCurrency ?? ''),
+                        premium: formatMoneyMinor(shipment.terms.insurancePremiumMinor, shipment.terms.insuranceCurrency ?? ''),
+                      })}
+                    </dd>
+                  </>
+                )}
                 {shipment.terms.routeNote !== null && (
                   <>
                     <dt className="text-ink-muted">{t('orderShipment.route')}</dt>
@@ -93,6 +106,22 @@ export function OrderShipmentDetails({ orderId }: { orderId: string }): React.JS
           </dl>
         </section>
       ))}
+
+      {buyerActions.length > 0 && (
+        <section className="space-y-2" data-testid="buyer-actions">
+          <h3 className="text-sm font-semibold text-ink">{t('orderShipment.buyerActions')}</h3>
+          <p className="text-xs text-ink-muted">{t('orderShipment.buyerActionsIntro')}</p>
+          <ul className="space-y-1 text-sm">
+            {buyerActions.map((action) => (
+              <li key={`${action.sellerName}-${action.ruleName}`} className="flex flex-wrap items-center gap-2">
+                <span className="font-medium text-ink">{action.documentName ?? action.ruleName}</span>
+                <span className="text-xs text-ink-muted">{action.sellerName}</span>
+                {action.note !== null && <span className="text-xs text-ink-muted">{action.note}</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {documents.length > 0 && (
         <section className="space-y-2">

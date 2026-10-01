@@ -24,6 +24,7 @@ import {
   recordTradeDocumentReference,
   sellerTradeDocumentFileUrl,
   uploadTradeDocument,
+  type SellerOrderCompliance,
   type TradeDocument,
   type TradeValidation,
 } from '@/lib/shipment-paperwork';
@@ -162,12 +163,18 @@ export function TradeDocumentsPanel({
                 <Badge tone={entry.satisfied ? 'success' : 'danger'}>
                   {entry.satisfied ? t('tradeDocs.requiredMet') : t('tradeDocs.requiredMissing')}
                 </Badge>
+                {/* Older servers sent no party: read that as the seller's own document. */}
+                <Badge tone="neutral">{t(`tradeDocs.party.${entry.responsibleParty ?? 'SELLER'}`)}</Badge>
+                {entry.restriction === 'RESTRICTED' && <Badge tone="warning">{t('tradeDocs.restriction.RESTRICTED')}</Badge>}
                 {entry.note !== null && <span className="text-xs text-ink-muted">{entry.note}</span>}
               </li>
             ))}
           </ul>
         </section>
       )}
+
+      <CompliancePanel compliance={data.compliance} />
+
 
       {data.documents.length === 0 ? (
         <p className="text-sm text-ink-muted">{t('tradeDocs.empty')}</p>
@@ -285,6 +292,68 @@ export function TradeDocumentsPanel({
         </form>
       )}
     </Card>
+  );
+}
+
+/**
+ * Destination readiness (JOURNEY-049): what the rules restrict or prohibit,
+ * and what holds the goods before dispatch, with who must act. The server
+ * refuses "ready for dispatch", a dispatch and a collection while anything
+ * here is open; this says why before the seller tries.
+ */
+function CompliancePanel({ compliance }: { compliance: SellerOrderCompliance }): React.JSX.Element | null {
+  const { t } = useI18n();
+  const open = compliance.holds.filter((hold) => !hold.covered);
+  const destination = compliance.destination === '' ? '—' : compliance.destination;
+  if (compliance.restrictions.length === 0 && compliance.holds.length === 0) return null;
+
+  return (
+    <section aria-label={t('tradeDocs.hold.title')} className="space-y-2" data-testid="trade-docs-compliance">
+      {compliance.restrictions.length > 0 && (
+        <>
+          <h3 className="text-sm font-semibold text-ink">
+            {t('tradeDocs.restrictionsHeading', { destination })}
+          </h3>
+          <ul className="space-y-1">
+            {compliance.restrictions.map((entry) => (
+              <li key={entry.ruleName} className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="text-ink">{entry.ruleName}</span>
+                {entry.restriction !== 'NONE' && (
+                  <Badge tone={entry.restriction === 'PROHIBITED' ? 'danger' : 'warning'}>
+                    {t(`tradeDocs.restriction.${entry.restriction}`)}
+                  </Badge>
+                )}
+                {entry.requiresHsVerification && <Badge tone="neutral">{t('tradeDocs.hsVerificationRequired')}</Badge>}
+                {entry.note !== null && <span className="text-xs text-ink-muted">{entry.note}</span>}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {open.length > 0 ? (
+        <div className="space-y-1 rounded-md border border-danger/30 px-3 py-2" role="status">
+          <p className="text-sm font-semibold text-danger">{t('tradeDocs.hold.title')}</p>
+          <p className="text-xs text-ink-muted">{t('tradeDocs.hold.intro')}</p>
+          <ul className="space-y-0.5 text-sm text-ink">
+            {open.map((hold) => (
+              <li key={hold.key}>
+                {t(`tradeDocs.hold.code.${hold.code}`, {
+                  rule: hold.ruleName,
+                  sku: hold.sku ?? '',
+                  destination,
+                })}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : compliance.overridden && compliance.override !== null ? (
+        <p className="text-xs text-ink-muted" role="status">
+          {t('tradeDocs.hold.overridden', { reason: compliance.override.reason })}
+        </p>
+      ) : compliance.holds.length === 0 ? (
+        <p className="text-xs text-ink-muted">{t('tradeDocs.hold.clear')}</p>
+      ) : null}
+    </section>
   );
 }
 

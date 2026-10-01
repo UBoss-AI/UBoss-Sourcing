@@ -273,6 +273,10 @@ const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
     routes: ['admin/inspection/requirements/:id/reevaluate'],
   },
   {
+    reason: 'Upserts the one override row of the seller order to cover the holds open now; repeating it with the same reason leaves the same override.',
+    routes: ['admin/seller-orders/:id/compliance-override'],
+  },
+  {
     reason: 'The unique agency/invoice-number constraint refuses a duplicate invoice.',
     routes: ['inspection/agency/jobs/:id/invoice'],
   },
@@ -353,7 +357,7 @@ const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
       'sellers/lock/open', 'recurring-schedules/from-cart', 'logistics/dispatch-manifests', 'seller/orders/:id/trade-documents',
       'seller/orders/:id/trade-documents/certificate-of-origin',
       'logistics/driver/location-consent', 'logistics/driver/trips', 'admin/vat-rates',
-      'admin/master-data/:kind', 'admin/market-rules', 'admin/content-blocks', 'account/saved-searches',
+      'admin/master-data/:kind', 'admin/market-rules', 'admin/trade-rules', 'admin/content-blocks', 'account/saved-searches',
       'seller/bulk-imports',
     ],
   },

@@ -382,6 +382,7 @@ export const ModelName = {
   OrderTradeDocumentVersion: 'OrderTradeDocumentVersion',
   OrderTradeDocumentEvent: 'OrderTradeDocumentEvent',
   TradeComplianceRule: 'TradeComplianceRule',
+  TradeComplianceOverride: 'TradeComplianceOverride',
   ConsignmentBookingTerms: 'ConsignmentBookingTerms',
   LogisticsTradeSettings: 'LogisticsTradeSettings',
   LogisticsLane: 'LogisticsLane',
@@ -8155,6 +8156,23 @@ export const TradeComplianceRuleScalarFieldEnum = {
 export type TradeComplianceRuleScalarFieldEnum = (typeof TradeComplianceRuleScalarFieldEnum)[keyof typeof TradeComplianceRuleScalarFieldEnum]
 
 
+export const TradeComplianceOverrideScalarFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  orderId: 'orderId',
+  reason: 'reason',
+  holdKeysJson: 'holdKeysJson',
+  grantedByStaffId: 'grantedByStaffId',
+  grantedByLabel: 'grantedByLabel',
+  revokedAt: 'revokedAt',
+  revokedByStaffId: 'revokedByStaffId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TradeComplianceOverrideScalarFieldEnum = (typeof TradeComplianceOverrideScalarFieldEnum)[keyof typeof TradeComplianceOverrideScalarFieldEnum]
+
+
 export const ConsignmentBookingTermsScalarFieldEnum = {
   id: 'id',
   shipmentId: 'shipmentId',
@@ -13571,6 +13589,19 @@ export const TradeComplianceRuleOrderByRelevanceFieldEnum = {
 } as const
 
 export type TradeComplianceRuleOrderByRelevanceFieldEnum = (typeof TradeComplianceRuleOrderByRelevanceFieldEnum)[keyof typeof TradeComplianceRuleOrderByRelevanceFieldEnum]
+
+
+export const TradeComplianceOverrideOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  orderId: 'orderId',
+  reason: 'reason',
+  grantedByStaffId: 'grantedByStaffId',
+  grantedByLabel: 'grantedByLabel',
+  revokedByStaffId: 'revokedByStaffId'
+} as const
+
+export type TradeComplianceOverrideOrderByRelevanceFieldEnum = (typeof TradeComplianceOverrideOrderByRelevanceFieldEnum)[keyof typeof TradeComplianceOverrideOrderByRelevanceFieldEnum]
 
 
 export const ConsignmentBookingTermsOrderByRelevanceFieldEnum = {

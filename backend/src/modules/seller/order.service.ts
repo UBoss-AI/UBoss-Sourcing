@@ -53,6 +53,8 @@ import {
 } from './inventory.service.js';
 import { syncOrderWithSellerGroups } from './order-split.service.js';
 import { assertInspectionGateOpen } from '../../domain/inspection-gate.js';
+import { assertComplianceOpen } from '../../domain/compliance-hold.js';
+import { evaluateSellerOrderCompliance } from '../compliance/destination-compliance.service.js';
 import {
   cardStatusesForGroups,
   ensureRequirement,
@@ -447,6 +449,13 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
       inspectionGate,
     });
 
+    // The destination documents hold (JOURNEY-049): a prohibited match, a
+    // document the seller owes that is not yet valid, or an unverified HS
+    // code a rule needs, keeps the goods until fixed or overridden by staff.
+    if (SELLER_ORDER_GATED_STATUSES.includes(input.to)) {
+      assertComplianceOpen(await evaluateSellerOrderCompliance(tx, group.id), { from, to: input.to });
+    }
+
     // Accepting is where a location is chosen, and it is required: a group with
     // no location has no dispatch deadline, so its SLA can never be breached
     // and it silently never appears in the overdue list.
@@ -795,6 +804,7 @@ export async function recordShipment(input: ShipmentInput): Promise<{ shipmentId
     // last line goes and the group moves to SHIPPED.
     const inspectionGate = await evaluateSellerOrderGate(tx, group.id);
     assertInspectionGateOpen(inspectionGate, 'SELLER_ORDER', { from: group.status, to: 'SHIPPED' });
+    assertComplianceOpen(await evaluateSellerOrderCompliance(tx, group.id), { from: group.status, to: 'SHIPPED' });
 
     const contents =
       input.contents ??

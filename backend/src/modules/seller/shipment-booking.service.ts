@@ -15,10 +15,15 @@
  * The buyer is shown the same booking as their shipment details.
  */
 import type { CarrierProvider, ShipmentTransportMode } from '../../generated/prisma/enums.js';
+import { decideInsurance, maxInsuredValueMinor, type InsuranceDecision } from '../../domain/cargo-insurance.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { INCOTERMS } from '../../domain/packaging.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
+import { evaluateSellerOrderCompliance } from '../compliance/destination-compliance.service.js';
+import { readInsuranceSettings } from '../compliance/trade-settings.service.js';
+import { peekGate } from '../inspection/gate.service.js';
+import { quoteLanes, type LaneQuote } from '../logistics/lane-rate.service.js';
 import { recordSellerAudit } from './audit.service.js';
 import {
   MANUAL_CARRIER_NAMES,
@@ -55,6 +60,10 @@ export interface ShipmentBookingInput {
   pickupWindowTo?: string | null;
   /** DHL, FEDEX or INDIA_POST, booked by hand. Omit to keep the carrier as it is. */
   manualCarrier?: string | null;
+  /** Cargo insurance (JOURNEY-046). Omit to keep it as it is. */
+  insured?: boolean | undefined;
+  /** Minor units as a string, in the consignment's currency. Required when insured. */
+  insuredValueMinor?: string | null | undefined;
 }
 
 export interface BookingTermsView {
@@ -67,8 +76,32 @@ export interface BookingTermsView {
   pickupDate: string | null;
   pickupWindowFrom: string | null;
   pickupWindowTo: string | null;
+  insured: boolean;
+  /** Minor units as strings, in `insuranceCurrency`. */
+  insuredValueMinor: string | null;
+  insurancePremiumMinor: string | null;
+  /** The rate in force when it was booked. */
+  insuranceBasisPointsApplied: number | null;
+  insuranceCurrency: string | null;
   updatedByLabel: string;
   updatedAt: string;
+}
+
+/** What insurance this consignment may carry, from the operator's settings and the goods value. */
+export interface InsuranceOffer {
+  offered: boolean;
+  basisPoints: number;
+  maxInsuredBasisPoints: number;
+  goodsValueMinor: string | null;
+  maxInsuredValueMinor: string | null;
+  currency: string | null;
+}
+
+/** Why the goods may not leave yet, for the note on the booking panel. */
+export interface DispatchReadiness {
+  /** Null when no inspection was decided for this order, or none is needed. */
+  inspection: { open: boolean; reason: string } | null;
+  compliance: { open: boolean; holds: number; overridden: boolean };
 }
 
 export interface CarrierSummary {
@@ -82,6 +115,10 @@ export interface SellerShipmentBooking {
   shipmentId: string;
   reference: string;
   crossBorder: boolean;
+  originCountry: string;
+  destinationCountry: string;
+  insurance: InsuranceOffer;
+  dispatchReadiness: DispatchReadiness;
   terms: BookingTermsView | null;
   carrier: CarrierSummary;
   /** False once the parcel has been collected: a booking after that would be fiction. */
@@ -107,6 +144,11 @@ const TERMS_SELECT = {
   pickupDate: true,
   pickupWindowFrom: true,
   pickupWindowTo: true,
+  insured: true,
+  insuredValueMinor: true,
+  insurancePremiumMinor: true,
+  insuranceBasisPointsApplied: true,
+  currency: true,
   updatedByLabel: true,
   updatedAt: true,
 } as const;
@@ -121,6 +163,11 @@ function termsView(row: {
   pickupDate: Date | null;
   pickupWindowFrom: string | null;
   pickupWindowTo: string | null;
+  insured: boolean;
+  insuredValueMinor: bigint | null;
+  insurancePremiumMinor: bigint | null;
+  insuranceBasisPointsApplied: number | null;
+  currency: string | null;
   updatedByLabel: string;
   updatedAt: Date;
 }): BookingTermsView {
@@ -134,8 +181,75 @@ function termsView(row: {
     pickupDate: row.pickupDate === null ? null : row.pickupDate.toISOString().slice(0, 10),
     pickupWindowFrom: row.pickupWindowFrom,
     pickupWindowTo: row.pickupWindowTo,
+    insured: row.insured,
+    insuredValueMinor: row.insuredValueMinor?.toString() ?? null,
+    insurancePremiumMinor: row.insurancePremiumMinor?.toString() ?? null,
+    insuranceBasisPointsApplied: row.insuranceBasisPointsApplied,
+    insuranceCurrency: row.currency,
     updatedByLabel: row.updatedByLabel,
     updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+/** The value of the goods on a consignment: its declared value, else its seller order's goods total. */
+async function goodsValueOf(shipmentId: string): Promise<{ valueMinor: bigint | null; currency: string | null }> {
+  const shipment = await prisma.logisticsShipment.findUnique({
+    where: { id: shipmentId },
+    select: {
+      declaredValueMinor: true,
+      currency: true,
+      sellerOrderGroup: { select: { goodsTotalMinor: true, currency: true } },
+    },
+  });
+  if (shipment === null) return { valueMinor: null, currency: null };
+  if (shipment.declaredValueMinor !== null && shipment.declaredValueMinor > 0n && shipment.currency !== null) {
+    return { valueMinor: shipment.declaredValueMinor, currency: shipment.currency };
+  }
+  const group = shipment.sellerOrderGroup;
+  if (group !== null && group.goodsTotalMinor > 0n) return { valueMinor: group.goodsTotalMinor, currency: group.currency };
+  return { valueMinor: null, currency: null };
+}
+
+async function insuranceOfferFor(shipmentId: string): Promise<InsuranceOffer> {
+  const [settings, goods] = await Promise.all([readInsuranceSettings(), goodsValueOf(shipmentId)]);
+  return {
+    offered: settings.insuranceOffered,
+    basisPoints: settings.insuranceBasisPoints,
+    maxInsuredBasisPoints: settings.maxInsuredBasisPoints,
+    goodsValueMinor: goods.valueMinor?.toString() ?? null,
+    maxInsuredValueMinor:
+      goods.valueMinor === null ? null : maxInsuredValueMinor(goods.valueMinor, settings.maxInsuredBasisPoints).toString(),
+    currency: goods.currency,
+  };
+}
+
+/**
+ * Whether the goods may leave yet: the pre-shipment inspection release (read
+ * only - this never decides a requirement) and the destination documents hold.
+ */
+async function dispatchReadinessFor(sellerOrderGroupId: string | null): Promise<DispatchReadiness> {
+  if (sellerOrderGroupId === null) {
+    return { inspection: null, compliance: { open: true, holds: 0, overridden: false } };
+  }
+  const [requirement, compliance] = await Promise.all([
+    prisma.inspectionRequirement.findUnique({
+      where: { sellerOrderGroupId },
+      select: { id: true, level: true },
+    }),
+    evaluateSellerOrderCompliance(prisma, sellerOrderGroupId),
+  ]);
+  let inspection: DispatchReadiness['inspection'] = null;
+  if (requirement !== null && requirement.level !== 'NOT_REQUIRED') {
+    const verdict = await peekGate(requirement.id);
+    inspection = { open: verdict.open, reason: verdict.reason };
+  }
+  return {
+    inspection,
+    compliance: {
+      open: compliance.open,
+      holds: compliance.holds.filter((hold) => !hold.covered).length,
+      overridden: compliance.overridden,
+    },
   };
 }
 
@@ -206,13 +320,14 @@ export async function readShipmentBooking(
 ): Promise<SellerShipmentBooking> {
   // `consignmentState` refuses another seller's consignment with a 404.
   const state = await consignmentState(sellerAccountId, shipmentId);
-  const [shipment, terms, carrier] = await Promise.all([
+  const [shipment, terms, carrier, insurance] = await Promise.all([
     prisma.logisticsShipment.findUnique({
       where: { id: shipmentId },
-      select: { originCountry: true, destinationCountry: true },
+      select: { originCountry: true, destinationCountry: true, sellerOrderGroupId: true },
     }),
     prisma.consignmentBookingTerms.findUnique({ where: { shipmentId }, select: TERMS_SELECT }),
     carrierSummaryFor(shipmentId),
+    insuranceOfferFor(shipmentId),
   ]);
   if (shipment === null) throw notFound('Consignment');
 
@@ -220,6 +335,10 @@ export async function readShipmentBooking(
     shipmentId,
     reference: state.reference,
     crossBorder: shipment.originCountry !== shipment.destinationCountry,
+    originCountry: shipment.originCountry,
+    destinationCountry: shipment.destinationCountry,
+    insurance,
+    dispatchReadiness: await dispatchReadinessFor(shipment.sellerOrderGroupId),
     terms: terms === null ? null : termsView(terms),
     carrier,
     canEdit: canEditFrom(state),
@@ -307,7 +426,21 @@ export async function saveShipmentBooking(input: {
     if (destinationPort === null) invalid('Name the port the goods arrive at.', 'destinationPort', 'REQUIRED');
   }
 
+  // Cargo insurance (JOURNEY-046): checked against the operator's rate and
+  // cap, the premium worked out in BigInt minor units. Omitted keeps it.
+  let insurance: InsuranceDecision | null = null;
+  if (booking.insured !== undefined) {
+    const [settings, goods] = await Promise.all([readInsuranceSettings(), goodsValueOf(input.shipmentId)]);
+    insurance = decideInsurance({
+      insured: booking.insured,
+      insuredValueMinor: booking.insuredValueMinor ?? null,
+      settings,
+      goods,
+    });
+  }
+
   const data = {
+    ...(insurance === null ? {} : insurance),
     mode: mode as ShipmentTransportMode,
     incoterm,
     incotermPlace: blankToNull(booking.incotermPlace)?.slice(0, 120) ?? null,
@@ -351,7 +484,17 @@ export async function saveShipmentBooking(input: {
     resourceType: 'consignment_booking_terms',
     resourceId: input.shipmentId,
     ...(before === null ? {} : { before: termsView(before) }),
-    after: { ...data, pickupDate: pickupDateText, manualCarrier },
+    after: {
+      ...data,
+      pickupDate: pickupDateText,
+      manualCarrier,
+      ...(insurance === null
+        ? {}
+        : {
+            insuredValueMinor: insurance.insuredValueMinor?.toString() ?? null,
+            insurancePremiumMinor: insurance.insurancePremiumMinor?.toString() ?? null,
+          }),
+    },
     summary: `Booked ${state.reference}: ${mode}, ${incoterm}.`,
     ...(input.correlationId === undefined ? {} : { correlationId: input.correlationId }),
   });
@@ -407,4 +550,46 @@ export async function listBuyerShipmentDetails(
       };
     }),
   );
+}
+
+// ---------------------------------------------------------------------------
+// Freight options
+// ---------------------------------------------------------------------------
+
+export interface FreightOptions {
+  originCountry: string;
+  destinationCountry: string;
+  weightGrams: number;
+  /** The operator's rate cards in force for this route and weight, cheapest first, each with its validity. */
+  options: LaneQuote[];
+}
+
+/**
+ * The operator's own lanes that can carry one of the seller's consignments
+ * today (JOURNEY-046): route, mode, carrier, transit, price and how long the
+ * rate card is valid. Nothing is booked by asking; a consignment with no
+ * weight yet has no options, because every band is priced by weight.
+ */
+export async function listFreightOptions(sellerAccountId: string, shipmentId: string): Promise<FreightOptions> {
+  // `consignmentState` refuses another seller's consignment with a 404.
+  await consignmentState(sellerAccountId, shipmentId);
+  const shipment = await prisma.logisticsShipment.findUnique({
+    where: { id: shipmentId },
+    select: { originCountry: true, destinationCountry: true, totalWeightGrams: true },
+  });
+  if (shipment === null) throw notFound('Consignment');
+  const options =
+    shipment.totalWeightGrams > 0
+      ? await quoteLanes({
+          originCountry: shipment.originCountry,
+          destinationCountry: shipment.destinationCountry,
+          weightGrams: shipment.totalWeightGrams,
+        })
+      : [];
+  return {
+    originCountry: shipment.originCountry,
+    destinationCountry: shipment.destinationCountry,
+    weightGrams: shipment.totalWeightGrams,
+    options,
+  };
 }

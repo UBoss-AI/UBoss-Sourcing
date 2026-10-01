@@ -3225,6 +3225,15 @@ export type OrderTradeDocumentEvent = Prisma.OrderTradeDocumentEventModel
  */
 export type TradeComplianceRule = Prisma.TradeComplianceRuleModel
 /**
+ * Model TradeComplianceOverride
+ * A member of staff's written override of a seller order's pre-dispatch
+ * compliance hold (JOURNEY-049). One row per seller order. `holdKeysJson`
+ * lists the hold keys (see `domain/compliance-hold.ts`) it covers - the holds
+ * that existed when it was granted - so a cause that appears later holds the
+ * goods again. Revoking keeps the row and sets `revokedAt`.
+ */
+export type TradeComplianceOverride = Prisma.TradeComplianceOverrideModel
+/**
  * Model ConsignmentBookingTerms
  * The commercial terms a seller stated when booking a consignment.
  */

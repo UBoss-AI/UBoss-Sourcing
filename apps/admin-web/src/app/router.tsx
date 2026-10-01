@@ -558,6 +558,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        // Trade rules, HS code verification and cargo insurance (JOURNEY-046, 049).
+        path: 'settings/trade-compliance',
+        ...lazyRoute(
+          () => import('@/pages/settings/TradeCompliancePage').then((m) => m.TradeCompliancePage),
+          [Permission.SETTINGS_READ],
+        ),
+      },
+      {
         // Storefront banners and category content blocks (Master row 72).
         path: 'settings/content',
         ...lazyRoute(
