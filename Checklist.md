@@ -108,6 +108,23 @@ Surface evidence only: page files, route files, service folders and keyword sear
 | 43 | Settlements and fees shown; no reserves or reconciliation |
 | 74 | Order reports only; no GMV, supplier quality, inspection, dispute or settlement reports |
 
+### In progress (pass 7, 2026-10-01)
+
+Being built now by parallel workers. Nothing below is ticked until its tests pass.
+
+| Work | Rows / boxes |
+| --- | --- |
+| Inspection badges on order lists, agency calendar, container/seal binding and change alert, landed-cost delivery range | ENH-006, ENH-010, ENH-011, ENH-012, JOURNEY-045 |
+| Master data (units, Incoterms, defect codes) and notification templates (email, SMS, WhatsApp, in-app) | 75, 76 |
+| Seller dashboard, seller analytics, admin reports | 33, 92, 44, 74 |
+| Country compliance rules, rate cards, CMS | 69, 71, 72 |
+| Seller bulk upload, production milestones and buyer milestone timeline | 37, 40, 22 |
+| Shipment documents and shipment booking | 42, 56 |
+| Stripe Connect payouts: escrow, ledger, seller settlement, refunds/chargebacks, seller payments, seller bank onboarding | 58, 59, 60, 61, 43, 12 (payout part) |
+| Paid-sample checkout | 20 |
+
+Left for people: row 9 (approved policy texts), the legal review in row 12, and the boxes listed under "Boxes that need a person".
+
 ### Boxes that need a person (not ticked by software)
 
 These boxes are sign-offs, blank forms or checks on real devices, servers or people. Software cannot tick them honestly. Each one stays unticked until the person named verifies it and ticks it in the Word file.
