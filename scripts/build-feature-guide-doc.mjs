@@ -2119,7 +2119,7 @@ table(['Staff role', 'What they may do with buyer companies'], [
 h2('11.3 Chat enquiries');
 p('Staff can open AI/chat enquiries to understand questions that originated from the customer assistant. This creates a better support hand-off from product discovery to human help.');
 h2('11.4 Reports');
-p('Reports also show product analytics: how many times each kind of page was viewed and how often buyers finished a checkout, sent a request for quotation, asked for a return or opened a dispute. These are anonymous daily counts. No person, account or address is recorded, and nothing is counted for a browser that asks not to be tracked. Beside each business count the report shows the real number from the orders, requests, returns and disputes themselves, so staff can see that the counts can be trusted. A count higher than the real number is shown in red because it means a page is counting twice.');
+p('Reports also show product analytics: how many times each kind of page was viewed and how often buyers finished a checkout, sent a request for quotation, asked for a return or opened a dispute. These are anonymous daily counts. No person, account or address is recorded, and nothing is counted for a browser that asks not to be tracked. Beside each business count the report shows the real number from the orders, requests, returns and disputes themselves, so staff can see that the counts can be trusted. A count higher than the real number is shown in red because it means a page is counting twice. A finished checkout is counted once per order: reloading the confirmation page, or coming back to it later, does not count the same order again.');
 bullets([
   'Run sales, stock, tax and operational reports.',
   'Export report information where the user has permission.',
@@ -2148,6 +2148,16 @@ bullets([
   'Resend an eligible temporary password and track required password change rules.',
   'Use role permissions to limit access to catalogue, inventory, orders, finance, reports, staff and settings functions.',
 ]);
+h2('12.1a Checking who still needs their access');
+p('From time to time a business owner should look at every staff account and ask: does this person still need what they can do? The Staff page has a review panel for exactly that, shown only to business owners.');
+bullets([
+  'Each account is listed with its roles, whether it signs in with a second code, when it last signed in, and the last decision made about it.',
+  'Accounts that have not signed in for a while are marked dormant, so they are looked at first. The operator chooses how many days that is (90 unless changed).',
+  'The owner chooses Keep access, Reduce access or Revoke access for each account. Reducing or revoking needs a short note saying what should change and why.',
+  'Nobody can review their own account. A business with one owner should add a second one, so every account, including the owner’s, gets looked at.',
+  'The decision is a record, not a change. The owner then uses the Roles and Deactivate buttons to make the change, and those keep their own safety checks.',
+  'Every decision is kept with what the account could do at that moment, and written to the activity history.',
+]);
 h2('12.2 Business settings');
 table(['Settings group', 'Examples of what it controls'], [
   ['Business profile', 'Business name, addresses and business identity used by the system.'],
@@ -2158,6 +2168,13 @@ table(['Settings group', 'Examples of what it controls'], [
   ['Legal documents', 'Write the Terms and Conditions buyers agree to, and the separate terms for delivery companies. Each version is written as a draft, checked in a preview, then published. Once published it can never be changed or deleted; a correction is a new version. The list shows which version applies today and how many people agreed to each, never who.'],
   ['Feature configuration', 'Which optional customer/admin capabilities appear in a specific deployment.'],
 ], [3000, 7000]);
+h2('12.2a Is everything ready to go live?');
+p('Before the first real customer arrives, a lot of basic information has to be in place: product categories, currencies and today’s exchange rates, tax rates, countries, delivery prices, the published terms and privacy policy, units of measure, and the inspection lists if inspections are used. The Master data page opens with a card that checks all of this for the operator.');
+bullets([
+  'Each list is shown with how many entries it has and whether it is present, missing, or simply empty. A missing list is one a customer would trip over, for example no tax rate or no published terms. An empty list marked “advised” only means part of the marketplace will have nothing in it yet.',
+  'The card also points out anything left over from the demonstration data: sample products, placeholder terms, the sample delivery company, and test accounts. These should be removed before going live.',
+  'The card says Ready only when nothing required is missing and nothing from the demonstration data is left. It only reads; each list is fixed on its own screen.',
+]);
 h2('12.3 Integrations and ERP');
 bullets([
   'Configure payment gateway connections and credentials in the integrations area.',
@@ -2427,6 +2444,7 @@ table(['Automatic job', 'What it does'], [
   ['Integration and ERP jobs', 'Runs retryable connection/sync/push work without blocking the user interface.'],
   ['Company checks', 'Checks a newly sent company application against official registers, then passes it to a person for review (see 13.7).'],
   ['Retries and dead-job follow-up', 'Retries temporary failures under controlled limits and surfaces unrecoverable work for staff follow-up.'],
+  ['Refunds still waiting for the payment company', 'A refund the payment company accepted is finished by the company’s own message. If that message never arrives, the system asks the payment company itself after fifteen minutes and finishes the refund the same way, so the buyer and the seller’s figures are never left waiting. If the payment company cannot be reached, it simply asks again later.'],
 ], [3300, 6700]);
 h2('13.2 Reliability controls');
 bullets([
@@ -2547,6 +2565,7 @@ bullets([
   'The shop, the admin panel and the carrier portal all use the same side menu: a narrow strip of symbols that widens into full labels when you point at it or reach it with the keyboard, and gives the rest of the width back to the page when you move away.',
   'On a phone or a small tablet that side menu becomes a panel you open from a button and close with a tap, the Escape key or the button it came from, rather than disappearing.',
   'Controls, status indicators and forms use labelled accessible patterns.',
+  'Every screen that shows information says when it is still loading, says when it could not be loaded (with a Try again button), and says when there is simply nothing to show yet. A screen that failed to load never pretends to be empty, so nobody is told “you have no addresses” or “nothing set up yet” when that is not true.',
   'The system includes light/dark theme support and contrast checking.',
   'At the top of every page there is a small switch with three choices: follow the device, light, or dark. A ring moves to the one chosen, and the whole page changes at once. The choice is remembered on that computer or phone. On a phone the switch is a single button that moves through the three.',
   'When a whole page cannot be shown, the shop, the admin panel and the carrier portal show the same friendly page: a large number with a small ghost in place of its zero, one sentence saying what happened, and buttons for what to do next. A page that does not exist offers a search of the catalogue in the shop and a way back to the dashboard in the other two.',

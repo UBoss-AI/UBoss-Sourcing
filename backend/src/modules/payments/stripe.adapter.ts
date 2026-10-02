@@ -52,6 +52,7 @@ import {
   type ProviderMode,
   type RefundInput,
   type RefundResult,
+  type RefundStatusResult,
   type SetupIntentResult,
   type VaultedCardDetails,
   type VerifiedEvent,
@@ -790,6 +791,21 @@ export class StripeAdapter
             : 'PROCESSING',
       providerRefundId: refund.id,
       amountMinor: BigInt(refund.amount),
+      failureMessage: refund.failure_reason ?? null,
+    };
+  }
+
+  /** One refund as Stripe sees it now. The refund poll's question (LIVE-017). */
+  async fetchRefundStatus(providerRefundId: string): Promise<RefundStatusResult> {
+    const refund = await this.request<StripeRefund>('GET', `/refunds/${encodeURIComponent(providerRefundId)}`);
+    return {
+      providerRefundId: refund.id,
+      status:
+        refund.status === 'succeeded'
+          ? 'SUCCEEDED'
+          : refund.status === 'failed' || refund.status === 'canceled'
+            ? 'FAILED'
+            : 'PROCESSING',
       failureMessage: refund.failure_reason ?? null,
     };
   }

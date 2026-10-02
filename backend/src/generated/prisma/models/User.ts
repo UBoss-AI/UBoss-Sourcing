@@ -422,6 +422,8 @@ export type UserWhereInput = {
   disputesAssigned?: Prisma.DisputeListRelationFilter
   disputeEvents?: Prisma.DisputeEventListRelationFilter
   disputeAttachments?: Prisma.DisputeAttachmentListRelationFilter
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewListRelationFilter
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -478,6 +480,8 @@ export type UserOrderByWithRelationInput = {
   disputesAssigned?: Prisma.DisputeOrderByRelationAggregateInput
   disputeEvents?: Prisma.DisputeEventOrderByRelationAggregateInput
   disputeAttachments?: Prisma.DisputeAttachmentOrderByRelationAggregateInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewOrderByRelationAggregateInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
 
@@ -538,6 +542,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   disputesAssigned?: Prisma.DisputeListRelationFilter
   disputeEvents?: Prisma.DisputeEventListRelationFilter
   disputeAttachments?: Prisma.DisputeAttachmentListRelationFilter
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewListRelationFilter
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewListRelationFilter
 }, "id" | "emailNormalized">
 
 export type UserOrderByWithAggregationInput = {
@@ -662,6 +668,8 @@ export type UserCreateInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -718,6 +726,8 @@ export type UserUncheckedCreateInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUpdateInput = {
@@ -774,6 +784,8 @@ export type UserUpdateInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -830,6 +842,8 @@ export type UserUncheckedUpdateInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1416,6 +1430,34 @@ export type UserUpdateOneRequiredWithoutPreorderChatParticipantsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPreorderChatParticipantsInput, Prisma.UserUpdateWithoutPreorderChatParticipantsInput>, Prisma.UserUncheckedUpdateWithoutPreorderChatParticipantsInput>
 }
 
+export type UserCreateNestedOneWithoutStaffAccessReviewsReceivedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutStaffAccessReviewsReceivedInput, Prisma.UserUncheckedCreateWithoutStaffAccessReviewsReceivedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStaffAccessReviewsReceivedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutStaffAccessReviewsGivenInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutStaffAccessReviewsGivenInput, Prisma.UserUncheckedCreateWithoutStaffAccessReviewsGivenInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStaffAccessReviewsGivenInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutStaffAccessReviewsReceivedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutStaffAccessReviewsReceivedInput, Prisma.UserUncheckedCreateWithoutStaffAccessReviewsReceivedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStaffAccessReviewsReceivedInput
+  upsert?: Prisma.UserUpsertWithoutStaffAccessReviewsReceivedInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutStaffAccessReviewsReceivedInput, Prisma.UserUpdateWithoutStaffAccessReviewsReceivedInput>, Prisma.UserUncheckedUpdateWithoutStaffAccessReviewsReceivedInput>
+}
+
+export type UserUpdateOneRequiredWithoutStaffAccessReviewsGivenNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutStaffAccessReviewsGivenInput, Prisma.UserUncheckedCreateWithoutStaffAccessReviewsGivenInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStaffAccessReviewsGivenInput
+  upsert?: Prisma.UserUpsertWithoutStaffAccessReviewsGivenInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutStaffAccessReviewsGivenInput, Prisma.UserUpdateWithoutStaffAccessReviewsGivenInput>, Prisma.UserUncheckedUpdateWithoutStaffAccessReviewsGivenInput>
+}
+
 export type UserCreateNestedOneWithoutBuyerCompanyMembershipsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutBuyerCompanyMembershipsInput, Prisma.UserUncheckedCreateWithoutBuyerCompanyMembershipsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutBuyerCompanyMembershipsInput
@@ -1527,6 +1569,8 @@ export type UserCreateWithoutRolesInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutRolesInput = {
@@ -1582,6 +1626,8 @@ export type UserUncheckedCreateWithoutRolesInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutRolesInput = {
@@ -1653,6 +1699,8 @@ export type UserUpdateWithoutRolesInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRolesInput = {
@@ -1708,6 +1756,8 @@ export type UserUncheckedUpdateWithoutRolesInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -1763,6 +1813,8 @@ export type UserCreateWithoutSessionsInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -1818,6 +1870,8 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -1889,6 +1943,8 @@ export type UserUpdateWithoutSessionsInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -1944,6 +2000,8 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutAuthTokensInput = {
@@ -1999,6 +2057,8 @@ export type UserCreateWithoutAuthTokensInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutAuthTokensInput = {
@@ -2054,6 +2114,8 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutAuthTokensInput = {
@@ -2125,6 +2187,8 @@ export type UserUpdateWithoutAuthTokensInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuthTokensInput = {
@@ -2180,6 +2244,8 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutCustomerProfileInput = {
@@ -2235,6 +2301,8 @@ export type UserCreateWithoutCustomerProfileInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutCustomerProfileInput = {
@@ -2290,6 +2358,8 @@ export type UserUncheckedCreateWithoutCustomerProfileInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutCustomerProfileInput = {
@@ -2361,6 +2431,8 @@ export type UserUpdateWithoutCustomerProfileInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCustomerProfileInput = {
@@ -2416,6 +2488,8 @@ export type UserUncheckedUpdateWithoutCustomerProfileInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutNotificationsResolvedInput = {
@@ -2471,6 +2545,8 @@ export type UserCreateWithoutNotificationsResolvedInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsResolvedInput = {
@@ -2526,6 +2602,8 @@ export type UserUncheckedCreateWithoutNotificationsResolvedInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsResolvedInput = {
@@ -2597,6 +2675,8 @@ export type UserUpdateWithoutNotificationsResolvedInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsResolvedInput = {
@@ -2652,6 +2732,8 @@ export type UserUncheckedUpdateWithoutNotificationsResolvedInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutNotificationReadsInput = {
@@ -2707,6 +2789,8 @@ export type UserCreateWithoutNotificationReadsInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutNotificationReadsInput = {
@@ -2762,6 +2846,8 @@ export type UserUncheckedCreateWithoutNotificationReadsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutNotificationReadsInput = {
@@ -2833,6 +2919,8 @@ export type UserUpdateWithoutNotificationReadsInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationReadsInput = {
@@ -2888,6 +2976,8 @@ export type UserUncheckedUpdateWithoutNotificationReadsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutAuditLogsInput = {
@@ -2943,6 +3033,8 @@ export type UserCreateWithoutAuditLogsInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -2998,6 +3090,8 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -3069,6 +3163,8 @@ export type UserUpdateWithoutAuditLogsInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -3124,6 +3220,8 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutModeratedProductReviewsInput = {
@@ -3179,6 +3277,8 @@ export type UserCreateWithoutModeratedProductReviewsInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutModeratedProductReviewsInput = {
@@ -3234,6 +3334,8 @@ export type UserUncheckedCreateWithoutModeratedProductReviewsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutModeratedProductReviewsInput = {
@@ -3305,6 +3407,8 @@ export type UserUpdateWithoutModeratedProductReviewsInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutModeratedProductReviewsInput = {
@@ -3360,6 +3464,8 @@ export type UserUncheckedUpdateWithoutModeratedProductReviewsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutSupportTicketsRequestedInput = {
@@ -3415,6 +3521,8 @@ export type UserCreateWithoutSupportTicketsRequestedInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutSupportTicketsRequestedInput = {
@@ -3470,6 +3578,8 @@ export type UserUncheckedCreateWithoutSupportTicketsRequestedInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutSupportTicketsRequestedInput = {
@@ -3530,6 +3640,8 @@ export type UserCreateWithoutSupportTicketsAssignedInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutSupportTicketsAssignedInput = {
@@ -3585,6 +3697,8 @@ export type UserUncheckedCreateWithoutSupportTicketsAssignedInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutSupportTicketsAssignedInput = {
@@ -3656,6 +3770,8 @@ export type UserUpdateWithoutSupportTicketsRequestedInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupportTicketsRequestedInput = {
@@ -3711,6 +3827,8 @@ export type UserUncheckedUpdateWithoutSupportTicketsRequestedInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUpsertWithoutSupportTicketsAssignedInput = {
@@ -3777,6 +3895,8 @@ export type UserUpdateWithoutSupportTicketsAssignedInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupportTicketsAssignedInput = {
@@ -3832,6 +3952,8 @@ export type UserUncheckedUpdateWithoutSupportTicketsAssignedInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutSupportTicketEventsInput = {
@@ -3887,6 +4009,8 @@ export type UserCreateWithoutSupportTicketEventsInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutSupportTicketEventsInput = {
@@ -3942,6 +4066,8 @@ export type UserUncheckedCreateWithoutSupportTicketEventsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutSupportTicketEventsInput = {
@@ -4013,6 +4139,8 @@ export type UserUpdateWithoutSupportTicketEventsInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupportTicketEventsInput = {
@@ -4068,6 +4196,8 @@ export type UserUncheckedUpdateWithoutSupportTicketEventsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutSupportTicketAttachmentsInput = {
@@ -4123,6 +4253,8 @@ export type UserCreateWithoutSupportTicketAttachmentsInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutSupportTicketAttachmentsInput = {
@@ -4178,6 +4310,8 @@ export type UserUncheckedCreateWithoutSupportTicketAttachmentsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutSupportTicketAttachmentsInput = {
@@ -4249,6 +4383,8 @@ export type UserUpdateWithoutSupportTicketAttachmentsInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupportTicketAttachmentsInput = {
@@ -4304,6 +4440,8 @@ export type UserUncheckedUpdateWithoutSupportTicketAttachmentsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutDisputesRaisedInput = {
@@ -4359,6 +4497,8 @@ export type UserCreateWithoutDisputesRaisedInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutDisputesRaisedInput = {
@@ -4414,6 +4554,8 @@ export type UserUncheckedCreateWithoutDisputesRaisedInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutDisputesRaisedInput = {
@@ -4474,6 +4616,8 @@ export type UserCreateWithoutDisputesAssignedInput = {
   disputesRaised?: Prisma.DisputeCreateNestedManyWithoutRaisedByInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutDisputesAssignedInput = {
@@ -4529,6 +4673,8 @@ export type UserUncheckedCreateWithoutDisputesAssignedInput = {
   disputesRaised?: Prisma.DisputeUncheckedCreateNestedManyWithoutRaisedByInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutDisputesAssignedInput = {
@@ -4600,6 +4746,8 @@ export type UserUpdateWithoutDisputesRaisedInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDisputesRaisedInput = {
@@ -4655,6 +4803,8 @@ export type UserUncheckedUpdateWithoutDisputesRaisedInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUpsertWithoutDisputesAssignedInput = {
@@ -4721,6 +4871,8 @@ export type UserUpdateWithoutDisputesAssignedInput = {
   disputesRaised?: Prisma.DisputeUpdateManyWithoutRaisedByNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDisputesAssignedInput = {
@@ -4776,6 +4928,8 @@ export type UserUncheckedUpdateWithoutDisputesAssignedInput = {
   disputesRaised?: Prisma.DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutDisputeEventsInput = {
@@ -4831,6 +4985,8 @@ export type UserCreateWithoutDisputeEventsInput = {
   disputesRaised?: Prisma.DisputeCreateNestedManyWithoutRaisedByInput
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutDisputeEventsInput = {
@@ -4886,6 +5042,8 @@ export type UserUncheckedCreateWithoutDisputeEventsInput = {
   disputesRaised?: Prisma.DisputeUncheckedCreateNestedManyWithoutRaisedByInput
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutDisputeEventsInput = {
@@ -4957,6 +5115,8 @@ export type UserUpdateWithoutDisputeEventsInput = {
   disputesRaised?: Prisma.DisputeUpdateManyWithoutRaisedByNestedInput
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDisputeEventsInput = {
@@ -5012,6 +5172,8 @@ export type UserUncheckedUpdateWithoutDisputeEventsInput = {
   disputesRaised?: Prisma.DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutDisputeAttachmentsInput = {
@@ -5067,6 +5229,8 @@ export type UserCreateWithoutDisputeAttachmentsInput = {
   disputesRaised?: Prisma.DisputeCreateNestedManyWithoutRaisedByInput
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutDisputeAttachmentsInput = {
@@ -5122,6 +5286,8 @@ export type UserUncheckedCreateWithoutDisputeAttachmentsInput = {
   disputesRaised?: Prisma.DisputeUncheckedCreateNestedManyWithoutRaisedByInput
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutDisputeAttachmentsInput = {
@@ -5193,6 +5359,8 @@ export type UserUpdateWithoutDisputeAttachmentsInput = {
   disputesRaised?: Prisma.DisputeUpdateManyWithoutRaisedByNestedInput
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDisputeAttachmentsInput = {
@@ -5248,6 +5416,8 @@ export type UserUncheckedUpdateWithoutDisputeAttachmentsInput = {
   disputesRaised?: Prisma.DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutLogisticsMembershipInput = {
@@ -5303,6 +5473,8 @@ export type UserCreateWithoutLogisticsMembershipInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutLogisticsMembershipInput = {
@@ -5358,6 +5530,8 @@ export type UserUncheckedCreateWithoutLogisticsMembershipInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutLogisticsMembershipInput = {
@@ -5429,6 +5603,8 @@ export type UserUpdateWithoutLogisticsMembershipInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogisticsMembershipInput = {
@@ -5484,6 +5660,8 @@ export type UserUncheckedUpdateWithoutLogisticsMembershipInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutLogisticsPingsInput = {
@@ -5539,6 +5717,8 @@ export type UserCreateWithoutLogisticsPingsInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutLogisticsPingsInput = {
@@ -5594,6 +5774,8 @@ export type UserUncheckedCreateWithoutLogisticsPingsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutLogisticsPingsInput = {
@@ -5665,6 +5847,8 @@ export type UserUpdateWithoutLogisticsPingsInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogisticsPingsInput = {
@@ -5720,6 +5904,8 @@ export type UserUncheckedUpdateWithoutLogisticsPingsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutLogisticsAuditLogsInput = {
@@ -5775,6 +5961,8 @@ export type UserCreateWithoutLogisticsAuditLogsInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutLogisticsAuditLogsInput = {
@@ -5830,6 +6018,8 @@ export type UserUncheckedCreateWithoutLogisticsAuditLogsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutLogisticsAuditLogsInput = {
@@ -5901,6 +6091,8 @@ export type UserUpdateWithoutLogisticsAuditLogsInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogisticsAuditLogsInput = {
@@ -5956,6 +6148,8 @@ export type UserUncheckedUpdateWithoutLogisticsAuditLogsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutAcknowledgementsInput = {
@@ -6011,6 +6205,8 @@ export type UserCreateWithoutAcknowledgementsInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutAcknowledgementsInput = {
@@ -6066,6 +6262,8 @@ export type UserUncheckedCreateWithoutAcknowledgementsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutAcknowledgementsInput = {
@@ -6137,6 +6335,8 @@ export type UserUpdateWithoutAcknowledgementsInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAcknowledgementsInput = {
@@ -6192,6 +6392,8 @@ export type UserUncheckedUpdateWithoutAcknowledgementsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutPreorderChatsAssignedInput = {
@@ -6247,6 +6449,8 @@ export type UserCreateWithoutPreorderChatsAssignedInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutPreorderChatsAssignedInput = {
@@ -6302,6 +6506,8 @@ export type UserUncheckedCreateWithoutPreorderChatsAssignedInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutPreorderChatsAssignedInput = {
@@ -6373,6 +6579,8 @@ export type UserUpdateWithoutPreorderChatsAssignedInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPreorderChatsAssignedInput = {
@@ -6428,6 +6636,8 @@ export type UserUncheckedUpdateWithoutPreorderChatsAssignedInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutPreorderChatParticipantsInput = {
@@ -6483,6 +6693,8 @@ export type UserCreateWithoutPreorderChatParticipantsInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutPreorderChatParticipantsInput = {
@@ -6538,6 +6750,8 @@ export type UserUncheckedCreateWithoutPreorderChatParticipantsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutPreorderChatParticipantsInput = {
@@ -6609,6 +6823,8 @@ export type UserUpdateWithoutPreorderChatParticipantsInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPreorderChatParticipantsInput = {
@@ -6664,6 +6880,496 @@ export type UserUncheckedUpdateWithoutPreorderChatParticipantsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+}
+
+export type UserCreateWithoutStaffAccessReviewsReceivedInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: number
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutUserInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutAssignedReviewerInput
+  moderatedProductReviews?: Prisma.ProductReviewCreateNestedManyWithoutModeratedByInput
+  supportTicketsRequested?: Prisma.SupportTicketCreateNestedManyWithoutRequesterInput
+  supportTicketsAssigned?: Prisma.SupportTicketCreateNestedManyWithoutAssignedAdminInput
+  supportTicketEvents?: Prisma.SupportTicketEventCreateNestedManyWithoutActorInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentCreateNestedManyWithoutUploadedByInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutUserInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeCreateNestedManyWithoutUserInput
+  disputesRaised?: Prisma.DisputeCreateNestedManyWithoutRaisedByInput
+  disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
+  disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
+  disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+}
+
+export type UserUncheckedCreateWithoutStaffAccessReviewsReceivedInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: number
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutAssignedReviewerInput
+  moderatedProductReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutModeratedByInput
+  supportTicketsRequested?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutRequesterInput
+  supportTicketsAssigned?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutAssignedAdminInput
+  supportTicketEvents?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutActorInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUncheckedCreateNestedManyWithoutUserInput
+  disputesRaised?: Prisma.DisputeUncheckedCreateNestedManyWithoutRaisedByInput
+  disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
+  disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
+  disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+}
+
+export type UserCreateOrConnectWithoutStaffAccessReviewsReceivedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutStaffAccessReviewsReceivedInput, Prisma.UserUncheckedCreateWithoutStaffAccessReviewsReceivedInput>
+}
+
+export type UserCreateWithoutStaffAccessReviewsGivenInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: number
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutUserInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutAssignedReviewerInput
+  moderatedProductReviews?: Prisma.ProductReviewCreateNestedManyWithoutModeratedByInput
+  supportTicketsRequested?: Prisma.SupportTicketCreateNestedManyWithoutRequesterInput
+  supportTicketsAssigned?: Prisma.SupportTicketCreateNestedManyWithoutAssignedAdminInput
+  supportTicketEvents?: Prisma.SupportTicketEventCreateNestedManyWithoutActorInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentCreateNestedManyWithoutUploadedByInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutUserInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeCreateNestedManyWithoutUserInput
+  disputesRaised?: Prisma.DisputeCreateNestedManyWithoutRaisedByInput
+  disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
+  disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
+  disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+}
+
+export type UserUncheckedCreateWithoutStaffAccessReviewsGivenInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: number
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutAssignedReviewerInput
+  moderatedProductReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutModeratedByInput
+  supportTicketsRequested?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutRequesterInput
+  supportTicketsAssigned?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutAssignedAdminInput
+  supportTicketEvents?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutActorInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUncheckedCreateNestedManyWithoutUserInput
+  disputesRaised?: Prisma.DisputeUncheckedCreateNestedManyWithoutRaisedByInput
+  disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
+  disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
+  disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+}
+
+export type UserCreateOrConnectWithoutStaffAccessReviewsGivenInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutStaffAccessReviewsGivenInput, Prisma.UserUncheckedCreateWithoutStaffAccessReviewsGivenInput>
+}
+
+export type UserUpsertWithoutStaffAccessReviewsReceivedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutStaffAccessReviewsReceivedInput, Prisma.UserUncheckedUpdateWithoutStaffAccessReviewsReceivedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutStaffAccessReviewsReceivedInput, Prisma.UserUncheckedCreateWithoutStaffAccessReviewsReceivedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutStaffAccessReviewsReceivedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutStaffAccessReviewsReceivedInput, Prisma.UserUncheckedUpdateWithoutStaffAccessReviewsReceivedInput>
+}
+
+export type UserUpdateWithoutStaffAccessReviewsReceivedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUpdateManyWithoutUserNestedInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutAssignedReviewerNestedInput
+  moderatedProductReviews?: Prisma.ProductReviewUpdateManyWithoutModeratedByNestedInput
+  supportTicketsRequested?: Prisma.SupportTicketUpdateManyWithoutRequesterNestedInput
+  supportTicketsAssigned?: Prisma.SupportTicketUpdateManyWithoutAssignedAdminNestedInput
+  supportTicketEvents?: Prisma.SupportTicketEventUpdateManyWithoutActorNestedInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUpdateManyWithoutUploadedByNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutUserNestedInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUpdateManyWithoutUserNestedInput
+  disputesRaised?: Prisma.DisputeUpdateManyWithoutRaisedByNestedInput
+  disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
+  disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
+  disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutStaffAccessReviewsReceivedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutAssignedReviewerNestedInput
+  moderatedProductReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutModeratedByNestedInput
+  supportTicketsRequested?: Prisma.SupportTicketUncheckedUpdateManyWithoutRequesterNestedInput
+  supportTicketsAssigned?: Prisma.SupportTicketUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  supportTicketEvents?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutActorNestedInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUncheckedUpdateManyWithoutUserNestedInput
+  disputesRaised?: Prisma.DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
+  disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
+  disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+}
+
+export type UserUpsertWithoutStaffAccessReviewsGivenInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutStaffAccessReviewsGivenInput, Prisma.UserUncheckedUpdateWithoutStaffAccessReviewsGivenInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutStaffAccessReviewsGivenInput, Prisma.UserUncheckedCreateWithoutStaffAccessReviewsGivenInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutStaffAccessReviewsGivenInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutStaffAccessReviewsGivenInput, Prisma.UserUncheckedUpdateWithoutStaffAccessReviewsGivenInput>
+}
+
+export type UserUpdateWithoutStaffAccessReviewsGivenInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUpdateManyWithoutUserNestedInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutAssignedReviewerNestedInput
+  moderatedProductReviews?: Prisma.ProductReviewUpdateManyWithoutModeratedByNestedInput
+  supportTicketsRequested?: Prisma.SupportTicketUpdateManyWithoutRequesterNestedInput
+  supportTicketsAssigned?: Prisma.SupportTicketUpdateManyWithoutAssignedAdminNestedInput
+  supportTicketEvents?: Prisma.SupportTicketEventUpdateManyWithoutActorNestedInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUpdateManyWithoutUploadedByNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutUserNestedInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUpdateManyWithoutUserNestedInput
+  disputesRaised?: Prisma.DisputeUpdateManyWithoutRaisedByNestedInput
+  disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
+  disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
+  disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutStaffAccessReviewsGivenInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutAssignedReviewerNestedInput
+  moderatedProductReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutModeratedByNestedInput
+  supportTicketsRequested?: Prisma.SupportTicketUncheckedUpdateManyWithoutRequesterNestedInput
+  supportTicketsAssigned?: Prisma.SupportTicketUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  supportTicketEvents?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutActorNestedInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUncheckedUpdateManyWithoutUserNestedInput
+  disputesRaised?: Prisma.DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
+  disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
+  disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
 }
 
 export type UserCreateWithoutBuyerCompanyMembershipsInput = {
@@ -6719,6 +7425,8 @@ export type UserCreateWithoutBuyerCompanyMembershipsInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutBuyerCompanyMembershipsInput = {
@@ -6774,6 +7482,8 @@ export type UserUncheckedCreateWithoutBuyerCompanyMembershipsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutBuyerCompanyMembershipsInput = {
@@ -6845,6 +7555,8 @@ export type UserUpdateWithoutBuyerCompanyMembershipsInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBuyerCompanyMembershipsInput = {
@@ -6900,6 +7612,8 @@ export type UserUncheckedUpdateWithoutBuyerCompanyMembershipsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutBuyerCompanyCasesInput = {
@@ -6955,6 +7669,8 @@ export type UserCreateWithoutBuyerCompanyCasesInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutBuyerCompanyCasesInput = {
@@ -7010,6 +7726,8 @@ export type UserUncheckedCreateWithoutBuyerCompanyCasesInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutBuyerCompanyCasesInput = {
@@ -7081,6 +7799,8 @@ export type UserUpdateWithoutBuyerCompanyCasesInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBuyerCompanyCasesInput = {
@@ -7136,6 +7856,8 @@ export type UserUncheckedUpdateWithoutBuyerCompanyCasesInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutConsentRecordsInput = {
@@ -7191,6 +7913,8 @@ export type UserCreateWithoutConsentRecordsInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutConsentRecordsInput = {
@@ -7246,6 +7970,8 @@ export type UserUncheckedCreateWithoutConsentRecordsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutConsentRecordsInput = {
@@ -7317,6 +8043,8 @@ export type UserUpdateWithoutConsentRecordsInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutConsentRecordsInput = {
@@ -7372,6 +8100,8 @@ export type UserUncheckedUpdateWithoutConsentRecordsInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserCreateWithoutBuyerCompanyEmailChallengesInput = {
@@ -7427,6 +8157,8 @@ export type UserCreateWithoutBuyerCompanyEmailChallengesInput = {
   disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
 }
 
 export type UserUncheckedCreateWithoutBuyerCompanyEmailChallengesInput = {
@@ -7482,6 +8214,8 @@ export type UserUncheckedCreateWithoutBuyerCompanyEmailChallengesInput = {
   disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
 }
 
 export type UserCreateOrConnectWithoutBuyerCompanyEmailChallengesInput = {
@@ -7553,6 +8287,8 @@ export type UserUpdateWithoutBuyerCompanyEmailChallengesInput = {
   disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBuyerCompanyEmailChallengesInput = {
@@ -7608,6 +8344,8 @@ export type UserUncheckedUpdateWithoutBuyerCompanyEmailChallengesInput = {
   disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
 }
 
 
@@ -7640,6 +8378,8 @@ export type UserCountOutputType = {
   disputesAssigned: number
   disputeEvents: number
   disputeAttachments: number
+  staffAccessReviewsReceived: number
+  staffAccessReviewsGiven: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -7667,6 +8407,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   disputesAssigned?: boolean | UserCountOutputTypeCountDisputesAssignedArgs
   disputeEvents?: boolean | UserCountOutputTypeCountDisputeEventsArgs
   disputeAttachments?: boolean | UserCountOutputTypeCountDisputeAttachmentsArgs
+  staffAccessReviewsReceived?: boolean | UserCountOutputTypeCountStaffAccessReviewsReceivedArgs
+  staffAccessReviewsGiven?: boolean | UserCountOutputTypeCountStaffAccessReviewsGivenArgs
 }
 
 /**
@@ -7847,6 +8589,20 @@ export type UserCountOutputTypeCountDisputeAttachmentsArgs<ExtArgs extends runti
   where?: Prisma.DisputeAttachmentWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountStaffAccessReviewsReceivedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StaffAccessReviewWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountStaffAccessReviewsGivenArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StaffAccessReviewWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -7902,6 +8658,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   disputesAssigned?: boolean | Prisma.User$disputesAssignedArgs<ExtArgs>
   disputeEvents?: boolean | Prisma.User$disputeEventsArgs<ExtArgs>
   disputeAttachments?: boolean | Prisma.User$disputeAttachmentsArgs<ExtArgs>
+  staffAccessReviewsReceived?: boolean | Prisma.User$staffAccessReviewsReceivedArgs<ExtArgs>
+  staffAccessReviewsGiven?: boolean | Prisma.User$staffAccessReviewsGivenArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -7965,6 +8723,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   disputesAssigned?: boolean | Prisma.User$disputesAssignedArgs<ExtArgs>
   disputeEvents?: boolean | Prisma.User$disputeEventsArgs<ExtArgs>
   disputeAttachments?: boolean | Prisma.User$disputeAttachmentsArgs<ExtArgs>
+  staffAccessReviewsReceived?: boolean | Prisma.User$staffAccessReviewsReceivedArgs<ExtArgs>
+  staffAccessReviewsGiven?: boolean | Prisma.User$staffAccessReviewsGivenArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -8037,6 +8797,12 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     disputesAssigned: Prisma.$DisputePayload<ExtArgs>[]
     disputeEvents: Prisma.$DisputeEventPayload<ExtArgs>[]
     disputeAttachments: Prisma.$DisputeAttachmentPayload<ExtArgs>[]
+    /**
+     * Privileged-access review decisions about this staff account, and those
+     * this owner recorded about others. See StaffAccessReview.
+     */
+    staffAccessReviewsReceived: Prisma.$StaffAccessReviewPayload<ExtArgs>[]
+    staffAccessReviewsGiven: Prisma.$StaffAccessReviewPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -8522,6 +9288,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   disputesAssigned<T extends Prisma.User$disputesAssignedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$disputesAssignedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   disputeEvents<T extends Prisma.User$disputeEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$disputeEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DisputeEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   disputeAttachments<T extends Prisma.User$disputeAttachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$disputeAttachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DisputeAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  staffAccessReviewsReceived<T extends Prisma.User$staffAccessReviewsReceivedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$staffAccessReviewsReceivedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffAccessReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  staffAccessReviewsGiven<T extends Prisma.User$staffAccessReviewsGivenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$staffAccessReviewsGivenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffAccessReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9537,6 +10305,54 @@ export type User$disputeAttachmentsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.DisputeAttachmentScalarFieldEnum | Prisma.DisputeAttachmentScalarFieldEnum[]
+}
+
+/**
+ * User.staffAccessReviewsReceived
+ */
+export type User$staffAccessReviewsReceivedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StaffAccessReview
+   */
+  select?: Prisma.StaffAccessReviewSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StaffAccessReview
+   */
+  omit?: Prisma.StaffAccessReviewOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StaffAccessReviewInclude<ExtArgs> | null
+  where?: Prisma.StaffAccessReviewWhereInput
+  orderBy?: Prisma.StaffAccessReviewOrderByWithRelationInput | Prisma.StaffAccessReviewOrderByWithRelationInput[]
+  cursor?: Prisma.StaffAccessReviewWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StaffAccessReviewScalarFieldEnum | Prisma.StaffAccessReviewScalarFieldEnum[]
+}
+
+/**
+ * User.staffAccessReviewsGiven
+ */
+export type User$staffAccessReviewsGivenArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StaffAccessReview
+   */
+  select?: Prisma.StaffAccessReviewSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StaffAccessReview
+   */
+  omit?: Prisma.StaffAccessReviewOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StaffAccessReviewInclude<ExtArgs> | null
+  where?: Prisma.StaffAccessReviewWhereInput
+  orderBy?: Prisma.StaffAccessReviewOrderByWithRelationInput | Prisma.StaffAccessReviewOrderByWithRelationInput[]
+  cursor?: Prisma.StaffAccessReviewWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StaffAccessReviewScalarFieldEnum | Prisma.StaffAccessReviewScalarFieldEnum[]
 }
 
 /**

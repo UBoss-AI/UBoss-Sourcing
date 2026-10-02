@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**360 tables · 335 enums · 824 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
+**361 tables · 336 enums · 826 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -71,7 +71,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ which level of the fallback chain a policy sits at. / / offer -&gt; product -&gt; seller_default -&gt; the platform's own defaults (config) / / the first one that exists wins, whole. a variant whose own policy says / "disabled" is disabled, and does not fall through to an enabled product / policy - a seller who switched one variant off meant it.](#group-which-level-of-the-fallback-chain-a-policy-sits-at-offer-product-seller-default-the-platform-s-own-defaults-config-the-first-one-that-exists-wins-whole-a-variant-whose-own-policy-says-disabled-is-disabled-and-does-not-fall-through-to-an-enabled-product-policy-a-seller-who-switched-one-variant-off-meant-it) | 9 | 14 |
 | [/ where a conversation stands. moved only by `domain/preorder-chat-state.ts`.](#group-where-a-conversation-stands-moved-only-by-domain-preorder-chat-state-ts) | 8 | 7 |
 | [Seller documents: invoices and packing lists](#group-seller-documents-invoices-and-packing-lists) | 5 | 3 |
-| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 16 | 19 |
+| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 17 | 20 |
 | [/ which agreement a document is. each account type is asked for its own.](#group-which-agreement-a-document-is-each-account-type-is-asked-for-its-own) | 2 | 2 |
 | [Seller commission invoices](#group-seller-commission-invoices) | 6 | 7 |
 | [/ how strongly an order needs inspecting, decided by the rules engine.](#group-how-strongly-an-order-needs-inspecting-decided-by-the-rules-engine) | 17 | 23 |
@@ -193,6 +193,8 @@ Table `users`
 - `disputesAssigned` ← [Dispute](#model-dispute) - has many
 - `disputeEvents` ← [DisputeEvent](#model-disputeevent) - has many
 - `disputeAttachments` ← [DisputeAttachment](#model-disputeattachment) - has many
+- `staffAccessReviewsReceived` ← [StaffAccessReview](#model-staffaccessreview) - has many
+- `staffAccessReviewsGiven` ← [StaffAccessReview](#model-staffaccessreview) - has many
 
 **Indexes and keys**
 
@@ -15934,7 +15936,7 @@ A packing list for one consignment - one vehicle, one load.
 
 ##  / which buyer the session is acting as. null on a session row means individual.
 
-[BuyerCompany](#model-buyercompany) · [BuyerCompanyAddress](#model-buyercompanyaddress) · [BuyerCompanyIdentifier](#model-buyercompanyidentifier) · [TeamAccessReview](#model-teamaccessreview) · [BuyerCompanyLocation](#model-buyercompanylocation) · [BuyerCompanyMember](#model-buyercompanymember) · [BuyerCompanyInvitation](#model-buyercompanyinvitation) · [BuyerCompanyApprovalPolicy](#model-buyercompanyapprovalpolicy) · [BuyerCompanyOrderApproval](#model-buyercompanyorderapproval) · [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) · [BuyerCompanyCheck](#model-buyercompanycheck) · [BuyerCompanyDocument](#model-buyercompanydocument) · [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) · [BuyerCompanyReviewEvent](#model-buyercompanyreviewevent) · [BuyerCompanyStatusHistory](#model-buyercompanystatushistory) · [ConsentRecord](#model-consentrecord)
+[BuyerCompany](#model-buyercompany) · [BuyerCompanyAddress](#model-buyercompanyaddress) · [BuyerCompanyIdentifier](#model-buyercompanyidentifier) · [TeamAccessReview](#model-teamaccessreview) · [StaffAccessReview](#model-staffaccessreview) · [BuyerCompanyLocation](#model-buyercompanylocation) · [BuyerCompanyMember](#model-buyercompanymember) · [BuyerCompanyInvitation](#model-buyercompanyinvitation) · [BuyerCompanyApprovalPolicy](#model-buyercompanyapprovalpolicy) · [BuyerCompanyOrderApproval](#model-buyercompanyorderapproval) · [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) · [BuyerCompanyCheck](#model-buyercompanycheck) · [BuyerCompanyDocument](#model-buyercompanydocument) · [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) · [BuyerCompanyReviewEvent](#model-buyercompanyreviewevent) · [BuyerCompanyStatusHistory](#model-buyercompanystatushistory) · [ConsentRecord](#model-consentrecord)
 
 ```mermaid
 erDiagram
@@ -15943,6 +15945,8 @@ erDiagram
     BuyerCompany ||--o{ BuyerCompanyIdentifier : "company"
     SellerAccount |o--o{ TeamAccessReview : "sellerAccount"
     BuyerCompany |o--o{ TeamAccessReview : "buyerCompany"
+    User ||--o{ StaffAccessReview : "reviewedUser"
+    User ||--o{ StaffAccessReview : "reviewer"
     BuyerCompany ||--o{ BuyerCompanyLocation : "company"
     BuyerCompany ||--o{ BuyerCompanyMember : "company"
     User ||--o{ BuyerCompanyMember : "user"
@@ -15980,6 +15984,11 @@ erDiagram
         String id PK
         String sellerAccountId FK
         String buyerCompanyId FK
+    }
+    StaffAccessReview {
+        String id PK
+        String reviewedUserId FK
+        String reviewerUserId FK
     }
     BuyerCompanyLocation {
         String id PK
@@ -16223,6 +16232,38 @@ Table `team_access_reviews`
 
 - `@@index([sellerAccountId, createdAt], map: "ix_team_access_review_seller")`
 - `@@index([buyerCompanyId, createdAt], map: "ix_team_access_review_company")`
+
+<a id="model-staffaccessreview"></a>
+
+### StaffAccessReview
+
+Table `staff_access_reviews`
+
+What a Business Owner decided about one staff account in a privileged-access review (LIVE-015): keep the access, reduce it, or revoke it.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `reviewedUserId` | String · Char(26) |  | FK → [User](#model-user) |  | (on delete: Restrict) |
+| `reviewerUserId` | String · Char(26) |  | FK → [User](#model-user) |  | (on delete: Restrict) |
+| `decision` | [enum StaffAccessDecision](#enum-staffaccessdecision) |  |  |  |  |
+| `note` | String · VarChar(1000) | yes |  |  |  |
+| `rolesJson` | Json |  |  |  | The role keys the account held when it was reviewed. |
+| `mfaEnabled` | Boolean |  |  |  |  |
+| `lastSignInAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `dormant` | Boolean |  |  |  | True when the account had not signed in for the dormancy threshold. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `reviewedUser` → [User](#model-user) via `reviewedUserId` - many-to-one, required, on delete **Restrict**, on update **Restrict**
+- `reviewer` → [User](#model-user) via `reviewerUserId` - many-to-one, required, on delete **Restrict**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([reviewedUserId, createdAt], map: "ix_staff_access_review_subject")`
+- `@@index([reviewerUserId], map: "ix_staff_access_review_reviewer")`
 
 <a id="model-buyercompanylocation"></a>
 
@@ -16842,6 +16883,16 @@ What a person agreed to. One row per purpose, never one checkbox for all.
 | `AUTHORITY_TO_ACT` | "I am authorised to act for this company." |
 | `PLATFORM_TERMS` | The marketplace's Terms and Conditions, accepted when a buyer account is created. The row points at the exact `LegalDocument` that was shown. |
 | `LOGISTICS_PARTNER_TERMS` | The terms a carrier's staff accept when they activate a logistics portal account. The row points at the exact `LegalDocument` that was shown. |
+
+<a id="enum-staffaccessdecision"></a>
+
+#### enum StaffAccessDecision
+
+| Value | Meaning |
+|---|---|
+| `KEEP` |  |
+| `REDUCE` |  |
+| `REVOKE` |  |
 
 <a id="enum-buyercompanyapprovalstage"></a>
 

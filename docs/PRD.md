@@ -2391,7 +2391,7 @@ Built. The review step has an unticked box: "I have read and agree to the Terms 
 
 - **Statement.** A Finance Approver can refund a cancelled or returned order,
   with a refund quote first.
-- **Rules.** Refunds are idempotent (`unique(refunds.idempotencyKey)`); over-refunding is refused by the service, by the database (`chk_order_refund_within_paid`) and by the provider; the outcome comes back by signed webhook plus a `refund.poll` job. Needs `refund.create`.
+- **Rules.** Refunds are idempotent (`unique(refunds.idempotencyKey)`); over-refunding is refused by the service, by the database (`chk_order_refund_within_paid`) and by the provider; the outcome comes back by signed webhook, and the `refund.poll` job asks the provider about a refund whose webhook never came (FR-PAY-020). Needs `refund.create`.
 - **Status.** Built (records and provider calls).
 
 ### FR-PAY-009 — Marketplace payment architecture and seller payouts
@@ -6598,3 +6598,44 @@ Inspection responses now expose report as the latest report visible to that audi
 ### FR-RET-020 — Refund method and timing (JOURNEY-025)
 
 - The return page says a refund goes back to the original payment method once the item is received and checked, without promising a number of days. Built.
+
+## Go-live readiness additions (Section 14)
+
+### FR-IDN-021 — Staff privileged-access review (LIVE-015)
+
+- **Statement.** On **Staff**, a Business Owner sees a **Staff access review** panel: every staff account with its roles, whether two-factor sign-in is on, its last sign-in, a **Dormant** flag and the latest review decision. For each account the owner records **Keep access**, **Reduce access** or **Revoke access**, with a note.
+- **Rules.**
+  1. Business Owners only. The panel is not shown to anyone else, and `GET /api/v1/admin/staff/access-review` and `POST /api/v1/admin/staff/:id/access-reviews` answer 403 (`PERMISSION_DENIED`) for any other role.
+  2. Nobody reviews their own account: the owner's own row has no button, and the API refuses it (409 `CONFLICT`, detail `SELF_REVIEW`).
+  3. Reducing or revoking needs a note (400 `VALIDATION_FAILED`, detail `note` `REQUIRED`); keeping does not.
+  4. An account is dormant once it has gone `STAFF_DORMANT_AFTER_DAYS` days (default 90; 0 switches the flag off) without a sign-in, counted from its creation if it never signed in. A deactivated account is never dormant.
+  5. A decision changes nothing by itself. The owner then reduces or revokes with the **Roles** and **Deactivate** actions, which keep their own checks and audit entries.
+  6. Each decision is one `staff_access_reviews` row, never edited, holding what the account had at that moment (role keys, two-factor, last sign-in, dormant), and one audit entry `staff.access_reviewed`, in the same transaction.
+- **Status.** Built.
+
+### FR-SET-020 — Master-data readiness (LIVE-019)
+
+- **Statement.** **Settings → Master data** opens with a **Ready to go live?** card. It lists each reference list the marketplace needs with a count and a status, and names anything the demonstration data left behind. `GET /api/v1/admin/master-data-readiness` (needs `settings.read`) returns the same.
+- **Rules.**
+  1. Required lists (missing breaks a flow): active categories, active currencies, exactly one base currency, exchange rates fetched in the last 7 days when more than one currency is active, tax classes, countries, delivery prices (an active shipping method or a published delivery-level rate), published Terms and Conditions that are not the development placeholder, a published privacy policy, and units of measure. Inspection defect codes are required once an inspection rule exists.
+  2. Advised lists (the marketplace works, but part of it is empty): country market rules, inspection rules, inspection plans, inspection agencies and Incoterms.
+  3. Demonstration rows are found by what the seed itself writes: demo catalogue products, the development placeholder Terms, the seed's carrier, and accounts on the test-only `.local` email domain.
+  4. **Ready** means no required list is missing and nothing from the demonstration data is left. The check only reads.
+- **Status.** Built.
+
+### FR-PAY-020 — Refunds whose webhook never arrives (LIVE-017)
+
+- **Statement.** A refund the provider accepted but has not finished stays **Processing** until the provider's webhook settles it. The worker's `refund.poll` job (every beat) asks the provider about each refund still processing more than 15 minutes after it was last touched, and applies a final answer the same way the webhook does: the refund's status, then the sellers' settlements worked out again from every succeeded refund, and an audit entry `refund.completed` (source `refund_poll`).
+- **Rules.** The update only happens while the refund is still processing, so a webhook arriving at the same time cannot be applied twice. A provider that cannot be reached, or that answers about a different refund, changes nothing and is asked again on the next beat. Stripe and Razorpay both answer this question.
+- **Status.** Built.
+
+### FR-ANL-002 — An order placed is counted once (LIVE-020)
+
+- **Statement.** The order confirmation page sends `checkout_completed` once per order in a browser. Reloading the page, coming back to it from history, or React's development double mount no longer adds a second count. The order id is kept in that browser only and is never sent.
+- **Status.** Built.
+
+### FR-UX-020 — Every data screen shows loading, failure and empty (LIVE-003)
+
+- **Statement.** Each storefront, Seller Hub and console screen that reads data says when it is loading, says when the read failed (with **Try again**), and says when a list is empty. A failed read is never shown as an empty list.
+- **Rules.** A test in each app (`src/pages/query-states.test.ts`) checks every screen that reads data, and lists the few that handle a state another way, each with its reason.
+- **Status.** Built.

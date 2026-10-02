@@ -15,6 +15,7 @@ import {
   updateMasterData,
   type MasterDataActor,
 } from '../../modules/settings/master-data.service.js';
+import { masterDataReadiness } from '../../modules/settings/master-data-readiness.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 
 const kindParam = z.object({ kind: z.enum(MASTER_DATA_KINDS) });
@@ -45,6 +46,13 @@ function actorFrom(request: FastifyRequest): MasterDataActor {
 }
 
 export function registerAdminMasterDataRoutes(app: FastifyInstance): Promise<void> {
+  /** Go-live check: is each required master list present, and is any demonstration seed data left? */
+  app.get(
+    '/master-data-readiness',
+    { preHandler: requireAdmin(Permission.SETTINGS_READ) },
+    async (_request, reply) => reply.status(200).send(await masterDataReadiness()),
+  );
+
   /** List one master-data list (UOM, INCOTERM or DEFECT_CODE), switched-off entries included. */
   app.get(
     '/master-data/:kind',

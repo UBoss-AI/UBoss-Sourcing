@@ -349,7 +349,7 @@ const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
       'account/integrations/erp/connections/:id/product-codes', 'account/integrations/erp/organization/invites',
       'account/integrations/erp/organization/join', 'buyer-companies/:id/access-reviews',
       'buyer-companies/:id/email-code', 'buyer-companies/:id/invitations/:invitationId/resend',
-      'seller/access-reviews', 'seller/agreements', 'seller/brand-requests', 'seller/carriers',
+      'seller/access-reviews', 'admin/staff/:id/access-reviews', 'seller/agreements', 'seller/brand-requests', 'seller/carriers',
       'seller/certifications', 'seller/document-links/:kind/:id', 'seller/document-links/batch',
       'seller/erp/connections/:id/company', 'seller/erp/connections/:id/pairing-codes', 'seller/factories',
       'seller/factories/:id/evidence', 'seller/fulfilment/methods',

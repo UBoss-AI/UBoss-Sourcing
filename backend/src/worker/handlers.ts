@@ -28,6 +28,7 @@ import { sweepExpiredFulfilmentQuotes } from '../modules/fulfilment/warehouse-op
 import { expirePaymentLinks } from '../modules/payments/payment-link.service.js';
 import { sweepExpiredSellerDocuments } from '../modules/seller/document-expiry.service.js';
 import { reconcileOpenCheckouts } from '../modules/payments/stripe-checkout.service.js';
+import { pollProcessingRefunds } from '../modules/payments/refund-poll.service.js';
 import { expireStalePreorders, flagPreorderDeliveryRisks } from '../modules/preorders/request.service.js';
 import { runPreorderChatMaintenance } from '../modules/preorder-chat/maintenance.service.js';
 import { createChatBus, type ChatBus } from '../modules/preorder-chat/realtime/bus.js';
@@ -502,6 +503,17 @@ const reconcileCheckouts: JobHandler = async () => {
   if (result.captured > 0 || result.closed > 0 || result.failed > 0) {
     logger.info(result, 'reconciled open checkout payments with Stripe');
   }
+};
+
+/**
+ * Refunds still processing whose webhook never came (LIVE-017).
+ *
+ * Asks the provider about each one and applies a final answer the way the
+ * webhook would. A pass with nothing processing is one indexed query.
+ */
+const pollRefunds: JobHandler = async () => {
+  const result = await pollProcessingRefunds();
+  if (result.checked > 0) logger.info(result, 'polled processing refunds');
 };
 
 const expireLinks: JobHandler = async () => {
@@ -979,6 +991,7 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.INTEGRATION_EVENT_RETRY]: integrationEventRetry,
   [JobType.PAYMENT_LINK_EXPIRE]: expireLinks,
   [JobType.PAYMENT_RECONCILE]: reconcileCheckouts,
+  [JobType.REFUND_POLL]: pollRefunds,
   [JobType.PREORDER_EXPIRE]: expirePreorders,
   [JobType.PREORDER_RISK_SWEEP]: preorderRiskSweep,
   [JobType.PREORDER_CHAT_SWEEP]: preorderChatSweep,

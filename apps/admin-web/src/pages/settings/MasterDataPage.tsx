@@ -27,6 +27,7 @@ import { api } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
 import { Permission } from '@/lib/permissions';
 import { useI18n } from '@/i18n/i18n-context';
+import { MasterDataReadinessCard } from './MasterDataReadinessCard';
 
 export type MasterDataKind = 'UOM' | 'INCOTERM' | 'DEFECT_CODE';
 type Severity = 'CRITICAL' | 'MAJOR' | 'MINOR';
@@ -120,6 +121,8 @@ export function MasterDataPage(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <PageHeader title={t('masterData.title')} description={t('masterData.description')} />
+
+      <MasterDataReadinessCard />
 
       <Card bodyClassName="space-y-4 px-5 py-4">
         <Field label={t('masterData.list')}>

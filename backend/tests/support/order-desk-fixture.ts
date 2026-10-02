@@ -263,7 +263,13 @@ async function makeSeller(tag: string, letter: 'a' | 'b'): Promise<string> {
  * Build the world. `tag` is short and lower-case (`ret6`, `dsp6`), unique per
  * test file.
  */
-export async function buildOrderDesk(app: App, tag: string, ipBase: number): Promise<OrderDesk> {
+export async function buildOrderDesk(
+  app: App,
+  tag: string,
+  ipBase: number,
+  /** The third octet, so several files can share one `10.<ipBase>.x` range. */
+  ipSubnet = 0,
+): Promise<OrderDesk> {
   await cleanUpOrderDesk(tag);
   const upper = tag.toUpperCase();
 
@@ -308,7 +314,7 @@ export async function buildOrderDesk(app: App, tag: string, ipBase: number): Pro
     },
   });
 
-  const ip = (offset: number): string => `10.${String(ipBase)}.0.${String(offset)}`;
+  const ip = (offset: number): string => `10.${String(ipBase)}.${String(ipSubnet)}.${String(offset)}`;
   const buyer = await customer(app, tag, 'buyer', ip(1));
   const rivalBuyer = await customer(app, tag, 'rival', ip(2));
   const sellerA = await customer(app, tag, 'selleraowner', ip(3), sellerAId);

@@ -31,6 +31,7 @@ import {
   Button,
   Callout,
   Card,
+  ErrorState,
   Field,
   Input,
   LoadingState,
@@ -161,6 +162,13 @@ export function ProductSafetyPanel({
       <div className="space-y-5 px-5 py-4">
         {assessment.isPending ? (
           <LoadingState label={t('productSafety.checking')} />
+        ) : assessment.isError ? (
+          <ErrorState
+            error={assessment.error}
+            onRetry={() => {
+              void assessment.refetch();
+            }}
+          />
         ) : (
           result !== undefined && (
             <>

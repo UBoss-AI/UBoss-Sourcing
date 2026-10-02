@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1303 endpoints** in 120 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1306 endpoints** in 120 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,7 +27,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 528 |
+| [Admin panel (staff)](#admin-panel-staff) | 531 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 322 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
@@ -558,6 +558,14 @@ Defined in `backend/src/http/routes/master-data.admin.ts`.
 | POST | `/api/v1/admin/master-data/:kind` | Staff | Admin(SETTINGS_WRITE) | Add an entry to a master-data list. Codes are unique per list. Writes an audit entry. |
 | PATCH | `/api/v1/admin/master-data/:kind/:id` | Staff | Admin(SETTINGS_WRITE) | Edit or switch off a master-data entry. Writes an audit entry. |
 
+### `admin/master-data-readiness`
+
+Defined in `backend/src/http/routes/master-data.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/master-data-readiness` | Staff | Admin(SETTINGS_READ) | Go-live check: is each required master list present, and is any demonstration seed data left? |
+
 ### `admin/notifications`
 
 Defined in `backend/src/http/routes/notifications.admin.ts`.
@@ -990,6 +998,8 @@ Defined in `backend/src/http/routes/settings.admin.ts`.
 | POST | `/api/v1/admin/staff/:id/temporary-password` | Staff | Admin(STAFF_WRITE, ROLE_ASSIGN) | Email a fresh temporary password |
 | PATCH | `/api/v1/admin/staff/:id/roles` | Staff | Admin(ROLE_ASSIGN) | Replace a staff member's roles. Only roles within your own authority can be added or removed, and the last Business Owner cannot drop that role. Removing access signs the person out. Writes an audit entry. |
 | PATCH | `/api/v1/admin/staff/:id/status` | Staff | Admin(STAFF_WRITE) | Deactivate a staff account, signing it out everywhere, or reactivate it. Refused for your own account, for someone with more access than you, and for the last active Business Owner. Writes an audit entry. |
+| GET | `/api/v1/admin/staff/access-review` | Staff | Admin(STAFF_READ) | Every staff account's roles, two-factor, last sign-in and dormant flag, with the latest review decision. Business Owners only. |
+| POST | `/api/v1/admin/staff/:id/access-reviews` | Staff | Admin(STAFF_READ, STAFF_WRITE) | Record a keep / reduce / revoke decision about one staff account. Business Owners only, never about yourself. Writes an audit entry. |
 
 ### `admin/support-tickets`
 

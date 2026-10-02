@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, Callout, Field, Input, Select } from '@/components/ui';
+import { Badge, Button, Callout, ErrorState, Field, Input, Select } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { minorToMajor } from '@/lib/format';
 import { useI18n } from '@/i18n/i18n-context';
@@ -231,7 +231,16 @@ export function BulkCurrencyPricingDialog({
       }
     >
       <div className="space-y-4">
-        {targets.length === 0 && !currencies.isLoading && (
+        {currencies.isError && (
+          <ErrorState
+            error={currencies.error}
+            onRetry={() => {
+              void currencies.refetch();
+            }}
+          />
+        )}
+
+        {targets.length === 0 && currencies.isSuccess && (
           <Callout tone="warning" title={t('bulkPricing.noCurrencyTitle')}>
             {t('bulkPricing.noCurrencyBody')}
           </Callout>

@@ -44,6 +44,7 @@ import { useCallback, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
+import { ErrorState, LoadingState } from '@/components/ui';
 import { useStorefront } from '@/app/storefront-context';
 import { HeroSearch } from '@/components/hero-search/HeroSearch';
 import { CollectionShelves } from '@/components/home/CollectionShelves';
@@ -485,7 +486,31 @@ function CategoryStrip(): React.JSX.Element | null {
     staleTime: 5 * 60_000,
   });
 
-  const categories = stockedCategories(query.data?.categories ?? []);
+  // Loading and a failed read each say so, in the space the rail will take,
+  // rather than leaving a gap that reads as "this store has no departments".
+  // Empty is still absent: a deployment with nothing stocked yet shows no rail.
+  if (query.isPending) {
+    return (
+      <section className="mb-12">
+        <LoadingState />
+      </section>
+    );
+  }
+
+  if (query.isError) {
+    return (
+      <section className="mb-12">
+        <ErrorState
+          error={query.error}
+          onRetry={() => {
+            void query.refetch();
+          }}
+        />
+      </section>
+    );
+  }
+
+  const categories = stockedCategories(query.data.categories);
 
   if (categories.length === 0) return null;
 

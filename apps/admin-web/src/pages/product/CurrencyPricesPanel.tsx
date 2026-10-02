@@ -30,7 +30,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, Callout, Card, Input, LoadingState } from '@/components/ui';
+import { Badge, Button, Callout, Card, ErrorState, Input, LoadingState } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { formatMoney, majorToMinor, minorToMajor } from '@/lib/format';
 import { useI18n } from '@/i18n/i18n-context';
@@ -220,6 +220,15 @@ export function CurrencyPricesPanel({
       <div className="px-5 py-4">
         {prices.isLoading ? (
           <LoadingState label={t('currencyPrices.loadingPrices')} />
+        ) : prices.isError ? (
+          // Not an empty table: that would read as "no prices set", and
+          // saving from it would throw away the ones that are.
+          <ErrorState
+            error={prices.error}
+            onRetry={() => {
+              void prices.refetch();
+            }}
+          />
         ) : (
           <>
             <div className="mb-3 flex flex-wrap items-center gap-3">

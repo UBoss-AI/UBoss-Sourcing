@@ -18,6 +18,7 @@ import { useSession } from '@/auth/session-context';
 import { DataTable } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
 import { ConfirmDialog, Modal } from '@/components/Modal';
+import { StaffAccessReviewPanel } from '@/components/StaffAccessReviewPanel';
 import { useToast } from '@/components/toast-context';
 import {
   Badge,
@@ -544,6 +545,10 @@ export function StaffPage(): React.JSX.Element {
         <Callout tone="neutral" title={t('staff.twoRulesThisScreenCannot')}>
           {t('staff.theLastActiveBusinessOwner')}
         </Callout>
+
+        {/* The privileged-access review is a Business Owner's job (LIVE-015);
+            the API refuses it to everybody else, so nobody else is shown it. */}
+        {user?.roles.includes('business_owner') === true && <StaffAccessReviewPanel />}
       </div>
 
       {rolesFor !== null && (

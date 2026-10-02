@@ -20,6 +20,21 @@ const UOMS = {
   ],
 };
 
+const READINESS = {
+  generatedAt: '2026-10-02T10:00:00.000Z',
+  ready: false,
+  missingRequired: 1,
+  checks: [
+    { key: 'units', required: true, status: 'OK', count: 1 },
+    { key: 'platformTerms', required: true, status: 'MISSING', count: 0 },
+    { key: 'incoterms', required: false, status: 'WARNING', count: 0 },
+  ],
+  demo: [
+    { key: 'demoProducts', count: 0 },
+    { key: 'localAccounts', count: 4 },
+  ],
+};
+
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 }
@@ -57,8 +72,14 @@ function callsWith(method: string): [string, RequestInit][] {
 beforeEach(() => {
   vi.stubGlobal('fetch', fetchMock);
   fetchMock.mockReset();
-  fetchMock.mockImplementation((_url: string, init?: RequestInit) =>
-    Promise.resolve(init?.method === undefined || init.method === 'GET' ? json(UOMS) : json({ entry: UOMS.entries[0] })),
+  fetchMock.mockImplementation((url: string, init?: RequestInit) =>
+    Promise.resolve(
+      url.includes('/admin/master-data-readiness')
+        ? json(READINESS)
+        : init?.method === undefined || init.method === 'GET'
+          ? json(UOMS)
+          : json({ entry: UOMS.entries[0] }),
+    ),
   );
 });
 
@@ -71,7 +92,7 @@ describe('MasterDataPage', () => {
   it('lists units of measure and adds a new one', async () => {
     renderPage(['settings.read', 'settings.write']);
     expect(await screen.findByText('Kilogram')).toBeTruthy();
-    expect(String(fetchMock.mock.calls[0]?.[0])).toContain('/admin/master-data/UOM');
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/admin/master-data/UOM'))).toBe(true);
 
     const inputs = screen.getAllByRole('textbox');
     // code, name, description - in form order after the list.
@@ -98,6 +119,16 @@ describe('MasterDataPage', () => {
     const [url, init] = callsWith('PATCH')[0] as [string, RequestInit];
     expect(url).toContain(`/admin/master-data/UOM/${UOMS.entries[0]?.id ?? ''}`);
     expect(JSON.parse(init.body as string)).toEqual({ isActive: false });
+  });
+
+  it('shows the go-live readiness of each master list and any demonstration data left (LIVE-019)', async () => {
+    renderPage(['settings.read']);
+    expect(await screen.findByText(i18n.t('readiness.notReady'))).toBeTruthy();
+    expect(screen.getByText(i18n.t('readiness.check.platformTerms'))).toBeTruthy();
+    expect(screen.getByText(i18n.t('readiness.status.MISSING'))).toBeTruthy();
+    expect(screen.getByText(i18n.t('readiness.demo.localAccounts'))).toBeTruthy();
+    // A demo list with nothing in it is not named.
+    expect(screen.queryByText(i18n.t('readiness.demo.demoProducts'))).toBeNull();
   });
 
   it('is read-only without settings.write', async () => {

@@ -95,6 +95,40 @@ export function track(event: AnalyticsEvent, screen = ''): void {
   timer ??= setTimeout(flushAnalytics, FLUSH_MS);
 }
 
+/**
+ * Count an event at most once for `onceKey` in this browser.
+ *
+ * For the events that stand for a transaction - an order placed - and are
+ * reconciled against the source table. The confirmation page is reloaded,
+ * reopened from history and mounted twice by React's development checks, and
+ * each of those used to add one. The key (an order id) stays in this browser
+ * and is never sent: the server still receives a bare count.
+ */
+const ONCE_STORAGE_KEY = 'uboss.analytics.once';
+const ONCE_LIMIT = 50;
+const countedThisTab = new Set<string>();
+
+export function trackOnce(event: AnalyticsEvent, screen: string, onceKey: string): void {
+  const key = `${event}:${onceKey}`;
+  if (countedThisTab.has(key)) return;
+  countedThisTab.add(key);
+  let seen: string[] = [];
+  try {
+    const raw = window.localStorage.getItem(ONCE_STORAGE_KEY);
+    const parsed: unknown = raw === null ? [] : JSON.parse(raw);
+    seen = Array.isArray(parsed) ? parsed.filter((entry): entry is string => typeof entry === 'string') : [];
+  } catch {
+    seen = [];
+  }
+  if (seen.includes(key)) return;
+  try {
+    window.localStorage.setItem(ONCE_STORAGE_KEY, JSON.stringify([...seen, key].slice(-ONCE_LIMIT)));
+  } catch {
+    // Storage blocked: the in-memory set still stops a second count in this tab.
+  }
+  track(event, screen);
+}
+
 if (typeof document !== 'undefined') {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') flushAnalytics();
@@ -125,6 +159,7 @@ export function enableAnalyticsForTest(on: boolean): void {
 
 export function resetAnalyticsForTest(): void {
   queue = [];
+  countedThisTab.clear();
   if (timer !== null) clearTimeout(timer);
   timer = null;
 }

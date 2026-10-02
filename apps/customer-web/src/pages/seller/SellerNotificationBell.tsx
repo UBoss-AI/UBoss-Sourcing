@@ -27,6 +27,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { cx } from '@/lib/cx';
+import { errorMessage } from '@/lib/errors';
 import { useI18n } from '@/i18n/i18n-context';
 import { fetchNotifications, markNotificationRead, type SellerNotification } from '@/lib/seller';
 
@@ -208,7 +209,24 @@ export function SellerNotificationBell(): React.JSX.Element {
             <p className="px-4 py-6 text-center text-sm text-ink-muted">{t('common.loading')}</p>
           )}
 
-          {!query.isPending && recent.length === 0 && (
+          {/* A failed read is not "nothing new": saying so would hide an
+              alert the seller may need to act on. */}
+          {query.isError && (
+            <div role="alert" className="px-4 py-6 text-center text-sm">
+              <p className="text-danger">{errorMessage(t, query.error)}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  void query.refetch();
+                }}
+                className="mt-2 text-xxs font-medium text-brand hover:text-brand-hover focus:outline-none focus-visible:underline"
+              >
+                {t('common.tryAgain')}
+              </button>
+            </div>
+          )}
+
+          {query.isSuccess && recent.length === 0 && (
             <p className="px-4 py-8 text-center text-sm text-ink-muted">{t('sellerBell.empty')}</p>
           )}
 

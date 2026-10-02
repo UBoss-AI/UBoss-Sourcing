@@ -186,6 +186,12 @@ const envSchema = z
      * been one). 0 turns the reminder off; reviewing stays possible.
      */
     TEAM_ACCESS_REVIEW_INTERVAL_DAYS: intFromString(0, 3650).default(90),
+    /**
+     * The marketplace's own staff access review (LIVE-015): a staff account
+     * that has not signed in for this many days is flagged as dormant, so the
+     * Business Owner reviewing access sees it first. 0 turns the flag off.
+     */
+    STAFF_DORMANT_AFTER_DAYS: intFromString(0, 3650).default(90),
 
     // --- Seller settlement statements ---
     //

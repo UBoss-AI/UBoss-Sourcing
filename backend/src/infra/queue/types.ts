@@ -76,6 +76,8 @@ export const JobType = {
   /// The dispute clock: a claim whose seller let the time to answer pass goes
   /// to the operator, and a missed decision or evidence deadline rings the bell.
   DISPUTE_SLA_SWEEP: 'dispute.sla_sweep',
+  /// Refunds still processing whose provider webhook never arrived: asked
+  /// about at the provider and settled the way the webhook would (LIVE-017).
   REFUND_POLL: 'refund.poll',
   IMPORT_PROCESS: 'import.process',
   EXPORT_GENERATE: 'export.generate',

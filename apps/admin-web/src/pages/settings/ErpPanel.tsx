@@ -11,7 +11,7 @@
  * screen where the actual settings live.
  */
 import { useQuery } from '@tanstack/react-query';
-import { Badge, Card, LinkButton } from '@/components/ui';
+import { Badge, Card, ErrorState, LinkButton, LoadingState } from '@/components/ui';
 import { formatDateTime } from '@/lib/format';
 import { erpApi, erpKeys, type ErpConnectionStatus } from '@/lib/erp';
 import { useI18n } from '@/i18n/i18n-context';
@@ -62,7 +62,18 @@ export function ErpPanel(): React.JSX.Element | null {
       }
       bodyClassName="px-5 py-4"
     >
-      {rows.length === 0 ? (
+      {connections.isPending ? (
+        <LoadingState />
+      ) : connections.isError ? (
+        // A failed read is not "nothing set up yet": that would invite a
+        // second connection beside one that already exists.
+        <ErrorState
+          error={connections.error}
+          onRetry={() => {
+            void connections.refetch();
+          }}
+        />
+      ) : rows.length === 0 ? (
         <p className="max-w-prose text-sm leading-relaxed text-ink-muted">
           {t('erp.panelNothingYet')}
         </p>

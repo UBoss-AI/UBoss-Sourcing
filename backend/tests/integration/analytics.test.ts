@@ -10,7 +10,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Role } from '../../src/domain/permissions.js';
 import { buildApp } from '../../src/http/app.js';
 import { prisma } from '../../src/infra/prisma.js';
-import { asStaff, cleanUpOrderDesk, staff, type StaffSession } from '../support/order-desk-fixture.js';
+import { newId } from '../../src/infra/ids.js';
+import { asStaff, cleanUpOrderDesk, customer, emailFor, staff, type StaffSession } from '../support/order-desk-fixture.js';
 
 const TAG = 'anl8';
 let app: Awaited<ReturnType<typeof buildApp>>;
@@ -80,6 +81,61 @@ describe('staff reports', () => {
     expect(checkout?.sourceCount).toBe(orders);
     expect(checkout?.difference).toBe((checkout?.analytics ?? 0) - orders);
     expect(body.rows.map((row) => row.event)).toEqual(['checkout_completed', 'rfq_submitted', 'return_requested', 'dispute_opened']);
+  });
+
+  it('reconciles to a difference of 0 when every order sent its event, and -1 when one did not', async () => {
+    await customer(app, TAG, 'buyer', '10.83.0.22');
+    const profile = await prisma.customerProfile.findFirstOrThrow({ where: { user: { emailNormalized: emailFor(TAG, 'buyer') } }, select: { id: true } });
+    const address = { line1: '1 Analytics Road', city: 'Pune', postalCode: '411001', countryCode: 'IN' };
+    let serial = 0;
+    const placeOrder = async (createdAt?: Date): Promise<void> => {
+      serial += 1;
+      await prisma.order.create({
+        data: {
+          id: newId(),
+          orderNumber: `UB-${TAG.toUpperCase()}-${String(serial).padStart(6, '0')}`,
+          customerProfileId: profile.id,
+          source: 'ONE_TIME',
+          status: 'CONFIRMED',
+          currency: 'INR',
+          subtotalMinor: 1_000n,
+          grandTotalMinor: 1_000n,
+          billingAddressJson: address,
+          shippingAddressJson: address,
+          ...(createdAt === undefined ? {} : { createdAt }),
+        },
+      });
+    };
+    const checkoutRow = async (from: string) => {
+      const response = await asStaff(app, owner, 'GET', `/analytics/reconciliation?from=${from}&to=${from}`);
+      expect(response.statusCode, response.body).toBe(200);
+      const row = response.json<{ rows: { event: string; sourceCount: number; analytics: number; difference: number }[] }>().rows.find((entry) => entry.event === 'checkout_completed');
+      if (row === undefined) throw new Error('no checkout_completed row');
+      return row;
+    };
+
+    // A day nothing else touches, seeded exactly: three orders, three counted events.
+    const seededDay = '2001-03-05';
+    const seededAt = new Date(`${seededDay}T10:00:00.000Z`);
+    await prisma.analyticsDailyCount.create({ data: { day: new Date(`${seededDay}T00:00:00.000Z`), event: 'checkout_completed', screen: '/anl8-test/seeded', surface: 'STOREFRONT', count: 3 } });
+    for (let i = 0; i < 3; i += 1) await placeOrder(seededAt);
+    expect(await checkoutRow(seededDay)).toMatchObject({ sourceCount: 3, analytics: 3, difference: 0 });
+    // One order whose confirmation page never reported: the gap is visible.
+    await placeOrder(seededAt);
+    expect(await checkoutRow(seededDay)).toMatchObject({ sourceCount: 4, analytics: 3, difference: -1 });
+
+    // Today, through the real public counter: N orders and N events leave the
+    // difference where it was; one more order without its event moves it by -1.
+    const before = await checkoutRow(today);
+    for (let i = 0; i < 2; i += 1) await placeOrder();
+    const sent = await post([{ event: 'checkout_completed', screen: '/anl8-test/done' }, { event: 'checkout_completed', screen: '/anl8-test/done' }], '10.83.0.2');
+    expect(sent.statusCode, sent.body).toBe(204);
+    const matched = await checkoutRow(today);
+    expect(matched.sourceCount).toBe(before.sourceCount + 2);
+    expect(matched.analytics).toBe(before.analytics + 2);
+    expect(matched.difference).toBe(before.difference);
+    await placeOrder();
+    expect((await checkoutRow(today)).difference).toBe(before.difference - 1);
   });
 
   it('refuses staff without report.read and an over-long range', async () => {

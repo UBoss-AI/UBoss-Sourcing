@@ -316,6 +316,7 @@ export const ModelName = {
   BuyerCompanyAddress: 'BuyerCompanyAddress',
   BuyerCompanyIdentifier: 'BuyerCompanyIdentifier',
   TeamAccessReview: 'TeamAccessReview',
+  StaffAccessReview: 'StaffAccessReview',
   BuyerCompanyLocation: 'BuyerCompanyLocation',
   BuyerCompanyMember: 'BuyerCompanyMember',
   BuyerCompanyInvitation: 'BuyerCompanyInvitation',
@@ -6694,6 +6695,23 @@ export const TeamAccessReviewScalarFieldEnum = {
 export type TeamAccessReviewScalarFieldEnum = (typeof TeamAccessReviewScalarFieldEnum)[keyof typeof TeamAccessReviewScalarFieldEnum]
 
 
+export const StaffAccessReviewScalarFieldEnum = {
+  id: 'id',
+  reviewedUserId: 'reviewedUserId',
+  reviewerUserId: 'reviewerUserId',
+  decision: 'decision',
+  note: 'note',
+  rolesJson: 'rolesJson',
+  mfaEnabled: 'mfaEnabled',
+  lastSignInAt: 'lastSignInAt',
+  dormant: 'dormant',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type StaffAccessReviewScalarFieldEnum = (typeof StaffAccessReviewScalarFieldEnum)[keyof typeof StaffAccessReviewScalarFieldEnum]
+
+
 export const BuyerCompanyLocationScalarFieldEnum = {
   id: 'id',
   companyId: 'companyId',
@@ -12639,6 +12657,16 @@ export const TeamAccessReviewOrderByRelevanceFieldEnum = {
 } as const
 
 export type TeamAccessReviewOrderByRelevanceFieldEnum = (typeof TeamAccessReviewOrderByRelevanceFieldEnum)[keyof typeof TeamAccessReviewOrderByRelevanceFieldEnum]
+
+
+export const StaffAccessReviewOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reviewedUserId: 'reviewedUserId',
+  reviewerUserId: 'reviewerUserId',
+  note: 'note'
+} as const
+
+export type StaffAccessReviewOrderByRelevanceFieldEnum = (typeof StaffAccessReviewOrderByRelevanceFieldEnum)[keyof typeof StaffAccessReviewOrderByRelevanceFieldEnum]
 
 
 export const BuyerCompanyLocationOrderByRelevanceFieldEnum = {

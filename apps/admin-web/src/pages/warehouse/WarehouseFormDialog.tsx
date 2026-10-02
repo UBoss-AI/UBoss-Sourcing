@@ -35,6 +35,7 @@ import {
   Button,
   Callout,
   CheckboxField,
+  ErrorState,
   Field,
   FieldGroup,
   Input,
@@ -715,6 +716,20 @@ export function WarehouseFormDialog({
           <Callout tone="danger" role="alert">
             {problem}
           </Callout>
+        )}
+
+        {/* The country and currency lists are reference data. If one failed
+            to load, the pickers below are empty for that reason, not because
+            there is nothing to choose - say so and offer to read them again. */}
+        {(countries.isError || worldCountries.isError || config.isError) && (
+          <ErrorState
+            error={countries.error ?? worldCountries.error ?? config.error}
+            onRetry={() => {
+              void countries.refetch();
+              void worldCountries.refetch();
+              void config.refetch();
+            }}
+          />
         )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

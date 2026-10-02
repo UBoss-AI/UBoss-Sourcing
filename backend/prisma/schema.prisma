@@ -220,6 +220,11 @@ model User {
   disputesAssigned   Dispute[]           @relation("DisputeAssignee")
   disputeEvents      DisputeEvent[]      @relation("DisputeEventActor")
   disputeAttachments DisputeAttachment[] @relation("DisputeAttachmentUploader")
+
+  /// Privileged-access review decisions about this staff account, and those
+  /// this owner recorded about others. See StaffAccessReview.
+  staffAccessReviewsReceived StaffAccessReview[] @relation("StaffAccessReviewSubject")
+  staffAccessReviewsGiven    StaffAccessReview[] @relation("StaffAccessReviewReviewer")
   @@index([type, status], map: "ix_user_type_status")
   @@index([createdAt], map: "ix_user_created_at")
   /// Created by 20260909233000_account_profile_contact_change_and_wishlist and
@@ -20558,6 +20563,43 @@ model TeamAccessReview {
   @@index([sellerAccountId, createdAt], map: "ix_team_access_review_seller")
   @@index([buyerCompanyId, createdAt], map: "ix_team_access_review_company")
   @@map("team_access_reviews")
+}
+
+/// What a Business Owner decided about one staff account in a privileged-access
+/// review (LIVE-015): keep the access, reduce it, or revoke it.
+///
+/// One row per decision, never edited. The account's roles, two-factor state
+/// and last sign-in are copied in as they were at the moment of the decision,
+/// so the record still says what was reviewed after the roles have changed.
+/// The decision itself changes nothing: reducing or revoking is then done with
+/// the ordinary role and status actions, each audited on its own.
+model StaffAccessReview {
+  id               String              @id @db.Char(26)
+  reviewedUserId   String              @db.Char(26)
+  reviewerUserId   String              @db.Char(26)
+  decision         StaffAccessDecision
+  note             String?             @db.VarChar(1000)
+  /// The role keys the account held when it was reviewed.
+  rolesJson        Json
+  mfaEnabled       Boolean
+  lastSignInAt     DateTime?           @db.DateTime(3)
+  /// True when the account had not signed in for the dormancy threshold.
+  dormant          Boolean
+  createdAt        DateTime            @default(now()) @db.DateTime(3)
+  updatedAt        DateTime            @default(now()) @updatedAt @db.DateTime(3)
+
+  reviewedUser User @relation("StaffAccessReviewSubject", fields: [reviewedUserId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_staff_access_review_subject")
+  reviewer     User @relation("StaffAccessReviewReviewer", fields: [reviewerUserId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_staff_access_review_reviewer")
+
+  @@index([reviewedUserId, createdAt], map: "ix_staff_access_review_subject")
+  @@index([reviewerUserId], map: "ix_staff_access_review_reviewer")
+  @@map("staff_access_reviews")
+}
+
+enum StaffAccessDecision {
+  KEEP
+  REDUCE
+  REVOKE
 }
 
 /// A branch, plant or warehouse of the company, for later. Carries its own

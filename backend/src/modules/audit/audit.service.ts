@@ -46,6 +46,9 @@ export const AuditAction = {
   USER_REFRESH_REUSE_DETECTED: 'user.refresh_reuse_detected',
   ROLE_ASSIGNED: 'role.assigned',
   ROLE_REVOKED: 'role.revoked',
+  /// A Business Owner's keep / reduce / revoke decision about one staff
+  /// account in a privileged-access review (LIVE-015).
+  STAFF_ACCESS_REVIEWED: 'staff.access_reviewed',
 
   // Customers
   CUSTOMER_CREATED: 'customer.created',

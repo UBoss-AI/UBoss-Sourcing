@@ -2821,6 +2821,18 @@ export type BuyerCompanyIdentifier = Prisma.BuyerCompanyIdentifierModel
  */
 export type TeamAccessReview = Prisma.TeamAccessReviewModel
 /**
+ * Model StaffAccessReview
+ * What a Business Owner decided about one staff account in a privileged-access
+ * review (LIVE-015): keep the access, reduce it, or revoke it.
+ * 
+ * One row per decision, never edited. The account's roles, two-factor state
+ * and last sign-in are copied in as they were at the moment of the decision,
+ * so the record still says what was reviewed after the roles have changed.
+ * The decision itself changes nothing: reducing or revoking is then done with
+ * the ordinary role and status actions, each audited on its own.
+ */
+export type StaffAccessReview = Prisma.StaffAccessReviewModel
+/**
  * Model BuyerCompanyLocation
  * A branch, plant or warehouse of the company, for later. Carries its own
  * tax number because an Indian company has one GSTIN per state.

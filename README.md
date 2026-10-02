@@ -1130,6 +1130,9 @@ dark, a cool near-white in light, both audited by `npm run audit:contrast`.
 - **Product analytics without tracking.** Anonymous daily counts by route pattern, no cookie or identifier, nothing sent under Do Not Track or Global Privacy Control; Admin → Reports reconciles them with orders, RFQs, returns and disputes.
 - **Phone confirmation by SMS.** Set `SMS_HTTP_URL` (HTTPS gateway, JSON `{ to, from, body }`), `SMS_HTTP_TOKEN` and `SMS_SENDER_ID` and a phone change is confirmed by a link texted to the new number; without them it is confirmed through the account email.
 - **Sourcing and checkout.** RFQ matches explain why each supplier was chosen and flag capacity or an open dispute; quotes can promise export documents; the comparison shows a landed estimate and missing terms and downloads as PDF; checkout records the exact Terms version the buyer agreed to.
+- **Staff access review.** A Business Owner records Keep, Reduce or Revoke, with a note, for each staff account on **Staff**, seeing its roles, two-factor, last sign-in and a dormant flag (`STAFF_DORMANT_AFTER_DAYS`, default 90; 0 turns the flag off). Nobody reviews their own account; every decision is audited.
+- **Go-live check of reference data.** **Settings → Master data** says whether every required reference list is present and names any demonstration data left behind.
+- **Refunds whose webhook is lost.** The worker asks Stripe or Razorpay about a refund still processing after 15 minutes and settles it exactly as the webhook would.
 - **Restore tests and alert owners.** `deploy/scripts/verify-restore.sh` proves
   the newest backup restores into a scratch database and records the evidence;
   `monitor.sh` alerts when the last passing test is too old. Name the owner of
@@ -4303,6 +4306,20 @@ seam that would have to change.
       shown the English version, told so, and agrees to that text.
     - A published version can never be edited or deleted. A correction is a new
       version; people who agreed to the old one stay linked to it.
+20. **Run the go-live check of your reference data.** Open **Settings → Master
+    data** in the admin console. The **Ready to go live?** card lists every
+    reference list the marketplace needs (categories, currencies and fresh
+    exchange rates, tax classes, countries, delivery prices, published Terms
+    and privacy policy, units, and the inspection lists you use) and names
+    anything the demonstration data left behind: demo products, placeholder
+    Terms, the demo carrier, accounts on the `.local` domain. Go live when it
+    says **Ready**.
+21. **Review who has privileged access, and keep doing it.** A Business Owner
+    opens **Staff → Staff access review** and records Keep, Reduce or Revoke for
+    every staff account, with a note. Accounts without two-factor sign-in and
+    accounts unused for `STAFF_DORMANT_AFTER_DAYS` (default 90) are flagged.
+    Nobody reviews their own account, so a deployment needs two owners to
+    review everyone.
 
 </details>
 

@@ -28,6 +28,7 @@ import {
   type ProviderMode,
   type RefundInput,
   type RefundResult,
+  type RefundStatusResult,
   type VaultedCardDetails,
   type VerifiedEvent,
 } from './provider.js';
@@ -529,6 +530,16 @@ export class RazorpayAdapter implements CardVaultProvider {
             ? 'FAILED'
             : 'PROCESSING',
       amountMinor: BigInt(refund.amount),
+      failureMessage: null,
+    };
+  }
+
+  /** One refund as Razorpay sees it now. The refund poll's question (LIVE-017). */
+  async fetchRefundStatus(providerRefundId: string): Promise<RefundStatusResult> {
+    const refund = await this.request<RazorpayRefund>('GET', `/refunds/${encodeURIComponent(providerRefundId)}`);
+    return {
+      providerRefundId: refund.id,
+      status: refund.status === 'processed' ? 'SUCCEEDED' : refund.status === 'failed' ? 'FAILED' : 'PROCESSING',
       failureMessage: null,
     };
   }

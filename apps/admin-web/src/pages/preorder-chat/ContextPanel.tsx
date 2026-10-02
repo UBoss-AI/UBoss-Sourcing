@@ -276,6 +276,21 @@ export function ContextPanel({
 
       <Section title={t('preorderChats.ctx.proposals')}>
         <p className="mb-2 text-[11px] text-ink-muted">{t('preorderChats.ctx.proposalsNote')}</p>
+        {proposals.isPending && <p className="text-xs text-ink-muted">{t('common.loading')}</p>}
+        {proposals.isError && (
+          <p role="alert" className="text-xs text-danger">
+            {errorMessage(t, proposals.error)}{' '}
+            <button
+              type="button"
+              className="font-medium text-brand underline"
+              onClick={() => {
+                void proposals.refetch();
+              }}
+            >
+              {t('common.retry')}
+            </button>
+          </p>
+        )}
         <ul className="space-y-2">
           {proposals.data?.proposals.map((proposal) => (
             <li key={proposal.id} className="rounded border border-border-subtle p-2 text-xs">

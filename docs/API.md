@@ -1617,6 +1617,11 @@ exactly once.
 | `charge.dispute.created` | A chargeback: recorded on the payment, audited, finance alerted. The payment stays captured and the order keeps its status |
 | `payment_method.detached` | That saved card is marked `DETACHED` here too |
 
+A refund whose outcome event never arrives is not left processing: the
+`refund.poll` worker job asks the provider (`GET /v1/refunds/:id` on both
+Stripe and Razorpay) about any refund still `PROCESSING` 15 minutes after it
+was last touched, and applies a final answer exactly as the webhook would.
+
 Do **not** subscribe to `charge.succeeded`: it reports the same capture under a
 different event id. A Stripe event is matched to its payment by Checkout
 session id, then (for a dispute) charge id, then PaymentIntent id, then our own
@@ -3102,7 +3107,8 @@ Everything under `/api/v1/admin`, each behind its named permission.
 | Companies | `GET /admin/directory` | `customer.read` or `logistics.read` (either) |
 | Company verification | `/admin/buyer-companies`, `/:id/start-review`, `/approve`, `/reject`, `/suspend`, `/reverify`, `/admin/buyer-company-documents/:id/link` (see [Buyer companies](#buyer-companies-buyer-companiescustomerts-and-buyer-companiesadmints)) | `buyer_company.*` |
 | Sellers | `/admin/sellers`, `/sellers/:id/decision`, `/seller-listings/review-queue`, `/seller-listings/:id/decision`, `/brand-requests` | `customer.*`, `product.publish` |
-| Settings and staff | `/admin/settings/*`, `/admin/staff`, `/staff/:id/roles` | `settings.*`, `staff.*`, `role.assign` |
+| Settings and staff | `/admin/settings/*`, `/admin/staff`, `/staff/:id/roles`, `GET /admin/master-data-readiness` (go-live check of reference data) | `settings.*`, `staff.*`, `role.assign` |
+| Staff access review | `GET /admin/staff/access-review`, `POST /admin/staff/:id/access-reviews` (`{ decision: KEEP \| REDUCE \| REVOKE, note? }`; a note is required to reduce or revoke) | `staff.read` (and `staff.write` to record), **and** the caller must hold the Business Owner role: anyone else gets 403 `PERMISSION_DENIED`. Reviewing your own account is 409 `CONFLICT`, detail `SELF_REVIEW` |
 | VAT and invoices | `/admin/vat-rates`, `/admin/customers/:id/vat-number/check`, `/admin/invoices/:id`, `/ubl`, `/en16931-check` | `settings.*`, `invoice.*` |
 | Logistics | `/admin/logistics/partners`, `/logistics/shipments`, `/shipments/:id/assign`, `/logistics/integrations`, `/logistics/managed-levels`, `/logistics/legs` | `logistics.*` |
 | Platform fees | `/admin/platform-fees`, `/:id/publish`, `/:id/verify-tax` | `finance.*` |

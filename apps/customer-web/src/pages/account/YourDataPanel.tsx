@@ -232,6 +232,21 @@ export function YourDataPanel(): React.JSX.Element {
           <Spinner className="h-4 w-4" />
           {t('common.loading')}
         </p>
+      ) : query.isError ? (
+        // The request history failed to load. Saying nothing would read as
+        // "you have never asked for your data", which may not be true.
+        <div role="alert" className="mt-5 border-t border-border pt-4 text-sm">
+          <p className="text-danger">{errorMessage(t, query.error)}</p>
+          <Button
+            className="mt-2"
+            size="sm"
+            onClick={() => {
+              void query.refetch();
+            }}
+          >
+            {t('common.tryAgain')}
+          </Button>
+        </div>
       ) : (
         requests.length > 0 && (
           <div className="mt-5 border-t border-border pt-4">

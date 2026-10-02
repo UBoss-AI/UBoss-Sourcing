@@ -26,6 +26,7 @@ import { QuantityInput } from '@/components/QuantityInput';
 import {
   Button,
   ButtonLink,
+  ErrorState,
   Field,
   Input,
   LoadingState,
@@ -182,6 +183,19 @@ export function NewSchedulePanel({
   };
 
   if (addresses.isPending) return <LoadingState label={t('scheduleCart.preparing')} />;
+
+  // A failed read is not "you have no address": telling the buyer to add one
+  // would send them to create a duplicate of an address they already have.
+  if (addresses.isError) {
+    return (
+      <ErrorState
+        error={addresses.error}
+        onRetry={() => {
+          void addresses.refetch();
+        }}
+      />
+    );
+  }
 
   // A schedule needs somewhere to deliver, and the server refuses one without
   // an address. Said here rather than at the end of a filled-in form.

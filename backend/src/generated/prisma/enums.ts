@@ -2899,6 +2899,15 @@ export const ConsentPurpose = {
 export type ConsentPurpose = (typeof ConsentPurpose)[keyof typeof ConsentPurpose]
 
 
+export const StaffAccessDecision = {
+  KEEP: 'KEEP',
+  REDUCE: 'REDUCE',
+  REVOKE: 'REVOKE'
+} as const
+
+export type StaffAccessDecision = (typeof StaffAccessDecision)[keyof typeof StaffAccessDecision]
+
+
 export const BuyerCompanyApprovalStage = {
   APPROVER: 'APPROVER',
   FINANCE: 'FINANCE'

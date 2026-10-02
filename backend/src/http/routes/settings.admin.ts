@@ -21,6 +21,10 @@ import {
   setStaffStatus,
 } from '../../modules/identity/staff.service.js';
 import {
+  recordStaffAccessDecision,
+  staffAccessReview,
+} from '../../modules/identity/staff-access-review.service.js';
+import {
   createShipment,
   shippableLines,
   updateShipmentStatus,
@@ -780,6 +784,35 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
 
       const result = await setStaffStatus(id, body.active, staffActorFrom(request), body.reason);
       return reply.status(200).send({ active: body.active, ...result });
+    },
+  );
+
+  // Every staff account's roles, two-factor, last sign-in and dormant flag, with the latest review decision. Business Owners only.
+  app.get(
+    '/staff/access-review',
+    { preHandler: requireAdmin(Permission.STAFF_READ) },
+    async (request, reply) =>
+      reply.status(200).send(await staffAccessReview(actorFrom(request))),
+  );
+
+  // Record a keep / reduce / revoke decision about one staff account. Business Owners only, never about yourself. Writes an audit entry.
+  app.post(
+    '/staff/:id/access-reviews',
+    {
+      preHandler: requireAdmin(Permission.STAFF_READ, Permission.STAFF_WRITE),
+      config: { rateLimit: { max: 60, timeWindow: '15 minutes' } },
+    },
+    async (request, reply) => {
+      const { id } = idParam.parse(request.params);
+      const body = z
+        .object({
+          decision: z.enum(['KEEP', 'REDUCE', 'REVOKE']),
+          note: z.string().trim().max(1000).optional(),
+        })
+        .parse(request.body);
+
+      const result = await recordStaffAccessDecision(id, body, actorFrom(request));
+      return reply.status(201).send(result);
     },
   );
 

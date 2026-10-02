@@ -4981,6 +4981,23 @@ export type EnumBuyerCompanyAddressKindWithAggregatesFilter<$PrismaModel = never
   _max?: Prisma.NestedEnumBuyerCompanyAddressKindFilter<$PrismaModel>
 }
 
+export type EnumStaffAccessDecisionFilter<$PrismaModel = never> = {
+  equals?: $Enums.StaffAccessDecision | Prisma.EnumStaffAccessDecisionFieldRefInput<$PrismaModel>
+  in?: $Enums.StaffAccessDecision[]
+  notIn?: $Enums.StaffAccessDecision[]
+  not?: Prisma.NestedEnumStaffAccessDecisionFilter<$PrismaModel> | $Enums.StaffAccessDecision
+}
+
+export type EnumStaffAccessDecisionWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StaffAccessDecision | Prisma.EnumStaffAccessDecisionFieldRefInput<$PrismaModel>
+  in?: $Enums.StaffAccessDecision[]
+  notIn?: $Enums.StaffAccessDecision[]
+  not?: Prisma.NestedEnumStaffAccessDecisionWithAggregatesFilter<$PrismaModel> | $Enums.StaffAccessDecision
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStaffAccessDecisionFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStaffAccessDecisionFilter<$PrismaModel>
+}
+
 export type EnumBuyerCompanyRoleFilter<$PrismaModel = never> = {
   equals?: $Enums.BuyerCompanyRole | Prisma.EnumBuyerCompanyRoleFieldRefInput<$PrismaModel>
   in?: $Enums.BuyerCompanyRole[]
@@ -11456,6 +11473,23 @@ export type NestedEnumBuyerCompanyAddressKindWithAggregatesFilter<$PrismaModel =
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumBuyerCompanyAddressKindFilter<$PrismaModel>
   _max?: Prisma.NestedEnumBuyerCompanyAddressKindFilter<$PrismaModel>
+}
+
+export type NestedEnumStaffAccessDecisionFilter<$PrismaModel = never> = {
+  equals?: $Enums.StaffAccessDecision | Prisma.EnumStaffAccessDecisionFieldRefInput<$PrismaModel>
+  in?: $Enums.StaffAccessDecision[]
+  notIn?: $Enums.StaffAccessDecision[]
+  not?: Prisma.NestedEnumStaffAccessDecisionFilter<$PrismaModel> | $Enums.StaffAccessDecision
+}
+
+export type NestedEnumStaffAccessDecisionWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StaffAccessDecision | Prisma.EnumStaffAccessDecisionFieldRefInput<$PrismaModel>
+  in?: $Enums.StaffAccessDecision[]
+  notIn?: $Enums.StaffAccessDecision[]
+  not?: Prisma.NestedEnumStaffAccessDecisionWithAggregatesFilter<$PrismaModel> | $Enums.StaffAccessDecision
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStaffAccessDecisionFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStaffAccessDecisionFilter<$PrismaModel>
 }
 
 export type NestedEnumBuyerCompanyRoleFilter<$PrismaModel = never> = {

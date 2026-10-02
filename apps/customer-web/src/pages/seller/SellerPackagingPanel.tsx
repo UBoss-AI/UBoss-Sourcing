@@ -28,7 +28,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, Card, Field, Input, Select } from '@/components/ui';
+import { Badge, Button, Card, ErrorState, Field, Input, LoadingState, Select } from '@/components/ui';
 import { useToast } from '@/components/toast-context';
 import { errorMessage } from '@/lib/errors';
 import { formatMoneyMinor, formatNumber } from '@/lib/format';
@@ -448,6 +448,25 @@ export function SellerPackagingPanel({
   const containerPreset =
     (presetsQuery.data?.containers ?? []).find((entry) => entry.type === draft.containerType) ??
     null;
+
+  // Until the saved packaging has been read, the form would show empty
+  // drafts - and saving one would overwrite what the seller already set.
+  if (profileQuery.isPending || profileQuery.isError) {
+    return (
+      <Card title={t('sellerPackaging.title')} description={t('sellerPackaging.intro')} bodyClassName="px-6 py-5">
+        {profileQuery.isPending ? (
+          <LoadingState />
+        ) : (
+          <ErrorState
+            error={profileQuery.error}
+            onRetry={() => {
+              void profileQuery.refetch();
+            }}
+          />
+        )}
+      </Card>
+    );
+  }
 
   return (
     <Card

@@ -2175,6 +2175,10 @@ right now: payment-link orders and orders waiting for approval. It never says
 - "Need help with this order?" and a **Contact support** link with the order
   filled in.
 
+The page counts an anonymous `checkout_completed` once per order in this
+browser (LIVE-020): a reload or a return from history does not count the
+order again. The order id stays in the browser and is never sent.
+
 **API call:** `GET /api/v1/orders/:orderId`
 
 #### `/schedules/new` — Schedule your Cart (build a repeat order)
@@ -6544,12 +6548,24 @@ emailed, valid for 72 hours. **Roles**, **Resend password**, **Deactivate**
 last Business Owner cannot be demoted or deactivated, and nobody can
 deactivate themselves.
 
+**Staff access review** (Business Owners only; `src/components/StaffAccessReviewPanel.tsx`,
+LIVE-015). Below the table: four tiles (Active accounts, Without two-factor,
+Dormant, Never reviewed), the dormancy rule ("after N days without signing
+in", from `STAFF_DORMANT_AFTER_DAYS`), and one row per account with its roles,
+two-factor On/Off, last sign-in with a **Dormant** badge, and the latest
+decision with who made it and when. Rows without two-factor or dormant are
+tinted. **Record decision** opens a dialog: Keep access, Reduce access or
+Revoke access, and a note (required to reduce or revoke). The owner's own row
+says another owner reviews it and has no button. The decision is a record;
+the change itself is made with **Roles** or **Deactivate** above.
+
 **API calls**
 
 - `GET` and `POST /api/v1/admin/staff`
 - `GET /api/v1/admin/staff/assignable-roles`
 - `PATCH /api/v1/admin/staff/:id/roles`, `PATCH /api/v1/admin/staff/:id/status`
 - `POST /api/v1/admin/staff/:id/temporary-password`
+- `GET /api/v1/admin/staff/access-review`, `POST /api/v1/admin/staff/:id/access-reviews` (Business Owners)
 
 #### `/settings/legal-documents` — Legal documents
 
@@ -6612,6 +6628,33 @@ Without `settings.write`: "You can read these settings but not change them."
 | ERP connection | Shown only when the ERP feature is on. The connections and a link to `/settings/erp` | `GET /api/v1/admin/erp/capabilities`, `GET /api/v1/admin/erp/connections` |
 | Feature flags | Each flag with On or Off and what it does. Turning one off first shows what it will affect | `GET /api/v1/admin/settings/feature-flags`, `GET /api/v1/admin/settings/feature-flags/:key/impact`, `PATCH /api/v1/admin/settings/feature-flags/:key` |
 | Who else sees the data | A read-only list of the outside services this installation shares data with | `GET /api/v1/admin/settings/processors` |
+
+#### `/settings/master-data` — Master data
+
+| | |
+|---|---|
+| **Who** | `settings.read`. Adding, renaming and switching an entry off: `settings.write` |
+| **File** | `src/pages/settings/MasterDataPage.tsx`, `src/pages/settings/MasterDataReadinessCard.tsx` |
+
+**Purpose.** The short code lists the marketplace uses (units of measure,
+Incoterms, inspection defect codes), and a go-live check of all reference
+data.
+
+**On the screen.** First, **Ready to go live?** (LIVE-019): a Ready or Not
+ready badge, how many required lists are missing, and one tile per list
+(categories, currencies, one base currency, exchange rates from the last week,
+tax classes, countries, country market rules, delivery prices, inspection
+rules, plans and agencies, published Terms, published privacy policy, units,
+defect codes, Incoterms) with its count and Present, Missing or Empty; the
+optional ones are marked "(advised)". Below it, **Left over from the
+demonstration data** names demo products, placeholder Terms, the demo carrier
+and accounts on the `.local` domain, or says nothing is left. Then the list
+picker, the entries of the chosen list, and the add or edit form.
+
+**API calls**
+
+- `GET /api/v1/admin/master-data-readiness`
+- `GET` and `POST /api/v1/admin/master-data/:kind`, `PATCH /api/v1/admin/master-data/:kind/:id`
 
 #### `/settings/erp` — Settings → ERP
 
@@ -7626,7 +7669,7 @@ these. Paths are relative to each app's `src` folder.
 | Component | Where | What it does, and what to know |
 |---|---|---|
 | Buttons, fields, cards, badges | `components/ui.tsx` (all three) | `Button`, `Field`, `Input`, `Select`, `Textarea`, `Card`, `Badge`, `PageHeader`. The admin and logistics copies add `Callout`, `Metric`, `SummaryTiles`, `DescriptionList`, `Toolbar`, `Checkbox`, `MultiSelect`, `NoAccessState` |
-| Empty, loading and error panels | `components/ui.tsx`: `EmptyState`, `LoadingState`, `ErrorState` | `ErrorState` shows the message in the reader's language, **Try again**, and the correlation id to quote to support |
+| Empty, loading and error panels | `components/ui.tsx`: `EmptyState`, `LoadingState`, `ErrorState` | `ErrorState` shows the message in the reader's language, **Try again**, and the correlation id to quote to support. Every screen that reads data uses them (LIVE-003): `src/pages/query-states.test.ts` in the storefront and the console checks each one, and a failed read is never drawn as an empty list |
 | Form error summary | `components/ui.tsx`: `ErrorSummary` (storefront) | A red box listing every problem. It takes focus once, when it appears |
 | Dialogs | `components/Modal.tsx`: `Modal`, `ConfirmDialog` (all three) | Built on the browser's `<dialog>`: focus stays inside, Escape closes it. Capped to the screen's height with only the middle scrolling. Page scrolling behind it is locked by `lib/scroll-lock.ts` |
 | Messages that pop up | `components/toast.tsx`, `components/toast-context.ts` | "Saved.", "Added to your cart." and so on. Three tones: success, error, info |

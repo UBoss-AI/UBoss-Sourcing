@@ -136,6 +136,12 @@ export interface RefundResult {
   failureMessage: string | null;
 }
 
+export interface RefundStatusResult {
+  providerRefundId: string;
+  status: 'PROCESSING' | 'SUCCEEDED' | 'FAILED';
+  failureMessage: string | null;
+}
+
 /** A webhook whose signature has been checked. `verified: false` is never applied. */
 export interface VerifiedEvent {
   verified: boolean;
@@ -290,6 +296,15 @@ export interface PaymentProvider {
   fetchPaymentStatus(providerOrderId: string): Promise<PaymentStatusResult>;
 
   createRefund(input: RefundInput): Promise<RefundResult>;
+
+  /**
+   * The provider's current word on one refund.
+   *
+   * What the refund poll asks when a refund the provider accepted is still
+   * processing and its webhook has not arrived (LIVE-017). Optional, so a
+   * test double need not implement it; a provider without it is not polled.
+   */
+  fetchRefundStatus?(providerRefundId: string): Promise<RefundStatusResult>;
 
   /**
    * Verify a webhook against the RAW body.

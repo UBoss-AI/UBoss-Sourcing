@@ -6129,3 +6129,18 @@ Neither table has a foreign key: a signal must survive the record it is about, a
 - `updatedAt` on `analytics_daily_counts`, `master_data_entries`, `risk_rules` and `risk_signals` is declared `@default(now()) @updatedAt`, matching the database default their migrations created (the CI drift check compares the two).
 
 - `rfq_quote_versions.exportDocumentsJson` (migration `20261030150000_rfq_quote_export_documents`): the export documents promised on a version, codes from `EXPORT_DOCUMENTS` in `domain/rfq-quote.ts`; null when none. Included in the canonical terms and hash only when non-empty.
+
+## Staff privileged-access review (LIVE-015)
+
+Migration `20261101090000_staff_access_reviews` adds `staff_access_reviews`: one row per decision a Business Owner records about one staff account in a privileged-access review.
+
+- `reviewedUserId` (the staff account reviewed) and `reviewerUserId` (the owner who decided), both foreign keys to `users` with `ON DELETE RESTRICT ON UPDATE RESTRICT` (`fk_staff_access_review_subject`, `fk_staff_access_review_reviewer`): a review is evidence, so deleting either account must not quietly remove it.
+- `decision` is `ENUM('KEEP', 'REDUCE', 'REVOKE')`; `note` (up to 1,000 characters) is required by the service for REDUCE and REVOKE, not by the database.
+- A snapshot of what was reviewed, copied at the moment of the decision: `rolesJson` (the role keys), `mfaEnabled`, `lastSignInAt` and `dormant`. The account's roles can change afterwards; the row still says what was looked at.
+- Rows are never edited: a later review adds a row. `createdAt` and `updatedAt` default to `CURRENT_TIMESTAMP(3)` (`updatedAt` is `@default(now()) @updatedAt` in the schema). Indexed by `(reviewedUserId, createdAt)` for "latest decision per account" and by `reviewerUserId`.
+- The decision itself changes no other table. Reducing or revoking access is done through `user_roles` and `users.status` by the ordinary staff actions, each with its own audit entry. Each review row is written in the same transaction as its `staff.access_reviewed` audit entry.
+- Out of scope for the buyer GDPR export: no `userId` or `customerProfileId` column, and the rows are about staff accounts, not storefront customers.
+
+## Refunds settled by the refund poll (LIVE-017)
+
+No schema change. The `refund.poll` worker job reads `refunds` with `status = 'PROCESSING'`, a `providerRefundId`, and `updatedAt` at least 15 minutes old (served by `ix_refund_status_time`), asks the provider, and moves a final answer with a conditional `UPDATE ... WHERE id = ? AND status = 'PROCESSING'`, so a webhook applied at the same moment cannot apply twice. In the same transaction it re-derives `seller_order_settlements.refundsAdjustmentsMinor` and `estimatedSettlementMinor` from every succeeded refund (the webhook's path) and writes a `refund.completed` audit row.
