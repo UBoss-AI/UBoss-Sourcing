@@ -6,8 +6,8 @@
     "open": 87
   },
   "after": {
-    "checked": 280,
-    "open": 84
+    "checked": 281,
+    "open": 83
   },
   "targeted": {
     "command": "npx vitest run tests/integration/rfq-samples.test.ts tests/integration/rfq-purchase-order-to-order.test.ts",
@@ -72,8 +72,8 @@
   },
   "audit": {
     "problems": [],
-    "checked": 280,
-    "open": 84
+    "checked": 281,
+    "open": 83
   },
   "secretScan": {
     "command": ".\\scripts\\secret-scan.ps1",
@@ -201,5 +201,50 @@
       "cleanup": "Private renderer closed without saving."
     },
     "testRepair": "New UI test typing/query option and unsafe mock return, and the backend audit-relation assertion, and two strict-lint issues were corrected. Final complete checks passed. The production cap race was fixed separately as described in batch-3.json."
+  },
+  "batch4": {
+    "id": "ENH-031",
+    "testedSourceCommit": "b0c83448cf896068a7735467776b7393d5a53d87",
+    "before": {
+      "checked": 280,
+      "open": 84
+    },
+    "after": {
+      "checked": 281,
+      "open": 83
+    },
+    "targeted": {
+      "command": "npx vitest run reports, analytics, seller-settlement-statements, rfq-quote-comparison, authorization-matrix, anonymous-access, seller-team and rfq-create integration suites (exact paths in batch-4.json)",
+      "files": 8,
+      "tests": 112,
+      "exitCode": 0
+    },
+    "fullVerification": "Batch 3 complete backend 337/5350, customer 196/1802 and admin 52/382 retained; implementation and test source unchanged in batch 4.",
+    "docs": "npm run docs:check; all three references match.",
+    "initialAttempt": "Authorization beforeAll was rate-limited: 7 files/98 tests passed and 14 skipped. Complete eight-file rerun after limiter expiry passed; no production guard changed.",
+    "evidence": "batch-4.json",
+    "implementationChanges": false,
+    "limitation": "Existing role/session APIs verified; no separate machine API credentials or production integration claim.",
+    "word": {
+      "engine": "Microsoft Word 16.0",
+      "readOnly": true,
+      "totalPages": 29,
+      "changedPages": [
+        27
+      ],
+      "renderMethod": "Actual Word Page.EnhMetaFileBits rasterized by native GDI and visually inspected.",
+      "structuralComparison": {
+        "baseline": "b0c83448",
+        "unchangedOtherParts": 18,
+        "changedPart": "word/document.xml",
+        "authorizedCharacterChanges": 1,
+        "ids": [
+          "ENH-031"
+        ]
+      },
+      "visualResult": "Data Export & API Access checked in its existing row; surrounding selections and table layout preserved.",
+      "limitations": "Inherited clipped section-19 heading and native font-playback limitation retained as recorded in batch 1.",
+      "cleanup": "Private read-only renderer closed without saving."
+    }
   }
 }

@@ -1,6 +1,6 @@
-# Remaining checklist requirements after Pass 10 batch 3
+# Remaining checklist requirements after Pass 10 batch 4
 
-Word / Markdown: **280/364 checked, 84 open; Master 95/97**. Audit: `problems: []`. AutoPay period-cap concurrency was corrected to enforce its existing documented spending rule; focused backend/UI regressions were added. Sample-to-bulk, duplicate outbound ERP and AutoPay guardrails were verified and ticked.
+Word / Markdown: **281/364 checked, 83 open; Master 95/97**. Audit: `problems: []`. AutoPay period-cap concurrency was corrected to enforce its existing documented spending rule; focused backend/UI regressions were added. Sample-to-bulk, duplicate outbound ERP AutoPay guardrails and controlled data exports/APIs were verified and ticked.
 
 The owner limited this pass to checklist work while another task edits storefront, branding and Verified Suppliers. Remaining software requirements have not been declared complete. A/E rows require further implementation or exact evidence; excluded active screens await the other task. B rows retain both the stated software action and external evidence. No approval, provider result, device run, rehearsal or production result is fabricated.
 
@@ -78,7 +78,6 @@ The owner limited this pass to checklist work while another task edits storefron
 | ENH-027 | Interactive quantity slider displays tier price, lead-time/capacity effect and estimated landed cost. | Unresolved software blocker / incomplete verification | Verify quantity slider tier pricing, lead time/capacity and landed estimate using exact money; avoid active product-page edits. |
 | ENH-029 | RFQ reply, order milestone, inspection readiness, document upload and notifications optimized for phone. | Unresolved software blocker / incomplete verification | Verify phone layouts for all five seller operation flows; real-device evidence is separately required by DOD-043. |
 | ENH-030 | Visible countdowns for quote response, inspection assignment, report issuance, shipment readiness and dispute handling. | Unresolved software blocker / incomplete verification | Verify visible RFQ/inspection/report/shipment/dispute countdowns, overdue states and time boundaries. |
-| ENH-031 | Controlled export/API for orders, RFQs, reports, settlements and analytics. | Unresolved software blocker / incomplete verification | Verify controlled exports/APIs for all five named domains, permissions, tenant isolation and limits. |
 | ENH-032 | Explain fields, suggest values from existing verified data, but require user confirmation. | Unresolved software blocker / incomplete verification | Verify complex-form explanations and verified-data suggestions require explicit user confirmation. |
 | DYNAMIC-001 | Header: Logo / Universal Search / Country/Language/Currency / Seller Hub / Messages/Notifications / Profile / Cart. | Unresolved software blocker / incomplete verification | Verify every required header entry and role permission after the active storefront task completes. |
 | DYNAMIC-002 | Hero: “Source from verified Indian manufacturers” + Search/AI input + quick chips (Product, Supplier, RFQ, Image Search). | Unresolved software blocker / incomplete verification | Verify hero text, AI input and all four mode chips after the active storefront task completes. |

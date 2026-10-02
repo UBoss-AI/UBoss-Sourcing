@@ -1051,8 +1051,8 @@
       "priority": "P1",
       "requirement": "Controlled export/API for orders, RFQs, reports, settlements and analytics.",
       "classification": "A",
-      "remainingAction": "Verify controlled exports/APIs for all five named domains, permissions, tenant isolation and limits.",
-      "status": "OPEN",
+      "remainingAction": "None for this software requirement; existing controlled exports and role/session APIs verified in pass10/batch-4.json.",
+      "status": "VERIFIED",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
     {
@@ -1225,8 +1225,8 @@
     }
   ],
   "current": {
-    "checked": 280,
-    "open": 84,
+    "checked": 281,
+    "open": 83,
     "total": 364
   },
   "baselineCounts": {
@@ -1325,7 +1325,7 @@
       "total": 67
     },
     "ENH": {
-      "checked": 12,
+      "checked": 13,
       "total": 32
     },
     "DYNAMIC": {
@@ -1410,7 +1410,6 @@
     "ENH-027",
     "ENH-029",
     "ENH-030",
-    "ENH-031",
     "ENH-032",
     "DYNAMIC-001",
     "DYNAMIC-002",
