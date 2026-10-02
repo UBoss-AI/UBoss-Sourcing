@@ -1,3 +1,4 @@
+import { evaluateAutoPay, type AutoPayDecision } from './autopay.service.js';
 /**
  * Payments.
  *
@@ -1445,6 +1446,97 @@ async function storeVaultedCardFromEvent(
 // Off-session charging
 // ---------------------------------------------------------------------------
 
+/** Reserve an attempt under the account row lock, before calling the provider. */
+async function reserveAutomaticAttempt(input: {
+  customerProfileId: string;
+  orderId: string;
+  transactionId: string;
+  connectionId: string;
+  provider: PaymentTransaction['provider'];
+  mode: PaymentTransaction['mode'];
+  amountMinor: bigint;
+  currency: string;
+  idempotencyKey: string;
+  accountLimitsApply: boolean;
+}): Promise<{
+  transactionId: string;
+  result: ChargeOffSessionResult | null;
+  withheld: AutoPayDecision | null;
+}> {
+  return prisma.$transaction(async (tx) => {
+    // Lock before establishing the aggregate's snapshot. The next worker
+    // sees this worker's committed CREATED attempt as reserved capacity.
+    // No provider call is made while the transaction is open.
+    if (input.accountLimitsApply) {
+      await tx.$queryRaw`
+        SELECT id FROM customer_autopay_settings
+        WHERE customerProfileId = ${input.customerProfileId} FOR UPDATE
+      `;
+    }
+    const current = await tx.paymentTransaction.findUnique({
+      where: { idempotencyKey: input.idempotencyKey },
+    });
+    if (current !== null && current.orderId !== input.orderId) {
+      throw conflict(ErrorCode.IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_BODY,
+        'That request key has already been used for a different order.');
+    }
+    if (current?.status === 'CAPTURED') {
+      return {
+        transactionId: current.id, withheld: null,
+        result: {
+          outcome: 'CAPTURED', paymentTransactionId: current.id,
+          providerOrderId: current.providerOrderId, failureCode: null,
+          failureMessage: null, replayed: true,
+        },
+      };
+    }
+    const settings = input.accountLimitsApply
+      ? await tx.customerAutoPaySetting.findUnique({ where: { customerProfileId: input.customerProfileId } })
+      : null;
+    let decision: AutoPayDecision | null = null;
+    if (settings !== null && settings.status !== 'DISABLED') {
+      const items = await tx.orderItem.findMany({
+        where: { orderId: input.orderId }, select: { product: { select: { categoryId: true } } },
+      });
+      // Scheduled baskets contain the marketplace's own stock. Reuse the
+      // same authority decision, with transaction-scoped reads, for caps,
+      // consent, dates, instrument, currency and supplier/category scope.
+      decision = await evaluateAutoPay({
+        customerProfileId: input.customerProfileId, amountMinor: input.amountMinor,
+        currency: input.currency, excludedPaymentTransactionId: current?.id,
+        ...(items.length === 0 ? {} : {
+          lines: items.map((item) => ({ sellerAccountId: null, categoryId: item.product?.categoryId ?? null })),
+        }),
+      }, tx);
+    }
+    const withheld = decision !== null && decision.outcome !== 'CHARGE' ? decision : null;
+    const failureCode = withheld?.code ?? null;
+    const failureMessage = withheld?.reason ?? null;
+    const transactionId = current?.id ?? input.transactionId;
+    await tx.paymentTransaction.upsert({
+      where: { idempotencyKey: input.idempotencyKey },
+      create: {
+        id: transactionId, orderId: input.orderId, connectionId: input.connectionId,
+        provider: input.provider, mode: input.mode, amountMinor: input.amountMinor,
+        currency: input.currency, idempotencyKey: input.idempotencyKey,
+        status: withheld === null ? 'CREATED' : 'FAILED', failureCode, failureMessage,
+      },
+      update: {
+        status: withheld === null ? 'CREATED' : 'FAILED',
+        amountMinor: input.amountMinor, failureCode, failureMessage,
+      },
+    });
+    return {
+      transactionId, withheld,
+      result: withheld === null ? null : {
+        outcome: 'ACTION_REQUIRED', paymentTransactionId: transactionId,
+        providerOrderId: null, failureCode, failureMessage, replayed: false,
+      },
+    };
+  });
+}
+
+
 export interface ChargeOffSessionInput {
   orderId: string;
   /** The stored instrument to charge. Never the provider's default. */
@@ -1602,22 +1694,26 @@ export async function chargeOrderOffSession(
   // The row exists before the charge, so a crash mid-call leaves a record with
   // the idempotency key on it rather than an unexplained charge at the
   // provider that nothing here can match.
-  const transactionId = existing?.id ?? newId();
+  let transactionId = existing?.id ?? newId();
 
-  if (existing === null) {
-    await prisma.paymentTransaction.create({
-      data: {
-        id: transactionId,
-        orderId: order.id,
-        connectionId,
-        provider: provider.kind,
-        mode: provider.mode,
-        status: 'CREATED',
-        amountMinor: outstanding,
-        currency: order.currency,
-        idempotencyKey: input.idempotencyKey,
-      },
-    });
+  const reservation = await reserveAutomaticAttempt({
+    customerProfileId: order.customerProfileId, orderId: order.id,
+    transactionId, connectionId, provider: provider.kind, mode: provider.mode,
+    amountMinor: outstanding, currency: order.currency, idempotencyKey: input.idempotencyKey,
+    accountLimitsApply: env.FEATURE_CUSTOMER_AUTOPAY && input.scheduleId !== undefined && input.scheduleId !== null,
+  });
+  transactionId = reservation.transactionId;
+  if (reservation.result !== null) {
+    if (reservation.result.outcome === 'ACTION_REQUIRED') {
+      await recordAudit({
+        action: AuditAction.AUTOPAY_CHARGE_WITHHELD, resourceType: 'order', resourceId: order.id,
+        actorType: 'SYSTEM', actorUserId: order.customerProfile.userId,
+        after: { outcome: reservation.withheld?.outcome ?? 'ASK_CUSTOMER', code: reservation.result.failureCode,
+          reason: reservation.result.failureMessage, amountMinor: outstanding.toString(), currency: order.currency },
+        correlationId: input.correlationId ?? null,
+      });
+    }
+    return reservation.result;
   }
 
   let charge;

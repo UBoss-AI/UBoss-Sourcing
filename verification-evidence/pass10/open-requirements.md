@@ -1,6 +1,6 @@
-# Remaining checklist requirements after Pass 10 batch 2
+# Remaining checklist requirements after Pass 10 batch 3
 
-Word / Markdown: **279/364 checked, 85 open; Master 95/97**. Audit: `problems: []`. No new feature behavior was implemented in this pass. Existing sample-to-bulk and duplicate outbound ERP scenarios were verified and ticked.
+Word / Markdown: **280/364 checked, 84 open; Master 95/97**. Audit: `problems: []`. AutoPay period-cap concurrency was corrected to enforce its existing documented spending rule; focused backend/UI regressions were added. Sample-to-bulk, duplicate outbound ERP and AutoPay guardrails were verified and ticked.
 
 The owner limited this pass to checklist work while another task edits storefront, branding and Verified Suppliers. Remaining software requirements have not been declared complete. A/E rows require further implementation or exact evidence; excluded active screens await the other task. B rows retain both the stated software action and external evidence. No approval, provider result, device run, rehearsal or production result is fabricated.
 
@@ -66,7 +66,6 @@ The owner limited this pass to checklist work while another task edits storefron
 | ENH-004 | One search can find product, supplier, RFQ, order, invoice, shipment or help depending on role. | Unresolved software blocker / incomplete verification | Verify one permission-scoped search covers product, supplier, RFQ, order, invoice, shipment and help; defer active header edits. |
 | ENH-005 | Persistent actions: Create RFQ, Upload Image, Ask AI, Reorder, Track Order, Contact Support. | Unresolved software blocker / incomplete verification | Verify persistent RFQ/image/AI/reorder/tracking/support actions across applicable roles; defer active storefront edits. |
 | ENH-008 | Explain match using capacity, MOQ, certifications, destination eligibility and response record; avoid opaque ranking. | Unresolved software blocker / incomplete verification | Verify explainable capacity/MOQ/certificate/destination/response matching and missing-data behavior; avoid active supplier panels. |
-| ENH-014 | Spending caps, supplier/category scope, expiry, pre-charge reminder and one-click pause. | Unresolved software blocker / incomplete verification | Verify caps, supplier/category scope, expiry, pre-charge reminder and one-click pause including worker enforcement. |
 | ENH-015 | Step-by-step mapping for PO, order acknowledgement, invoice, shipment and status with sandbox test. | Unresolved software blocker / incomplete verification | Verify self-service PO/acknowledgement/invoice/shipment/status mapping and a real local sandbox test. |
 | ENH-016 | Upload Excel/CSV requirements or SKU list to create multi-line RFQ/order. | Unresolved software blocker / incomplete verification | Verify Excel and CSV parsing into multi-line RFQ/order, validation, limits and permission isolation. |
 | ENH-018 | Rank operational tasks by deadline and business impact, not merely dashboard metrics. | Unresolved software blocker / incomplete verification | Verify individual operational tasks ranked by deadline and business impact, with deterministic ties. |

@@ -235,4 +235,26 @@ describe('the automatic payment controls', () => {
     expect(await screen.findByText(/must not be before the start date/i)).toBeInTheDocument();
     expect(writes).toHaveLength(0);
   });
+
+  it.each([
+    { status: 'ACTIVE', button: 'Pause', paused: true, nextButton: 'Resume' },
+    { status: 'PAUSED', button: 'Resume', paused: false, nextButton: 'Pause' },
+  ])('pauses or resumes with one click from $status', async ({ status, button, paused, nextButton }) => {
+    const current = settings({ status });
+    const { writes } = serve(current);
+    const respond = fetchMock.getMockImplementation() as (url: string, init?: RequestInit) => Promise<Response>;
+    fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+      if (url.endsWith('/account/autopay/pause') && init?.method === 'POST') {
+        const body = JSON.parse(init.body as string) as { paused: boolean };
+        current.status = body.paused ? 'PAUSED' : 'ACTIVE';
+      }
+      return respond(url, init);
+    });
+    renderWithProviders(<AutoPayPage />);
+
+    await userEvent.setup().click(await screen.findByRole('button', { name: button }));
+
+    await screen.findByRole('button', { name: nextButton });
+    expect(writes).toEqual([{ method: 'POST', body: { paused } }]);
+  });
 });

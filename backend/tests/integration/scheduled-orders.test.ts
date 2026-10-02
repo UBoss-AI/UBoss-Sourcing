@@ -1859,6 +1859,68 @@ describe('the customer’s own auto-pay limits', () => {
     expect(world.chargeCalls).toHaveLength(1);
   });
 
+  it('keeps concurrent schedules inside one account period cap', async () => {
+    await fillCart(10);
+    const first = await liveSchedule(subscriptionConfig());
+    await fillCart(10);
+    const second = await liveSchedule(subscriptionConfig());
+    await setLimits({ maxTransactionMinor: 500_000n });
+    await prisma.customerAutoPaySetting.updateMany({
+      where: { customerProfileId },
+      data: { periodCapMinor: 400_000n, capPeriod: 'MONTH' },
+    });
+    // Existing deployments have their order sequence already. Seed it so
+    // first-ever sequence creation is not the concurrency under test.
+    await prisma.numberSequence.create({
+      data: { key: `order:${new Date().getUTCFullYear()}`, value: 0, prefix: 'UB', padding: 6 },
+    });
+    currentAmountMinor = 236_000;
+    const firstSlot = await makeDue(first);
+    const secondSlot = await makeDue(second);
+
+    // Both real decisions finish before either caller proceeds. This is a
+    // possible interleaving of two workers; no decision is fabricated.
+    const authority = await import('../../src/modules/payments/autopay.service.js');
+    const decide = authority.evaluateAutoPay;
+    let arrived = 0;
+    let release = (): void => {};
+    const ready = new Promise<void>((resolve) => { release = resolve; });
+    const decision = vi.spyOn(authority, 'evaluateAutoPay').mockImplementation(async (input, client) => {
+      const result = await decide(input, client);
+      if (client !== undefined) return result;
+      arrived += 1;
+      if (arrived === 2) release();
+      await ready;
+      return result;
+    });
+    let outcomes: Awaited<ReturnType<typeof runOccurrence>>[];
+    try {
+      outcomes = await Promise.all([runOccurrence(first, firstSlot), runOccurrence(second, secondSlot)]);
+    } finally {
+      decision.mockRestore();
+    }
+
+    expect(arrived).toBe(2);
+    expect(outcomes.map((outcome) => outcome.result).sort(), JSON.stringify(outcomes)).toEqual(['ACTION_REQUIRED', 'COMPLETED']);
+    expect(world.chargeCalls).toHaveLength(1);
+    const taken = await prisma.paymentTransaction.aggregate({
+      where: { order: { customerProfileId }, status: 'CAPTURED' },
+      _sum: { amountMinor: true },
+    });
+    expect(taken._sum.amountMinor).toBe(236_000n);
+    const held = await prisma.scheduleOccurrence.findFirstOrThrow({
+      where: { failureCode: 'AUTOPAY_PERIOD_CAP_REACHED' },
+    });
+    expect(held.status).toBe('ACTION_REQUIRED');
+    const heldOrder = await prisma.order.findUniqueOrThrow({ where: { scheduleOccurrenceId: held.id } });
+    const audit = await prisma.auditLog.findFirstOrThrow({
+      where: { resourceId: heldOrder.id, action: 'autopay.charge_withheld' },
+    });
+    expect(audit.afterJson).toMatchObject({ outcome: 'ASK_CUSTOMER', code: 'AUTOPAY_PERIOD_CAP_REACHED' });
+    await Promise.all([runOccurrence(first, firstSlot), runOccurrence(second, secondSlot)]);
+    expect(world.chargeCalls).toHaveLength(1);
+  });
+
   // JOURNEY-051: the customer's own failure handling and alerts are honoured.
 
   it('schedules no retry when the customer chose "tell me, and do not try again"', async () => {

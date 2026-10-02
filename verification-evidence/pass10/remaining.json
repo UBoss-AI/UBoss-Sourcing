@@ -855,8 +855,8 @@
       "priority": "P1",
       "requirement": "Spending caps, supplier/category scope, expiry, pre-charge reminder and one-click pause.",
       "classification": "A",
-      "remainingAction": "Verify caps, supplier/category scope, expiry, pre-charge reminder and one-click pause including worker enforcement.",
-      "status": "OPEN",
+      "remainingAction": "None for this software requirement; see pass10/batch-3.json. Live payment-provider validation remains a separate requirement.",
+      "status": "VERIFIED",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
     {
@@ -1225,8 +1225,8 @@
     }
   ],
   "current": {
-    "checked": 279,
-    "open": 85,
+    "checked": 280,
+    "open": 84,
     "total": 364
   },
   "baselineCounts": {
@@ -1325,7 +1325,7 @@
       "total": 67
     },
     "ENH": {
-      "checked": 11,
+      "checked": 12,
       "total": 32
     },
     "DYNAMIC": {
@@ -1398,7 +1398,6 @@
     "ENH-004",
     "ENH-005",
     "ENH-008",
-    "ENH-014",
     "ENH-015",
     "ENH-016",
     "ENH-018",

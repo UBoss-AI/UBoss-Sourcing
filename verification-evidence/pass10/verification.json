@@ -6,8 +6,8 @@
     "open": 87
   },
   "after": {
-    "checked": 279,
-    "open": 85
+    "checked": 280,
+    "open": 84
   },
   "targeted": {
     "command": "npx vitest run tests/integration/rfq-samples.test.ts tests/integration/rfq-purchase-order-to-order.test.ts",
@@ -72,8 +72,8 @@
   },
   "audit": {
     "problems": [],
-    "checked": 279,
-    "open": 85
+    "checked": 280,
+    "open": 84
   },
   "secretScan": {
     "command": ".\\scripts\\secret-scan.ps1",
@@ -119,5 +119,87 @@
       "commitsScanned": 244,
       "scope": "Full history before batch-2 commit; new commit is scanned again before push."
     }
+  },
+  "batch3": {
+    "id": "ENH-014",
+    "before": {
+      "checked": 279,
+      "open": 85
+    },
+    "after": {
+      "checked": 280,
+      "open": 84
+    },
+    "targetedBackend": {
+      "command": "npx vitest run tests/integration/autopay.test.ts tests/integration/autopay-authority-http.test.ts tests/integration/scheduled-orders.test.ts",
+      "files": 3,
+      "tests": 128,
+      "exitCode": 0
+    },
+    "targetedCustomer": {
+      "command": "npx vitest run src/pages/AutoPayPage.test.tsx --config ../../output/pass10-customer.config.mts",
+      "files": 1,
+      "tests": 10,
+      "exitCode": 0
+    },
+    "backend": {
+      "command": "npm run verify",
+      "files": 337,
+      "tests": 5350,
+      "exitCode": 0
+    },
+    "customer": {
+      "commands": [
+        "npm run typecheck",
+        "npm run lint",
+        "npm run audit:contrast",
+        "npx vitest run --config ../../output/pass10-customer.config.mts",
+        "npm run build"
+      ],
+      "files": 196,
+      "tests": 1802,
+      "exitCode": 0
+    },
+    "admin": {
+      "command": "npm run verify",
+      "files": 52,
+      "tests": 382,
+      "exitCode": 0
+    },
+    "docs": "npm run docs:check; all three generated references match. Existing English/Hinglish, PRD and feature-guide cap rule remains accurate; active shared documents untouched.",
+    "evidence": "batch-3.json",
+    "capRegression": {
+      "before": "Both workers COMPLETED under one 400000 cap; regression failed.",
+      "after": "One 236000 charge; second ACTION_REQUIRED with cap code and audit; replay causes no new charge.",
+      "synchronization": "Two real preview decisions complete before either worker proceeds. Final authorization and reservation are serialized in a short DB transaction.",
+      "limitation": "Existing number sequence seeded to isolate cap concurrency; first-ever sequence creation race separately observed."
+    },
+    "secretScan": {
+      "command": ".\\scripts\\secret-scan.ps1",
+      "commitsScanned": 245,
+      "nonMergeCommits": 223,
+      "result": "No leaks found; pre-commit history scan. Fresh committed-history scan required before push."
+    },
+    "word": {
+      "engine": "Microsoft Word 16.0",
+      "readOnly": true,
+      "totalPages": 29,
+      "changedPages": [
+        26
+      ],
+      "renderMethod": "Actual Word Page.EnhMetaFileBits rasterized by native GDI; inspected.",
+      "structuralComparison": {
+        "baseline": "d76ddde3",
+        "unchangedOtherParts": 18,
+        "changedPart": "word/document.xml",
+        "authorizedCharacterChanges": 1,
+        "ids": [
+          "ENH-014"
+        ]
+      },
+      "visualResult": "AutoPay checkbox checked in its original table row. Other selections, table geometry and text preserved. Native font playback limitation as in batch 1.",
+      "cleanup": "Private renderer closed without saving."
+    },
+    "testRepair": "New UI test typing/query option and unsafe mock return, and the backend audit-relation assertion, and two strict-lint issues were corrected. Final complete checks passed. The production cap race was fixed separately as described in batch-3.json."
   }
 }

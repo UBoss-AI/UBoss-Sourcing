@@ -1,3 +1,5 @@
+import { automaticChargesInPeriod } from './autopay-cap.service.js';
+export { automaticChargesInPeriod } from './autopay-cap.service.js';
 /**
  * Auto-pay: a customer's standing authority to be charged while they are away.
  *
@@ -43,7 +45,6 @@ import type {
 import {
   MARKETPLACE_SUPPLIER_KEY,
   type ScopedLine,
-  capPeriodWindow,
   firstLineOutsideScope,
   parseScopeList,
 } from '../../domain/autopay-authority.js';
@@ -51,7 +52,7 @@ import { env } from '../../config/env.js';
 import { ErrorCode, badRequest, conflict, forbidden, notFound } from '../../domain/errors.js';
 import { sha256Hex } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
-import { prisma } from '../../infra/prisma.js';
+import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { assertChargeable } from './payment-method.service.js';
 
@@ -263,36 +264,6 @@ export async function listAutoPayScopeOptions(): Promise<{
   };
 }
 
-/**
- * What automatic (off-session, scheduled) charges have taken - or are in the
- * middle of taking - from this customer in the current period.
- *
- * Counted from the payment attempts themselves rather than from orders, and
- * including attempts still in flight: two plans running in the same minute
- * must not both see the whole cap available. A failed or cancelled attempt
- * moved no money and does not count. Only the scheduled engine's own charges
- * count (their idempotency key is the occurrence's, `occ:...`): an order the
- * customer paid by hand was not taken under this authority.
- */
-export async function automaticChargesInPeriod(
-  customerProfileId: string,
-  currency: string,
-  period: AutoPayCapPeriod,
-  now: Date,
-): Promise<bigint> {
-  const window = capPeriodWindow(now, period);
-  const total = await prisma.paymentTransaction.aggregate({
-    where: {
-      currency,
-      idempotencyKey: { startsWith: 'occ:' },
-      status: { in: ['CREATED', 'PENDING', 'AUTHORIZED', 'CAPTURED'] },
-      createdAt: { gte: window.start, lt: window.end },
-      order: { customerProfileId },
-    },
-    _sum: { amountMinor: true },
-  });
-  return total._sum.amountMinor ?? 0n;
-}
 
 // ---------------------------------------------------------------------------
 // Enabling
@@ -908,7 +879,9 @@ export async function evaluateAutoPay(input: {
    */
   lines?: readonly ScopedLine[];
   now?: Date;
-}): Promise<AutoPayDecision> {
+  /** Existing attempt already reserves its own amount; never count it twice. */
+  excludedPaymentTransactionId?: string;
+}, client: Pick<PrismaTransaction, 'customerAutoPaySetting' | 'paymentTransaction'> = prisma): Promise<AutoPayDecision> {
   const now = input.now ?? new Date();
 
   if (!env.FEATURE_CUSTOMER_AUTOPAY) {
@@ -919,7 +892,7 @@ export async function evaluateAutoPay(input: {
     };
   }
 
-  const settings = await prisma.customerAutoPaySetting.findUnique({
+  const settings = await client.customerAutoPaySetting.findUnique({
     where: { customerProfileId: input.customerProfileId },
     include: { paymentMethod: true },
   });
@@ -1091,6 +1064,8 @@ export async function evaluateAutoPay(input: {
       input.currency,
       settings.capPeriod,
       now,
+      client,
+      input.excludedPaymentTransactionId,
     );
 
     if (used + input.amountMinor > settings.periodCapMinor) {
