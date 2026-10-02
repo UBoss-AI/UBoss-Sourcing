@@ -29,6 +29,10 @@ type State = 'loading' | 'error' | 'empty';
 const PAGES = dirname(fileURLToPath(import.meta.url));
 
 const EXEMPT: Record<string, { states: State[]; reason: string }> = {
+  'checkout/LabelRequirementsNotice.tsx': {
+    states: ['loading', 'error'],
+    reason: 'An informational notice inside checkout: a LABEL_REQUIRED rule never stops a sale, so while loading or after a failed read it shows nothing and checkout carries on; the product and market pages show the same rules.',
+  },
   'account/CloseAccountPanel.tsx': {
     states: ['error'],
     reason: 'A failed impact read renders closeAccount.impactUnavailable (closure === null) and still offers the close; the server applies the rules either way.',
