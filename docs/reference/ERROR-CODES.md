@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**533 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**536 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -72,6 +72,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Country rules, rate cards and storefront content (Master rows 69, 71, 72)](#country-rules-rate-cards-and-storefront-content-master-rows-69-71-72) | 3 |
 | [Held funds, the transaction ledger and seller payouts (Master rows 58-61, 43)](#held-funds-the-transaction-ledger-and-seller-payouts-master-rows-58-61-43) | 4 |
 | [Admin governance: maker-checker, moderation, CMS approval (JOURNEY-061, 062, 067)](#admin-governance-maker-checker-moderation-cms-approval-journey-061-062-067) | 8 |
+| [Change control for a seller's verified company details (JOURNEY-027)](#change-control-for-a-seller-s-verified-company-details-journey-027) | 3 |
 
 ## Generic
 
@@ -845,4 +846,12 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `CONTENT_BLOCK_NOT_PENDING` | A content block cannot move that way: approving one that is not waiting for approval, or submitting one already waiting or published. 409. |
 | `CONTENT_BLOCK_SAME_APPROVER` | The member of staff who submitted a content block cannot also approve it. 403. |
 | `CONTENT_BLOCK_CONFLICT` | The block cannot be published as it is: its coupon ends before the block starts, or another check in `details` refuses it. Each entry has `code` (for example COUPON_ENDS_BEFORE_START). 409. |
+
+## Change control for a seller's verified company details (JOURNEY-027)
+
+| Code | Meaning |
+|---|---|
+| `COMPANY_CHANGE_NOT_ALLOWED` | The seller application is still editable, so company details are changed in the application itself, not through a change request. 409. |
+| `COMPANY_CHANGE_EMPTY` | The change request proposes nothing different from what is on file. 400. |
+| `COMPANY_CHANGE_NOT_PENDING` | The change request is no longer waiting: it was decided or withdrawn, possibly by a colleague while the screen was open. 409. |
 

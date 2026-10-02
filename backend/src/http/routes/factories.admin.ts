@@ -22,6 +22,11 @@ import {
   listFactoriesForReview,
   trustTimings,
 } from '../../modules/trust/factory.service.js';
+import {
+  companyChangeDecisionInput,
+  decideCompanyChange,
+  listCompanyChangesForReview,
+} from '../../modules/seller/company-change.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 
 const idParam = z.object({ id: z.string().length(26) });
@@ -92,6 +97,43 @@ export function registerAdminFactoryRoutes(app: FastifyInstance): Promise<void> 
         actor: { userId: auth.id, email: auth.email, correlationId: request.correlationId },
       });
       return reply.send({ certification });
+    },
+  );
+
+  // The queue of sellers' change requests for verified company details, pending first; filter by status or seller.
+  app.get(
+    '/seller-company-changes',
+    { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
+    async (request, reply) => {
+      const query = z
+        .object({
+          status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'WITHDRAWN']).optional(),
+          sellerAccountId: z.string().length(26).optional(),
+        })
+        .parse(request.query);
+      const changes = await listCompanyChangesForReview({
+        ...(query.status === undefined ? {} : { status: query.status }),
+        ...(query.sellerAccountId === undefined ? {} : { sellerAccountId: query.sellerAccountId }),
+      });
+      return reply.header('cache-control', 'no-store').send({ changes });
+    },
+  );
+
+  // Approve or reject a seller's company details change. Approval applies it and re-opens verification for a material change. Audited.
+  app.post(
+    '/seller-company-changes/:id/decision',
+    { preHandler: requireAdmin(Permission.CUSTOMER_STATUS_WRITE) },
+    async (request, reply) => {
+      const { id } = idParam.parse(request.params);
+      const body = companyChangeDecisionInput.parse(request.body);
+      const auth = currentUser(request);
+      const change = await decideCompanyChange({
+        changeId: id,
+        decision: body.decision,
+        reason: body.reason ?? null,
+        actor: { userId: auth.id, email: auth.email, correlationId: request.correlationId },
+      });
+      return reply.send({ change });
     },
   );
 

@@ -281,6 +281,14 @@ export const NAVIGATION: NavGroup[] = [
         attentionKeys: ['sellerApplications', 'sellerDocuments'],
       },
       {
+        // Changes to verified company details sellers asked for after approval.
+        labelKey: 'nav.sellerCompanyChanges',
+        to: '/seller-company-changes',
+        icon: SellerIcon,
+        permissions: [Permission.CUSTOMER_READ],
+        matchPrefix: true,
+      },
+      {
         // Beside Sellers, because it is a decision about a seller.
         labelKey: 'nav.sellerCarriers',
         to: '/seller-carriers',

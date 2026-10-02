@@ -4,10 +4,29 @@
 import { api } from './api';
 import type { AttachmentPolicy, InvitationStatus, RfqAttachment, RfqRequirement, RfqStatus, RfqVersionSummary } from './rfq';
 
-export const SELLER_RFQ_FILTERS = ['action', 'quoted', 'closed', 'all'] as const;
+export const SELLER_RFQ_FILTERS = ['action', 'quoted', 'closed', 'all', 'hidden'] as const;
 export type SellerRfqFilter = (typeof SELLER_RFQ_FILTERS)[number];
 
-export interface SellerRfqListItem {
+/** `me`, `unassigned` or a team member's id; left out, every request. */
+export type SellerRfqAssignee = string;
+
+/** How well this seller fits the request (JOURNEY-030). Score 0-100. */
+export interface SellerRfqQualification {
+  score: number;
+  reasons: ('LIVE_IN_CATEGORY' | 'EXPORTS_TO_DESTINATION' | 'VERIFIED_CERTIFICATE')[];
+  flags: ('CAPACITY_UNKNOWN' | 'CAPACITY_BELOW_QUANTITY' | 'OPEN_DISPUTE' | 'NOT_LIVE_IN_CATEGORY' | 'NO_CATEGORY')[];
+}
+
+export type BuyerVerification = 'VERIFIED_BUSINESS' | 'BUSINESS_PENDING' | 'BUSINESS_NOT_VERIFIED' | 'INDIVIDUAL';
+
+interface InboxFields {
+  qualification: SellerRfqQualification;
+  buyerVerification: BuyerVerification;
+  hidden: boolean;
+  assignedMember: { id: string; name: string } | null;
+}
+
+export interface SellerRfqListItem extends InboxFields {
   id: string;
   reference: string;
   status: RfqStatus;
@@ -23,7 +42,7 @@ export interface SellerRfqListItem {
   invitedAt: string;
 }
 
-export interface SellerRfq {
+export interface SellerRfq extends InboxFields {
   id: string;
   reference: string;
   status: RfqStatus;
@@ -51,8 +70,21 @@ export interface SellerRfq {
 
 export async function fetchSellerRfqs(
   filter: SellerRfqFilter,
+  assignee?: SellerRfqAssignee,
 ): Promise<{ items: SellerRfqListItem[]; counts: Record<SellerRfqFilter, number> }> {
-  return api.get('/seller/rfqs', { query: { filter } });
+  return api.get('/seller/rfqs', { query: assignee === undefined ? { filter } : { filter, assignee } });
+}
+
+export async function fetchRfqAssignees(): Promise<{ id: string; name: string }[]> {
+  return (await api.get<{ members: { id: string; name: string }[] }>('/seller/rfqs/assignees')).members;
+}
+
+export async function setSellerRfqHidden(id: string, hidden: boolean): Promise<SellerRfq> {
+  return (await api.post<{ rfq: SellerRfq }>(`/seller/rfqs/${id}/${hidden ? 'hide' : 'unhide'}`, {})).rfq;
+}
+
+export async function assignSellerRfq(id: string, memberId: string | null): Promise<SellerRfq> {
+  return (await api.post<{ rfq: SellerRfq }>(`/seller/rfqs/${id}/assign`, { memberId })).rfq;
 }
 
 export async function fetchSellerRfq(id: string): Promise<SellerRfq> {

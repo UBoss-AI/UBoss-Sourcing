@@ -93,6 +93,9 @@ const PREORDER_CODES = new Set([
 /** A seller's factories and certificates, and their verification (Master row 13). */
 const FACTORY_CODES = new Set([
   'FACTORY_NOT_EDITABLE',
+  'COMPANY_CHANGE_NOT_ALLOWED',
+  'COMPANY_CHANGE_EMPTY',
+  'COMPANY_CHANGE_NOT_PENDING',
   'FACTORY_INCOMPLETE',
   'FACTORY_TRANSITION_INVALID',
   'CERTIFICATION_NOT_EDITABLE',

@@ -3380,7 +3380,7 @@ erDiagram
 | [`SellerOrderLine`](reference/DATABASE-TABLES.md#model-sellerorderline) | `seller_order_lines` | one order line that belongs to that seller |
 | [`SellerShipment`](reference/DATABASE-TABLES.md#model-sellershipment) / [`SellerReturn`](reference/DATABASE-TABLES.md#model-sellerreturn) | `seller_shipments` / `seller_returns` | a seller's dispatch note / a return against the seller's share |
 | [`SellerSettlement`](reference/DATABASE-TABLES.md#model-sellersettlement) | `seller_settlements` | one statement: one seller, one period, one currency — gross, commission, fees, refunds, adjustments, **net payable** |
-| [`SellerSettlementLine`](reference/DATABASE-TABLES.md#model-sellersettlementline) | `seller_settlement_lines` | one signed amount in it (sale, the seller's own delivery, commission, refund, manual adjustment) |
+| [`SellerSettlementLine`](reference/DATABASE-TABLES.md#model-sellersettlementline) | `seller_settlement_lines` | one signed amount in it (sale, the seller's own delivery, commission, the tax on it, refund, inspection fee, logistics charge, manual adjustment). `sourceRef` names the record a deduction came from (an inspection invoice id); `UNIQUE (kind, sourceRef)` deducts it once, ever (JOURNEY-034) |
 | [`SellerPayout`](reference/DATABASE-TABLES.md#model-sellerpayout) | `seller_payouts` | one transfer of money to the seller |
 | [`SellerNotification`](reference/DATABASE-TABLES.md#model-sellernotification) / [`SellerAuditLog`](reference/DATABASE-TABLES.md#model-sellerauditlog) | `seller_notifications` / `seller_audit_logs` | the seller's own bell / the seller's own audit trail |
 
@@ -3480,7 +3480,25 @@ erDiagram
 - `SellerSettlementStatus`: `OPEN`, `PENDING_PAYOUT`, `PAID`, `ON_HOLD`.
   `SellerPayoutStatus`: `PENDING`, `IN_TRANSIT`, `PAID`, `FAILED`, `CANCELLED`.
   `SellerSettlementLineKind`: `SALE`, `COMMISSION`, `PROCESSING_FEE`, `REFUND`,
-  `RETURN_DEDUCTION`, `SHIPPING_CHARGE`, `MANUAL_ADJUSTMENT`.
+  `RETURN_DEDUCTION`, `SHIPPING_CHARGE`, `MANUAL_ADJUSTMENT`, `INSPECTION_FEE`,
+  `LOGISTICS_CHARGE`, `COMMISSION_TAX` (the last three appended by
+  `20261101300000_seller_hub_rfq_inbox_settlement_lines`; the tax on the platform
+  fee is its own line, still inside the header's `commissionMinor`; an
+  inspection fee is carried in the signed `adjustmentsMinor`, so the header
+  identity is unchanged; nothing writes `LOGISTICS_CHARGE` yet).
+
+**Company change control (JOURNEY-027).** `seller_profile_change_requests`
+(created with the supplier-trust tables and unused until now) holds a seller's
+request to change verified company details, section `COMPANY`, `subjectId`
+''. `proposedJson` carries only the fields that differ (and an optional
+note), `previousJson` the values they replace; `status` PENDING, APPROVED,
+REJECTED or WITHDRAWN (`ProfileChangeStatus`), with `decidedByUserId`,
+`decidedAt` and `decisionReason`. One PENDING request per seller is kept by
+the service (a new proposal withdraws the old). Approval writes
+`seller_accounts.legalName` and the `seller_business_profiles` columns, and
+for a material change sets the current `seller_verification_cases` row of that
+kind `isCurrent = false` and inserts a fresh `IN_PROGRESS` one, in the same
+transaction as the decision.
 
 **Application lifecycle** (`APPLICATION_TRANSITIONS` in
 `backend/src/domain/seller-state.ts`). Only `APPROVED` sellers may list and
@@ -4760,7 +4778,7 @@ Migration `20261021100000_rfq_requests` (checklist Master row 16).
 |---|---|
 | `rfq_requests` | One request. Holds the CURRENT requirement (category, title, specification, `specsJson`, `quantity` and `annualVolume` as `DECIMAL(15,3)`, `targetUnitPriceMinor` BIGINT + `targetCurrency`, destination, Incoterm, certifications, sample and inspection choices, `responseDeadline` in UTC, `deliveryTargetDate`, notes), the draft's supplier choices, the match outcome, `currentRequirementVersion`, `status` and `version` |
 | `rfq_requirement_versions` | Every submitted version of the requirement, whole (`snapshotJson`), with the fields that changed. Append-only; `UNIQUE (rfqId, versionNumber)` |
-| `rfq_invitations` | One seller asked to quote. `UNIQUE (rfqId, sellerAccountId)`: a seller is asked once per request. `source` MATCHED or BUYER_SELECTED |
+| `rfq_invitations` | One seller asked to quote. `UNIQUE (rfqId, sellerAccountId)`: a seller is asked once per request. `source` MATCHED or BUYER_SELECTED. The seller's own handling (JOURNEY-030): `hiddenAt` / `hiddenByMemberId` (hidden from their inbox only) and `assignedMemberId` / `assignedAt` (the team member who owns the answer, validated against the team by the service; no foreign key, so the history survives a member leaving), `ix_rfq_invitation_assignee (sellerAccountId, assignedMemberId)` |
 | `rfq_attachments` | A private file. `purpose` REQUIREMENT, QUOTE or NEGOTIATION; `requirementVersion` NULL until frozen into a version; `sellerAccountId` names the thread for quote and negotiation files |
 | `rfq_messages` | A question or answer in one seller's thread (`sellerAccountId`). `UNIQUE (rfqId, sellerAccountId, clientMessageId)` makes a resend find the first message (NULL ids are never deduplicated). Migration `20261021200000_rfq_messages` (row 17) |
 | `rfq_quotes` | One seller's quote. `UNIQUE (rfqId, sellerAccountId)`; `status` OPEN / ACCEPTED / REJECTED / WITHDRAWN / CLOSED; the current version, the requirement version it answered, the shortlist flag, and (row 19) the accepted version, its terms hash and frozen terms. Migration `20261021300000_rfq_quotes` |

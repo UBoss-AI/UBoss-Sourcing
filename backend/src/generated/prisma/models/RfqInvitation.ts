@@ -45,6 +45,10 @@ export type RfqInvitationMinAggregateOutputType = {
   respondedAt: Date | null
   declineReason: string | null
   notifiedVersion: number | null
+  hiddenAt: Date | null
+  hiddenByMemberId: string | null
+  assignedMemberId: string | null
+  assignedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -60,6 +64,10 @@ export type RfqInvitationMaxAggregateOutputType = {
   respondedAt: Date | null
   declineReason: string | null
   notifiedVersion: number | null
+  hiddenAt: Date | null
+  hiddenByMemberId: string | null
+  assignedMemberId: string | null
+  assignedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -75,6 +83,10 @@ export type RfqInvitationCountAggregateOutputType = {
   respondedAt: number
   declineReason: number
   notifiedVersion: number
+  hiddenAt: number
+  hiddenByMemberId: number
+  assignedMemberId: number
+  assignedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -100,6 +112,10 @@ export type RfqInvitationMinAggregateInputType = {
   respondedAt?: true
   declineReason?: true
   notifiedVersion?: true
+  hiddenAt?: true
+  hiddenByMemberId?: true
+  assignedMemberId?: true
+  assignedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -115,6 +131,10 @@ export type RfqInvitationMaxAggregateInputType = {
   respondedAt?: true
   declineReason?: true
   notifiedVersion?: true
+  hiddenAt?: true
+  hiddenByMemberId?: true
+  assignedMemberId?: true
+  assignedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -130,6 +150,10 @@ export type RfqInvitationCountAggregateInputType = {
   respondedAt?: true
   declineReason?: true
   notifiedVersion?: true
+  hiddenAt?: true
+  hiddenByMemberId?: true
+  assignedMemberId?: true
+  assignedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -232,6 +256,10 @@ export type RfqInvitationGroupByOutputType = {
   respondedAt: Date | null
   declineReason: string | null
   notifiedVersion: number
+  hiddenAt: Date | null
+  hiddenByMemberId: string | null
+  assignedMemberId: string | null
+  assignedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: RfqInvitationCountAggregateOutputType | null
@@ -270,6 +298,10 @@ export type RfqInvitationWhereInput = {
   respondedAt?: Prisma.DateTimeNullableFilter<"RfqInvitation"> | Date | string | null
   declineReason?: Prisma.StringNullableFilter<"RfqInvitation"> | string | null
   notifiedVersion?: Prisma.IntFilter<"RfqInvitation"> | number
+  hiddenAt?: Prisma.DateTimeNullableFilter<"RfqInvitation"> | Date | string | null
+  hiddenByMemberId?: Prisma.StringNullableFilter<"RfqInvitation"> | string | null
+  assignedMemberId?: Prisma.StringNullableFilter<"RfqInvitation"> | string | null
+  assignedAt?: Prisma.DateTimeNullableFilter<"RfqInvitation"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"RfqInvitation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RfqInvitation"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
@@ -287,6 +319,10 @@ export type RfqInvitationOrderByWithRelationInput = {
   respondedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   declineReason?: Prisma.SortOrderInput | Prisma.SortOrder
   notifiedVersion?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  hiddenByMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   rfq?: Prisma.RfqRequestOrderByWithRelationInput
@@ -309,6 +345,10 @@ export type RfqInvitationWhereUniqueInput = Prisma.AtLeast<{
   respondedAt?: Prisma.DateTimeNullableFilter<"RfqInvitation"> | Date | string | null
   declineReason?: Prisma.StringNullableFilter<"RfqInvitation"> | string | null
   notifiedVersion?: Prisma.IntFilter<"RfqInvitation"> | number
+  hiddenAt?: Prisma.DateTimeNullableFilter<"RfqInvitation"> | Date | string | null
+  hiddenByMemberId?: Prisma.StringNullableFilter<"RfqInvitation"> | string | null
+  assignedMemberId?: Prisma.StringNullableFilter<"RfqInvitation"> | string | null
+  assignedAt?: Prisma.DateTimeNullableFilter<"RfqInvitation"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"RfqInvitation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RfqInvitation"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
@@ -326,6 +366,10 @@ export type RfqInvitationOrderByWithAggregationInput = {
   respondedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   declineReason?: Prisma.SortOrderInput | Prisma.SortOrder
   notifiedVersion?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  hiddenByMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.RfqInvitationCountOrderByAggregateInput
@@ -349,6 +393,10 @@ export type RfqInvitationScalarWhereWithAggregatesInput = {
   respondedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RfqInvitation"> | Date | string | null
   declineReason?: Prisma.StringNullableWithAggregatesFilter<"RfqInvitation"> | string | null
   notifiedVersion?: Prisma.IntWithAggregatesFilter<"RfqInvitation"> | number
+  hiddenAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RfqInvitation"> | Date | string | null
+  hiddenByMemberId?: Prisma.StringNullableWithAggregatesFilter<"RfqInvitation"> | string | null
+  assignedMemberId?: Prisma.StringNullableWithAggregatesFilter<"RfqInvitation"> | string | null
+  assignedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RfqInvitation"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RfqInvitation"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"RfqInvitation"> | Date | string
 }
@@ -362,6 +410,10 @@ export type RfqInvitationCreateInput = {
   respondedAt?: Date | string | null
   declineReason?: string | null
   notifiedVersion?: number
+  hiddenAt?: Date | string | null
+  hiddenByMemberId?: string | null
+  assignedMemberId?: string | null
+  assignedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   rfq: Prisma.RfqRequestCreateNestedOneWithoutInvitationsInput
@@ -379,6 +431,10 @@ export type RfqInvitationUncheckedCreateInput = {
   respondedAt?: Date | string | null
   declineReason?: string | null
   notifiedVersion?: number
+  hiddenAt?: Date | string | null
+  hiddenByMemberId?: string | null
+  assignedMemberId?: string | null
+  assignedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -392,6 +448,10 @@ export type RfqInvitationUpdateInput = {
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declineReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutInvitationsNestedInput
@@ -409,6 +469,10 @@ export type RfqInvitationUncheckedUpdateInput = {
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declineReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -424,6 +488,10 @@ export type RfqInvitationCreateManyInput = {
   respondedAt?: Date | string | null
   declineReason?: string | null
   notifiedVersion?: number
+  hiddenAt?: Date | string | null
+  hiddenByMemberId?: string | null
+  assignedMemberId?: string | null
+  assignedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -437,6 +505,10 @@ export type RfqInvitationUpdateManyMutationInput = {
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declineReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -452,6 +524,10 @@ export type RfqInvitationUncheckedUpdateManyInput = {
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declineReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -488,6 +564,10 @@ export type RfqInvitationCountOrderByAggregateInput = {
   respondedAt?: Prisma.SortOrder
   declineReason?: Prisma.SortOrder
   notifiedVersion?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrder
+  hiddenByMemberId?: Prisma.SortOrder
+  assignedMemberId?: Prisma.SortOrder
+  assignedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -507,6 +587,10 @@ export type RfqInvitationMaxOrderByAggregateInput = {
   respondedAt?: Prisma.SortOrder
   declineReason?: Prisma.SortOrder
   notifiedVersion?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrder
+  hiddenByMemberId?: Prisma.SortOrder
+  assignedMemberId?: Prisma.SortOrder
+  assignedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -522,6 +606,10 @@ export type RfqInvitationMinOrderByAggregateInput = {
   respondedAt?: Prisma.SortOrder
   declineReason?: Prisma.SortOrder
   notifiedVersion?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrder
+  hiddenByMemberId?: Prisma.SortOrder
+  assignedMemberId?: Prisma.SortOrder
+  assignedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -631,6 +719,10 @@ export type RfqInvitationCreateWithoutSellerAccountInput = {
   respondedAt?: Date | string | null
   declineReason?: string | null
   notifiedVersion?: number
+  hiddenAt?: Date | string | null
+  hiddenByMemberId?: string | null
+  assignedMemberId?: string | null
+  assignedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   rfq: Prisma.RfqRequestCreateNestedOneWithoutInvitationsInput
@@ -646,6 +738,10 @@ export type RfqInvitationUncheckedCreateWithoutSellerAccountInput = {
   respondedAt?: Date | string | null
   declineReason?: string | null
   notifiedVersion?: number
+  hiddenAt?: Date | string | null
+  hiddenByMemberId?: string | null
+  assignedMemberId?: string | null
+  assignedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -690,6 +786,10 @@ export type RfqInvitationScalarWhereInput = {
   respondedAt?: Prisma.DateTimeNullableFilter<"RfqInvitation"> | Date | string | null
   declineReason?: Prisma.StringNullableFilter<"RfqInvitation"> | string | null
   notifiedVersion?: Prisma.IntFilter<"RfqInvitation"> | number
+  hiddenAt?: Prisma.DateTimeNullableFilter<"RfqInvitation"> | Date | string | null
+  hiddenByMemberId?: Prisma.StringNullableFilter<"RfqInvitation"> | string | null
+  assignedMemberId?: Prisma.StringNullableFilter<"RfqInvitation"> | string | null
+  assignedAt?: Prisma.DateTimeNullableFilter<"RfqInvitation"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"RfqInvitation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RfqInvitation"> | Date | string
 }
@@ -703,6 +803,10 @@ export type RfqInvitationCreateWithoutRfqInput = {
   respondedAt?: Date | string | null
   declineReason?: string | null
   notifiedVersion?: number
+  hiddenAt?: Date | string | null
+  hiddenByMemberId?: string | null
+  assignedMemberId?: string | null
+  assignedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutRfqInvitationsInput
@@ -718,6 +822,10 @@ export type RfqInvitationUncheckedCreateWithoutRfqInput = {
   respondedAt?: Date | string | null
   declineReason?: string | null
   notifiedVersion?: number
+  hiddenAt?: Date | string | null
+  hiddenByMemberId?: string | null
+  assignedMemberId?: string | null
+  assignedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -758,6 +866,10 @@ export type RfqInvitationCreateManySellerAccountInput = {
   respondedAt?: Date | string | null
   declineReason?: string | null
   notifiedVersion?: number
+  hiddenAt?: Date | string | null
+  hiddenByMemberId?: string | null
+  assignedMemberId?: string | null
+  assignedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -771,6 +883,10 @@ export type RfqInvitationUpdateWithoutSellerAccountInput = {
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declineReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutInvitationsNestedInput
@@ -786,6 +902,10 @@ export type RfqInvitationUncheckedUpdateWithoutSellerAccountInput = {
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declineReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -800,6 +920,10 @@ export type RfqInvitationUncheckedUpdateManyWithoutSellerAccountInput = {
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declineReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -814,6 +938,10 @@ export type RfqInvitationCreateManyRfqInput = {
   respondedAt?: Date | string | null
   declineReason?: string | null
   notifiedVersion?: number
+  hiddenAt?: Date | string | null
+  hiddenByMemberId?: string | null
+  assignedMemberId?: string | null
+  assignedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -827,6 +955,10 @@ export type RfqInvitationUpdateWithoutRfqInput = {
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declineReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutRfqInvitationsNestedInput
@@ -842,6 +974,10 @@ export type RfqInvitationUncheckedUpdateWithoutRfqInput = {
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declineReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -856,6 +992,10 @@ export type RfqInvitationUncheckedUpdateManyWithoutRfqInput = {
   respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declineReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hiddenByMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -873,6 +1013,10 @@ export type RfqInvitationSelect<ExtArgs extends runtime.Types.Extensions.Interna
   respondedAt?: boolean
   declineReason?: boolean
   notifiedVersion?: boolean
+  hiddenAt?: boolean
+  hiddenByMemberId?: boolean
+  assignedMemberId?: boolean
+  assignedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
@@ -892,11 +1036,15 @@ export type RfqInvitationSelectScalar = {
   respondedAt?: boolean
   declineReason?: boolean
   notifiedVersion?: boolean
+  hiddenAt?: boolean
+  hiddenByMemberId?: boolean
+  assignedMemberId?: boolean
+  assignedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RfqInvitationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rfqId" | "sellerAccountId" | "source" | "status" | "invitedAt" | "viewedAt" | "respondedAt" | "declineReason" | "notifiedVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqInvitation"]>
+export type RfqInvitationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rfqId" | "sellerAccountId" | "source" | "status" | "invitedAt" | "viewedAt" | "respondedAt" | "declineReason" | "notifiedVersion" | "hiddenAt" | "hiddenByMemberId" | "assignedMemberId" | "assignedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqInvitation"]>
 export type RfqInvitationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
@@ -925,6 +1073,19 @@ export type $RfqInvitationPayload<ExtArgs extends runtime.Types.Extensions.Inter
      * The latest requirement version this seller has been told about.
      */
     notifiedVersion: number
+    /**
+     * The seller hid it from their inbox as not for them (JOURNEY-030). Their
+     * view only: the buyer still sees the invitation as it stands.
+     */
+    hiddenAt: Date | null
+    hiddenByMemberId: string | null
+    /**
+     * The member of the seller's team who owns the answer. Validated against
+     * the team by the service; no foreign key, so the history survives a
+     * member leaving.
+     */
+    assignedMemberId: string | null
+    assignedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["rfqInvitation"]>
@@ -1308,6 +1469,10 @@ export interface RfqInvitationFieldRefs {
   readonly respondedAt: Prisma.FieldRef<"RfqInvitation", 'DateTime'>
   readonly declineReason: Prisma.FieldRef<"RfqInvitation", 'String'>
   readonly notifiedVersion: Prisma.FieldRef<"RfqInvitation", 'Int'>
+  readonly hiddenAt: Prisma.FieldRef<"RfqInvitation", 'DateTime'>
+  readonly hiddenByMemberId: Prisma.FieldRef<"RfqInvitation", 'String'>
+  readonly assignedMemberId: Prisma.FieldRef<"RfqInvitation", 'String'>
+  readonly assignedAt: Prisma.FieldRef<"RfqInvitation", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"RfqInvitation", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"RfqInvitation", 'DateTime'>
 }

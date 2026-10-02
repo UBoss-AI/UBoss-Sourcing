@@ -10,7 +10,7 @@
  * seller's name, answer, quote or messages.
  */
 import { z } from 'zod';
-import { ErrorCode, conflict, type AppError } from '../../domain/errors.js';
+import { ErrorCode, badRequest, conflict, type AppError } from '../../domain/errors.js';
 import { assertInvitationTransition, RESPONSIVE_INVITATION_STATUSES, type RfqStatusName } from '../../domain/rfq-state.js';
 import type { RfqRequirement } from '../../domain/rfq.js';
 import { prisma } from '../../infra/prisma.js';
@@ -21,6 +21,8 @@ import {
   NotificationEvent,
 } from '../notifications/notification.service.js';
 import { resolveSellerNotifications } from '../seller/notification.service.js';
+import { recordSellerAudit } from '../seller/audit.service.js';
+import { sellerQualifications, type SellerQualification } from './matching.service.js';
 import { rfqNotFound, type RfqSupplier } from './access.js';
 import {
   ATTACHMENT_SELECT,
@@ -37,8 +39,33 @@ import {
   requirementOf,
 } from './rfq.service.js';
 
-export const SUPPLIER_RFQ_FILTERS = ['action', 'quoted', 'closed', 'all'] as const;
-export const supplierListQuerySchema = z.object({ filter: z.enum(SUPPLIER_RFQ_FILTERS).default('action') });
+export const SUPPLIER_RFQ_FILTERS = ['action', 'quoted', 'closed', 'all', 'hidden'] as const;
+export const supplierListQuerySchema = z.object({
+  filter: z.enum(SUPPLIER_RFQ_FILTERS).default('action'),
+  /** `me`, `unassigned` or a team member's id (JOURNEY-030). */
+  assignee: z.union([z.enum(['me', 'unassigned']), z.string().length(26)]).optional(),
+});
+export const assignSchema = z.object({ memberId: z.string().length(26).nullable() }).strict();
+
+/**
+ * What the seller is told about who is asking (JOURNEY-030): a business the
+ * marketplace verified, a business whose verification is not finished or has
+ * lapsed, or a person buying for themselves.
+ */
+export type BuyerVerification = 'VERIFIED_BUSINESS' | 'BUSINESS_PENDING' | 'BUSINESS_NOT_VERIFIED' | 'INDIVIDUAL';
+
+function buyerVerificationOf(company: { status: string } | null): BuyerVerification {
+  if (company === null) return 'INDIVIDUAL';
+  if (company.status === 'APPROVED') return 'VERIFIED_BUSINESS';
+  if (['REJECTED', 'SUSPENDED', 'REVERIFICATION_REQUIRED'].includes(company.status)) return 'BUSINESS_NOT_VERIFIED';
+  return 'BUSINESS_PENDING';
+}
+
+function decimalOrNull(value: { toString(): string } | null): number | null {
+  if (value === null) return null;
+  const parsed = Number(value.toString());
+  return Number.isFinite(parsed) ? parsed : null;
+}
 export const declineSchema = z.object({ reason: z.string().trim().min(3).max(1000) }).strict();
 
 /** The seller can no longer answer; `code` says why. */
@@ -69,20 +96,37 @@ export interface SupplierRfqListItem {
   invitationStatus: string;
   currentRequirementVersion: number;
   invitedAt: string;
+  /** How well this seller fits the request, from the matching facts (JOURNEY-030). */
+  qualification: SellerQualification;
+  buyerVerification: BuyerVerification;
+  hidden: boolean;
+  assignedMember: { id: string; name: string } | null;
 }
 
 /** The requests this seller was asked to quote on. The default view is what needs an answer. */
 export async function listSupplierRfqs(
   supplier: RfqSupplier,
   filter: (typeof SUPPLIER_RFQ_FILTERS)[number],
+  /** `me`, `unassigned` or a team member's id. */
+  assignee?: string,
 ): Promise<{ items: SupplierRfqListItem[]; counts: Record<string, number> }> {
   const now = new Date();
-  const base = { sellerAccountId: supplier.sellerAccountId, rfq: { status: { not: 'DRAFT' as const } } };
+  const assigned =
+    assignee === undefined
+      ? {}
+      : assignee === 'unassigned'
+        ? { assignedMemberId: null }
+        : { assignedMemberId: assignee === 'me' ? supplier.memberId : assignee };
+  // Hidden invitations live in their own view; every other view leaves them out.
+  const visible = { hiddenAt: null, ...assigned };
+  const allBase = { sellerAccountId: supplier.sellerAccountId, rfq: { status: { not: 'DRAFT' as const } } };
+  const base = { ...allBase, ...visible };
   const action = {
     ...base,
     status: { in: [...RESPONSIVE_INVITATION_STATUSES] },
     rfq: { status: 'OPEN' as const, responseDeadline: { gt: now } },
   };
+  const hiddenWhere = { ...allBase, ...assigned, hiddenAt: { not: null } };
   const where =
     filter === 'action'
       ? action
@@ -90,8 +134,10 @@ export async function listSupplierRfqs(
         ? { ...base, status: 'QUOTED' as const }
         : filter === 'closed'
           ? { ...base, NOT: { OR: [{ status: 'QUOTED' as const }, action] } }
-          : base;
-  const [rows, actionCount, quotedCount, allCount] = await Promise.all([
+          : filter === 'hidden'
+            ? hiddenWhere
+            : base;
+  const [rows, actionCount, quotedCount, allCount, hiddenCount] = await Promise.all([
     prisma.rfqInvitation.findMany({
       where,
       orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
@@ -101,12 +147,57 @@ export async function listSupplierRfqs(
     prisma.rfqInvitation.count({ where: action }),
     prisma.rfqInvitation.count({ where: { ...base, status: 'QUOTED' } }),
     prisma.rfqInvitation.count({ where: base }),
+    prisma.rfqInvitation.count({ where: hiddenWhere }),
   ]);
+
+  const companyIds = [...new Set(rows.map((row) => row.rfq.buyerCompanyId).filter((id): id is string => id !== null))];
+  const memberIds = [...new Set(rows.map((row) => row.assignedMemberId).filter((id): id is string => id !== null))];
+  const [companies, members, qualifications] = await Promise.all([
+    companyIds.length === 0
+      ? Promise.resolve([])
+      : prisma.buyerCompany.findMany({ where: { id: { in: companyIds } }, select: { id: true, status: true } }),
+    memberIds.length === 0
+      ? Promise.resolve([])
+      : prisma.sellerMember.findMany({
+          where: { id: { in: memberIds }, sellerAccountId: supplier.sellerAccountId },
+          select: { id: true, customerProfile: { select: { fullName: true } } },
+        }),
+    sellerQualifications(
+      supplier.sellerAccountId,
+      rows.map((row) => ({
+        id: row.rfq.id,
+        categoryId: row.rfq.categoryId,
+        destinationCountry: row.rfq.destinationCountry,
+        customerProfileId: row.rfq.customerProfileId,
+        quantity: decimalOrNull(row.rfq.quantity),
+        deliveryTargetDate: row.rfq.deliveryTargetDate,
+      })),
+      now,
+    ),
+  ]);
+  const companyStatus = new Map(companies.map((company) => [company.id, { status: String(company.status) }]));
+  const memberName = new Map(members.map((member) => [member.id, member.customerProfile.fullName]));
+
   return {
-    counts: { action: actionCount, quoted: quotedCount, closed: allCount - actionCount - quotedCount, all: allCount },
+    counts: {
+      action: actionCount,
+      quoted: quotedCount,
+      closed: allCount - actionCount - quotedCount,
+      all: allCount,
+      hidden: hiddenCount,
+    },
     items: rows.map((row) => {
       const requirement = requirementOf(row.rfq);
       return {
+        qualification: qualifications.get(row.rfq.id) ?? { score: 0, reasons: [], flags: [] },
+        buyerVerification: buyerVerificationOf(
+          row.rfq.buyerCompanyId === null ? null : (companyStatus.get(row.rfq.buyerCompanyId) ?? { status: 'UNKNOWN' }),
+        ),
+        hidden: row.hiddenAt !== null,
+        assignedMember:
+          row.assignedMemberId === null
+            ? null
+            : { id: row.assignedMemberId, name: memberName.get(row.assignedMemberId) ?? '' },
         id: row.rfq.id,
         reference: row.rfq.reference,
         status: row.rfq.status,
@@ -149,6 +240,83 @@ export interface SupplierRfqView {
   attachmentPolicy: ReturnType<typeof rfqAttachmentPolicy>;
   timeline: { id: string; kind: string; actor: string; meta: Record<string, unknown> | null; at: string }[];
   actions: { canAsk: boolean; canDecline: boolean; canQuote: boolean };
+  qualification: SellerQualification;
+  buyerVerification: BuyerVerification;
+  hidden: boolean;
+  assignedMember: { id: string; name: string } | null;
+}
+
+/**
+ * Hide an invitation from this seller's inbox, or bring it back (JOURNEY-030).
+ * The seller's view only: the buyer's list is unchanged, and a hidden
+ * invitation can still be opened and answered. Audited.
+ */
+export async function setRfqHidden(supplier: RfqSupplier, rfqId: string, hidden: boolean): Promise<SupplierRfqView> {
+  const invitation = await loadInvitation(supplier, rfqId);
+  await prisma.$transaction(async (tx) => {
+    await tx.rfqInvitation.update({
+      where: { id: invitation.id },
+      data: hidden ? { hiddenAt: new Date(), hiddenByMemberId: supplier.memberId } : { hiddenAt: null, hiddenByMemberId: null },
+    });
+    await recordSellerAudit({
+      tx,
+      sellerAccountId: supplier.sellerAccountId,
+      action: hidden ? 'seller.rfq.hidden' : 'seller.rfq.unhidden',
+      actor: { type: 'CUSTOMER', userId: supplier.userId, label: supplier.displayName },
+      resourceType: 'rfq_invitation',
+      resourceId: invitation.id,
+      summary: hidden
+        ? `Request ${invitation.rfq.reference} was hidden from the inbox.`
+        : `Request ${invitation.rfq.reference} was brought back to the inbox.`,
+    });
+  });
+  return getSupplierRfq(supplier, rfqId);
+}
+
+/**
+ * Give the answer to one member of the team, or to nobody (JOURNEY-030). The
+ * member must be on this seller's team now. Audited.
+ */
+export async function assignRfq(
+  supplier: RfqSupplier,
+  rfqId: string,
+  input: z.infer<typeof assignSchema>,
+): Promise<SupplierRfqView> {
+  const invitation = await loadInvitation(supplier, rfqId);
+  let name = '';
+  if (input.memberId !== null) {
+    const member = await prisma.sellerMember.findFirst({
+      where: { id: input.memberId, sellerAccountId: supplier.sellerAccountId, removedAt: null },
+      select: { id: true, customerProfile: { select: { fullName: true } } },
+    });
+    if (member === null) {
+      throw badRequest(ErrorCode.VALIDATION_FAILED, 'Choose somebody on your team.', [
+        { field: 'memberId', code: 'NOT_A_MEMBER' },
+      ]);
+    }
+    name = member.customerProfile.fullName;
+  }
+  await prisma.$transaction(async (tx) => {
+    await tx.rfqInvitation.update({
+      where: { id: invitation.id },
+      data: { assignedMemberId: input.memberId, assignedAt: input.memberId === null ? null : new Date() },
+    });
+    await recordSellerAudit({
+      tx,
+      sellerAccountId: supplier.sellerAccountId,
+      action: input.memberId === null ? 'seller.rfq.unassigned' : 'seller.rfq.assigned',
+      actor: { type: 'CUSTOMER', userId: supplier.userId, label: supplier.displayName },
+      resourceType: 'rfq_invitation',
+      resourceId: invitation.id,
+      before: { assignedMemberId: invitation.assignedMemberId },
+      after: { assignedMemberId: input.memberId },
+      summary:
+        input.memberId === null
+          ? `Request ${invitation.rfq.reference} no longer has an owner.`
+          : `Request ${invitation.rfq.reference} was given to ${name}.`,
+    });
+  });
+  return getSupplierRfq(supplier, rfqId);
 }
 
 /**
@@ -189,7 +357,7 @@ export async function getSupplierRfq(supplier: RfqSupplier, rfqId: string): Prom
       ? Promise.resolve(null)
       : prisma.buyerCompany.findUnique({
           where: { id: rfq.buyerCompanyId },
-          select: { tradingName: true, legalName: true, applicationReference: true },
+          select: { tradingName: true, legalName: true, applicationReference: true, status: true },
         }),
     prisma.rfqRequirementVersion.findMany({ where: { rfqId }, orderBy: { versionNumber: 'asc' } }),
     prisma.rfqAttachment.findMany({
@@ -211,7 +379,33 @@ export async function getSupplierRfq(supplier: RfqSupplier, rfqId: string): Prom
   const beforeDeadline = rfq.responseDeadline !== null && rfq.responseDeadline.getTime() > Date.now();
   const responsive = RESPONSIVE_INVITATION_STATUSES.includes(invitation.status);
 
+  const [qualifications, assignee] = await Promise.all([
+    sellerQualifications(supplier.sellerAccountId, [
+      {
+        id: rfq.id,
+        categoryId: rfq.categoryId,
+        destinationCountry: rfq.destinationCountry,
+        customerProfileId: rfq.customerProfileId,
+        quantity: decimalOrNull(rfq.quantity),
+        deliveryTargetDate: rfq.deliveryTargetDate,
+      },
+    ]),
+    invitation.assignedMemberId === null
+      ? Promise.resolve(null)
+      : prisma.sellerMember.findFirst({
+          where: { id: invitation.assignedMemberId, sellerAccountId: supplier.sellerAccountId },
+          select: { id: true, customerProfile: { select: { fullName: true } } },
+        }),
+  ]);
+
   return {
+    qualification: qualifications.get(rfq.id) ?? { score: 0, reasons: [], flags: [] },
+    buyerVerification: buyerVerificationOf(company === null ? null : { status: String(company.status) }),
+    hidden: invitation.hiddenAt !== null,
+    assignedMember:
+      invitation.assignedMemberId === null
+        ? null
+        : { id: invitation.assignedMemberId, name: assignee?.customerProfile.fullName ?? '' },
     id: rfq.id,
     reference: rfq.reference,
     status: rfq.status,

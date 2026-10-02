@@ -22,9 +22,11 @@
  *   SALE              + goods proceeds
  *   SHIPPING_CHARGE   + delivery the seller controlled and was paid for
  *   COMMISSION        - the platform fee
- *   COMMISSION        - tax on the platform fee
+ *   COMMISSION_TAX    - tax on the platform fee (its own kind since JOURNEY-034)
  *   REFUND            - refunds recorded since the order was last on a
  *                       statement (or + when a refund was later given back)
+ *   INSPECTION_FEE    - an approved agency invoice the seller pays, once per
+ *                       invoice; carried in the header's adjustments
  *
  * Each order is SOLD on exactly one statement. Refunds that arrive after that
  * statement are carried on the next one, as the difference between what the
@@ -235,7 +237,13 @@ async function writeStatement(
   let refunds = 0n;
   let adjustments = 0n;
   let ordersSold = 0;
-  const line = (group: Candidate, kind: Prisma.SellerSettlementLineCreateManyInput['kind'], amountMinor: bigint, occurredAt: Date) => {
+  const line = (
+    group: Candidate,
+    kind: Prisma.SellerSettlementLineCreateManyInput['kind'],
+    amountMinor: bigint,
+    occurredAt: Date,
+    sourceRef: string | null = null,
+  ) => {
     lines.push({
       id: newId(),
       settlementId,
@@ -245,6 +253,7 @@ async function writeStatement(
       currency: input.currency,
       description: group.sellerOrderNumber,
       occurredAt,
+      sourceRef,
     });
   };
 
@@ -257,7 +266,8 @@ async function writeStatement(
     line(group, 'SALE', figures.grossProceedsMinor, at);
     if (figures.sellerDeliveryProceedsMinor !== 0n) line(group, 'SHIPPING_CHARGE', figures.sellerDeliveryProceedsMinor, at);
     line(group, 'COMMISSION', -figures.platformFeeMinor, at);
-    if (figures.platformFeeTaxMinor !== 0n) line(group, 'COMMISSION', -figures.platformFeeTaxMinor, at);
+    // The tax on the fee is its own kind, so the statement shows it apart (JOURNEY-034).
+    if (figures.platformFeeTaxMinor !== 0n) line(group, 'COMMISSION_TAX', -figures.platformFeeTaxMinor, at);
     gross += figures.grossProceedsMinor + figures.sellerDeliveryProceedsMinor;
     commission += figures.platformFeeMinor + figures.platformFeeTaxMinor;
 
@@ -279,6 +289,47 @@ async function writeStatement(
     line(group, 'REFUND', -delta, input.now);
     if (delta > 0n) refunds += delta;
     else adjustments += -delta; // a refund that failed and was given back
+  }
+
+  /*
+   * Inspections the seller pays for, charged through the marketplace
+   * (JOURNEY-034): an agency invoice with payer SELLER that the operator
+   * approved or paid, on an order that is on a statement (this one or an
+   * earlier one), in this statement's currency. Each invoice is deducted
+   * once, ever: `uq_seller_settlement_line_source` holds its id. They are
+   * carried in the header's adjustments, which is signed, so the identity
+   * above still holds. No flow writes a LOGISTICS_CHARGE yet - sellers buy
+   * labels on their own carrier accounts - so none is ever invented here.
+   */
+  const soldHere = new Map<string, Candidate>();
+  for (const group of input.unsold) {
+    if (!alreadySold.has(group.groupId) && settlementOf.has(group.groupId)) soldHere.set(group.groupId, group);
+  }
+  for (const group of input.sold) soldHere.set(group.groupId, group);
+  if (soldHere.size > 0) {
+    const invoices = await tx.inspectionAgencyInvoice.findMany({
+      where: {
+        payer: 'SELLER',
+        status: { in: ['APPROVED', 'PAID'] },
+        currency: input.currency,
+        job: { requirement: { sellerOrderGroupId: { in: [...soldHere.keys()] } } },
+      },
+      select: { id: true, amountMinor: true, decidedAt: true, job: { select: { requirement: { select: { sellerOrderGroupId: true } } } } },
+    });
+    const deducted = new Set(
+      (
+        await tx.sellerSettlementLine.findMany({
+          where: { kind: 'INSPECTION_FEE', sourceRef: { in: invoices.map((invoice) => invoice.id) } },
+          select: { sourceRef: true },
+        })
+      ).map((row) => row.sourceRef),
+    );
+    for (const invoice of invoices) {
+      const group = soldHere.get(invoice.job.requirement.sellerOrderGroupId);
+      if (group === undefined || deducted.has(invoice.id) || invoice.amountMinor <= 0n) continue;
+      line(group, 'INSPECTION_FEE', -invoice.amountMinor, invoice.decidedAt ?? input.now, invoice.id);
+      adjustments -= invoice.amountMinor;
+    }
   }
 
   if (lines.length === 0) return 'NOTHING';

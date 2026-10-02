@@ -2048,6 +2048,15 @@ export const ErrorCode = {
   /// starts, or another check in `details` refuses it. Each entry has
   /// `code` (for example COUPON_ENDS_BEFORE_START). 409.
   CONTENT_BLOCK_CONFLICT: 'CONTENT_BLOCK_CONFLICT',
+  // --- Change control for a seller's verified company details (JOURNEY-027) ---
+  /// The seller application is still editable, so company details are
+  /// changed in the application itself, not through a change request. 409.
+  COMPANY_CHANGE_NOT_ALLOWED: 'COMPANY_CHANGE_NOT_ALLOWED',
+  /// The change request proposes nothing different from what is on file. 400.
+  COMPANY_CHANGE_EMPTY: 'COMPANY_CHANGE_EMPTY',
+  /// The change request is no longer waiting: it was decided or withdrawn,
+  /// possibly by a colleague while the screen was open. 409.
+  COMPANY_CHANGE_NOT_PENDING: 'COMPANY_CHANGE_NOT_PENDING',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

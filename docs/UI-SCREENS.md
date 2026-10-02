@@ -443,6 +443,7 @@ flowchart LR
   Sales --> Customers["/customers"] --> Customer["/customers/:id"]
   Sales --> BuyerCos["/buyer-companies Company verification"] --> BuyerCo["/buyer-companies/:id"]
   Sales --> Sellers["/sellers"] --> Seller["/sellers/:id"]
+  Sales --> CompanyChanges["/seller-company-changes"]
   Sales --> SellerCarriers["/seller-carriers"]
   Sales --> Chat["/chat-enquiries"]
 
@@ -3737,6 +3738,16 @@ place and logo controls by permission.
 (now also returns `rfqs`, `inspection` and `compliance`; each can fail on
 its own and is then listed in `unavailable`).
 
+**Work queue additions (JOURNEY-026).** "What needs doing" also lists each
+order **at risk** before it is late (dispatch due within the at-risk window,
+an open claim, a payment in question — the reasons joined on one line), each
+order the destination rules hold for **shipping documents** (which documents,
+or that the hold is on the buyer or forwarder), and **Money on hold** (funds
+and statements on hold, or payouts paused with the reason) linking to
+`/seller/payments`. Hidden RFQ invitations are not counted.
+**API calls:** `GET /api/v1/seller/dashboard` (`ordersAtRisk`,
+`shipmentDocs`, `settlementHolds`).
+
 #### `/seller/performance` — Performance
 
 | | |
@@ -3938,6 +3949,14 @@ listing is under review or when the page is shared with other sellers; "saving
 changes the product page straight away" on a live listing. API:
 `GET`/`PUT /api/v1/seller/listing-drafts/:id/content`.
 
+**Copy (JOURNEY-028).** **Copy** asks for a new code (prefilled
+`<code>-COPY`, the same code as the original disabled) and **Copy into a new
+draft** creates a listing draft with the category, brand, price and order terms
+filled in, stock not copied, then opens it in the wizard
+(`/seller/listings/new?draft=…`). It goes through review like any new
+listing. **API call:** `POST /api/v1/seller/listings/:id/duplicate` →
+`{ draftId }`.
+
 #### `/seller/listings/:id/edit` — Edit a listing
 
 | | |
@@ -4012,6 +4031,19 @@ without, and read what buyers asked for about it.
 - `PATCH /api/v1/seller/listings/:id/status`
 - `GET /api/v1/seller/listings/:id/instructions`
 - `GET /api/v1/seller/locations`
+
+**Market eligibility and change history (JOURNEY-028).** Below the sourcing
+terms (which now include **Units per week** and **Production lead time
+(days)**; a lead time without a weekly figure is refused in the form and on the
+server): **Where this listing can be sold** — each country rule with a
+"Not sold here" or "Buyer documents needed" badge, the operator's reason, the
+documents, any order-value threshold and the category it was set on; a
+certificate hold shown as an alert; "No country rule restricts this product"
+when there are none. **Change history** — this listing's activity-log entries,
+newest first, with who and when.
+**API calls:** `GET /api/v1/seller/listings/:id/market-eligibility`,
+`GET /api/v1/seller/audit?limit=50&resourceId=:id`,
+`GET/PUT /api/v1/seller/listings/:id/sourcing`.
 
 #### `/seller/brands` — Brands you have asked for
 
@@ -4190,6 +4222,16 @@ title, reference, category, requirement version, quantity, destination,
 deadline (UTC), the request's status and this seller's invitation status.
 **Calls** `GET /seller/rfqs?filter=`.
 
+**Inbox additions (JOURNEY-030).** An **Owner** select above the filters
+(Everyone, Mine, No owner yet, each team member) and a **Hidden** filter. Each
+card adds **Fit** (a score out of 100, coloured by band), **Buyer** (Verified
+business, Business under verification, Business not verified, Individual
+buyer), **Owner**, the flags in a line under the figures, and **Hide, not for
+us** / **Show in the inbox again** under the card.
+**API calls:** `GET /api/v1/seller/rfqs?filter=&assignee=`,
+`GET /api/v1/seller/rfqs/assignees`, `POST /api/v1/seller/rfqs/:id/hide`
+and `/unhide`.
+
 #### `/seller/rfqs/:id` — One request
 
 | | |
@@ -4215,6 +4257,11 @@ download link, and **Report** / **Translate** under the buyer's messages.
 **Calls** `GET /seller/rfqs/:id`, `GET|POST /seller/rfqs/:id/messages`,
 `POST /seller/rfqs/:id/decline`, `GET /seller/rfqs/:id/attachments/:attachmentId/download`,
 `POST /seller/messages/reports`, `POST /seller/messages/translate`.
+
+**Your handling (JOURNEY-030).** A card under the deadline: the fit score with
+each reason and flag, the buyer's verification, an **Owner** select (assigning
+saves at once) and hide/show. None of it is shown to the buyer.
+**API calls:** `POST /api/v1/seller/rfqs/:id/assign`, `/hide`, `/unhide`.
 
 #### `/seller/preorders/:id` — One preorder
 
@@ -4303,6 +4350,19 @@ goes.
 `POST /api/v1/seller/payout-account/refresh`,
 `GET /api/v1/seller/settlements`, `GET /api/v1/seller/settlements/:id/lines`,
 `GET /api/v1/seller/payouts`
+
+**Statements additions (JOURNEY-034).** At the top of the Statements card,
+**Not on a statement yet**: per currency, held until release terms are met, on
+hold (dispute or marketplace) and reserve with its release date, and a line
+when payouts are paused. Then a **From / To (not included)** pair with
+**Download statements as CSV**. Each statement has **Download CSV** beside its
+status. Its lines show **Tax on the commission**, **Inspection fee** and
+**Logistics charge** by name, and when the lines are open the panel says
+"Inspection charges: none on this statement" and "Logistics charges: none"
+when there are none.
+**API calls:** `GET /api/v1/seller/settlements/funds`,
+`GET /api/v1/seller/settlements/:id/export.csv`,
+`GET /api/v1/seller/settlements/export.csv?from=&to=`.
 
 #### `/seller/invoicing` — Invoicing
 
@@ -4605,6 +4665,19 @@ your team. (This page is in English only for now.)
   `POST /api/v1/seller/locations/geocode/suggest`
 - `GET /api/v1/seller/members`, `PATCH` and `DELETE /api/v1/seller/members/:memberId`
 
+**Change control and preview (JOURNEY-027).** The header has **Preview as
+buyer**, opening the public supplier page in a new tab (before approval, a
+sentence saying it appears once approved). "Your business" now says changes go
+through a request after approval. After approval a **Change verified company
+details** card shows the pending request (fields with the old value struck
+through, a **Re-verification** badge on a material change, **Withdraw
+request**) and earlier decisions with the reason; **Request a change** opens a
+dialog with every verified field, an optional note and the material-change
+warning. The same **Preview as buyer** button is on Factories & certificates.
+**API calls:** `GET /api/v1/seller/company-details`,
+`POST /api/v1/seller/company-changes`,
+`POST /api/v1/seller/company-changes/:id/withdraw`.
+
 #### `/seller/support` and `/seller/support/requests` — Support
 
 | | |
@@ -4818,6 +4891,7 @@ explains and offers **Email me a new link** and **Go to sign in**.
 | Sales | Customers | `/customers` | `customer.read` | Accounts to approve |
 | Sales | Company verification | `/buyer-companies` | `buyer_company.read` | |
 | Sales | Sellers | `/sellers` | `customer.read` | Applications and documents |
+| Sales | Company changes | `/seller-company-changes` | `customer.read` | |
 | Sales | Carrier arrangements | `/seller-carriers` | `customer.read` | |
 | Sales | Preorder Chats | `/preorder-chats` | `preorder_chat.view` | Customers waiting for a reply (live) |
 | Sales | Chat enquiries | `/chat-enquiries` | `assistant_chat.read` | |
@@ -5824,6 +5898,19 @@ somebody else decided first, the server refuses the stale decision.
 - `POST /api/v1/admin/seller-documents/:documentId/decision`
 - `GET /api/v1/admin/sellers/:id/offers?page=…&pageSize=25`
 - `POST /api/v1/admin/seller-offers/:id/block`, `POST /api/v1/admin/seller-offers/:id/unblock`
+
+#### `/seller-company-changes` — Company changes
+
+Sellers' requests to change verified company details after approval
+(JOURNEY-027), pending first, filterable by status. Each card: the seller and
+legal name, a **Re-verification** badge on a material change, a table of each
+field with what is on file and what is proposed, which checks approval
+re-opens, the seller's note, a link to the seller, and — for
+`customer.status.write` on a pending request — **Decision** (Approve and
+apply / Reject), **Reason** (required to reject; the seller sees it) and
+**Record decision**.
+**API calls:** `GET /api/v1/admin/seller-company-changes?status=…`,
+`POST /api/v1/admin/seller-company-changes/:id/decision`.
 
 #### `/seller-carriers` — Carrier arrangements
 

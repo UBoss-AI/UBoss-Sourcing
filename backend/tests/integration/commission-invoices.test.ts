@@ -30,6 +30,7 @@ const ADMIN_EMAIL = 'cinv-admin@test.local';
 const OTHER_ADMIN_EMAIL = 'cinv-other-admin@test.local';
 const BUYER_EMAIL = 'cinv-buyer@test.local';
 
+let savedDisplayName: { id: string; displayName: string } | null = null;
 let actor: service.FinanceActor;
 let otherActor: service.FinanceActor;
 let buyerProfileId = '';
@@ -247,6 +248,13 @@ beforeAll(async () => {
   otherActor = { userId: other.id, email: OTHER_ADMIN_EMAIL };
   buyerProfileId = (await prisma.customerProfile.create({ data: { id: newId(), userId: buyer.id, fullName: 'Cinv Buyer', activatedAt: new Date() } })).id;
 
+  // The file name carries the operator's display name; another file may have
+  // left a profile under its own name, so pin it here and put it back after.
+  const profile = await prisma.businessProfile.findFirst({ select: { id: true, displayName: true } });
+  if (profile !== null) {
+    savedDisplayName = { id: profile.id, displayName: profile.displayName };
+    await prisma.businessProfile.update({ where: { id: profile.id }, data: { displayName: 'Gloviaa Mart' } });
+  }
   if ((await prisma.businessProfile.findFirst({ select: { id: true } })) === null) {
     await prisma.businessProfile.create({
       data: { id: newId(), legalName: 'Test Operator', displayName: 'Gloviaa Mart', supportEmail: 'support@test.local', currency: 'INR', timezone: 'Asia/Kolkata' },
@@ -257,6 +265,9 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  if (savedDisplayName !== null) {
+    await prisma.businessProfile.update({ where: { id: savedDisplayName.id }, data: { displayName: savedDisplayName.displayName } });
+  }
   await cleanUp();
 });
 

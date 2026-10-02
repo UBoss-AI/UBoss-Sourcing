@@ -22,6 +22,7 @@ vi.mock('@/lib/seller', async (importOriginal) => {
     ...actual,
     fetchSettlements: vi.fn(),
     fetchSettlementLines: vi.fn(),
+    fetchSettlementFunds: vi.fn(),
     fetchPayouts: vi.fn(),
     // Left pending: the payout card is not what these tests are about.
     fetchPayoutAccount: vi.fn(() => new Promise(() => undefined)),
@@ -33,6 +34,8 @@ const sellerApi = await import('@/lib/seller');
 const fetchSettlements = vi.mocked(sellerApi.fetchSettlements);
 const fetchSettlementLines = vi.mocked(sellerApi.fetchSettlementLines);
 const fetchPayouts = vi.mocked(sellerApi.fetchPayouts);
+const fetchSettlementFunds = vi.mocked(sellerApi.fetchSettlementFunds);
+fetchSettlementFunds.mockResolvedValue({ currencies: [], payoutsPausedByOperator: false, payoutHoldReason: null });
 
 const OCTOBER: SettlementRow = {
   id: '01STATEMENT000000000000000',
@@ -91,5 +94,42 @@ describe('a seller statement', () => {
     expect(await screen.findByText('Sale · SO-01043')).toBeInTheDocument();
     expect(screen.getByText('Marketplace commission · SO-01043')).toBeInTheDocument();
     expect(screen.getByText('Your delivery charge · SO-01043')).toBeInTheDocument();
+  });
+
+  it('labels the fee tax and an inspection fee, and says when there is no logistics charge (JOURNEY-034)', async () => {
+    fetchSettlements.mockResolvedValue({ settlements: [OCTOBER], total: 1 });
+    fetchPayouts.mockResolvedValue({ payouts: [] });
+    fetchSettlementLines.mockResolvedValue({
+      lines: [
+        { id: 'l1', kind: 'COMMISSION_TAX', amountMinor: '-1800', currency: 'INR', description: 'SO-01043', reason: null, orderGroupId: 'g1', occurredAt: '2026-10-05T12:00:00.000Z' },
+        { id: 'l2', kind: 'INSPECTION_FEE', amountMinor: '-4000', currency: 'INR', description: 'SO-01043', reason: null, orderGroupId: 'g1', occurredAt: '2026-10-05T12:00:00.000Z' },
+      ],
+    });
+    render();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Show every line' }));
+    expect(await screen.findByText('Tax on the commission · SO-01043')).toBeInTheDocument();
+    expect(screen.getByText('Inspection fee · SO-01043')).toBeInTheDocument();
+    expect(screen.getByText(/^Logistics charges: none\./)).toBeInTheDocument();
+    expect(screen.queryByText('Inspection charges: none on this statement.')).not.toBeInTheDocument();
+  });
+
+  it('offers the statement as a CSV file and shows money not on a statement yet (JOURNEY-034)', async () => {
+    fetchSettlements.mockResolvedValue({ settlements: [OCTOBER], total: 1 });
+    fetchPayouts.mockResolvedValue({ payouts: [] });
+    fetchSettlementFunds.mockResolvedValueOnce({
+      currencies: [{ currency: 'INR', heldMinor: '50000', onHoldMinor: '20000', reserveMinor: '5000', nextReserveReleaseAt: null }],
+      payoutsPausedByOperator: true,
+      payoutHoldReason: 'Open claim on SO-01043',
+    });
+    render();
+
+    const download = await screen.findByRole('link', { name: 'Download CSV' });
+    expect(download.getAttribute('href')).toContain('/seller/settlements/01STATEMENT000000000000000/export.csv');
+    expect(screen.getByRole('link', { name: 'Download statements as CSV' }).getAttribute('href')).toContain(
+      '/seller/settlements/export.csv?from=',
+    );
+    expect(await screen.findByText('Not on a statement yet')).toBeInTheDocument();
+    expect(screen.getByText('Payouts are paused: Open claim on SO-01043')).toBeInTheDocument();
   });
 });

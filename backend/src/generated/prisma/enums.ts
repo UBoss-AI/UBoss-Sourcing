@@ -1465,7 +1465,10 @@ export const SellerSettlementLineKind = {
   REFUND: 'REFUND',
   RETURN_DEDUCTION: 'RETURN_DEDUCTION',
   SHIPPING_CHARGE: 'SHIPPING_CHARGE',
-  MANUAL_ADJUSTMENT: 'MANUAL_ADJUSTMENT'
+  MANUAL_ADJUSTMENT: 'MANUAL_ADJUSTMENT',
+  INSPECTION_FEE: 'INSPECTION_FEE',
+  LOGISTICS_CHARGE: 'LOGISTICS_CHARGE',
+  COMMISSION_TAX: 'COMMISSION_TAX'
 } as const
 
 export type SellerSettlementLineKind = (typeof SellerSettlementLineKind)[keyof typeof SellerSettlementLineKind]

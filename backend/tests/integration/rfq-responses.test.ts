@@ -247,3 +247,98 @@ describe('files a seller may see', () => {
     }
   });
 });
+
+describe('the seller inbox: fit, buyer, hiding and owners (JOURNEY-030)', () => {
+  interface InboxItem {
+    id: string;
+    qualification: { score: number; reasons: string[]; flags: string[] };
+    buyerVerification: string;
+    hidden: boolean;
+    assignedMember: { id: string; name: string } | null;
+  }
+  const items = (response: LightMyRequestResponse): InboxItem[] => response.json<{ items: InboxItem[] }>().items;
+
+  it('scores the fit from the matching facts and says who is asking', async () => {
+    const sent = await submitted(world);
+    const inbox = await as(world, world.sellers.alpha.owner, 'GET', '/seller/rfqs');
+    expect(inbox.statusCode, inbox.body).toBe(200);
+    const item = items(inbox).find((entry) => entry.id === sent.id);
+    expect(item?.qualification.reasons).toContain('LIVE_IN_CATEGORY');
+    expect(item?.qualification.score).toBeGreaterThanOrEqual(40);
+    expect(item?.qualification.score).toBeLessThanOrEqual(100);
+    // The fixture's buyer buys for themselves.
+    expect(item?.buyerVerification).toBe('INDIVIDUAL');
+
+    const detail = await as(world, world.sellers.alpha.owner, 'GET', `/seller/rfqs/${sent.id}`);
+    expect(detail.json<{ rfq: InboxItem }>().rfq).toMatchObject({
+      qualification: item?.qualification,
+      buyerVerification: 'INDIVIDUAL',
+      hidden: false,
+      assignedMember: null,
+    });
+
+    // A request from the company: a business, verified or not, never "individual".
+    const fromCompany = await submitted(world, world.owner);
+    const companyItem = items(await as(world, world.sellers.alpha.owner, 'GET', '/seller/rfqs')).find(
+      (entry) => entry.id === fromCompany.id,
+    );
+    expect(['VERIFIED_BUSINESS', 'BUSINESS_PENDING', 'BUSINESS_NOT_VERIFIED']).toContain(companyItem?.buyerVerification);
+  });
+
+  it('hides a request from this seller only, and brings it back', async () => {
+    const sent = await submitted(world);
+    const { alpha } = world.sellers;
+    const hidden = await as(world, alpha.owner, 'POST', `/seller/rfqs/${sent.id}/hide`, {});
+    expect(hidden.statusCode, hidden.body).toBe(200);
+
+    const action = await as(world, alpha.owner, 'GET', '/seller/rfqs');
+    expect(items(action).map((entry) => entry.id)).not.toContain(sent.id);
+    const hiddenView = await as(world, alpha.owner, 'GET', '/seller/rfqs?filter=hidden');
+    expect(items(hiddenView).map((entry) => entry.id)).toContain(sent.id);
+    expect(hiddenView.json<{ counts: Record<string, number> }>().counts.hidden).toBeGreaterThanOrEqual(1);
+
+    // The buyer's list is unchanged.
+    const buyerView = await as(world, world.buyer, 'GET', `/rfqs/${sent.id}`);
+    const invitation = buyerView
+      .json<{ rfq: { invitations: { status: string; supplier: { sellerAccountId: string } }[] } }>()
+      .rfq.invitations.find((entry) => entry.supplier.sellerAccountId === alpha.id);
+    expect(invitation).toBeDefined();
+
+    const back = await as(world, alpha.owner, 'POST', `/seller/rfqs/${sent.id}/unhide`, {});
+    expect(back.statusCode, back.body).toBe(200);
+    expect(items(await as(world, alpha.owner, 'GET', '/seller/rfqs?filter=all')).map((entry) => entry.id)).toContain(sent.id);
+    expect(await prisma.sellerAuditLog.count({ where: { sellerAccountId: alpha.id, action: { in: ['seller.rfq.hidden', 'seller.rfq.unhidden'] } } })).toBeGreaterThanOrEqual(2);
+  });
+
+  it('gives a request to a member of the team, filters by owner, and refuses somebody from another team', async () => {
+    const sent = await submitted(world);
+    const { alpha, gamma } = world.sellers;
+    const member = await prisma.sellerMember.findFirstOrThrow({
+      where: { sellerAccountId: alpha.id, customerProfileId: alpha.owner.profileId },
+      select: { id: true },
+    });
+    const outsider = await prisma.sellerMember.findFirstOrThrow({
+      where: { sellerAccountId: gamma.id, customerProfileId: gamma.owner.profileId },
+      select: { id: true },
+    });
+
+    const assignees = await as(world, alpha.owner, 'GET', '/seller/rfqs/assignees');
+    expect(assignees.json<{ members: { id: string }[] }>().members.map((row) => row.id)).toContain(member.id);
+
+    const refused = await as(world, alpha.owner, 'POST', `/seller/rfqs/${sent.id}/assign`, { memberId: outsider.id });
+    expect(refused.statusCode).toBe(400);
+    expect(errorDetails(refused)).toEqual([expect.objectContaining({ field: 'memberId', code: 'NOT_A_MEMBER' })]);
+
+    const given = await as(world, alpha.owner, 'POST', `/seller/rfqs/${sent.id}/assign`, { memberId: member.id });
+    expect(given.statusCode, given.body).toBe(200);
+    expect(given.json<{ rfq: InboxItem }>().rfq.assignedMember?.id).toBe(member.id);
+
+    const mine = await as(world, alpha.owner, 'GET', '/seller/rfqs?filter=all&assignee=me');
+    expect(items(mine).map((entry) => entry.id)).toContain(sent.id);
+    const unassigned = await as(world, alpha.owner, 'GET', '/seller/rfqs?filter=all&assignee=unassigned');
+    expect(items(unassigned).map((entry) => entry.id)).not.toContain(sent.id);
+
+    const cleared = await as(world, alpha.owner, 'POST', `/seller/rfqs/${sent.id}/assign`, { memberId: null });
+    expect(cleared.json<{ rfq: InboxItem }>().rfq.assignedMember).toBeNull();
+  });
+});

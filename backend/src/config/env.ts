@@ -180,6 +180,12 @@ const envSchema = z
      */
     SELLER_INVITE_TTL_HOURS: intFromString(1, 720).default(168),
     /**
+     * How far ahead the Seller Hub home looks for orders at risk of going late:
+     * an order whose dispatch deadline falls inside this many hours is listed
+     * before it is overdue. Twenty-four hours by default.
+     */
+    SELLER_ORDER_AT_RISK_HOURS: intFromString(1, 168).default(24),
+    /**
      * How often a seller's or buyer company's owner is reminded to review who
      * has access to their team, in days. The team screens say a review is due
      * once this long has passed since the last one (or when there has never

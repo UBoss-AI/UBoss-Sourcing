@@ -634,6 +634,8 @@ export const AuditAction = {
   SELLER_CERTIFICATION_DECIDED: 'seller_certification.decided',
   /// A verified certificate past its expiry date. Written by the system.
   SELLER_CERTIFICATION_EXPIRED: 'seller_certification.expired',
+  /// Staff approved or rejected a seller's change to verified company details (JOURNEY-027).
+  SELLER_COMPANY_CHANGE_DECIDED: 'seller_company_change.decided',
   /// A member of staff opened a company document. Every download is one row.
   BUYER_COMPANY_DOCUMENT_VIEWED: 'buyer_company.document_viewed',
   BUYER_COMPANY_DOCUMENT_DECIDED: 'buyer_company.document_decided',

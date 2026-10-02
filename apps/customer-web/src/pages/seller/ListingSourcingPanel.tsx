@@ -28,6 +28,8 @@ interface Terms {
 
 interface SourcingResponse {
   terms: Terms | null;
+  /** Production capacity on this listing (JOURNEY-028). Absent from older servers. */
+  capacity?: { capacityUnitsPerWeek: number | null; capacityLeadTimeDays: number | null };
   incoterms: string[];
   linkableCertifications: { id: string; standard: string; issuer: string; expiresOn: string | null }[];
 }
@@ -61,9 +63,16 @@ export function ListingSourcingPanel({ offerId }: { offerId: string }): React.JS
   const [minText, setMinText] = useState('');
   const [maxText, setMaxText] = useState('');
   const [certIds, setCertIds] = useState<string[]>([]);
+  const [weeklyText, setWeeklyText] = useState('');
+  const [capacityLeadText, setCapacityLeadText] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const capacity = query.data?.capacity;
+    const weeklyStored = capacity?.capacityUnitsPerWeek ?? null;
+    const leadStored = capacity?.capacityLeadTimeDays ?? null;
+    setWeeklyText(weeklyStored === null ? '' : String(weeklyStored));
+    setCapacityLeadText(leadStored === null ? '' : String(leadStored));
     const terms = query.data?.terms ?? EMPTY;
     setDraft(terms);
     setMinText(terms.leadTimeDaysMin === null ? '' : String(terms.leadTimeDaysMin));
@@ -75,7 +84,13 @@ export function ListingSourcingPanel({ offerId }: { offerId: string }): React.JS
   const min = daysOrNull(minText);
   const max = daysOrNull(maxText);
   const rangeError = validDays(minText) && validDays(maxText) && min !== null && max !== null && min > max;
-  const canSave = validDays(minText) && validDays(maxText) && !rangeError;
+  const validWeekly = weeklyText.trim() === '' || /^[1-9]\d{0,8}$/.test(weeklyText.trim());
+  const weekly = weeklyText.trim() === '' ? null : Number(weeklyText.trim());
+  const capacityLead = daysOrNull(capacityLeadText);
+  // A lead time means nothing without the weekly figure it applies to.
+  const capacityError = capacityLead !== null && weekly === null;
+  const canSave =
+    validDays(minText) && validDays(maxText) && !rangeError && validWeekly && validDays(capacityLeadText) && !capacityError;
 
   const save = useMutation({
     mutationFn: () =>
@@ -88,6 +103,8 @@ export function ListingSourcingPanel({ offerId }: { offerId: string }): React.JS
         leadTimeDaysMax: max,
         incoterms: draft.incoterms,
         certificationIds: certIds,
+        capacityUnitsPerWeek: weekly,
+        capacityLeadTimeDays: capacityLead,
       }),
     onSuccess: () => {
       setError(null);
@@ -145,6 +162,22 @@ export function ListingSourcingPanel({ offerId }: { offerId: string }): React.JS
               </label>
             </div>
             {rangeError && <p className="mt-1 text-xs text-danger">{t('seller.sourcing.rangeError')}</p>}
+          </fieldset>
+
+          <fieldset>
+            <legend className="text-sm font-medium text-ink">{t('seller.sourcing.capacity')}</legend>
+            <p className="text-xs text-ink-muted">{t('seller.sourcing.capacityHint')}</p>
+            <div className="mt-1 grid grid-cols-2 gap-3 sm:max-w-sm">
+              <label className="text-xs text-ink-muted">
+                {t('seller.sourcing.capacityWeekly')}
+                <Input className="mt-1" inputMode="numeric" value={weeklyText} onChange={(event) => { setWeeklyText(event.target.value); }} aria-invalid={!validWeekly || capacityError} />
+              </label>
+              <label className="text-xs text-ink-muted">
+                {t('seller.sourcing.capacityLead')}
+                <Input className="mt-1" inputMode="numeric" value={capacityLeadText} onChange={(event) => { setCapacityLeadText(event.target.value); }} aria-invalid={!validDays(capacityLeadText)} />
+              </label>
+            </div>
+            {capacityError && <p className="mt-1 text-xs text-danger">{t('seller.sourcing.capacityError')}</p>}
           </fieldset>
 
           <fieldset>

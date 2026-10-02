@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**369 tables · 344 enums · 840 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
+**369 tables · 344 enums · 842 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -9196,6 +9196,7 @@ One entry on a statement.
 | `reason` | String · Text | yes |  |  | Required for MANUAL_ADJUSTMENT. |
 | `occurredAt` | DateTime · DateTime(3) |  |  |  |  |
 | `createdByUserId` | String · Char(26) | yes |  |  |  |
+| `sourceRef` | String · VarChar(64) | yes |  |  | The record a deduction came from (an inspection invoice id). Unique per kind, so one invoice is never deducted twice. NULL on every other line. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
@@ -9207,6 +9208,7 @@ One entry on a statement.
 **Indexes and keys**
 
 - `@@index([settlementId, kind], map: "ix_seller_settlement_line_kind")`
+- `@@unique([kind, sourceRef], map: "uq_seller_settlement_line_source")`
 - `@@index([orderGroupId], map: "ix_seller_settlement_line_group")`
 
 <a id="model-sellerpayout"></a>
@@ -9697,6 +9699,9 @@ What a settlement line is for. Determines its sign.
 | `RETURN_DEDUCTION` |  |
 | `SHIPPING_CHARGE` |  |
 | `MANUAL_ADJUSTMENT` | Anything the operator adds by hand, always with a reason. |
+| `INSPECTION_FEE` | An inspection the seller pays for, charged through the marketplace: an agency invoice with payer SELLER that the operator approved (JOURNEY-034). |
+| `LOGISTICS_CHARGE` | Delivery the marketplace bought on the seller's behalf. No flow writes one yet: sellers buy labels on their own carrier accounts. |
+| `COMMISSION_TAX` | Tax on the platform fee, on a line of its own so the statement shows it. |
 
 <a id="enum-sellerpayoutstatus"></a>
 
@@ -21014,6 +21019,10 @@ One seller asked to quote on one request.
 | `respondedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `declineReason` | String · VarChar(1000) | yes |  |  | The seller's reason for declining, shown to the buyer. |
 | `notifiedVersion` | Int |  |  | 1 | The latest requirement version this seller has been told about. |
+| `hiddenAt` | DateTime · DateTime(3) | yes |  |  | The seller hid it from their inbox as not for them (JOURNEY-030). Their view only: the buyer still sees the invitation as it stands. |
+| `hiddenByMemberId` | String · Char(26) | yes |  |  |  |
+| `assignedMemberId` | String · Char(26) | yes |  |  | The member of the seller's team who owns the answer. Validated against the team by the service; no foreign key, so the history survives a member leaving. |
+| `assignedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 
@@ -21026,6 +21035,7 @@ One seller asked to quote on one request.
 
 - `@@unique([rfqId, sellerAccountId], map: "uq_rfq_invitation_seller")`
 - `@@index([sellerAccountId, status, updatedAt], map: "ix_rfq_invitation_seller")`
+- `@@index([sellerAccountId, assignedMemberId], map: "ix_rfq_invitation_assignee")`
 
 <a id="model-rfqattachment"></a>
 

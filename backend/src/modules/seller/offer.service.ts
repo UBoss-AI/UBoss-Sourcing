@@ -603,69 +603,98 @@ export async function readOffer(membership: SellerMembership, offerId: string) {
 }
 
 /**
- * Duplicate an offer onto another product, or as a starting point for a new
- * one.
+ * Copy a listing into a new listing draft (JOURNEY-028, "clone").
  *
  * The SKU is NOT copied - it is unique per seller and a copy would collide -
  * and the stock is not copied either, because stock is a fact about a
- * warehouse rather than a property of the terms. Everything else carries over,
- * which is the whole point: a seller listing the same glove in six sizes should
- * type the shipping regions once.
+ * warehouse rather than a property of the terms. The category, the brand and
+ * every commercial term carry over, which is the whole point: a seller listing
+ * a sister product should not type the shipping regions again.
  */
 export async function duplicateOffer(
   membership: SellerMembership,
   offerId: string,
   newSellerSku: string,
   correlationId?: string | null,
-): Promise<{ offerId: string }> {
+): Promise<{ draftId: string }> {
   assertSellerPermission(membership, SellerPermission.LISTING_WRITE);
 
-  const source = await prisma.sellerOffer.findUnique({ where: { id: offerId } });
+  const source = await prisma.sellerOffer.findUnique({
+    where: { id: offerId },
+    include: { product: { select: { categoryId: true } } },
+  });
 
   if (source === null) throw notFound('Listing');
   assertSellerOwnership(membership, source.sellerAccountId, 'Listing');
 
   const sku = newSellerSku.trim();
 
-  const clash = await prisma.sellerOffer.findFirst({
-    where: { sellerAccountId: membership.sellerAccountId, sellerSku: sku },
-    select: { id: true },
-  });
+  // A code in use on a live listing or on another unfinished listing.
+  const [clash, draftClash] = await Promise.all([
+    prisma.sellerOffer.findFirst({
+      where: { sellerAccountId: membership.sellerAccountId, sellerSku: sku },
+      select: { id: true },
+    }),
+    prisma.sellerListingDraft.findFirst({
+      where: {
+        sellerAccountId: membership.sellerAccountId,
+        sellerSku: sku,
+        status: { notIn: ['APPROVED', 'REJECTED', 'ARCHIVED'] },
+      },
+      select: { id: true },
+    }),
+  ]);
 
-  if (clash !== null) {
+  if (clash !== null || draftClash !== null) {
     throw conflict(ErrorCode.SELLER_SKU_ALREADY_EXISTS, `You already use the code ${sku}.`, [
       { field: 'sellerSku', code: 'DUPLICATE' },
     ]);
   }
 
+  /*
+   * The copy is a new LISTING DRAFT, not a second offer on the same product.
+   *
+   * One seller holds one offer per product and variant
+   * (`uq_seller_offer_product`), so a second offer on the same product could
+   * never be written - the copy has to become a different product, and a new
+   * product goes through review like any other. The draft starts with this
+   * listing's category, brand and every commercial term filled in; stock is
+   * not copied, because stock is a fact about a warehouse. The seller
+   * describes what is different and submits it.
+   */
   const id = newId();
+  const offerTerms = {
+    sellerSku: sku,
+    priceMinor: source.priceMinor.toString(),
+    currency: source.currency,
+    compareAtPriceMinor: source.compareAtPriceMinor === null ? null : source.compareAtPriceMinor.toString(),
+    taxClassId: source.taxClassId,
+    orderingUnit: source.orderingUnit,
+    minimumOrderQuantity: source.minimumOrderQuantity,
+    orderIncrement: source.orderIncrement,
+    maximumOrderQuantity: source.maximumOrderQuantity,
+    b2cMaxOrderQuantity: source.b2cMaxOrderQuantity,
+    handlingTimeDays: source.handlingTimeDays,
+    guaranteedShelfLifeMonths: source.guaranteedShelfLifeMonths,
+    warrantyMonths: source.warrantyMonths,
+    sellingRegions: Array.isArray(source.sellingRegionsJson)
+      ? source.sellingRegionsJson.filter((entry): entry is string => typeof entry === 'string')
+      : null,
+  };
 
-  await prisma.sellerOffer.create({
+  await prisma.sellerListingDraft.create({
     data: {
       id,
       sellerAccountId: membership.sellerAccountId,
-      productId: source.productId,
-      variantId: source.variantId,
-      variantKey: source.variantKey,
-      sellerSku: sku,
+      status: 'DRAFT',
+      categoryId: source.product.categoryId,
       brandId: source.brandId,
-      // Never ACTIVE. A duplicate has no stock and has not been reviewed in its
-      // own right; going live on creation would put an out-of-stock listing in
-      // front of a buyer.
-      status: 'INACTIVE',
-      priceMinor: source.priceMinor,
-      currency: source.currency,
-      compareAtPriceMinor: source.compareAtPriceMinor,
-      taxClassId: source.taxClassId,
-      orderingUnit: source.orderingUnit,
-      minimumOrderQuantity: source.minimumOrderQuantity,
-      orderIncrement: source.orderIncrement,
-      maximumOrderQuantity: source.maximumOrderQuantity,
-      b2cMaxOrderQuantity: source.b2cMaxOrderQuantity,
-      handlingTimeDays: source.handlingTimeDays,
-      guaranteedShelfLifeMonths: source.guaranteedShelfLifeMonths,
-      warrantyMonths: source.warrantyMonths,
-      sellingRegionsJson: source.sellingRegionsJson ?? undefined,
+      sellerSku: sku,
+      attributesJson: {},
+      offerJson: offerTerms,
+      stockJson: [],
+      packagingJson: {},
+      createdByProfileId: membership.customerProfileId,
     },
   });
 
@@ -674,10 +703,11 @@ export async function duplicateOffer(
     action: 'seller.offer.duplicated',
     actor: { type: 'CUSTOMER', label: membership.displayName },
     resourceType: 'seller_offer',
-    resourceId: id,
-    summary: `${source.sellerSku} was duplicated as ${sku}.`,
+    resourceId: source.id,
+    after: { draftId: id, sellerSku: sku },
+    summary: `${source.sellerSku} was copied into a new listing draft, ${sku}.`,
     correlationId: correlationId ?? null,
   });
 
-  return { offerId: id };
+  return { draftId: id };
 }

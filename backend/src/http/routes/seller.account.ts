@@ -104,6 +104,12 @@ import {
   savePickupProfile,
   saveServiceArea,
 } from '../../modules/seller/self-managed-config.service.js';
+import {
+  companyChangeInput,
+  proposeCompanyChange,
+  readCompanyDetails,
+  withdrawCompanyChange,
+} from '../../modules/seller/company-change.service.js';
 import { currentSeller, requireSeller } from '../plugins/seller.js';
 
 /**
@@ -639,6 +645,39 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
       const body = kybSchema.parse(request.body);
       const view = await saveKyb(currentSeller(request), body, request.correlationId);
       return reply.header('cache-control', 'no-store').status(200).send(view);
+    },
+  );
+
+  // --- Change control for verified company details (JOURNEY-027) ---------
+
+  // The verified company details on file, whether they are change-controlled, the pending change request and past decisions.
+  app.get('/company-details', async (request, reply) => {
+    const details = await readCompanyDetails(currentSeller(request));
+    return reply.header('cache-control', 'no-store').status(200).send(details);
+  });
+
+  // Propose a change to verified company details after approval; staff approve or reject it. Withdraws an earlier pending request. Audited.
+  app.post(
+    '/company-changes',
+    {
+      preHandler: requireSeller(SellerPermission.ACCOUNT_WRITE),
+      config: { rateLimit: { max: 20, timeWindow: '1 hour' } },
+    },
+    async (request, reply) => {
+      const body = companyChangeInput.parse(request.body);
+      const change = await proposeCompanyChange(currentSeller(request), body, request.correlationId);
+      return reply.header('cache-control', 'no-store').status(201).send({ change });
+    },
+  );
+
+  // Withdraw a company details change request nobody has decided yet. Audited.
+  app.post(
+    '/company-changes/:id/withdraw',
+    { preHandler: requireSeller(SellerPermission.ACCOUNT_WRITE) },
+    async (request, reply) => {
+      const { id } = z.object({ id: z.string().length(26) }).parse(request.params);
+      const change = await withdrawCompanyChange(currentSeller(request), id, request.correlationId);
+      return reply.header('cache-control', 'no-store').status(200).send({ change });
     },
   );
 
@@ -1934,6 +1973,8 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
   /**
    * The seller's own activity log, newest first: who did what, to what, and
    * when. Shows a short summary of each change, not the full before-and-after.
+   * `resourceId` (and optionally `resourceType`) narrows it to one record's
+   * history, such as one listing.
    */
   app.get(
     '/audit',
@@ -1941,11 +1982,20 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     async (request, reply) => {
       const seller = currentSeller(request);
       const query = z
-        .object({ limit: z.coerce.number().int().min(1).max(200).default(50) })
+        .object({
+          limit: z.coerce.number().int().min(1).max(200).default(50),
+          // One record's history, e.g. a listing's change history (JOURNEY-028).
+          resourceId: z.string().trim().min(1).max(64).optional(),
+          resourceType: z.string().trim().min(1).max(64).optional(),
+        })
         .parse(request.query);
 
       const rows = await prisma.sellerAuditLog.findMany({
-        where: { sellerAccountId: seller.sellerAccountId },
+        where: {
+          sellerAccountId: seller.sellerAccountId,
+          ...(query.resourceId === undefined ? {} : { resourceId: query.resourceId }),
+          ...(query.resourceType === undefined ? {} : { resourceType: query.resourceType }),
+        },
         orderBy: { createdAt: 'desc' },
         take: query.limit,
         // `beforeJson`/`afterJson` are deliberately omitted from the list. The

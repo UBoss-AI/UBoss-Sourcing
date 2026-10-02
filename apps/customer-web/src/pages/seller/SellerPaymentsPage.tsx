@@ -21,9 +21,11 @@ import { errorMessage } from '@/lib/errors';
 import {
   Badge,
   Button,
+  ButtonAnchor,
   Card,
   EmptyState,
   ErrorState,
+  Input,
   LoadingState,
   PageHeader,
 } from '@/components/ui';
@@ -32,9 +34,12 @@ import {
   fetchPayoutAccount,
   fetchPayouts,
   refreshPayoutAccount,
+  fetchSettlementFunds,
   fetchSettlementLines,
   fetchSettlements,
   formatMinor,
+  settlementCsvUrl,
+  settlementPeriodCsvUrl,
   type SettlementRow,
 } from '@/lib/seller';
 import type { SellerOutletContext } from './SellerLayout';
@@ -162,6 +167,9 @@ export function SellerPaymentsPage(): React.JSX.Element {
         title={t('seller.payments.statements')}
         description={t('seller.payments.statementsIntro')}
       >
+        <NotOnAStatementYet />
+        <PeriodExport />
+
         {settlements.isPending && <LoadingState label={t('seller.payments.loadingStatements')} />}
 
         {settlements.isError && (
@@ -424,9 +432,14 @@ function SettlementPanel({ settlement }: { settlement: SettlementRow }): React.J
             })}
           </p>
         </div>
-        <Badge tone={settlementTone(settlement.status)}>
-          {t(settlementLabelKey(settlement.status))}
-        </Badge>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge tone={settlementTone(settlement.status)}>
+            {t(settlementLabelKey(settlement.status))}
+          </Badge>
+          <ButtonAnchor size="sm" href={settlementCsvUrl(settlement.id)} download>
+            {t('seller.payments.downloadCsv')}
+          </ButtonAnchor>
+        </div>
       </div>
 
       {settlement.holdReason !== null && (
@@ -525,6 +538,15 @@ function SettlementLines({ settlement }: { settlement: SettlementRow }): React.J
             </p>
           )}
 
+          {lines.isSuccess && (
+            /* Said even when there are none: "no inspection charge" is an answer,
+               and a seller looking for one should not have to infer it. */
+            <ul className="mb-2 space-y-0.5 text-xxs text-ink-subtle">
+              {!rows.some((line) => line.kind === 'INSPECTION_FEE') && <li>{t('seller.payments.noInspectionFees')}</li>}
+              {!rows.some((line) => line.kind === 'LOGISTICS_CHARGE') && <li>{t('seller.payments.noLogisticsCharges')}</li>}
+            </ul>
+          )}
+
           {rows.length > 0 && (
             <ul className="divide-y divide-border-subtle rounded-lg border border-border">
               {rows.map((line) => (
@@ -586,4 +608,105 @@ function settlementTone(status: string): 'neutral' | 'brand' | 'success' | 'warn
     default:
       return 'neutral';
   }
+}
+
+/**
+ * Money earned that no statement carries yet (JOURNEY-034): held for its
+ * release terms, on hold, or kept back as a reserve. Shown beside the
+ * statements because "where is the rest?" is the question a statement alone
+ * cannot answer.
+ */
+function NotOnAStatementYet(): React.JSX.Element | null {
+  const { t } = useI18n();
+  const funds = useQuery({ queryKey: ['seller', 'settlement-funds'], queryFn: fetchSettlementFunds });
+  if (funds.isPending) return null;
+  if (funds.isError) {
+    return <p className="px-6 pt-4 text-xs text-ink-subtle">{t('seller.payments.fundsUnavailable')}</p>;
+  }
+  const { currencies, payoutsPausedByOperator, payoutHoldReason } = funds.data;
+  return (
+    <div className="space-y-2 border-b border-border-subtle px-6 py-4">
+      <p className="text-xs font-medium uppercase tracking-wider text-ink-subtle">{t('seller.payments.notOnStatement')}</p>
+      {currencies.length === 0 ? (
+        <p className="text-sm text-ink-muted">{t('seller.payments.nothingHeld')}</p>
+      ) : (
+        <dl className="grid gap-3 sm:grid-cols-3">
+          {currencies.map((row) => (
+            <div key={row.currency} className="contents">
+              <div>
+                <dt className="text-xxs text-ink-subtle">{t('seller.payments.heldForTerms')}</dt>
+                <dd className="tabular text-sm text-ink">{formatMinor(row.heldMinor, row.currency)}</dd>
+              </div>
+              <div>
+                <dt className="text-xxs text-ink-subtle">{t('seller.payments.onHold')}</dt>
+                <dd className={cx('tabular text-sm', BigInt(row.onHoldMinor) > 0n ? 'text-danger' : 'text-ink')}>
+                  {formatMinor(row.onHoldMinor, row.currency)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xxs text-ink-subtle">{t('seller.payments.reserve')}</dt>
+                <dd className="tabular text-sm text-ink">
+                  {formatMinor(row.reserveMinor, row.currency)}
+                  {row.nextReserveReleaseAt !== null && (
+                    <span className="block text-xxs text-ink-subtle">
+                      {t('seller.payments.reserveFrom', {
+                        date: new Date(row.nextReserveReleaseAt).toLocaleDateString(undefined, { timeZone: 'UTC' }),
+                      })}
+                    </span>
+                  )}
+                </dd>
+              </div>
+            </div>
+          ))}
+        </dl>
+      )}
+      {payoutsPausedByOperator && (
+        <p className="text-sm text-danger">
+          {t('seller.payments.payoutsPausedReason', { reason: payoutHoldReason ?? t('seller.payments.holdDefault') })}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Every statement in a chosen period, as one CSV file for reconciliation. */
+function PeriodExport(): React.JSX.Element {
+  const { t } = useI18n();
+  const today = new Date().toISOString().slice(0, 10);
+  const [from, setFrom] = useState(`${today.slice(0, 4)}-01-01`);
+  const [to, setTo] = useState(today);
+  const valid = /^\d{4}-\d{2}-\d{2}$/.test(from) && /^\d{4}-\d{2}-\d{2}$/.test(to) && from < to;
+  return (
+    <div className="flex flex-wrap items-end gap-3 border-b border-border-subtle px-6 py-4">
+      <label className="text-xs text-ink-muted">
+        {t('seller.payments.exportFrom')}
+        <Input
+          type="date"
+          className="mt-1"
+          value={from}
+          onChange={(event) => {
+            setFrom(event.currentTarget.value);
+          }}
+        />
+      </label>
+      <label className="text-xs text-ink-muted">
+        {t('seller.payments.exportTo')}
+        <Input
+          type="date"
+          className="mt-1"
+          value={to}
+          onChange={(event) => {
+            setTo(event.currentTarget.value);
+          }}
+        />
+      </label>
+      {valid ? (
+        <ButtonAnchor size="sm" href={settlementPeriodCsvUrl(from, to)} download>
+          {t('seller.payments.exportPeriod')}
+        </ButtonAnchor>
+      ) : (
+        <p className="text-xs text-danger">{t('seller.payments.exportInvalid')}</p>
+      )}
+    </div>
+  );
 }

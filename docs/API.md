@@ -3889,3 +3889,61 @@ Anything that moves money needs `FEATURE_ESCROW_LEDGER` (`ESCROW_LEDGER_DISABLED
 - `POST /api/v1/account/phone-change` returns `channel`: `SMS` or `EMAIL`. With a gateway configured and failing: 502 `SMS_DELIVERY_FAILED`.
 - `GET /api/v1/rfqs/:id/matches` cards carry `reasons` and `flags`.
 - Quotes accept `exportDocuments` (array of codes). `GET /api/v1/rfqs/:id/comparison` rows carry `quoted.landedEstimate`, `converted.landedEstimate`, `exportDocuments` and `missing`; `GET /api/v1/rfqs/:id/comparison.pdf` returns the same as a PDF.
+
+## Seller Hub: work queue, company changes, catalogue, RFQ inbox and statements (JOURNEY-026, 027, 028, 030, 034)
+
+- `GET /api/v1/seller/dashboard` gains `ordersAtRisk` (`withinHours`, `count`,
+  `items[]` with `sellerOrderGroupId`, `sellerOrderNumber`, `dispatchDueAt`,
+  `reasons` from `DISPATCH_DUE_SOON` / `OPEN_DISPUTE` / `PAYMENT_ISSUE`),
+  `shipmentDocs` (`ordersHeld`, `sellerActionNeeded`, `items[]` with
+  `missingDocuments`, `holdCodes`, `onSeller`) and `settlementHolds`
+  (`fundsOnHold`, `statementsOnHold`, `amounts[]` of `{ currency, amountMinor }`,
+  `payoutsPausedByOperator`, `payoutHoldReason`). Money as strings. A failed
+  tile is named in `unavailable`. The window is `SELLER_ORDER_AT_RISK_HOURS`.
+- Company change control (seller, `seller.account.write` to write):
+  `GET /api/v1/seller/company-details` → `{ current, changeControlled, pending,
+  history }`; `POST /api/v1/seller/company-changes` takes any of `legalName`,
+  `companyRegistrationNumber`, `taxRegistrationNumber`, `eoriNumber`,
+  `registeredAddressLine1/2`, `registeredCity`, `registeredRegion`,
+  `registeredPostcode`, `registeredCountry` and an optional `note` → `201
+  { change }`; `POST /api/v1/seller/company-changes/:id/withdraw`. A change is
+  `{ id, status, proposed, previous, material, reverifies, note,
+  decisionReason, decidedAt, createdAt }`. Refusals: `COMPANY_CHANGE_EMPTY`
+  (400), `COMPANY_CHANGE_NOT_ALLOWED` (409, application still editable),
+  `COMPANY_CHANGE_NOT_PENDING` (409), `VALIDATION_FAILED` for a postcode or
+  GSTIN.
+- Staff: `GET /api/v1/admin/seller-company-changes?status=&sellerAccountId=`
+  (`customer.read`, pending by default) and
+  `POST /api/v1/admin/seller-company-changes/:id/decision` with `{ decision:
+  'APPROVED' | 'REJECTED', reason? }` (`customer.status.write`; a reason is
+  required to reject). Audited as `seller_company_change.decided`.
+- Catalogue: `PUT /api/v1/seller/listings/:id/sourcing` also takes
+  `capacityUnitsPerWeek` (1–100,000,000 or null) and `capacityLeadTimeDays`
+  (0–730 or null); left out, kept. `GET .../sourcing` adds `capacity`, and the
+  PUT's `terms` adds it too. `GET /api/v1/seller/listings/:id/market-eligibility`
+  → `{ status, complianceHolds[], rules[] (countryCode, scope, effect, reason,
+  requiredDocuments, categoryName, minOrderValueMinor, thresholdCurrency),
+  blockedCountries, restrictedCountries }`. `GET /api/v1/seller/audit` takes
+  `resourceId` and `resourceType`; an entry's `summary` may be null.
+  `POST /api/v1/seller/listings/:id/duplicate` now answers `201 { draftId }`
+  (a new listing draft), not `{ offerId }`.
+- RFQ inbox: list items and the detail gain `qualification` (`score`,
+  `reasons`, `flags`), `buyerVerification`, `hidden` and `assignedMember`
+  (`{ id, name } | null`). `GET /api/v1/seller/rfqs` takes `filter=hidden` and
+  `assignee=me|unassigned|<memberId>`; `counts` gains `hidden`.
+  `GET /api/v1/seller/rfqs/assignees` → `{ members: [{ id, name }] }`.
+  `POST /api/v1/seller/rfqs/:id/hide` and `/unhide` (`seller.order.read`) and
+  `POST /api/v1/seller/rfqs/:id/assign` with `{ memberId | null }`
+  (`seller.order.fulfil`; another team's member is `VALIDATION_FAILED` with
+  `NOT_A_MEMBER`) return `{ rfq }`.
+- Statements: line `kind` adds `COMMISSION_TAX`, `INSPECTION_FEE`,
+  `LOGISTICS_CHARGE`. `GET /api/v1/seller/settlements/funds` → `{ currencies:
+  [{ currency, heldMinor, onHoldMinor, reserveMinor, nextReserveReleaseAt }],
+  payoutsPausedByOperator, payoutHoldReason }`.
+  `GET /api/v1/seller/settlements/:id/export.csv` and
+  `GET /api/v1/seller/settlements/export.csv?from=&to=` (end after start, at
+  most 400 days) answer `text/csv` with `Content-Disposition: attachment`,
+  columns `row, statement, period_start, period_end, statement_status,
+  occurred_at, kind, order, credit_minor, debit_minor, currency, reason,
+  payout_reference, payout_status`; amounts are never negative. Another
+  seller's statement is `404`. All `seller.finance.read`.

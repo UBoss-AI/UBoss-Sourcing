@@ -5590,6 +5590,148 @@ figures sellers genuinely quote.
 A failed payout creates an **actionable state with a reason**, never a deletion.
 The settlement it covers stays exactly as it was and can be paid again.
 
+## Seller Hub daily work: home queue, company changes, catalogue, RFQ inbox and statements (JOURNEY-026, 027, 028, 030, 034)
+
+### The home screen is a work queue (JOURNEY-026)
+
+`GET /seller/dashboard` carries three more tiles, each computed on its own and
+reported as unavailable (never as zero) when it fails:
+
+- **`ordersAtRisk`** — open orders that are not late yet but are about to go
+  wrong: dispatch due within `SELLER_ORDER_AT_RISK_HOURS` (default 24, a
+  setting), an open claim, or a payment problem (an open chargeback, or a buyer
+  order still waiting for payment). Each order is listed once with every reason
+  (`DISPATCH_DUE_SOON`, `OPEN_DISPUTE`, `PAYMENT_ISSUE`). A deadline already
+  passed stays in the overdue tile.
+- **`shipmentDocs`** — open orders the destination rules hold before dispatch,
+  from the same evaluation the order's documents page and the dispatch gate use
+  (`sellerOrderCompliance`), so the home screen can never say "clear" while
+  dispatch refuses. Each item names the missing documents and whether the hold
+  is on the seller or on the buyer or forwarder. The 40 open orders due soonest
+  are evaluated.
+- **`settlementHolds`** — protected funds `ON_HOLD`, statements `ON_HOLD` and
+  whether the operator paused payouts, with the amounts per currency. Links to
+  `/seller/payments`.
+
+Hidden RFQ invitations (below) no longer count as "awaiting response".
+
+### Verified company details change only through a request (JOURNEY-027)
+
+Once the application is no longer editable, the legal name, company
+registration number, tax number, EORI number and registered address cannot be
+typed over. Seller Hub → **Seller profile** has a **Change verified company
+details** card:
+
+- The seller proposes a change (`POST /seller/company-changes`). Only fields
+  that differ are kept; a request that changes nothing is `COMPANY_CHANGE_EMPTY`
+  (400). The same postcode and GSTIN checks as the application apply. A second
+  proposal withdraws the first; the seller may withdraw it
+  (`POST /seller/company-changes/:id/withdraw`). A seller whose application is
+  still editable gets `COMPANY_CHANGE_NOT_ALLOWED` (409) and edits the
+  application instead.
+- Staff decide in the admin console → **Company changes**
+  (`/seller-company-changes`; reading `customer.read`, deciding
+  `customer.status.write`). Approval applies the values. A **material** change —
+  legal name, registration number or registered country re-opens
+  `BUSINESS_REGISTRATION`; the tax number re-opens `TAX_REGISTRATION` — retires
+  the current verification case of that kind and opens a fresh `IN_PROGRESS`
+  one (`manual_review`) for a reviewer. An address change inside the same
+  country is applied without re-verification. Rejection needs a reason the
+  seller sees. A decided request answers `COMPANY_CHANGE_NOT_PENDING` (409).
+  Every step writes the seller audit log; the decision also writes
+  `seller_company_change.decided` to the staff audit log. The seller is
+  notified.
+- Stored in the existing `seller_profile_change_requests` table, section
+  `COMPANY`.
+
+**Expiry alerts.** The worker's housekeeping beat now warns the seller at
+**thirty** and **seven** days before a verified certificate's `expiresOn` or a
+verified factory's `validUntil`, and once more when the sweep records the
+lapse. Each notice is a `DOCUMENT_EXPIRING` seller notification keyed on the
+subject, its end date and the stage (`trust-expiry:cert:<id>:<date>:T30`), so a
+beat every few minutes says each one once and a renewal with a new date starts
+the count again.
+
+**Preview as buyer.** Seller profile and Factories & certificates have a
+**Preview as buyer** button that opens the public supplier page
+(`/suppliers/:slug`) in a new tab — exactly what a buyer sees, with only
+verified, in-date factories and certificates. Before approval it says the
+profile appears once the account is approved.
+
+### Catalogue manager (JOURNEY-028)
+
+- **Capacity.** The listing's sourcing panel has **Units per week** and
+  **Production lead time (days)**, sent with `PUT /seller/listings/:id/sourcing`
+  as `capacityUnitsPerWeek` / `capacityLeadTimeDays` and stored on the offer,
+  where preorders and RFQ matching already read them. Left out, the stored
+  figures are kept; a lead time without a weekly figure is refused.
+- **Where it can be sold.** `GET /seller/listings/:id/market-eligibility` lists
+  every country rule in force on the product or on its category and the
+  categories above it, with the operator's reason, documents and threshold;
+  the certificate holds that take it off sale everywhere; and the blocked and
+  restricted countries. Shown on the listing's detail page. Countries not
+  listed are open.
+- **Change history.** `GET /seller/audit?resourceId=` narrows the activity log
+  to one record; the listing detail page shows its own history.
+- **Clone.** **Copy** on a listing now creates a new **listing draft** (category,
+  brand, price and every order term filled in; stock not copied) under a new
+  code, and opens it. It used to try to write a second offer on the same
+  product, which the one-offer-per-product-and-variant key always refused. The
+  copy becomes its own product when it is approved. A code already used by a
+  live listing or an unfinished draft is `SELLER_SKU_ALREADY_EXISTS`.
+
+### RFQ inbox (JOURNEY-030)
+
+Each invitation in `GET /seller/rfqs` and `GET /seller/rfqs/:id` carries:
+
+- **`qualification`** — a 0–100 score from the same facts the buyer's matching
+  uses: 40 for a live listing in the category, 20 for exporting to the
+  destination, 20 for an in-date verified certificate, 20 when stated capacity
+  can make the quantity by the target date. Flags (`CAPACITY_UNKNOWN`,
+  `CAPACITY_BELOW_QUANTITY`, `OPEN_DISPUTE`, `NOT_LIVE_IN_CATEGORY`) are shown
+  beside it and never subtract.
+- **`buyerVerification`** — `VERIFIED_BUSINESS` (an approved buyer company),
+  `BUSINESS_PENDING`, `BUSINESS_NOT_VERIFIED` (rejected, suspended or
+  re-verification required) or `INDIVIDUAL`.
+- **Hide** (`POST /seller/rfqs/:id/hide`, `/unhide`) — the seller's view only;
+  the buyer sees no change. Hidden ones leave every view but **Hidden**.
+- **Owner** (`POST /seller/rfqs/:id/assign` with `memberId` or null) — a member
+  of the seller's own team now (`NOT_A_MEMBER` otherwise); filter with
+  `?assignee=me|unassigned|<memberId>`. `GET /seller/rfqs/assignees` lists the
+  team.
+
+New columns on `rfq_invitations`: `hiddenAt`, `hiddenByMemberId`,
+`assignedMemberId`, `assignedAt`. Hiding and assigning write the seller audit
+log.
+
+### Payments and statements (JOURNEY-034)
+
+- **Line kinds.** `SellerSettlementLineKind` gains `COMMISSION_TAX` (the tax on
+  the platform fee, which used to be a second `COMMISSION` line),
+  `INSPECTION_FEE` and `LOGISTICS_CHARGE`. The header's `commissionMinor` still
+  includes the tax.
+- **Inspection fees.** When a period closes, an inspection agency invoice with
+  payer **SELLER** that the operator approved or paid, on an order that is on a
+  statement, in that statement's currency, is deducted as an `INSPECTION_FEE`
+  line. `seller_settlement_lines.sourceRef` holds the invoice id with a unique
+  index per kind, so an invoice is never deducted twice. It is carried in the
+  header's signed `adjustmentsMinor`, so gross − commission − fees − refunds +
+  adjustments = net still holds.
+- **Logistics charges.** No flow writes one: sellers buy labels on their own
+  carrier accounts and the carrier bills them. The statement says "none" rather
+  than inventing a figure.
+- **Held and reserve.** `GET /seller/settlements/funds` gives, per currency, the
+  funds still held for their release terms, funds on hold, and the reserve with
+  its next release date, plus whether payouts are paused — shown above the
+  statements as **Not on a statement yet**.
+- **Reconciliation export.** `GET /seller/settlements/:id/export.csv` (one
+  statement) and `GET /seller/settlements/export.csv?from=&to=` (every
+  statement in a period, at most about a year): every line with its kind and
+  order number, then each statement's totals and the payout's reference and
+  status. Amounts are minor units in **credit** and **debit** columns, never a
+  leading minus (which the formula guard would turn into text). Each download
+  writes the seller audit log. Buttons on Seller Hub → Payments.
+
 ## Roles inside a seller
 
 Seven, and they are not interchangeable with the operator's admin roles. These

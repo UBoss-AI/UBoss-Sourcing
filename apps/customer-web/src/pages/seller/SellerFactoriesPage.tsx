@@ -16,7 +16,10 @@
  *     supplier's public page.
  */
 import { useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { PreviewAsBuyerLink } from './SellerCompanyChangeCard';
+import type { SellerOutletContext } from './SellerLayout';
 import { Modal } from '@/components/Modal';
 import { Badge, Button, Card, EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui';
 import type { BadgeTone } from '@/components/ui';
@@ -72,6 +75,8 @@ type Dialog =
 
 export function SellerFactoriesPage(): React.JSX.Element {
   const { t } = useI18n();
+  // Absent outside the Seller Hub layout (a test rendering the page alone).
+  const seller = useOutletContext<SellerOutletContext | null | undefined>() ?? null;
   const factories = useQuery({ queryKey: FACTORIES_KEY, queryFn: fetchFactories });
   const certifications = useQuery({ queryKey: CERTIFICATIONS_KEY, queryFn: fetchCertifications });
   const [dialog, setDialog] = useState<Dialog | null>(null);
@@ -86,14 +91,18 @@ export function SellerFactoriesPage(): React.JSX.Element {
         title={t('seller.factories.title')}
         description={t('seller.factories.intro')}
         actions={
-          <Button
-            variant="primary"
-            onClick={() => {
-              setDialog({ kind: 'factory', factory: null });
-            }}
-          >
-            {t('seller.factories.add')}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* What a buyer sees: only verified, in-date factories and certificates. */}
+            {seller !== null && <PreviewAsBuyerLink slug={seller.slug} isTrading={seller.isTrading} />}
+            <Button
+              variant="primary"
+              onClick={() => {
+                setDialog({ kind: 'factory', factory: null });
+              }}
+            >
+              {t('seller.factories.add')}
+            </Button>
+          </div>
         }
       />
 

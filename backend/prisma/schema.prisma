@@ -11998,6 +11998,14 @@ enum SellerSettlementLineKind {
   SHIPPING_CHARGE
   /// Anything the operator adds by hand, always with a reason.
   MANUAL_ADJUSTMENT
+  /// An inspection the seller pays for, charged through the marketplace: an
+  /// agency invoice with payer SELLER that the operator approved (JOURNEY-034).
+  INSPECTION_FEE
+  /// Delivery the marketplace bought on the seller's behalf. No flow writes
+  /// one yet: sellers buy labels on their own carrier accounts.
+  LOGISTICS_CHARGE
+  /// Tax on the platform fee, on a line of its own so the statement shows it.
+  COMMISSION_TAX
 }
 
 /// One entry on a statement.
@@ -12022,6 +12030,10 @@ model SellerSettlementLine {
 
   createdByUserId String? @db.Char(26)
 
+  /// The record a deduction came from (an inspection invoice id). Unique per
+  /// kind, so one invoice is never deducted twice. NULL on every other line.
+  sourceRef String? @db.VarChar(64)
+
   createdAt DateTime @default(now()) @db.DateTime(3)
 
   settlement SellerSettlement  @relation(fields: [settlementId], references: [id], onDelete: Cascade)
@@ -12029,6 +12041,7 @@ model SellerSettlementLine {
   updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
   @@index([settlementId, kind], map: "ix_seller_settlement_line_kind")
+  @@unique([kind, sourceRef], map: "uq_seller_settlement_line_source")
   @@index([orderGroupId], map: "ix_seller_settlement_line_group")
   @@map("seller_settlement_lines")
 }
@@ -24497,6 +24510,16 @@ model RfqInvitation {
   /// The latest requirement version this seller has been told about.
   notifiedVersion Int @default(1)
 
+  /// The seller hid it from their inbox as not for them (JOURNEY-030). Their
+  /// view only: the buyer still sees the invitation as it stands.
+  hiddenAt         DateTime? @db.DateTime(3)
+  hiddenByMemberId String?   @db.Char(26)
+  /// The member of the seller's team who owns the answer. Validated against
+  /// the team by the service; no foreign key, so the history survives a
+  /// member leaving.
+  assignedMemberId String?   @db.Char(26)
+  assignedAt       DateTime? @db.DateTime(3)
+
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
@@ -24506,6 +24529,7 @@ model RfqInvitation {
   /// One place per seller per request: inviting twice is refused by the index.
   @@unique([rfqId, sellerAccountId], map: "uq_rfq_invitation_seller")
   @@index([sellerAccountId, status, updatedAt], map: "ix_rfq_invitation_seller")
+  @@index([sellerAccountId, assignedMemberId], map: "ix_rfq_invitation_assignee")
   @@map("rfq_invitations")
 }
 

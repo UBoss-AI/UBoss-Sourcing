@@ -3748,6 +3748,31 @@ selling involves) is public.
 - **Statement.** A seller can import listings in bulk (`seller.bulk_import.run`).
 - **Status.** **Not built.** The permission (`seller.bulk_import.run`) and two error codes (`BULK_IMPORT_FILE_INVALID`, `BULK_IMPORT_NOT_APPLICABLE`) are defined, but there is no seller route, page or importer. A seller adds listings one at a time in the wizard (FR-SEL-006). The operator's own catalogue import (FR-CAT) is a different feature.
 
+### FR-SEL-017 — The home screen is a prioritised work queue (JOURNEY-026)
+
+- **Statement.** Seller Hub home lists, in order of urgency: overdue and new orders, orders **at risk before they are late** (dispatch due within `SELLER_ORDER_AT_RISK_HOURS`, an open claim, a payment in question), RFQs awaiting a response, inspection actions, **shipment documents** the destination rules still need, **money on hold** (funds and statements on hold, payouts paused) and compliance expiries. Each row links to where the work is done.
+- **Status.** Built. Each tile is computed on its own and shown as unavailable, never as zero, when it fails.
+
+### FR-SEL-018 — Change control for verified company details (JOURNEY-027)
+
+- **Statement.** After approval, the legal name, registration and tax numbers, EORI number and registered address change only through a request the seller sends and staff approve or reject with a reason. A material change (legal name, registration number, registered country, tax number) re-opens the matching verification case. The seller is warned thirty and seven days before a verified certificate or factory lapses, and on the day it does, once each. Seller profile and Factories have **Preview as buyer**, which opens the public supplier page.
+- **Status.** Built. Factory changes already re-entered review on a material change (FR-TRUST). Decisions are audited. Admin console → **Company changes**.
+
+### FR-SEL-019 — Catalogue manager: capacity, market eligibility, history, clone (JOURNEY-028)
+
+- **Statement.** On each listing the seller can state weekly capacity and production lead time, see every country rule that restricts the product with its reason, and read the listing's change history. **Copy** makes a new listing draft with the terms filled in, under a new code.
+- **Status.** Built. A copy is a draft that becomes its own product on approval; it is never a second offer on the same product (one seller holds one offer per product and variant). Draft/review/live/blocked status and bulk actions were already built (FR-SEL-006 to 008).
+
+### FR-SEL-020 — RFQ inbox: fit, buyer, hide, owner (JOURNEY-030)
+
+- **Statement.** Each request in the seller's inbox shows a 0–100 qualification score with its reasons and flags, whether the buyer is a verified business, a business under verification or an individual, the deadline and the destination. A seller can hide a request that is not for them (their view only) and give it to one member of the team, and filter by owner.
+- **Status.** Built.
+
+### FR-SEL-021 — Statements explain every deduction and can be exported (JOURNEY-034)
+
+- **Statement.** A statement shows gross sales, commission, the tax on the commission as its own line, refunds, inspection fees the seller pays through the marketplace, logistics charges, adjustments and the net, with each statement's payout status. Beside it: the funds held for their release terms, on hold, and in reserve. A statement or a period of statements downloads as a CSV file for reconciliation.
+- **Status.** Built. Inspection fees come from agency invoices with payer SELLER that the operator approved or paid, deducted once each. **Logistics charges: no flow writes one** — sellers buy labels on their own carrier accounts and are billed by the carrier — so the statement says "none".
+
 ---
 
 ## 5.14 Seller invoices, packing lists and document verification (SINV)

@@ -54,6 +54,38 @@ const DASHBOARD: SellerDashboard = {
     ],
   },
   compliance: { certificatesExpiringSoon: 0, certificatesLapsed: 1, listingsOnHold: 2, verificationNeedsInput: 0 },
+  shipmentDocs: {
+    ordersHeld: 1,
+    sellerActionNeeded: 1,
+    items: [
+      {
+        sellerOrderGroupId: 'G3',
+        sellerOrderNumber: 'SO-3',
+        missingDocuments: ['Certificate of origin'],
+        holdCodes: ['DOCUMENT_MISSING'],
+        onSeller: true,
+      },
+    ],
+  },
+  settlementHolds: {
+    fundsOnHold: 1,
+    statementsOnHold: 0,
+    amounts: [{ currency: 'EUR', amountMinor: '12500' }],
+    payoutsPausedByOperator: false,
+    payoutHoldReason: null,
+  },
+  ordersAtRisk: {
+    withinHours: 24,
+    count: 1,
+    items: [
+      {
+        sellerOrderGroupId: 'G4',
+        sellerOrderNumber: 'SO-4',
+        dispatchDueAt: '2026-10-01T10:00:00.000Z',
+        reasons: ['DISPATCH_DUE_SOON', 'OPEN_DISPUTE'],
+      },
+    ],
+  },
   unavailable: [],
 };
 
@@ -92,6 +124,23 @@ describe('the seller home', () => {
     for (const path of ['/seller/listings', '/seller/logistics', '/seller/payments', '/seller/performance']) {
       expect(links).toContain(path);
     }
+  });
+
+  it('queues orders at risk, shipment documents and money on hold, each linked to where it is fixed', async () => {
+    fetchDashboard.mockResolvedValue(DASHBOARD);
+    render(true);
+
+    expect(await screen.findByText('Order SO-4 is at risk')).toBeInTheDocument();
+    expect(
+      screen.getByText('Dispatch is due within 24 hours · A claim is open on this order'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Shipping documents for SO-3')).toBeInTheDocument();
+    expect(screen.getByText('Still needed before dispatch: Certificate of origin')).toBeInTheDocument();
+    expect(screen.getByText('Money on hold')).toBeInTheDocument();
+    const links = hrefs();
+    expect(links).toContain('/seller/orders/G3');
+    expect(links).toContain('/seller/orders/G4');
+    expect(links).toContain('/seller/payments');
   });
 
   it('leaves RFQs out where the deployment does not offer them', async () => {

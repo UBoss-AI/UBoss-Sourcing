@@ -11,7 +11,11 @@
  * checked against that seller and answers 404 when it belongs to somebody else.
  */
 import type { FastifyInstance } from 'fastify';
-import { readListingSourcing, saveListingSourcing } from '../../modules/seller/listing-sourcing.service.js';
+import {
+  readListingMarketEligibility,
+  readListingSourcing,
+  saveListingSourcing,
+} from '../../modules/seller/listing-sourcing.service.js';
 import { z } from 'zod';
 import { env } from '../../config/env.js';
 import { B2C_MAX_ORDER_QUANTITY_CEILING } from '../../domain/b2c-order-limit.js';
@@ -319,10 +323,19 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
         leadTimeDaysMax: z.number().int().min(0).max(730).nullable(),
         incoterms: z.array(z.enum(INCOTERMS)).max(INCOTERMS.length),
         certificationIds: z.array(z.string().length(26)).max(30),
+        capacityUnitsPerWeek: z.number().int().min(1).max(100_000_000).nullable().optional(),
+        capacityLeadTimeDays: z.number().int().min(0).max(730).nullable().optional(),
       })
       .parse(request.body);
     const terms = await saveListingSourcing(currentSeller(request), params.id, body, { correlationId: request.correlationId });
     return reply.send({ terms });
+  });
+
+  // Where one of your listings may be sold: country rules in force with their reasons, compliance holds and status.
+  app.get('/listings/:id/market-eligibility', async (request, reply) => {
+    const params = idParam.parse(request.params);
+    const eligibility = await readListingMarketEligibility(currentSeller(request), params.id);
+    return reply.header('cache-control', 'no-store').send(eligibility);
   });
 
   /** One of the seller's listings in full, for its detail screen. */
@@ -694,8 +707,9 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
   );
 
   /**
-   * Copy a listing's terms into a new, not-yet-live listing under a new SKU.
-   * Stock is not copied. Writes an audit entry.
+   * Copy a listing into a new listing draft under a new SKU: category, brand
+   * and commercial terms carried over, stock not. Answers with the draft id;
+   * the copy goes through review like any new listing. Writes an audit entry.
    */
   app.post(
     '/listings/:id/duplicate',

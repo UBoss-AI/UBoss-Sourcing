@@ -85,6 +85,16 @@ function serve(current: OfferVariantsView): void {
       return Promise.resolve(jsonResponse({ terms: null, incoterms: ['FOB'], linkableCertifications: [] }));
     }
 
+    // Where it can be sold, and its change history (JOURNEY-028).
+    if (href.endsWith('/market-eligibility')) {
+      return Promise.resolve(
+        jsonResponse({ status: 'PAUSED', complianceHolds: [], rules: [], blockedCountries: [], restrictedCountries: [] }),
+      );
+    }
+    if (href.includes('/seller/audit')) {
+      return Promise.resolve(jsonResponse({ entries: [] }));
+    }
+
     if (href.includes('/seller/locations')) {
       return Promise.resolve(
         jsonResponse({ locations: [{ id: LOCATION_ID, name: 'Main store' }], map: {} }),

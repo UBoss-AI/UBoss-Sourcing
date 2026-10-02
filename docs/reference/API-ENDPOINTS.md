@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1348 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1361 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,9 +27,9 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 554 |
+| [Admin panel (staff)](#admin-panel-staff) | 556 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 331 |
+| [Seller Hub](#seller-hub) | 342 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
 | [Customer account](#customer-account) | 307 |
 | [Public and storefront](#public-and-storefront) | 56 |
@@ -930,6 +930,15 @@ Defined in `backend/src/http/routes/factories.admin.ts`.
 |---|---|---|---|---|
 | POST | `/api/v1/admin/seller-certifications/:id/decision` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Verify or refuse a certificate, or withdraw a verification. A refusal needs a reason the seller is shown. Refused as STALE if it moved since the reviewer opened it. Audited. |
 
+### `admin/seller-company-changes`
+
+Defined in `backend/src/http/routes/factories.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/seller-company-changes` | Staff | Admin(CUSTOMER_READ) | The queue of sellers' change requests for verified company details, pending first; filter by status or seller. |
+| POST | `/api/v1/admin/seller-company-changes/:id/decision` | Staff | Admin(CUSTOMER_STATUS_WRITE) | Approve or reject a seller's company details change. Approval applies it and re-opens verification for a material change. Audited. |
+
 ### `admin/seller-documents`
 
 Defined in `backend/src/http/routes/sellers.admin.ts`.
@@ -1364,7 +1373,7 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
-| GET | `/api/v1/seller/audit` | Seller | Seller + Seller(AUDIT_READ) | The seller's own activity log, newest first: who did what, to what, and when. Shows a short summary of each change, not the full before-and-after. |
+| GET | `/api/v1/seller/audit` | Seller | Seller + Seller(AUDIT_READ) | The seller's own activity log, newest first: who did what, to what, and when. Shows a short summary of each change, not the full before-and-after. `resourceId` (and optionally `resourceType`) narrows it to one record's history, such as one listing. |
 
 ### `seller/brand-requests`
 
@@ -1425,6 +1434,23 @@ Defined in `backend/src/http/routes/seller.factories.ts`.
 | PATCH | `/api/v1/seller/certifications/:id` | Public |  | Change a certificate. Refused while it is with a reviewer; a verified one goes back for review. |
 | DELETE | `/api/v1/seller/certifications/:id` | Public |  | Archive a certificate so it is no longer shown. |
 | POST | `/api/v1/seller/certifications/:id/submit` | Public |  | Send a refused or expired certificate for review again. |
+
+### `seller/company-changes`
+
+Defined in `backend/src/http/routes/seller.account.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/seller/company-changes` | Seller | Seller + Seller(ACCOUNT_WRITE) | Propose a change to verified company details after approval; staff approve or reject it. Withdraws an earlier pending request. Audited. |
+| POST | `/api/v1/seller/company-changes/:id/withdraw` | Seller | Seller + Seller(ACCOUNT_WRITE) | Withdraw a company details change request nobody has decided yet. Audited. |
+
+### `seller/company-details`
+
+Defined in `backend/src/http/routes/seller.account.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/company-details` | Seller | Seller | The verified company details on file, whether they are change-controlled, the pending change request and past decisions. |
 
 ### `seller/consignments`
 
@@ -1714,6 +1740,7 @@ Defined in `backend/src/http/routes/seller.listings.ts`.
 | GET | `/api/v1/seller/listings` | Seller | Seller(LISTING_READ) | One page of the seller's listings, with a count for each status tab. Can be filtered by status, text, category, brand, warehouse or stock level, and sorted by date, price, stock or quality score. |
 | GET | `/api/v1/seller/listings/:id/sourcing` | Seller | Seller(LISTING_READ) | Sourcing terms on one of your listings: samples, lead time, OEM/private label, Incoterms, linked certificates. |
 | PUT | `/api/v1/seller/listings/:id/sourcing` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Replace the sourcing terms on one of your listings. Only your own verified, in-date certificates can be linked. |
+| GET | `/api/v1/seller/listings/:id/market-eligibility` | Seller | Seller(LISTING_READ) | Where one of your listings may be sold: country rules in force with their reasons, compliance holds and status. |
 | GET | `/api/v1/seller/listings/:id` | Seller | Seller(LISTING_READ) | One of the seller's listings in full, for its detail screen. |
 | PATCH | `/api/v1/seller/listings/:id/status` | Seller | Seller(LISTING_READ) + Seller(OFFER_PUBLISH) | Put a listing on sale, pause it (with an optional private note) or archive it. Putting it back on sale is refused while the marketplace has flagged it as needing changes. Writes an audit entry. |
 | PATCH | `/api/v1/seller/listings/:id/price` | Seller | Seller(LISTING_READ) + TradingSeller(OFFER_PRICE_WRITE) | Change a listing's price, "was" price, order quantity limits and simple quantity discounts. Needs the pricing permission and writes an audit entry, so a disputed price change can be traced to who made it and when. |
@@ -1727,7 +1754,7 @@ Defined in `backend/src/http/routes/seller.listings.ts`.
 | POST | `/api/v1/seller/listings/:id/photos` | Seller | Seller(LISTING_READ) + TradingSeller(MEDIA_UPLOAD) | The photographs on a listing the seller is editing. |
 | PATCH | `/api/v1/seller/listings/:id/photos/:mediaId` | Seller | Seller(LISTING_READ) + TradingSeller(MEDIA_UPLOAD) | Make one of a listing's photos the one buyers see first. Writes an audit entry. |
 | DELETE | `/api/v1/seller/listings/:id/photos/:mediaId` | Seller | Seller(LISTING_READ) + TradingSeller(MEDIA_UPLOAD) | Take a photo off a listing. The picture file itself is kept, since other listings may use it. Writes an audit entry. |
-| POST | `/api/v1/seller/listings/:id/duplicate` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_WRITE) | Copy a listing's terms into a new, not-yet-live listing under a new SKU. Stock is not copied. Writes an audit entry. |
+| POST | `/api/v1/seller/listings/:id/duplicate` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_WRITE) | Copy a listing into a new listing draft under a new SKU: category, brand and commercial terms carried over, stock not. Answers with the draft id; the copy goes through review like any new listing. Writes an audit entry. |
 
 ### `seller/locations`
 
@@ -1977,6 +2004,10 @@ Defined in `backend/src/http/routes/rfq.seller.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/seller/rfqs` | Seller | Feature + Seller(ORDER_READ) | Requests for quotation this seller was asked to answer, with a count per filter. |
+| GET | `/api/v1/seller/rfqs/assignees` | Seller | Feature + Seller(ORDER_READ) | The team members a request can be given to: everyone on this seller's team now. |
+| POST | `/api/v1/seller/rfqs/:id/hide` | Seller | Feature + Seller(ORDER_READ) | Hide a request from this seller's inbox as not for them. Their view only; the buyer sees no change. Audited. |
+| POST | `/api/v1/seller/rfqs/:id/unhide` | Seller | Feature + Seller(ORDER_READ) | Bring a hidden request back to this seller's inbox. Audited. |
+| POST | `/api/v1/seller/rfqs/:id/assign` | Seller | Feature + Seller(ORDER_FULFIL) | Give a request to one member of the team as its owner, or to nobody (memberId null). Audited. |
 | GET | `/api/v1/seller/rfqs/:id` | Seller | Feature + Seller(ORDER_READ) | One request this seller was invited to. Opening it marks the invitation viewed. |
 | POST | `/api/v1/seller/rfqs/:id/decline` | Seller | Feature + TradingSeller(ORDER_FULFIL) | Decline to quote, with a reason the buyer reads. Writes an audit entry. |
 | GET | `/api/v1/seller/rfqs/:id/messages` | Seller | Feature + Seller(ORDER_READ) | This seller's questions and the buyer's answers, oldest first; `?after=` for only new ones. |
@@ -2003,6 +2034,9 @@ Defined in `backend/src/http/routes/seller.operations.ts`, `backend/src/http/rou
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/seller/settlements` | Seller | Seller + Seller(FINANCE_READ) | One page of the seller's settlement statements, newest period first: sales, tax, shipping, fees, refunds and the amount due to them for each period. |
+| GET | `/api/v1/seller/settlements/funds` | Seller | Seller + Seller(FINANCE_READ) | Money not on a statement yet: funds held for their release terms, funds on hold, the reserve, and whether payouts are paused. |
+| GET | `/api/v1/seller/settlements/export.csv` | Seller | Seller + Seller(FINANCE_READ) | Every statement whose period lies between from and to, as one CSV file for reconciliation. Writes a seller audit entry. |
+| GET | `/api/v1/seller/settlements/:id/export.csv` | Seller | Seller + Seller(FINANCE_READ) | One settlement statement as a CSV file: every line, the totals and the payout status. Writes a seller audit entry. |
 | GET | `/api/v1/seller/settlements/:id/lines` | Seller | Seller + Seller(FINANCE_READ) | Every line making up one of the seller's settlement statements, oldest first. |
 | GET | `/api/v1/seller/settlements/estimate` | Seller | Seller(FINANCE_READ) | Estimate what the seller would be paid for a given sale amount and delivery charge, after platform fees and the tax on them, using the fee rules in force today. Read-only. |
 | GET | `/api/v1/seller/settlements/orders` | Seller | Seller(FINANCE_READ) | The payouts already worked out for the seller's orders, newest first. |

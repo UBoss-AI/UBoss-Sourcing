@@ -659,6 +659,18 @@ const housekeepingSweep: JobHandler = async () => {
   } catch (error) {
     logger.error({ err: error }, 'supplier verification expiry pass failed');
   }
+
+  /*
+   * The warnings before a lapse (JOURNEY-027): thirty and seven days out.
+   * Each notice is keyed on the subject, its end date and the stage, so the
+   * beat says each one once.
+   */
+  try {
+    const { sendTrustExpiryAlerts } = await import('../modules/trust/expiry-alerts.service.js');
+    await sendTrustExpiryAlerts();
+  } catch (error) {
+    logger.error({ err: error }, 'supplier verification expiry warnings failed');
+  }
 };
 
 /**

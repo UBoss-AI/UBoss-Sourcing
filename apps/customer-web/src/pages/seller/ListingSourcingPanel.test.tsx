@@ -56,7 +56,23 @@ describe('ListingSourcingPanel', () => {
         leadTimeDaysMax: 45,
         incoterms: ['FOB'],
         certificationIds: ['01JCERT000000000000000001'],
+        capacityUnitsPerWeek: null,
+        capacityLeadTimeDays: null,
       });
+    });
+  });
+
+  it('saves the weekly capacity and refuses a lead time without it (JOURNEY-028)', async () => {
+    renderWithProviders(<ListingSourcingPanel offerId="01JOFFER00000000000000001" />);
+    fireEvent.change(await screen.findByLabelText('Production lead time (days)'), { target: { value: '14' } });
+    const save = screen.getByRole('button', { name: 'Save sourcing terms' });
+    expect(screen.getByText('Give the weekly capacity the lead time applies to.')).toBeInTheDocument();
+    expect(save).toBeDisabled();
+    fireEvent.change(screen.getByLabelText('Units per week'), { target: { value: '5000' } });
+    fireEvent.click(save);
+    await waitFor(() => {
+      const put = (fetchMock.mock.calls as [string, RequestInit | undefined][]).find(([, init]) => init?.method === 'PUT');
+      expect(JSON.parse(put?.[1]?.body as string)).toMatchObject({ capacityUnitsPerWeek: 5000, capacityLeadTimeDays: 14 });
     });
   });
 });

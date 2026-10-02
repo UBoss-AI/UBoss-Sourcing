@@ -19,6 +19,7 @@ import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { assertSellerOwnership, assertSellerPermission, type SellerMembership } from './account.service.js';
 import { recordSellerAudit } from './audit.service.js';
+import { listingMarketRules, type ListingMarketRule } from '../catalog/market-eligibility.service.js';
 
 /** Incoterms 2020: the one list the packaging and freight screens already use. */
 export { INCOTERMS };
@@ -33,10 +34,25 @@ export interface ListingSourcingInput {
   leadTimeDaysMax: number | null;
   incoterms: Incoterm[];
   certificationIds: string[];
+  /**
+   * Production capacity on THIS listing (JOURNEY-028): units the seller can
+   * make per week, and the days before the first of them is ready. Stored on
+   * the offer itself, where preorders and RFQ matching already read it.
+   * Left out, the stored values are kept; null clears them.
+   */
+  capacityUnitsPerWeek?: number | null;
+  capacityLeadTimeDays?: number | null;
 }
 
-export interface ListingSourcingView extends Omit<ListingSourcingInput, 'certificationIds'> {
+export interface ListingSourcingView
+  extends Omit<ListingSourcingInput, 'certificationIds' | 'capacityUnitsPerWeek' | 'capacityLeadTimeDays'> {
   certifications: { id: string; standard: string; issuer: string; expiresOn: string | null }[];
+}
+
+/** The listing's capacity, read from the offer. */
+export interface ListingCapacity {
+  capacityUnitsPerWeek: number | null;
+  capacityLeadTimeDays: number | null;
 }
 
 function incotermsOf(value: unknown): Incoterm[] {
@@ -58,11 +74,20 @@ function linkableCertificateWhere(sellerAccountId: string, now: Date) {
   };
 }
 
-async function ownOffer(membership: SellerMembership, offerId: string): Promise<{ productId: string }> {
-  const offer = await prisma.sellerOffer.findUnique({ where: { id: offerId }, select: { sellerAccountId: true, productId: true } });
+async function ownOffer(
+  membership: SellerMembership,
+  offerId: string,
+): Promise<{ productId: string; capacity: ListingCapacity }> {
+  const offer = await prisma.sellerOffer.findUnique({
+    where: { id: offerId },
+    select: { sellerAccountId: true, productId: true, capacityUnitsPerWeek: true, capacityLeadTimeDays: true },
+  });
   if (offer === null) throw notFound('Listing');
   assertSellerOwnership(membership, offer.sellerAccountId, 'Listing');
-  return { productId: offer.productId };
+  return {
+    productId: offer.productId,
+    capacity: { capacityUnitsPerWeek: offer.capacityUnitsPerWeek, capacityLeadTimeDays: offer.capacityLeadTimeDays },
+  };
 }
 
 async function viewFor(sellerAccountId: string, productId: string, now: Date): Promise<ListingSourcingView | null> {
@@ -96,7 +121,7 @@ async function viewFor(sellerAccountId: string, productId: string, now: Date): P
 /** The seller's terms on one of their listings, and the certificates they may link. */
 export async function readListingSourcing(membership: SellerMembership, offerId: string, now: Date = new Date()) {
   assertSellerPermission(membership, SellerPermission.LISTING_READ);
-  const { productId } = await ownOffer(membership, offerId);
+  const { productId, capacity } = await ownOffer(membership, offerId);
   const [terms, linkable] = await Promise.all([
     viewFor(membership.sellerAccountId, productId, now),
     prisma.sellerCertification.findMany({
@@ -107,6 +132,7 @@ export async function readListingSourcing(membership: SellerMembership, offerId:
   ]);
   return {
     terms,
+    capacity,
     incoterms: INCOTERMS,
     linkableCertifications: linkable.map((row) => ({ ...row, expiresOn: row.expiresOn?.toISOString().slice(0, 10) ?? null })),
   };
@@ -119,9 +145,20 @@ export async function saveListingSourcing(
   input: ListingSourcingInput,
   context: { correlationId?: string | null } = {},
   now: Date = new Date(),
-): Promise<ListingSourcingView> {
+): Promise<ListingSourcingView & { capacity: ListingCapacity }> {
   assertSellerPermission(membership, SellerPermission.LISTING_WRITE);
-  const { productId } = await ownOffer(membership, offerId);
+  const { productId, capacity: capacityBefore } = await ownOffer(membership, offerId);
+  const capacity: ListingCapacity = {
+    capacityUnitsPerWeek:
+      input.capacityUnitsPerWeek === undefined ? capacityBefore.capacityUnitsPerWeek : input.capacityUnitsPerWeek,
+    capacityLeadTimeDays:
+      input.capacityLeadTimeDays === undefined ? capacityBefore.capacityLeadTimeDays : input.capacityLeadTimeDays,
+  };
+  if (capacity.capacityLeadTimeDays !== null && capacity.capacityUnitsPerWeek === null) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'Give the weekly capacity the lead time applies to.', [
+      { field: 'capacityUnitsPerWeek', code: 'REQUIRED' },
+    ]);
+  }
   if (input.leadTimeDaysMin !== null && input.leadTimeDaysMax !== null && input.leadTimeDaysMin > input.leadTimeDaysMax) {
     throw badRequest(ErrorCode.VALIDATION_FAILED, 'The shortest lead time cannot be longer than the longest.', [
       { field: 'leadTimeDaysMin', code: 'GREATER_THAN_MAX' },
@@ -155,6 +192,7 @@ export async function saveListingSourcing(
       update: data,
       select: { id: true },
     });
+    await tx.sellerOffer.update({ where: { id: offerId }, data: capacity });
     await tx.sellerListingCertification.deleteMany({ where: { listingTrustId: row.id } });
     if (certificationIds.length > 0) {
       await tx.sellerListingCertification.createMany({
@@ -168,14 +206,14 @@ export async function saveListingSourcing(
       actor: { type: 'CUSTOMER', label: membership.displayName },
       resourceType: 'seller_offer',
       resourceId: offerId,
-      before,
-      after: { ...data, certificationIds },
+      before: before === null ? { ...capacityBefore } : { ...before, ...capacityBefore },
+      after: { ...data, certificationIds, ...capacity },
       correlationId: context.correlationId ?? null,
     });
   });
   const saved = await viewFor(membership.sellerAccountId, productId, now);
   if (saved === null) throw notFound('Listing');
-  return saved;
+  return { ...saved, capacity };
 }
 
 /** What a buyer sees on the product page for the seller the page is priced from. */
@@ -183,4 +221,64 @@ export async function publicListingSourcing(sellerAccountId: string, productId: 
   const view = await viewFor(sellerAccountId, productId, now);
   if (view === null) return null;
   return { ...view, certifications: view.certifications.map(({ id: _id, ...certificate }) => certificate) };
+}
+
+export interface ListingMarketEligibility {
+  /** The listing's own status: only an ACTIVE listing is buyable anywhere. */
+  status: string;
+  /** A lapsed or refused certificate holds the listing everywhere until it is renewed. */
+  complianceHolds: { certificationId: string; standard: string; heldAt: string }[];
+  /** Every country rule in force that touches this product. Countries not listed are open. */
+  rules: ListingMarketRule[];
+  /** The countries the product cannot be sold into at all (an unconditional BLOCK). */
+  blockedCountries: string[];
+  /** The countries that sell it only to a buyer holding named documents, or above an order value. */
+  restrictedCountries: string[];
+}
+
+/**
+ * Where one of the seller's listings may be sold, and why not elsewhere
+ * (JOURNEY-028). The rules are the operator's, read through the same
+ * function the catalogue and the checkout use; this only gathers them.
+ */
+export async function readListingMarketEligibility(
+  membership: SellerMembership,
+  offerId: string,
+  now: Date = new Date(),
+): Promise<ListingMarketEligibility> {
+  assertSellerPermission(membership, SellerPermission.LISTING_READ);
+  const offer = await prisma.sellerOffer.findUnique({
+    where: { id: offerId },
+    select: {
+      sellerAccountId: true,
+      status: true,
+      product: { select: { id: true, categoryId: true } },
+      complianceHolds: {
+        where: { releasedAt: null },
+        select: { certificationId: true, heldAt: true, certification: { select: { standard: true } } },
+      },
+    },
+  });
+  if (offer === null) throw notFound('Listing');
+  assertSellerOwnership(membership, offer.sellerAccountId, 'Listing');
+
+  const rules = await listingMarketRules(offer.product, now);
+  const blocked = new Set(
+    rules.filter((rule) => rule.effect === 'BLOCK' && rule.minOrderValueMinor === null).map((rule) => rule.countryCode),
+  );
+  const restricted = new Set(
+    rules.map((rule) => rule.countryCode).filter((country) => !blocked.has(country)),
+  );
+
+  return {
+    status: String(offer.status),
+    complianceHolds: offer.complianceHolds.map((hold) => ({
+      certificationId: hold.certificationId,
+      standard: hold.certification.standard,
+      heldAt: hold.heldAt.toISOString(),
+    })),
+    rules,
+    blockedCountries: [...blocked].sort(),
+    restrictedCountries: [...restricted].sort(),
+  };
 }

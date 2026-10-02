@@ -25,6 +25,11 @@ import {
   closeSettlementPeriod,
   lastClosedPeriod,
 } from '../../src/modules/seller/settlement-statement.service.js';
+import {
+  SETTLEMENT_CSV_HEADER,
+  sellerFundsSummary,
+  settlementStatementCsv,
+} from '../../src/modules/seller/settlement-export.service.js';
 
 const PREFIX = 'stl-test-';
 const BUYER_EMAIL = 'stl-buyer@test.local';
@@ -152,6 +157,10 @@ async function cleanUp(): Promise<void> {
   const sellers = (
     await prisma.sellerAccount.findMany({ where: { slug: { startsWith: PREFIX } }, select: { id: true } })
   ).map((row) => row.id);
+  await prisma.inspectionAgencyInvoice.deleteMany({ where: { agency: { name: { startsWith: PREFIX } } } });
+  await prisma.inspectionJob.deleteMany({ where: { agency: { name: { startsWith: PREFIX } } } });
+  await prisma.inspectionRequirement.deleteMany({ where: { sellerAccountId: { in: sellers } } });
+  await prisma.inspectionAgency.deleteMany({ where: { name: { startsWith: PREFIX } } });
   await prisma.sellerSettlementLine.deleteMany({ where: { settlement: { sellerAccountId: { in: sellers } } } });
   await prisma.sellerSettlement.deleteMany({ where: { sellerAccountId: { in: sellers } } });
   await prisma.sellerOrderSettlement.deleteMany({ where: { sellerAccountId: { in: sellers } } });
@@ -241,7 +250,8 @@ describe('closing a period', () => {
     );
     expect(byKind).toEqual([
       ['COMMISSION', -10_000n],
-      ['COMMISSION', -1_800n],
+      // The tax on the fee is a line of its own (JOURNEY-034).
+      ['COMMISSION_TAX', -1_800n],
       ['SALE', 100_000n],
       ['SHIPPING_CHARGE', 5_000n],
     ]);
@@ -334,5 +344,167 @@ describe('the months that follow', () => {
       code: 'SELLER_PAYOUT_PROVIDER_UNCONFIGURED',
     });
     expect(await prisma.sellerPayout.count({ where: { sellerAccountId: sellerId } })).toBe(0);
+  });
+});
+
+describe('inspection fees the seller pays (JOURNEY-034)', () => {
+  async function sellerPaidInvoice(
+    sellerId: string,
+    groupId: string,
+    amountMinor: bigint,
+    status: 'SUBMITTED' | 'APPROVED',
+  ): Promise<string> {
+    const group = await prisma.sellerOrderGroup.findUniqueOrThrow({ where: { id: groupId }, select: { orderId: true } });
+    const agencyId = newId();
+    await prisma.inspectionAgency.create({
+      data: {
+        id: agencyId,
+        name: `${PREFIX}agency-${agencyId.slice(-6)}`,
+        legalName: `${PREFIX}agency Ltd`,
+        country: 'IN',
+        contactEmail: `${agencyId.slice(-8).toLowerCase()}@stl-agency.test.local`,
+      },
+    });
+    // A seller order has one requirement; a second invoice reuses it.
+    const existing = await prisma.inspectionRequirement.findFirst({ where: { sellerOrderGroupId: groupId }, select: { id: true } });
+    const requirementId = existing?.id ?? newId();
+    if (existing === null) await prisma.inspectionRequirement.create({
+      data: {
+        id: requirementId,
+        sellerOrderGroupId: groupId,
+        orderId: group.orderId,
+        sellerAccountId: sellerId,
+        level: 'BUYER_REQUESTED',
+        status: 'BOOKED',
+        reason: 'Buyer asked',
+        inputsJson: {},
+        evaluatedAt: new Date(),
+      },
+    });
+    const jobId = newId();
+    await prisma.inspectionJob.create({
+      data: {
+        id: jobId,
+        jobNumber: `${PREFIX}${jobId.slice(-10)}`,
+        requirementId,
+        agencyId,
+        status: 'COMPLETED',
+        bookedByParty: 'SELLER',
+        bookedByLabel: 'Seller',
+        payer: 'SELLER',
+        inspectionPointType: 'SELLER_PREMISES',
+        inspectionPointJson: { address: 'Plant 1' },
+        scheduledFor: new Date('2026-10-01T09:00:00Z'),
+        language: 'en',
+        standard: 'ISO 2859-1',
+        scopeJson: {},
+        planSnapshotJson: {},
+        lotSize: 100,
+        samplingJson: {},
+        acceptDueAt: new Date('2026-09-28T09:00:00Z'),
+        reportDueAt: new Date('2026-10-03T09:00:00Z'),
+      },
+    });
+    const invoiceId = newId();
+    await prisma.inspectionAgencyInvoice.create({
+      data: {
+        id: invoiceId,
+        jobId,
+        agencyId,
+        invoiceNumber: `INV-${invoiceId.slice(-8)}`,
+        amountMinor,
+        currency: 'INR',
+        payer: 'SELLER',
+        status,
+        submittedByMemberId: newId(),
+        decidedAt: status === 'APPROVED' ? new Date('2026-10-10T09:00:00Z') : null,
+      },
+    });
+    return invoiceId;
+  }
+
+  it('deducts an approved seller-paid invoice once, on its own line, and leaves a pending one alone', async () => {
+    switchOn();
+    const sellerId = await seller();
+    const sold = await order(sellerId);
+    const approved = await sellerPaidInvoice(sellerId, sold.groupId, 4_000n, 'APPROVED');
+    await sellerPaidInvoice(sellerId, sold.groupId, 9_000n, 'SUBMITTED');
+
+    await closeSettlementPeriod(NOVEMBER);
+    await closeSettlementPeriod(DECEMBER);
+
+    const all = await statements(sellerId);
+    const fees = all.flatMap((row) => row.lines).filter((line) => line.kind === 'INSPECTION_FEE');
+    expect(fees).toHaveLength(1);
+    expect(fees[0]).toMatchObject({ amountMinor: -4_000n, sourceRef: approved, orderGroupId: sold.groupId });
+
+    const [october] = all;
+    // 100,000 - 10,000 fee - 1,800 tax - 4,000 inspection.
+    expect(october?.netPayableMinor).toBe(84_200n);
+    expect(october?.adjustmentsMinor).toBe(-4_000n);
+    for (const statement of all) {
+      expect(statement.lines.reduce((total, line) => total + line.amountMinor, 0n)).toBe(statement.netPayableMinor);
+    }
+
+    // The reconciliation export: every line, deductions as debits, then the totals.
+    const file = await settlementStatementCsv({ sellerAccountId: sellerId, displayName: 'Statement test' }, october?.id ?? '');
+    const rows = file.content.trim().split('\r\n');
+    expect(rows[0]).toBe(SETTLEMENT_CSV_HEADER.join(','));
+    expect(rows.some((row) => row.includes(',INSPECTION_FEE,') && row.includes(',0,4000,INR,'))).toBe(true);
+    expect(rows.some((row) => row.startsWith('TOTAL,') && row.includes(',NET_PAYABLE,') && row.includes(',84200,0,INR,'))).toBe(true);
+    // No cell starts with a minus, which a spreadsheet would read as a formula.
+    expect(file.content).not.toMatch(/(^|,)'?-\d/m);
+
+    // Somebody else's statement is not found.
+    const other = await seller();
+    await expect(
+      settlementStatementCsv({ sellerAccountId: other, displayName: 'Other' }, october?.id ?? ''),
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+  });
+});
+
+describe('money not on a statement yet (JOURNEY-034)', () => {
+  it('reports held, on-hold and reserve amounts per currency', async () => {
+    const sellerId = await seller();
+    const held = await order(sellerId);
+    const stopped = await order(sellerId);
+    const released = await order(sellerId);
+    const groups = await prisma.sellerOrderGroup.findMany({
+      where: { id: { in: [held.groupId, stopped.groupId, released.groupId] } },
+      select: { id: true, orderId: true },
+    });
+    const orderOf = new Map(groups.map((row) => [row.id, row.orderId]));
+    const hold = (groupId: string, status: 'HELD' | 'ON_HOLD' | 'RELEASED', extra: object = {}) =>
+      prisma.sellerFundHold.create({
+        data: {
+          id: newId(),
+          sellerOrderGroupId: groupId,
+          sellerAccountId: sellerId,
+          orderId: orderOf.get(groupId) ?? '',
+          currency: 'INR',
+          status,
+          allocatedMinor: 50_000n,
+          termsJson: {},
+          ...extra,
+        },
+      });
+    await hold(held.groupId, 'HELD');
+    await hold(stopped.groupId, 'ON_HOLD', { holdCode: 'DISPUTE', holdReason: 'Open claim' });
+    await hold(released.groupId, 'RELEASED', {
+      releasedMinor: 45_000n,
+      reserveMinor: 5_000n,
+      reserveReleaseAt: new Date('2027-01-01T00:00:00Z'),
+    });
+
+    try {
+      const summary = await sellerFundsSummary(sellerId);
+      expect(summary.currencies).toEqual([
+        { currency: 'INR', heldMinor: '50000', onHoldMinor: '50000', reserveMinor: '5000', nextReserveReleaseAt: '2027-01-01T00:00:00.000Z' },
+      ]);
+      expect(summary.payoutsPausedByOperator).toBe(false);
+    } finally {
+      // No foreign key ties a fund hold to its order, so it is removed by hand.
+      await prisma.sellerFundHold.deleteMany({ where: { sellerAccountId: sellerId } });
+    }
   });
 });

@@ -48,6 +48,7 @@ import {
   type SellerLocation,
 } from '@/lib/seller';
 import type { SellerOutletContext } from './SellerLayout';
+import { PreviewAsBuyerLink, SellerCompanyChangeCard } from './SellerCompanyChangeCard';
 
 export function SellerProfilePage(): React.JSX.Element {
   const seller = useOutletContext<SellerOutletContext>();
@@ -92,12 +93,13 @@ export function SellerProfilePage(): React.JSX.Element {
       <PageHeader
         title="Seller profile"
         description="Your business details, where you ship from, and who else can use this account."
+        actions={<PreviewAsBuyerLink slug={seller.slug} isTrading={seller.isTrading} />}
       />
 
       {/* ---- The business ------------------------------------------------- */}
       <Card
         title="Your business"
-        description="Reviewed by the marketplace. Contact us if any of it needs to change."
+        description={t('seller.companyChange.businessCardHint')}
       >
         <div className="px-6 py-5">
           {profile.isPending && <LoadingState label="Loading" />}
@@ -145,6 +147,9 @@ export function SellerProfilePage(): React.JSX.Element {
           )}
         </div>
       </Card>
+
+      {/* ---- Changing verified details after approval (JOURNEY-027) --------- */}
+      <SellerCompanyChangeCard canManage={seller.permissions.includes('seller.account.write')} />
 
       {/* ---- The mark on your shop ----------------------------------------- */}
       <ShopLogoCard

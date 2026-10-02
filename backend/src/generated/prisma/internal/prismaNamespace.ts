@@ -28841,6 +28841,7 @@ export const SellerSettlementLineScalarFieldEnum = {
   reason: 'reason',
   occurredAt: 'occurredAt',
   createdByUserId: 'createdByUserId',
+  sourceRef: 'sourceRef',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -33379,6 +33380,10 @@ export const RfqInvitationScalarFieldEnum = {
   respondedAt: 'respondedAt',
   declineReason: 'declineReason',
   notifiedVersion: 'notifiedVersion',
+  hiddenAt: 'hiddenAt',
+  hiddenByMemberId: 'hiddenByMemberId',
+  assignedMemberId: 'assignedMemberId',
+  assignedAt: 'assignedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -36041,7 +36046,8 @@ export const SellerSettlementLineOrderByRelevanceFieldEnum = {
   currency: 'currency',
   description: 'description',
   reason: 'reason',
-  createdByUserId: 'createdByUserId'
+  createdByUserId: 'createdByUserId',
+  sourceRef: 'sourceRef'
 } as const
 
 export type SellerSettlementLineOrderByRelevanceFieldEnum = (typeof SellerSettlementLineOrderByRelevanceFieldEnum)[keyof typeof SellerSettlementLineOrderByRelevanceFieldEnum]
@@ -38822,7 +38828,9 @@ export const RfqInvitationOrderByRelevanceFieldEnum = {
   id: 'id',
   rfqId: 'rfqId',
   sellerAccountId: 'sellerAccountId',
-  declineReason: 'declineReason'
+  declineReason: 'declineReason',
+  hiddenByMemberId: 'hiddenByMemberId',
+  assignedMemberId: 'assignedMemberId'
 } as const
 
 export type RfqInvitationOrderByRelevanceFieldEnum = (typeof RfqInvitationOrderByRelevanceFieldEnum)[keyof typeof RfqInvitationOrderByRelevanceFieldEnum]

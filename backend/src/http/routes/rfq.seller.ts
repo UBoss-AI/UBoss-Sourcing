@@ -38,12 +38,15 @@ import { readRfqAttachment, storeRfqAttachment, supplierAttachmentWhere } from '
 import { quoteInputSchema, submitQuote, supplierQuote } from '../../modules/rfq/quote.service.js';
 import { listThread, messageBodySchema, postMessage, threadQuerySchema } from '../../modules/rfq/message.service.js';
 import {
+  assignRfq,
+  assignSchema,
   declineRfq,
   declineSchema,
   getSupplierRfq,
   listSupplierRfqs,
   loadInvitation,
   responseClosed,
+  setRfqHidden,
   supplierListQuerySchema,
 } from '../../modules/rfq/supplier.service.js';
 import { currentUser } from '../plugins/auth.js';
@@ -80,9 +83,56 @@ export function registerSellerRfqRoutes(app: FastifyInstance): Promise<void> {
 
   /** Requests for quotation this seller was asked to answer, with a count per filter. */
   app.get('/rfqs', { preHandler: requireSeller(SellerPermission.ORDER_READ) }, async (request, reply) => {
-    const { filter } = supplierListQuerySchema.parse(request.query);
-    return reply.header('Cache-Control', 'no-store').status(200).send(await listSupplierRfqs(supplierOf(request), filter));
+    const { filter, assignee } = supplierListQuerySchema.parse(request.query);
+    return reply
+      .header('Cache-Control', 'no-store')
+      .status(200)
+      .send(await listSupplierRfqs(supplierOf(request), filter, assignee));
   });
+
+  // The team members a request can be given to: everyone on this seller's team now.
+  app.get('/rfqs/assignees', { preHandler: requireSeller(SellerPermission.ORDER_READ) }, async (request, reply) => {
+    const seller = currentSeller(request);
+    const members = await prisma.sellerMember.findMany({
+      where: { sellerAccountId: seller.sellerAccountId, removedAt: null },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, customerProfile: { select: { fullName: true } } },
+    });
+    return reply
+      .header('Cache-Control', 'no-store')
+      .send({ members: members.map((member) => ({ id: member.id, name: member.customerProfile.fullName })) });
+  });
+
+  // Hide a request from this seller's inbox as not for them. Their view only; the buyer sees no change. Audited.
+  app.post(
+    '/rfqs/:id/hide',
+    { preHandler: requireSeller(SellerPermission.ORDER_READ), config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      return reply.status(200).send({ rfq: await setRfqHidden(supplierOf(request), id, true) });
+    },
+  );
+
+  // Bring a hidden request back to this seller's inbox. Audited.
+  app.post(
+    '/rfqs/:id/unhide',
+    { preHandler: requireSeller(SellerPermission.ORDER_READ), config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      return reply.status(200).send({ rfq: await setRfqHidden(supplierOf(request), id, false) });
+    },
+  );
+
+  // Give a request to one member of the team as its owner, or to nobody (memberId null). Audited.
+  app.post(
+    '/rfqs/:id/assign',
+    { preHandler: requireSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const input = assignSchema.parse(request.body);
+      return reply.status(200).send({ rfq: await assignRfq(supplierOf(request), id, input) });
+    },
+  );
 
   /** One request this seller was invited to. Opening it marks the invitation viewed. */
   app.get('/rfqs/:id', { preHandler: requireSeller(SellerPermission.ORDER_READ) }, async (request, reply) => {

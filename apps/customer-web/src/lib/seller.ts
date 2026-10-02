@@ -16,7 +16,7 @@
  *     session. A function taking one would be a function an attacker could
  *     hand somebody else's.
  */
-import { api, postFile } from './api';
+import { api, BASE_URL, postFile } from './api';
 import type { AccessReviewSummary } from './buyer-companies';
 import type { SpecGroupKey } from './types';
 import type { CarrierSetupStatus } from './carrier-providers';
@@ -334,6 +334,60 @@ export function fetchBusinessProfile(): Promise<{
   );
 }
 
+// ---------------------------------------------------------------------------
+// Change control for verified company details (JOURNEY-027)
+// ---------------------------------------------------------------------------
+
+export const COMPANY_FIELDS = [
+  'legalName',
+  'companyRegistrationNumber',
+  'taxRegistrationNumber',
+  'eoriNumber',
+  'registeredAddressLine1',
+  'registeredAddressLine2',
+  'registeredCity',
+  'registeredRegion',
+  'registeredPostcode',
+  'registeredCountry',
+] as const;
+
+export type CompanyField = (typeof COMPANY_FIELDS)[number];
+export type CompanyValues = Record<CompanyField, string | null>;
+
+export interface CompanyChange {
+  id: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'WITHDRAWN';
+  proposed: Partial<CompanyValues>;
+  previous: Partial<CompanyValues>;
+  material: boolean;
+  reverifies: ('BUSINESS_REGISTRATION' | 'TAX_REGISTRATION')[];
+  note: string | null;
+  decisionReason: string | null;
+  decidedAt: string | null;
+  createdAt: string;
+}
+
+export interface SellerCompanyDetails {
+  current: CompanyValues;
+  changeControlled: boolean;
+  pending: CompanyChange | null;
+  history: CompanyChange[];
+}
+
+export function fetchCompanyDetails(): Promise<SellerCompanyDetails> {
+  return api.get<SellerCompanyDetails>('/seller/company-details');
+}
+
+export function proposeCompanyChange(
+  input: Partial<CompanyValues> & { note?: string },
+): Promise<{ change: CompanyChange }> {
+  return api.post<{ change: CompanyChange }>('/seller/company-changes', input);
+}
+
+export function withdrawCompanyChange(id: string): Promise<{ change: CompanyChange }> {
+  return api.post<{ change: CompanyChange }>(`/seller/company-changes/${encodeURIComponent(id)}/withdraw`, {});
+}
+
 export function saveBusinessProfile(
   patch: Partial<BusinessProfile> & { extraIdentifiers?: Record<string, string> },
 ): Promise<{ state: OnboardingStepState; missing: string[] }> {
@@ -455,6 +509,37 @@ export interface SellerDashboard {
     certificatesLapsed: number;
     listingsOnHold: number;
     verificationNeedsInput: number;
+  };
+  /** Open orders the destination rules hold before dispatch. */
+  shipmentDocs: {
+    ordersHeld: number;
+    sellerActionNeeded: number;
+    items: {
+      sellerOrderGroupId: string;
+      sellerOrderNumber: string;
+      missingDocuments: string[];
+      holdCodes: string[];
+      onSeller: boolean;
+    }[];
+  };
+  /** Funds, statements and payouts held, with the amounts per currency. */
+  settlementHolds: {
+    fundsOnHold: number;
+    statementsOnHold: number;
+    amounts: { currency: string; amountMinor: string }[];
+    payoutsPausedByOperator: boolean;
+    payoutHoldReason: string | null;
+  };
+  /** Orders about to go wrong before they are late. */
+  ordersAtRisk: {
+    withinHours: number;
+    count: number;
+    items: {
+      sellerOrderGroupId: string;
+      sellerOrderNumber: string;
+      dispatchDueAt: string | null;
+      reasons: ('DISPATCH_DUE_SOON' | 'OPEN_DISPUTE' | 'PAYMENT_ISSUE')[];
+    }[];
   };
   /** Tiles that could not be computed. Rendered as unavailable, not as zero. */
   unavailable: { tile: string; reason: string }[];
@@ -1586,6 +1671,33 @@ export function fetchSettlementLines(id: string): Promise<{ lines: SettlementLin
   return api.get<{ lines: SettlementLine[] }>(`/seller/settlements/${id}/lines`);
 }
 
+/** Money not on a statement yet (JOURNEY-034): held, on hold and reserve, per currency. */
+export interface SellerFundsSummary {
+  currencies: {
+    currency: string;
+    heldMinor: string;
+    onHoldMinor: string;
+    reserveMinor: string;
+    nextReserveReleaseAt: string | null;
+  }[];
+  payoutsPausedByOperator: boolean;
+  payoutHoldReason: string | null;
+}
+
+export function fetchSettlementFunds(): Promise<SellerFundsSummary> {
+  return api.get<SellerFundsSummary>('/seller/settlements/funds');
+}
+
+/** One statement as a CSV file, downloaded by the browser with the session cookie. */
+export function settlementCsvUrl(id: string): string {
+  return `${BASE_URL}/seller/settlements/${encodeURIComponent(id)}/export.csv`;
+}
+
+/** Every statement in a period (`YYYY-MM-DD`, end exclusive) as one CSV file. */
+export function settlementPeriodCsvUrl(from: string, to: string): string {
+  return `${BASE_URL}/seller/settlements/export.csv?${new URLSearchParams({ from, to }).toString()}`;
+}
+
 export interface PayoutRow {
   id: string;
   reference: string;
@@ -1830,12 +1942,38 @@ export interface SellerAuditRow {
   actorLabel: string;
   resourceType: string;
   resourceId: string | null;
-  summary: string;
+  /** Null for an entry written without one; show the action instead. */
+  summary: string | null;
   createdAt: string;
 }
 
-export function fetchSellerAudit(limit = 50): Promise<{ entries: SellerAuditRow[] }> {
-  return api.get<{ entries: SellerAuditRow[] }>(`/seller/audit?limit=${String(limit)}`);
+export function fetchSellerAudit(limit = 50, resourceId?: string): Promise<{ entries: SellerAuditRow[] }> {
+  const filter = resourceId === undefined ? '' : `&resourceId=${encodeURIComponent(resourceId)}`;
+  return api.get<{ entries: SellerAuditRow[] }>(`/seller/audit?limit=${String(limit)}${filter}`);
+}
+
+/** One country rule touching a listing (JOURNEY-028). */
+export interface ListingMarketRule {
+  countryCode: string;
+  scope: 'PRODUCT' | 'CATEGORY';
+  effect: 'BLOCK' | 'DOCUMENTS_REQUIRED';
+  reason: string;
+  requiredDocuments: string[];
+  categoryName: string;
+  minOrderValueMinor: string | null;
+  thresholdCurrency: string | null;
+}
+
+export interface ListingMarketEligibility {
+  status: string;
+  complianceHolds: { certificationId: string; standard: string; heldAt: string }[];
+  rules: ListingMarketRule[];
+  blockedCountries: string[];
+  restrictedCountries: string[];
+}
+
+export function fetchListingMarketEligibility(offerId: string): Promise<ListingMarketEligibility> {
+  return api.get<ListingMarketEligibility>(`/seller/listings/${encodeURIComponent(offerId)}/market-eligibility`);
 }
 
 export interface SellerNotification {
@@ -1908,8 +2046,9 @@ export function withdrawDraft(id: string): Promise<DraftView> {
 }
 
 /** Copy a live listing into a new draft under a new code of the seller's own. */
-export function duplicateListing(id: string, sellerSku: string): Promise<{ offerId: string }> {
-  return api.post<{ offerId: string }>(`/seller/listings/${id}/duplicate`, { sellerSku });
+/** Copy a listing into a new listing draft; answers with the draft to open. */
+export function duplicateListing(id: string, sellerSku: string): Promise<{ draftId: string }> {
+  return api.post<{ draftId: string }>(`/seller/listings/${id}/duplicate`, { sellerSku });
 }
 
 // ---------------------------------------------------------------------------

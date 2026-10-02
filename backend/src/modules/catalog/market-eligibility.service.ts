@@ -207,3 +207,71 @@ export async function productMarketNotes(
     ...onCategories,
   ].sort((a, b) => (a.effect === b.effect ? 0 : a.effect === 'BLOCK' ? -1 : 1));
 }
+
+/** One country rule that touches a listing, for the seller's own screen. */
+export interface ListingMarketRule extends CategoryMarketNote {
+  countryCode: string;
+  /** PRODUCT when the rule names this product, CATEGORY when it names a category above it. */
+  scope: 'PRODUCT' | 'CATEGORY';
+}
+
+/**
+ * Where one product may be sold, with the reason for every restriction
+ * (JOURNEY-028, "market eligibility").
+ *
+ * Every rule in force, in every country, on the product itself or on its
+ * category and the categories above it - the same set the listing and the
+ * checkout apply. A country with no rule is open: the answer lists the
+ * exceptions, not the whole world.
+ */
+export async function listingMarketRules(
+  product: { id: string; categoryId: string },
+  now: Date = new Date(),
+): Promise<ListingMarketRule[]> {
+  const category = await prisma.category.findUnique({
+    where: { id: product.categoryId },
+    select: { id: true, path: true },
+  });
+  const lineage =
+    category === null ? [] : [...category.path.split('/').filter((part) => part.length > 0), category.id];
+
+  const rules = await prisma.marketRule.findMany({
+    where: {
+      isActive: true,
+      effectiveFrom: { lte: now },
+      AND: [
+        { OR: [{ effectiveUntil: null }, { effectiveUntil: { gt: now } }] },
+        {
+          OR: [
+            { scope: 'PRODUCT', productId: product.id },
+            ...(lineage.length === 0 ? [] : [{ scope: 'CATEGORY' as const, categoryId: { in: lineage } }]),
+          ],
+        },
+      ],
+    },
+    select: {
+      scope: true,
+      countryCode: true,
+      effect: true,
+      reason: true,
+      requiredDocumentsJson: true,
+      minOrderValueMinor: true,
+      thresholdCurrency: true,
+      category: { select: { name: true } },
+    },
+    orderBy: [{ countryCode: 'asc' }, { effect: 'asc' }, { createdAt: 'asc' }],
+  });
+
+  return rules.map((rule) => ({
+    countryCode: rule.countryCode,
+    scope: rule.scope === 'PRODUCT' ? 'PRODUCT' : 'CATEGORY',
+    effect: rule.effect,
+    reason: rule.reason,
+    requiredDocuments: Array.isArray(rule.requiredDocumentsJson)
+      ? rule.requiredDocumentsJson.filter((entry): entry is string => typeof entry === 'string')
+      : [],
+    categoryName: rule.category?.name ?? '',
+    minOrderValueMinor: rule.minOrderValueMinor === null ? null : rule.minOrderValueMinor.toString(),
+    thresholdCurrency: rule.thresholdCurrency,
+  }));
+}

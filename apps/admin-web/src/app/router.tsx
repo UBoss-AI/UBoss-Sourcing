@@ -234,6 +234,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        // Sellers' change requests for verified company details (JOURNEY-027).
+        path: 'seller-company-changes',
+        ...lazyRoute(
+          () => import('@/pages/SellerCompanyChangesPage').then((m) => m.SellerCompanyChangesPage),
+          [Permission.CUSTOMER_READ],
+        ),
+      },
+      {
         path: 'sellers/:id',
         ...lazyRoute(() => import('@/pages/SellerDetailPage').then((m) => m.SellerDetailPage), [
           Permission.CUSTOMER_READ,

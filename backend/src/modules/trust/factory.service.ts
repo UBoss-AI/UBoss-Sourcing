@@ -50,6 +50,7 @@ import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { assertSellerPermission, type SellerMembership } from '../seller/account.service.js';
 import { OPERATOR_LABEL, recordSellerAudit } from '../seller/audit.service.js';
 import { notifySeller } from '../seller/notification.service.js';
+import { notifyFactoryLapsed } from './expiry-alerts.service.js';
 
 /** Plants one seller may hold at once. */
 export const MAX_FACTORIES_PER_SELLER = 50;
@@ -517,7 +518,9 @@ async function expireLapsed(sellerAccountId: string, factoryIds: string[], now: 
 
 /** One factory's lapsed verification, as an appended EXPIRED check. Safe to race. */
 async function expireFactory(sellerAccountId: string, factoryId: string, now: Date): Promise<boolean> {
-  return prisma.$transaction(async (tx) => {
+  // Written inside the transaction; typed wide so the read after it is not narrowed to null.
+  let lapsedUntil = null as Date | null;
+  const moved = await prisma.$transaction(async (tx) => {
     await lockFactory(tx, factoryId);
     const current = await currentCheck(tx, sellerAccountId, factoryId);
     if (current?.state !== 'VERIFIED' || current.validUntil === null || current.validUntil.getTime() > now.getTime()) {
@@ -553,8 +556,14 @@ async function expireFactory(sellerAccountId: string, factoryId: string, now: Da
       summary: 'A factory verification reached its end date and must be renewed.',
       tx,
     });
+    lapsedUntil = current.validUntil;
     return true;
   });
+  // After the commit, and once: the notice is keyed on the factory and its end date.
+  if (moved && lapsedUntil !== null) {
+    await notifyFactoryLapsed({ sellerAccountId, factoryId, validUntil: lapsedUntil });
+  }
+  return moved;
 }
 
 /**

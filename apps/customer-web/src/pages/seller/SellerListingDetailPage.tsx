@@ -65,6 +65,7 @@ import {
 } from '@/lib/seller';
 import { AxisValueEditor, CustomAxisAdder, ProjectionBar } from './VariantStepPanel';
 import { ListingSourcingPanel } from './ListingSourcingPanel';
+import { ListingHistoryPanel, ListingMarketPanel } from './ListingInsightPanels';
 
 /**
  * A price for an input box: major units, or empty where there is no price.
@@ -386,6 +387,8 @@ function ListingBody({
 
       <InstructionsPanel offerId={offerId} />
       <ListingSourcingPanel offerId={offerId} />
+      <ListingMarketPanel offerId={offerId} />
+      <ListingHistoryPanel offerId={offerId} />
     </div>
   );
 }

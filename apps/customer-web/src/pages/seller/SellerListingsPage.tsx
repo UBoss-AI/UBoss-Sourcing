@@ -948,20 +948,24 @@ function DuplicateButton({ row }: { row: OfferRow }): React.JSX.Element {
   const { t } = useI18n();
   const toast = useToast();
   const client = useQueryClient();
+  const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
   const [sellerSku, setSellerSku] = useState(`${row.sellerSku}-COPY`);
 
   const mutation = useMutation({
     mutationFn: () => duplicateListing(row.id, sellerSku.trim()),
-    onSuccess: async () => {
+    onSuccess: async (result) => {
       await client.invalidateQueries({ queryKey: ['seller', 'offers'] });
-      toast.success(`Copied as ${sellerSku.trim()}. It is paused until you put it on sale.`);
+      await client.invalidateQueries({ queryKey: ['seller', 'drafts'] });
+      toast.success(t('seller.offers.copy.done', { code: sellerSku.trim() }));
       setIsOpen(false);
+      // The copy is a new listing draft: open it so the seller can say what is different.
+      void navigate(`/seller/listings/new?draft=${encodeURIComponent(result.draftId)}`);
     },
     onError: (error: unknown) => {
       // A code already in use is the common failure, and the server names it.
-      toast.error(errorMessage(t, error, 'That listing could not be copied.'));
+      toast.error(errorMessage(t, error, t('seller.offers.copy.failed')));
     },
   });
 
@@ -973,26 +977,23 @@ function DuplicateButton({ row }: { row: OfferRow }): React.JSX.Element {
           setIsOpen(true);
         }}
       >
-        Copy
+        {t('seller.offers.copy.action')}
       </Button>
 
       {isOpen && (
         <Modal
           isOpen
-          title={`Copy ${row.sellerSku}`}
+          title={t('seller.offers.copy.title', { code: row.sellerSku })}
           onClose={() => {
             setIsOpen(false);
           }}
         >
           <div className="space-y-4">
-            <p className="text-sm text-ink-muted">
-              Everything is copied — the description, the photographs, the packing and the price.
-              The new listing starts paused, so nothing goes on sale until you say so.
-            </p>
+            <p className="text-sm text-ink-muted">{t('seller.offers.copy.intro')}</p>
 
             <Field
-              label="Your code for the copy"
-              hint="Must be different from every other code you use."
+              label={t('seller.offers.copy.codeLabel')}
+              hint={t('seller.offers.copy.codeHint')}
               required
             >
               {({ inputId, describedBy }) => (
@@ -1013,7 +1014,7 @@ function DuplicateButton({ row }: { row: OfferRow }): React.JSX.Element {
                   setIsOpen(false);
                 }}
               >
-                Cancel
+                {t('seller.offers.copy.cancel')}
               </Button>
               <Button
                 variant="primary"
@@ -1023,7 +1024,7 @@ function DuplicateButton({ row }: { row: OfferRow }): React.JSX.Element {
                   mutation.mutate();
                 }}
               >
-                Copy it
+                {t('seller.offers.copy.confirm')}
               </Button>
             </div>
           </div>

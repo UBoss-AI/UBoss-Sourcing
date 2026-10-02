@@ -29,6 +29,7 @@ let agencyId = '';
 const orderIds: string[] = [];
 const groupIds: Record<'kept' | 'late' | 'cancelled', string> = { kept: '', late: '', cancelled: '' };
 let alphaInvited = 0;
+let soonGroupId = '';
 
 const ADDRESS = { line1: '1 Test Road', city: 'Pune', postalCode: '411001', countryCode: 'IN' };
 
@@ -238,9 +239,65 @@ beforeAll(async () => {
       netPayableMinor: 18_000n,
     },
   });
+
+  // An accepted order whose dispatch is due in six hours: at risk, not late.
+  const soonOrderId = newId();
+  orderIds.push(soonOrderId);
+  await prisma.order.create({
+    data: {
+      id: soonOrderId,
+      orderNumber: `SP${String(Date.now()).slice(-8)}S`,
+      customerProfileId: world.buyer.profileId,
+      status: 'CONFIRMED',
+      currency: 'INR',
+      subtotalMinor: 5_000n,
+      discountMinor: 0n,
+      taxMinor: 0n,
+      shippingMinor: 0n,
+      grandTotalMinor: 5_000n,
+      shippingAddressJson: ADDRESS,
+      billingAddressJson: ADDRESS,
+    },
+  });
+  soonGroupId = newId();
+  await prisma.sellerOrderGroup.create({
+    data: {
+      id: soonGroupId,
+      sellerAccountId: alpha,
+      orderId: soonOrderId,
+      sellerOrderNumber: `${PREFIX}soon`,
+      status: 'ACCEPTED',
+      goodsTotalMinor: 5_000n,
+      commissionMinor: 500n,
+      sellerNetMinor: 4_500n,
+      currency: 'INR',
+      dispatchDueAt: new Date(Date.now() + 6 * 3_600_000),
+      // Placed before every performance window, so the history the
+      // performance case counts stays the three orders above.
+      createdAt: new Date(Date.now() - 120 * DAY),
+    },
+  });
+
+  // The kept order's protected funds, stopped by the operator.
+  await prisma.sellerFundHold.create({
+    data: {
+      id: newId(),
+      sellerOrderGroupId: kept,
+      sellerAccountId: alpha,
+      orderId: keptOrder,
+      currency: 'INR',
+      status: 'ON_HOLD',
+      allocatedMinor: 9_000n,
+      termsJson: {},
+      holdCode: 'MANUAL',
+      holdReason: 'Test hold',
+    },
+  });
 });
 
 afterAll(async () => {
+  // No foreign key ties a fund hold to its order, so it goes first, by hand.
+  await prisma.sellerFundHold.deleteMany({ where: { orderId: { in: orderIds } } });
   await prisma.order.deleteMany({ where: { id: { in: orderIds } } });
   if (agencyId !== '') await prisma.inspectionAgency.deleteMany({ where: { id: agencyId } });
   await cleanRfqWorld(PREFIX);
@@ -255,6 +312,18 @@ interface Dashboard {
     items: { kind: string; sellerOrderGroupId: string }[];
   };
   compliance: { certificatesLapsed: number; certificatesExpiringSoon: number; listingsOnHold: number };
+  shipmentDocs: { ordersHeld: number; sellerActionNeeded: number; items: unknown[] };
+  settlementHolds: {
+    fundsOnHold: number;
+    statementsOnHold: number;
+    amounts: { currency: string; amountMinor: string }[];
+    payoutsPausedByOperator: boolean;
+  };
+  ordersAtRisk: {
+    withinHours: number;
+    count: number;
+    items: { sellerOrderGroupId: string; reasons: string[] }[];
+  };
   unavailable: { tile: string }[];
 }
 
@@ -278,12 +347,41 @@ describe('the Seller Hub home', () => {
     expect(body.compliance.certificatesLapsed).toBe(1);
   });
 
+  it('lists orders at risk before they are late, money on hold and shipment-document holds', async () => {
+    const response = await as(world, world.sellers.alpha.owner, 'GET', '/seller/dashboard');
+    expect(response.statusCode, response.body).toBe(200);
+    const body = response.json<Dashboard>();
+    expect(body.unavailable).toEqual([]);
+
+    // Due in six hours: listed with that reason. The late, delivered order
+    // with an open claim is listed for the claim alone.
+    expect(body.ordersAtRisk.withinHours).toBe(24);
+    expect(body.ordersAtRisk.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ sellerOrderGroupId: soonGroupId, reasons: ['DISPATCH_DUE_SOON'] }),
+        expect.objectContaining({ sellerOrderGroupId: groupIds.late, reasons: ['OPEN_DISPUTE'] }),
+      ]),
+    );
+    expect(body.ordersAtRisk.items.map((item) => item.sellerOrderGroupId)).not.toContain(groupIds.cancelled);
+
+    // One fund hold (9,000) and one statement on hold (18,000), both INR.
+    expect(body.settlementHolds.fundsOnHold).toBe(1);
+    expect(body.settlementHolds.statementsOnHold).toBe(1);
+    expect(body.settlementHolds.amounts).toEqual([{ currency: 'INR', amountMinor: '27000' }]);
+
+    // No destination rule asks anything of these orders.
+    expect(body.shipmentDocs.ordersHeld).toBe(0);
+  });
+
   it('shows another seller none of it', async () => {
     const response = await as(world, world.sellers.gamma.owner, 'GET', '/seller/dashboard');
     expect(response.statusCode, response.body).toBe(200);
     const body = response.json<Dashboard>();
     expect(body.inspection).toEqual({ readinessDue: 0, capaDue: 0, items: [] });
     expect(body.compliance.certificatesLapsed).toBe(0);
+    expect(body.ordersAtRisk.count).toBe(0);
+    expect(body.settlementHolds.fundsOnHold).toBe(0);
+    expect(body.shipmentDocs.ordersHeld).toBe(0);
   });
 });
 

@@ -303,3 +303,88 @@ export async function supplierCards(
   });
   return rows.map((row) => card(row, matched.has(row.id)));
 }
+
+/** How well one invited seller fits one request, for the seller's own inbox (JOURNEY-030). */
+export interface SellerQualification {
+  /** 0-100. Points, not a probability: see `qualificationScore`. */
+  score: number;
+  reasons: MatchReason[];
+  flags: (MatchFlag | 'NOT_LIVE_IN_CATEGORY' | 'NO_CATEGORY')[];
+}
+
+/**
+ * The score from the same facts the buyer's matching uses: 40 for a live
+ * listing in the request's category, 20 for exporting to its destination, 20
+ * for an in-date verified certificate, and 20 when stated capacity can make
+ * the quantity by the target date. A flag never subtracts; it is shown beside
+ * the score so the seller sees why points are missing.
+ */
+export function qualificationScore(input: {
+  liveInCategory: boolean;
+  reasons: readonly MatchReason[];
+  flags: readonly string[];
+}): number {
+  let score = 0;
+  if (input.liveInCategory) score += 40;
+  if (input.reasons.includes('EXPORTS_TO_DESTINATION')) score += 20;
+  if (input.reasons.includes('VERIFIED_CERTIFICATE')) score += 20;
+  if (!input.flags.includes('CAPACITY_UNKNOWN') && !input.flags.includes('CAPACITY_BELOW_QUANTITY')) score += 20;
+  return score;
+}
+
+/**
+ * Qualification of one seller against several requests. Requests that share
+ * a category, destination, buyer, quantity and date are worked out once.
+ */
+export async function sellerQualifications(
+  sellerAccountId: string,
+  rfqs: {
+    id: string;
+    categoryId: string | null;
+    destinationCountry: string | null;
+    customerProfileId: string;
+    quantity: number | null;
+    deliveryTargetDate: Date | null;
+  }[],
+  now: Date = new Date(),
+): Promise<Map<string, SellerQualification>> {
+  const out = new Map<string, SellerQualification>();
+  const memo = new Map<string, SellerQualification>();
+  for (const rfq of rfqs) {
+    if (rfq.categoryId === null) {
+      out.set(rfq.id, { score: 0, reasons: [], flags: ['NO_CATEGORY'] });
+      continue;
+    }
+    const key = [rfq.categoryId, rfq.destinationCountry ?? '', rfq.customerProfileId, rfq.quantity ?? '', rfq.deliveryTargetDate?.toISOString() ?? ''].join('|');
+    const known = memo.get(key);
+    if (known !== undefined) {
+      out.set(rfq.id, known);
+      continue;
+    }
+    const subtree = await subtreeCategoryIds(rfq.categoryId);
+    const live = await prisma.sellerOffer.count({
+      where: { sellerAccountId, status: 'ACTIVE', archivedAt: null, product: { categoryId: { in: subtree } } },
+    });
+    const explained = (
+      await explain(
+        [sellerAccountId],
+        {
+          categoryId: rfq.categoryId,
+          destinationCountry: rfq.destinationCountry ?? '',
+          customerProfileId: rfq.customerProfileId,
+          quantity: rfq.quantity,
+          deliveryTargetDate: rfq.deliveryTargetDate,
+        },
+        now,
+      )
+    ).get(sellerAccountId) ?? { reasons: [], flags: [] };
+    const liveInCategory = live > 0;
+    const reasons = explained.reasons.filter((reason) => liveInCategory || reason !== 'LIVE_IN_CATEGORY');
+    const flags: SellerQualification['flags'] = [...explained.flags];
+    if (!liveInCategory) flags.unshift('NOT_LIVE_IN_CATEGORY');
+    const result = { score: qualificationScore({ liveInCategory, reasons, flags }), reasons, flags };
+    memo.set(key, result);
+    out.set(rfq.id, result);
+  }
+  return out;
+}

@@ -34,6 +34,7 @@ import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { assertSellerPermission, type SellerMembership } from '../seller/account.service.js';
 import { OPERATOR_LABEL, recordSellerAudit } from '../seller/audit.service.js';
 import { notifySeller } from '../seller/notification.service.js';
+import { notifyCertificationLapsed } from './expiry-alerts.service.js';
 import { trustTimings, usableOwnDocument, type StaffActor } from './factory.service.js';
 
 export const MAX_CERTIFICATIONS_PER_SELLER = 100;
@@ -202,7 +203,11 @@ async function expireLapsed(where: { sellerAccountId?: string; id?: string }, li
       });
       return true;
     });
-    if (moved) expired += 1;
+    if (moved) {
+      expired += 1;
+      // After the commit: the notice describes a lapse that is recorded.
+      await notifyCertificationLapsed(row);
+    }
   }
   return expired;
 }

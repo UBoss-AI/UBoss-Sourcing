@@ -20,7 +20,9 @@
  * to load because the analytics table is slow is a dashboard nobody can use to
  * ship today's orders.
  */
+import { env } from '../../config/env.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
+import { sellerOrderCompliance } from '../compliance/destination-compliance.service.js';
 import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
 import { assertSellerPermission, type SellerMembership } from './account.service.js';
@@ -135,6 +137,55 @@ export interface SellerDashboard {
     verificationNeedsInput: number;
   };
 
+  /**
+   * Open orders the destination rules hold before dispatch: a document the
+   * seller must produce is missing or not valid, or the goods are held for an
+   * HS code or a prohibition. Only the seller's own holds are counted as the
+   * seller's work; holds waiting on the buyer or the forwarder are counted
+   * apart so the seller knows the order is stuck but not on them.
+   */
+  shipmentDocs: {
+    ordersHeld: number;
+    sellerActionNeeded: number;
+    items: {
+      sellerOrderGroupId: string;
+      sellerOrderNumber: string;
+      missingDocuments: string[];
+      holdCodes: string[];
+      onSeller: boolean;
+    }[];
+  };
+
+  /**
+   * Money the seller has earned and cannot have yet because something stopped
+   * it: a sale's protected funds on hold (an open dispute or the operator), a
+   * statement on hold, or the operator pausing payouts altogether. Per
+   * currency, minor units.
+   */
+  settlementHolds: {
+    fundsOnHold: number;
+    statementsOnHold: number;
+    amounts: { currency: string; amountMinor: string }[];
+    payoutsPausedByOperator: boolean;
+    payoutHoldReason: string | null;
+  };
+
+  /**
+   * Orders that are not late yet but are about to go wrong: dispatch due
+   * within `withinHours`, an open dispute, or a payment problem. Each order is
+   * listed once with every reason that applies.
+   */
+  ordersAtRisk: {
+    withinHours: number;
+    count: number;
+    items: {
+      sellerOrderGroupId: string;
+      sellerOrderNumber: string;
+      dispatchDueAt: string | null;
+      reasons: ('DISPATCH_DUE_SOON' | 'OPEN_DISPUTE' | 'PAYMENT_ISSUE')[];
+    }[];
+  };
+
   onboarding: {
     percentComplete: number;
     canSubmit: boolean;
@@ -203,6 +254,9 @@ export async function readDashboard(
     rfqs,
     inspection,
     compliance,
+    shipmentDocs,
+    settlementHolds,
+    ordersAtRisk,
   ] = await Promise.all([
     tile('orders', unavailable, [] as StatusCount[], async () => {
       const grouped = await prisma.sellerOrderGroup.groupBy({
@@ -363,6 +417,30 @@ export async function readDashboard(
       },
       () => complianceActions(sellerAccountId, now),
     ),
+    tile(
+      'shipmentDocs',
+      unavailable,
+      { ordersHeld: 0, sellerActionNeeded: 0, items: [] },
+      () => shipmentDocumentActions(sellerAccountId),
+    ),
+    tile(
+      'settlementHolds',
+      unavailable,
+      {
+        fundsOnHold: 0,
+        statementsOnHold: 0,
+        amounts: [],
+        payoutsPausedByOperator: false,
+        payoutHoldReason: null,
+      },
+      () => settlementHoldSummary(sellerAccountId),
+    ),
+    tile(
+      'ordersAtRisk',
+      unavailable,
+      { withinHours: env.SELLER_ORDER_AT_RISK_HOURS, count: 0, items: [] },
+      () => ordersAtRiskOf(sellerAccountId, now, env.SELLER_ORDER_AT_RISK_HOURS),
+    ),
   ]);
 
   const countOf = (rows: StatusCount[], status: string): number =>
@@ -483,6 +561,9 @@ export async function readDashboard(
     rfqs,
     inspection,
     compliance,
+    shipmentDocs,
+    settlementHolds,
+    ordersAtRisk,
 
     unavailable,
   };
@@ -496,6 +577,8 @@ async function rfqsAwaiting(
   const open = {
     sellerAccountId,
     status: { in: ['INVITED', 'VIEWED'] as ('INVITED' | 'VIEWED')[] },
+    // One the seller hid as not for them is not waiting on them (JOURNEY-030).
+    hiddenAt: null,
   };
   const [awaitingResponse, closingSoon] = await Promise.all([
     prisma.rfqInvitation.count({
@@ -606,4 +689,178 @@ async function complianceActions(
     ]);
 
   return { certificatesExpiringSoon, certificatesLapsed, listingsOnHold, verificationNeedsInput };
+}
+
+/** The seller-order statuses in which goods have still to leave. */
+const NOT_YET_DISPATCHED = ['NEW', 'ACCEPTED', 'PROCESSING', 'READY_FOR_DISPATCH'] as const;
+
+/**
+ * How many open orders the shipment-documents tile evaluates. Each one is a
+ * full destination-rule evaluation, so the tile looks at the orders due
+ * soonest rather than at every open order a large seller has.
+ */
+const SHIPMENT_DOCS_SCAN_LIMIT = 40;
+
+/**
+ * Open orders the destination rules hold (JOURNEY-026, "shipment docs").
+ *
+ * The answer comes from the same evaluation the order's documents page and
+ * the dispatch gate use (`sellerOrderCompliance`), so the home screen can
+ * never say an order is clear while dispatch refuses it.
+ */
+async function shipmentDocumentActions(sellerAccountId: string): Promise<SellerDashboard['shipmentDocs']> {
+  const groups = await prisma.sellerOrderGroup.findMany({
+    where: { sellerAccountId, status: { in: [...NOT_YET_DISPATCHED] } },
+    orderBy: [{ dispatchDueAt: 'asc' }, { createdAt: 'asc' }],
+    take: SHIPMENT_DOCS_SCAN_LIMIT,
+    select: { id: true, sellerOrderNumber: true },
+  });
+
+  const items: SellerDashboard['shipmentDocs']['items'] = [];
+  for (const group of groups) {
+    const { verdict } = await sellerOrderCompliance(sellerAccountId, group.id);
+    if (verdict.open) continue;
+    const uncovered = verdict.holds.filter((hold) => !hold.covered);
+    const missingDocuments = [
+      ...new Set(
+        verdict.items
+          .filter(
+            (item) =>
+              item.documentKind !== null &&
+              item.status !== 'VALID' &&
+              item.status !== 'PENDING_REVIEW' &&
+              item.status !== 'NO_DOCUMENT',
+          )
+          .map((item) => item.documentName ?? (item.documentKind as string)),
+      ),
+    ];
+    items.push({
+      sellerOrderGroupId: group.id,
+      sellerOrderNumber: group.sellerOrderNumber,
+      missingDocuments,
+      holdCodes: [...new Set(uncovered.map((hold) => hold.code))],
+      onSeller: uncovered.some((hold) => hold.responsibleParty === 'SELLER'),
+    });
+  }
+
+  return {
+    ordersHeld: items.length,
+    sellerActionNeeded: items.filter((item) => item.onSeller).length,
+    items: items.slice(0, 10),
+  };
+}
+
+/** Funds, statements and payouts held, with the amounts per currency. */
+async function settlementHoldSummary(sellerAccountId: string): Promise<SellerDashboard['settlementHolds']> {
+  const [fundHolds, heldStatements, payoutAccount] = await Promise.all([
+    prisma.sellerFundHold.groupBy({
+      by: ['currency'],
+      where: { sellerAccountId, status: 'ON_HOLD' },
+      _count: { _all: true },
+      _sum: { allocatedMinor: true },
+    }),
+    prisma.sellerSettlement.groupBy({
+      by: ['currency'],
+      where: { sellerAccountId, status: 'ON_HOLD' },
+      _count: { _all: true },
+      _sum: { netPayableMinor: true },
+    }),
+    prisma.sellerPayoutAccountReference.findFirst({
+      where: { sellerAccountId },
+      select: { payoutsHeldByOperator: true, payoutHoldReason: true },
+    }),
+  ]);
+
+  const byCurrency = new Map<string, bigint>();
+  for (const row of fundHolds) {
+    byCurrency.set(row.currency, (byCurrency.get(row.currency) ?? 0n) + (row._sum.allocatedMinor ?? 0n));
+  }
+  for (const row of heldStatements) {
+    byCurrency.set(row.currency, (byCurrency.get(row.currency) ?? 0n) + (row._sum.netPayableMinor ?? 0n));
+  }
+
+  return {
+    fundsOnHold: fundHolds.reduce((sum, row) => sum + row._count._all, 0),
+    statementsOnHold: heldStatements.reduce((sum, row) => sum + row._count._all, 0),
+    amounts: [...byCurrency.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([currency, amount]) => ({ currency, amountMinor: amount.toString() })),
+    payoutsPausedByOperator: payoutAccount?.payoutsHeldByOperator ?? false,
+    payoutHoldReason: payoutAccount?.payoutsHeldByOperator === true ? payoutAccount.payoutHoldReason : null,
+  };
+}
+
+/** Dispute states still open and waiting on somebody. */
+const OPEN_CLAIM_STATES = ['AWAITING_SELLER', 'UNDER_REVIEW', 'PENDING_APPROVAL', 'APPEALED'] as const;
+/** Chargeback states still open: the buyer's bank has the payment in question. */
+const OPEN_CHARGEBACK_STATES = ['CHARGEBACK_OPEN', 'NEEDS_RESPONSE', 'CHARGEBACK_UNDER_REVIEW'] as const;
+
+/**
+ * Orders at risk before they are late (JOURNEY-026).
+ *
+ * Three reasons, each from the record that decides it: the dispatch deadline
+ * falls inside the window and has not passed (a passed one is already in the
+ * overdue tile), a claim is open on the order, or the payment is in question -
+ * a chargeback, or a buyer order still waiting for its payment.
+ */
+async function ordersAtRiskOf(
+  sellerAccountId: string,
+  now: Date,
+  withinHours: number,
+): Promise<SellerDashboard['ordersAtRisk']> {
+  const horizon = new Date(now.getTime() + withinHours * 3_600_000);
+  const rows = await prisma.sellerOrderGroup.findMany({
+    where: {
+      sellerAccountId,
+      OR: [
+        { status: { in: [...NOT_YET_DISPATCHED] }, dispatchDueAt: { gte: now, lte: horizon } },
+        { disputes: { some: { status: { in: [...OPEN_CLAIM_STATES, ...OPEN_CHARGEBACK_STATES] } } } },
+        { status: { in: [...NOT_YET_DISPATCHED] }, order: { status: 'PENDING_PAYMENT' } },
+      ],
+    },
+    orderBy: [{ dispatchDueAt: 'asc' }, { createdAt: 'asc' }],
+    take: 50,
+    select: {
+      id: true,
+      sellerOrderNumber: true,
+      status: true,
+      dispatchDueAt: true,
+      order: { select: { status: true } },
+      disputes: {
+        where: { status: { in: [...OPEN_CLAIM_STATES, ...OPEN_CHARGEBACK_STATES] } },
+        select: { status: true },
+      },
+    },
+  });
+
+  const items = rows.map((row) => {
+    const reasons: SellerDashboard['ordersAtRisk']['items'][number]['reasons'] = [];
+    const notDispatched = (NOT_YET_DISPATCHED as readonly string[]).includes(row.status);
+    if (
+      notDispatched &&
+      row.dispatchDueAt !== null &&
+      row.dispatchDueAt >= now &&
+      row.dispatchDueAt <= horizon
+    ) {
+      reasons.push('DISPATCH_DUE_SOON');
+    }
+    const states = row.disputes.map((dispute) => String(dispute.status));
+    if (states.some((state) => (OPEN_CLAIM_STATES as readonly string[]).includes(state))) {
+      reasons.push('OPEN_DISPUTE');
+    }
+    if (
+      states.some((state) => (OPEN_CHARGEBACK_STATES as readonly string[]).includes(state)) ||
+      (notDispatched && row.order.status === 'PENDING_PAYMENT')
+    ) {
+      reasons.push('PAYMENT_ISSUE');
+    }
+    return {
+      sellerOrderGroupId: row.id,
+      sellerOrderNumber: row.sellerOrderNumber,
+      dispatchDueAt: row.dispatchDueAt?.toISOString() ?? null,
+      reasons,
+    };
+  });
+
+  return { withinHours, count: items.length, items: items.slice(0, 10) };
 }

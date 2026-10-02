@@ -24,12 +24,19 @@ import { QuoteForm } from '@/components/rfq/QuoteForm';
 import { fetchSellerQuote } from '@/lib/rfq-quote';
 import { useToast } from '@/components/toast-context';
 import { Tabs } from '@/components/ui/Tabs';
-import { Button, Card, ErrorState, LoadingState, PageHeader, Textarea } from '@/components/ui';
+import { Button, Card, ErrorState, LoadingState, PageHeader, Select, Textarea } from '@/components/ui';
 import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 import { rfqAttachmentUrl } from '@/lib/rfq';
 import { formatUtc } from '@/lib/rfq-format';
-import { declineSellerRfq, fetchSellerRfq, type SellerRfq } from '@/lib/rfq-seller';
+import {
+  assignSellerRfq,
+  declineSellerRfq,
+  fetchRfqAssignees,
+  fetchSellerRfq,
+  setSellerRfqHidden,
+  type SellerRfq,
+} from '@/lib/rfq-seller';
 
 /** This seller's quote: the form before it quoted, then every offer version. */
 function SellerQuotePanel({ rfq }: { rfq: SellerRfq }): React.JSX.Element {
@@ -145,6 +152,7 @@ function SellerRfqWorkspace({ rfq }: { rfq: SellerRfq }): React.JSX.Element {
       {rfq.invitation.declineReason !== null && (
         <p className="mb-4 text-sm text-ink-muted">{t('sellerRfq.youDeclined', { reason: rfq.invitation.declineReason })}</p>
       )}
+      <InboxPanel rfq={rfq} />
 
       <Tabs
         tabs={[
@@ -247,5 +255,97 @@ function SellerRfqWorkspace({ rfq }: { rfq: SellerRfq }): React.JSX.Element {
         isWorking={decline.isPending}
       />
     </>
+  );
+}
+
+/**
+ * The seller's own handling of this request (JOURNEY-030): how well they fit
+ * it and why, who is asking, who on the team owns the answer, and hiding it
+ * from the inbox. None of it is visible to the buyer.
+ */
+function InboxPanel({ rfq }: { rfq: SellerRfq }): React.JSX.Element {
+  const { t } = useI18n();
+  const toast = useToast();
+  const queryClient = useQueryClient();
+  const assignees = useQuery({ queryKey: ['seller', 'rfqs', 'assignees'], queryFn: fetchRfqAssignees });
+
+  const onDone = (next: SellerRfq, message: string): void => {
+    queryClient.setQueryData(['seller', 'rfq', rfq.id], next);
+    void queryClient.invalidateQueries({ queryKey: ['seller', 'rfqs'] });
+    toast.success(message);
+  };
+  const assign = useMutation({
+    mutationFn: (memberId: string | null) => assignSellerRfq(rfq.id, memberId),
+    onSuccess: (next) => {
+      onDone(next, t('sellerRfq.inbox.assignedDone'));
+    },
+    onError: (error) => {
+      toast.error(errorMessage(t, error, t('sellerRfq.inbox.failed')));
+    },
+  });
+  const hide = useMutation({
+    mutationFn: () => setSellerRfqHidden(rfq.id, !rfq.hidden),
+    onSuccess: (next) => {
+      onDone(next, next.hidden ? t('sellerRfq.inbox.hiddenDone') : t('sellerRfq.inbox.unhiddenDone'));
+    },
+    onError: (error) => {
+      toast.error(errorMessage(t, error, t('sellerRfq.inbox.failed')));
+    },
+  });
+
+  const { qualification } = rfq;
+  return (
+    <Card title={t('sellerRfq.inbox.panelTitle')} bodyClassName="px-6 py-4" className="mb-4">
+      <div className="grid gap-4 text-sm sm:grid-cols-3">
+        <div>
+          <p className="text-xxs uppercase tracking-wider text-ink-subtle">{t('sellerRfq.inbox.fit')}</p>
+          <p className="mt-1 font-semibold text-ink">{t('sellerRfq.inbox.score', { score: String(qualification.score) })}</p>
+          <ul className="mt-1 space-y-0.5 text-xs text-ink-muted">
+            {qualification.reasons.map((reason) => (
+              <li key={reason}>{t(`sellerRfq.reason.${reason}` as TranslationKey)}</li>
+            ))}
+            {qualification.flags.map((flag) => (
+              <li key={flag} className="text-warning">
+                {t(`sellerRfq.flag.${flag}` as TranslationKey)}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p className="text-xxs uppercase tracking-wider text-ink-subtle">{t('sellerRfq.inbox.buyer')}</p>
+          <p className="mt-1 text-ink">{t(`sellerRfq.buyerVerification.${rfq.buyerVerification}` as TranslationKey)}</p>
+        </div>
+        <div className="space-y-2">
+          <label className="block text-xxs uppercase tracking-wider text-ink-subtle">
+            {t('sellerRfq.inbox.owner')}
+            <Select
+              className="mt-1 normal-case tracking-normal"
+              value={rfq.assignedMember?.id ?? ''}
+              disabled={assign.isPending}
+              onChange={(event) => {
+                assign.mutate(event.currentTarget.value === '' ? null : event.currentTarget.value);
+              }}
+            >
+              <option value="">{t('sellerRfq.inbox.noOwner')}</option>
+              {(assignees.data ?? []).map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={hide.isPending}
+            onClick={() => {
+              hide.mutate();
+            }}
+          >
+            {rfq.hidden ? t('sellerRfq.inbox.unhide') : t('sellerRfq.inbox.hide')}
+          </Button>
+        </div>
+      </div>
+    </Card>
   );
 }

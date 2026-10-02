@@ -12,6 +12,11 @@ import { SellerPermission } from '../../domain/seller-permissions.js';
 import { prisma } from '../../infra/prisma.js';
 import { readDashboard } from '../../modules/seller/dashboard.service.js';
 import {
+  sellerFundsSummary,
+  settlementPeriodCsv,
+  settlementStatementCsv,
+} from '../../modules/seller/settlement-export.service.js';
+import {
   PERFORMANCE_WINDOWS,
   readPerformance,
   type PerformanceWindow,
@@ -609,6 +614,57 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
         })),
         total,
       });
+    },
+  );
+
+  // Money not on a statement yet: funds held for their release terms, funds on hold, the reserve, and whether payouts are paused.
+  app.get(
+    '/settlements/funds',
+    { preHandler: requireSeller(SellerPermission.FINANCE_READ) },
+    async (request, reply) => {
+      const seller = currentSeller(request);
+      return reply.header('cache-control', 'no-store').status(200).send(await sellerFundsSummary(seller.sellerAccountId));
+    },
+  );
+
+  // Every statement whose period lies between from and to, as one CSV file for reconciliation. Writes a seller audit entry.
+  app.get(
+    '/settlements/export.csv',
+    { preHandler: requireSeller(SellerPermission.FINANCE_READ) },
+    async (request, reply) => {
+      const query = z
+        .object({ from: z.coerce.date(), to: z.coerce.date() })
+        .refine((value) => value.to.getTime() > value.from.getTime(), { message: 'The end must be after the start.', path: ['to'] })
+        .refine((value) => value.to.getTime() - value.from.getTime() <= 400 * 86_400_000, {
+          message: 'Choose at most about a year.',
+          path: ['to'],
+        })
+        .parse(request.query);
+      const file = await settlementPeriodCsv(currentSeller(request), query, request.correlationId);
+      return reply
+        .header('content-type', 'text/csv; charset=utf-8')
+        .header('content-disposition', `attachment; filename="${file.fileName}"`)
+        .header('x-content-type-options', 'nosniff')
+        .header('cache-control', 'no-store')
+        .status(200)
+        .send(file.content);
+    },
+  );
+
+  // One settlement statement as a CSV file: every line, the totals and the payout status. Writes a seller audit entry.
+  app.get(
+    '/settlements/:id/export.csv',
+    { preHandler: requireSeller(SellerPermission.FINANCE_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const file = await settlementStatementCsv(currentSeller(request), params.id, request.correlationId);
+      return reply
+        .header('content-type', 'text/csv; charset=utf-8')
+        .header('content-disposition', `attachment; filename="${file.fileName}"`)
+        .header('x-content-type-options', 'nosniff')
+        .header('cache-control', 'no-store')
+        .status(200)
+        .send(file.content);
     },
   );
 

@@ -875,7 +875,7 @@ const POSTAL_GENERAL = /^[A-Z0-9][A-Z0-9 -]{0,18}[A-Z0-9]$/;
  * refusing a save because a city is missing would overrule them. What it
  * checks is that whatever IS present is well formed.
  */
-async function assertRegisteredAddress(
+export async function assertRegisteredAddress(
   membership: SellerMembership,
   patch: BusinessProfilePatch,
 ): Promise<void> {

@@ -366,6 +366,8 @@ const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
       'admin/master-data/:kind', 'admin/market-rules', 'admin/trade-rules', 'admin/content-blocks', 'account/saved-searches',
       'admin/listing-moderation/terms',
       'seller/bulk-imports',
+      // A repeat withdraws the earlier pending request and leaves one pending, identical request.
+      'seller/company-changes',
     ],
   },
   {

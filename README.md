@@ -539,6 +539,24 @@ answers buyers' claims before the deadline — with an offer, messages,
 evidence and an appeal — and shows the inspection result; **Reviews**
 (`/seller/reviews`) shows the seller's service score and lets it answer a
 review in public; each order has a **message thread with the buyer**.
+Home also lists orders **at risk before they are late** (dispatch due within
+`SELLER_ORDER_AT_RISK_HOURS`, default `24`; an open claim; a payment in
+question), orders the destination rules hold for **shipping documents**, and
+**money on hold**.
+
+**Verified details change through a request.** After approval the legal name,
+registration and tax numbers and registered address change only when staff
+approve the seller's request (console → **Company changes**); a material change
+re-opens verification. Sellers are warned thirty and seven days before a
+verified certificate or factory lapses, and **Preview as buyer** opens their
+public supplier page. Each listing shows **where it can be sold** (every
+country rule, with its reason), its **change history** and its weekly
+**capacity**; **Copy** makes a new listing draft. The **RFQ inbox** scores each
+request's fit out of 100, says whether the buyer is a verified business, and
+lets the seller hide a request or give it to a team member. **Payments** shows
+the tax on the commission and inspection fees as their own lines, the money
+held or in reserve beside the statements, and downloads a statement or a
+period as CSV.
 
 **Every order says exactly what was bought.** Each line of a seller's order
 has **Ordered product information** - the description, the specifications

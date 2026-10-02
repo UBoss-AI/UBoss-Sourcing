@@ -416,7 +416,16 @@ function DashboardBody({
     (rfqEnabled ? data.rfqs.awaitingResponse : 0) +
     data.inspection.readinessDue +
     data.inspection.capaDue +
-    complianceOutstanding;
+    complianceOutstanding +
+    data.ordersAtRisk.count +
+    data.shipmentDocs.ordersHeld +
+    data.settlementHolds.fundsOnHold +
+    data.settlementHolds.statementsOnHold +
+    (data.settlementHolds.payoutsPausedByOperator ? 1 : 0);
+
+  const heldAmounts = data.settlementHolds.amounts
+    .map((entry) => formatMinor(entry.amountMinor, entry.currency))
+    .join(' · ');
 
   /*
    * Nothing listed, nothing ordered: the tiles are not drawn at all.
@@ -652,6 +661,57 @@ function DashboardBody({
                 count={data.newOrders}
                 to="/seller/orders?status=NEW"
                 tone="warning"
+              />
+              {data.ordersAtRisk.items.map((item) => (
+                <ActionRow
+                  key={`risk-${item.sellerOrderGroupId}`}
+                  title={t('seller.dashboard.action.atRiskTitle', { order: item.sellerOrderNumber })}
+                  detail={item.reasons
+                    .map((reason) =>
+                      reason === 'DISPATCH_DUE_SOON'
+                        ? t('seller.dashboard.action.atRiskDispatch', { hours: String(data.ordersAtRisk.withinHours) })
+                        : reason === 'OPEN_DISPUTE'
+                          ? t('seller.dashboard.action.atRiskDispute')
+                          : t('seller.dashboard.action.atRiskPayment'),
+                    )
+                    .join(' · ')}
+                  count={1}
+                  to={`/seller/orders/${item.sellerOrderGroupId}`}
+                  tone={item.reasons.includes('DISPATCH_DUE_SOON') ? 'danger' : 'warning'}
+                />
+              ))}
+              {data.shipmentDocs.items.map((item) => (
+                <ActionRow
+                  key={`docs-${item.sellerOrderGroupId}`}
+                  title={t('seller.dashboard.action.shipmentDocsTitle', { order: item.sellerOrderNumber })}
+                  detail={
+                    item.onSeller
+                      ? item.missingDocuments.length > 0
+                        ? t('seller.dashboard.action.shipmentDocsMissing', { documents: item.missingDocuments.join(', ') })
+                        : t('seller.dashboard.action.shipmentDocsHeld')
+                      : t('seller.dashboard.action.shipmentDocsOthers')
+                  }
+                  count={1}
+                  to={`/seller/orders/${item.sellerOrderGroupId}`}
+                  tone={item.onSeller ? 'danger' : 'warning'}
+                />
+              ))}
+              <ActionRow
+                title={t('seller.dashboard.action.settlementHoldsTitle')}
+                detail={
+                  data.settlementHolds.payoutsPausedByOperator
+                    ? t('seller.dashboard.action.payoutsPaused', {
+                        reason: data.settlementHolds.payoutHoldReason ?? '—',
+                      })
+                    : t('seller.dashboard.action.settlementHoldsDetail', { amount: heldAmounts || '—' })
+                }
+                count={
+                  data.settlementHolds.fundsOnHold +
+                  data.settlementHolds.statementsOnHold +
+                  (data.settlementHolds.payoutsPausedByOperator ? 1 : 0)
+                }
+                to="/seller/payments"
+                tone="danger"
               />
               {rfqEnabled && (
                 <ActionRow
