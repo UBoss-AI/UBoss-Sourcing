@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1325 endpoints** in 125 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1348 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,14 +27,22 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 534 |
+| [Admin panel (staff)](#admin-panel-staff) | 554 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 330 |
+| [Seller Hub](#seller-hub) | 331 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
 | [Customer account](#customer-account) | 307 |
-| [Public and storefront](#public-and-storefront) | 54 |
+| [Public and storefront](#public-and-storefront) | 56 |
 
 ## Admin panel (staff)
+
+### `admin/account-messages`
+
+Defined in `backend/src/http/routes/governance.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/admin/account-messages` | Staff | Admin(CUSTOMER_WRITE) | Send a customer or a seller a message: an in-app notice and an email. Audited. |
 
 ### `admin/analytics`
 
@@ -176,6 +184,12 @@ Defined in `backend/src/http/routes/content-blocks.ts`.
 | POST | `/api/v1/admin/content-blocks` | Staff | Admin(SETTINGS_WRITE) | Add a banner or category block with its targeting and schedule. Audited. |
 | PUT | `/api/v1/admin/content-blocks/:id` | Staff | Admin(SETTINGS_WRITE) | Replace a banner or category block. Audited. |
 | DELETE | `/api/v1/admin/content-blocks/:id` | Staff | Admin(SETTINGS_WRITE) | Delete a banner or category block. Audited. |
+| POST | `/api/v1/admin/content-blocks/:id/submit` | Staff | Admin(SETTINGS_WRITE) | Send a draft block for approval by a second member of staff. Audited. |
+| POST | `/api/v1/admin/content-blocks/:id/approve` | Staff | Admin(SETTINGS_WRITE) | Approve and publish a block someone else sent for approval; refused while a blocking conflict stands. Audited. |
+| POST | `/api/v1/admin/content-blocks/:id/return` | Staff | Admin(SETTINGS_WRITE) | Send a block back to draft: refuse an approval, or take a published block off the storefront. Audited. |
+| GET | `/api/v1/admin/content-blocks/:id/versions` | Staff | Admin(SETTINGS_READ) | Every saved version of a block, newest first. |
+| POST | `/api/v1/admin/content-blocks/:id/versions/:revision/restore` | Staff | Admin(SETTINGS_WRITE) | Roll a block back to an earlier version, as a new draft that needs approval again. Audited. |
+| GET | `/api/v1/admin/content-blocks/preview` | Staff | Admin(SETTINGS_READ) | Preview what the storefront would show for a country, language and moment, optionally with drafts and blocks waiting for approval. |
 
 ### `admin/coupons`
 
@@ -331,6 +345,15 @@ Defined in `backend/src/http/routes/erp.admin.ts`, `backend/src/http/routes/sche
 | GET | `/api/v1/admin/erp/order-pushes` | Staff | Admin(INTEGRATION_READ) | Orders the ERP has refused, and that a person now has to look at. |
 | POST | `/api/v1/admin/erp/order-pushes/:orderId/retry` | Staff | Admin(INTEGRATION_WRITE) | Push an abandoned order to the ERP again, by hand. |
 
+### `admin/exception-queues`
+
+Defined in `backend/src/http/routes/governance.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/exception-queues` | Staff | Admin | Every admin exception queue the caller may see: SLA hours, owner and escalation role, items waiting, the oldest one's age and how many are past the SLA. |
+| PUT | `/api/v1/admin/exception-queues/:key` | Staff | Admin(SETTINGS_WRITE) | Change one exception queue's SLA hours, owner role or escalation role. Audited. |
+
 ### `admin/exports`
 
 Defined in `backend/src/http/routes/reports.admin.ts`.
@@ -409,7 +432,7 @@ Defined in `backend/src/http/routes/inspection.ts`.
 
 ### `admin/integrations`
 
-Defined in `backend/src/http/routes/reports.admin.ts`.
+Defined in `backend/src/http/routes/reports.admin.ts`, `backend/src/http/routes/governance.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -419,6 +442,8 @@ Defined in `backend/src/http/routes/reports.admin.ts`.
 | POST | `/api/v1/admin/integrations/:id/sync` | Staff | Admin(INTEGRATION_WRITE) | Run a sync. |
 | PATCH | `/api/v1/admin/integrations/:id/status` | Staff | Admin(INTEGRATION_WRITE) | Switch an integration on or off. Switching on is refused until its last connection test passed. Writes an audit entry. |
 | GET | `/api/v1/admin/integrations/sync-runs/:id` | Staff | Admin(INTEGRATION_READ) | The result of one integration sync: whether it was a trial run, how many records it handled and the errors it hit (up to 200). |
+| GET | `/api/v1/admin/integrations/health` | Staff | Admin | Health of every integration in one place: payment gateway, carriers, ERP feeds, inspection agencies and each webhook source's last delivery with accepted and rejected counts. |
+| POST | `/api/v1/admin/integrations/carrier-webhooks/requeue` | Staff | Admin(LOGISTICS_INTEGRATION_WRITE) | Put dead-lettered carrier webhooks back on the retry queue, for one carrier integration or all. Audited. |
 
 ### `admin/inventory`
 
@@ -469,6 +494,17 @@ Defined in `backend/src/http/routes/legal.admin.ts`.
 | PUT | `/api/v1/admin/legal-documents/:id` | Staff | Admin(LEGAL_DOCUMENT_WRITE) | Change a draft. 409 LEGAL_DOCUMENT_IMMUTABLE for a published document. |
 | DELETE | `/api/v1/admin/legal-documents/:id` | Staff | Admin(LEGAL_DOCUMENT_WRITE) | Delete a draft. 409 LEGAL_DOCUMENT_IMMUTABLE for a published document. |
 | POST | `/api/v1/admin/legal-documents/:id/publish` | Staff | Admin(LEGAL_DOCUMENT_PUBLISH) | Publish a draft: its words are frozen and new accounts must accept it once it takes effect. |
+
+### `admin/listing-moderation`
+
+Defined in `backend/src/http/routes/listing-moderation.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/listing-moderation/terms` | Staff | Admin(PRODUCT_READ) | Every prohibited listing term, with its reason, severity and whether it is switched on. |
+| POST | `/api/v1/admin/listing-moderation/terms` | Staff | Admin(PRODUCT_PUBLISH) | Add a prohibited term. Submitted listings containing it are flagged for the moderator. Audited. |
+| PUT | `/api/v1/admin/listing-moderation/terms/:id` | Staff | Admin(PRODUCT_PUBLISH) | Change a prohibited term. Audited. |
+| DELETE | `/api/v1/admin/listing-moderation/terms/:id` | Staff | Admin(PRODUCT_PUBLISH) | Remove a prohibited term. Audited. |
 
 ### `admin/logistics`
 
@@ -546,6 +582,7 @@ Defined in `backend/src/http/routes/market-rules.admin.ts`.
 | GET | `/api/v1/admin/market-rules` | Staff | Admin(SETTINGS_READ) | Every country rule, optionally for one destination country. |
 | POST | `/api/v1/admin/market-rules` | Staff | Admin(SETTINGS_WRITE) | Add a country rule: block or require documents, optionally above an order value. Audited. |
 | PUT | `/api/v1/admin/market-rules/:id` | Staff | Admin(SETTINGS_WRITE) | Replace a country rule. Audited. |
+| GET | `/api/v1/admin/market-rules/:id/versions` | Staff | Admin(SETTINGS_READ) | A country rule's history, newest first: every save and the deletion, with who made it and what the rule said. |
 | DELETE | `/api/v1/admin/market-rules/:id` | Staff | Admin(SETTINGS_WRITE) | Delete a country rule. Audited. |
 
 ### `admin/master-data`
@@ -649,6 +686,16 @@ Defined in `backend/src/http/routes/payments.ts`.
 | PATCH | `/api/v1/admin/payments/connections/:id/status` | Staff | Admin(PAYMENT_GATEWAY_WRITE) | Switch a payment-provider connection on or off. Switching on is refused until the connection has passed a test and has its webhook signing secret, and it switches off any other connection for the same provider or in the other mode (live versus test). Writes an audit entry. |
 | POST | `/api/v1/admin/payments/test-connection` | Staff | Admin(PAYMENT_GATEWAY_WRITE) | Prove the credentials work before an administrator activates them. |
 | POST | `/api/v1/admin/payments/:paymentId/reconcile` | Staff | Admin(PAYMENT_READ) | Ask the payment provider what really happened to one payment and bring the records into line. If the provider says the money was taken and the amount matches, the payment is recorded and a waiting order is confirmed; an amount mismatch is refused and finance is alerted. |
+
+### `admin/pending-actions`
+
+Defined in `backend/src/http/routes/governance.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/pending-actions` | Staff | Admin | Critical account actions waiting for (or decided by) a second member of staff, newest first; filter by status or record. |
+| POST | `/api/v1/admin/pending-actions/:id/approve` | Staff | Admin | Approve a critical account action someone else asked for, which runs it. The person who asked cannot approve. Audited. |
+| POST | `/api/v1/admin/pending-actions/:id/reject` | Staff | Admin | Reject a critical account action, or withdraw your own request. Audited. |
 
 ### `admin/platform-fee-rules`
 
@@ -912,13 +959,14 @@ Defined in `backend/src/http/routes/platform-fee-rules.admin.ts`.
 
 ### `admin/seller-listings`
 
-Defined in `backend/src/http/routes/sellers.admin.ts`.
+Defined in `backend/src/http/routes/sellers.admin.ts`, `backend/src/http/routes/listing-moderation.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/admin/seller-listings/review-queue` | Staff | Admin(PRODUCT_READ) | Seller listings submitted for review and waiting for a decision, a page at a time. |
 | GET | `/api/v1/admin/seller-listings/:id` | Staff | Admin(PRODUCT_READ) | One submitted listing, in full. |
 | POST | `/api/v1/admin/seller-listings/:id/decision` | Staff | Admin(PRODUCT_PUBLISH) | Approve, refuse or send back a listing. |
+| POST | `/api/v1/admin/seller-listings/:id/appeal-decision` | Staff | Admin(PRODUCT_PUBLISH) | Decide a seller's appeal against a refused listing: upheld sends it back for review, refused keeps it refused. Not by the moderator who refused it. Audited. |
 
 ### `admin/seller-offers`
 
@@ -1642,6 +1690,7 @@ Defined in `backend/src/http/routes/seller.listings.ts`.
 | POST | `/api/v1/seller/listing-drafts/:id/validate` | Seller | Seller(LISTING_READ) | Re-run every check on a wizard listing and return what is still missing or wrong. Its status moves to match: ready to submit once everything passes. |
 | POST | `/api/v1/seller/listing-drafts/:id/preview-title` | Seller | Seller(LISTING_READ) | What the title will be, and which fields made it. |
 | POST | `/api/v1/seller/listing-drafts/:id/submit` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_SUBMIT) | Send a finished listing to the marketplace's quality review. Refused, with each blocking problem listed, if anything is still missing. It goes on sale only once a moderator approves it. Writes an audit entry. |
+| POST | `/api/v1/seller/listing-drafts/:id/appeal` | Seller | Seller(LISTING_READ) + Seller(LISTING_SUBMIT) | Appeal a refused listing, saying why. A different moderator from the one who refused it decides. Writes an audit entry. |
 | POST | `/api/v1/seller/listing-drafts/:id/withdraw` | Seller | Seller(LISTING_READ) + Seller(LISTING_SUBMIT) | Take a listing back out of the review queue and return it to the wizard, before a moderator has decided on it. Writes an audit entry. |
 | GET | `/api/v1/seller/listing-drafts/:id/media` | Seller | Seller(LISTING_READ) | The photos and videos uploaded to a listing in the wizard. |
 | POST | `/api/v1/seller/listing-drafts/:id/media` | Seller | Seller(LISTING_READ) + TradingSeller(MEDIA_UPLOAD) | Upload one photograph or video. |
@@ -2731,7 +2780,7 @@ Defined in `backend/src/http/routes/auth.ts`, `backend/src/http/routes/security.
 
 ### `catalog`
 
-Defined in `backend/src/http/routes/catalog.public.ts`, `backend/src/http/routes/bulk-pricing.ts`, `backend/src/http/routes/product-reviews.ts`, `backend/src/http/routes/content-blocks.ts`.
+Defined in `backend/src/http/routes/catalog.public.ts`, `backend/src/http/routes/bulk-pricing.ts`, `backend/src/http/routes/product-reviews.ts`, `backend/src/http/routes/content-blocks.ts`, `backend/src/http/routes/market-rules.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -2749,6 +2798,7 @@ Defined in `backend/src/http/routes/catalog.public.ts`, `backend/src/http/routes
 | GET | `/api/v1/catalog/bulk-pricing` | Public (customer optional) | optionalCustomer | Show what one piece of a product costs at a given quantity, for each way of buying it, so the shopper can see the price drop as the quantity goes up. Anyone can ask; a signed-in business buyer also sees prices kept for business accounts and for their delivery country. |
 | GET | `/api/v1/catalog/products/:slug/reviews` | Public |  | A product's rating summary and one page of its published reviews. |
 | GET | `/api/v1/catalog/content-blocks` | Public |  | The published banners or category blocks live now for a country and language. |
+| GET | `/api/v1/catalog/label-requirements` | Public |  | The labelling the products in a basket must carry for a delivery country, for checkout to show. |
 
 ### `config`
 
@@ -2846,6 +2896,14 @@ Defined in `backend/src/http/routes/preorders.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/preorders/eligibility` | Public (customer optional) | optionalCustomer | Can this product be preordered, and on what terms? |
+
+### `service-status`
+
+Defined in `backend/src/http/routes/governance.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/service-status` | Public |  | Whether card payments may be failing right now, as a yes or no for the storefront's notice. No detail. |
 
 ### `sitemap.xml`
 

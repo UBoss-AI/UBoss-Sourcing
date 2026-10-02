@@ -34,7 +34,14 @@ import {
   decideCompanyDocument,
   redeemDocumentLink,
 } from '../../modules/buyer-companies/documents.service.js';
+import { notFound } from '../../domain/errors.js';
+import { prisma } from '../../infra/prisma.js';
+import {
+  criticalActionApprovalRequired,
+  requestPendingAction,
+} from '../../modules/governance/pending-action.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
+import { staffActorFrom } from './governance.admin.js';
 import { assertStaffDataRegion } from '../plugins/data-region.js';
 
 const idParam = z.object({ id: z.string().length(26) });
@@ -247,6 +254,29 @@ export function registerAdminBuyerCompanyRoutes(app: FastifyInstance): Promise<v
     async (request, reply) => {
       const { id } = idParam.parse(request.params);
       const body = suspendSchema.parse(request.body);
+
+      // Maker-checker (JOURNEY-061): with `critical_action_approval` on, the
+      // suspension waits for a second member of staff. 202: nothing changed yet.
+      if (await criticalActionApprovalRequired()) {
+        const company = await prisma.buyerCompany.findUnique({
+          where: { id },
+          select: { legalName: true, applicationReference: true },
+        });
+        if (company === null) throw notFound('Company');
+        const pending = await requestPendingAction(
+          {
+            kind: 'BUYER_COMPANY_SUSPEND',
+            resourceType: 'buyer_company',
+            resourceId: id,
+            resourceLabel: company.legalName ?? company.applicationReference,
+            payload: { expectedVersion: body.expectedVersion, reasonCode: body.reasonCode ?? null },
+            reason: body.reason,
+          },
+          staffActorFrom(request),
+        );
+        return reply.status(202).send({ pending });
+      }
+
       return reply.status(200).send(
         await suspendCompany(reviewerOf(request), {
           companyId: id,

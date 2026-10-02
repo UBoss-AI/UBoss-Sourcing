@@ -100,6 +100,8 @@ export interface CategoryMarketNote {
   /** Minor units: the rule applies only to an order at or above this. Null = always. */
   minOrderValueMinor: string | null;
   thresholdCurrency: string | null;
+  /** For LABEL_REQUIRED: what the goods must carry in that country. */
+  labelText: string | null;
 }
 
 /**
@@ -130,6 +132,7 @@ export async function categoryMarketNotes(
       effect: true,
       reason: true,
       requiredDocumentsJson: true,
+      labelText: true,
       minOrderValueMinor: true,
       thresholdCurrency: true,
       category: { select: { name: true } },
@@ -147,6 +150,7 @@ export async function categoryMarketNotes(
     categoryName: rule.category?.name ?? '',
     minOrderValueMinor: rule.minOrderValueMinor === null ? null : rule.minOrderValueMinor.toString(),
     thresholdCurrency: rule.thresholdCurrency,
+    labelText: rule.labelText,
   }));
 }
 
@@ -177,7 +181,14 @@ export async function productMarketNotes(
       effectiveFrom: { lte: now },
       OR: [{ effectiveUntil: null }, { effectiveUntil: { gt: now } }],
     },
-    select: { effect: true, reason: true, requiredDocumentsJson: true, minOrderValueMinor: true, thresholdCurrency: true },
+    select: {
+      effect: true,
+      reason: true,
+      requiredDocumentsJson: true,
+      labelText: true,
+      minOrderValueMinor: true,
+      thresholdCurrency: true,
+    },
     orderBy: [{ effect: 'asc' }, { createdAt: 'asc' }],
   });
 
@@ -191,6 +202,7 @@ export async function productMarketNotes(
       categoryName: '',
       minOrderValueMinor: rule.minOrderValueMinor === null ? null : rule.minOrderValueMinor.toString(),
       thresholdCurrency: rule.thresholdCurrency,
+      labelText: rule.labelText,
     })),
     ...onCategories,
   ].sort((a, b) => (a.effect === b.effect ? 0 : a.effect === 'BLOCK' ? -1 : 1));

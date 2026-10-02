@@ -32,7 +32,13 @@ import {
   dispatchPendingNotifications,
   enqueueNotification,
 } from '../../modules/notifications/notification.service.js';
+import { notFound } from '../../domain/errors.js';
+import {
+  criticalActionApprovalRequired,
+  requestPendingAction,
+} from '../../modules/governance/pending-action.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
+import { staffActorFrom } from './governance.admin.js';
 
 const minorUnits = z
   .string()
@@ -218,8 +224,35 @@ export function registerAdminCustomerRoutes(app: FastifyInstance): Promise<void>
     async (request, reply) => {
       const { id } = idParam.parse(request.params);
       const body = z
-        .object({ active: z.boolean(), reason: z.string().max(512).optional() })
+        .object({ active: z.boolean(), reason: z.string().trim().max(512).optional() })
+        // A deactivation stops somebody buying, so it always says why (JOURNEY-061).
+        .refine((value) => value.active || (value.reason ?? '').length >= 3, {
+          path: ['reason'],
+          message: 'Give the reason for deactivating this account.',
+        })
         .parse(request.body);
+
+      // Maker-checker: with `critical_action_approval` on, a deactivation waits
+      // for a second member of staff. 202: nothing has changed yet.
+      if (!body.active && (await criticalActionApprovalRequired())) {
+        const profile = await prisma.customerProfile.findUnique({
+          where: { id },
+          select: { fullName: true, user: { select: { email: true } } },
+        });
+        if (profile === null) throw notFound('Customer');
+        const pending = await requestPendingAction(
+          {
+            kind: 'CUSTOMER_DEACTIVATE',
+            resourceType: 'customer',
+            resourceId: id,
+            resourceLabel: `${profile.fullName} <${profile.user.email}>`,
+            payload: {},
+            reason: body.reason ?? '',
+          },
+          staffActorFrom(request),
+        );
+        return reply.status(202).send({ pending });
+      }
 
       const result = await setCustomerStatus(id, body.active, actorFrom(request), body.reason);
       return reply.status(200).send({ active: body.active, ...result });

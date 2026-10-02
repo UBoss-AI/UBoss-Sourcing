@@ -8338,5 +8338,17 @@
   "orderMessages.page.empty": "Pour écrire à un vendeur, ouvrez la commande et utilisez « Messages sur cette commande ».",
   "orderMessages.page.order": "Commande {{number}}",
   "errors.messages.reportOwn": "Vous ne pouvez pas signaler un message que vous avez écrit.",
-  "errors.messages.translationUnavailable": "La traduction n'est pas disponible pour le moment. Le message d'origine est affiché."
+  "errors.messages.translationUnavailable": "La traduction n'est pas disponible pour le moment. Le message d'origine est affiché.",
+  "product.sourcing.labelRule": "Étiquetage pour ce pays : {{label}}",
+  "catalog.marketLabelRequired": "Les marchandises envoyées vers {{country}} portent un étiquetage particulier.",
+  "market.labelNeeded": "les marchandises y portent cet étiquetage.",
+  "checkout.labelRulesTitle": "Étiquetage pour une livraison vers {{country}}",
+  "serviceBanner.paymentsDegradedTitle": "Les paiements par carte peuvent échouer en ce moment.",
+  "serviceBanner.paymentsDegradedBody": "Nous nous en occupons. Votre panier est conservé et un paiement refusé n'est pas dû à votre banque.",
+  "seller.listing.evidenceTitle": "Ce qu'il faut envoyer",
+  "seller.listing.appealLabel": "Pas d'accord ? Faites appel et expliquez pourquoi",
+  "seller.listing.appealSend": "Envoyer l'appel",
+  "seller.listing.appealSent": "Appel envoyé. Un autre modérateur l'examinera.",
+  "seller.listing.appealPending": "Votre appel est entre les mains d'un autre modérateur. Vous serez informé du résultat.",
+  "seller.listing.appealRefused": "Votre appel n'a pas été accueilli. Vous pouvez toujours modifier l'annonce et la soumettre à nouveau."
 }

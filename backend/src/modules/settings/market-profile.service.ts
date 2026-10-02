@@ -85,11 +85,13 @@ export interface MarketPage {
     featuredCategories: { slug: string; name: string }[];
   } | null;
   restrictions: {
-    effect: 'BLOCK' | 'DOCUMENTS_REQUIRED';
+    effect: 'BLOCK' | 'DOCUMENTS_REQUIRED' | 'LABEL_REQUIRED';
     category: { slug: string; name: string } | null;
     product: { slug: string; name: string } | null;
     reason: string;
     requiredDocuments: string[];
+    /** For LABEL_REQUIRED: what the goods must carry in this country (JOURNEY-064). */
+    labelText: string | null;
   }[];
 }
 
@@ -121,6 +123,7 @@ export async function marketPage(code: string, now: Date = new Date()): Promise<
         effect: true,
         reason: true,
         requiredDocumentsJson: true,
+        labelText: true,
         category: { select: { slug: true, name: true } },
         product: { select: { slug: true, name: true, isPublished: true, status: true } },
       },
@@ -180,6 +183,7 @@ export async function marketPage(code: string, now: Date = new Date()): Promise<
         product: rule.product === null ? null : { slug: rule.product.slug, name: rule.product.name },
         reason: rule.reason,
         requiredDocuments: slugs(rule.requiredDocumentsJson),
+        labelText: rule.labelText,
       })),
   };
 }

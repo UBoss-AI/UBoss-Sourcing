@@ -39,6 +39,18 @@ import { Permission, type PermissionKey } from '../../domain/permissions.js';
 import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
 import type { InsightMetric } from '../assistant/insights.service.js';
+import {
+  carrierIntegrationsDegraded,
+  complianceExpiring,
+  customerErpEventsFailed,
+  disputesPastSla,
+  failedInspectionsUnresolved,
+  highRiskSignalsOpen,
+  inspectionJobsPastSla,
+  preorderChatsPastSla,
+  settlementsOnHold,
+  supportTicketsPastSla,
+} from '../governance/command-centre-counts.js';
 import { readAttention, type AttentionKeyName } from './attention.service.js';
 
 // ---------------------------------------------------------------------------
@@ -63,8 +75,15 @@ export const OperationsGroup = {
   INVENTORY: 'inventory',
   /// Consignments in trouble.
   LOGISTICS: 'logistics',
-  /// The machinery: dead jobs, undelivered notifications, silent ERP feeds.
+  /// The machinery: dead jobs, undelivered notifications, silent ERP feeds,
+  /// carriers and buyers' ERP connections that are failing.
   PLATFORM: 'platform',
+  /// Risk and compliance (JOURNEY-060): high-risk signals, failed
+  /// inspections, seller documents and certificates lapsing.
+  RISK: 'risk',
+  /// Work past its own deadline (JOURNEY-060): disputes, support requests,
+  /// pre-order chats and inspection jobs.
+  SLA: 'sla',
 } as const;
 
 export type OperationsGroupName = (typeof OperationsGroup)[keyof typeof OperationsGroup];
@@ -265,6 +284,87 @@ const FAULTS: readonly FaultQueue[] = Object.freeze([
     href: '/operations/dead-jobs',
     count: () => prisma.jobQueue.count({ where: { status: 'DEAD' } }),
   },
+  // --- JOURNEY-060: the Command Center's exception queues -----------------
+  {
+    key: 'settlementsOnHold',
+    group: 'payments',
+    permission: Permission.PAYMENT_READ,
+    severity: 'attention',
+    href: '/finance/ledger',
+    count: settlementsOnHold,
+  },
+  {
+    key: 'carrierIntegrationsDegraded',
+    group: 'platform',
+    permission: Permission.LOGISTICS_READ,
+    severity: 'attention',
+    href: '/logistics/integrations',
+    count: carrierIntegrationsDegraded,
+  },
+  {
+    key: 'customerErpEventsFailed',
+    group: 'platform',
+    permission: Permission.INTEGRATION_READ,
+    severity: 'attention',
+    href: '/customer-erp',
+    count: () => customerErpEventsFailed(),
+  },
+  {
+    key: 'riskSignalsOpen',
+    group: 'risk',
+    permission: Permission.RISK_READ,
+    severity: 'urgent',
+    href: '/risk',
+    count: highRiskSignalsOpen,
+  },
+  {
+    key: 'inspectionsFailed',
+    group: 'risk',
+    permission: Permission.INSPECTION_READ,
+    severity: 'urgent',
+    href: '/inspection',
+    count: failedInspectionsUnresolved,
+  },
+  {
+    key: 'complianceExpiring',
+    group: 'risk',
+    permission: Permission.CUSTOMER_READ,
+    severity: 'attention',
+    href: '/sellers',
+    count: () => complianceExpiring(),
+  },
+  {
+    key: 'disputesPastSla',
+    group: 'sla',
+    permission: Permission.DISPUTE_VIEW,
+    severity: 'urgent',
+    href: '/disputes',
+    count: () => disputesPastSla(),
+  },
+  {
+    key: 'supportTicketsPastSla',
+    group: 'sla',
+    permission: Permission.SUPPORT_TICKET_VIEW,
+    severity: 'attention',
+    href: '/support',
+    count: () => supportTicketsPastSla(),
+  },
+  {
+    key: 'preorderChatsPastSla',
+    group: 'sla',
+    permission: Permission.PREORDER_CHAT_VIEW,
+    severity: 'attention',
+    href: '/preorder-chats?sort=oldest_unanswered',
+    count: preorderChatsPastSla,
+  },
+  {
+    key: 'inspectionJobsPastSla',
+    group: 'sla',
+    permission: Permission.INSPECTION_READ,
+    severity: 'attention',
+    href: '/inspection',
+    count: () => inspectionJobsPastSla(),
+  },
 ]);
 
 // ---------------------------------------------------------------------------
@@ -373,6 +473,16 @@ const QUEUE_LABELS: Readonly<Record<string, string>> = Object.freeze({
   erpConnectionsUnhealthy: 'ERP connections out of service',
   notificationsFailed: 'Notifications that could not be delivered',
   jobsDead: 'Background jobs that exhausted their retries',
+  settlementsOnHold: 'Seller settlements and held funds placed on hold',
+  carrierIntegrationsDegraded: 'Carrier integrations failing or in error',
+  customerErpEventsFailed: "Buyers' ERP events that gave up this week",
+  riskSignalsOpen: 'High and critical risk signals nobody has reviewed',
+  inspectionsFailed: 'Failed inspections with no passing re-inspection',
+  complianceExpiring: 'Seller documents and certificates lapsed or lapsing soon',
+  disputesPastSla: 'Disputes past their response or decision deadline',
+  supportTicketsPastSla: 'Support requests past their first-response deadline',
+  preorderChatsPastSla: 'Pre-order chats waiting longer than their reply target',
+  inspectionJobsPastSla: 'Inspection jobs not accepted in time or with an overdue report',
 });
 
 /**

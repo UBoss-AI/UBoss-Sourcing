@@ -10,7 +10,9 @@ import { z } from 'zod';
 import { Permission } from '../../domain/permissions.js';
 import {
   deleteMarketRule,
+  labelRequirements,
   listMarketRules,
+  listMarketRuleVersions,
   marketRuleInput,
   saveMarketRule,
 } from '../../modules/catalog/market-rule-admin.service.js';
@@ -51,6 +53,12 @@ export function registerAdminMarketRuleRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  // A country rule's history, newest first: every save and the deletion, with who made it and what the rule said.
+  app.get('/market-rules/:id/versions', { preHandler: requireAdmin(Permission.SETTINGS_READ) }, async (request, reply) => {
+    const { id } = idParam.parse(request.params);
+    return reply.status(200).send({ versions: await listMarketRuleVersions(id) });
+  });
+
   // Delete a country rule. Audited.
   app.delete(
     '/market-rules/:id',
@@ -89,6 +97,26 @@ export function registerAdminMarketRuleRoutes(app: FastifyInstance): Promise<voi
   app.post('/logistics/lanes/quote', { preHandler: requireAdmin(Permission.LOGISTICS_READ) }, async (request, reply) =>
     reply.status(200).send({ quotes: await quoteLanes(laneQuoteInput.parse(request.body)) }),
   );
+
+  return Promise.resolve();
+}
+
+export function registerPublicLabelRuleRoutes(app: FastifyInstance): Promise<void> {
+  // The labelling the products in a basket must carry for a delivery country, for checkout to show.
+  app.get('/label-requirements', async (request, reply) => {
+    const query = z
+      .object({
+        country: z.string().trim().regex(/^[A-Za-z]{2}$/),
+        products: z
+          .string()
+          .trim()
+          .max(26 * 100 + 99)
+          .transform((value) => value.split(',').filter((id) => id.length === 26)),
+      })
+      .parse(request.query);
+    const requirements = await labelRequirements(query.country, query.products.slice(0, 100));
+    return reply.header('cache-control', 'public, max-age=60').status(200).send({ requirements });
+  });
 
   return Promise.resolve();
 }

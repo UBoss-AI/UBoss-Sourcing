@@ -39,9 +39,11 @@ export const marketRuleInput = z
     /** For CATEGORY. */
     categoryId: z.string().length(26).nullable().optional(),
     countryCode: COUNTRY,
-    effect: z.enum(['BLOCK', 'DOCUMENTS_REQUIRED']),
+    effect: z.enum(['BLOCK', 'DOCUMENTS_REQUIRED', 'LABEL_REQUIRED']),
     reason: z.string().trim().min(3).max(512),
     requiredDocuments: z.array(z.string().trim().min(1).max(160)).max(20).default([]),
+    /** For LABEL_REQUIRED: the labelling the goods must carry in that country. */
+    labelText: z.string().trim().max(4000).nullable().optional(),
     /** Minor units as a string, or null for "every order". */
     minOrderValueMinor: z
       .string()
@@ -64,11 +66,12 @@ export interface MarketRuleView {
   id: string;
   scope: 'PRODUCT' | 'CATEGORY';
   countryCode: string;
-  effect: 'BLOCK' | 'DOCUMENTS_REQUIRED';
+  effect: 'BLOCK' | 'DOCUMENTS_REQUIRED' | 'LABEL_REQUIRED';
   product: { id: string; slug: string; name: string } | null;
   category: { id: string; slug: string; name: string } | null;
   reason: string;
   requiredDocuments: string[];
+  labelText: string | null;
   minOrderValueMinor: string | null;
   thresholdCurrency: string | null;
   source: string;
@@ -104,6 +107,7 @@ function view(row: RuleRow): MarketRuleView {
     category: row.category,
     reason: row.reason,
     requiredDocuments: documents(row.requiredDocumentsJson),
+    labelText: row.labelText,
     minOrderValueMinor: row.minOrderValueMinor === null ? null : row.minOrderValueMinor.toString(),
     thresholdCurrency: row.thresholdCurrency,
     source: row.source,
@@ -167,6 +171,9 @@ async function columnsFor(input: MarketRuleInput): Promise<{
   if (input.effectiveUntil !== undefined && input.effectiveUntil !== null && input.effectiveUntil.getTime() <= input.effectiveFrom.getTime()) {
     throw invalid('effectiveUntil', 'BEFORE_START', 'A rule cannot end before it starts.');
   }
+  if (input.effect === 'LABEL_REQUIRED' && (input.labelText ?? '').length < 3) {
+    throw invalid('labelText', 'REQUIRED', 'Say what the label must show in that country.');
+  }
   return { productId, categoryId, minOrderValueMinor: threshold === null ? null : BigInt(threshold), thresholdCurrency: currency };
 }
 
@@ -184,6 +191,143 @@ function auditSnapshot(rule: MarketRuleView): Record<string, unknown> {
   };
 }
 
+/** Everything a rule says, for its history row: what a reader of the history needs to see. */
+function historySnapshot(rule: MarketRuleView): Prisma.InputJsonObject {
+  return {
+    scope: rule.scope,
+    countryCode: rule.countryCode,
+    effect: rule.effect,
+    product: rule.product === null ? null : { id: rule.product.id, slug: rule.product.slug, name: rule.product.name },
+    category: rule.category === null ? null : { id: rule.category.id, slug: rule.category.slug, name: rule.category.name },
+    reason: rule.reason,
+    requiredDocuments: rule.requiredDocuments,
+    labelText: rule.labelText,
+    minOrderValueMinor: rule.minOrderValueMinor,
+    thresholdCurrency: rule.thresholdCurrency,
+    source: rule.source,
+    version: rule.version,
+    ownerName: rule.ownerName,
+    effectiveFrom: rule.effectiveFrom,
+    effectiveUntil: rule.effectiveUntil,
+    isActive: rule.isActive,
+  };
+}
+
+/** Append one history row for a rule. Revisions count up from 1 per rule. */
+async function recordRuleVersion(
+  tx: Prisma.TransactionClient,
+  rule: MarketRuleView,
+  changeKind: 'CREATED' | 'UPDATED' | 'DELETED',
+  actor: { userId: string; email: string | null },
+): Promise<void> {
+  const last = await tx.marketRuleVersion.findFirst({
+    where: { ruleId: rule.id },
+    orderBy: { revision: 'desc' },
+    select: { revision: true },
+  });
+  await tx.marketRuleVersion.create({
+    data: {
+      id: newId(),
+      ruleId: rule.id,
+      revision: (last?.revision ?? 0) + 1,
+      changeKind,
+      snapshotJson: historySnapshot(rule),
+      changedById: actor.userId,
+      changedByEmail: actor.email,
+    },
+  });
+}
+
+export interface MarketRuleVersionView {
+  revision: number;
+  changeKind: string;
+  snapshot: Record<string, unknown>;
+  changedByEmail: string | null;
+  changedAt: string;
+}
+
+/** A rule's history, newest first. Works for a deleted rule too. */
+export async function listMarketRuleVersions(ruleId: string): Promise<MarketRuleVersionView[]> {
+  const rows = await prisma.marketRuleVersion.findMany({
+    where: { ruleId },
+    orderBy: { revision: 'desc' },
+    take: 200,
+  });
+  return rows.map((row) => ({
+    revision: row.revision,
+    changeKind: row.changeKind,
+    snapshot:
+      row.snapshotJson !== null && typeof row.snapshotJson === 'object' && !Array.isArray(row.snapshotJson)
+        ? (row.snapshotJson as Record<string, unknown>)
+        : {},
+    changedByEmail: row.changedByEmail,
+    changedAt: row.createdAt.toISOString(),
+  }));
+}
+
+/**
+ * Block one product in a list of countries, from a moderator's approval
+ * (JOURNEY-062). Each country becomes an ordinary PRODUCT-scope BLOCK rule
+ * with its history row, so it shows on the Country rules screen and can be
+ * changed or removed there like any other.
+ */
+export async function blockProductInCountries(
+  tx: Prisma.TransactionClient,
+  input: {
+    productId: string;
+    countries: readonly string[];
+    reason: string;
+    source: string;
+    actor: { userId: string; email: string | null };
+  },
+): Promise<number> {
+  let created = 0;
+  for (const countryCode of input.countries) {
+    const existing = await tx.marketRule.findFirst({
+      where: { scope: 'PRODUCT', productId: input.productId, countryCode, effect: 'BLOCK', isActive: true },
+      select: { id: true },
+    });
+    if (existing !== null) continue;
+    const row = await tx.marketRule.create({
+      data: {
+        id: newId(),
+        scope: 'PRODUCT',
+        productId: input.productId,
+        countryCode,
+        effect: 'BLOCK',
+        reason: input.reason.slice(0, 512),
+        requiredDocumentsJson: [],
+        source: input.source.slice(0, 255),
+        version: '1',
+        ownerName: (input.actor.email ?? 'Listing moderation').slice(0, 160),
+        effectiveFrom: new Date(),
+        isActive: true,
+        createdById: input.actor.userId,
+        updatedById: input.actor.userId,
+      },
+      include: INCLUDE,
+    });
+    await recordRuleVersion(tx, view(row), 'CREATED', input.actor);
+    created += 1;
+  }
+  if (created > 0) {
+    await recordAudit(
+      {
+        action: AuditAction.LISTING_DESTINATIONS_RESTRICTED,
+        resourceType: 'product',
+        resourceId: input.productId,
+        actorType: 'ADMIN',
+        actorUserId: input.actor.userId,
+        actorEmail: input.actor.email,
+        before: null,
+        after: { countries: input.countries, reason: input.reason },
+      },
+      tx,
+    );
+  }
+  return created;
+}
+
 export async function saveMarketRule(
   id: string | null,
   input: MarketRuleInput,
@@ -196,6 +340,7 @@ export async function saveMarketRule(
     effect: input.effect,
     reason: input.reason,
     requiredDocumentsJson: input.effect === 'DOCUMENTS_REQUIRED' ? [...new Set(input.requiredDocuments)] : [],
+    labelText: input.effect === 'LABEL_REQUIRED' ? (input.labelText ?? null) : null,
     source: input.source,
     version: input.version,
     ownerName: input.ownerName,
@@ -214,6 +359,7 @@ export async function saveMarketRule(
         ? await tx.marketRule.create({ data: { id: newId(), createdById: actor.userId, ...data }, include: INCLUDE })
         : await tx.marketRule.update({ where: { id }, data, include: INCLUDE });
     const after = view(row);
+    await recordRuleVersion(tx, after, id === null ? 'CREATED' : 'UPDATED', { userId: actor.userId, email: actor.email });
     await recordAudit(
       {
         action: AuditAction.SETTINGS_UPDATED,
@@ -237,6 +383,7 @@ export async function deleteMarketRule(id: string, actor: SettingsActor): Promis
   await prisma.$transaction(async (tx) => {
     const before = await tx.marketRule.findUnique({ where: { id }, include: INCLUDE });
     if (before === null) throw notFound('Country rule');
+    await recordRuleVersion(tx, view(before), 'DELETED', { userId: actor.userId, email: actor.email });
     await tx.marketRule.delete({ where: { id } });
     await recordAudit(
       {
@@ -313,6 +460,59 @@ export async function destinationRestrictions(
         : candidate.categoryId !== null && lineage.has(candidate.categoryId),
     );
     if (rule !== undefined) found.push({ productId: product.id, reason: rule.reason });
+  }
+  return found;
+}
+
+export interface LabelRequirement {
+  productId: string;
+  reason: string;
+  labelText: string;
+}
+
+/**
+ * The labelling rules in force for a basket going to `country` (JOURNEY-064).
+ *
+ * LABEL_REQUIRED rules never stop a sale; checkout shows them so the buyer
+ * knows what the goods will carry and the seller knows what to print. A
+ * category rule covers everything beneath it, as for BLOCK.
+ */
+export async function labelRequirements(
+  country: string,
+  productIds: readonly string[],
+  now: Date = new Date(),
+): Promise<LabelRequirement[]> {
+  const ids = [...new Set(productIds)];
+  if (ids.length === 0) return [];
+  const rules = await prisma.marketRule.findMany({
+    where: {
+      countryCode: country.toUpperCase(),
+      effect: 'LABEL_REQUIRED',
+      isActive: true,
+      effectiveFrom: { lte: now },
+      OR: [{ effectiveUntil: null }, { effectiveUntil: { gt: now } }],
+    },
+    select: { scope: true, productId: true, categoryId: true, reason: true, labelText: true },
+    orderBy: { createdAt: 'asc' },
+  });
+  if (rules.length === 0) return [];
+  const products = await prisma.product.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, categoryId: true, category: { select: { path: true } } },
+  });
+  const found: LabelRequirement[] = [];
+  for (const product of products) {
+    const lineage = new Set([
+      ...(product.category?.path ?? '').split('/').filter((part) => part.length > 0),
+      product.categoryId,
+    ]);
+    for (const rule of rules) {
+      const applies =
+        rule.scope === 'PRODUCT'
+          ? rule.productId === product.id
+          : rule.categoryId !== null && lineage.has(rule.categoryId);
+      if (applies) found.push({ productId: product.id, reason: rule.reason, labelText: rule.labelText ?? '' });
+    }
   }
   return found;
 }

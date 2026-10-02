@@ -46,6 +46,7 @@ import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
 import { currencyExponent, formatNumber, majorToMinor, minorToMajor } from '@/lib/format';
 import {
+  appealListingDraft,
   createDraft,
   fetchBrands,
   fetchDraft,
@@ -990,6 +991,84 @@ function DetailsStep({
  * per-field copy is how the seller fixes one, and this is how they find out
  * there are five without scrolling through five sections.
  */
+/** What the moderator asked the seller to send, as a checklist (JOURNEY-062). */
+function EvidenceRequestList({ draft }: { draft: DraftView }): React.JSX.Element | null {
+  const { t } = useI18n();
+  const items = draft.evidenceRequest ?? [];
+  if (items.length === 0) return null;
+  return (
+    <div className="mt-3">
+      <p className="text-sm font-medium text-ink">{t('seller.listing.evidenceTitle')}</p>
+      <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-ink-muted">
+        {items.map((item, index) => (
+          <li key={`${item.kind}-${String(index)}`}>
+            <span className="font-medium text-ink">{item.label}</span>
+            {item.note !== null && item.note !== '' && <span> - {item.note}</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/**
+ * Appeal a refusal (JOURNEY-062). Offered while the listing is refused and
+ * not already appealed; once sent, it says a second moderator has it.
+ */
+function AppealPanel({ draft }: { draft: DraftView }): React.JSX.Element | null {
+  const { t } = useI18n();
+  const toast = useToast();
+  const queryClient = useQueryClient();
+  const [reason, setReason] = useState('');
+  const appeal = useMutation({
+    mutationFn: () => appealListingDraft(draft.id, reason.trim()),
+    onSuccess: async () => {
+      toast.success(t('seller.listing.appealSent'));
+      setReason('');
+      await queryClient.invalidateQueries();
+    },
+    onError: (error: unknown) => {
+      toast.error(errorMessage(t, error));
+    },
+  });
+
+  if (draft.status === 'APPEALED') {
+    return <p className="mt-3 text-sm font-medium text-ink">{t('seller.listing.appealPending')}</p>;
+  }
+  if (draft.status !== 'REJECTED') return null;
+  if (draft.appeal?.outcome === 'REFUSED') {
+    return <p className="mt-3 text-sm text-ink-muted">{t('seller.listing.appealRefused')}</p>;
+  }
+
+  return (
+    <div className="mt-3 space-y-2">
+      <label className="block text-sm font-medium text-ink" htmlFor="listing-appeal-reason">
+        {t('seller.listing.appealLabel')}
+      </label>
+      <textarea
+        id="listing-appeal-reason"
+        className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-ink"
+        rows={3}
+        maxLength={4000}
+        value={reason}
+        onChange={(event) => {
+          setReason(event.currentTarget.value);
+        }}
+      />
+      <button
+        type="button"
+        className="rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium text-ink disabled:opacity-50"
+        disabled={reason.trim().length < 10 || appeal.isPending}
+        onClick={() => {
+          appeal.mutate();
+        }}
+      >
+        {t('seller.listing.appealSend')}
+      </button>
+    </div>
+  );
+}
+
 function BlockerSummary({ draft }: { draft: DraftView }): React.JSX.Element | null {
   const blockers = draft.issues.filter((issue) => issue.severity === 'BLOCKER');
 
@@ -1000,6 +1079,8 @@ function BlockerSummary({ draft }: { draft: DraftView }): React.JSX.Element | nu
         <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-ink-muted">
           {draft.reviewComment}
         </p>
+        <EvidenceRequestList draft={draft} />
+        <AppealPanel draft={draft} />
       </div>
     );
   }

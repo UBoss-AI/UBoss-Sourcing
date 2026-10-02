@@ -369,9 +369,14 @@ export const ModelName = {
   SellerListingCertification: 'SellerListingCertification',
   SellerOfferComplianceHold: 'SellerOfferComplianceHold',
   MarketRule: 'MarketRule',
+  MarketRuleVersion: 'MarketRuleVersion',
   MarketLandedCostRate: 'MarketLandedCostRate',
   MarketProfile: 'MarketProfile',
   ContentBlock: 'ContentBlock',
+  ContentBlockVersion: 'ContentBlockVersion',
+  AdminPendingAction: 'AdminPendingAction',
+  ExceptionQueueSetting: 'ExceptionQueueSetting',
+  ListingProhibitedTerm: 'ListingProhibitedTerm',
   SearchSynonym: 'SearchSynonym',
   SearchQueryLog: 'SearchQueryLog',
   CustomerKyc: 'CustomerKyc',
@@ -3737,6 +3742,12 @@ export const SellerListingDraftScalarFieldEnum = {
   reviewedByUserId: 'reviewedByUserId',
   reviewedAt: 'reviewedAt',
   submittedAt: 'submittedAt',
+  evidenceRequestJson: 'evidenceRequestJson',
+  appealReason: 'appealReason',
+  appealedAt: 'appealedAt',
+  appealDecidedById: 'appealDecidedById',
+  appealDecidedAt: 'appealDecidedAt',
+  appealOutcome: 'appealOutcome',
   version: 'version',
   submittedVersion: 'submittedVersion',
   createdByProfileId: 'createdByProfileId',
@@ -7887,6 +7898,7 @@ export const MarketRuleScalarFieldEnum = {
   effect: 'effect',
   reason: 'reason',
   requiredDocumentsJson: 'requiredDocumentsJson',
+  labelText: 'labelText',
   source: 'source',
   version: 'version',
   ownerName: 'ownerName',
@@ -7902,6 +7914,21 @@ export const MarketRuleScalarFieldEnum = {
 } as const
 
 export type MarketRuleScalarFieldEnum = (typeof MarketRuleScalarFieldEnum)[keyof typeof MarketRuleScalarFieldEnum]
+
+
+export const MarketRuleVersionScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  revision: 'revision',
+  changeKind: 'changeKind',
+  snapshotJson: 'snapshotJson',
+  changedById: 'changedById',
+  changedByEmail: 'changedByEmail',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MarketRuleVersionScalarFieldEnum = (typeof MarketRuleVersionScalarFieldEnum)[keyof typeof MarketRuleVersionScalarFieldEnum]
 
 
 export const MarketLandedCostRateScalarFieldEnum = {
@@ -7957,6 +7984,12 @@ export const ContentBlockScalarFieldEnum = {
   endsAt: 'endsAt',
   isPublished: 'isPublished',
   sortOrder: 'sortOrder',
+  status: 'status',
+  revision: 'revision',
+  submittedById: 'submittedById',
+  submittedAt: 'submittedAt',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
   createdByUserId: 'createdByUserId',
   updatedByUserId: 'updatedByUserId',
   createdAt: 'createdAt',
@@ -7964,6 +7997,73 @@ export const ContentBlockScalarFieldEnum = {
 } as const
 
 export type ContentBlockScalarFieldEnum = (typeof ContentBlockScalarFieldEnum)[keyof typeof ContentBlockScalarFieldEnum]
+
+
+export const ContentBlockVersionScalarFieldEnum = {
+  id: 'id',
+  blockId: 'blockId',
+  revision: 'revision',
+  snapshotJson: 'snapshotJson',
+  savedById: 'savedById',
+  savedByEmail: 'savedByEmail',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContentBlockVersionScalarFieldEnum = (typeof ContentBlockVersionScalarFieldEnum)[keyof typeof ContentBlockVersionScalarFieldEnum]
+
+
+export const AdminPendingActionScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  status: 'status',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  resourceLabel: 'resourceLabel',
+  payloadJson: 'payloadJson',
+  reason: 'reason',
+  pendingKey: 'pendingKey',
+  requestedById: 'requestedById',
+  requestedByEmail: 'requestedByEmail',
+  requestedAt: 'requestedAt',
+  decidedById: 'decidedById',
+  decidedByEmail: 'decidedByEmail',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote',
+  failureMessage: 'failureMessage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AdminPendingActionScalarFieldEnum = (typeof AdminPendingActionScalarFieldEnum)[keyof typeof AdminPendingActionScalarFieldEnum]
+
+
+export const ExceptionQueueSettingScalarFieldEnum = {
+  queueKey: 'queueKey',
+  slaHours: 'slaHours',
+  ownerRole: 'ownerRole',
+  escalationRole: 'escalationRole',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExceptionQueueSettingScalarFieldEnum = (typeof ExceptionQueueSettingScalarFieldEnum)[keyof typeof ExceptionQueueSettingScalarFieldEnum]
+
+
+export const ListingProhibitedTermScalarFieldEnum = {
+  id: 'id',
+  term: 'term',
+  reason: 'reason',
+  severity: 'severity',
+  isActive: 'isActive',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ListingProhibitedTermScalarFieldEnum = (typeof ListingProhibitedTermScalarFieldEnum)[keyof typeof ListingProhibitedTermScalarFieldEnum]
 
 
 export const SearchSynonymScalarFieldEnum = {
@@ -10996,6 +11096,9 @@ export const SellerListingDraftOrderByRelevanceFieldEnum = {
   sellerEditedTitle: 'sellerEditedTitle',
   reviewComment: 'reviewComment',
   reviewedByUserId: 'reviewedByUserId',
+  appealReason: 'appealReason',
+  appealDecidedById: 'appealDecidedById',
+  appealOutcome: 'appealOutcome',
   createdByProfileId: 'createdByProfileId'
 } as const
 
@@ -13476,6 +13579,7 @@ export const MarketRuleOrderByRelevanceFieldEnum = {
   categoryId: 'categoryId',
   countryCode: 'countryCode',
   reason: 'reason',
+  labelText: 'labelText',
   source: 'source',
   version: 'version',
   ownerName: 'ownerName',
@@ -13485,6 +13589,16 @@ export const MarketRuleOrderByRelevanceFieldEnum = {
 } as const
 
 export type MarketRuleOrderByRelevanceFieldEnum = (typeof MarketRuleOrderByRelevanceFieldEnum)[keyof typeof MarketRuleOrderByRelevanceFieldEnum]
+
+
+export const MarketRuleVersionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  changedById: 'changedById',
+  changedByEmail: 'changedByEmail'
+} as const
+
+export type MarketRuleVersionOrderByRelevanceFieldEnum = (typeof MarketRuleVersionOrderByRelevanceFieldEnum)[keyof typeof MarketRuleVersionOrderByRelevanceFieldEnum]
 
 
 export const MarketLandedCostRateOrderByRelevanceFieldEnum = {
@@ -13523,11 +13637,62 @@ export const ContentBlockOrderByRelevanceFieldEnum = {
   couponId: 'couponId',
   countryCode: 'countryCode',
   languageCode: 'languageCode',
+  submittedById: 'submittedById',
+  approvedById: 'approvedById',
   createdByUserId: 'createdByUserId',
   updatedByUserId: 'updatedByUserId'
 } as const
 
 export type ContentBlockOrderByRelevanceFieldEnum = (typeof ContentBlockOrderByRelevanceFieldEnum)[keyof typeof ContentBlockOrderByRelevanceFieldEnum]
+
+
+export const ContentBlockVersionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  blockId: 'blockId',
+  savedById: 'savedById',
+  savedByEmail: 'savedByEmail'
+} as const
+
+export type ContentBlockVersionOrderByRelevanceFieldEnum = (typeof ContentBlockVersionOrderByRelevanceFieldEnum)[keyof typeof ContentBlockVersionOrderByRelevanceFieldEnum]
+
+
+export const AdminPendingActionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  resourceLabel: 'resourceLabel',
+  reason: 'reason',
+  pendingKey: 'pendingKey',
+  requestedById: 'requestedById',
+  requestedByEmail: 'requestedByEmail',
+  decidedById: 'decidedById',
+  decidedByEmail: 'decidedByEmail',
+  decisionNote: 'decisionNote',
+  failureMessage: 'failureMessage'
+} as const
+
+export type AdminPendingActionOrderByRelevanceFieldEnum = (typeof AdminPendingActionOrderByRelevanceFieldEnum)[keyof typeof AdminPendingActionOrderByRelevanceFieldEnum]
+
+
+export const ExceptionQueueSettingOrderByRelevanceFieldEnum = {
+  queueKey: 'queueKey',
+  ownerRole: 'ownerRole',
+  escalationRole: 'escalationRole',
+  updatedById: 'updatedById'
+} as const
+
+export type ExceptionQueueSettingOrderByRelevanceFieldEnum = (typeof ExceptionQueueSettingOrderByRelevanceFieldEnum)[keyof typeof ExceptionQueueSettingOrderByRelevanceFieldEnum]
+
+
+export const ListingProhibitedTermOrderByRelevanceFieldEnum = {
+  id: 'id',
+  term: 'term',
+  reason: 'reason',
+  createdById: 'createdById',
+  updatedById: 'updatedById'
+} as const
+
+export type ListingProhibitedTermOrderByRelevanceFieldEnum = (typeof ListingProhibitedTermOrderByRelevanceFieldEnum)[keyof typeof ListingProhibitedTermOrderByRelevanceFieldEnum]
 
 
 export const SearchSynonymOrderByRelevanceFieldEnum = {

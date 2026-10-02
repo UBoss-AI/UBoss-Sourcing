@@ -32,12 +32,15 @@ const PASSWORD = 'CountryRules!2026Test';
 const OWNER = 'crc-owner@test.local';
 const CATALOG = 'crc-catalog@test.local';
 const BUYER = 'crc-buyer@test.local';
+/** A second business owner: a content block is published only by someone other than its author (JOURNEY-067). */
+const APPROVER = 'crc-approver@test.local';
 const IP = '203.0.113.91';
 const COUPON = 'CRCTESTBANNER';
 
 let app: Awaited<ReturnType<typeof buildApp>>;
 let owner: AdminSession;
 let catalog: AdminSession;
+let approver: AdminSession;
 let categoryId = '';
 let productId = '';
 let buyer = { userId: '', profileId: '', addressId: '' };
@@ -52,13 +55,15 @@ async function makeStaff(email: string, role: string): Promise<void> {
 }
 
 async function cleanUp(): Promise<void> {
-  const emails = [OWNER, CATALOG, BUYER];
+  const emails = [OWNER, CATALOG, BUYER, APPROVER];
   const userIds = (await prisma.user.findMany({ where: { emailNormalized: { in: emails } }, select: { id: true } })).map((row) => row.id);
   await prisma.auditLog.deleteMany({
     where: { resourceType: { in: ['market_rule', 'logistics_lane', 'content_block'] }, actorUserId: { in: userIds } },
   });
   await prisma.contentBlock.deleteMany({ where: { title: { startsWith: PREFIX } } });
   await prisma.coupon.deleteMany({ where: { code: COUPON } });
+  const ruleIds = (await prisma.marketRule.findMany({ where: { reason: { startsWith: PREFIX } }, select: { id: true } })).map((row) => row.id);
+  await prisma.marketRuleVersion.deleteMany({ where: { OR: [{ ruleId: { in: ruleIds } }, { changedById: { in: userIds } }] } });
   await prisma.marketRule.deleteMany({ where: { reason: { startsWith: PREFIX } } });
   await prisma.logisticsLane.deleteMany({ where: { name: { startsWith: PREFIX } } });
   await prisma.cartItem.deleteMany({ where: { cart: { customerProfile: { userId: { in: userIds } } } } });
@@ -148,8 +153,10 @@ beforeAll(async () => {
 
   await makeStaff(OWNER, Role.BUSINESS_OWNER);
   await makeStaff(CATALOG, Role.CATALOG_MANAGER);
+  await makeStaff(APPROVER, Role.BUSINESS_OWNER);
   owner = await signInAdmin(app, { email: OWNER, password: PASSWORD, ip: IP });
   catalog = await signInAdmin(app, { email: CATALOG, password: PASSWORD, ip: IP });
+  approver = await signInAdmin(app, { email: APPROVER, password: PASSWORD, ip: IP });
 });
 
 afterAll(async () => {
@@ -227,6 +234,34 @@ describe('country rules (Master row 69)', () => {
     const removed = await send(owner, 'DELETE', `/market-rules/${ruleId}`);
     expect(removed.statusCode).toBe(204);
     expect(await prisma.marketRule.count({ where: { id: ruleId } })).toBe(0);
+
+    // The history outlives the rule: created, updated, deleted (JOURNEY-064).
+    const history = await send(owner, 'GET', `/market-rules/${ruleId}/versions`);
+    const versions = history.json<{ versions: { revision: number; changeKind: string; changedByEmail: string }[] }>().versions;
+    expect(versions.map((row) => row.changeKind)).toEqual(['DELETED', 'UPDATED', 'CREATED']);
+    expect(versions[0]).toMatchObject({ revision: 3, changedByEmail: OWNER });
+  });
+
+  it('keeps a label rule that never blocks, and lists it for checkout (JOURNEY-064)', async () => {
+    const noText = await send(owner, 'POST', '/market-rules', { ...RULE, categoryId, effect: 'LABEL_REQUIRED' });
+    expect(noText.json<{ error: { code: string } }>().error.code).toBe('MARKET_RULE_INVALID');
+
+    const label = await send(owner, 'POST', '/market-rules', {
+      ...RULE,
+      categoryId,
+      countryCode: 'de',
+      effect: 'LABEL_REQUIRED',
+      labelText: 'German-language battery warning and the WEEE bin symbol.',
+    });
+    expect(label.statusCode, label.body).toBe(201);
+    expect(await destinationRestrictions('DE', [productId], { amountMinor: 1n, currency: 'EUR' })).toEqual([]);
+
+    const listed = await app.inject({ method: 'GET', url: `/api/v1/catalog/label-requirements?country=DE&products=${productId}` });
+    expect(listed.json<{ requirements: { productId: string; labelText: string }[] }>().requirements).toEqual([
+      { productId, reason: RULE.reason, labelText: 'German-language battery warning and the WEEE bin symbol.' },
+    ]);
+    const id = label.json<{ rule: { id: string } }>().rule.id;
+    expect((await send(owner, 'DELETE', `/market-rules/${id}`)).statusCode).toBe(204);
   });
 });
 
@@ -311,6 +346,13 @@ describe('storefront content blocks (Master row 72)', () => {
     ]) {
       const response = await send(owner, 'POST', '/content-blocks', body);
       expect(response.statusCode, response.body).toBe(201);
+      const created = response.json<{ block: { id: string; status: string } }>().block;
+      if (body.isPublished) {
+        // Sent for approval, not live: a second member of staff publishes it.
+        expect(created.status).toBe('PENDING_APPROVAL');
+        const approved = await send(approver, 'POST', `/content-blocks/${created.id}/approve`);
+        expect(approved.statusCode, approved.body).toBe(200);
+      }
     }
 
     const forKiGerman = (await titles('country=KI&language=de')).filter((title) => title.startsWith(PREFIX));
@@ -338,6 +380,84 @@ describe('storefront content blocks (Master row 72)', () => {
 
     const category = await send(owner, 'POST', '/content-blocks', { placement: 'CATEGORY_BLOCK', categoryId, title: `${PREFIX} shelf`, isPublished: true });
     expect(category.statusCode, category.body).toBe(201);
+    // Not on the storefront until somebody else approves it.
+    expect(await titles(`placement=CATEGORY_BLOCK&category=${PREFIX}-category`)).toEqual([]);
+    const shelfId = category.json<{ block: { id: string } }>().block.id;
+    const self = await send(owner, 'POST', `/content-blocks/${shelfId}/approve`);
+    expect(self.json<{ error: { code: string } }>().error.code).toBe('CONTENT_BLOCK_SAME_APPROVER');
+    expect((await send(approver, 'POST', `/content-blocks/${shelfId}/approve`)).statusCode).toBe(200);
     expect(await titles(`placement=CATEGORY_BLOCK&category=${PREFIX}-category`)).toEqual([`${PREFIX} shelf`]);
+  });
+});
+
+describe('content approval, preview, rollback and conflict checks (JOURNEY-067)', () => {
+  const titles = async (query: string): Promise<string[]> =>
+    (await app.inject({ method: 'GET', url: `/api/v1/catalog/content-blocks?${query}` }))
+      .json<{ blocks: { title: string }[] }>()
+      .blocks.map((row) => row.title);
+
+  it('previews drafts for a country, language and moment before anybody approves them', async () => {
+    const created = await send(owner, 'POST', '/content-blocks', {
+      placement: 'HOME_BANNER',
+      title: `${PREFIX} preview me`,
+      countryCode: 'ki',
+      languageCode: 'de',
+      startsAt: new Date(Date.now() + 2 * 86_400_000).toISOString(),
+    });
+    expect(created.statusCode, created.body).toBe(201);
+
+    const at = new Date(Date.now() + 3 * 86_400_000).toISOString();
+    const preview = await send(owner, 'GET', `/content-blocks/preview?country=KI&language=de&at=${encodeURIComponent(at)}`);
+    const rows = preview.json<{ blocks: { title: string; status: string }[] }>().blocks;
+    expect(rows.find((row) => row.title === `${PREFIX} preview me`)?.status).toBe('DRAFT');
+
+    // Not for today, not for another language, and never on the live storefront.
+    const today = await send(owner, 'GET', '/content-blocks/preview?country=KI&language=de');
+    expect(today.json<{ blocks: { title: string }[] }>().blocks.some((row) => row.title === `${PREFIX} preview me`)).toBe(false);
+    expect((await titles('country=KI&language=de')).includes(`${PREFIX} preview me`)).toBe(false);
+  });
+
+  it('keeps every saved version and restores an earlier one as a new draft', async () => {
+    const created = await send(owner, 'POST', '/content-blocks', { placement: 'HOME_BANNER', title: `${PREFIX} v1` });
+    const id = created.json<{ block: { id: string } }>().block.id;
+    const edited = await send(owner, 'PUT', `/content-blocks/${id}`, { placement: 'HOME_BANNER', title: `${PREFIX} v2`, isPublished: true });
+    expect(edited.json<{ block: { revision: number; status: string } }>().block).toMatchObject({ revision: 2, status: 'PENDING_APPROVAL' });
+
+    const versions = (await send(owner, 'GET', `/content-blocks/${id}/versions`)).json<{ versions: { revision: number; snapshot: { title: string } }[] }>().versions;
+    expect(versions.map((row) => row.revision)).toEqual([2, 1]);
+    expect(versions[1]?.snapshot.title).toBe(`${PREFIX} v1`);
+
+    const restored = await send(owner, 'POST', `/content-blocks/${id}/versions/1/restore`);
+    expect(restored.statusCode, restored.body).toBe(200);
+    expect(restored.json<{ block: { title: string; revision: number; status: string } }>().block).toMatchObject({
+      title: `${PREFIX} v1`,
+      revision: 3,
+      status: 'DRAFT',
+    });
+  });
+
+  it('warns about an inactive coupon and overlapping banners, and refuses a coupon that ends before the block starts', async () => {
+    const coupon = await prisma.coupon.findUniqueOrThrow({ where: { code: COUPON } });
+    await prisma.coupon.update({ where: { id: coupon.id }, data: { status: 'DRAFT', validUntil: new Date(Date.now() + 86_400_000) } });
+    try {
+      const saved = await send(owner, 'POST', '/content-blocks', {
+        placement: 'HOME_BANNER',
+        title: `${PREFIX} late coupon`,
+        couponCode: COUPON,
+        startsAt: new Date(Date.now() + 5 * 86_400_000).toISOString(),
+        isPublished: true,
+      });
+      expect(saved.statusCode, saved.body).toBe(201);
+      const body = saved.json<{ block: { id: string }; warnings: { code: string; blocking: boolean }[] }>();
+      expect(body.warnings.map((row) => row.code)).toEqual(expect.arrayContaining(['COUPON_NOT_ACTIVE', 'COUPON_ENDS_BEFORE_START']));
+      // The everyone banner from the first test overlaps this one.
+      expect(body.warnings.some((row) => row.code === 'OVERLAPPING_BLOCK')).toBe(true);
+
+      const refused = await send(approver, 'POST', `/content-blocks/${body.block.id}/approve`);
+      expect(refused.statusCode).toBe(409);
+      expect(refused.json<{ error: { code: string } }>().error.code).toBe('CONTENT_BLOCK_CONFLICT');
+    } finally {
+      await prisma.coupon.update({ where: { id: coupon.id }, data: { status: coupon.status, validUntil: coupon.validUntil } });
+    }
   });
 });

@@ -1264,6 +1264,40 @@ same answer. Nothing was changed. Load the
 application again, look at what changed, and decide again. The console does this
 for you: it reloads the page and says so.
 
+## Maker-checker: a second member of staff approves
+
+Some staff actions stop somebody trading, so one person alone cannot do them.
+With the database flag `critical_action_approval` on (the default), these
+routes do **not** act. They record a request and answer **`202`**:
+
+- `PATCH /api/v1/admin/customers/:id/status` with `active: false` (a
+  `reason` of at least 3 characters is required, or `400`)
+- `POST /api/v1/admin/sellers/:id/decision` with `status` `SUSPENDED` or
+  `REJECTED` (a `reason` is required)
+- `POST /api/v1/admin/buyer-companies/:id/suspend`
+
+```json
+{ "pending": { "id": "01K…", "kind": "CUSTOMER_DEACTIVATE", "status": "PENDING", "resourceLabel": "Asha Rao <asha@example.com>", "reason": "Repeated chargebacks." } }
+```
+
+A different member of staff holding the same permission approves it with
+`POST /api/v1/admin/pending-actions/:id/approve`, which runs the action through
+the same service the direct route uses (so its own rules - the version check,
+the sign-out - still apply). `POST …/reject` closes it; the person who asked
+may reject their own request, which withdraws it. The codes:
+`409 PENDING_ACTION_ALREADY_OPEN` (one open request per action per record),
+`403 PENDING_ACTION_SAME_APPROVER` (the asker tried to approve),
+`409 PENDING_ACTION_NOT_OPEN` (already decided, including by a colleague a
+moment earlier). An approval whose action is then refused (the record moved on)
+is saved as `FAILED` with the reason, and the action's own error is returned.
+With the flag off, the three routes act at once, as before.
+
+The same "not the person who asked" rule applies to storefront content
+(`POST /api/v1/admin/content-blocks/:id/approve`, `403
+CONTENT_BLOCK_SAME_APPROVER`) and to listing appeals
+(`POST /api/v1/admin/seller-listings/:id/appeal-decision`, `403
+LISTING_APPEAL_SAME_MODERATOR` for the moderator who refused it).
+
 ## Rate limiting
 
 Every request counts against a limit per client IP address. The counters live in
@@ -1465,7 +1499,7 @@ this." and the details are only in the server log.
 |---|---|
 | `200 OK` | Success |
 | `201 Created` | Something new was created (a cart line, an order, a schedule) |
-| `202 Accepted` | Accepted for later work, or a neutral answer that must not reveal anything (register, forgot password, carrier webhooks) |
+| `202 Accepted` | Accepted for later work, or a neutral answer that must not reveal anything (register, forgot password, carrier webhooks), or a critical staff action recorded for a second approver (maker-checker) |
 | `204 No Content` | Success with nothing to say (logout) |
 | `400 Bad Request` | The input is invalid, or a business rule refused it |
 | `401 Unauthorized` | Not signed in, the session ended, or wrong credentials |
@@ -1725,6 +1759,11 @@ connecting its own purchasing system so that what it buys here appears there.
   unrecognised code is kept and flagged for a person rather than guessed.
 - A refusal is `401 CARRIER_WEBHOOK_REJECTED`, with no hint of which check
   failed. The answer never mentions our own shipment ids.
+- An event that keeps failing is retried with backoff and then dead-lettered.
+  Staff put dead-lettered events back on the retry queue with
+  `POST /api/v1/admin/integrations/carrier-webhooks/requeue`. Every webhook
+  source's last delivery and its accepted and refused counts for the last day
+  are in `GET /api/v1/admin/integrations/health` (the integration monitor).
 
 ## The Tally Bridge
 

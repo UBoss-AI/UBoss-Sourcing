@@ -8229,5 +8229,17 @@
   "orderMessages.page.empty": "To write to a seller, open the order and use Messages about this order.",
   "orderMessages.page.order": "Order {{number}}",
   "errors.messages.reportOwn": "You cannot report a message you wrote.",
-  "errors.messages.translationUnavailable": "Translation is not available right now. The original message is shown."
+  "errors.messages.translationUnavailable": "Translation is not available right now. The original message is shown.",
+  "product.sourcing.labelRule": "Labelling for this country: {{label}}",
+  "catalog.marketLabelRequired": "Goods sent to {{country}} carry specific labelling.",
+  "market.labelNeeded": "goods carry this labelling there.",
+  "checkout.labelRulesTitle": "Labelling for delivery to {{country}}",
+  "serviceBanner.paymentsDegradedTitle": "Card payments may fail right now.",
+  "serviceBanner.paymentsDegradedBody": "We are working on it. Your cart is kept, and a declined payment is not your bank's fault.",
+  "seller.listing.evidenceTitle": "What to send",
+  "seller.listing.appealLabel": "Disagree? Appeal, and say why",
+  "seller.listing.appealSend": "Send appeal",
+  "seller.listing.appealSent": "Appeal sent. A different moderator will review it.",
+  "seller.listing.appealPending": "Your appeal is with a different moderator. You will be told the outcome.",
+  "seller.listing.appealRefused": "Your appeal was not upheld. You can still edit the listing and submit it again."
 }

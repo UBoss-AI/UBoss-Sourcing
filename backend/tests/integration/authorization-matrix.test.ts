@@ -295,12 +295,21 @@ describe('deactivated accounts', () => {
     const gone = await customer(app, TAG, 'gone', '10.81.0.27');
     expect((await asCustomer(app, gone, 'GET', '/orders')).statusCode).toBe(200);
     const profile = await prisma.customerProfile.findFirstOrThrow({ where: { user: { emailNormalized: emailFor(TAG, 'gone') } }, select: { id: true } });
-    const off = await app.inject({
-      method: 'PATCH',
-      url: `/api/v1/admin/customers/${profile.id}/status`,
-      headers: { cookie: compliance.cookies, 'x-csrf-token': compliance.csrfToken, 'x-forwarded-for': compliance.ip },
-      payload: { active: false, reason: 'authz8 test' },
-    });
+    // Maker-checker is a separate test (governance-maker-checker); this one is
+    // about the sign-out, so the single-approver path is used.
+    const flag = await prisma.featureFlag.findUnique({ where: { key: 'critical_action_approval' } });
+    await prisma.featureFlag.updateMany({ where: { key: 'critical_action_approval' }, data: { enabled: false } });
+    let off;
+    try {
+      off = await app.inject({
+        method: 'PATCH',
+        url: `/api/v1/admin/customers/${profile.id}/status`,
+        headers: { cookie: compliance.cookies, 'x-csrf-token': compliance.csrfToken, 'x-forwarded-for': compliance.ip },
+        payload: { active: false, reason: 'authz8 test' },
+      });
+    } finally {
+      if (flag !== null) await prisma.featureFlag.update({ where: { key: 'critical_action_approval' }, data: { enabled: flag.enabled } });
+    }
     expect(off.statusCode, off.body).toBe(200);
     expect((await asCustomer(app, gone, 'GET', '/orders')).statusCode).toBe(401);
   });

@@ -30,10 +30,12 @@ export type AggregateContentBlock = {
 
 export type ContentBlockAvgAggregateOutputType = {
   sortOrder: number | null
+  revision: number | null
 }
 
 export type ContentBlockSumAggregateOutputType = {
   sortOrder: number | null
+  revision: number | null
 }
 
 export type ContentBlockMinAggregateOutputType = {
@@ -51,6 +53,12 @@ export type ContentBlockMinAggregateOutputType = {
   endsAt: Date | null
   isPublished: boolean | null
   sortOrder: number | null
+  status: $Enums.ContentBlockStatus | null
+  revision: number | null
+  submittedById: string | null
+  submittedAt: Date | null
+  approvedById: string | null
+  approvedAt: Date | null
   createdByUserId: string | null
   updatedByUserId: string | null
   createdAt: Date | null
@@ -72,6 +80,12 @@ export type ContentBlockMaxAggregateOutputType = {
   endsAt: Date | null
   isPublished: boolean | null
   sortOrder: number | null
+  status: $Enums.ContentBlockStatus | null
+  revision: number | null
+  submittedById: string | null
+  submittedAt: Date | null
+  approvedById: string | null
+  approvedAt: Date | null
   createdByUserId: string | null
   updatedByUserId: string | null
   createdAt: Date | null
@@ -93,6 +107,12 @@ export type ContentBlockCountAggregateOutputType = {
   endsAt: number
   isPublished: number
   sortOrder: number
+  status: number
+  revision: number
+  submittedById: number
+  submittedAt: number
+  approvedById: number
+  approvedAt: number
   createdByUserId: number
   updatedByUserId: number
   createdAt: number
@@ -103,10 +123,12 @@ export type ContentBlockCountAggregateOutputType = {
 
 export type ContentBlockAvgAggregateInputType = {
   sortOrder?: true
+  revision?: true
 }
 
 export type ContentBlockSumAggregateInputType = {
   sortOrder?: true
+  revision?: true
 }
 
 export type ContentBlockMinAggregateInputType = {
@@ -124,6 +146,12 @@ export type ContentBlockMinAggregateInputType = {
   endsAt?: true
   isPublished?: true
   sortOrder?: true
+  status?: true
+  revision?: true
+  submittedById?: true
+  submittedAt?: true
+  approvedById?: true
+  approvedAt?: true
   createdByUserId?: true
   updatedByUserId?: true
   createdAt?: true
@@ -145,6 +173,12 @@ export type ContentBlockMaxAggregateInputType = {
   endsAt?: true
   isPublished?: true
   sortOrder?: true
+  status?: true
+  revision?: true
+  submittedById?: true
+  submittedAt?: true
+  approvedById?: true
+  approvedAt?: true
   createdByUserId?: true
   updatedByUserId?: true
   createdAt?: true
@@ -166,6 +200,12 @@ export type ContentBlockCountAggregateInputType = {
   endsAt?: true
   isPublished?: true
   sortOrder?: true
+  status?: true
+  revision?: true
+  submittedById?: true
+  submittedAt?: true
+  approvedById?: true
+  approvedAt?: true
   createdByUserId?: true
   updatedByUserId?: true
   createdAt?: true
@@ -274,6 +314,12 @@ export type ContentBlockGroupByOutputType = {
   endsAt: Date | null
   isPublished: boolean
   sortOrder: number
+  status: $Enums.ContentBlockStatus
+  revision: number
+  submittedById: string | null
+  submittedAt: Date | null
+  approvedById: string | null
+  approvedAt: Date | null
   createdByUserId: string | null
   updatedByUserId: string | null
   createdAt: Date
@@ -318,12 +364,19 @@ export type ContentBlockWhereInput = {
   endsAt?: Prisma.DateTimeNullableFilter<"ContentBlock"> | Date | string | null
   isPublished?: Prisma.BoolFilter<"ContentBlock"> | boolean
   sortOrder?: Prisma.IntFilter<"ContentBlock"> | number
+  status?: Prisma.EnumContentBlockStatusFilter<"ContentBlock"> | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFilter<"ContentBlock"> | number
+  submittedById?: Prisma.StringNullableFilter<"ContentBlock"> | string | null
+  submittedAt?: Prisma.DateTimeNullableFilter<"ContentBlock"> | Date | string | null
+  approvedById?: Prisma.StringNullableFilter<"ContentBlock"> | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"ContentBlock"> | Date | string | null
   createdByUserId?: Prisma.StringNullableFilter<"ContentBlock"> | string | null
   updatedByUserId?: Prisma.StringNullableFilter<"ContentBlock"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ContentBlock"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ContentBlock"> | Date | string
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
   coupon?: Prisma.XOR<Prisma.CouponNullableScalarRelationFilter, Prisma.CouponWhereInput> | null
+  versions?: Prisma.ContentBlockVersionListRelationFilter
 }
 
 export type ContentBlockOrderByWithRelationInput = {
@@ -341,12 +394,19 @@ export type ContentBlockOrderByWithRelationInput = {
   endsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublished?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  submittedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   category?: Prisma.CategoryOrderByWithRelationInput
   coupon?: Prisma.CouponOrderByWithRelationInput
+  versions?: Prisma.ContentBlockVersionOrderByRelationAggregateInput
   _relevance?: Prisma.ContentBlockOrderByRelevanceInput
 }
 
@@ -368,12 +428,19 @@ export type ContentBlockWhereUniqueInput = Prisma.AtLeast<{
   endsAt?: Prisma.DateTimeNullableFilter<"ContentBlock"> | Date | string | null
   isPublished?: Prisma.BoolFilter<"ContentBlock"> | boolean
   sortOrder?: Prisma.IntFilter<"ContentBlock"> | number
+  status?: Prisma.EnumContentBlockStatusFilter<"ContentBlock"> | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFilter<"ContentBlock"> | number
+  submittedById?: Prisma.StringNullableFilter<"ContentBlock"> | string | null
+  submittedAt?: Prisma.DateTimeNullableFilter<"ContentBlock"> | Date | string | null
+  approvedById?: Prisma.StringNullableFilter<"ContentBlock"> | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"ContentBlock"> | Date | string | null
   createdByUserId?: Prisma.StringNullableFilter<"ContentBlock"> | string | null
   updatedByUserId?: Prisma.StringNullableFilter<"ContentBlock"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ContentBlock"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ContentBlock"> | Date | string
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
   coupon?: Prisma.XOR<Prisma.CouponNullableScalarRelationFilter, Prisma.CouponWhereInput> | null
+  versions?: Prisma.ContentBlockVersionListRelationFilter
 }, "id">
 
 export type ContentBlockOrderByWithAggregationInput = {
@@ -391,6 +458,12 @@ export type ContentBlockOrderByWithAggregationInput = {
   endsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublished?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  submittedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -420,6 +493,12 @@ export type ContentBlockScalarWhereWithAggregatesInput = {
   endsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ContentBlock"> | Date | string | null
   isPublished?: Prisma.BoolWithAggregatesFilter<"ContentBlock"> | boolean
   sortOrder?: Prisma.IntWithAggregatesFilter<"ContentBlock"> | number
+  status?: Prisma.EnumContentBlockStatusWithAggregatesFilter<"ContentBlock"> | $Enums.ContentBlockStatus
+  revision?: Prisma.IntWithAggregatesFilter<"ContentBlock"> | number
+  submittedById?: Prisma.StringNullableWithAggregatesFilter<"ContentBlock"> | string | null
+  submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ContentBlock"> | Date | string | null
+  approvedById?: Prisma.StringNullableWithAggregatesFilter<"ContentBlock"> | string | null
+  approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ContentBlock"> | Date | string | null
   createdByUserId?: Prisma.StringNullableWithAggregatesFilter<"ContentBlock"> | string | null
   updatedByUserId?: Prisma.StringNullableWithAggregatesFilter<"ContentBlock"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ContentBlock"> | Date | string
@@ -439,12 +518,19 @@ export type ContentBlockCreateInput = {
   endsAt?: Date | string | null
   isPublished?: boolean
   sortOrder?: number
+  status?: $Enums.ContentBlockStatus
+  revision?: number
+  submittedById?: string | null
+  submittedAt?: Date | string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
   createdByUserId?: string | null
   updatedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category?: Prisma.CategoryCreateNestedOneWithoutContentBlocksInput
   coupon?: Prisma.CouponCreateNestedOneWithoutContentBlocksInput
+  versions?: Prisma.ContentBlockVersionCreateNestedManyWithoutBlockInput
 }
 
 export type ContentBlockUncheckedCreateInput = {
@@ -462,10 +548,17 @@ export type ContentBlockUncheckedCreateInput = {
   endsAt?: Date | string | null
   isPublished?: boolean
   sortOrder?: number
+  status?: $Enums.ContentBlockStatus
+  revision?: number
+  submittedById?: string | null
+  submittedAt?: Date | string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
   createdByUserId?: string | null
   updatedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.ContentBlockVersionUncheckedCreateNestedManyWithoutBlockInput
 }
 
 export type ContentBlockUpdateInput = {
@@ -481,12 +574,19 @@ export type ContentBlockUpdateInput = {
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumContentBlockStatusFieldUpdateOperationsInput | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneWithoutContentBlocksNestedInput
   coupon?: Prisma.CouponUpdateOneWithoutContentBlocksNestedInput
+  versions?: Prisma.ContentBlockVersionUpdateManyWithoutBlockNestedInput
 }
 
 export type ContentBlockUncheckedUpdateInput = {
@@ -504,10 +604,17 @@ export type ContentBlockUncheckedUpdateInput = {
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumContentBlockStatusFieldUpdateOperationsInput | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.ContentBlockVersionUncheckedUpdateManyWithoutBlockNestedInput
 }
 
 export type ContentBlockCreateManyInput = {
@@ -525,6 +632,12 @@ export type ContentBlockCreateManyInput = {
   endsAt?: Date | string | null
   isPublished?: boolean
   sortOrder?: number
+  status?: $Enums.ContentBlockStatus
+  revision?: number
+  submittedById?: string | null
+  submittedAt?: Date | string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
   createdByUserId?: string | null
   updatedByUserId?: string | null
   createdAt?: Date | string
@@ -544,6 +657,12 @@ export type ContentBlockUpdateManyMutationInput = {
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumContentBlockStatusFieldUpdateOperationsInput | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -565,6 +684,12 @@ export type ContentBlockUncheckedUpdateManyInput = {
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumContentBlockStatusFieldUpdateOperationsInput | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -602,6 +727,12 @@ export type ContentBlockCountOrderByAggregateInput = {
   endsAt?: Prisma.SortOrder
   isPublished?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  submittedById?: Prisma.SortOrder
+  submittedAt?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -610,6 +741,7 @@ export type ContentBlockCountOrderByAggregateInput = {
 
 export type ContentBlockAvgOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
 }
 
 export type ContentBlockMaxOrderByAggregateInput = {
@@ -627,6 +759,12 @@ export type ContentBlockMaxOrderByAggregateInput = {
   endsAt?: Prisma.SortOrder
   isPublished?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  submittedById?: Prisma.SortOrder
+  submittedAt?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -648,6 +786,12 @@ export type ContentBlockMinOrderByAggregateInput = {
   endsAt?: Prisma.SortOrder
   isPublished?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  submittedById?: Prisma.SortOrder
+  submittedAt?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -656,6 +800,12 @@ export type ContentBlockMinOrderByAggregateInput = {
 
 export type ContentBlockSumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+}
+
+export type ContentBlockScalarRelationFilter = {
+  is?: Prisma.ContentBlockWhereInput
+  isNot?: Prisma.ContentBlockWhereInput
 }
 
 export type ContentBlockCreateNestedManyWithoutCategoryInput = {
@@ -746,6 +896,24 @@ export type EnumContentBlockPlacementFieldUpdateOperationsInput = {
   set?: $Enums.ContentBlockPlacement
 }
 
+export type EnumContentBlockStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ContentBlockStatus
+}
+
+export type ContentBlockCreateNestedOneWithoutVersionsInput = {
+  create?: Prisma.XOR<Prisma.ContentBlockCreateWithoutVersionsInput, Prisma.ContentBlockUncheckedCreateWithoutVersionsInput>
+  connectOrCreate?: Prisma.ContentBlockCreateOrConnectWithoutVersionsInput
+  connect?: Prisma.ContentBlockWhereUniqueInput
+}
+
+export type ContentBlockUpdateOneRequiredWithoutVersionsNestedInput = {
+  create?: Prisma.XOR<Prisma.ContentBlockCreateWithoutVersionsInput, Prisma.ContentBlockUncheckedCreateWithoutVersionsInput>
+  connectOrCreate?: Prisma.ContentBlockCreateOrConnectWithoutVersionsInput
+  upsert?: Prisma.ContentBlockUpsertWithoutVersionsInput
+  connect?: Prisma.ContentBlockWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ContentBlockUpdateToOneWithWhereWithoutVersionsInput, Prisma.ContentBlockUpdateWithoutVersionsInput>, Prisma.ContentBlockUncheckedUpdateWithoutVersionsInput>
+}
+
 export type ContentBlockCreateWithoutCategoryInput = {
   id: string
   placement: $Enums.ContentBlockPlacement
@@ -759,11 +927,18 @@ export type ContentBlockCreateWithoutCategoryInput = {
   endsAt?: Date | string | null
   isPublished?: boolean
   sortOrder?: number
+  status?: $Enums.ContentBlockStatus
+  revision?: number
+  submittedById?: string | null
+  submittedAt?: Date | string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
   createdByUserId?: string | null
   updatedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   coupon?: Prisma.CouponCreateNestedOneWithoutContentBlocksInput
+  versions?: Prisma.ContentBlockVersionCreateNestedManyWithoutBlockInput
 }
 
 export type ContentBlockUncheckedCreateWithoutCategoryInput = {
@@ -780,10 +955,17 @@ export type ContentBlockUncheckedCreateWithoutCategoryInput = {
   endsAt?: Date | string | null
   isPublished?: boolean
   sortOrder?: number
+  status?: $Enums.ContentBlockStatus
+  revision?: number
+  submittedById?: string | null
+  submittedAt?: Date | string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
   createdByUserId?: string | null
   updatedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.ContentBlockVersionUncheckedCreateNestedManyWithoutBlockInput
 }
 
 export type ContentBlockCreateOrConnectWithoutCategoryInput = {
@@ -830,6 +1012,12 @@ export type ContentBlockScalarWhereInput = {
   endsAt?: Prisma.DateTimeNullableFilter<"ContentBlock"> | Date | string | null
   isPublished?: Prisma.BoolFilter<"ContentBlock"> | boolean
   sortOrder?: Prisma.IntFilter<"ContentBlock"> | number
+  status?: Prisma.EnumContentBlockStatusFilter<"ContentBlock"> | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFilter<"ContentBlock"> | number
+  submittedById?: Prisma.StringNullableFilter<"ContentBlock"> | string | null
+  submittedAt?: Prisma.DateTimeNullableFilter<"ContentBlock"> | Date | string | null
+  approvedById?: Prisma.StringNullableFilter<"ContentBlock"> | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"ContentBlock"> | Date | string | null
   createdByUserId?: Prisma.StringNullableFilter<"ContentBlock"> | string | null
   updatedByUserId?: Prisma.StringNullableFilter<"ContentBlock"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ContentBlock"> | Date | string
@@ -849,11 +1037,18 @@ export type ContentBlockCreateWithoutCouponInput = {
   endsAt?: Date | string | null
   isPublished?: boolean
   sortOrder?: number
+  status?: $Enums.ContentBlockStatus
+  revision?: number
+  submittedById?: string | null
+  submittedAt?: Date | string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
   createdByUserId?: string | null
   updatedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category?: Prisma.CategoryCreateNestedOneWithoutContentBlocksInput
+  versions?: Prisma.ContentBlockVersionCreateNestedManyWithoutBlockInput
 }
 
 export type ContentBlockUncheckedCreateWithoutCouponInput = {
@@ -870,10 +1065,17 @@ export type ContentBlockUncheckedCreateWithoutCouponInput = {
   endsAt?: Date | string | null
   isPublished?: boolean
   sortOrder?: number
+  status?: $Enums.ContentBlockStatus
+  revision?: number
+  submittedById?: string | null
+  submittedAt?: Date | string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
   createdByUserId?: string | null
   updatedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.ContentBlockVersionUncheckedCreateNestedManyWithoutBlockInput
 }
 
 export type ContentBlockCreateOrConnectWithoutCouponInput = {
@@ -902,6 +1104,130 @@ export type ContentBlockUpdateManyWithWhereWithoutCouponInput = {
   data: Prisma.XOR<Prisma.ContentBlockUpdateManyMutationInput, Prisma.ContentBlockUncheckedUpdateManyWithoutCouponInput>
 }
 
+export type ContentBlockCreateWithoutVersionsInput = {
+  id: string
+  placement: $Enums.ContentBlockPlacement
+  title: string
+  body?: string | null
+  imageUrl?: string | null
+  linkUrl?: string | null
+  countryCode?: string
+  languageCode?: string
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  isPublished?: boolean
+  sortOrder?: number
+  status?: $Enums.ContentBlockStatus
+  revision?: number
+  submittedById?: string | null
+  submittedAt?: Date | string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
+  createdByUserId?: string | null
+  updatedByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category?: Prisma.CategoryCreateNestedOneWithoutContentBlocksInput
+  coupon?: Prisma.CouponCreateNestedOneWithoutContentBlocksInput
+}
+
+export type ContentBlockUncheckedCreateWithoutVersionsInput = {
+  id: string
+  placement: $Enums.ContentBlockPlacement
+  categoryId?: string | null
+  title: string
+  body?: string | null
+  imageUrl?: string | null
+  linkUrl?: string | null
+  couponId?: string | null
+  countryCode?: string
+  languageCode?: string
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  isPublished?: boolean
+  sortOrder?: number
+  status?: $Enums.ContentBlockStatus
+  revision?: number
+  submittedById?: string | null
+  submittedAt?: Date | string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
+  createdByUserId?: string | null
+  updatedByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ContentBlockCreateOrConnectWithoutVersionsInput = {
+  where: Prisma.ContentBlockWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContentBlockCreateWithoutVersionsInput, Prisma.ContentBlockUncheckedCreateWithoutVersionsInput>
+}
+
+export type ContentBlockUpsertWithoutVersionsInput = {
+  update: Prisma.XOR<Prisma.ContentBlockUpdateWithoutVersionsInput, Prisma.ContentBlockUncheckedUpdateWithoutVersionsInput>
+  create: Prisma.XOR<Prisma.ContentBlockCreateWithoutVersionsInput, Prisma.ContentBlockUncheckedCreateWithoutVersionsInput>
+  where?: Prisma.ContentBlockWhereInput
+}
+
+export type ContentBlockUpdateToOneWithWhereWithoutVersionsInput = {
+  where?: Prisma.ContentBlockWhereInput
+  data: Prisma.XOR<Prisma.ContentBlockUpdateWithoutVersionsInput, Prisma.ContentBlockUncheckedUpdateWithoutVersionsInput>
+}
+
+export type ContentBlockUpdateWithoutVersionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  placement?: Prisma.EnumContentBlockPlacementFieldUpdateOperationsInput | $Enums.ContentBlockPlacement
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryCode?: Prisma.StringFieldUpdateOperationsInput | string
+  languageCode?: Prisma.StringFieldUpdateOperationsInput | string
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumContentBlockStatusFieldUpdateOperationsInput | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.CategoryUpdateOneWithoutContentBlocksNestedInput
+  coupon?: Prisma.CouponUpdateOneWithoutContentBlocksNestedInput
+}
+
+export type ContentBlockUncheckedUpdateWithoutVersionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  placement?: Prisma.EnumContentBlockPlacementFieldUpdateOperationsInput | $Enums.ContentBlockPlacement
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryCode?: Prisma.StringFieldUpdateOperationsInput | string
+  languageCode?: Prisma.StringFieldUpdateOperationsInput | string
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumContentBlockStatusFieldUpdateOperationsInput | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type ContentBlockCreateManyCategoryInput = {
   id: string
   placement: $Enums.ContentBlockPlacement
@@ -916,6 +1242,12 @@ export type ContentBlockCreateManyCategoryInput = {
   endsAt?: Date | string | null
   isPublished?: boolean
   sortOrder?: number
+  status?: $Enums.ContentBlockStatus
+  revision?: number
+  submittedById?: string | null
+  submittedAt?: Date | string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
   createdByUserId?: string | null
   updatedByUserId?: string | null
   createdAt?: Date | string
@@ -935,11 +1267,18 @@ export type ContentBlockUpdateWithoutCategoryInput = {
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumContentBlockStatusFieldUpdateOperationsInput | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coupon?: Prisma.CouponUpdateOneWithoutContentBlocksNestedInput
+  versions?: Prisma.ContentBlockVersionUpdateManyWithoutBlockNestedInput
 }
 
 export type ContentBlockUncheckedUpdateWithoutCategoryInput = {
@@ -956,10 +1295,17 @@ export type ContentBlockUncheckedUpdateWithoutCategoryInput = {
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumContentBlockStatusFieldUpdateOperationsInput | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.ContentBlockVersionUncheckedUpdateManyWithoutBlockNestedInput
 }
 
 export type ContentBlockUncheckedUpdateManyWithoutCategoryInput = {
@@ -976,6 +1322,12 @@ export type ContentBlockUncheckedUpdateManyWithoutCategoryInput = {
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumContentBlockStatusFieldUpdateOperationsInput | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -996,6 +1348,12 @@ export type ContentBlockCreateManyCouponInput = {
   endsAt?: Date | string | null
   isPublished?: boolean
   sortOrder?: number
+  status?: $Enums.ContentBlockStatus
+  revision?: number
+  submittedById?: string | null
+  submittedAt?: Date | string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
   createdByUserId?: string | null
   updatedByUserId?: string | null
   createdAt?: Date | string
@@ -1015,11 +1373,18 @@ export type ContentBlockUpdateWithoutCouponInput = {
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumContentBlockStatusFieldUpdateOperationsInput | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneWithoutContentBlocksNestedInput
+  versions?: Prisma.ContentBlockVersionUpdateManyWithoutBlockNestedInput
 }
 
 export type ContentBlockUncheckedUpdateWithoutCouponInput = {
@@ -1036,10 +1401,17 @@ export type ContentBlockUncheckedUpdateWithoutCouponInput = {
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumContentBlockStatusFieldUpdateOperationsInput | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.ContentBlockVersionUncheckedUpdateManyWithoutBlockNestedInput
 }
 
 export type ContentBlockUncheckedUpdateManyWithoutCouponInput = {
@@ -1056,12 +1428,47 @@ export type ContentBlockUncheckedUpdateManyWithoutCouponInput = {
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumContentBlockStatusFieldUpdateOperationsInput | $Enums.ContentBlockStatus
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type ContentBlockCountOutputType
+ */
+
+export type ContentBlockCountOutputType = {
+  versions: number
+}
+
+export type ContentBlockCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  versions?: boolean | ContentBlockCountOutputTypeCountVersionsArgs
+}
+
+/**
+ * ContentBlockCountOutputType without action
+ */
+export type ContentBlockCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ContentBlockCountOutputType
+   */
+  select?: Prisma.ContentBlockCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ContentBlockCountOutputType without action
+ */
+export type ContentBlockCountOutputTypeCountVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ContentBlockVersionWhereInput
+}
 
 
 export type ContentBlockSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1079,12 +1486,20 @@ export type ContentBlockSelect<ExtArgs extends runtime.Types.Extensions.Internal
   endsAt?: boolean
   isPublished?: boolean
   sortOrder?: boolean
+  status?: boolean
+  revision?: boolean
+  submittedById?: boolean
+  submittedAt?: boolean
+  approvedById?: boolean
+  approvedAt?: boolean
   createdByUserId?: boolean
   updatedByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.ContentBlock$categoryArgs<ExtArgs>
   coupon?: boolean | Prisma.ContentBlock$couponArgs<ExtArgs>
+  versions?: boolean | Prisma.ContentBlock$versionsArgs<ExtArgs>
+  _count?: boolean | Prisma.ContentBlockCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["contentBlock"]>
 
 
@@ -1104,16 +1519,24 @@ export type ContentBlockSelectScalar = {
   endsAt?: boolean
   isPublished?: boolean
   sortOrder?: boolean
+  status?: boolean
+  revision?: boolean
+  submittedById?: boolean
+  submittedAt?: boolean
+  approvedById?: boolean
+  approvedAt?: boolean
   createdByUserId?: boolean
   updatedByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ContentBlockOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "placement" | "categoryId" | "title" | "body" | "imageUrl" | "linkUrl" | "couponId" | "countryCode" | "languageCode" | "startsAt" | "endsAt" | "isPublished" | "sortOrder" | "createdByUserId" | "updatedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["contentBlock"]>
+export type ContentBlockOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "placement" | "categoryId" | "title" | "body" | "imageUrl" | "linkUrl" | "couponId" | "countryCode" | "languageCode" | "startsAt" | "endsAt" | "isPublished" | "sortOrder" | "status" | "revision" | "submittedById" | "submittedAt" | "approvedById" | "approvedAt" | "createdByUserId" | "updatedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["contentBlock"]>
 export type ContentBlockInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.ContentBlock$categoryArgs<ExtArgs>
   coupon?: boolean | Prisma.ContentBlock$couponArgs<ExtArgs>
+  versions?: boolean | Prisma.ContentBlock$versionsArgs<ExtArgs>
+  _count?: boolean | Prisma.ContentBlockCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $ContentBlockPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1121,6 +1544,7 @@ export type $ContentBlockPayload<ExtArgs extends runtime.Types.Extensions.Intern
   objects: {
     category: Prisma.$CategoryPayload<ExtArgs> | null
     coupon: Prisma.$CouponPayload<ExtArgs> | null
+    versions: Prisma.$ContentBlockVersionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1151,8 +1575,24 @@ export type $ContentBlockPayload<ExtArgs extends runtime.Types.Extensions.Intern
     languageCode: string
     startsAt: Date | null
     endsAt: Date | null
+    /**
+     * True only while `status` is PUBLISHED; the storefront reads this.
+     */
     isPublished: boolean
     sortOrder: number
+    /**
+     * DRAFT -> PENDING_APPROVAL -> PUBLISHED. A second member of staff, not
+     * the one who submitted it, approves; any edit sends it back to DRAFT.
+     */
+    status: $Enums.ContentBlockStatus
+    /**
+     * Bumped on every save; matches the newest content_block_versions row.
+     */
+    revision: number
+    submittedById: string | null
+    submittedAt: Date | null
+    approvedById: string | null
+    approvedAt: Date | null
     createdByUserId: string | null
     updatedByUserId: string | null
     createdAt: Date
@@ -1499,6 +1939,7 @@ export interface Prisma__ContentBlockClient<T, Null = never, ExtArgs extends run
   readonly [Symbol.toStringTag]: "PrismaPromise"
   category<T extends Prisma.ContentBlock$categoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ContentBlock$categoryArgs<ExtArgs>>): Prisma.Prisma__CategoryClient<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   coupon<T extends Prisma.ContentBlock$couponArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ContentBlock$couponArgs<ExtArgs>>): Prisma.Prisma__CouponClient<runtime.Types.Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  versions<T extends Prisma.ContentBlock$versionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ContentBlock$versionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContentBlockVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1542,6 +1983,12 @@ export interface ContentBlockFieldRefs {
   readonly endsAt: Prisma.FieldRef<"ContentBlock", 'DateTime'>
   readonly isPublished: Prisma.FieldRef<"ContentBlock", 'Boolean'>
   readonly sortOrder: Prisma.FieldRef<"ContentBlock", 'Int'>
+  readonly status: Prisma.FieldRef<"ContentBlock", 'ContentBlockStatus'>
+  readonly revision: Prisma.FieldRef<"ContentBlock", 'Int'>
+  readonly submittedById: Prisma.FieldRef<"ContentBlock", 'String'>
+  readonly submittedAt: Prisma.FieldRef<"ContentBlock", 'DateTime'>
+  readonly approvedById: Prisma.FieldRef<"ContentBlock", 'String'>
+  readonly approvedAt: Prisma.FieldRef<"ContentBlock", 'DateTime'>
   readonly createdByUserId: Prisma.FieldRef<"ContentBlock", 'String'>
   readonly updatedByUserId: Prisma.FieldRef<"ContentBlock", 'String'>
   readonly createdAt: Prisma.FieldRef<"ContentBlock", 'DateTime'>
@@ -1929,6 +2376,30 @@ export type ContentBlock$couponArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   include?: Prisma.CouponInclude<ExtArgs> | null
   where?: Prisma.CouponWhereInput
+}
+
+/**
+ * ContentBlock.versions
+ */
+export type ContentBlock$versionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ContentBlockVersion
+   */
+  select?: Prisma.ContentBlockVersionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ContentBlockVersion
+   */
+  omit?: Prisma.ContentBlockVersionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ContentBlockVersionInclude<ExtArgs> | null
+  where?: Prisma.ContentBlockVersionWhereInput
+  orderBy?: Prisma.ContentBlockVersionOrderByWithRelationInput | Prisma.ContentBlockVersionOrderByWithRelationInput[]
+  cursor?: Prisma.ContentBlockVersionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ContentBlockVersionScalarFieldEnum | Prisma.ContentBlockVersionScalarFieldEnum[]
 }
 
 /**

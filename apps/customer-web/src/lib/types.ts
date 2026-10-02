@@ -875,7 +875,7 @@ export interface ProductSourcing {
   destination: string | null;
   delivery: {
     status: 'AVAILABLE' | 'DOCUMENTS_REQUIRED' | 'BLOCKED' | 'SELLER_DOES_NOT_DELIVER' | 'CHOOSE_DESTINATION';
-    notes: { effect: 'BLOCK' | 'DOCUMENTS_REQUIRED'; reason: string; requiredDocuments: string[] }[];
+    notes: { effect: 'BLOCK' | 'DOCUMENTS_REQUIRED' | 'LABEL_REQUIRED'; reason: string; requiredDocuments: string[]; labelText?: string | null }[];
   };
   handlingTimeDays: number | null;
   /** What the seller can make. Absent from an older API. */

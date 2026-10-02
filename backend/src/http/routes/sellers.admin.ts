@@ -15,7 +15,13 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { Permission } from '../../domain/permissions.js';
+import { badRequest, ErrorCode, notFound } from '../../domain/errors.js';
 import { AuditAction, recordAudit } from '../../modules/audit/audit.service.js';
+import {
+  criticalActionApprovalRequired,
+  requestPendingAction,
+} from '../../modules/governance/pending-action.service.js';
+import { staffActorFrom } from './governance.admin.js';
 import { prisma } from '../../infra/prisma.js';
 import {
   createAdminDocumentLink,
@@ -179,6 +185,39 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
           expectedVersion: z.number().int().min(0).nullable().optional(),
         })
         .parse(request.body);
+
+      /*
+       * Maker-checker (JOURNEY-061). Suspending or refusing a seller stops a
+       * business trading, so with `critical_action_approval` on it is recorded
+       * as a request that a second member of staff approves. 202, not 204:
+       * nothing has changed yet.
+       */
+      if ((body.status === 'SUSPENDED' || body.status === 'REJECTED') && (await criticalActionApprovalRequired())) {
+        const reason = (body.reason ?? '').trim();
+        if (reason.length === 0) {
+          throw badRequest(ErrorCode.VALIDATION_FAILED, 'Give the reason the seller will see.', [
+            { field: 'reason', code: 'REQUIRED' },
+          ]);
+        }
+        const seller = await prisma.sellerAccount.findUnique({ where: { id: params.id }, select: { displayName: true } });
+        if (seller === null) throw notFound('Seller');
+        const pending = await requestPendingAction(
+          {
+            kind: body.status === 'SUSPENDED' ? 'SELLER_SUSPEND' : 'SELLER_REJECT',
+            resourceType: 'seller_account',
+            resourceId: params.id,
+            resourceLabel: seller.displayName,
+            payload: {
+              internalNote: body.internalNote ?? null,
+              expectedVersion: body.expectedVersion ?? null,
+              ...(body.resubmissionAllowed === undefined ? {} : { resubmissionAllowed: body.resubmissionAllowed }),
+            },
+            reason,
+          },
+          staffActorFrom(request),
+        );
+        return reply.status(202).send({ pending });
+      }
 
       await decideApplication({
         sellerAccountId: params.id,
@@ -408,6 +447,8 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
         .object({
           page: z.coerce.number().int().min(1).default(1),
           pageSize: z.coerce.number().int().min(1).max(100).default(25),
+          /** APPEALED shows refused listings whose sellers appealed (JOURNEY-062). */
+          status: z.enum(['PENDING_REVIEW', 'APPEALED']).default('PENDING_REVIEW'),
         })
         .parse(request.query);
 
@@ -487,6 +528,19 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
            * sends it.
            */
           expectedVersion: z.number().int().min(0).nullable().optional(),
+          /** With ACTION_REQUIRED: the evidence the seller must send (JOURNEY-062). */
+          evidenceRequest: z
+            .array(
+              z.object({
+                kind: z.enum(['CERTIFICATE', 'TEST_REPORT', 'LABEL_PHOTO', 'PRODUCT_PHOTO', 'AUTHORISATION', 'OTHER']),
+                label: z.string().trim().min(1).max(160),
+                note: z.string().trim().max(512).nullable().optional(),
+              }),
+            )
+            .max(20)
+            .optional(),
+          /** With APPROVED: countries the product may not be sold to. */
+          blockedCountries: z.array(z.string().trim().regex(/^[A-Za-z]{2}$/)).max(60).optional(),
         })
         .parse(request.body);
 
@@ -495,6 +549,9 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
         to: body.status,
         comment: body.comment ?? null,
         ...(body.fieldComments === undefined ? {} : { fieldComments: body.fieldComments }),
+        ...(body.evidenceRequest === undefined ? {} : { evidenceRequest: body.evidenceRequest }),
+        ...(body.blockedCountries === undefined ? {} : { blockedCountries: body.blockedCountries }),
+        adminEmail: auth.email,
         adminUserId: auth.id,
         expectedVersion: body.expectedVersion ?? null,
         correlationId: request.correlationId,

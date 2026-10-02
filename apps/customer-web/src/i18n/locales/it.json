@@ -8338,5 +8338,17 @@
   "orderMessages.page.empty": "Per scrivere a un venditore, aprite l'ordine e usate «Messaggi su questo ordine».",
   "orderMessages.page.order": "Ordine {{number}}",
   "errors.messages.reportOwn": "Non potete segnalare un messaggio che avete scritto voi.",
-  "errors.messages.translationUnavailable": "La traduzione non è disponibile al momento. Viene mostrato il messaggio originale."
+  "errors.messages.translationUnavailable": "La traduzione non è disponibile al momento. Viene mostrato il messaggio originale.",
+  "product.sourcing.labelRule": "Etichettatura per questo paese: {{label}}",
+  "catalog.marketLabelRequired": "Le merci spedite in {{country}} riportano un'etichettatura specifica.",
+  "market.labelNeeded": "le merci lì riportano questa etichettatura.",
+  "checkout.labelRulesTitle": "Etichettatura per la consegna in {{country}}",
+  "serviceBanner.paymentsDegradedTitle": "I pagamenti con carta potrebbero non riuscire in questo momento.",
+  "serviceBanner.paymentsDegradedBody": "Ci stiamo lavorando. Il carrello resta salvato e un pagamento rifiutato non dipende dalla sua banca.",
+  "seller.listing.evidenceTitle": "Cosa inviare",
+  "seller.listing.appealLabel": "Non è d'accordo? Faccia ricorso e spieghi perché",
+  "seller.listing.appealSend": "Invia ricorso",
+  "seller.listing.appealSent": "Ricorso inviato. Lo esaminerà un moderatore diverso.",
+  "seller.listing.appealPending": "Il suo ricorso è presso un altro moderatore. Le verrà comunicato l'esito.",
+  "seller.listing.appealRefused": "Il ricorso non è stato accolto. Può comunque modificare l'inserzione e inviarla di nuovo."
 }

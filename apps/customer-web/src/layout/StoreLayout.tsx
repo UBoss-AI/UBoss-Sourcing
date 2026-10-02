@@ -17,6 +17,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePageViewTracking } from '@/lib/analytics';
 import { Outlet, useLocation } from 'react-router-dom';
 import { ServiceBanner } from '@/app/ServiceBanner';
+import { PaymentsNotice } from '@/app/PaymentsNotice';
 import { CountryPicker } from '@/components/CountryPicker';
 import { MarketSuggestionBanner } from '@/components/MarketSuggestionBanner';
 import { CompanyStatusBanner } from '@/components/CompanyStatusBanner';
@@ -223,6 +224,9 @@ export function StoreLayout(): React.JSX.Element {
       {/* Offline is the browser's own signal and takes precedence: if there
           is no connection at all, nothing else is worth reporting. */}
       {isOnline ? <ServiceBanner /> : <OfflineBanner />}
+
+      {/* Card payments may be failing right now (JOURNEY-065). */}
+      {isOnline && <PaymentsNotice />}
 
       <Header />
 

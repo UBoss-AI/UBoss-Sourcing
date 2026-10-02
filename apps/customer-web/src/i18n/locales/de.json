@@ -8229,5 +8229,17 @@
   "orderMessages.page.empty": "Um einem Verkäufer zu schreiben, öffnen Sie die Bestellung und nutzen Sie „Nachrichten zu dieser Bestellung“.",
   "orderMessages.page.order": "Bestellung {{number}}",
   "errors.messages.reportOwn": "Sie können keine Nachricht melden, die Sie selbst geschrieben haben.",
-  "errors.messages.translationUnavailable": "Die Übersetzung ist gerade nicht verfügbar. Die Originalnachricht wird angezeigt."
+  "errors.messages.translationUnavailable": "Die Übersetzung ist gerade nicht verfügbar. Die Originalnachricht wird angezeigt.",
+  "product.sourcing.labelRule": "Kennzeichnung für dieses Land: {{label}}",
+  "catalog.marketLabelRequired": "Waren nach {{country}} tragen eine besondere Kennzeichnung.",
+  "market.labelNeeded": "Waren tragen dort diese Kennzeichnung.",
+  "checkout.labelRulesTitle": "Kennzeichnung für die Lieferung nach {{country}}",
+  "serviceBanner.paymentsDegradedTitle": "Kartenzahlungen können gerade fehlschlagen.",
+  "serviceBanner.paymentsDegradedBody": "Wir arbeiten daran. Ihr Warenkorb bleibt erhalten, und eine abgelehnte Zahlung liegt nicht an Ihrer Bank.",
+  "seller.listing.evidenceTitle": "Was Sie einreichen müssen",
+  "seller.listing.appealLabel": "Nicht einverstanden? Einspruch einlegen und begründen",
+  "seller.listing.appealSend": "Einspruch senden",
+  "seller.listing.appealSent": "Einspruch gesendet. Eine andere Person aus der Moderation prüft ihn.",
+  "seller.listing.appealPending": "Ihr Einspruch liegt bei einer anderen Person aus der Moderation. Sie erhalten das Ergebnis.",
+  "seller.listing.appealRefused": "Ihrem Einspruch wurde nicht stattgegeben. Sie können das Angebot weiterhin bearbeiten und erneut einreichen."
 }

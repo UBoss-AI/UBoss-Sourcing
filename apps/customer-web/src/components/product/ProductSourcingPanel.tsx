@@ -175,6 +175,10 @@ export function ProductSourcingPanel({ sourcing }: { sourcing: ProductSourcing |
                     {t('product.sourcing.documentsList', { documents: note.requiredDocuments.join(', ') })}
                   </span>
                 )}
+                {/* JOURNEY-064: the labelling the goods carry for this country. */}
+                {note.effect === 'LABEL_REQUIRED' && (note.labelText ?? '') !== '' && (
+                  <span className="block">{t('product.sourcing.labelRule', { label: note.labelText ?? '' })}</span>
+                )}
               </span>
             ))}
           </Row>

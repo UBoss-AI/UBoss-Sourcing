@@ -3146,6 +3146,14 @@ export type SellerOfferComplianceHold = Prisma.SellerOfferComplianceHoldModel
  */
 export type MarketRule = Prisma.MarketRuleModel
 /**
+ * Model MarketRuleVersion
+ * A snapshot of a country rule at every save and at its deletion, so the
+ * rule's history (who changed what, when, from which source and version)
+ * survives the rule itself. No foreign key on purpose: deleting a rule must
+ * not take its history with it.
+ */
+export type MarketRuleVersion = Prisma.MarketRuleVersionModel
+/**
  * Model MarketLandedCostRate
  * The configurable rate table behind the landed-cost ESTIMATE. `hsPrefix`
  * '' is the destination's fallback row; a longer prefix wins.
@@ -3163,6 +3171,34 @@ export type MarketProfile = Prisma.MarketProfileModel
  * schedule. '' in a target means "everyone".
  */
 export type ContentBlock = Prisma.ContentBlockModel
+/**
+ * Model ContentBlockVersion
+ * The content of a block as it was saved, one row per save. Restoring a
+ * version writes it back as a new save (a new draft), so nothing is lost.
+ */
+export type ContentBlockVersion = Prisma.ContentBlockVersionModel
+/**
+ * Model AdminPendingAction
+ * Maker-checker for a critical account action. The request records who asked
+ * and why; a different member of staff approves or rejects it, and only an
+ * approval runs the action. `pendingKey` ("KIND:resourceId") is set only
+ * while PENDING, so the unique index allows one open request per action per
+ * record - MariaDB treats every NULL as distinct.
+ */
+export type AdminPendingAction = Prisma.AdminPendingActionModel
+/**
+ * Model ExceptionQueueSetting
+ * The operator's SLA and ownership for one admin exception queue (LIVE-011).
+ * A queue with no row uses the default in exception-queue.service.ts.
+ */
+export type ExceptionQueueSetting = Prisma.ExceptionQueueSettingModel
+/**
+ * Model ListingProhibitedTerm
+ * A word or phrase a listing may not contain (JOURNEY-062). Matched case-
+ * insensitively on whole words when a listing is submitted; a hit is saved
+ * on the listing as an automated flag for the moderator.
+ */
+export type ListingProhibitedTerm = Prisma.ListingProhibitedTermModel
 /**
  * Model SearchSynonym
  * "cannula" also finds "IV catheter". Maintained by the operator.

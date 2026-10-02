@@ -22,6 +22,8 @@ import type { Column } from '@/components/DataTable';
 import { Badge, PageHeader } from '@/components/ui';
 import { formatRelative } from '@/lib/format';
 import { fetchListingReviewQueue, type ListingReviewRow } from '@/lib/sellers';
+import { useI18n } from '@/i18n/i18n-context';
+import { ProhibitedTermsPanel } from './listing-review/ProhibitedTermsPanel';
 
 const PAGE_SIZE = 25;
 
@@ -29,13 +31,16 @@ export function ListingReviewQueuePage(): React.JSX.Element {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
 
+  const { t } = useI18n();
   const page = Math.max(1, Number(params.get('page') ?? '1'));
+  // Refused listings whose sellers appealed have their own queue (JOURNEY-062).
+  const status = params.get('status') === 'APPEALED' ? 'APPEALED' : 'PENDING_REVIEW';
 
   const query = useQuery({
-    queryKey: ['admin', 'listing-review', page],
+    queryKey: ['admin', 'listing-review', status, page],
     queryFn: () =>
       fetchListingReviewQueue(
-        new URLSearchParams({ page: String(page), pageSize: String(PAGE_SIZE) }),
+        new URLSearchParams({ page: String(page), pageSize: String(PAGE_SIZE), status }),
       ),
   });
 
@@ -106,6 +111,29 @@ export function ListingReviewQueuePage(): React.JSX.Element {
         }
       />
 
+      <div role="tablist" aria-label={t('listingModeration.queueTabs')} className="flex gap-2">
+        {(['PENDING_REVIEW', 'APPEALED'] as const).map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            role="tab"
+            aria-selected={status === tab}
+            className={
+              status === tab
+                ? 'rounded-md bg-accent-soft px-3 py-1.5 text-sm font-medium text-accent'
+                : 'rounded-md px-3 py-1.5 text-sm text-ink-muted hover:text-ink'
+            }
+            onClick={() => {
+              const updated = new URLSearchParams();
+              if (tab === 'APPEALED') updated.set('status', 'APPEALED');
+              setParams(updated, { replace: true });
+            }}
+          >
+            {tab === 'APPEALED' ? t('listingModeration.tabAppeals') : t('listingModeration.tabPending')}
+          </button>
+        ))}
+      </div>
+
       <DataTable
         caption="Listings waiting for quality review"
         columns={columns}
@@ -134,6 +162,8 @@ export function ListingReviewQueuePage(): React.JSX.Element {
           setParams(updated, { replace: true });
         }}
       />
+
+      <ProhibitedTermsPanel />
     </div>
   );
 }

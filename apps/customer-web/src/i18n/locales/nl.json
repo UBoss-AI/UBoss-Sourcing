@@ -8229,5 +8229,17 @@
   "orderMessages.page.empty": "Om een verkoper te schrijven, opent u de bestelling en gebruikt u ‘Berichten over deze bestelling’.",
   "orderMessages.page.order": "Bestelling {{number}}",
   "errors.messages.reportOwn": "U kunt geen bericht melden dat u zelf hebt geschreven.",
-  "errors.messages.translationUnavailable": "Vertalen is nu niet beschikbaar. Het oorspronkelijke bericht wordt getoond."
+  "errors.messages.translationUnavailable": "Vertalen is nu niet beschikbaar. Het oorspronkelijke bericht wordt getoond.",
+  "product.sourcing.labelRule": "Etikettering voor dit land: {{label}}",
+  "catalog.marketLabelRequired": "Goederen naar {{country}} hebben een specifieke etikettering.",
+  "market.labelNeeded": "goederen hebben daar deze etikettering.",
+  "checkout.labelRulesTitle": "Etikettering voor levering naar {{country}}",
+  "serviceBanner.paymentsDegradedTitle": "Kaartbetalingen kunnen nu mislukken.",
+  "serviceBanner.paymentsDegradedBody": "We werken eraan. Uw winkelwagen blijft bewaard en een geweigerde betaling ligt niet aan uw bank.",
+  "seller.listing.evidenceTitle": "Wat u moet aanleveren",
+  "seller.listing.appealLabel": "Niet eens? Maak bezwaar en leg uit waarom",
+  "seller.listing.appealSend": "Bezwaar versturen",
+  "seller.listing.appealSent": "Bezwaar verstuurd. Een andere moderator beoordeelt het.",
+  "seller.listing.appealPending": "Uw bezwaar ligt bij een andere moderator. U hoort de uitkomst.",
+  "seller.listing.appealRefused": "Uw bezwaar is niet toegewezen. U kunt de aanbieding nog bewerken en opnieuw indienen."
 }

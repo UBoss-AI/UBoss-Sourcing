@@ -851,6 +851,39 @@ page with the thread, internal notes, files, status, priority and assignment.
 It needs `support_ticket.view`, and answering needs `support_ticket.reply`. See
 [Support tickets](#support-tickets).
 
+**Two people for the critical decisions.** Deactivating a customer, suspending
+or refusing a seller and suspending a buyer company each need a reason and,
+with the database feature flag `critical_action_approval` on (the default),
+a **second member of staff** to approve before anything happens: the request
+waits on the record's page and on **Exception queues**, and the person who
+asked cannot approve it. Customer and seller pages also carry a **History**
+card (that record's audit trail) and **Write a message**.
+
+**Exception queues** lists every queue the team must not let sit — disputes,
+returns, inspections, dead letters, risk signals, approvals, fee changes,
+ledger differences, payment mismatches and more — with how many wait, the
+oldest one's age, how many are past the deadline, and the owner and
+escalation **roles**; the deadline hours and roles are settings. Naming the
+people who hold those roles stays the operator's job
+([docs/INCIDENT-READINESS.md](docs/INCIDENT-READINESS.md) §3a). The dashboard
+ring adds *Risk and compliance* and *Past their deadline* groups.
+
+**Integrations** opens on an **integration monitor** — payment gateway,
+carriers, warehouse ERP, buyers' ERP connections and inspection agencies, each
+with its status and its webhooks' last delivery and accepted/refused counts —
+and every admin screen shows an outage banner while one is down. The
+storefront shows a short notice while card payments may fail.
+
+**Listing review** flags the operator's **prohibited terms** automatically for
+the moderator, can ask the seller for named evidence, lets a seller **appeal** a
+refusal to a different moderator, and can approve a listing while blocking it
+in named countries. **Country rules** can require country-specific
+**labelling** (shown on the product page and at checkout) and keep every
+version of every rule. **Storefront content** is published only after a
+second member of staff approves it, can be previewed for any country, language
+and moment, keeps every version for rollback, and warns about coupon and
+overlap conflicts.
+
 **Finance → Commission invoices** is where finance bills sellers for the
 platform fee: a searchable list of invoices, the seller orders still awaiting
 one, and the settings for the issuing company and its numbering. Each invoice

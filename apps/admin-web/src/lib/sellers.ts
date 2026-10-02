@@ -256,8 +256,9 @@ export interface SellerDecision {
   expectedVersion?: number | null;
 }
 
-export function decideSellerApplication(id: string, decision: SellerDecision): Promise<never> {
-  return api.post<never>(`/admin/sellers/${id}/decision`, decision);
+/** 204 (no body) when it happened; `{ pending }` (202) when it waits for a second approver (JOURNEY-061). */
+export function decideSellerApplication(id: string, decision: SellerDecision): Promise<unknown> {
+  return api.post<unknown>(`/admin/sellers/${id}/decision`, decision);
 }
 
 /**
@@ -389,11 +390,60 @@ export interface ListingReviewDetail {
    */
   submittedVersion: number | null;
   reviewComment: string | null;
+  /** Who made the last decision: a refused listing's appeal goes to somebody else (JOURNEY-062). */
+  reviewedByUserId: string | null;
+  /** What the seller was asked to send with the last "needs changes". */
+  evidenceRequest: EvidenceRequestItem[];
+  /** The seller's appeal against a refusal. */
+  appeal: { reason: string; appealedAt: string | null; outcome: string | null } | null;
   updatedAt: string;
+}
+
+export const EVIDENCE_KINDS = ['CERTIFICATE', 'TEST_REPORT', 'LABEL_PHOTO', 'PRODUCT_PHOTO', 'AUTHORISATION', 'OTHER'] as const;
+export type EvidenceKind = (typeof EVIDENCE_KINDS)[number];
+
+export interface EvidenceRequestItem {
+  kind: string;
+  label: string;
+  note: string | null;
 }
 
 export function fetchListingForReview(id: string): Promise<ListingReviewDetail> {
   return api.get<ListingReviewDetail>(`/admin/seller-listings/${id}`);
+}
+
+/** Decide a seller's appeal. Refused for the moderator who refused the listing. */
+export function decideListingAppeal(
+  id: string,
+  body: { outcome: 'UPHELD' | 'REFUSED'; comment: string },
+): Promise<{ id: string; status: string }> {
+  return api.post<{ id: string; status: string }>(`/admin/seller-listings/${id}/appeal-decision`, body);
+}
+
+export interface ProhibitedTerm {
+  id: string;
+  term: string;
+  reason: string;
+  severity: 'BLOCKER' | 'WARNING' | 'ADVISORY';
+  isActive: boolean;
+  updatedAt: string;
+}
+
+export function fetchProhibitedTerms(): Promise<{ terms: ProhibitedTerm[] }> {
+  return api.get<{ terms: ProhibitedTerm[] }>('/admin/listing-moderation/terms');
+}
+
+export function saveProhibitedTerm(
+  id: string | null,
+  body: { term: string; reason: string; severity: ProhibitedTerm['severity']; isActive: boolean },
+): Promise<{ term: ProhibitedTerm }> {
+  return id === null
+    ? api.post<{ term: ProhibitedTerm }>('/admin/listing-moderation/terms', body)
+    : api.put<{ term: ProhibitedTerm }>(`/admin/listing-moderation/terms/${id}`, body);
+}
+
+export function deleteProhibitedTerm(id: string): Promise<unknown> {
+  return api.delete(`/admin/listing-moderation/terms/${id}`);
 }
 
 export function decideListing(
@@ -410,6 +460,10 @@ export function decideListing(
      * two people share is a review of one revision approving another.
      */
     expectedVersion?: number | null;
+    /** With ACTION_REQUIRED: what the seller must send. */
+    evidenceRequest?: { kind: EvidenceKind; label: string; note?: string | null }[];
+    /** With APPROVED: countries the product may not be sold to. */
+    blockedCountries?: string[];
   },
 ): Promise<{ offerId: string | null }> {
   return api.post<{ offerId: string | null }>(`/admin/seller-listings/${id}/decision`, body);

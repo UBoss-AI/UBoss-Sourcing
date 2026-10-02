@@ -6,6 +6,10 @@
  * category (and everything under it) or one product. A rule may carry a value
  * threshold, so it bites only on orders at or above an amount. Checkout and
  * requests for quotation refuse what a rule blocks; the storefront hides it.
+ *
+ * LABEL_REQUIRED (JOURNEY-064) never blocks: it states the labelling goods
+ * must carry in that country, shown on the product page and at checkout.
+ * Every save and delete is kept as a version; History shows them.
  */
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -14,20 +18,22 @@ import { useToast } from '@/components/toast-context';
 import { Badge, Button, Callout, Card, CheckboxField, EmptyState, ErrorState, Field, Input, LoadingState, PageHeader, Select, Textarea } from '@/components/ui';
 import { api } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
-import { currencyExponent, formatDate, majorToMinor, minorToMajor } from '@/lib/format';
+import { currencyExponent, formatDate, formatDateTime, majorToMinor, minorToMajor } from '@/lib/format';
+import { Modal } from '@/components/Modal';
 import { Permission } from '@/lib/permissions';
 import type { CategoryNode } from '@/lib/types';
-import { useI18n } from '@/i18n/i18n-context';
+import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
 
 export interface CountryRule {
   id: string;
   scope: 'PRODUCT' | 'CATEGORY';
   countryCode: string;
-  effect: 'BLOCK' | 'DOCUMENTS_REQUIRED';
+  effect: 'BLOCK' | 'DOCUMENTS_REQUIRED' | 'LABEL_REQUIRED';
   product: { id: string; slug: string; name: string } | null;
   category: { id: string; slug: string; name: string } | null;
   reason: string;
   requiredDocuments: string[];
+  labelText: string | null;
   minOrderValueMinor: string | null;
   thresholdCurrency: string | null;
   source: string;
@@ -41,11 +47,12 @@ export interface CountryRule {
 interface Draft {
   scope: 'PRODUCT' | 'CATEGORY';
   countryCode: string;
-  effect: 'BLOCK' | 'DOCUMENTS_REQUIRED';
+  effect: 'BLOCK' | 'DOCUMENTS_REQUIRED' | 'LABEL_REQUIRED';
   categoryId: string;
   productSlug: string;
   reason: string;
   documents: string;
+  labelText: string;
   threshold: string;
   thresholdCurrency: string;
   source: string;
@@ -68,6 +75,7 @@ function draftFrom(rule: CountryRule | null): Draft {
     productSlug: rule?.product?.slug ?? '',
     reason: rule?.reason ?? '',
     documents: (rule?.requiredDocuments ?? []).join('\n'),
+    labelText: rule?.labelText ?? '',
     threshold:
       rule?.minOrderValueMinor == null ? '' : minorToMajor(rule.minOrderValueMinor, currencyExponent(currency)),
     thresholdCurrency: currency,
@@ -98,6 +106,7 @@ export function CountryRulesPage(): React.JSX.Element {
   const [editing, setEditing] = useState<CountryRule | 'new' | null>(null);
   const [draft, setDraft] = useState<Draft>(draftFrom(null));
   const [error, setError] = useState<string | null>(null);
+  const [historyFor, setHistoryFor] = useState<CountryRule | null>(null);
 
   const rules = useQuery({
     queryKey: ['market-rules'],
@@ -169,6 +178,7 @@ export function CountryRulesPage(): React.JSX.Element {
         .split('\n')
         .map((line) => line.trim())
         .filter((line) => line.length > 0),
+      labelText: draft.effect === 'LABEL_REQUIRED' ? draft.labelText.trim() : null,
       minOrderValueMinor: minor,
       thresholdCurrency: minor === null ? null : draft.thresholdCurrency.trim(),
       source: draft.source.trim(),
@@ -227,6 +237,7 @@ export function CountryRulesPage(): React.JSX.Element {
                     onChange={(event) => { set({ effect: event.target.value as Draft['effect'] }); }}>
                     <option value="BLOCK">{t('countryRules.effectBlock')}</option>
                     <option value="DOCUMENTS_REQUIRED">{t('countryRules.effectDocuments')}</option>
+                    <option value="LABEL_REQUIRED">{t('countryRules.effectLabel')}</option>
                   </Select>
                 )}
               </Field>
@@ -273,6 +284,16 @@ export function CountryRulesPage(): React.JSX.Element {
                     {({ inputId, describedBy }) => (
                       <Textarea id={inputId} aria-describedby={describedBy} rows={3} value={draft.documents}
                         onChange={(event) => { set({ documents: event.target.value }); }} />
+                    )}
+                  </Field>
+                </div>
+              )}
+              {draft.effect === 'LABEL_REQUIRED' && (
+                <div className="sm:col-span-2">
+                  <Field label={t('countryRules.labelText')} hint={t('countryRules.labelTextHint')} required>
+                    {({ inputId, describedBy }) => (
+                      <Textarea id={inputId} aria-describedby={describedBy} rows={3} maxLength={4000} value={draft.labelText} required
+                        onChange={(event) => { set({ labelText: event.target.value }); }} />
                     )}
                   </Field>
                 </div>
@@ -353,8 +374,12 @@ export function CountryRulesPage(): React.JSX.Element {
                   <div className="min-w-0 space-y-1">
                     <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
                       <span className="tabular">{rule.countryCode}</span>
-                      <Badge tone={rule.effect === 'BLOCK' ? 'danger' : 'warning'}>
-                        {rule.effect === 'BLOCK' ? t('countryRules.effectBlock') : t('countryRules.effectDocuments')}
+                      <Badge tone={rule.effect === 'BLOCK' ? 'danger' : rule.effect === 'LABEL_REQUIRED' ? 'accent' : 'warning'}>
+                        {rule.effect === 'BLOCK'
+                          ? t('countryRules.effectBlock')
+                          : rule.effect === 'LABEL_REQUIRED'
+                            ? t('countryRules.effectLabel')
+                            : t('countryRules.effectDocuments')}
                       </Badge>
                       <span>{rule.category?.name ?? rule.product?.name ?? ''}</span>
                       {!rule.isActive && <Badge tone="neutral">{t('countryRules.inactive')}</Badge>}
@@ -368,6 +393,9 @@ export function CountryRulesPage(): React.JSX.Element {
                         })}
                       </p>
                     )}
+                    {rule.labelText !== null && rule.labelText !== '' && (
+                      <p className="whitespace-pre-wrap text-xs text-ink-muted">{rule.labelText}</p>
+                    )}
                     {rule.requiredDocuments.length > 0 && (
                       <p className="text-xs text-ink-muted">{rule.requiredDocuments.join(', ')}</p>
                     )}
@@ -375,6 +403,10 @@ export function CountryRulesPage(): React.JSX.Element {
                       {rule.source} · {rule.version} · {rule.ownerName} · {formatDate(rule.effectiveFrom)}
                     </p>
                   </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="ghost" onClick={() => { setHistoryFor(rule); }}>
+                      {t('countryRules.history')}
+                    </Button>
                   {canWrite && (
                     <div className="flex gap-2">
                       <Button size="sm" variant="secondary" onClick={() => { open(rule); }}>
@@ -388,12 +420,66 @@ export function CountryRulesPage(): React.JSX.Element {
                       </Button>
                     </div>
                   )}
+                  </div>
                 </li>
               ))}
             </ul>
           )}
         </Card>
       </div>
+
+      {historyFor !== null && (
+        <RuleHistoryDialog
+          rule={historyFor}
+          onClose={() => {
+            setHistoryFor(null);
+          }}
+        />
+      )}
     </>
+  );
+}
+
+interface RuleVersion {
+  revision: number;
+  changeKind: 'CREATED' | 'UPDATED' | 'DELETED';
+  snapshot: { effect?: string; reason?: string; source?: string; version?: string; ownerName?: string; isActive?: boolean; labelText?: string | null };
+  changedByEmail: string | null;
+  changedAt: string;
+}
+
+/** Every saved version of one rule, newest first, with who changed it (JOURNEY-064). */
+function RuleHistoryDialog({ rule, onClose }: { rule: CountryRule; onClose: () => void }): React.JSX.Element {
+  const { t } = useI18n();
+  const history = useQuery({
+    queryKey: ['market-rule-versions', rule.id],
+    queryFn: () => api.get<{ versions: RuleVersion[] }>(`/admin/market-rules/${rule.id}/versions`),
+  });
+  return (
+    <Modal isOpen onClose={onClose} title={t('countryRules.historyTitle', { country: rule.countryCode })} size="lg">
+      {history.isPending && <LoadingState />}
+      {history.isError && <ErrorState error={history.error} onRetry={() => { void history.refetch(); }} />}
+      {history.isSuccess && history.data.versions.length === 0 && <EmptyState title={t('countryRules.historyEmpty')} />}
+      {history.isSuccess && history.data.versions.length > 0 && (
+        <ol className="divide-y divide-line">
+          {history.data.versions.map((version) => (
+            <li key={version.revision} className="space-y-1 py-3 text-sm">
+              <p className="flex flex-wrap items-center gap-2">
+                <Badge tone={version.changeKind === 'DELETED' ? 'danger' : 'neutral'}>
+                  {t(`countryRules.change.${version.changeKind}` as TranslationKey)}
+                </Badge>
+                <span className="text-xs text-ink-muted">
+                  {formatDateTime(version.changedAt)} · {version.changedByEmail ?? '—'}
+                </span>
+              </p>
+              <p className="text-ink">{version.snapshot.reason}</p>
+              <p className="text-xs text-ink-muted">
+                {version.snapshot.source} · {version.snapshot.version} · {version.snapshot.ownerName}
+              </p>
+            </li>
+          ))}
+        </ol>
+      )}
+    </Modal>
   );
 }

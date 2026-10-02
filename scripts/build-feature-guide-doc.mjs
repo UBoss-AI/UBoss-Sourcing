@@ -1117,7 +1117,8 @@ bullets([
   'A listing can only be sent for review once every required section passes. The button says what is stopping it.',
   'Sending it for review never puts it on sale. A listing becomes a real catalogue entry only when a member of staff approves it.',
   'An approved listing is created switched off, so the seller chooses when it goes on sale rather than it appearing at an unexpected hour with no stock.',
-  'A listing sent back arrives with comments attached to the individual fields that need changing.',
+  'A listing sent back arrives with comments attached to the individual fields that need changing, and, where the marketplace asked for them, a short list of the documents or photographs to send.',
+  'If a listing is refused and the seller disagrees, they can appeal once, saying why. A different member of the marketplace’s team decides: either the listing goes back for a fresh review, or the refusal stands. The seller is told either way.',
   'A listing still waiting to be checked can be taken back at any time, changed, and sent again. Nothing is lost by doing so — it only loses its place in the queue.',
   'A listing that is with the marketplace cannot be edited while it is being read. Sending a changed version means sending a new one, so the person reading it is never looking at something that is quietly changing underneath them.',
   'Nobody has to be online at the same time. A seller can send a listing in and sign out; staff can decide it hours or days later; and the decision, the reason and any comments are waiting in the seller’s account the next time they sign in.',
@@ -1646,7 +1647,8 @@ bullets([
   'Staff who may not see reports do not see these two blocks at all.',
 ]);
 bullets([
-  'A ring shows everything waiting, in five groups: approvals, payments, stock, deliveries and the platform itself.',
+  'A ring shows everything waiting, in seven groups: approvals, payments, stock, deliveries, the platform itself, risk and compliance, and work past its deadline.',
+  'Risk and compliance counts serious fraud warnings nobody has looked at, inspections that failed and were not passed on a second visit, and seller documents and certificates that have run out or soon will. Past its deadline counts disputes, support requests, pre-order chats and inspection visits that have waited longer than they should. Payments now also counts sellers’ money put on hold, and the platform group counts carrier connections that keep failing and buyers’ own systems that gave up.',
   'Choosing a group singles it out, and the written summary beside the ring is then about that group. The screens where that work is decided are in the menu on the left.',
   'A member of staff only ever sees the queues they are allowed to act on. A queue somebody cannot act on is absent from their chart rather than shown as an empty one, so the chart never reveals that a queue exists to somebody who may not see it.',
   'Work somebody has already taken on, or already finished, is not counted as waiting. A number nobody can clear is a number everybody learns to ignore.',
@@ -1806,6 +1808,26 @@ table(['What staff can do', 'What the system does'], [
 note('Staff never edit a seller’s listing', 'They say what is wrong and send it back. Correcting somebody else’s description would leave the seller answering for words they did not write.', C.orange);
 note('A refusal always carries a reason', 'Rejecting a listing or sending it back both require staff to write something, because both land on the seller’s own screen. Approving does not — the listing appearing is the message.', C.teal);
 note('Nothing is decided in silence', 'Every decision — on an application, a listing or a brand — is also put in front of the seller inside their own account. An email can go unopened and a screen can go unvisited; the notice waiting for them when they next sign in does not.', C.blue);
+
+h2('8.8a Help with the checking: flags, evidence, appeals and countries');
+table(['What staff can do', 'What the system does'], [
+  ['Keep a list of words a listing may not use, each with the reason and how serious it is', 'Reads every listing as it is sent for review and marks any of those words for the person checking it, labelled as found automatically. It never refuses a listing on its own: a person still decides.'],
+  ['Send a listing back and ask for named evidence — a certificate, a test report, a photograph of the label', 'Shows the seller a checklist of exactly what to send, beside the comment.'],
+  ['Decide an appeal against a refusal', 'Lets only somebody other than the person who refused it decide, so an appeal is never heard by the same person. Upheld puts it back in the review queue; refused keeps it refused.'],
+  ['Approve a listing but say which countries it may not be sold to', 'Hides the product in those countries and refuses it at checkout there, using ordinary country rules that can be changed later.'],
+], [3400, 6600]);
+
+h2('8.8b Country rules: what may be sent where, and how it must be labelled');
+p('Staff keep a rule per country for anything that may not be sent there, may be sent only to buyers holding certain documents, or must carry particular labelling there — a language, a symbol, an importer’s name. A labelling rule never stops a sale: buyers see it on the product page and at checkout so they know what will arrive. Every rule says where it comes from, its version and who owns it, and every change is kept, so staff can see who changed a rule, when, and what it said before — even after a rule is deleted.');
+
+h2('8.8c Banners and promotions on the shop');
+table(['What staff can do', 'What the system does'], [
+  ['Write a banner or a block for a category page, aimed at a country and a language, with dates', 'Keeps it as a draft until somebody sends it for approval.'],
+  ['Send it for approval', 'Waits for a different member of staff to approve it. Only then does it appear on the shop. Changing it afterwards takes it off the shop until it is approved again.'],
+  ['See what the shop would show for a country, a language and a date', 'Shows the banners that would appear then, including drafts if asked, without publishing anything.'],
+  ['Go back to an earlier version', 'Brings the old wording back as a new draft that needs approving; nothing is lost.'],
+  ['Save a banner that promotes a coupon', 'Warns if the coupon is not active, not public, ends before the banner does or does not suit the country’s currency, and if another banner competes for the same place and audience. A coupon that ends before the banner even starts stops it being approved.'],
+], [3400, 6600]);
 
 h2('8.9 Deciding brand requests');
 p('When a seller cannot find their brand while listing, the name they ask for comes to staff. It sits on its own screen, oldest request first, so whoever has waited longest is dealt with first. Nothing can be sold under a name until it is approved, so every request sitting here is at least one listing that cannot be bought.');
@@ -2044,6 +2066,13 @@ table(['Admin area', 'What staff can do'], [
   ['Customer limit management', 'Apply purchasing/credit limits according to business policy.'],
   ['Customer support context', 'Use order and account history to help the customer without asking them to repeat information.'],
 ], [2900, 7100]);
+h2('11.1c Two people for the decisions that stop somebody trading');
+p('Switching off a customer’s account, suspending or refusing a seller and suspending a buyer company all need a written reason. With the safety setting on — it is on unless the business switches it off — they also need a second member of staff. The first person asks; the system holds the request and shows it on the record and in Exception queues; a colleague with the same authority approves it, and only then does it happen. The person who asked cannot approve their own request, but can withdraw it. Every step is written to the record’s history.');
+bullets([
+  'Each customer and seller page has a History card: everything staff did to that record, newest first.',
+  'Staff can write to a customer (an email) or a seller (a message in their Seller Hub and an email) from the record page. The message is kept on the record’s history.',
+]);
+
 h2('11.1a Preorder Chats — answering customers live');
 p('Customers’ questions from the product page arrive in Preorder Chats in the admin menu. The menu item shows how many customers are waiting for an answer, and the number changes the moment somebody writes.');
 table(['Staff member does', 'The system does back'], [
@@ -2151,6 +2180,8 @@ bullets([
   'The audit record is written with the change so a business action cannot quietly happen without a trace.',
   'The system itself cannot change or delete an audit record once it is written. There are two exceptions, both required by privacy law, and a separate, tightly limited database account does them. When a person’s account is erased, their name, email and address details are removed from the audit records, but the record of what happened stays. And records are deleted after the retention period the operator sets.',
 ]);
+h2('11.6 Exception queues: deadlines and owners');
+p('One screen lists every queue of work the team must not let sit — disputes, returns, inspections, failed messages, fraud warnings, approvals, fee changes, money that does not match, and more. For each one it shows how many items are waiting, how long the oldest has waited, how many are past the deadline, and which role looks after it and which role it goes to next. The business sets the deadline and the roles for each queue. The system names roles, not people: who holds each role on each shift is written down in the business’s own plan for incidents.');
 page();
 
 // 12
@@ -2196,6 +2227,8 @@ bullets([
   'Monitor the customer’s own ERP connections separately, with support visibility designed not to expose their secrets.',
   'Use safe outbound HTTP rules, encrypted secrets and logged integration activity.',
   'Test a connection at any time, including one that is switched on and carrying orders. A successful test leaves it exactly as it was; only a failed test takes it out of service, so the problem is visible on the connection list.',
+  'An integration monitor at the top of the Integrations screen shows whether the payment provider, the carriers, the warehouse system, buyers’ own systems and the inspection agencies are working, when each last sent the shop a message, and how many it accepted or refused in the last day. Messages from a carrier that kept failing can be sent round again with one button.',
+  'While a connection is down, or card payments are struggling, every admin screen shows a banner saying so, and shoppers see a short notice that card payments may fail, so a declined card is not blamed on their bank.',
 ]);
 note('Two different ERP features', 'Admin ERP is the supplier’s warehouse/business system. Customer ERP is the buyer’s own purchasing system. They are deliberately separate so ownership, credentials and support access remain clear.', C.orange);
 page();

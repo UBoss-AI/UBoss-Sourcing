@@ -52,6 +52,43 @@ example a webhook into the team's chat and a paging service). Prove it: run
 `UBOSS_ALERT_COMMAND="..." deploy/scripts/monitor.sh` with one check broken on a
 staging box and confirm the message arrived.
 
+## 3a. Admin exception queues — SLAs and owners (LIVE-011)
+
+The software defines every admin exception queue, the hours an item may wait
+(its SLA), the **role** that works it and the role it escalates to. Admin Panel
+→ Exception queues lists each one with the number waiting, the age of the
+oldest item and how many are past the SLA; staff with `settings.write` change
+the hours and the roles there (every change is audited). The defaults below are
+a starting point, not a recommendation for your business.
+
+| Queue | Default SLA | Default owner role | Escalates to |
+| --- | --- | --- | --- |
+| Disputes | 48 h | Support agent | Finance approver |
+| Returns | 48 h | Order manager | Business owner |
+| Inspections in progress | 72 h | Compliance officer | Business owner |
+| Conditional inspection releases | 24 h | Finance approver | Business owner |
+| Early fund releases | 24 h | Finance approver | Business owner |
+| Fee changes (maker-checker) | 48 h | Finance approver | Business owner |
+| Ledger reconciliation differences | 72 h | Finance approver | Business owner |
+| Payment mismatches and refused payment webhooks | 4 h | Finance approver | Business owner |
+| Dead letters (jobs, notifications, carrier webhooks) | 24 h | Business owner | Business owner |
+| Risk signals | 24 h | Compliance officer | Business owner |
+| Orders held for approval | 24 h | Finance approver | Business owner |
+| Purchase orders awaiting approval | 48 h | Order manager | Business owner |
+| Critical actions awaiting a second approver | 24 h | Business owner | Business owner |
+| Listings for review / listing appeals | 48 h / 72 h | Catalog manager | Business owner |
+| Seller applications | 72 h | Compliance officer | Business owner |
+| Support requests | 24 h | Support agent | Business owner |
+| Delivery exceptions | 12 h | Order manager | Business owner |
+| Storefront content to approve | 24 h | Catalog manager | Business owner |
+| Data-subject requests | 168 h | Compliance officer | Business owner |
+
+**What stays a human task.** A role is not a person. Before go-live the
+operator writes down, in its own runbook, **who** holds each owner and
+escalation role on each shift, their backup and how to reach them — the same
+way as section 3. The software cannot know your rota, and LIVE-011 is not done
+until those names exist.
+
 ## 4. Restore-test evidence format
 
 `deploy/scripts/verify-restore.sh` appends one JSON line per run to

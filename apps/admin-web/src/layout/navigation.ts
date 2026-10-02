@@ -520,6 +520,16 @@ export const NAVIGATION: NavGroup[] = [
         matchPrefix: true,
       },
       {
+        // Every exception queue with its SLA and owner role (LIVE-011). Each
+        // queue on the page is filtered by its own grant, so any member of
+        // staff may open it.
+        labelKey: 'nav.exceptionQueues',
+        to: '/operations/exception-queues',
+        icon: AlertTriangleIcon,
+        permissions: [],
+        matchPrefix: true,
+      },
+      {
         labelKey: 'nav.staff',
         to: '/staff',
         icon: StaffIcon,

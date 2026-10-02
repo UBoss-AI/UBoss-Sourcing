@@ -29,6 +29,10 @@ vi.mock('@/lib/api', async (importOriginal) => {
 });
 // Each has its own tests and its own requests; here they would only add noise.
 vi.mock('@/components/AccessReviewCard', () => ({ AccessReviewCard: () => null }));
+vi.mock('@/components/governance', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/components/governance')>();
+  return { ...actual, PendingActionsCard: () => null, RecordHistoryCard: () => null };
+});
 vi.mock('@/pages/seller/SellerFactoriesPanel', () => ({ SellerFactoriesPanel: () => null }));
 vi.mock('@/pages/seller/SellerOffersPanel', () => ({ SellerOffersPanel: () => null }));
 vi.mock('./seller/SellerKybReviewPanel', () => ({ SellerKybReviewPanel: () => null }));
@@ -116,7 +120,7 @@ beforeEach(async () => {
   await i18n.changeLanguage('en');
   fetchApplication.mockReset();
   decide.mockReset();
-  decide.mockResolvedValue(undefined as never);
+  decide.mockResolvedValue(undefined);
 });
 
 afterEach(() => {

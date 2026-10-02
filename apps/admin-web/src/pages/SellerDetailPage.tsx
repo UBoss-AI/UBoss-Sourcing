@@ -23,6 +23,12 @@ import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
 import { AccessReviewCard } from '@/components/AccessReviewCard';
+import {
+  MessageAccountDialog,
+  PendingActionsCard,
+  RecordHistoryCard,
+} from '@/components/governance';
+import { isPendingResponse, usePendingNotice } from '@/lib/governance';
 import { Modal } from '@/components/Modal';
 import { SellerFactoriesPanel } from '@/pages/seller/SellerFactoriesPanel';
 import { SellerOffersPanel } from '@/pages/seller/SellerOffersPanel';
@@ -215,6 +221,37 @@ function DecisionButtons({
   );
 }
 
+/** Write to the seller: a Seller Hub notice, and an email to the person who opened the account (JOURNEY-061). */
+function SellerMessageCard({ sellerId, name }: { sellerId: string; name: string }): React.JSX.Element | null {
+  const { t } = useI18n();
+  const { can } = useSession();
+  const [open, setOpen] = useState(false);
+  if (!can(Permission.CUSTOMER_WRITE)) return null;
+  return (
+    <Card title={t('governance.message.cardTitle')}>
+      <div className="px-5 py-4">
+        <Button
+          className="w-full"
+          onClick={() => {
+            setOpen(true);
+          }}
+        >
+          {t('governance.message.open')}
+        </Button>
+      </div>
+      <MessageAccountDialog
+        isOpen={open}
+        onClose={() => {
+          setOpen(false);
+        }}
+        target="SELLER"
+        id={sellerId}
+        name={name}
+      />
+    </Card>
+  );
+}
+
 function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React.JSX.Element {
   const { t } = useI18n();
   const profile = seller.businessProfile;
@@ -359,6 +396,12 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
         </Card>
 
         <AccessReviewCard kind="seller" id={seller.id} />
+
+        <PendingActionsCard resourceType="seller_account" resourceId={seller.id} />
+
+        <SellerMessageCard sellerId={seller.id} name={seller.displayName} />
+
+        <RecordHistoryCard resourceType="seller_account" resourceId={seller.id} />
 
         <DocumentsCard sellerId={seller.id} documents={seller.documents} />
 
@@ -1214,6 +1257,7 @@ function DecisionDialog({
   const { t } = useI18n();
   const toast = useToast();
   const client = useQueryClient();
+  const pendingNotice = usePendingNotice();
 
   const [reason, setReason] = useState('');
   const [note, setNote] = useState('');
@@ -1232,7 +1276,13 @@ function DecisionDialog({
         // meanwhile, the server refuses rather than overwriting them.
         expectedVersion: seller.version,
       }),
-    onSuccess: async () => {
+    onSuccess: async (result) => {
+      // Maker-checker: a suspension or refusal waits for a second member of staff.
+      if (isPendingResponse(result)) {
+        pendingNotice(result.pending);
+        onClose();
+        return;
+      }
       await client.invalidateQueries({ queryKey: ['admin', 'seller', seller.id] });
       await client.invalidateQueries({ queryKey: ['admin', 'sellers'] });
       toast.success(`${seller.displayName} — ${copy.verb.toLowerCase()}d.`);

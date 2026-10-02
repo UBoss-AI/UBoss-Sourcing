@@ -58,6 +58,11 @@ export type SellerListingDraftMinAggregateOutputType = {
   reviewedByUserId: string | null
   reviewedAt: Date | null
   submittedAt: Date | null
+  appealReason: string | null
+  appealedAt: Date | null
+  appealDecidedById: string | null
+  appealDecidedAt: Date | null
+  appealOutcome: string | null
   version: number | null
   submittedVersion: number | null
   createdByProfileId: string | null
@@ -81,6 +86,11 @@ export type SellerListingDraftMaxAggregateOutputType = {
   reviewedByUserId: string | null
   reviewedAt: Date | null
   submittedAt: Date | null
+  appealReason: string | null
+  appealedAt: Date | null
+  appealDecidedById: string | null
+  appealDecidedAt: Date | null
+  appealOutcome: string | null
   version: number | null
   submittedVersion: number | null
   createdByProfileId: string | null
@@ -113,6 +123,12 @@ export type SellerListingDraftCountAggregateOutputType = {
   reviewedByUserId: number
   reviewedAt: number
   submittedAt: number
+  evidenceRequestJson: number
+  appealReason: number
+  appealedAt: number
+  appealDecidedById: number
+  appealDecidedAt: number
+  appealOutcome: number
   version: number
   submittedVersion: number
   createdByProfileId: number
@@ -148,6 +164,11 @@ export type SellerListingDraftMinAggregateInputType = {
   reviewedByUserId?: true
   reviewedAt?: true
   submittedAt?: true
+  appealReason?: true
+  appealedAt?: true
+  appealDecidedById?: true
+  appealDecidedAt?: true
+  appealOutcome?: true
   version?: true
   submittedVersion?: true
   createdByProfileId?: true
@@ -171,6 +192,11 @@ export type SellerListingDraftMaxAggregateInputType = {
   reviewedByUserId?: true
   reviewedAt?: true
   submittedAt?: true
+  appealReason?: true
+  appealedAt?: true
+  appealDecidedById?: true
+  appealDecidedAt?: true
+  appealOutcome?: true
   version?: true
   submittedVersion?: true
   createdByProfileId?: true
@@ -203,6 +229,12 @@ export type SellerListingDraftCountAggregateInputType = {
   reviewedByUserId?: true
   reviewedAt?: true
   submittedAt?: true
+  evidenceRequestJson?: true
+  appealReason?: true
+  appealedAt?: true
+  appealDecidedById?: true
+  appealDecidedAt?: true
+  appealOutcome?: true
   version?: true
   submittedVersion?: true
   createdByProfileId?: true
@@ -322,6 +354,12 @@ export type SellerListingDraftGroupByOutputType = {
   reviewedByUserId: string | null
   reviewedAt: Date | null
   submittedAt: Date | null
+  evidenceRequestJson: runtime.JsonValue | null
+  appealReason: string | null
+  appealedAt: Date | null
+  appealDecidedById: string | null
+  appealDecidedAt: Date | null
+  appealOutcome: string | null
   version: number
   submittedVersion: number | null
   createdByProfileId: string | null
@@ -377,6 +415,12 @@ export type SellerListingDraftWhereInput = {
   reviewedByUserId?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
+  evidenceRequestJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
+  appealReason?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
+  appealedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
+  appealDecidedById?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
+  appealDecidedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
+  appealOutcome?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
   version?: Prisma.IntFilter<"SellerListingDraft"> | number
   submittedVersion?: Prisma.IntNullableFilter<"SellerListingDraft"> | number | null
   createdByProfileId?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
@@ -414,6 +458,12 @@ export type SellerListingDraftOrderByWithRelationInput = {
   reviewedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  evidenceRequestJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  appealReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  appealedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  appealDecidedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  appealDecidedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  appealOutcome?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   submittedVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -455,6 +505,12 @@ export type SellerListingDraftWhereUniqueInput = Prisma.AtLeast<{
   reviewedByUserId?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
+  evidenceRequestJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
+  appealReason?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
+  appealedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
+  appealDecidedById?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
+  appealDecidedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
+  appealOutcome?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
   version?: Prisma.IntFilter<"SellerListingDraft"> | number
   submittedVersion?: Prisma.IntNullableFilter<"SellerListingDraft"> | number | null
   createdByProfileId?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
@@ -492,6 +548,12 @@ export type SellerListingDraftOrderByWithAggregationInput = {
   reviewedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  evidenceRequestJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  appealReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  appealedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  appealDecidedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  appealDecidedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  appealOutcome?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   submittedVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -532,6 +594,12 @@ export type SellerListingDraftScalarWhereWithAggregatesInput = {
   reviewedByUserId?: Prisma.StringNullableWithAggregatesFilter<"SellerListingDraft"> | string | null
   reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerListingDraft"> | Date | string | null
   submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerListingDraft"> | Date | string | null
+  evidenceRequestJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerListingDraft">
+  appealReason?: Prisma.StringNullableWithAggregatesFilter<"SellerListingDraft"> | string | null
+  appealedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerListingDraft"> | Date | string | null
+  appealDecidedById?: Prisma.StringNullableWithAggregatesFilter<"SellerListingDraft"> | string | null
+  appealDecidedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerListingDraft"> | Date | string | null
+  appealOutcome?: Prisma.StringNullableWithAggregatesFilter<"SellerListingDraft"> | string | null
   version?: Prisma.IntWithAggregatesFilter<"SellerListingDraft"> | number
   submittedVersion?: Prisma.IntNullableWithAggregatesFilter<"SellerListingDraft"> | number | null
   createdByProfileId?: Prisma.StringNullableWithAggregatesFilter<"SellerListingDraft"> | string | null
@@ -561,6 +629,12 @@ export type SellerListingDraftCreateInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -598,6 +672,12 @@ export type SellerListingDraftUncheckedCreateInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -629,6 +709,12 @@ export type SellerListingDraftUpdateInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -666,6 +752,12 @@ export type SellerListingDraftUncheckedUpdateInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -700,6 +792,12 @@ export type SellerListingDraftCreateManyInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -729,6 +827,12 @@ export type SellerListingDraftUpdateManyMutationInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -761,6 +865,12 @@ export type SellerListingDraftUncheckedUpdateManyInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -809,6 +919,12 @@ export type SellerListingDraftCountOrderByAggregateInput = {
   reviewedByUserId?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
+  evidenceRequestJson?: Prisma.SortOrder
+  appealReason?: Prisma.SortOrder
+  appealedAt?: Prisma.SortOrder
+  appealDecidedById?: Prisma.SortOrder
+  appealDecidedAt?: Prisma.SortOrder
+  appealOutcome?: Prisma.SortOrder
   version?: Prisma.SortOrder
   submittedVersion?: Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrder
@@ -837,6 +953,11 @@ export type SellerListingDraftMaxOrderByAggregateInput = {
   reviewedByUserId?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
+  appealReason?: Prisma.SortOrder
+  appealedAt?: Prisma.SortOrder
+  appealDecidedById?: Prisma.SortOrder
+  appealDecidedAt?: Prisma.SortOrder
+  appealOutcome?: Prisma.SortOrder
   version?: Prisma.SortOrder
   submittedVersion?: Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrder
@@ -860,6 +981,11 @@ export type SellerListingDraftMinOrderByAggregateInput = {
   reviewedByUserId?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
+  appealReason?: Prisma.SortOrder
+  appealedAt?: Prisma.SortOrder
+  appealDecidedById?: Prisma.SortOrder
+  appealDecidedAt?: Prisma.SortOrder
+  appealOutcome?: Prisma.SortOrder
   version?: Prisma.SortOrder
   submittedVersion?: Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrder
@@ -1057,6 +1183,12 @@ export type SellerListingDraftCreateWithoutCategoryInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -1092,6 +1224,12 @@ export type SellerListingDraftUncheckedCreateWithoutCategoryInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -1155,6 +1293,12 @@ export type SellerListingDraftScalarWhereInput = {
   reviewedByUserId?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
+  evidenceRequestJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
+  appealReason?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
+  appealedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
+  appealDecidedById?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
+  appealDecidedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
+  appealOutcome?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
   version?: Prisma.IntFilter<"SellerListingDraft"> | number
   submittedVersion?: Prisma.IntNullableFilter<"SellerListingDraft"> | number | null
   createdByProfileId?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
@@ -1184,6 +1328,12 @@ export type SellerListingDraftCreateWithoutSellerAccountInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -1219,6 +1369,12 @@ export type SellerListingDraftUncheckedCreateWithoutSellerAccountInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -1276,6 +1432,12 @@ export type SellerListingDraftCreateWithoutBrandInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -1311,6 +1473,12 @@ export type SellerListingDraftUncheckedCreateWithoutBrandInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -1368,6 +1536,12 @@ export type SellerListingDraftCreateWithoutMediaInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -1404,6 +1578,12 @@ export type SellerListingDraftUncheckedCreateWithoutMediaInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -1450,6 +1630,12 @@ export type SellerListingDraftUpdateWithoutMediaInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1486,6 +1672,12 @@ export type SellerListingDraftUncheckedUpdateWithoutMediaInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1516,6 +1708,12 @@ export type SellerListingDraftCreateWithoutIssuesInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -1552,6 +1750,12 @@ export type SellerListingDraftUncheckedCreateWithoutIssuesInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -1598,6 +1802,12 @@ export type SellerListingDraftUpdateWithoutIssuesInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1634,6 +1844,12 @@ export type SellerListingDraftUncheckedUpdateWithoutIssuesInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1666,6 +1882,12 @@ export type SellerListingDraftCreateManyCategoryInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -1695,6 +1917,12 @@ export type SellerListingDraftUpdateWithoutCategoryInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1730,6 +1958,12 @@ export type SellerListingDraftUncheckedUpdateWithoutCategoryInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1763,6 +1997,12 @@ export type SellerListingDraftUncheckedUpdateManyWithoutCategoryInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1794,6 +2034,12 @@ export type SellerListingDraftCreateManySellerAccountInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -1823,6 +2069,12 @@ export type SellerListingDraftUpdateWithoutSellerAccountInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1858,6 +2110,12 @@ export type SellerListingDraftUncheckedUpdateWithoutSellerAccountInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1891,6 +2149,12 @@ export type SellerListingDraftUncheckedUpdateManyWithoutSellerAccountInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1922,6 +2186,12 @@ export type SellerListingDraftCreateManyBrandInput = {
   reviewedByUserId?: string | null
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: string | null
+  appealedAt?: Date | string | null
+  appealDecidedById?: string | null
+  appealDecidedAt?: Date | string | null
+  appealOutcome?: string | null
   version?: number
   submittedVersion?: number | null
   createdByProfileId?: string | null
@@ -1951,6 +2221,12 @@ export type SellerListingDraftUpdateWithoutBrandInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1986,6 +2262,12 @@ export type SellerListingDraftUncheckedUpdateWithoutBrandInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2019,6 +2301,12 @@ export type SellerListingDraftUncheckedUpdateManyWithoutBrandInput = {
   reviewedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  evidenceRequestJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  appealReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealDecidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appealDecidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  appealOutcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2091,6 +2379,12 @@ export type SellerListingDraftSelect<ExtArgs extends runtime.Types.Extensions.In
   reviewedByUserId?: boolean
   reviewedAt?: boolean
   submittedAt?: boolean
+  evidenceRequestJson?: boolean
+  appealReason?: boolean
+  appealedAt?: boolean
+  appealDecidedById?: boolean
+  appealDecidedAt?: boolean
+  appealOutcome?: boolean
   version?: boolean
   submittedVersion?: boolean
   createdByProfileId?: boolean
@@ -2131,6 +2425,12 @@ export type SellerListingDraftSelectScalar = {
   reviewedByUserId?: boolean
   reviewedAt?: boolean
   submittedAt?: boolean
+  evidenceRequestJson?: boolean
+  appealReason?: boolean
+  appealedAt?: boolean
+  appealDecidedById?: boolean
+  appealDecidedAt?: boolean
+  appealOutcome?: boolean
   version?: boolean
   submittedVersion?: boolean
   createdByProfileId?: boolean
@@ -2138,7 +2438,7 @@ export type SellerListingDraftSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SellerListingDraftOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "status" | "categoryId" | "brandId" | "matchedProductId" | "publishedProductId" | "publishedOfferId" | "sellerSku" | "attributesJson" | "offerJson" | "stockJson" | "packagingJson" | "variantAxesJson" | "variantsJson" | "listingContentJson" | "generatedTitle" | "generatedTitleSource" | "sellerEditedTitle" | "sectionStateJson" | "reviewComment" | "reviewedByUserId" | "reviewedAt" | "submittedAt" | "version" | "submittedVersion" | "createdByProfileId" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerListingDraft"]>
+export type SellerListingDraftOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "status" | "categoryId" | "brandId" | "matchedProductId" | "publishedProductId" | "publishedOfferId" | "sellerSku" | "attributesJson" | "offerJson" | "stockJson" | "packagingJson" | "variantAxesJson" | "variantsJson" | "listingContentJson" | "generatedTitle" | "generatedTitleSource" | "sellerEditedTitle" | "sectionStateJson" | "reviewComment" | "reviewedByUserId" | "reviewedAt" | "submittedAt" | "evidenceRequestJson" | "appealReason" | "appealedAt" | "appealDecidedById" | "appealDecidedAt" | "appealOutcome" | "version" | "submittedVersion" | "createdByProfileId" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerListingDraft"]>
 export type SellerListingDraftInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   category?: boolean | Prisma.SellerListingDraft$categoryArgs<ExtArgs>
@@ -2258,6 +2558,20 @@ export type $SellerListingDraftPayload<ExtArgs extends runtime.Types.Extensions.
     reviewedByUserId: string | null
     reviewedAt: Date | null
     submittedAt: Date | null
+    /**
+     * What the moderator asked the seller to send when moving the listing to
+     * ACTION_REQUIRED: `[{ kind, label, note }]`. Null when nothing was asked.
+     */
+    evidenceRequestJson: runtime.JsonValue | null
+    /**
+     * The seller's appeal against a refusal, and how it was decided.
+     * `appealOutcome` is UPHELD (sent back for review) or REFUSED.
+     */
+    appealReason: string | null
+    appealedAt: Date | null
+    appealDecidedById: string | null
+    appealDecidedAt: Date | null
+    appealOutcome: string | null
     /**
      * Optimistic concurrency. The wizard autosaves from a long-lived tab and
      * sellers leave two open; this is what stops one overwriting the other.
@@ -2677,6 +2991,12 @@ export interface SellerListingDraftFieldRefs {
   readonly reviewedByUserId: Prisma.FieldRef<"SellerListingDraft", 'String'>
   readonly reviewedAt: Prisma.FieldRef<"SellerListingDraft", 'DateTime'>
   readonly submittedAt: Prisma.FieldRef<"SellerListingDraft", 'DateTime'>
+  readonly evidenceRequestJson: Prisma.FieldRef<"SellerListingDraft", 'Json'>
+  readonly appealReason: Prisma.FieldRef<"SellerListingDraft", 'String'>
+  readonly appealedAt: Prisma.FieldRef<"SellerListingDraft", 'DateTime'>
+  readonly appealDecidedById: Prisma.FieldRef<"SellerListingDraft", 'String'>
+  readonly appealDecidedAt: Prisma.FieldRef<"SellerListingDraft", 'DateTime'>
+  readonly appealOutcome: Prisma.FieldRef<"SellerListingDraft", 'String'>
   readonly version: Prisma.FieldRef<"SellerListingDraft", 'Int'>
   readonly submittedVersion: Prisma.FieldRef<"SellerListingDraft", 'Int'>
   readonly createdByProfileId: Prisma.FieldRef<"SellerListingDraft", 'String'>

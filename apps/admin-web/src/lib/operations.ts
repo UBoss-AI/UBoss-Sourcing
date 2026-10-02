@@ -26,7 +26,9 @@ export type OperationsGroupName =
   | 'payments'
   | 'inventory'
   | 'logistics'
-  | 'platform';
+  | 'platform'
+  | 'risk'
+  | 'sla';
 
 export interface OperationsQueue {
   key: string;
@@ -91,6 +93,8 @@ const GROUP_STEP: Readonly<Record<OperationsGroupName, ChartStep>> = Object.free
   inventory: 3,
   logistics: 'danger',
   platform: 'neutral',
+  risk: 5,
+  sla: 'warning',
 });
 
 /** The label key for each group. */
@@ -100,6 +104,8 @@ export const GROUP_LABELS: Readonly<Record<OperationsGroupName, TranslationKey>>
   inventory: 'operations.group.inventory',
   logistics: 'operations.group.logistics',
   platform: 'operations.group.platform',
+  risk: 'operations.group.risk',
+  sla: 'operations.group.sla',
 });
 
 /** Where a group's segment leads, when a single screen covers it. */
@@ -109,6 +115,8 @@ const GROUP_HREF: Readonly<Record<OperationsGroupName, string | undefined>> = Ob
   inventory: '/inventory?filter=low-stock',
   logistics: '/logistics/shipments?exception=open',
   platform: undefined,
+  risk: undefined,
+  sla: '/operations/exception-queues',
 });
 
 /**
@@ -186,4 +194,14 @@ export const QUEUE_LABELS: Readonly<Record<string, TranslationKey>> = Object.fre
   erpConnectionsUnhealthy: 'operations.queue.erpConnectionsUnhealthy',
   notificationsFailed: 'operations.queue.notificationsFailed',
   jobsDead: 'operations.queue.jobsDead',
+  settlementsOnHold: 'operations.queue.settlementsOnHold',
+  carrierIntegrationsDegraded: 'operations.queue.carrierIntegrationsDegraded',
+  customerErpEventsFailed: 'operations.queue.customerErpEventsFailed',
+  riskSignalsOpen: 'operations.queue.riskSignalsOpen',
+  inspectionsFailed: 'operations.queue.inspectionsFailed',
+  complianceExpiring: 'operations.queue.complianceExpiring',
+  disputesPastSla: 'operations.queue.disputesPastSla',
+  supportTicketsPastSla: 'operations.queue.supportTicketsPastSla',
+  preorderChatsPastSla: 'operations.queue.preorderChatsPastSla',
+  inspectionJobsPastSla: 'operations.queue.inspectionJobsPastSla',
 });

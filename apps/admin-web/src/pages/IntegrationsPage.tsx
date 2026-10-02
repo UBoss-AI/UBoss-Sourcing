@@ -61,6 +61,7 @@ import { formatDateTime, formatMoney, humanise, type Money } from '@/lib/format'
 import { Permission } from '@/lib/permissions';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Translate } from '@/i18n/i18n-context';
+import { IntegrationHealthPanel } from '@/pages/integrations/IntegrationHealthPanel';
 
 interface Connection {
   id: string;
@@ -879,6 +880,9 @@ export function IntegrationsPage(): React.JSX.Element {
       />
 
       <div className="space-y-5">
+        {/* The integration monitor (JOURNEY-065): every source this member of
+            staff may see, each filtered by its own grant on the server. */}
+        <IntegrationHealthPanel />
         {showsGateway && <GatewayPanel />}
         {showsConnectors && <ConnectorsPanel />}
         {can(Permission.PAYMENT_READ) && <ReconciliationPanel />}

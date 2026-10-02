@@ -51,11 +51,12 @@ interface MarketPageData {
     featuredCategories: { slug: string; name: string }[];
   } | null;
   restrictions: {
-    effect: 'BLOCK' | 'DOCUMENTS_REQUIRED';
+    effect: 'BLOCK' | 'DOCUMENTS_REQUIRED' | 'LABEL_REQUIRED';
     category: { slug: string; name: string } | null;
     product: { slug: string; name: string } | null;
     reason: string;
     requiredDocuments: string[];
+    labelText?: string | null;
   }[];
 }
 
@@ -106,6 +107,7 @@ export function MarketPage(): React.JSX.Element {
   const isCurrent = locale.country === code;
   const blocks = data.restrictions.filter((rule) => rule.effect === 'BLOCK');
   const documents = data.restrictions.filter((rule) => rule.effect === 'DOCUMENTS_REQUIRED');
+  const labels = data.restrictions.filter((rule) => rule.effect === 'LABEL_REQUIRED');
   const profile = data.profile;
   const lanes = Array.isArray(data.lanes) ? data.lanes : [];
   const languageCode = data.country.languageCode ?? null;
@@ -197,7 +199,7 @@ export function MarketPage(): React.JSX.Element {
           <GlobeIcon className="h-5 w-5 text-brand" />
           {t('market.restrictionsTitle', { country: name })}
         </h2>
-        {blocks.length === 0 && documents.length === 0 ? (
+        {blocks.length === 0 && documents.length === 0 && labels.length === 0 ? (
           <p className="mt-2 text-sm text-ink">{t('market.noRestrictions', { country: name })}</p>
         ) : (
           <ul className="mt-2 space-y-2 text-sm">
@@ -218,6 +220,17 @@ export function MarketPage(): React.JSX.Element {
                     <span className="block text-ink-muted">
                       {t('product.sourcing.documentsList', { documents: rule.requiredDocuments.join(', ') })}
                     </span>
+                  )}
+                </span>
+              </li>
+            ))}
+            {labels.map((rule, index) => (
+              <li key={`l-${String(index)}`} className="flex gap-2">
+                <InfoIcon className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                <span>
+                  {target(rule)} — {t('market.labelNeeded')} <span className="text-ink-muted">{rule.reason}</span>
+                  {(rule.labelText ?? '') !== '' && (
+                    <span className="block whitespace-pre-wrap text-ink-muted">{rule.labelText}</span>
                   )}
                 </span>
               </li>

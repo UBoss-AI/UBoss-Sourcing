@@ -552,6 +552,13 @@ export const router = createBrowserRouter([
         ]),
       },
       {
+        // Every exception queue with its SLA, owner role and breaches, and the
+        // critical actions waiting for a second approver (LIVE-011, JOURNEY-061).
+        // Any member of staff: each queue is filtered by its own grant.
+        path: 'operations/exception-queues',
+        ...lazyRoute(() => import('@/pages/ExceptionQueuesPage').then((m) => m.ExceptionQueuesPage), []),
+      },
+      {
         path: 'operations/failed-notifications',
         ...lazyRoute(() => import('@/pages/DeadLetterPage').then((m) => m.FailedNotificationsPage), [
           Permission.SETTINGS_READ,

@@ -2025,6 +2025,29 @@ export const ErrorCode = {
   FUND_RELEASE_ALREADY_PENDING: 'FUND_RELEASE_ALREADY_PENDING',
   /// The person who asked for an early release cannot also approve it. 403.
   FUND_RELEASE_SAME_APPROVER: 'FUND_RELEASE_SAME_APPROVER',
+  // --- Admin governance: maker-checker, moderation, CMS approval (JOURNEY-061, 062, 067) ---
+  /// A request for this action on this record is already waiting for a
+  /// second member of staff. `details[0].meta.pendingActionId` names it. 409.
+  PENDING_ACTION_ALREADY_OPEN: 'PENDING_ACTION_ALREADY_OPEN',
+  /// The member of staff who asked for a critical action cannot also approve
+  /// it; a different person must. 403.
+  PENDING_ACTION_SAME_APPROVER: 'PENDING_ACTION_SAME_APPROVER',
+  /// The request was already approved, rejected or cancelled. 409.
+  PENDING_ACTION_NOT_OPEN: 'PENDING_ACTION_NOT_OPEN',
+  /// The moderator who refused a listing cannot also decide its appeal. 403.
+  LISTING_APPEAL_SAME_MODERATOR: 'LISTING_APPEAL_SAME_MODERATOR',
+  /// That prohibited term is already on the list. 409.
+  LISTING_PROHIBITED_TERM_EXISTS: 'LISTING_PROHIBITED_TERM_EXISTS',
+  /// A content block cannot move that way: approving one that is not waiting
+  /// for approval, or submitting one already waiting or published. 409.
+  CONTENT_BLOCK_NOT_PENDING: 'CONTENT_BLOCK_NOT_PENDING',
+  /// The member of staff who submitted a content block cannot also approve
+  /// it. 403.
+  CONTENT_BLOCK_SAME_APPROVER: 'CONTENT_BLOCK_SAME_APPROVER',
+  /// The block cannot be published as it is: its coupon ends before the block
+  /// starts, or another check in `details` refuses it. Each entry has
+  /// `code` (for example COUPON_ENDS_BEFORE_START). 409.
+  CONTENT_BLOCK_CONFLICT: 'CONTENT_BLOCK_CONFLICT',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

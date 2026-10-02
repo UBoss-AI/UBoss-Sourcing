@@ -45,6 +45,7 @@ import { prisma } from '../../infra/prisma.js';
 import { categorySlugPath } from '../catalog/variant-matrix.service.js';
 import { recordSellerAudit } from './audit.service.js';
 import { isBrandApprovedForSeller } from './brand.service.js';
+import { flagProhibitedTerms } from './listing-moderation.service.js';
 import {
   generateMatrix,
   normaliseAxes,
@@ -155,6 +156,10 @@ export interface DraftView {
   /** Whether "Preview title" should be pressable. */
   canPreviewTitle: boolean;
   reviewComment: string | null;
+  /** What the moderator asked the seller to send, when it needs changes (JOURNEY-062). */
+  evidenceRequest: { kind: string; label: string; note: string | null }[];
+  /** The seller's appeal against a refusal, and its outcome once decided. */
+  appeal: { reason: string; appealedAt: string | null; outcome: string | null; decidedAt: string | null } | null;
   version: number;
   updatedAt: string;
   /**
@@ -512,6 +517,17 @@ async function moderatorIssues(draftId: string): Promise<ListingIssue[]> {
   }));
 }
 
+/** The structured evidence request a moderator saved, as a list. Anything malformed is dropped. */
+export function readEvidenceRequest(value: unknown): { kind: string; label: string; note: string | null }[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((entry: unknown) => {
+    if (entry === null || typeof entry !== 'object') return [];
+    const item = entry as Record<string, unknown>;
+    if (typeof item.kind !== 'string' || typeof item.label !== 'string') return [];
+    return [{ kind: item.kind, label: item.label, note: typeof item.note === 'string' ? item.note : null }];
+  });
+}
+
 function toView(
   row: Awaited<ReturnType<typeof loadDraftRow>>,
   evaluation: Awaited<ReturnType<typeof evaluateDraft>>,
@@ -544,6 +560,16 @@ function toView(
     isSubmittable: evaluation.isSubmittable,
     canPreviewTitle: evaluation.title?.ready === true,
     reviewComment: row.reviewComment,
+    evidenceRequest: readEvidenceRequest(row.evidenceRequestJson),
+    appeal:
+      row.appealReason === null
+        ? null
+        : {
+            reason: row.appealReason,
+            appealedAt: row.appealedAt?.toISOString() ?? null,
+            outcome: row.appealOutcome,
+            decidedAt: row.appealDecidedAt?.toISOString() ?? null,
+          },
     version: row.version,
     updatedAt: row.updatedAt.toISOString(),
     variantAxes: evaluation.variantAxes,
@@ -1105,6 +1131,10 @@ export async function submitDraft(
         submittedVersion: row.version,
       },
     });
+
+    // Automated flags for the moderator (JOURNEY-062): the operator's
+    // prohibited terms, found in what is about to be reviewed.
+    await flagProhibitedTerms(tx, draftId);
   });
 
   await recordSellerAudit({

@@ -612,7 +612,15 @@ describe('approval and after', () => {
     expect(refused.statusCode).toBe(403);
 
     const owner = await staff(EMAIL.owner);
-    const suspended = await call(owner, 'POST', `/api/v1/admin/buyer-companies/${companyId}/suspend`, { expectedVersion: await version(companyId), reason: 'Payment dispute under investigation.' });
+    // The single-approver path: maker-checker has its own test file.
+    const flag = await prisma.featureFlag.findUnique({ where: { key: 'critical_action_approval' } });
+    await prisma.featureFlag.updateMany({ where: { key: 'critical_action_approval' }, data: { enabled: false } });
+    let suspended;
+    try {
+      suspended = await call(owner, 'POST', `/api/v1/admin/buyer-companies/${companyId}/suspend`, { expectedVersion: await version(companyId), reason: 'Payment dispute under investigation.' });
+    } finally {
+      if (flag !== null) await prisma.featureFlag.update({ where: { key: 'critical_action_approval' }, data: { enabled: flag.enabled } });
+    }
     expect(suspended.statusCode, suspended.body).toBe(200);
 
     const session = await signIn(EMAIL.alice, 'company');

@@ -36,6 +36,7 @@ Repository and internal name: **UBOSS / UBOSS Sourcing**.
 | 1.7 | 2026-09-28 | The About page: `/about` (new FR-SRCH-009), linked from the footer and the header, showing only the capabilities this deployment has switched on |
 | 1.8 | 2026-09-28 | Seller commission invoices: the new §5.14a (FR-CINV-001 to FR-CINV-012) — the operator's own A6 invoice to a seller for the platform commission, with credit notes, numbering, tax presentation, single-use downloads and public verification; **Finance → Commission invoices** and the order-detail card; seven `commission_invoice.*` / `commission_credit_note.*` permissions (§3.3.1); the commission invoice status model (§7.16); BR-CINV-001 to BR-CINV-004; gap G13 and question Q15 |
 | 1.9 | 2026-09-28 | Terms and Conditions at sign-up: the Terms dialog that alone can tick the sign-up box, read-to-the-end, and server-checked acceptance of the exact version in force for storefront sign-up and both invitation activations (FR-IDN-017); versioned, immutable legal documents written and published in **Administration → Legal documents**, the public `/legal/terms` page and PDF (FR-IDN-018); `legal_document.read`, `.write`, `.publish`; error codes `TERMS_ACCEPTANCE_REQUIRED`, `TERMS_VERSION_OUTDATED`, `TERMS_DOCUMENT_UNAVAILABLE`, `LEGAL_DOCUMENT_IMMUTABLE`, `LEGAL_DOCUMENT_VERSION_EXISTS` |
+| 1.10 | 2026-10-02 | Admin governance (JOURNEY-060, 061, 062, 064, 065, 067, LIVE-011): the Command Center's risk and SLA groups, maker-checker for critical account actions (`critical_action_approval`), record history and staff messages, listing moderation flags, evidence requests, appeals and destination blocks (FR-SEL-007), label rules and rule history, the integration monitor and outage banners, content approval, preview, versions and conflict checks, and the exception queues with SLAs and owner roles (FR-SET-003, FR-SET-004, FR-SET-006 to FR-SET-009) |
 
 ### Keeping this document true
 
@@ -713,7 +714,7 @@ panel:
 | Role | Where | The ring |
 |---|---|---|
 | Buyer | `/account` | **My orders** — the ten order statuses folded into five groups |
-| Staff | `/dashboard` (console) | **Platform operations** — what is waiting, in five groups, across queues that person can act on |
+| Staff | `/dashboard` (console) | **Platform operations** — what is waiting, in seven groups (approvals, payments, inventory, logistics, platform, risk and compliance, past their deadline), across queues that person can act on |
 | Carrier | `/dashboard` (portal) | **Assigned shipments** — the 27 consignment statuses folded into eight stages |
 
 Every figure is a database aggregate scoped on the server; the period and
@@ -3651,6 +3652,12 @@ selling involves) is public.
 - **Statement.** Staff review submitted listings at `/listing-review`, oldest
   first, with a note control on every field, and approve, send back or reject.
 - **Rules.** A decision carries `submittedVersion` and is refused if the seller has resubmitted or a colleague already decided. Approval makes a listing *eligible*; the seller still puts it on sale.
+- **Acceptance criteria (JOURNEY-062).**
+  1. **Automated flags + human review.** Staff with `product.publish` keep a list of prohibited terms (word or phrase, reason, severity) on the review queue screen. When a seller submits, the listing's text is scanned (whole words, any case) and each hit is saved as a `PROHIBITED_TERM` issue shown under "Already flagged", marked *Automated*. A flag never refuses a listing; the moderator decides.
+  2. **Evidence request.** "Send back" can carry a structured list of what the seller must send (certificate, test report, label photo, product photo, authorisation, other), each with a label and note. The seller sees it as a checklist in the wizard.
+  3. **Reject reason** is required (state machine).
+  4. **Appeal.** A refused listing can be appealed by the seller with a reason (REJECTED → APPEALED). It appears in the *Appeals* tab of the queue. A moderator other than the one who refused it decides (`LISTING_APPEAL_SAME_MODERATOR` otherwise): upheld returns it to PENDING_REVIEW, refused keeps it REJECTED. The seller is notified; both trails are written.
+  5. **Destination restrictions.** Approval can name countries the product may not be sold to. Each becomes a PRODUCT-scope BLOCK country rule with a history row, editable on the Country rules screen.
 - **Status.** Built.
 
 ### FR-SEL-008 — Offers, going on sale, pausing, editing, resuming
@@ -5028,17 +5035,56 @@ at the sender's company, seller or carrier sees them.
 - **Statement.** Staff list customers (including *Awaiting approval*), open one
   to see prices, limits, addresses and orders; invite, activate and deactivate.
 - **Rules.** Deactivation revokes sessions immediately. Addresses have one enforced default; cross-customer access returns 404.
+- **Acceptance criteria (JOURNEY-061).**
+  1. **Reason.** Deactivating a customer needs a reason (400 without one); it is kept on the audit entry.
+  2. **Maker-checker.** With the database flag `critical_action_approval` on (the default), deactivating a customer, suspending or refusing a seller and suspending a buyer company are not done at once: the route answers 202 with a request, a *different* member of staff holding the same permission approves it (`PENDING_ACTION_SAME_APPROVER` for the asker), and only the approval runs the action through the same service. One open request per action per record (`PENDING_ACTION_ALREADY_OPEN`). Requested, approved, rejected and withdrawn are each audited. Requests wait on the record page and on **Exception queues**.
+  3. **History.** Customer and seller pages show a History card: the audit trail filtered to that record (needs `audit.read`).
+  4. **Communication.** Staff with `customer.write` can write to a customer (email from the editable `account.staff_message` template) or a seller (a Seller Hub notice, and the email to the person who opened the account). Each message is audited against the record.
 - **Status.** Built.
 
 ### FR-SET-004 — Integrations screen
 
 - **Statement.** Payment gateway credentials and connectors, encrypted at rest,
   never shown again after saving (only a hint).
+- **Acceptance criteria (JOURNEY-065).**
+  1. **Integration monitor** at the top of the screen (`GET /admin/integrations/health`): payment gateway, carriers, warehouse ERP, buyers' ERP connections and inspection agencies, each with a status (working, degraded, down, not set up), the facts behind it and, for webhook sources, the last delivery and the accepted and refused counts in the last 24 hours. Each source is shown only to the permission that works it.
+  2. **Retry and dead letters.** Dead-lettered carrier webhooks can be put back on the retry queue (`logistics.integration.write`); dead jobs and failed notifications link to their retry screens.
+  3. **Manual reconcile** links to the payments needing a hand reconcile.
+  4. **Outage banner.** Every admin screen shows a banner while a visible source is down or payments are degraded. The storefront shows a short notice when card payments may fail (`GET /service-status`, yes or no only).
+  5. **Inspection** has no outside API: agencies work in the in-app portal, so its health is the portal's own deadlines (jobs not accepted in time, overdue reports).
 - **Status.** Built.
 
 ### FR-SET-005 — Custom API connector (catalogue feed)
 
 - **Rules.** HTTPS enforced, credentials encrypted, dry run by default, row-level errors, circuit breaker; it only **updates** existing products — never creates catalogue rows.
+- **Status.** Built.
+
+### FR-SET-006 — Admin Command Center exceptions (JOURNEY-060)
+
+- **Statement.** The dashboard's Platform operations ring and table count, for the person looking, the exceptions that need someone today.
+- **Acceptance criteria.**
+  1. High and critical risk signals not yet reviewed (`risk.read`); inspections whose signed result is FAIL with no passing re-inspection (`inspection.read`); seller documents and certificates lapsed or lapsing within the trust settings' warning window (`customer.read`) — group *Risk and compliance*.
+  2. Payments to reconcile, refused payment webhooks and settlements and held funds on hold (`payment.read`) — group *Payments*.
+  3. Carrier integrations in error or failing repeatedly (`logistics.read`), buyers' ERP events that gave up this week (`integration.read`), plus the existing ERP, dead job and notification counts — group *Platform*.
+  4. Disputes past their response or decision deadline, support requests past their first-response deadline, pre-order chats past their reply target, inspection jobs not accepted in time or with an overdue report — group *Past their deadline*.
+  5. A queue the person may not see is absent, not zero.
+- **Status.** Built.
+
+### FR-SET-007 — Exception queues, SLAs and owners (LIVE-011)
+
+- **Statement.** **Exception queues** lists every admin exception queue the person may see with the number waiting, the age of the oldest item, how many are past the SLA, the SLA in hours, the owner role and the escalation role; staff with `settings.write` change the hours and roles (audited). It also lists critical actions waiting for a second approver.
+- **Rules.** Owners are roles. Naming the people who hold them on each shift is the operator's task (`docs/INCIDENT-READINESS.md` §3a).
+- **Status.** Built (software). Named people: operator task.
+
+### FR-SET-008 — Country rules: labels and history (JOURNEY-064)
+
+- **Statement.** Country rules gain a third effect, **LABEL_REQUIRED**, with the labelling text goods must carry in that country. It never blocks; it is shown on the product page, the category and market pages and at checkout (`GET /catalog/label-requirements`). Every save and delete writes a version (who, when, what the rule said, its source, version and owner), shown by **History** on the Country rules screen; the history outlives a deleted rule.
+- **Status.** Built. Restricted products, document requirements, duty presentation and serviceability were built before (Master rows 69, 71; JOURNEY-049).
+
+### FR-SET-009 — Storefront content: approval, preview, rollback, conflicts (JOURNEY-067)
+
+- **Statement.** A banner or category block is DRAFT, PENDING_APPROVAL or PUBLISHED. Saving with *Send for approval* (or **Send for approval** later) waits for a **different** member of staff to approve it (`CONTENT_BLOCK_SAME_APPROVER`); any edit returns it to draft and off the storefront. Every save is a version; **Restore** writes an old version back as a new draft. **Preview** shows what the storefront would show for a country, a language and a moment, drafts included.
+- **Acceptance criteria.** Saving returns warnings for a coupon that is not active or public, ends before the block does, starts after it, or has no minimum in the target country's currency, and for a banner overlapping another in the same placement, audience and time. Approval refuses a coupon that is archived or ends before the block starts (`CONTENT_BLOCK_CONFLICT`). Country and language targeting and the schedule are as before (Master row 72).
 - **Status.** Built.
 
 # 6. Key user journeys, end to end
@@ -6187,6 +6233,7 @@ Remove-Item Env:\DATABASE_URL
 | `FEATURE_MESSAGE_TRANSLATION` | `false` | **Translate a message** (FR-MSG-004): a "Translate" action under messages in order, RFQ and preorder-chat threads, using the DeepL key stored under Settings → Catalogue translation (no other provider). Reported as `features.messageTranslation` (true only while a key is stored). Off refuses the translate routes with `MESSAGE_TRANSLATION_UNAVAILABLE`; nothing translated is ever stored |
 | `FEATURE_RFQ` | `true` | **Requests for quotation** (§5.11b): the account's RFQ pages, "Request quotes" on category and product pages, and the Seller Hub inbox. Reported as `features.rfq`. Off refuses every RFQ route with `404 FEATURE_DISABLED` on both sides; nothing is deleted. Tuning: `RFQ_MAX_RESPONSE_DAYS` (90), `RFQ_MAX_MATCHED_SUPPLIERS` (25), `RFQ_MAX_INVITED_SUPPLIERS` (50), `RFQ_ATTACHMENT_MAX_BYTES` (10 MB), `RFQ_ATTACHMENTS_PER_RFQ` (40), `RFQ_ALLOW_UNSCANNED_ATTACHMENTS` (`false`; refused in production) |
 | `FEATURE_SUPPORT_TICKETS` | `true` | **Support tickets** (§5.19a): the **Raise a ticket** form on the Support page in the storefront, Seller Hub and the portal. Reported as `features.supportTickets` in the public config. Off shows only the published contacts and refuses new tickets with `403 FEATURE_DISABLED`; existing tickets stay readable, senders can still reply and add files, and the console inbox keeps working. Settings in §10.12 |
+| `critical_action_approval` (database flag, **Settings → Feature flags**) | on | Maker-checker for deactivating a customer, suspending or refusing a seller and suspending a buyer company (FR-SET-003). Off = one member of staff acts alone |
 | `PAYMENT_MOCK_SUCCESS` | `false` | Development-only "Mark this order as paid" test path |
 | `ENABLE_DEMO_CATALOG` | `true` outside production, `false` in production | Shows the demonstration catalogue |
 | `SELLER_ERP_ALLOW_DIRECT_MODE` | `false` | Direct Tally URL mode for private networks (needs `SELLER_ERP_DIRECT_HOST_SUFFIXES`) |

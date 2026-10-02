@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**364 tables · 340 enums · 836 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
+**369 tables · 344 enums · 840 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -75,7 +75,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ which agreement a document is. each account type is asked for its own.](#group-which-agreement-a-document-is-each-account-type-is-asked-for-its-own) | 2 | 2 |
 | [Seller commission invoices](#group-seller-commission-invoices) | 6 | 7 |
 | [/ how strongly an order needs inspecting, decided by the rules engine.](#group-how-strongly-an-order-needs-inspecting-decided-by-the-rules-engine) | 17 | 23 |
-| [/ where one check has got to.](#group-where-one-check-has-got-to) | 19 | 9 |
+| [/ where one check has got to.](#group-where-one-check-has-got-to) | 24 | 13 |
 | [/ where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.](#group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts) | 15 | 11 |
 | [/ what a ledger account represents. balances are never stored; they are the / sum of the account's lines.](#group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines) | 8 | 7 |
 | [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
@@ -8578,6 +8578,12 @@ A seller's working copy of a listing.
 | `reviewedByUserId` | String · Char(26) | yes |  |  |  |
 | `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `evidenceRequestJson` | Json | yes |  |  | What the moderator asked the seller to send when moving the listing to ACTION_REQUIRED: `[{ kind, label, note }]`. Null when nothing was asked. |
+| `appealReason` | String · Text | yes |  |  | The seller's appeal against a refusal, and how it was decided. `appealOutcome` is UPHELD (sent back for review) or REFUSED. |
+| `appealedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `appealDecidedById` | String · Char(26) | yes |  |  |  |
+| `appealDecidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `appealOutcome` | String · VarChar(16) | yes |  |  |  |
 | `version` | Int |  |  | 0 | Optimistic concurrency. The wizard autosaves from a long-lived tab and sellers leave two open; this is what stops one overwriting the other. |
 | `submittedVersion` | Int | yes |  |  | The value of `version` at the moment the seller pressed submit. |
 | `createdByProfileId` | String · Char(26) | yes |  |  |  |
@@ -9566,6 +9572,7 @@ Where a listing is in its journey from "started" to "buyable".
 | `ACTION_REQUIRED` | A moderator sent it back. Editable, with comments attached to fields. |
 | `APPROVED` | Approved. A `Product` and a `SellerOffer` now exist; the draft is kept as the record of what was approved. |
 | `REJECTED` | Refused outright. |
+| `APPEALED` | The seller disputes a refusal. A moderator other than the one who refused it decides: back to PENDING_REVIEW (upheld) or REJECTED (refused). |
 | `ARCHIVED` | The seller abandoned it. |
 
 <a id="enum-listingmediaslot"></a>
@@ -18607,7 +18614,7 @@ When the buyer may read the report.
 
 ##  / where one check has got to.
 
-[TrustSettings](#model-trustsettings) · [SellerTrustProfile](#model-sellertrustprofile) · [SellerBeneficialOwner](#model-sellerbeneficialowner) · [SellerFactory](#model-sellerfactory) · [SellerFactoryMachine](#model-sellerfactorymachine) · [SellerFactoryEvidence](#model-sellerfactoryevidence) · [SellerCertification](#model-sellercertification) · [SellerTrustCheck](#model-sellertrustcheck) · [SellerScreeningCheck](#model-sellerscreeningcheck) · [SellerProfileChangeRequest](#model-sellerprofilechangerequest) · [SellerListingTrust](#model-sellerlistingtrust) · [SellerListingCertification](#model-sellerlistingcertification) · [SellerOfferComplianceHold](#model-selleroffercompliancehold) · [MarketRule](#model-marketrule) · [MarketLandedCostRate](#model-marketlandedcostrate) · [MarketProfile](#model-marketprofile) · [ContentBlock](#model-contentblock) · [SearchSynonym](#model-searchsynonym) · [SearchQueryLog](#model-searchquerylog)
+[TrustSettings](#model-trustsettings) · [SellerTrustProfile](#model-sellertrustprofile) · [SellerBeneficialOwner](#model-sellerbeneficialowner) · [SellerFactory](#model-sellerfactory) · [SellerFactoryMachine](#model-sellerfactorymachine) · [SellerFactoryEvidence](#model-sellerfactoryevidence) · [SellerCertification](#model-sellercertification) · [SellerTrustCheck](#model-sellertrustcheck) · [SellerScreeningCheck](#model-sellerscreeningcheck) · [SellerProfileChangeRequest](#model-sellerprofilechangerequest) · [SellerListingTrust](#model-sellerlistingtrust) · [SellerListingCertification](#model-sellerlistingcertification) · [SellerOfferComplianceHold](#model-selleroffercompliancehold) · [MarketRule](#model-marketrule) · [MarketRuleVersion](#model-marketruleversion) · [MarketLandedCostRate](#model-marketlandedcostrate) · [MarketProfile](#model-marketprofile) · [ContentBlock](#model-contentblock) · [ContentBlockVersion](#model-contentblockversion) · [AdminPendingAction](#model-adminpendingaction) · [ExceptionQueueSetting](#model-exceptionqueuesetting) · [ListingProhibitedTerm](#model-listingprohibitedterm) · [SearchSynonym](#model-searchsynonym) · [SearchQueryLog](#model-searchquerylog)
 
 ```mermaid
 erDiagram
@@ -18631,6 +18638,7 @@ erDiagram
     Category |o--o{ MarketRule : "category"
     Category |o--o{ ContentBlock : "category"
     Coupon |o--o{ ContentBlock : "coupon"
+    ContentBlock ||--o{ ContentBlockVersion : "block"
     TrustSettings {
         String id PK
     }
@@ -18694,6 +18702,9 @@ erDiagram
         String categoryId FK
         BigInt minOrderValueMinor
     }
+    MarketRuleVersion {
+        String id PK
+    }
     MarketLandedCostRate {
         String id PK
     }
@@ -18704,6 +18715,21 @@ erDiagram
         String id PK
         String categoryId FK
         String couponId FK
+        ContentBlockStatus status
+    }
+    ContentBlockVersion {
+        String id PK
+        String blockId FK
+    }
+    AdminPendingAction {
+        String id PK
+        AdminPendingActionStatus status
+    }
+    ExceptionQueueSetting {
+        String queueKey PK
+    }
+    ListingProhibitedTerm {
+        String id PK
     }
     SearchSynonym {
         String id PK
@@ -19151,6 +19177,7 @@ A destination rule for a product or a whole category (and its sub-categories). E
 | `effect` | [enum MarketRuleEffect](#enum-marketruleeffect) |  |  |  |  |
 | `reason` | String · VarChar(512) |  |  |  | Buyer-facing: why, in a sentence. |
 | `requiredDocumentsJson` | Json | yes |  |  | Document names the buyer must hold, for DOCUMENTS_REQUIRED. |
+| `labelText` | String · Text | yes |  |  | The labelling the goods must carry in that country, for LABEL_REQUIRED. |
 | `source` | String · VarChar(255) |  |  |  | The regulation, licence or policy the rule rests on. |
 | `version` | String · VarChar(32) |  |  |  |  |
 | `ownerName` | String · VarChar(160) |  |  |  |  |
@@ -19174,6 +19201,30 @@ A destination rule for a product or a whole category (and its sub-categories). E
 - `@@index([countryCode, isActive, effect], map: "ix_market_rule_country")`
 - `@@index([productId], map: "ix_market_rule_product")`
 - `@@index([categoryId], map: "ix_market_rule_category")`
+
+<a id="model-marketruleversion"></a>
+
+### MarketRuleVersion
+
+Table `market_rule_versions`
+
+A snapshot of a country rule at every save and at its deletion, so the rule's history (who changed what, when, from which source and version) survives the rule itself. No foreign key on purpose: deleting a rule must not take its history with it.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `ruleId` | String · Char(26) |  |  |  |  |
+| `revision` | Int |  |  |  |  |
+| `changeKind` | [enum MarketRuleChangeKind](#enum-marketrulechangekind) |  |  |  |  |
+| `snapshotJson` | Json |  |  |  |  |
+| `changedById` | String · Char(26) | yes |  |  |  |
+| `changedByEmail` | String · VarChar(320) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Indexes and keys**
+
+- `@@unique([ruleId, revision], map: "uq_market_rule_version")`
 
 <a id="model-marketlandedcostrate"></a>
 
@@ -19249,8 +19300,14 @@ A banner or category content block the operator writes, targeted by country and 
 | `languageCode` | String · VarChar(8) |  |  | "" | A storefront language code, or '' for every language. |
 | `startsAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `endsAt` | DateTime · DateTime(3) | yes |  |  |  |
-| `isPublished` | Boolean |  |  | false |  |
+| `isPublished` | Boolean |  |  | false | True only while `status` is PUBLISHED; the storefront reads this. |
 | `sortOrder` | Int |  |  | 0 |  |
+| `status` | [enum ContentBlockStatus](#enum-contentblockstatus) |  |  | DRAFT | DRAFT -&gt; PENDING_APPROVAL -&gt; PUBLISHED. A second member of staff, not the one who submitted it, approves; any edit sends it back to DRAFT. |
+| `revision` | Int |  |  | 0 | Bumped on every save; matches the newest content_block_versions row. |
+| `submittedById` | String · Char(26) | yes |  |  |  |
+| `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `approvedById` | String · Char(26) | yes |  |  |  |
+| `approvedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdByUserId` | String · Char(26) | yes |  |  |  |
 | `updatedByUserId` | String · Char(26) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
@@ -19260,12 +19317,113 @@ A banner or category content block the operator writes, targeted by country and 
 
 - `category` → [Category](#model-category) via `categoryId` - many-to-one, optional, on delete **Cascade**, on update **Restrict**
 - `coupon` → [Coupon](#model-coupon) via `couponId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `versions` ← [ContentBlockVersion](#model-contentblockversion) - has many
 
 **Indexes and keys**
 
 - `@@index([placement, isPublished, countryCode], map: "ix_content_block_live")`
 - `@@index([categoryId], map: "ix_content_block_category")`
 - `@@index([couponId], map: "ix_content_block_coupon")`
+
+<a id="model-contentblockversion"></a>
+
+### ContentBlockVersion
+
+Table `content_block_versions`
+
+The content of a block as it was saved, one row per save. Restoring a version writes it back as a new save (a new draft), so nothing is lost.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `blockId` | String · Char(26) |  | FK → [ContentBlock](#model-contentblock) |  | (on delete: Cascade) |
+| `revision` | Int |  |  |  |  |
+| `snapshotJson` | Json |  |  |  |  |
+| `savedById` | String · Char(26) | yes |  |  |  |
+| `savedByEmail` | String · VarChar(320) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `block` → [ContentBlock](#model-contentblock) via `blockId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([blockId, revision], map: "uq_content_block_version")`
+
+<a id="model-adminpendingaction"></a>
+
+### AdminPendingAction
+
+Table `admin_pending_actions`
+
+Maker-checker for a critical account action. The request records who asked and why; a different member of staff approves or rejects it, and only an approval runs the action. `pendingKey` ("KIND:resourceId") is set only while PENDING, so the unique index allows one open request per action per record - MariaDB treats every NULL as distinct.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `kind` | [enum AdminPendingActionKind](#enum-adminpendingactionkind) |  |  |  |  |
+| `status` | [enum AdminPendingActionStatus](#enum-adminpendingactionstatus) |  |  | PENDING |  |
+| `resourceType` | String · VarChar(48) |  |  |  |  |
+| `resourceId` | String · Char(26) |  |  |  |  |
+| `resourceLabel` | String · VarChar(255) |  |  |  |  |
+| `payloadJson` | Json |  |  |  | What the action will do when approved (target status, version, flags). |
+| `reason` | String · VarChar(1000) |  |  |  |  |
+| `pendingKey` | String · VarChar(96) | yes | UNIQUE |  |  |
+| `requestedById` | String · Char(26) |  |  |  |  |
+| `requestedByEmail` | String · VarChar(320) |  |  |  |  |
+| `requestedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `decidedById` | String · Char(26) | yes |  |  |  |
+| `decidedByEmail` | String · VarChar(320) | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `decisionNote` | String · VarChar(1000) | yes |  |  |  |
+| `failureMessage` | String · VarChar(1000) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Indexes and keys**
+
+- `@@index([status, requestedAt], map: "ix_admin_pending_action_queue")`
+- `@@index([resourceType, resourceId], map: "ix_admin_pending_action_resource")`
+
+<a id="model-exceptionqueuesetting"></a>
+
+### ExceptionQueueSetting
+
+Table `exception_queue_settings`
+
+The operator's SLA and ownership for one admin exception queue (LIVE-011). A queue with no row uses the default in exception-queue.service.ts.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `queueKey` | String · VarChar(48) |  | PK |  |  |
+| `slaHours` | Int |  |  |  |  |
+| `ownerRole` | String · VarChar(64) |  |  |  | Role key that works the queue. |
+| `escalationRole` | String · VarChar(64) |  |  |  | Role key an item escalates to once it is past its SLA. |
+| `updatedById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+<a id="model-listingprohibitedterm"></a>
+
+### ListingProhibitedTerm
+
+Table `listing_prohibited_terms`
+
+A word or phrase a listing may not contain (JOURNEY-062). Matched case- insensitively on whole words when a listing is submitted; a hit is saved on the listing as an automated flag for the moderator.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `term` | String · VarChar(120) |  | UNIQUE |  |  |
+| `reason` | String · VarChar(512) |  |  |  |  |
+| `severity` | [enum ListingIssueSeverity](#enum-listingissueseverity) |  |  | WARNING |  |
+| `isActive` | Boolean |  |  | true |  |
+| `createdById` | String · Char(26) | yes |  |  |  |
+| `updatedById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
 
 <a id="model-searchsynonym"></a>
 
@@ -19401,6 +19559,17 @@ Result of screening one subject against sanctions / restricted-party lists.
 |---|---|
 | `BLOCK` | The product may not be sold to the destination at all. |
 | `DOCUMENTS_REQUIRED` | It may, and the buyer must hold the listed documents. Shown, not blocked. |
+| `LABEL_REQUIRED` | It may, and the goods must carry the labelling in `labelText` for that country. Shown on the product page and at checkout, not blocked. |
+
+<a id="enum-marketrulechangekind"></a>
+
+#### enum MarketRuleChangeKind
+
+| Value | Meaning |
+|---|---|
+| `CREATED` |  |
+| `UPDATED` |  |
+| `DELETED` |  |
 
 <a id="enum-contentblockplacement"></a>
 
@@ -19412,6 +19581,39 @@ Where a content block appears on the storefront (Master row 72).
 |---|---|
 | `HOME_BANNER` | A banner on the storefront home page. |
 | `CATEGORY_BLOCK` | A block on one category's page. |
+
+<a id="enum-contentblockstatus"></a>
+
+#### enum ContentBlockStatus
+
+| Value | Meaning |
+|---|---|
+| `DRAFT` |  |
+| `PENDING_APPROVAL` |  |
+| `PUBLISHED` |  |
+
+<a id="enum-adminpendingactionkind"></a>
+
+#### enum AdminPendingActionKind
+
+| Value | Meaning |
+|---|---|
+| `SELLER_SUSPEND` |  |
+| `SELLER_REJECT` |  |
+| `CUSTOMER_DEACTIVATE` |  |
+| `BUYER_COMPANY_SUSPEND` |  |
+
+<a id="enum-adminpendingactionstatus"></a>
+
+#### enum AdminPendingActionStatus
+
+| Value | Meaning |
+|---|---|
+| `PENDING` |  |
+| `APPROVED` |  |
+| `REJECTED` |  |
+| `CANCELLED` |  |
+| `FAILED` | Approved, but the action itself was refused when it ran (the record had moved on). `failureMessage` says why. |
 
 <a id="group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts"></a>
 

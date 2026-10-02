@@ -1280,6 +1280,8 @@ function draftStatusLabel(status: DraftListRow['status'], archivedLabel: string)
       return 'Approved';
     case 'REJECTED':
       return 'Not approved';
+    case 'APPEALED':
+      return 'Appeal under review';
     case 'ARCHIVED':
       return archivedLabel;
   }
@@ -1298,6 +1300,7 @@ function draftStatusTone(
     case 'REJECTED':
       return 'danger';
     case 'PENDING_REVIEW':
+    case 'APPEALED':
       return 'brand';
     default:
       return 'neutral';

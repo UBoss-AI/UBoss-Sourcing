@@ -128,9 +128,11 @@ import {
 } from './routes/logistics-levels.admin.js';
 import { registerSellerLogisticsRoutes } from './routes/seller.logistics.js';
 import { registerAdminPlatformFeeRuleRoutes } from './routes/platform-fee-rules.admin.js';
-import { registerAdminMarketRuleRoutes } from './routes/market-rules.admin.js';
+import { registerAdminMarketRuleRoutes, registerPublicLabelRuleRoutes } from './routes/market-rules.admin.js';
 import { registerAdminTradeComplianceRoutes } from './routes/trade-compliance.admin.js';
 import { registerAdminContentBlockRoutes, registerPublicContentBlockRoutes } from './routes/content-blocks.js';
+import { registerAdminGovernanceRoutes, registerPublicServiceStatusRoutes } from './routes/governance.admin.js';
+import { registerAdminListingModerationRoutes } from './routes/listing-moderation.admin.js';
 import { registerSellerPreorderRoutes } from './routes/seller.preorders.js';
 import { registerPreorderRoutes } from './routes/preorders.js';
 import { registerAdminPreorderRoutes } from './routes/preorders.admin.js';
@@ -973,6 +975,14 @@ export async function buildApp() {
   await app.register(registerAdminTradeComplianceRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminContentBlockRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerPublicContentBlockRoutes, { prefix: `${API_PREFIX}/catalog` });
+  // Maker-checker, exception queues, integration monitor and staff messages (JOURNEY-061, 065, LIVE-011).
+  await app.register(registerAdminGovernanceRoutes, { prefix: `${API_PREFIX}/admin` });
+  // Listing moderation rules and appeals (JOURNEY-062).
+  await app.register(registerAdminListingModerationRoutes, { prefix: `${API_PREFIX}/admin` });
+  // Labelling rules for a basket's delivery country, shown at checkout (JOURNEY-064).
+  await app.register(registerPublicLabelRuleRoutes, { prefix: `${API_PREFIX}/catalog` });
+  // The storefront's payments notice (JOURNEY-065).
+  await app.register(registerPublicServiceStatusRoutes, { prefix: API_PREFIX });
   // The legs a delivery company holds, in its own portal.
   await app.register(registerLogisticsPortalLegRoutes, { prefix: `${API_PREFIX}/logistics` });
   // The buyer's delivery quote and an order's price breakdown.

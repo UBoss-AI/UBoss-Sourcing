@@ -36,6 +36,7 @@ import {
   withdrawDraft,
 } from '../../modules/seller/listing-draft.service.js';
 import { loadListingSchema } from '../../modules/seller/listing-schema.service.js';
+import { appealListing } from '../../modules/seller/listing-moderation.service.js';
 import {
   readListingContentForSeller,
   saveListingContentForSeller,
@@ -748,6 +749,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
             'ACTION_REQUIRED',
             'APPROVED',
             'REJECTED',
+            'APPEALED',
             'ARCHIVED',
           ])
           .nullish(),
@@ -923,6 +925,24 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
       const params = idParam.parse(request.params);
       const draft = await submitDraft(currentSeller(request), params.id, request.correlationId);
       return reply.status(200).send(draft);
+    },
+  );
+
+  /**
+   * Appeal a refused listing, saying why. A different moderator from the one
+   * who refused it decides. Writes an audit entry.
+   */
+  app.post(
+    '/listing-drafts/:id/appeal',
+    {
+      preHandler: requireSeller(SellerPermission.LISTING_SUBMIT),
+      config: { rateLimit: { max: 20, timeWindow: '1 hour' } },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z.object({ reason: z.string().trim().min(10).max(4000) }).parse(request.body);
+      const result = await appealListing(currentSeller(request), params.id, body.reason, request.correlationId);
+      return reply.status(200).send(result);
     },
   );
 

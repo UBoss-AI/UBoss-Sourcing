@@ -48,6 +48,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { LocaleMenu } from './LocaleMenu';
 import { NotificationBell } from './NotificationBell';
 import { BrandLockup } from './BrandLockup';
+import { OutageBanner } from './OutageBanner';
 
 /**
  * Who is signed in, at the foot of the rail.
@@ -504,6 +505,8 @@ export function AppShell(): React.JSX.Element {
 
             <UserMenu />
           </header>
+
+          <OutageBanner />
 
           <main
             id="main"

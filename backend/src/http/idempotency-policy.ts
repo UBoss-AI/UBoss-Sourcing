@@ -110,6 +110,8 @@ const REQUIRED_CENTRAL: Record<string, string> = {
     'Raises a production exception and tells the buyer; a repeat must not record and announce the same delay twice.',
   [`POST ${P}/rfqs/:id/submit`]:
     'Sends a request for quotation to sellers, writing their invitations and telling each of them.',
+  [`POST ${P}/admin/account-messages`]:
+    'Emails a customer or seller a message from staff; replay returns the first result instead of sending a second email.',
 };
 
 // ---------------------------------------------------------------------------
@@ -327,6 +329,7 @@ const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
       'recurring-schedules/:id/occurrences/:occurrenceId/confirm-price',
       'recurring-schedules/:id/occurrences/:occurrenceId/decline-price',
       'admin/notifications/read-all', 'sellers/session/renew', 'admin/trade-documents/versions/:id/validation',
+      'admin/seller-listings/:id/appeal-decision', 'seller/listing-drafts/:id/appeal', 'admin/content-blocks/:id/return',
     ],
   },
   {
@@ -361,6 +364,7 @@ const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
       'seller/orders/:id/trade-documents/certificate-of-origin',
       'logistics/driver/location-consent', 'logistics/driver/trips', 'admin/vat-rates',
       'admin/master-data/:kind', 'admin/market-rules', 'admin/trade-rules', 'admin/content-blocks', 'account/saved-searches',
+      'admin/listing-moderation/terms',
       'seller/bulk-imports',
     ],
   },

@@ -43,6 +43,7 @@ export type MarketRuleMinAggregateOutputType = {
   countryCode: string | null
   effect: $Enums.MarketRuleEffect | null
   reason: string | null
+  labelText: string | null
   source: string | null
   version: string | null
   ownerName: string | null
@@ -65,6 +66,7 @@ export type MarketRuleMaxAggregateOutputType = {
   countryCode: string | null
   effect: $Enums.MarketRuleEffect | null
   reason: string | null
+  labelText: string | null
   source: string | null
   version: string | null
   ownerName: string | null
@@ -88,6 +90,7 @@ export type MarketRuleCountAggregateOutputType = {
   effect: number
   reason: number
   requiredDocumentsJson: number
+  labelText: number
   source: number
   version: number
   ownerName: number
@@ -120,6 +123,7 @@ export type MarketRuleMinAggregateInputType = {
   countryCode?: true
   effect?: true
   reason?: true
+  labelText?: true
   source?: true
   version?: true
   ownerName?: true
@@ -142,6 +146,7 @@ export type MarketRuleMaxAggregateInputType = {
   countryCode?: true
   effect?: true
   reason?: true
+  labelText?: true
   source?: true
   version?: true
   ownerName?: true
@@ -165,6 +170,7 @@ export type MarketRuleCountAggregateInputType = {
   effect?: true
   reason?: true
   requiredDocumentsJson?: true
+  labelText?: true
   source?: true
   version?: true
   ownerName?: true
@@ -275,6 +281,7 @@ export type MarketRuleGroupByOutputType = {
   effect: $Enums.MarketRuleEffect
   reason: string
   requiredDocumentsJson: runtime.JsonValue | null
+  labelText: string | null
   source: string
   version: string
   ownerName: string
@@ -321,6 +328,7 @@ export type MarketRuleWhereInput = {
   effect?: Prisma.EnumMarketRuleEffectFilter<"MarketRule"> | $Enums.MarketRuleEffect
   reason?: Prisma.StringFilter<"MarketRule"> | string
   requiredDocumentsJson?: Prisma.JsonNullableFilter<"MarketRule">
+  labelText?: Prisma.StringNullableFilter<"MarketRule"> | string | null
   source?: Prisma.StringFilter<"MarketRule"> | string
   version?: Prisma.StringFilter<"MarketRule"> | string
   ownerName?: Prisma.StringFilter<"MarketRule"> | string
@@ -346,6 +354,7 @@ export type MarketRuleOrderByWithRelationInput = {
   effect?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   requiredDocumentsJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  labelText?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrder
   version?: Prisma.SortOrder
   ownerName?: Prisma.SortOrder
@@ -375,6 +384,7 @@ export type MarketRuleWhereUniqueInput = Prisma.AtLeast<{
   effect?: Prisma.EnumMarketRuleEffectFilter<"MarketRule"> | $Enums.MarketRuleEffect
   reason?: Prisma.StringFilter<"MarketRule"> | string
   requiredDocumentsJson?: Prisma.JsonNullableFilter<"MarketRule">
+  labelText?: Prisma.StringNullableFilter<"MarketRule"> | string | null
   source?: Prisma.StringFilter<"MarketRule"> | string
   version?: Prisma.StringFilter<"MarketRule"> | string
   ownerName?: Prisma.StringFilter<"MarketRule"> | string
@@ -400,6 +410,7 @@ export type MarketRuleOrderByWithAggregationInput = {
   effect?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   requiredDocumentsJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  labelText?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrder
   version?: Prisma.SortOrder
   ownerName?: Prisma.SortOrder
@@ -431,6 +442,7 @@ export type MarketRuleScalarWhereWithAggregatesInput = {
   effect?: Prisma.EnumMarketRuleEffectWithAggregatesFilter<"MarketRule"> | $Enums.MarketRuleEffect
   reason?: Prisma.StringWithAggregatesFilter<"MarketRule"> | string
   requiredDocumentsJson?: Prisma.JsonNullableWithAggregatesFilter<"MarketRule">
+  labelText?: Prisma.StringNullableWithAggregatesFilter<"MarketRule"> | string | null
   source?: Prisma.StringWithAggregatesFilter<"MarketRule"> | string
   version?: Prisma.StringWithAggregatesFilter<"MarketRule"> | string
   ownerName?: Prisma.StringWithAggregatesFilter<"MarketRule"> | string
@@ -452,6 +464,7 @@ export type MarketRuleCreateInput = {
   effect: $Enums.MarketRuleEffect
   reason: string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: string | null
   source: string
   version: string
   ownerName: string
@@ -477,6 +490,7 @@ export type MarketRuleUncheckedCreateInput = {
   effect: $Enums.MarketRuleEffect
   reason: string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: string | null
   source: string
   version: string
   ownerName: string
@@ -498,6 +512,7 @@ export type MarketRuleUpdateInput = {
   effect?: Prisma.EnumMarketRuleEffectFieldUpdateOperationsInput | $Enums.MarketRuleEffect
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -523,6 +538,7 @@ export type MarketRuleUncheckedUpdateInput = {
   effect?: Prisma.EnumMarketRuleEffectFieldUpdateOperationsInput | $Enums.MarketRuleEffect
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -546,6 +562,7 @@ export type MarketRuleCreateManyInput = {
   effect: $Enums.MarketRuleEffect
   reason: string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: string | null
   source: string
   version: string
   ownerName: string
@@ -567,6 +584,7 @@ export type MarketRuleUpdateManyMutationInput = {
   effect?: Prisma.EnumMarketRuleEffectFieldUpdateOperationsInput | $Enums.MarketRuleEffect
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -590,6 +608,7 @@ export type MarketRuleUncheckedUpdateManyInput = {
   effect?: Prisma.EnumMarketRuleEffectFieldUpdateOperationsInput | $Enums.MarketRuleEffect
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -629,6 +648,7 @@ export type MarketRuleCountOrderByAggregateInput = {
   effect?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   requiredDocumentsJson?: Prisma.SortOrder
+  labelText?: Prisma.SortOrder
   source?: Prisma.SortOrder
   version?: Prisma.SortOrder
   ownerName?: Prisma.SortOrder
@@ -655,6 +675,7 @@ export type MarketRuleMaxOrderByAggregateInput = {
   countryCode?: Prisma.SortOrder
   effect?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  labelText?: Prisma.SortOrder
   source?: Prisma.SortOrder
   version?: Prisma.SortOrder
   ownerName?: Prisma.SortOrder
@@ -677,6 +698,7 @@ export type MarketRuleMinOrderByAggregateInput = {
   countryCode?: Prisma.SortOrder
   effect?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  labelText?: Prisma.SortOrder
   source?: Prisma.SortOrder
   version?: Prisma.SortOrder
   ownerName?: Prisma.SortOrder
@@ -794,6 +816,7 @@ export type MarketRuleCreateWithoutCategoryInput = {
   effect: $Enums.MarketRuleEffect
   reason: string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: string | null
   source: string
   version: string
   ownerName: string
@@ -817,6 +840,7 @@ export type MarketRuleUncheckedCreateWithoutCategoryInput = {
   effect: $Enums.MarketRuleEffect
   reason: string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: string | null
   source: string
   version: string
   ownerName: string
@@ -869,6 +893,7 @@ export type MarketRuleScalarWhereInput = {
   effect?: Prisma.EnumMarketRuleEffectFilter<"MarketRule"> | $Enums.MarketRuleEffect
   reason?: Prisma.StringFilter<"MarketRule"> | string
   requiredDocumentsJson?: Prisma.JsonNullableFilter<"MarketRule">
+  labelText?: Prisma.StringNullableFilter<"MarketRule"> | string | null
   source?: Prisma.StringFilter<"MarketRule"> | string
   version?: Prisma.StringFilter<"MarketRule"> | string
   ownerName?: Prisma.StringFilter<"MarketRule"> | string
@@ -890,6 +915,7 @@ export type MarketRuleCreateWithoutProductInput = {
   effect: $Enums.MarketRuleEffect
   reason: string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: string | null
   source: string
   version: string
   ownerName: string
@@ -913,6 +939,7 @@ export type MarketRuleUncheckedCreateWithoutProductInput = {
   effect: $Enums.MarketRuleEffect
   reason: string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: string | null
   source: string
   version: string
   ownerName: string
@@ -961,6 +988,7 @@ export type MarketRuleCreateManyCategoryInput = {
   effect: $Enums.MarketRuleEffect
   reason: string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: string | null
   source: string
   version: string
   ownerName: string
@@ -982,6 +1010,7 @@ export type MarketRuleUpdateWithoutCategoryInput = {
   effect?: Prisma.EnumMarketRuleEffectFieldUpdateOperationsInput | $Enums.MarketRuleEffect
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1005,6 +1034,7 @@ export type MarketRuleUncheckedUpdateWithoutCategoryInput = {
   effect?: Prisma.EnumMarketRuleEffectFieldUpdateOperationsInput | $Enums.MarketRuleEffect
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1027,6 +1057,7 @@ export type MarketRuleUncheckedUpdateManyWithoutCategoryInput = {
   effect?: Prisma.EnumMarketRuleEffectFieldUpdateOperationsInput | $Enums.MarketRuleEffect
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1049,6 +1080,7 @@ export type MarketRuleCreateManyProductInput = {
   effect: $Enums.MarketRuleEffect
   reason: string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: string | null
   source: string
   version: string
   ownerName: string
@@ -1070,6 +1102,7 @@ export type MarketRuleUpdateWithoutProductInput = {
   effect?: Prisma.EnumMarketRuleEffectFieldUpdateOperationsInput | $Enums.MarketRuleEffect
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1093,6 +1126,7 @@ export type MarketRuleUncheckedUpdateWithoutProductInput = {
   effect?: Prisma.EnumMarketRuleEffectFieldUpdateOperationsInput | $Enums.MarketRuleEffect
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1115,6 +1149,7 @@ export type MarketRuleUncheckedUpdateManyWithoutProductInput = {
   effect?: Prisma.EnumMarketRuleEffectFieldUpdateOperationsInput | $Enums.MarketRuleEffect
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   requiredDocumentsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  labelText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.StringFieldUpdateOperationsInput | string
   ownerName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1140,6 +1175,7 @@ export type MarketRuleSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   effect?: boolean
   reason?: boolean
   requiredDocumentsJson?: boolean
+  labelText?: boolean
   source?: boolean
   version?: boolean
   ownerName?: boolean
@@ -1167,6 +1203,7 @@ export type MarketRuleSelectScalar = {
   effect?: boolean
   reason?: boolean
   requiredDocumentsJson?: boolean
+  labelText?: boolean
   source?: boolean
   version?: boolean
   ownerName?: boolean
@@ -1181,7 +1218,7 @@ export type MarketRuleSelectScalar = {
   updatedAt?: boolean
 }
 
-export type MarketRuleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scope" | "productId" | "categoryId" | "countryCode" | "effect" | "reason" | "requiredDocumentsJson" | "source" | "version" | "ownerName" | "minOrderValueMinor" | "thresholdCurrency" | "effectiveFrom" | "effectiveUntil" | "isActive" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["marketRule"]>
+export type MarketRuleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scope" | "productId" | "categoryId" | "countryCode" | "effect" | "reason" | "requiredDocumentsJson" | "labelText" | "source" | "version" | "ownerName" | "minOrderValueMinor" | "thresholdCurrency" | "effectiveFrom" | "effectiveUntil" | "isActive" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["marketRule"]>
 export type MarketRuleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.MarketRule$productArgs<ExtArgs>
   category?: boolean | Prisma.MarketRule$categoryArgs<ExtArgs>
@@ -1211,6 +1248,10 @@ export type $MarketRulePayload<ExtArgs extends runtime.Types.Extensions.Internal
      * Document names the buyer must hold, for DOCUMENTS_REQUIRED.
      */
     requiredDocumentsJson: runtime.JsonValue | null
+    /**
+     * The labelling the goods must carry in that country, for LABEL_REQUIRED.
+     */
+    labelText: string | null
     /**
      * The regulation, licence or policy the rule rests on.
      */
@@ -1613,6 +1654,7 @@ export interface MarketRuleFieldRefs {
   readonly effect: Prisma.FieldRef<"MarketRule", 'MarketRuleEffect'>
   readonly reason: Prisma.FieldRef<"MarketRule", 'String'>
   readonly requiredDocumentsJson: Prisma.FieldRef<"MarketRule", 'Json'>
+  readonly labelText: Prisma.FieldRef<"MarketRule", 'String'>
   readonly source: Prisma.FieldRef<"MarketRule", 'String'>
   readonly version: Prisma.FieldRef<"MarketRule", 'String'>
   readonly ownerName: Prisma.FieldRef<"MarketRule", 'String'>

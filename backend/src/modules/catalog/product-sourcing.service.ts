@@ -69,7 +69,7 @@ export interface ProductSourcing {
   destination: string | null;
   delivery: {
     status: DeliveryStatus;
-    notes: { effect: MarketRuleEffect; reason: string; requiredDocuments: string[] }[];
+    notes: { effect: MarketRuleEffect; reason: string; requiredDocuments: string[]; labelText: string | null }[];
   };
   handlingTimeDays: number | null;
   countryOfOrigin: string | null;
@@ -158,7 +158,7 @@ export async function productSourcingFor(input: {
 
   // --- Delivery -------------------------------------------------------------
   const notes = (await productMarketNotes(input.destination, { id: input.productId, categoryId: input.categoryId })).map(
-    ({ effect, reason, requiredDocuments }) => ({ effect, reason, requiredDocuments }),
+    ({ effect, reason, requiredDocuments, labelText }) => ({ effect, reason, requiredDocuments, labelText }),
   );
   const regions = Array.isArray(offer?.sellingRegionsJson)
     ? (offer.sellingRegionsJson as unknown[]).filter((code): code is string => typeof code === 'string')

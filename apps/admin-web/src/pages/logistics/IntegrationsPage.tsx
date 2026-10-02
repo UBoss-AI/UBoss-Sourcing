@@ -61,6 +61,7 @@ import {
   type ShipmentStatus,
 } from '@/lib/logistics';
 import { Permission } from '@/lib/permissions';
+import { IntegrationHealthPanel } from '@/pages/integrations/IntegrationHealthPanel';
 
 const PROVIDERS: readonly CarrierProvider[] = ['MANUAL', 'CUSTOM', 'DHL', 'FEDEX', 'UPS'];
 
@@ -112,6 +113,10 @@ export function LogisticsIntegrationsPage(): React.JSX.Element {
       <Callout tone="info" title={t('logistics.integrations.whereCredentialsLive')}>
         {t('logistics.integrations.credentialsPolicy')}
       </Callout>
+
+      {/* The carriers' line of the integration monitor (JOURNEY-065), with the
+          dead-letter retry beside it. */}
+      <IntegrationHealthPanel only={['carriers']} />
 
       {integrations.length === 0 ? (
         <EmptyState

@@ -5950,11 +5950,35 @@ export type EnumMarketRuleEffectWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumMarketRuleEffectFilter<$PrismaModel>
 }
 
+export type EnumMarketRuleChangeKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.MarketRuleChangeKind | Prisma.EnumMarketRuleChangeKindFieldRefInput<$PrismaModel>
+  in?: $Enums.MarketRuleChangeKind[]
+  notIn?: $Enums.MarketRuleChangeKind[]
+  not?: Prisma.NestedEnumMarketRuleChangeKindFilter<$PrismaModel> | $Enums.MarketRuleChangeKind
+}
+
+export type EnumMarketRuleChangeKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MarketRuleChangeKind | Prisma.EnumMarketRuleChangeKindFieldRefInput<$PrismaModel>
+  in?: $Enums.MarketRuleChangeKind[]
+  notIn?: $Enums.MarketRuleChangeKind[]
+  not?: Prisma.NestedEnumMarketRuleChangeKindWithAggregatesFilter<$PrismaModel> | $Enums.MarketRuleChangeKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMarketRuleChangeKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMarketRuleChangeKindFilter<$PrismaModel>
+}
+
 export type EnumContentBlockPlacementFilter<$PrismaModel = never> = {
   equals?: $Enums.ContentBlockPlacement | Prisma.EnumContentBlockPlacementFieldRefInput<$PrismaModel>
   in?: $Enums.ContentBlockPlacement[]
   notIn?: $Enums.ContentBlockPlacement[]
   not?: Prisma.NestedEnumContentBlockPlacementFilter<$PrismaModel> | $Enums.ContentBlockPlacement
+}
+
+export type EnumContentBlockStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContentBlockStatus | Prisma.EnumContentBlockStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ContentBlockStatus[]
+  notIn?: $Enums.ContentBlockStatus[]
+  not?: Prisma.NestedEnumContentBlockStatusFilter<$PrismaModel> | $Enums.ContentBlockStatus
 }
 
 export type EnumContentBlockPlacementWithAggregatesFilter<$PrismaModel = never> = {
@@ -5965,6 +5989,50 @@ export type EnumContentBlockPlacementWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumContentBlockPlacementFilter<$PrismaModel>
   _max?: Prisma.NestedEnumContentBlockPlacementFilter<$PrismaModel>
+}
+
+export type EnumContentBlockStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContentBlockStatus | Prisma.EnumContentBlockStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ContentBlockStatus[]
+  notIn?: $Enums.ContentBlockStatus[]
+  not?: Prisma.NestedEnumContentBlockStatusWithAggregatesFilter<$PrismaModel> | $Enums.ContentBlockStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumContentBlockStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumContentBlockStatusFilter<$PrismaModel>
+}
+
+export type EnumAdminPendingActionKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminPendingActionKind | Prisma.EnumAdminPendingActionKindFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminPendingActionKind[]
+  notIn?: $Enums.AdminPendingActionKind[]
+  not?: Prisma.NestedEnumAdminPendingActionKindFilter<$PrismaModel> | $Enums.AdminPendingActionKind
+}
+
+export type EnumAdminPendingActionStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminPendingActionStatus | Prisma.EnumAdminPendingActionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminPendingActionStatus[]
+  notIn?: $Enums.AdminPendingActionStatus[]
+  not?: Prisma.NestedEnumAdminPendingActionStatusFilter<$PrismaModel> | $Enums.AdminPendingActionStatus
+}
+
+export type EnumAdminPendingActionKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminPendingActionKind | Prisma.EnumAdminPendingActionKindFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminPendingActionKind[]
+  notIn?: $Enums.AdminPendingActionKind[]
+  not?: Prisma.NestedEnumAdminPendingActionKindWithAggregatesFilter<$PrismaModel> | $Enums.AdminPendingActionKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAdminPendingActionKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAdminPendingActionKindFilter<$PrismaModel>
+}
+
+export type EnumAdminPendingActionStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminPendingActionStatus | Prisma.EnumAdminPendingActionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminPendingActionStatus[]
+  notIn?: $Enums.AdminPendingActionStatus[]
+  not?: Prisma.NestedEnumAdminPendingActionStatusWithAggregatesFilter<$PrismaModel> | $Enums.AdminPendingActionStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAdminPendingActionStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAdminPendingActionStatusFilter<$PrismaModel>
 }
 
 export type EnumCustomerKycStatusFilter<$PrismaModel = never> = {
@@ -12529,11 +12597,35 @@ export type NestedEnumMarketRuleEffectWithAggregatesFilter<$PrismaModel = never>
   _max?: Prisma.NestedEnumMarketRuleEffectFilter<$PrismaModel>
 }
 
+export type NestedEnumMarketRuleChangeKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.MarketRuleChangeKind | Prisma.EnumMarketRuleChangeKindFieldRefInput<$PrismaModel>
+  in?: $Enums.MarketRuleChangeKind[]
+  notIn?: $Enums.MarketRuleChangeKind[]
+  not?: Prisma.NestedEnumMarketRuleChangeKindFilter<$PrismaModel> | $Enums.MarketRuleChangeKind
+}
+
+export type NestedEnumMarketRuleChangeKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MarketRuleChangeKind | Prisma.EnumMarketRuleChangeKindFieldRefInput<$PrismaModel>
+  in?: $Enums.MarketRuleChangeKind[]
+  notIn?: $Enums.MarketRuleChangeKind[]
+  not?: Prisma.NestedEnumMarketRuleChangeKindWithAggregatesFilter<$PrismaModel> | $Enums.MarketRuleChangeKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMarketRuleChangeKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMarketRuleChangeKindFilter<$PrismaModel>
+}
+
 export type NestedEnumContentBlockPlacementFilter<$PrismaModel = never> = {
   equals?: $Enums.ContentBlockPlacement | Prisma.EnumContentBlockPlacementFieldRefInput<$PrismaModel>
   in?: $Enums.ContentBlockPlacement[]
   notIn?: $Enums.ContentBlockPlacement[]
   not?: Prisma.NestedEnumContentBlockPlacementFilter<$PrismaModel> | $Enums.ContentBlockPlacement
+}
+
+export type NestedEnumContentBlockStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContentBlockStatus | Prisma.EnumContentBlockStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ContentBlockStatus[]
+  notIn?: $Enums.ContentBlockStatus[]
+  not?: Prisma.NestedEnumContentBlockStatusFilter<$PrismaModel> | $Enums.ContentBlockStatus
 }
 
 export type NestedEnumContentBlockPlacementWithAggregatesFilter<$PrismaModel = never> = {
@@ -12544,6 +12636,50 @@ export type NestedEnumContentBlockPlacementWithAggregatesFilter<$PrismaModel = n
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumContentBlockPlacementFilter<$PrismaModel>
   _max?: Prisma.NestedEnumContentBlockPlacementFilter<$PrismaModel>
+}
+
+export type NestedEnumContentBlockStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContentBlockStatus | Prisma.EnumContentBlockStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ContentBlockStatus[]
+  notIn?: $Enums.ContentBlockStatus[]
+  not?: Prisma.NestedEnumContentBlockStatusWithAggregatesFilter<$PrismaModel> | $Enums.ContentBlockStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumContentBlockStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumContentBlockStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumAdminPendingActionKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminPendingActionKind | Prisma.EnumAdminPendingActionKindFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminPendingActionKind[]
+  notIn?: $Enums.AdminPendingActionKind[]
+  not?: Prisma.NestedEnumAdminPendingActionKindFilter<$PrismaModel> | $Enums.AdminPendingActionKind
+}
+
+export type NestedEnumAdminPendingActionStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminPendingActionStatus | Prisma.EnumAdminPendingActionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminPendingActionStatus[]
+  notIn?: $Enums.AdminPendingActionStatus[]
+  not?: Prisma.NestedEnumAdminPendingActionStatusFilter<$PrismaModel> | $Enums.AdminPendingActionStatus
+}
+
+export type NestedEnumAdminPendingActionKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminPendingActionKind | Prisma.EnumAdminPendingActionKindFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminPendingActionKind[]
+  notIn?: $Enums.AdminPendingActionKind[]
+  not?: Prisma.NestedEnumAdminPendingActionKindWithAggregatesFilter<$PrismaModel> | $Enums.AdminPendingActionKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAdminPendingActionKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAdminPendingActionKindFilter<$PrismaModel>
+}
+
+export type NestedEnumAdminPendingActionStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminPendingActionStatus | Prisma.EnumAdminPendingActionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminPendingActionStatus[]
+  notIn?: $Enums.AdminPendingActionStatus[]
+  not?: Prisma.NestedEnumAdminPendingActionStatusWithAggregatesFilter<$PrismaModel> | $Enums.AdminPendingActionStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAdminPendingActionStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAdminPendingActionStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumCustomerKycStatusFilter<$PrismaModel = never> = {

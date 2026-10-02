@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AccessReviewCard } from '@/components/AccessReviewCard';
+import { isPendingResponse, usePendingNotice } from '@/lib/governance';
 import { useToast } from '@/components/toast-context';
 import {
   Badge,
@@ -75,6 +76,7 @@ function CaseView({ record }: { record: ReviewCase }): React.JSX.Element {
   const toast = useToast();
   const queryClient = useQueryClient();
   const [dialog, setDialog] = useState<Dialog>(null);
+  const pendingNotice = usePendingNotice();
 
   const canReview = can(Permission.BUYER_COMPANY_REVIEW);
   const name = record.business.legalName ?? record.business.tradingName ?? record.reference;
@@ -379,7 +381,13 @@ function CaseView({ record }: { record: ReviewCase }): React.JSX.Element {
           confirmLabel={t('buyerCompany.suspend')}
           onClose={() => { setDialog(null); }}
           onConfirm={async ({ reason }) => {
-            apply(await reviewApi.suspend(record.id, { expectedVersion: record.version, reason }));
+            const result: unknown = await reviewApi.suspend(record.id, { expectedVersion: record.version, reason });
+            // Maker-checker (JOURNEY-061): the suspension may wait for a second approver.
+            if (isPendingResponse(result)) {
+              pendingNotice(result.pending);
+              return;
+            }
+            apply(result as ReviewCase);
             toast.success(t('buyerCompany.suspended'));
           }}
           onError={onError}

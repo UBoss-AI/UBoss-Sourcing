@@ -430,7 +430,7 @@ describe('the admin operations overview follows the caller’s grants', () => {
     }>();
 
     expect(Array.isArray(body.queues)).toBe(true);
-    expect(body.byGroup).toHaveLength(5);
+    expect(body.byGroup).toHaveLength(7);
   });
 
   it('reconciles its total with the queues it returned', async () => {
@@ -470,14 +470,32 @@ describe('the admin operations overview follows the caller’s grants', () => {
     expect(wide.queues.some((queue) => queue.key === 'dataRequests')).toBe(true);
   });
 
+  it('shows each Command Center exception queue only to the grant that works it (JOURNEY-060)', async () => {
+    const risk = await readOperationsOverview({ permissions: [Permission.RISK_READ] });
+    expect(risk.queues.map((queue) => queue.key)).toEqual(['riskSignalsOpen']);
+    expect(risk.queues[0]?.group).toBe('risk');
+
+    const inspection = await readOperationsOverview({ permissions: [Permission.INSPECTION_READ] });
+    expect(inspection.queues.map((queue) => queue.key).sort()).toEqual(['inspectionJobsPastSla', 'inspectionsFailed']);
+
+    const payments = await readOperationsOverview({ permissions: [Permission.PAYMENT_READ] });
+    expect(payments.queues.map((queue) => queue.key)).toContain('settlementsOnHold');
+
+    const sla = await readOperationsOverview({
+      permissions: [Permission.DISPUTE_VIEW, Permission.SUPPORT_TICKET_VIEW],
+    });
+    expect(sla.queues.map((queue) => queue.key).sort()).toEqual(['disputesPastSla', 'supportTicketsPastSla']);
+    expect(sla.queues.every((queue) => queue.group === 'sla')).toBe(true);
+  });
+
   it('counts nothing at all for a caller with no grants', async () => {
     const none = await readOperationsOverview({ permissions: [] });
 
     expect(none.queues).toEqual([]);
     expect(none.total).toBe(0);
-    // Still five groups, all at zero: the shape of the reply does not leak
+    // Still seven groups, all at zero: the shape of the reply does not leak
     // which queues exist either.
-    expect(none.byGroup).toHaveLength(5);
+    expect(none.byGroup).toHaveLength(7);
   });
 
   it('refuses a customer credential on the admin surface', async () => {

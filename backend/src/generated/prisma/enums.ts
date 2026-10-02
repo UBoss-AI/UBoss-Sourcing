@@ -1361,6 +1361,7 @@ export const ListingDraftStatus = {
   ACTION_REQUIRED: 'ACTION_REQUIRED',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',
+  APPEALED: 'APPEALED',
   ARCHIVED: 'ARCHIVED'
 } as const
 
@@ -3320,10 +3321,20 @@ export type MarketRuleScope = (typeof MarketRuleScope)[keyof typeof MarketRuleSc
 
 export const MarketRuleEffect = {
   BLOCK: 'BLOCK',
-  DOCUMENTS_REQUIRED: 'DOCUMENTS_REQUIRED'
+  DOCUMENTS_REQUIRED: 'DOCUMENTS_REQUIRED',
+  LABEL_REQUIRED: 'LABEL_REQUIRED'
 } as const
 
 export type MarketRuleEffect = (typeof MarketRuleEffect)[keyof typeof MarketRuleEffect]
+
+
+export const MarketRuleChangeKind = {
+  CREATED: 'CREATED',
+  UPDATED: 'UPDATED',
+  DELETED: 'DELETED'
+} as const
+
+export type MarketRuleChangeKind = (typeof MarketRuleChangeKind)[keyof typeof MarketRuleChangeKind]
 
 
 export const ContentBlockPlacement = {
@@ -3332,6 +3343,36 @@ export const ContentBlockPlacement = {
 } as const
 
 export type ContentBlockPlacement = (typeof ContentBlockPlacement)[keyof typeof ContentBlockPlacement]
+
+
+export const ContentBlockStatus = {
+  DRAFT: 'DRAFT',
+  PENDING_APPROVAL: 'PENDING_APPROVAL',
+  PUBLISHED: 'PUBLISHED'
+} as const
+
+export type ContentBlockStatus = (typeof ContentBlockStatus)[keyof typeof ContentBlockStatus]
+
+
+export const AdminPendingActionKind = {
+  SELLER_SUSPEND: 'SELLER_SUSPEND',
+  SELLER_REJECT: 'SELLER_REJECT',
+  CUSTOMER_DEACTIVATE: 'CUSTOMER_DEACTIVATE',
+  BUYER_COMPANY_SUSPEND: 'BUYER_COMPANY_SUSPEND'
+} as const
+
+export type AdminPendingActionKind = (typeof AdminPendingActionKind)[keyof typeof AdminPendingActionKind]
+
+
+export const AdminPendingActionStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED',
+  FAILED: 'FAILED'
+} as const
+
+export type AdminPendingActionStatus = (typeof AdminPendingActionStatus)[keyof typeof AdminPendingActionStatus]
 
 
 export const CustomerKycStatus = {

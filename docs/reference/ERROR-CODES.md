@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**525 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**533 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -71,6 +71,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Requests for quotation (Master rows 16-19)](#requests-for-quotation-master-rows-16-19) | 26 |
 | [Country rules, rate cards and storefront content (Master rows 69, 71, 72)](#country-rules-rate-cards-and-storefront-content-master-rows-69-71-72) | 3 |
 | [Held funds, the transaction ledger and seller payouts (Master rows 58-61, 43)](#held-funds-the-transaction-ledger-and-seller-payouts-master-rows-58-61-43) | 4 |
+| [Admin governance: maker-checker, moderation, CMS approval (JOURNEY-061, 062, 067)](#admin-governance-maker-checker-moderation-cms-approval-journey-061-062-067) | 8 |
 
 ## Generic
 
@@ -831,4 +832,17 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `FUND_HOLD_STATE_CONFLICT` | The held funds are not in a state that allows this: placing a hold on money already released, lifting a hold that is not placed. 409. |
 | `FUND_RELEASE_ALREADY_PENDING` | An early release is already waiting for a decision on these funds. 409. |
 | `FUND_RELEASE_SAME_APPROVER` | The person who asked for an early release cannot also approve it. 403. |
+
+## Admin governance: maker-checker, moderation, CMS approval (JOURNEY-061, 062, 067)
+
+| Code | Meaning |
+|---|---|
+| `PENDING_ACTION_ALREADY_OPEN` | A request for this action on this record is already waiting for a second member of staff. `details[0].meta.pendingActionId` names it. 409. |
+| `PENDING_ACTION_SAME_APPROVER` | The member of staff who asked for a critical action cannot also approve it; a different person must. 403. |
+| `PENDING_ACTION_NOT_OPEN` | The request was already approved, rejected or cancelled. 409. |
+| `LISTING_APPEAL_SAME_MODERATOR` | The moderator who refused a listing cannot also decide its appeal. 403. |
+| `LISTING_PROHIBITED_TERM_EXISTS` | That prohibited term is already on the list. 409. |
+| `CONTENT_BLOCK_NOT_PENDING` | A content block cannot move that way: approving one that is not waiting for approval, or submitting one already waiting or published. 409. |
+| `CONTENT_BLOCK_SAME_APPROVER` | The member of staff who submitted a content block cannot also approve it. 403. |
+| `CONTENT_BLOCK_CONFLICT` | The block cannot be published as it is: its coupon ends before the block starts, or another check in `details` refuses it. Each entry has `code` (for example COUPON_ENDS_BEFORE_START). 409. |
 

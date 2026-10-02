@@ -17,7 +17,13 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { useSession } from '@/auth/session-context';
-import { ConfirmDialog } from '@/components/Modal';
+import {
+  MessageAccountDialog,
+  PendingActionsCard,
+  ReasonDialog,
+  RecordHistoryCard,
+} from '@/components/governance';
+import { isPendingResponse, usePendingNotice } from '@/lib/governance';
 import { useToast } from '@/components/toast-context';
 import {
   Badge,
@@ -469,6 +475,8 @@ export function CustomerDetailPage(): React.JSX.Element {
   const queryClient = useQueryClient();
   const toast = useToast();
   const [suspending, setSuspending] = useState(false);
+  const [messaging, setMessaging] = useState(false);
+  const pendingNotice = usePendingNotice();
 
   const query = useQuery({
     queryKey: ['customer', id],
@@ -500,9 +508,15 @@ export function CustomerDetailPage(): React.JSX.Element {
   });
 
   const setStatus = useMutation({
-    mutationFn: (active: boolean) => api.patch(`/admin/customers/${String(id)}/status`, { active }),
-    onSuccess: async (_result, active) => {
+    mutationFn: ({ active, reason }: { active: boolean; reason?: string }) =>
+      api.patch<unknown>(`/admin/customers/${String(id)}/status`, { active, ...(reason === undefined ? {} : { reason }) }),
+    onSuccess: async (result, { active }) => {
       setSuspending(false);
+      // Maker-checker: a deactivation waits for a second member of staff.
+      if (isPendingResponse(result)) {
+        pendingNotice(result.pending);
+        return;
+      }
       toast.success(active ? t('customerDetail.customerReactivated') : t('customerDetail.customerSuspended'));
       await queryClient.invalidateQueries({ queryKey: ['customer', id] });
       await queryClient.invalidateQueries({ queryKey: ['customers'] });
@@ -738,7 +752,7 @@ export function CustomerDetailPage(): React.JSX.Element {
                     isLoading={setStatus.isPending}
                     onClick={() => {
                       if (isActive) setSuspending(true);
-                      else setStatus.mutate(true);
+                      else setStatus.mutate({ active: true });
                     }}
                   >
                     {isActive ? t('customerDetail.suspendCustomer') : t('customerDetail.reactivateCustomer')}
@@ -753,7 +767,26 @@ export function CustomerDetailPage(): React.JSX.Element {
             </div>
           </Card>
 
+          <PendingActionsCard resourceType="customer" resourceId={customer.id} />
+
+          {can(Permission.CUSTOMER_WRITE) && (
+            <Card title={t('governance.message.cardTitle')}>
+              <div className="px-5 py-4">
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    setMessaging(true);
+                  }}
+                >
+                  {t('governance.message.open')}
+                </Button>
+              </div>
+            </Card>
+          )}
+
           <CustomerKycPanel customerId={customer.id} />
+
+          <RecordHistoryCard resourceType="customer" resourceId={customer.id} />
 
           <Card title={t('customerDetail.consent')}>
             <div className="px-5 py-4 text-sm">
@@ -778,19 +811,28 @@ export function CustomerDetailPage(): React.JSX.Element {
         </div>
       </div>
 
-      <ConfirmDialog
+      <ReasonDialog
         isOpen={suspending}
         onClose={() => {
           setSuspending(false);
         }}
-        onConfirm={() => {
-          setStatus.mutate(false);
+        onConfirm={(reason) => {
+          setStatus.mutate({ active: false, reason });
         }}
         title={`Suspend ${customer.fullName ?? customer.email}?`}
         confirmLabel={t('customerDetail.suspendCustomer')}
-        isDangerous
         isWorking={setStatus.isPending}
-        body="They will not be able to sign in or place orders. Existing orders and recurring schedules are not cancelled."
+        body={t('governance.reason.customerBody')}
+      />
+
+      <MessageAccountDialog
+        isOpen={messaging}
+        onClose={() => {
+          setMessaging(false);
+        }}
+        target="CUSTOMER"
+        id={customer.id}
+        name={customer.fullName ?? customer.email}
       />
     </>
   );

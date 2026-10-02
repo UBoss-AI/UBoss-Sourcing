@@ -608,6 +608,8 @@ export type ListingDraftStatus =
   | 'ACTION_REQUIRED'
   | 'APPROVED'
   | 'REJECTED'
+  /** The seller appealed a refusal; a second moderator decides (JOURNEY-062). */
+  | 'APPEALED'
   | 'ARCHIVED';
 
 export interface DraftOffer {
@@ -816,6 +818,10 @@ export interface DraftView {
   isSubmittable: boolean;
   canPreviewTitle: boolean;
   reviewComment: string | null;
+  /** What the marketplace asked the seller to send (JOURNEY-062). Absent from an older API. */
+  evidenceRequest?: { kind: string; label: string; note: string | null }[];
+  /** The seller's appeal against a refusal, and its outcome. Absent from an older API. */
+  appeal?: { reason: string; appealedAt: string | null; outcome: string | null; decidedAt: string | null } | null;
   version: number;
   updatedAt: string;
   /**
@@ -3148,4 +3154,9 @@ export interface OrderedProductInfo {
   piecesPerCarton: number | null;
   containerCapacity: Record<'CONTAINER_20_FT' | 'CONTAINER_40_FT', { pieces: number; cartons: number | null; piecesPerCarton: number | null } | null>;
   specialInstructions: string | null;
+}
+
+/** Appeal a refused listing, saying why. A different moderator decides (JOURNEY-062). */
+export function appealListingDraft(draftId: string, reason: string): Promise<{ id: string; status: string }> {
+  return api.post<{ id: string; status: string }>(`/seller/listing-drafts/${draftId}/appeal`, { reason });
 }

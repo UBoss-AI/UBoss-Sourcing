@@ -23,8 +23,10 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useI18n } from '@/i18n/i18n-context';
+import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
+import { useSession } from '@/auth/session-context';
 import { Modal } from '@/components/Modal';
+import { errorMessage } from '@/lib/errors';
 import { SellerContentPreview } from './listing-review/SellerContentPreview';
 import { useToast } from '@/components/toast-context';
 import {
@@ -34,17 +36,22 @@ import {
   Card,
   ErrorState,
   Field,
+  Input,
   LoadingState,
   PageHeader,
+  Select,
   Textarea,
 } from '@/components/ui';
 import { ApiError } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import { formatRelative } from '@/lib/format';
 import {
+  EVIDENCE_KINDS,
   LISTING_SECTIONS,
   decideListing,
+  decideListingAppeal,
   fetchListingForReview,
+  type EvidenceKind,
   type ListingReviewDetail,
   type ListingSchemaAttribute,
   type ListingSection,
@@ -156,6 +163,7 @@ export function ListingReviewPage(): React.JSX.Element {
         </div>
 
         <div className="space-y-5 lg:sticky lg:top-5 lg:self-start">
+          {listing.status === 'APPEALED' && <AppealPanel listing={listing} />}
           <OpenIssues listing={listing} />
           <NotePanel
             notes={notes}
@@ -760,6 +768,7 @@ function NoteButton({
  * is worth noticing before writing a seventh note.
  */
 function OpenIssues({ listing }: { listing: ListingReviewDetail }): React.JSX.Element | null {
+  const { t } = useI18n();
   if (listing.issues.length === 0 && listing.reviewComment === null) return null;
 
   return (
@@ -778,11 +787,87 @@ function OpenIssues({ listing }: { listing: ListingReviewDetail }): React.JSX.El
                 {issue.severity.toLowerCase()}
               </Badge>
               {issue.isFromModerator && <Badge tone="neutral">ours</Badge>}
+              {/* The operator's prohibited-terms list found this (JOURNEY-062). */}
+              {issue.code === 'PROHIBITED_TERM' && <Badge tone="accent">{t('listingModeration.automated')}</Badge>}
             </div>
             <p className="mt-1 text-ink-muted">{issue.message}</p>
           </li>
         ))}
       </ul>
+    </Card>
+  );
+}
+
+/**
+ * A seller's appeal against a refusal (JOURNEY-062).
+ *
+ * Decided by a moderator other than the one who refused it: the server
+ * refuses the same person, and the buttons say so before anybody presses
+ * them. Upheld puts the listing back in the review queue; it never approves
+ * it straight away.
+ */
+function AppealPanel({ listing }: { listing: ListingReviewDetail }): React.JSX.Element {
+  const { t } = useI18n();
+  const { user } = useSession();
+  const toast = useToast();
+  const client = useQueryClient();
+  const navigate = useNavigate();
+  const [comment, setComment] = useState('');
+  const sameModerator = listing.reviewedByUserId !== null && listing.reviewedByUserId === user?.id;
+
+  const decide = useMutation({
+    mutationFn: (outcome: 'UPHELD' | 'REFUSED') => decideListingAppeal(listing.id, { outcome, comment: comment.trim() }),
+    onSuccess: async (_result, outcome) => {
+      await client.invalidateQueries({ queryKey: ['admin', 'listing-review'] });
+      toast.success(outcome === 'UPHELD' ? t('listingModeration.appealUpheld') : t('listingModeration.appealRefused'));
+      void navigate('/listing-review?status=APPEALED');
+    },
+    onError: (error: unknown) => {
+      toast.error(errorMessage(t, error));
+    },
+  });
+
+  return (
+    <Card title={t('listingModeration.appealTitle')} bodyClassName="space-y-3 px-5 py-4">
+      <p className="whitespace-pre-wrap text-sm text-ink">{listing.appeal?.reason}</p>
+      {sameModerator && (
+        <Callout tone="warning">{t('listingModeration.appealSameModerator')}</Callout>
+      )}
+      <Field label={t('listingModeration.appealComment')} required>
+        {({ inputId, describedBy }) => (
+          <Textarea
+            id={inputId}
+            aria-describedby={describedBy}
+            rows={3}
+            value={comment}
+            onChange={(event) => {
+              setComment(event.currentTarget.value);
+            }}
+          />
+        )}
+      </Field>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant="primary"
+          disabled={sameModerator || comment.trim().length < 3}
+          isLoading={decide.isPending && decide.variables === 'UPHELD'}
+          onClick={() => {
+            decide.mutate('UPHELD');
+          }}
+        >
+          {t('listingModeration.uphold')}
+        </Button>
+        <Button
+          variant="danger"
+          disabled={sameModerator || comment.trim().length < 3}
+          isLoading={decide.isPending && decide.variables === 'REFUSED'}
+          onClick={() => {
+            decide.mutate('REFUSED');
+          }}
+        >
+          {t('listingModeration.refuseAppeal')}
+        </Button>
+      </div>
     </Card>
   );
 }
@@ -885,8 +970,17 @@ function DecisionDialog({
   const client = useQueryClient();
   const navigate = useNavigate();
 
+  const { t } = useI18n();
   const copy = DECISIONS[decision];
   const [comment, setComment] = useState('');
+  // JOURNEY-062: what the seller must send back, and where it may not be sold.
+  const [evidence, setEvidence] = useState<{ kind: EvidenceKind; label: string; note: string }[]>([]);
+  const [blockedText, setBlockedText] = useState('');
+  const blockedCountries = blockedText
+    .split(/[\s,]+/)
+    .map((code) => code.trim().toUpperCase())
+    .filter((code) => /^[A-Z]{2}$/.test(code));
+  const sentEvidence = evidence.filter((item) => item.label.trim().length > 0);
 
   /*
    * Notes are sent with every decision except approval.
@@ -912,6 +1006,16 @@ function DecisionDialog({
          * nobody read is the failure this one field exists to prevent.
          */
         expectedVersion: listing.submittedVersion,
+        ...(decision === 'ACTION_REQUIRED' && sentEvidence.length > 0
+          ? {
+              evidenceRequest: sentEvidence.map((item) => ({
+                kind: item.kind,
+                label: item.label.trim(),
+                note: item.note.trim().length === 0 ? null : item.note.trim(),
+              })),
+            }
+          : {}),
+        ...(decision === 'APPROVED' && blockedCountries.length > 0 ? { blockedCountries } : {}),
         ...(sentNotes.length === 0
           ? {}
           : {
@@ -1002,6 +1106,77 @@ function DecisionDialog({
             />
           )}
         </Field>
+
+        {decision === 'ACTION_REQUIRED' && (
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium text-ink">{t('listingModeration.evidenceTitle')}</legend>
+            <p className="text-xxs text-ink-muted">{t('listingModeration.evidenceHint')}</p>
+            {evidence.map((item, index) => (
+              <div key={index} className="grid gap-2 rounded-lg border border-border-subtle p-2 sm:grid-cols-[10rem_minmax(0,1fr)]">
+                <Select
+                  aria-label={t('listingModeration.evidenceKind')}
+                  value={item.kind}
+                  onChange={(event) => {
+                    const kind = event.currentTarget.value as EvidenceKind;
+                    setEvidence((current) => current.map((row, at) => (at === index ? { ...row, kind } : row)));
+                  }}
+                >
+                  {EVIDENCE_KINDS.map((kind) => (
+                    <option key={kind} value={kind}>
+                      {t(`listingModeration.evidence.${kind}` as TranslationKey)}
+                    </option>
+                  ))}
+                </Select>
+                <Input
+                  aria-label={t('listingModeration.evidenceLabel')}
+                  placeholder={t('listingModeration.evidenceLabel')}
+                  maxLength={160}
+                  value={item.label}
+                  onChange={(event) => {
+                    const label = event.currentTarget.value;
+                    setEvidence((current) => current.map((row, at) => (at === index ? { ...row, label } : row)));
+                  }}
+                />
+                <Input
+                  className="sm:col-span-2"
+                  aria-label={t('listingModeration.evidenceNote')}
+                  placeholder={t('listingModeration.evidenceNote')}
+                  maxLength={512}
+                  value={item.note}
+                  onChange={(event) => {
+                    const note = event.currentTarget.value;
+                    setEvidence((current) => current.map((row, at) => (at === index ? { ...row, note } : row)));
+                  }}
+                />
+              </div>
+            ))}
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setEvidence((current) => [...current, { kind: 'CERTIFICATE', label: '', note: '' }]);
+              }}
+            >
+              {t('listingModeration.evidenceAdd')}
+            </Button>
+          </fieldset>
+        )}
+
+        {decision === 'APPROVED' && (
+          <Field label={t('listingModeration.blockedCountries')} hint={t('listingModeration.blockedCountriesHint')}>
+            {({ inputId, describedBy }) => (
+              <Input
+                id={inputId}
+                aria-describedby={describedBy}
+                placeholder="US, GB"
+                value={blockedText}
+                onChange={(event) => {
+                  setBlockedText(event.currentTarget.value);
+                }}
+              />
+            )}
+          </Field>
+        )}
 
         <div className="flex justify-end gap-2 pt-1">
           <Button onClick={onClose}>Cancel</Button>

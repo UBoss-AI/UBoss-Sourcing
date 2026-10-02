@@ -26,15 +26,18 @@ import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.j
 import { SELLER_SELLING_UNIT } from '../../domain/ordering-unit.js';
 import { allowedApplicationTransitions, assertListingTransition } from '../../domain/seller-state.js';
 import { assertApprovalEvidence, readKybReview } from './application-review.service.js';
+import { Prisma } from '../../generated/prisma/client.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { storage } from '../../infra/storage/index.js';
+import { blockProductInCountries } from '../catalog/market-rule-admin.service.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { syncMarketplacePrice } from '../catalog/marketplace-price.service.js';
 import { OPERATOR_LABEL, recordSellerAudit } from './audit.service.js';
 import { listDocumentsForReview } from './document.service.js';
 import { transitionApplication } from './account.service.js';
 import { loadListingSchema } from './listing-schema.service.js';
+import { readEvidenceRequest } from './listing-draft.service.js';
 import { normaliseRows, readDraftVariants, variantNameOf } from './listing-variants.js';
 import { refreshOfferTotals } from './inventory.service.js';
 import { notifySeller } from './notification.service.js';
@@ -501,7 +504,11 @@ const APPLICATION_NOTICE_TITLES: Record<SellerApplicationStatusName, string> = {
 // Listings
 // ---------------------------------------------------------------------------
 
-export async function listReviewQueue(query: { page?: number; pageSize?: number }): Promise<{
+export async function listReviewQueue(query: {
+  page?: number;
+  pageSize?: number;
+  status?: 'PENDING_REVIEW' | 'APPEALED';
+}): Promise<{
   rows: {
     id: string;
     sellerAccountId: string;
@@ -520,12 +527,12 @@ export async function listReviewQueue(query: { page?: number; pageSize?: number 
   const page = Math.max(1, query.page ?? 1);
   const pageSize = Math.min(100, Math.max(1, query.pageSize ?? 25));
 
-  const where = { status: 'PENDING_REVIEW' as const };
+  const where = { status: query.status ?? ('PENDING_REVIEW' as const) };
 
   const [rows, total] = await Promise.all([
     prisma.sellerListingDraft.findMany({
       where,
-      orderBy: { submittedAt: 'asc' },
+      orderBy: where.status === 'APPEALED' ? { appealedAt: 'asc' } : { submittedAt: 'asc' },
       skip: (page - 1) * pageSize,
       take: pageSize,
       include: {
@@ -622,6 +629,10 @@ export async function readListingForReview(draftId: string): Promise<{
    */
   submittedVersion: number | null;
   reviewComment: string | null;
+  /** Who made the last decision, so the screen can say "a different moderator must decide the appeal". */
+  reviewedByUserId: string | null;
+  evidenceRequest: { kind: string; label: string; note: string | null }[];
+  appeal: { reason: string; appealedAt: string | null; outcome: string | null } | null;
   updatedAt: string;
 }> {
   const row = await prisma.sellerListingDraft.findUnique({
@@ -684,6 +695,12 @@ export async function readListingForReview(draftId: string): Promise<{
     submittedAt: row.submittedAt?.toISOString() ?? null,
     submittedVersion: row.submittedVersion,
     reviewComment: row.reviewComment,
+    reviewedByUserId: row.reviewedByUserId,
+    evidenceRequest: readEvidenceRequest(row.evidenceRequestJson),
+    appeal:
+      row.appealReason === null
+        ? null
+        : { reason: row.appealReason, appealedAt: row.appealedAt?.toISOString() ?? null, outcome: row.appealOutcome },
     updatedAt: row.updatedAt.toISOString(),
   };
 }
@@ -726,6 +743,21 @@ export interface ListingDecisionInput {
    * `PRODUCT_PHOTOS`/`UDI_LABEL` puts the sentence beside the slot.
    */
   fieldComments?: { section?: string | null; attributeKey?: string | null; message: string }[];
+  /**
+   * With ACTION_REQUIRED: the evidence the seller must send - a certificate, a
+   * label photograph, a test report - each with what it is and a note
+   * (JOURNEY-062). Shown to the seller as a checklist.
+   */
+  evidenceRequest?: { kind: string; label: string; note?: string | null }[];
+  /**
+   * With APPROVED: countries the product may not be sold to. Each becomes a
+   * PRODUCT-scope BLOCK country rule, so the product is hidden there and
+   * checkout refuses it, exactly as for a rule written on the Country rules
+   * screen.
+   */
+  blockedCountries?: string[];
+  /** Who approved, for the country rules' owner and history. */
+  adminEmail?: string | null;
   adminUserId: string;
   correlationId?: string | null;
   /**
@@ -822,6 +854,25 @@ export async function decideListing(input: ListingDecisionInput): Promise<{ offe
 
       const offer = await publishApprovedListing(tx, draft.id);
       createdOfferId = offer.offerId;
+
+      const countries = [...new Set((input.blockedCountries ?? []).map((code) => code.trim().toUpperCase()))].filter(
+        (code) => /^[A-Z]{2}$/.test(code),
+      );
+      if (countries.length > 0) {
+        const published = await tx.sellerListingDraft.findUniqueOrThrow({
+          where: { id: draft.id },
+          select: { publishedProductId: true },
+        });
+        if (published.publishedProductId !== null) {
+          await blockProductInCountries(tx, {
+            productId: published.publishedProductId,
+            countries,
+            reason: input.comment ?? 'Not approved for sale in this country.',
+            source: `Listing moderation ${draft.id}`,
+            actor: { userId: input.adminUserId, email: input.adminEmail ?? null },
+          });
+        }
+      }
     }
 
     const now = new Date();
@@ -833,6 +884,14 @@ export async function decideListing(input: ListingDecisionInput): Promise<{ offe
         reviewComment: input.comment ?? null,
         reviewedByUserId: input.adminUserId,
         reviewedAt: now,
+        evidenceRequestJson:
+          input.to === 'ACTION_REQUIRED' && input.evidenceRequest !== undefined && input.evidenceRequest.length > 0
+            ? input.evidenceRequest.slice(0, 20).map((item) => ({
+                kind: item.kind.slice(0, 48),
+                label: item.label.slice(0, 160),
+                note: item.note?.slice(0, 512) ?? null,
+              }))
+            : Prisma.DbNull,
         /*
          * Nothing is under review any more.
          *

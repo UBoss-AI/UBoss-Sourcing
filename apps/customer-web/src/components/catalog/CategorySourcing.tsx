@@ -30,10 +30,12 @@ import type { SupplierListResponse } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 
 export interface CategoryMarketNote {
-  effect: 'BLOCK' | 'DOCUMENTS_REQUIRED';
+  effect: 'BLOCK' | 'DOCUMENTS_REQUIRED' | 'LABEL_REQUIRED';
   reason: string;
   requiredDocuments: string[];
   categoryName: string;
+  /** For LABEL_REQUIRED: the labelling the goods carry there (JOURNEY-064). */
+  labelText?: string | null;
 }
 
 const MAX_SHOWN = 6;
@@ -106,9 +108,14 @@ export function CategorySourcing({
             <p className="font-medium">
               {note.effect === 'BLOCK'
                 ? t('catalog.marketBlocked', { country: destination })
-                : t('catalog.marketDocumentsRequired', { country: destination })}
+                : note.effect === 'LABEL_REQUIRED'
+                  ? t('catalog.marketLabelRequired', { country: destination })
+                  : t('catalog.marketDocumentsRequired', { country: destination })}
             </p>
             <p className="mt-0.5 text-ink-muted">{note.reason}</p>
+            {note.effect === 'LABEL_REQUIRED' && (note.labelText ?? '') !== '' && (
+              <p className="mt-1 whitespace-pre-wrap text-ink-muted">{note.labelText}</p>
+            )}
             {note.requiredDocuments.length > 0 && (
               <ul className="mt-1 list-disc pl-5 text-ink-muted">
                 {note.requiredDocuments.map((document) => (

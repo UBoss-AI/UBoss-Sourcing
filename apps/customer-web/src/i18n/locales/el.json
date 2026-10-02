@@ -8229,5 +8229,17 @@
   "orderMessages.page.empty": "Για να γράψετε σε πωλητή, ανοίξτε την παραγγελία και χρησιμοποιήστε τα «Μηνύματα για αυτή την παραγγελία».",
   "orderMessages.page.order": "Παραγγελία {{number}}",
   "errors.messages.reportOwn": "Δεν μπορείτε να αναφέρετε μήνυμα που γράψατε εσείς.",
-  "errors.messages.translationUnavailable": "Η μετάφραση δεν είναι διαθέσιμη αυτή τη στιγμή. Εμφανίζεται το αρχικό μήνυμα."
+  "errors.messages.translationUnavailable": "Η μετάφραση δεν είναι διαθέσιμη αυτή τη στιγμή. Εμφανίζεται το αρχικό μήνυμα.",
+  "product.sourcing.labelRule": "Σήμανση για αυτή τη χώρα: {{label}}",
+  "catalog.marketLabelRequired": "Τα αγαθά προς {{country}} φέρουν ειδική σήμανση.",
+  "market.labelNeeded": "τα αγαθά φέρουν εκεί αυτή τη σήμανση.",
+  "checkout.labelRulesTitle": "Σήμανση για παράδοση σε {{country}}",
+  "serviceBanner.paymentsDegradedTitle": "Οι πληρωμές με κάρτα ενδέχεται να αποτυγχάνουν αυτή τη στιγμή.",
+  "serviceBanner.paymentsDegradedBody": "Το διορθώνουμε. Το καλάθι σας διατηρείται και μια απορριφθείσα πληρωμή δεν οφείλεται στην τράπεζά σας.",
+  "seller.listing.evidenceTitle": "Τι να στείλετε",
+  "seller.listing.appealLabel": "Διαφωνείτε; Υποβάλετε ένσταση και εξηγήστε γιατί",
+  "seller.listing.appealSend": "Αποστολή ένστασης",
+  "seller.listing.appealSent": "Η ένσταση στάλθηκε. Θα την εξετάσει διαφορετικός συντονιστής.",
+  "seller.listing.appealPending": "Η ένστασή σας εξετάζεται από άλλον συντονιστή. Θα ενημερωθείτε για το αποτέλεσμα.",
+  "seller.listing.appealRefused": "Η ένστασή σας δεν έγινε δεκτή. Μπορείτε ακόμη να επεξεργαστείτε την καταχώριση και να την υποβάλετε ξανά."
 }

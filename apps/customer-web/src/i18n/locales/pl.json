@@ -8447,5 +8447,17 @@
   "orderMessages.page.empty": "Aby napisać do sprzedawcy, otwórz zamówienie i użyj sekcji „Wiadomości dotyczące tego zamówienia”.",
   "orderMessages.page.order": "Zamówienie {{number}}",
   "errors.messages.reportOwn": "Nie możesz zgłosić wiadomości, którą sam napisałeś.",
-  "errors.messages.translationUnavailable": "Tłumaczenie jest teraz niedostępne. Wyświetlana jest oryginalna wiadomość."
+  "errors.messages.translationUnavailable": "Tłumaczenie jest teraz niedostępne. Wyświetlana jest oryginalna wiadomość.",
+  "product.sourcing.labelRule": "Oznakowanie dla tego kraju: {{label}}",
+  "catalog.marketLabelRequired": "Towary wysyłane do {{country}} mają specjalne oznakowanie.",
+  "market.labelNeeded": "towary mają tam to oznakowanie.",
+  "checkout.labelRulesTitle": "Oznakowanie przy dostawie do {{country}}",
+  "serviceBanner.paymentsDegradedTitle": "Płatności kartą mogą teraz nie działać.",
+  "serviceBanner.paymentsDegradedBody": "Pracujemy nad tym. Koszyk zostaje zachowany, a odrzucona płatność nie jest winą Twojego banku.",
+  "seller.listing.evidenceTitle": "Co przesłać",
+  "seller.listing.appealLabel": "Nie zgadzasz się? Złóż odwołanie i wyjaśnij dlaczego",
+  "seller.listing.appealSend": "Wyślij odwołanie",
+  "seller.listing.appealSent": "Wysłano odwołanie. Rozpatrzy je inny moderator.",
+  "seller.listing.appealPending": "Twoje odwołanie rozpatruje inny moderator. Poinformujemy Cię o wyniku.",
+  "seller.listing.appealRefused": "Odwołanie nie zostało uwzględnione. Nadal możesz edytować ofertę i wysłać ją ponownie."
 }

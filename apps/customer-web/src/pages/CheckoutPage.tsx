@@ -39,6 +39,7 @@ import { SavedCardChoice, SelectedFlag } from '@/components/SavedCardList';
 import { choiceCardClass } from '@/lib/cards';
 import { Button, ButtonLink, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
 import { FulfilmentWarehouseSection } from '@/pages/checkout/FulfilmentWarehouseSection';
+import { LabelRequirementsNotice } from '@/pages/checkout/LabelRequirementsNotice';
 import { ApiError, NetworkError, api, newIdempotencyKey } from '@/lib/api';
 import {
   fetchWarehouseOptions,
@@ -929,6 +930,12 @@ export function CheckoutPage(): React.JSX.Element {
               </div>
             )}
           </Section>
+
+          {/* What the goods must carry for the delivery country (JOURNEY-064). */}
+          <LabelRequirementsNotice
+            country={usableAddresses.find((address) => address.id === shippingAddressId)?.country ?? null}
+            productIds={fulfilmentItems.map((item) => item.productId)}
+          />
 
           {/* --- Where it ships from ---------------------------------------
               After the address and before the payment, which is the order the

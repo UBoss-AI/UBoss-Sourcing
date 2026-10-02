@@ -222,6 +222,30 @@ export const AuditAction = {
   COMPLIANCE_HOLD_OVERRIDDEN: 'compliance.hold_overridden',
   COMPLIANCE_HOLD_OVERRIDE_REVOKED: 'compliance.hold_override_revoked',
   FEATURE_FLAG_CHANGED: 'feature_flag.changed',
+  /// Maker-checker (JOURNEY-061): a critical account action was asked for,
+  /// approved (and run), rejected or withdrawn. `after` carries the request.
+  PENDING_ACTION_REQUESTED: 'pending_action.requested',
+  PENDING_ACTION_APPROVED: 'pending_action.approved',
+  PENDING_ACTION_REJECTED: 'pending_action.rejected',
+  PENDING_ACTION_CANCELLED: 'pending_action.cancelled',
+  /// A member of staff sent a customer or a seller a message from the admin panel.
+  ACCOUNT_MESSAGE_SENT: 'account.message_sent',
+  /// An exception queue's SLA, owner or escalation role changed (LIVE-011).
+  EXCEPTION_QUEUE_UPDATED: 'exception_queue.updated',
+  /// A prohibited listing term was added, changed or removed (JOURNEY-062).
+  LISTING_TERM_SAVED: 'listing_term.saved',
+  LISTING_TERM_DELETED: 'listing_term.deleted',
+  /// A refused listing's appeal was decided (JOURNEY-062).
+  LISTING_APPEAL_DECIDED: 'listing.appeal_decided',
+  /// A listing was approved with the countries it may not be sold to (JOURNEY-062).
+  LISTING_DESTINATIONS_RESTRICTED: 'listing.destinations_restricted',
+  /// A content block was submitted, approved, sent back or restored (JOURNEY-067).
+  CONTENT_BLOCK_SUBMITTED: 'content_block.submitted',
+  CONTENT_BLOCK_APPROVED: 'content_block.approved',
+  CONTENT_BLOCK_RETURNED: 'content_block.returned',
+  CONTENT_BLOCK_RESTORED: 'content_block.restored',
+  /// Dead-lettered carrier webhooks were put back on the retry queue (JOURNEY-065).
+  CARRIER_WEBHOOKS_REQUEUED: 'carrier_webhooks.requeued',
   CONNECTOR_CREATED: 'connector.created',
   CONNECTOR_UPDATED: 'connector.updated',
   DATA_EXPORTED: 'data.exported',

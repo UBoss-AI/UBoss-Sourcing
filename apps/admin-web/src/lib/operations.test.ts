@@ -9,6 +9,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
+  QUEUE_LABELS,
   operationsSegments,
   queuesInGroup,
   type OperationsOverview,
@@ -169,5 +170,42 @@ describe('queuesInGroup', () => {
 
   it('shows everything when nothing is selected', () => {
     expect(queuesInGroup(fullOverview(), null)).toHaveLength(6);
+  });
+});
+
+describe('the Command Center exception queues (JOURNEY-060)', () => {
+  it('draws risk and SLA breaches as their own segments, with a label for every new queue', () => {
+    const queues: OperationsQueue[] = [
+      queue({ key: 'riskSignalsOpen', group: 'risk', count: 2, severity: 'urgent', href: '/risk' }),
+      queue({ key: 'disputesPastSla', group: 'sla', count: 1, severity: 'urgent', href: '/disputes' }),
+    ];
+    const overview: OperationsOverview = {
+      generatedAt: '2026-10-02T09:00:00.000Z',
+      total: 3,
+      queues,
+      byGroup: [
+        { group: 'risk', count: 2 },
+        { group: 'sla', count: 1 },
+      ],
+    };
+
+    const segments = operationsSegments(overview, label);
+    expect(segments.map((segment) => segment.id)).toEqual(['risk', 'sla']);
+    expect(segments.find((segment) => segment.id === 'sla')?.to).toBe('/operations/exception-queues');
+
+    for (const key of [
+      'settlementsOnHold',
+      'carrierIntegrationsDegraded',
+      'customerErpEventsFailed',
+      'riskSignalsOpen',
+      'inspectionsFailed',
+      'complianceExpiring',
+      'disputesPastSla',
+      'supportTicketsPastSla',
+      'preorderChatsPastSla',
+      'inspectionJobsPastSla',
+    ]) {
+      expect(QUEUE_LABELS[key]).toBe(`operations.queue.${key}`);
+    }
   });
 });

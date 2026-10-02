@@ -10880,6 +10880,9 @@ enum ListingDraftStatus {
   APPROVED
   /// Refused outright.
   REJECTED
+  /// The seller disputes a refusal. A moderator other than the one who refused
+  /// it decides: back to PENDING_REVIEW (upheld) or REJECTED (refused).
+  APPEALED
   /// The seller abandoned it.
   ARCHIVED
 }
@@ -10977,6 +10980,17 @@ model SellerListingDraft {
   reviewedByUserId String?   @db.Char(26)
   reviewedAt       DateTime? @db.DateTime(3)
   submittedAt      DateTime? @db.DateTime(3)
+
+  /// What the moderator asked the seller to send when moving the listing to
+  /// ACTION_REQUIRED: `[{ kind, label, note }]`. Null when nothing was asked.
+  evidenceRequestJson Json?
+  /// The seller's appeal against a refusal, and how it was decided.
+  /// `appealOutcome` is UPHELD (sent back for review) or REFUSED.
+  appealReason      String?   @db.Text
+  appealedAt        DateTime? @db.DateTime(3)
+  appealDecidedById String?   @db.Char(26)
+  appealDecidedAt   DateTime? @db.DateTime(3)
+  appealOutcome     String?   @db.VarChar(16)
 
   /// Optimistic concurrency. The wizard autosaves from a long-lived tab and
   /// sellers leave two open; this is what stops one overwriting the other.
@@ -22569,6 +22583,15 @@ enum MarketRuleEffect {
   BLOCK
   /// It may, and the buyer must hold the listed documents. Shown, not blocked.
   DOCUMENTS_REQUIRED
+  /// It may, and the goods must carry the labelling in `labelText` for that
+  /// country. Shown on the product page and at checkout, not blocked.
+  LABEL_REQUIRED
+}
+
+enum MarketRuleChangeKind {
+  CREATED
+  UPDATED
+  DELETED
 }
 
 /// Single row, id 'default'. Every threshold here is the operator's setting.
@@ -22961,6 +22984,8 @@ model MarketRule {
   reason                String  @db.VarChar(512)
   /// Document names the buyer must hold, for DOCUMENTS_REQUIRED.
   requiredDocumentsJson Json?
+  /// The labelling the goods must carry in that country, for LABEL_REQUIRED.
+  labelText             String? @db.Text
   /// The regulation, licence or policy the rule rests on.
   source                String  @db.VarChar(255)
   version               String  @db.VarChar(32)
@@ -22991,6 +23016,25 @@ model MarketRule {
   @@index([productId], map: "ix_market_rule_product")
   @@index([categoryId], map: "ix_market_rule_category")
   @@map("market_rules")
+}
+
+/// A snapshot of a country rule at every save and at its deletion, so the
+/// rule's history (who changed what, when, from which source and version)
+/// survives the rule itself. No foreign key on purpose: deleting a rule must
+/// not take its history with it.
+model MarketRuleVersion {
+  id             String               @id @db.Char(26)
+  ruleId         String               @db.Char(26)
+  revision       Int
+  changeKind     MarketRuleChangeKind
+  snapshotJson   Json
+  changedById    String?              @db.Char(26)
+  changedByEmail String?              @db.VarChar(320)
+  createdAt      DateTime             @default(now()) @db.DateTime(3)
+  updatedAt      DateTime             @default(now()) @updatedAt @db.DateTime(3)
+
+  @@unique([ruleId, revision], map: "uq_market_rule_version")
+  @@map("market_rule_versions")
 }
 
 /// The configurable rate table behind the landed-cost ESTIMATE. `hsPrefix`
@@ -23074,8 +23118,19 @@ model ContentBlock {
 
   startsAt    DateTime? @db.DateTime(3)
   endsAt      DateTime? @db.DateTime(3)
+  /// True only while `status` is PUBLISHED; the storefront reads this.
   isPublished Boolean   @default(false)
   sortOrder   Int       @default(0)
+
+  /// DRAFT -> PENDING_APPROVAL -> PUBLISHED. A second member of staff, not
+  /// the one who submitted it, approves; any edit sends it back to DRAFT.
+  status        ContentBlockStatus @default(DRAFT)
+  /// Bumped on every save; matches the newest content_block_versions row.
+  revision      Int                @default(0)
+  submittedById String?            @db.Char(26)
+  submittedAt   DateTime?          @db.DateTime(3)
+  approvedById  String?            @db.Char(26)
+  approvedAt    DateTime?          @db.DateTime(3)
 
   createdByUserId String?  @db.Char(26)
   updatedByUserId String?  @db.Char(26)
@@ -23084,11 +23139,123 @@ model ContentBlock {
 
   category Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_content_block_category")
   coupon   Coupon?   @relation(fields: [couponId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_content_block_coupon")
+  versions ContentBlockVersion[]
 
   @@index([placement, isPublished, countryCode], map: "ix_content_block_live")
   @@index([categoryId], map: "ix_content_block_category")
   @@index([couponId], map: "ix_content_block_coupon")
   @@map("content_blocks")
+}
+
+enum ContentBlockStatus {
+  DRAFT
+  PENDING_APPROVAL
+  PUBLISHED
+}
+
+/// The content of a block as it was saved, one row per save. Restoring a
+/// version writes it back as a new save (a new draft), so nothing is lost.
+model ContentBlockVersion {
+  id           String   @id @db.Char(26)
+  blockId      String   @db.Char(26)
+  revision     Int
+  snapshotJson Json
+  savedById    String?  @db.Char(26)
+  savedByEmail String?  @db.VarChar(320)
+  createdAt    DateTime @default(now()) @db.DateTime(3)
+  updatedAt    DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  block ContentBlock @relation(fields: [blockId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_content_block_version_block")
+
+  @@unique([blockId, revision], map: "uq_content_block_version")
+  @@map("content_block_versions")
+}
+
+// ---------------------------------------------------------------------------
+// Admin governance (JOURNEY-061, 062, LIVE-011)
+// Migration: 20261101100000_admin_governance_moderation_cms.
+// ---------------------------------------------------------------------------
+
+enum AdminPendingActionKind {
+  SELLER_SUSPEND
+  SELLER_REJECT
+  CUSTOMER_DEACTIVATE
+  BUYER_COMPANY_SUSPEND
+}
+
+enum AdminPendingActionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  /// Approved, but the action itself was refused when it ran (the record had
+  /// moved on). `failureMessage` says why.
+  FAILED
+}
+
+/// Maker-checker for a critical account action. The request records who asked
+/// and why; a different member of staff approves or rejects it, and only an
+/// approval runs the action. `pendingKey` ("KIND:resourceId") is set only
+/// while PENDING, so the unique index allows one open request per action per
+/// record - MariaDB treats every NULL as distinct.
+model AdminPendingAction {
+  id               String                   @id @db.Char(26)
+  kind             AdminPendingActionKind
+  status           AdminPendingActionStatus @default(PENDING)
+  resourceType     String                   @db.VarChar(48)
+  resourceId       String                   @db.Char(26)
+  resourceLabel    String                   @db.VarChar(255)
+  /// What the action will do when approved (target status, version, flags).
+  payloadJson      Json
+  reason           String                   @db.VarChar(1000)
+  pendingKey       String?                  @unique(map: "uq_admin_pending_action_open") @db.VarChar(96)
+  requestedById    String                   @db.Char(26)
+  requestedByEmail String                   @db.VarChar(320)
+  requestedAt      DateTime                 @db.DateTime(3)
+  decidedById      String?                  @db.Char(26)
+  decidedByEmail   String?                  @db.VarChar(320)
+  decidedAt        DateTime?                @db.DateTime(3)
+  decisionNote     String?                  @db.VarChar(1000)
+  failureMessage   String?                  @db.VarChar(1000)
+  createdAt        DateTime                 @default(now()) @db.DateTime(3)
+  updatedAt        DateTime                 @default(now()) @updatedAt @db.DateTime(3)
+
+  @@index([status, requestedAt], map: "ix_admin_pending_action_queue")
+  @@index([resourceType, resourceId], map: "ix_admin_pending_action_resource")
+  @@map("admin_pending_actions")
+}
+
+/// The operator's SLA and ownership for one admin exception queue (LIVE-011).
+/// A queue with no row uses the default in exception-queue.service.ts.
+model ExceptionQueueSetting {
+  queueKey       String   @id @db.VarChar(48)
+  slaHours       Int
+  /// Role key that works the queue.
+  ownerRole      String   @db.VarChar(64)
+  /// Role key an item escalates to once it is past its SLA.
+  escalationRole String   @db.VarChar(64)
+  updatedById    String?  @db.Char(26)
+  createdAt      DateTime @default(now()) @db.DateTime(3)
+  updatedAt      DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  @@map("exception_queue_settings")
+}
+
+/// A word or phrase a listing may not contain (JOURNEY-062). Matched case-
+/// insensitively on whole words when a listing is submitted; a hit is saved
+/// on the listing as an automated flag for the moderator.
+model ListingProhibitedTerm {
+  id          String               @id @db.Char(26)
+  term        String               @unique(map: "uq_listing_prohibited_term") @db.VarChar(120)
+  reason      String               @db.VarChar(512)
+  severity    ListingIssueSeverity @default(WARNING)
+  isActive    Boolean              @default(true)
+  createdById String?              @db.Char(26)
+  updatedById String?              @db.Char(26)
+  createdAt   DateTime             @default(now()) @db.DateTime(3)
+  updatedAt   DateTime             @default(now()) @updatedAt @db.DateTime(3)
+
+  @@map("listing_prohibited_terms")
 }
 
 /// "cannula" also finds "IV catheter". Maintained by the operator.

@@ -4871,8 +4871,9 @@ can act on.
 - Title "Dashboard". **Reporting period** tabs (Today, Last 7 days, Last 30
   days, Custom) and **Refresh**.
 - **Platform operations** ring. "NEEDS ACTION — items waiting across your
-  queues", in up to five groups: Approvals, Payments, Inventory, Logistics,
-  Platform. A group this person cannot act on is left out, not shown as zero.
+  queues", in up to seven groups: Approvals, Payments, Inventory, Logistics,
+  Platform, Risk and compliance, Past their deadline (JOURNEY-060; see the
+  admin governance section at the end). A group this person cannot act on is left out, not shown as zero.
   The queues behind it include seller applications and documents, listing
   review, brand requests, orders and customers to approve, data requests,
   delivery problems, unreconciled payments, refused payment webhooks, failed
@@ -5224,7 +5225,7 @@ company.
 "Nothing waiting — when a seller submits a listing, it appears here for
 review."
 
-**API call:** `GET /api/v1/admin/seller-listings/review-queue?page=…&pageSize=25`
+**API call:** `GET /api/v1/admin/seller-listings/review-queue?page=…&pageSize=25&status=PENDING_REVIEW|APPEALED` (tabs and prohibited terms: see the admin governance section at the end)
 
 #### `/listing-review/:id` — One listing under review
 
@@ -7974,3 +7975,74 @@ JOURNEY-046 and 049 additions. The **Shipment booking** form shows "From IN to D
 - **Quote comparison**: rows for **Landed estimate**, **Export documents** and **Not provided**; **Download PDF** beside Download as CSV. The purchase order page lists the export documents.
 - **Checkout**: the terms box now sends the current Terms version; if they changed, the box is cleared and the new version must be agreed. **Address form**: the postcode is checked for the country's format before Save.
 - **Return detail**: the Refund card says where and when the money goes back.
+
+## Admin governance screens (JOURNEY-060, 061, 062, 064, 065, 067, LIVE-011)
+
+### Admin Panel
+
+#### `/operations/exception-queues` — Exception queues (new)
+
+| | |
+|---|---|
+| **Who** | Every member of staff; each queue is shown only to the permission that works it. Editing: `settings.write` |
+| **File** | `src/pages/ExceptionQueuesPage.tsx`, `src/components/governance.tsx` |
+
+**Purpose.** Every exception queue the team must not let sit, with its SLA and owner.
+
+**On the screen.** A note that owners are roles and the people who hold them belong in the operator's own runbook. A warning when anything is past its deadline. A table: Queue (links to where it is worked), Waiting, Oldest (hours), Past deadline (red count or a green 0), Deadline (hours, "default" when unchanged), Owner role, Escalates to, and **Edit** (deadline hours, owner role, escalation role). Below it, **Waiting for a second approver**: every critical account action requested, with the reason and who asked; **Approve and run** (disabled for the person who asked) and **Reject** / **Withdraw my request**. Refreshes every minute. Reached from the side menu, **Exception queues**.
+
+**API calls:** `GET /api/v1/admin/exception-queues`, `PUT /api/v1/admin/exception-queues/:key`, `GET /api/v1/admin/pending-actions?status=PENDING`, `POST /api/v1/admin/pending-actions/:id/approve`, `POST /api/v1/admin/pending-actions/:id/reject`
+
+#### `/` — Dashboard: two more groups
+
+The ring and its table also count high-risk signals, failed inspections with no passing re-inspection, lapsing seller documents and certificates (Risk and compliance), settlements and held funds on hold (Payments), failing carrier integrations and buyers' ERP events that gave up (Platform), and disputes, support requests, pre-order chats and inspection jobs past their own deadlines (Past their deadline — a slice that opens Exception queues).
+
+#### `/customers/:id` and `/sellers/:id` — reason, approval, history, messages
+
+- **Suspend customer** now asks for a reason, and the button stays disabled until there is one. With maker-checker on, the toast says the request is waiting for a second member of staff; nothing changes yet.
+- On the seller page, **Suspend** and **Reject** behave the same way.
+- **Waiting for a second approver** card (only while a request for this record is open), with Approve / Reject.
+- **Communication** card: **Write a message** (subject and message; a customer gets an email, a seller a Seller Hub notice and an email). Needs `customer.write`.
+- **History** card: the audit trail of this record, newest first, with a link to the full audit screen. Needs `audit.read`.
+
+**API calls:** `PATCH /api/v1/admin/customers/:id/status` (202 when held), `POST /api/v1/admin/sellers/:id/decision` (202 when held), `GET /api/v1/admin/pending-actions?resourceType=…&resourceId=…`, `POST /api/v1/admin/account-messages` (with an Idempotency-Key), `GET /api/v1/admin/audit-logs?resourceType=…&resourceId=…`
+
+The company page (`/buyer-companies/:id`) **Suspend** shows the same "waiting for a second approver" toast.
+
+#### `/listing-review` and `/listing-review/:id` — flags, evidence, appeals, destinations
+
+- The queue has two tabs, **Waiting for review** and **Appeals**, and a **Prohibited terms** card below: the list (term, severity, reason, on/off) and, with `product.publish`, an add form, **Switch off/on** and **Remove**.
+- On a listing, **Already flagged** marks prohibited-term hits **Automated**.
+- **Send back for changes** has **What the seller must send**: **Ask for a document** adds a row (kind, what to send, note).
+- **Approve** has **Do not sell in these countries** (two-letter codes, commas).
+- A listing in APPEALED shows **The seller appealed** with their reason, **Your answer to the seller**, **Uphold the appeal** and **Keep it refused**; the moderator who refused it sees a note that a colleague must decide, and both buttons are disabled.
+
+**API calls:** `GET/POST/PUT/DELETE /api/v1/admin/listing-moderation/terms`, `POST /api/v1/admin/seller-listings/:id/decision` (with `evidenceRequest` or `blockedCountries`), `POST /api/v1/admin/seller-listings/:id/appeal-decision`
+
+#### `/settings/country-rules` — labels and history
+
+The effect list gains **Labelling required**, with **What the label must show**. Each rule has **History**: every version, newest first (created, changed, deleted, when, who, reason, source, version, owner).
+
+**API call:** `GET /api/v1/admin/market-rules/:id/versions`
+
+#### `/integrations` and `/logistics/integrations` — the integration monitor; the outage banner
+
+- **Integration monitor** card at the top of Integrations: one tile per source (Payment gateway, Carriers, Warehouse ERP, Buyers' ERP connections, Inspection agencies), status badge (Working, Degraded, Down, Not set up), facts, "Last webhook … accepted … refused", and the action for that source (**Reconcile payments by hand**, **Retry dead-lettered webhooks**, **Open the connections**); links to dead jobs and undelivered notifications. Inspection says it has no outside API. Carrier connections shows only the Carriers tile.
+- **Outage banner** under the header on every admin screen while a visible source is down or payments are degraded, linking to the monitor.
+
+**API calls:** `GET /api/v1/admin/integrations/health` (every minute), `POST /api/v1/admin/integrations/carrier-webhooks/requeue`
+
+#### `/settings/content` — approval, preview, versions, conflicts
+
+- The tick box is now **Send for approval when I save**; an edit always starts as a draft. A block shows **Waiting for approval** and, per row, **Send for approval**, **Approve and publish** (disabled for the person who sent it), **Back to draft** and **Versions** (each version with **Restore as a draft**).
+- After saving, **Saved, with things to check** lists the conflicts (coupon not active, not public, archived, ending before the block starts or while it shows, starting after it, no minimum in the country's currency; another block overlapping), and says which stop approval.
+- **Preview the storefront**: placement, country, language, category, a moment, and whether to include drafts; shows the blocks that would appear, marked when not yet published.
+
+**API calls:** `POST /api/v1/admin/content-blocks/:id/submit`, `…/approve`, `…/return`, `GET …/:id/versions`, `POST …/:id/versions/:revision/restore`, `GET /api/v1/admin/content-blocks/preview`
+
+### Storefront and Seller Hub
+
+- **Every page:** a notice under the service banner, "Card payments may fail right now", while the server says payments are degraded (`GET /api/v1/service-status`, every two minutes; a failed check shows nothing).
+- **Product page, category page, `/markets/:country`:** a labelling rule for the destination shows its text ("Labelling for this country: …").
+- **`/checkout`:** **Labelling for delivery to {country}** lists the labelling rules that apply to the basket for the chosen address (`GET /api/v1/catalog/label-requirements`). It never blocks the order.
+- **Seller Hub listing wizard:** when the marketplace sent a listing back, **What to send** lists the evidence asked for. A refused listing offers **Disagree? Appeal, and say why** and **Send appeal** (`POST /api/v1/seller/listing-drafts/:id/appeal`); then "Your appeal is with a different moderator", or that it was not upheld. The listings table shows **Appeal under review**.

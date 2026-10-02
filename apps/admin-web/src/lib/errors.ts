@@ -127,8 +127,21 @@ const MARKET_CODES = new Set([
   'LOGISTICS_LANE_INVALID',
 ]);
 
+/** Maker-checker, listing moderation and content approval (JOURNEY-061, 062, 067), under `errors.governance.*`. */
+const GOVERNANCE_CODES = new Set([
+  'PENDING_ACTION_ALREADY_OPEN',
+  'PENDING_ACTION_SAME_APPROVER',
+  'PENDING_ACTION_NOT_OPEN',
+  'LISTING_APPEAL_SAME_MODERATOR',
+  'LISTING_PROHIBITED_TERM_EXISTS',
+  'CONTENT_BLOCK_NOT_PENDING',
+  'CONTENT_BLOCK_SAME_APPROVER',
+  'CONTENT_BLOCK_CONFLICT',
+]);
+
 export function errorMessage(t: Translate, error: unknown, fallback?: string): string {
   if (error instanceof ApiError) {
+    if (GOVERNANCE_CODES.has(error.code)) return t(`errors.governance.${error.code}` as TranslationKey);
     if (LOGISTICS_CODES.has(error.code)) return t(`errors.levels.${error.code}` as TranslationKey);
     if (MARKET_CODES.has(error.code)) {
       const reason = error.details[0]?.meta?.reason;

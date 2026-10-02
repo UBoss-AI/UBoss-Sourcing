@@ -103,6 +103,8 @@ function renderPage(permissions: string[]): void {
 function serve(record: Record<string, unknown>): void {
   get.mockImplementation((path: string) => {
     if (path === '/config') return Promise.resolve({ localisation: { currencies: [] } });
+    if (path.startsWith('/admin/pending-actions')) return Promise.resolve({ actions: [] });
+    if (path.startsWith('/admin/audit-logs')) return Promise.resolve({ entries: [] });
     return Promise.resolve({ customer: record });
   });
 }
@@ -133,11 +135,30 @@ describe('CustomerDetailPage', () => {
     expect(patch).not.toHaveBeenCalled();
 
     const dialog = await screen.findByRole('dialog');
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Suspend customer' }));
+    // A suspension always says why (JOURNEY-061): the button waits for a reason.
+    const confirm = within(dialog).getByRole('button', { name: 'Suspend customer' });
+    expect((confirm as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: 'Repeated chargebacks.' } });
+    fireEvent.click(confirm);
 
     await waitFor(() => {
-      expect(patch).toHaveBeenCalledWith(`/admin/customers/${ID}/status`, { active: false });
+      expect(patch).toHaveBeenCalledWith(`/admin/customers/${ID}/status`, { active: false, reason: 'Repeated chargebacks.' });
     });
+  });
+
+  it('says the suspension is waiting for a second approver when the server holds it', async () => {
+    serve(customer());
+    patch.mockResolvedValue({
+      pending: { id: 'P1', kind: 'CUSTOMER_DEACTIVATE', status: 'PENDING', resourceLabel: 'Asha Rao' },
+    });
+    renderPage(STATUS);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Suspend customer' }));
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: 'Repeated chargebacks.' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Suspend customer' }));
+
+    expect(await screen.findByText(/waiting for a second member of staff/i)).toBeTruthy();
   });
 
   it('reactivates a suspended account without asking', async () => {

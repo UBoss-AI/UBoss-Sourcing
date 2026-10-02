@@ -8338,5 +8338,17 @@
   "orderMessages.page.empty": "Para escribir a un vendedor, abra el pedido y use «Mensajes sobre este pedido».",
   "orderMessages.page.order": "Pedido {{number}}",
   "errors.messages.reportOwn": "No puede denunciar un mensaje que escribió usted.",
-  "errors.messages.translationUnavailable": "La traducción no está disponible en este momento. Se muestra el mensaje original."
+  "errors.messages.translationUnavailable": "La traducción no está disponible en este momento. Se muestra el mensaje original.",
+  "product.sourcing.labelRule": "Etiquetado para este país: {{label}}",
+  "catalog.marketLabelRequired": "Los productos enviados a {{country}} llevan un etiquetado específico.",
+  "market.labelNeeded": "los productos llevan allí este etiquetado.",
+  "checkout.labelRulesTitle": "Etiquetado para la entrega en {{country}}",
+  "serviceBanner.paymentsDegradedTitle": "Los pagos con tarjeta pueden fallar ahora mismo.",
+  "serviceBanner.paymentsDegradedBody": "Estamos en ello. Su carrito se conserva y un pago rechazado no es culpa de su banco.",
+  "seller.listing.evidenceTitle": "Qué enviar",
+  "seller.listing.appealLabel": "¿No está de acuerdo? Recurra y explique por qué",
+  "seller.listing.appealSend": "Enviar recurso",
+  "seller.listing.appealSent": "Recurso enviado. Lo revisará un moderador diferente.",
+  "seller.listing.appealPending": "Su recurso lo tiene otro moderador. Se le comunicará el resultado.",
+  "seller.listing.appealRefused": "Su recurso no prosperó. Aún puede editar el anuncio y volver a enviarlo."
 }

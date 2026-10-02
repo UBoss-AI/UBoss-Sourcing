@@ -715,9 +715,14 @@ export const ModelName = {
   SellerListingCertification: 'SellerListingCertification',
   SellerOfferComplianceHold: 'SellerOfferComplianceHold',
   MarketRule: 'MarketRule',
+  MarketRuleVersion: 'MarketRuleVersion',
   MarketLandedCostRate: 'MarketLandedCostRate',
   MarketProfile: 'MarketProfile',
   ContentBlock: 'ContentBlock',
+  ContentBlockVersion: 'ContentBlockVersion',
+  AdminPendingAction: 'AdminPendingAction',
+  ExceptionQueueSetting: 'ExceptionQueueSetting',
+  ListingProhibitedTerm: 'ListingProhibitedTerm',
   SearchSynonym: 'SearchSynonym',
   SearchQueryLog: 'SearchQueryLog',
   CustomerKyc: 'CustomerKyc',
@@ -776,7 +781,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "notificationPreference" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productVariantAttribute" | "productDescriptionSection" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "paymentReceipt" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "paymentProviderCustomer" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "returnRequestLine" | "returnRequestEvent" | "returnRequestFile" | "returnSettings" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "savedSearch" | "productInstruction" | "productReview" | "supportTicket" | "supportTicketEvent" | "supportTicketAttachment" | "supportSlaPolicy" | "dispute" | "disputeEvent" | "disputeAttachment" | "disputeSettings" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerProfileChange" | "logisticsPartnerDocument" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsDeliveryCode" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "platformFeeRule" | "platformFeeRuleApplication" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList" | "buyerCompany" | "buyerCompanyAddress" | "buyerCompanyIdentifier" | "teamAccessReview" | "staffAccessReview" | "buyerCompanyLocation" | "buyerCompanyMember" | "buyerCompanyInvitation" | "buyerCompanyApprovalPolicy" | "buyerCompanyOrderApproval" | "buyerCompanyVerificationCase" | "buyerCompanyCheck" | "buyerCompanyDocument" | "buyerCompanyInfoRequest" | "buyerCompanyReviewEvent" | "buyerCompanyStatusHistory" | "consentRecord" | "legalDocument" | "buyerCompanyEmailChallenge" | "commissionInvoiceSettings" | "commissionInvoice" | "commissionInvoiceLine" | "commissionCreditNote" | "commissionDocument" | "commissionInvoiceEvent" | "inspectionPolicy" | "inspectionPlan" | "inspectionRule" | "inspectionSupplierRisk" | "inspectionAgency" | "inspectionAgencyMember" | "inspectionRequirement" | "inspectionJob" | "inspectionConflictDeclaration" | "inspectionCheckResult" | "inspectionDefect" | "inspectionEvidence" | "inspectionReport" | "inspectionRelease" | "inspectionShipmentBinding" | "inspectionAgencyInvoice" | "inspectionEvent" | "trustSettings" | "sellerTrustProfile" | "sellerBeneficialOwner" | "sellerFactory" | "sellerFactoryMachine" | "sellerFactoryEvidence" | "sellerCertification" | "sellerTrustCheck" | "sellerScreeningCheck" | "sellerProfileChangeRequest" | "sellerListingTrust" | "sellerListingCertification" | "sellerOfferComplianceHold" | "marketRule" | "marketLandedCostRate" | "marketProfile" | "contentBlock" | "searchSynonym" | "searchQueryLog" | "customerKyc" | "customerKycDocument" | "customerPreference" | "sellerProductionMilestone" | "sellerProductionDelay" | "sellerOrderBuyerUpdate" | "orderTradeDocument" | "orderTradeDocumentVersion" | "orderTradeDocumentEvent" | "tradeComplianceRule" | "tradeComplianceOverride" | "consignmentBookingTerms" | "logisticsTradeSettings" | "logisticsLane" | "logisticsLaneBand" | "ledgerAccount" | "ledgerEntry" | "ledgerLine" | "sellerFundHold" | "sellerFundReleaseRequest" | "payoutProviderEvent" | "ledgerReconciliationRun" | "ledgerReconciliationItem" | "secretFingerprint" | "rfqRequest" | "rfqRequirementVersion" | "rfqInvitation" | "rfqAttachment" | "rfqEvent" | "rfqMessage" | "orderMessage" | "messageReport" | "rfqQuote" | "rfqQuoteVersion" | "rfqPurchaseOrder" | "rfqPurchaseOrderApproval" | "rfqSample" | "masterDataEntry" | "riskRule" | "riskSignal" | "analyticsDailyCount"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "notificationPreference" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productVariantAttribute" | "productDescriptionSection" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "paymentReceipt" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "paymentProviderCustomer" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "returnRequestLine" | "returnRequestEvent" | "returnRequestFile" | "returnSettings" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "savedSearch" | "productInstruction" | "productReview" | "supportTicket" | "supportTicketEvent" | "supportTicketAttachment" | "supportSlaPolicy" | "dispute" | "disputeEvent" | "disputeAttachment" | "disputeSettings" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerProfileChange" | "logisticsPartnerDocument" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsDeliveryCode" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "platformFeeRule" | "platformFeeRuleApplication" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList" | "buyerCompany" | "buyerCompanyAddress" | "buyerCompanyIdentifier" | "teamAccessReview" | "staffAccessReview" | "buyerCompanyLocation" | "buyerCompanyMember" | "buyerCompanyInvitation" | "buyerCompanyApprovalPolicy" | "buyerCompanyOrderApproval" | "buyerCompanyVerificationCase" | "buyerCompanyCheck" | "buyerCompanyDocument" | "buyerCompanyInfoRequest" | "buyerCompanyReviewEvent" | "buyerCompanyStatusHistory" | "consentRecord" | "legalDocument" | "buyerCompanyEmailChallenge" | "commissionInvoiceSettings" | "commissionInvoice" | "commissionInvoiceLine" | "commissionCreditNote" | "commissionDocument" | "commissionInvoiceEvent" | "inspectionPolicy" | "inspectionPlan" | "inspectionRule" | "inspectionSupplierRisk" | "inspectionAgency" | "inspectionAgencyMember" | "inspectionRequirement" | "inspectionJob" | "inspectionConflictDeclaration" | "inspectionCheckResult" | "inspectionDefect" | "inspectionEvidence" | "inspectionReport" | "inspectionRelease" | "inspectionShipmentBinding" | "inspectionAgencyInvoice" | "inspectionEvent" | "trustSettings" | "sellerTrustProfile" | "sellerBeneficialOwner" | "sellerFactory" | "sellerFactoryMachine" | "sellerFactoryEvidence" | "sellerCertification" | "sellerTrustCheck" | "sellerScreeningCheck" | "sellerProfileChangeRequest" | "sellerListingTrust" | "sellerListingCertification" | "sellerOfferComplianceHold" | "marketRule" | "marketRuleVersion" | "marketLandedCostRate" | "marketProfile" | "contentBlock" | "contentBlockVersion" | "adminPendingAction" | "exceptionQueueSetting" | "listingProhibitedTerm" | "searchSynonym" | "searchQueryLog" | "customerKyc" | "customerKycDocument" | "customerPreference" | "sellerProductionMilestone" | "sellerProductionDelay" | "sellerOrderBuyerUpdate" | "orderTradeDocument" | "orderTradeDocumentVersion" | "orderTradeDocumentEvent" | "tradeComplianceRule" | "tradeComplianceOverride" | "consignmentBookingTerms" | "logisticsTradeSettings" | "logisticsLane" | "logisticsLaneBand" | "ledgerAccount" | "ledgerEntry" | "ledgerLine" | "sellerFundHold" | "sellerFundReleaseRequest" | "payoutProviderEvent" | "ledgerReconciliationRun" | "ledgerReconciliationItem" | "secretFingerprint" | "rfqRequest" | "rfqRequirementVersion" | "rfqInvitation" | "rfqAttachment" | "rfqEvent" | "rfqMessage" | "orderMessage" | "messageReport" | "rfqQuote" | "rfqQuoteVersion" | "rfqPurchaseOrder" | "rfqPurchaseOrderApproval" | "rfqSample" | "masterDataEntry" | "riskRule" | "riskSignal" | "analyticsDailyCount"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -21768,6 +21773,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MarketRuleVersion: {
+      payload: Prisma.$MarketRuleVersionPayload<ExtArgs>
+      fields: Prisma.MarketRuleVersionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MarketRuleVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketRuleVersionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MarketRuleVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketRuleVersionPayload>
+        }
+        findFirst: {
+          args: Prisma.MarketRuleVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketRuleVersionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MarketRuleVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketRuleVersionPayload>
+        }
+        findMany: {
+          args: Prisma.MarketRuleVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketRuleVersionPayload>[]
+        }
+        create: {
+          args: Prisma.MarketRuleVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketRuleVersionPayload>
+        }
+        createMany: {
+          args: Prisma.MarketRuleVersionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.MarketRuleVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketRuleVersionPayload>
+        }
+        update: {
+          args: Prisma.MarketRuleVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketRuleVersionPayload>
+        }
+        deleteMany: {
+          args: Prisma.MarketRuleVersionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MarketRuleVersionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.MarketRuleVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketRuleVersionPayload>
+        }
+        aggregate: {
+          args: Prisma.MarketRuleVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMarketRuleVersion>
+        }
+        groupBy: {
+          args: Prisma.MarketRuleVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MarketRuleVersionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MarketRuleVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MarketRuleVersionCountAggregateOutputType> | number
+        }
+      }
+    }
     MarketLandedCostRate: {
       payload: Prisma.$MarketLandedCostRatePayload<ExtArgs>
       fields: Prisma.MarketLandedCostRateFieldRefs
@@ -21963,6 +22034,270 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ContentBlockCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ContentBlockCountAggregateOutputType> | number
+        }
+      }
+    }
+    ContentBlockVersion: {
+      payload: Prisma.$ContentBlockVersionPayload<ExtArgs>
+      fields: Prisma.ContentBlockVersionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ContentBlockVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentBlockVersionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ContentBlockVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentBlockVersionPayload>
+        }
+        findFirst: {
+          args: Prisma.ContentBlockVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentBlockVersionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ContentBlockVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentBlockVersionPayload>
+        }
+        findMany: {
+          args: Prisma.ContentBlockVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentBlockVersionPayload>[]
+        }
+        create: {
+          args: Prisma.ContentBlockVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentBlockVersionPayload>
+        }
+        createMany: {
+          args: Prisma.ContentBlockVersionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ContentBlockVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentBlockVersionPayload>
+        }
+        update: {
+          args: Prisma.ContentBlockVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentBlockVersionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ContentBlockVersionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ContentBlockVersionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ContentBlockVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentBlockVersionPayload>
+        }
+        aggregate: {
+          args: Prisma.ContentBlockVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContentBlockVersion>
+        }
+        groupBy: {
+          args: Prisma.ContentBlockVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContentBlockVersionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ContentBlockVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContentBlockVersionCountAggregateOutputType> | number
+        }
+      }
+    }
+    AdminPendingAction: {
+      payload: Prisma.$AdminPendingActionPayload<ExtArgs>
+      fields: Prisma.AdminPendingActionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AdminPendingActionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminPendingActionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AdminPendingActionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminPendingActionPayload>
+        }
+        findFirst: {
+          args: Prisma.AdminPendingActionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminPendingActionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AdminPendingActionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminPendingActionPayload>
+        }
+        findMany: {
+          args: Prisma.AdminPendingActionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminPendingActionPayload>[]
+        }
+        create: {
+          args: Prisma.AdminPendingActionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminPendingActionPayload>
+        }
+        createMany: {
+          args: Prisma.AdminPendingActionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AdminPendingActionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminPendingActionPayload>
+        }
+        update: {
+          args: Prisma.AdminPendingActionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminPendingActionPayload>
+        }
+        deleteMany: {
+          args: Prisma.AdminPendingActionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AdminPendingActionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AdminPendingActionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminPendingActionPayload>
+        }
+        aggregate: {
+          args: Prisma.AdminPendingActionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAdminPendingAction>
+        }
+        groupBy: {
+          args: Prisma.AdminPendingActionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AdminPendingActionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AdminPendingActionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AdminPendingActionCountAggregateOutputType> | number
+        }
+      }
+    }
+    ExceptionQueueSetting: {
+      payload: Prisma.$ExceptionQueueSettingPayload<ExtArgs>
+      fields: Prisma.ExceptionQueueSettingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ExceptionQueueSettingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExceptionQueueSettingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ExceptionQueueSettingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExceptionQueueSettingPayload>
+        }
+        findFirst: {
+          args: Prisma.ExceptionQueueSettingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExceptionQueueSettingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ExceptionQueueSettingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExceptionQueueSettingPayload>
+        }
+        findMany: {
+          args: Prisma.ExceptionQueueSettingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExceptionQueueSettingPayload>[]
+        }
+        create: {
+          args: Prisma.ExceptionQueueSettingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExceptionQueueSettingPayload>
+        }
+        createMany: {
+          args: Prisma.ExceptionQueueSettingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ExceptionQueueSettingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExceptionQueueSettingPayload>
+        }
+        update: {
+          args: Prisma.ExceptionQueueSettingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExceptionQueueSettingPayload>
+        }
+        deleteMany: {
+          args: Prisma.ExceptionQueueSettingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ExceptionQueueSettingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ExceptionQueueSettingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExceptionQueueSettingPayload>
+        }
+        aggregate: {
+          args: Prisma.ExceptionQueueSettingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateExceptionQueueSetting>
+        }
+        groupBy: {
+          args: Prisma.ExceptionQueueSettingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExceptionQueueSettingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ExceptionQueueSettingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExceptionQueueSettingCountAggregateOutputType> | number
+        }
+      }
+    }
+    ListingProhibitedTerm: {
+      payload: Prisma.$ListingProhibitedTermPayload<ExtArgs>
+      fields: Prisma.ListingProhibitedTermFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ListingProhibitedTermFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ListingProhibitedTermPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ListingProhibitedTermFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ListingProhibitedTermPayload>
+        }
+        findFirst: {
+          args: Prisma.ListingProhibitedTermFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ListingProhibitedTermPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ListingProhibitedTermFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ListingProhibitedTermPayload>
+        }
+        findMany: {
+          args: Prisma.ListingProhibitedTermFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ListingProhibitedTermPayload>[]
+        }
+        create: {
+          args: Prisma.ListingProhibitedTermCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ListingProhibitedTermPayload>
+        }
+        createMany: {
+          args: Prisma.ListingProhibitedTermCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ListingProhibitedTermDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ListingProhibitedTermPayload>
+        }
+        update: {
+          args: Prisma.ListingProhibitedTermUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ListingProhibitedTermPayload>
+        }
+        deleteMany: {
+          args: Prisma.ListingProhibitedTermDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ListingProhibitedTermUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ListingProhibitedTermUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ListingProhibitedTermPayload>
+        }
+        aggregate: {
+          args: Prisma.ListingProhibitedTermAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateListingProhibitedTerm>
+        }
+        groupBy: {
+          args: Prisma.ListingProhibitedTermGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ListingProhibitedTermGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ListingProhibitedTermCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ListingProhibitedTermCountAggregateOutputType> | number
         }
       }
     }
@@ -28147,6 +28482,12 @@ export const SellerListingDraftScalarFieldEnum = {
   reviewedByUserId: 'reviewedByUserId',
   reviewedAt: 'reviewedAt',
   submittedAt: 'submittedAt',
+  evidenceRequestJson: 'evidenceRequestJson',
+  appealReason: 'appealReason',
+  appealedAt: 'appealedAt',
+  appealDecidedById: 'appealDecidedById',
+  appealDecidedAt: 'appealDecidedAt',
+  appealOutcome: 'appealOutcome',
   version: 'version',
   submittedVersion: 'submittedVersion',
   createdByProfileId: 'createdByProfileId',
@@ -32297,6 +32638,7 @@ export const MarketRuleScalarFieldEnum = {
   effect: 'effect',
   reason: 'reason',
   requiredDocumentsJson: 'requiredDocumentsJson',
+  labelText: 'labelText',
   source: 'source',
   version: 'version',
   ownerName: 'ownerName',
@@ -32312,6 +32654,21 @@ export const MarketRuleScalarFieldEnum = {
 } as const
 
 export type MarketRuleScalarFieldEnum = (typeof MarketRuleScalarFieldEnum)[keyof typeof MarketRuleScalarFieldEnum]
+
+
+export const MarketRuleVersionScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  revision: 'revision',
+  changeKind: 'changeKind',
+  snapshotJson: 'snapshotJson',
+  changedById: 'changedById',
+  changedByEmail: 'changedByEmail',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MarketRuleVersionScalarFieldEnum = (typeof MarketRuleVersionScalarFieldEnum)[keyof typeof MarketRuleVersionScalarFieldEnum]
 
 
 export const MarketLandedCostRateScalarFieldEnum = {
@@ -32367,6 +32724,12 @@ export const ContentBlockScalarFieldEnum = {
   endsAt: 'endsAt',
   isPublished: 'isPublished',
   sortOrder: 'sortOrder',
+  status: 'status',
+  revision: 'revision',
+  submittedById: 'submittedById',
+  submittedAt: 'submittedAt',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
   createdByUserId: 'createdByUserId',
   updatedByUserId: 'updatedByUserId',
   createdAt: 'createdAt',
@@ -32374,6 +32737,73 @@ export const ContentBlockScalarFieldEnum = {
 } as const
 
 export type ContentBlockScalarFieldEnum = (typeof ContentBlockScalarFieldEnum)[keyof typeof ContentBlockScalarFieldEnum]
+
+
+export const ContentBlockVersionScalarFieldEnum = {
+  id: 'id',
+  blockId: 'blockId',
+  revision: 'revision',
+  snapshotJson: 'snapshotJson',
+  savedById: 'savedById',
+  savedByEmail: 'savedByEmail',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContentBlockVersionScalarFieldEnum = (typeof ContentBlockVersionScalarFieldEnum)[keyof typeof ContentBlockVersionScalarFieldEnum]
+
+
+export const AdminPendingActionScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  status: 'status',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  resourceLabel: 'resourceLabel',
+  payloadJson: 'payloadJson',
+  reason: 'reason',
+  pendingKey: 'pendingKey',
+  requestedById: 'requestedById',
+  requestedByEmail: 'requestedByEmail',
+  requestedAt: 'requestedAt',
+  decidedById: 'decidedById',
+  decidedByEmail: 'decidedByEmail',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote',
+  failureMessage: 'failureMessage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AdminPendingActionScalarFieldEnum = (typeof AdminPendingActionScalarFieldEnum)[keyof typeof AdminPendingActionScalarFieldEnum]
+
+
+export const ExceptionQueueSettingScalarFieldEnum = {
+  queueKey: 'queueKey',
+  slaHours: 'slaHours',
+  ownerRole: 'ownerRole',
+  escalationRole: 'escalationRole',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExceptionQueueSettingScalarFieldEnum = (typeof ExceptionQueueSettingScalarFieldEnum)[keyof typeof ExceptionQueueSettingScalarFieldEnum]
+
+
+export const ListingProhibitedTermScalarFieldEnum = {
+  id: 'id',
+  term: 'term',
+  reason: 'reason',
+  severity: 'severity',
+  isActive: 'isActive',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ListingProhibitedTermScalarFieldEnum = (typeof ListingProhibitedTermScalarFieldEnum)[keyof typeof ListingProhibitedTermScalarFieldEnum]
 
 
 export const SearchSynonymScalarFieldEnum = {
@@ -35406,6 +35836,9 @@ export const SellerListingDraftOrderByRelevanceFieldEnum = {
   sellerEditedTitle: 'sellerEditedTitle',
   reviewComment: 'reviewComment',
   reviewedByUserId: 'reviewedByUserId',
+  appealReason: 'appealReason',
+  appealDecidedById: 'appealDecidedById',
+  appealOutcome: 'appealOutcome',
   createdByProfileId: 'createdByProfileId'
 } as const
 
@@ -37886,6 +38319,7 @@ export const MarketRuleOrderByRelevanceFieldEnum = {
   categoryId: 'categoryId',
   countryCode: 'countryCode',
   reason: 'reason',
+  labelText: 'labelText',
   source: 'source',
   version: 'version',
   ownerName: 'ownerName',
@@ -37895,6 +38329,16 @@ export const MarketRuleOrderByRelevanceFieldEnum = {
 } as const
 
 export type MarketRuleOrderByRelevanceFieldEnum = (typeof MarketRuleOrderByRelevanceFieldEnum)[keyof typeof MarketRuleOrderByRelevanceFieldEnum]
+
+
+export const MarketRuleVersionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  changedById: 'changedById',
+  changedByEmail: 'changedByEmail'
+} as const
+
+export type MarketRuleVersionOrderByRelevanceFieldEnum = (typeof MarketRuleVersionOrderByRelevanceFieldEnum)[keyof typeof MarketRuleVersionOrderByRelevanceFieldEnum]
 
 
 export const MarketLandedCostRateOrderByRelevanceFieldEnum = {
@@ -37933,11 +38377,62 @@ export const ContentBlockOrderByRelevanceFieldEnum = {
   couponId: 'couponId',
   countryCode: 'countryCode',
   languageCode: 'languageCode',
+  submittedById: 'submittedById',
+  approvedById: 'approvedById',
   createdByUserId: 'createdByUserId',
   updatedByUserId: 'updatedByUserId'
 } as const
 
 export type ContentBlockOrderByRelevanceFieldEnum = (typeof ContentBlockOrderByRelevanceFieldEnum)[keyof typeof ContentBlockOrderByRelevanceFieldEnum]
+
+
+export const ContentBlockVersionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  blockId: 'blockId',
+  savedById: 'savedById',
+  savedByEmail: 'savedByEmail'
+} as const
+
+export type ContentBlockVersionOrderByRelevanceFieldEnum = (typeof ContentBlockVersionOrderByRelevanceFieldEnum)[keyof typeof ContentBlockVersionOrderByRelevanceFieldEnum]
+
+
+export const AdminPendingActionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  resourceLabel: 'resourceLabel',
+  reason: 'reason',
+  pendingKey: 'pendingKey',
+  requestedById: 'requestedById',
+  requestedByEmail: 'requestedByEmail',
+  decidedById: 'decidedById',
+  decidedByEmail: 'decidedByEmail',
+  decisionNote: 'decisionNote',
+  failureMessage: 'failureMessage'
+} as const
+
+export type AdminPendingActionOrderByRelevanceFieldEnum = (typeof AdminPendingActionOrderByRelevanceFieldEnum)[keyof typeof AdminPendingActionOrderByRelevanceFieldEnum]
+
+
+export const ExceptionQueueSettingOrderByRelevanceFieldEnum = {
+  queueKey: 'queueKey',
+  ownerRole: 'ownerRole',
+  escalationRole: 'escalationRole',
+  updatedById: 'updatedById'
+} as const
+
+export type ExceptionQueueSettingOrderByRelevanceFieldEnum = (typeof ExceptionQueueSettingOrderByRelevanceFieldEnum)[keyof typeof ExceptionQueueSettingOrderByRelevanceFieldEnum]
+
+
+export const ListingProhibitedTermOrderByRelevanceFieldEnum = {
+  id: 'id',
+  term: 'term',
+  reason: 'reason',
+  createdById: 'createdById',
+  updatedById: 'updatedById'
+} as const
+
+export type ListingProhibitedTermOrderByRelevanceFieldEnum = (typeof ListingProhibitedTermOrderByRelevanceFieldEnum)[keyof typeof ListingProhibitedTermOrderByRelevanceFieldEnum]
 
 
 export const SearchSynonymOrderByRelevanceFieldEnum = {
@@ -40718,9 +41213,37 @@ export type EnumMarketRuleEffectFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'MarketRuleChangeKind'
+ */
+export type EnumMarketRuleChangeKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MarketRuleChangeKind'>
+    
+
+
+/**
  * Reference to a field of type 'ContentBlockPlacement'
  */
 export type EnumContentBlockPlacementFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContentBlockPlacement'>
+    
+
+
+/**
+ * Reference to a field of type 'ContentBlockStatus'
+ */
+export type EnumContentBlockStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContentBlockStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'AdminPendingActionKind'
+ */
+export type EnumAdminPendingActionKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdminPendingActionKind'>
+    
+
+
+/**
+ * Reference to a field of type 'AdminPendingActionStatus'
+ */
+export type EnumAdminPendingActionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdminPendingActionStatus'>
     
 
 
@@ -41451,9 +41974,14 @@ export type GlobalOmitConfig = {
   sellerListingCertification?: Prisma.SellerListingCertificationOmit
   sellerOfferComplianceHold?: Prisma.SellerOfferComplianceHoldOmit
   marketRule?: Prisma.MarketRuleOmit
+  marketRuleVersion?: Prisma.MarketRuleVersionOmit
   marketLandedCostRate?: Prisma.MarketLandedCostRateOmit
   marketProfile?: Prisma.MarketProfileOmit
   contentBlock?: Prisma.ContentBlockOmit
+  contentBlockVersion?: Prisma.ContentBlockVersionOmit
+  adminPendingAction?: Prisma.AdminPendingActionOmit
+  exceptionQueueSetting?: Prisma.ExceptionQueueSettingOmit
+  listingProhibitedTerm?: Prisma.ListingProhibitedTermOmit
   searchSynonym?: Prisma.SearchSynonymOmit
   searchQueryLog?: Prisma.SearchQueryLogOmit
   customerKyc?: Prisma.CustomerKycOmit

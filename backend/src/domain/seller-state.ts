@@ -230,6 +230,7 @@ export const ListingDraftStatusValues = [
   'ACTION_REQUIRED',
   'APPROVED',
   'REJECTED',
+  'APPEALED',
   'ARCHIVED',
 ] as const;
 
@@ -298,7 +299,22 @@ const LISTING_TRANSITIONS: Readonly<Record<ListingDraftStatusName, readonly List
     // new draft, which is what keeps "what exactly was approved" answerable.
     APPROVED: [],
 
-    REJECTED: [{ to: 'DRAFT', actors: ['SELLER'] }, { to: 'ARCHIVED', actors: ['SELLER', 'SYSTEM'] }],
+    REJECTED: [
+      { to: 'DRAFT', actors: ['SELLER'] },
+      { to: 'ARCHIVED', actors: ['SELLER', 'SYSTEM'] },
+      // The seller disputes the refusal (JOURNEY-062). The reason is what the
+      // second moderator reads.
+      { to: 'APPEALED', actors: ['SELLER'], requiresReason: true },
+    ],
+
+    // Decided by a moderator other than the one who refused it (the service
+    // enforces that). Upheld goes back to the queue rather than straight to
+    // APPROVED, so the one guarantee above still holds: approval only ever
+    // follows a review of PENDING_REVIEW.
+    APPEALED: [
+      { to: 'PENDING_REVIEW', actors: ['OPERATOR'], requiresReason: true },
+      { to: 'REJECTED', actors: ['OPERATOR'], requiresReason: true },
+    ],
 
     ARCHIVED: [{ to: 'DRAFT', actors: ['SELLER'] }],
   });
