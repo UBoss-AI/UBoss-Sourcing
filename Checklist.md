@@ -1,28 +1,18 @@
 ## Active Checklist Checkpoint
 
-- Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (confirmed by the owner in this session; change checkbox symbols only).
-- Current branch: `main`
-- Remote: `origin` (`UBoss-AI/UBoss-Sourcing`)
-- Current Master row: 54 — corrective evidence and linked re-inspection completed.
-- Last completed work: Master 50/54 workflows and detailed reconciliation of FLOW-005, JOURNEY-040 and JOURNEY-043. Master 94 is next.
-- Next unchecked Master row: 9 (NEEDS_HUMAN_VERIFICATION), 12 (NEEDS_HUMAN_VERIFICATION), 20 (BLOCKED); first technically workable row: 22
-- Master checked: 95
-- Master unchecked: 2 (row 9: approved policy texts; row 12: legal review)
-- Entire document checked: 272
-- Entire document unchecked: 92
-- Verified: 15 Master rows in current state.
-- Fixed and verified: 58 Master rows in current state.
-- In progress: none; Master 54 verified and ticked. Further automatable features remain.
-- Failed: 0 in inherited pass 4; no new application failure established.
-- Blocked: 1 in inherited pass 4 (row 20).
-- Needs human verification: 2 in inherited pass 4 (rows 9 and 12).
-- Latest pushed feature checkpoint: 2c7da462 (Master 54), following 6336355b (Master 50). Detailed verification reconciliation follows.
-- Current change set: three previously open detailed inspection boxes, verified from the completed Master 50/54 workflows. No application code changed in this reconciliation.
-- Latest test command: customer/admin verify; backend typecheck/lint/build; inspection HTTP and gate regression; docs/i18n; Chrome repeat-booking fixtures; Word package/layout verification.
-- Latest test result: Master 54 full customer verify 165 files / 1675 tests and admin verify 36 files / 327 tests passed. Real HTTP repeat lifecycle 2/2 and gate regression 35/35 passed. Backend types/lint/build; docs/i18n passed. Chrome 375/1440: zero overflow/axe violations; linked booking saved. Word opens without repair (29 pages), changed page 5 visually checked; mismatch count 0.
-- Working tree: intended batch changes only; pre-existing untracked backup/evidence retained. Generated logs and temporary files are ignored.
-- Updated at: 2026-10-01, pass 8 batch 1: Section 12 SEC-002/007/008 ticked; Section 17 next.
-
+- Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (unnumbered repository authority; checkbox symbols only).
+- Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
+- Feature commit verified: `96624b29`; prior remote checkpoint: `4087d4f6`.
+- Master checked: 95/97; rows 9 and 12 require approved policy content and legal review.
+- Entire document checked: 277
+- Entire document unchecked: 87
+- Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
+- Last completed work: Pass 9, Section 17.5 Seller Hub; exactly JOURNEY-026/027/028/030/034 ticked.
+- Verification: admin 52 files/382 tests and build; customer 196 files/1800 tests and build; backend 335 files/5322 tests; all exit 0. Reference docs match.
+- Evidence: `verification-evidence/pass8/batch-9.json` and `pass9-verification.json`.
+- Checklist audit: no problems. Protected unrelated files retained.
+- Next authorized work: LIVE-017 carrier polling and ambiguous payout safety, after publishing the verified Seller Hub batch. LIVE-017 remains open for staging outage validation.
+- Updated at: 2026-10-02, Pass 9.
 
 ### Pass 8 — Sections 12, 14 and 17 (Word headings, not Master rows)
 
@@ -41,6 +31,37 @@ Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (the file the 
 Still open in 17.2-17.4: JOURNEY-010 (bank validation needs the production payout provider), JOURNEY-019 (sample-to-final-inspection link needs RFQ purchase orders to become fulfilable orders).
 
 Next: 17.5-17.10, then Section 14.
+
+### Pass 9
+
+**Section 17.5 — verified and ticked: JOURNEY-026, JOURNEY-027, JOURNEY-028, JOURNEY-030, JOURNEY-034.** Feature commit `96624b29` was reviewed against the exact requirements and Checks in `checklist-mapping.json`. Evidence: `verification-evidence/pass8/batch-9.json`; command results and complete remaining-box inventory: `verification-evidence/pass8/pass9-verification.json`.
+
+Before: **272/364**. After: **277/364**. Section 12 stays **9/10**; Section 14 stays **7/21**; Section 17 changes **61/67 → 66/67**. The handoff's 60/67 baseline was one low: JOURNEY-019 was already verified and ticked. No calculated count was overwritten to match the handoff.
+
+Full sequential verification: admin **52 files / 382 tests**, customer **196 / 1,800**, backend **335 / 5,322**, all exit 0; frontend production builds passed. `npm run docs:check` matched all three reference files. Repairs: preserve `labelText` in listing country rules (catalog-manager regression 7/7); assert commission and commission tax separately; use actual injected transport IPs in seller-team and order-desk fixtures instead of relying on untrusted proxy headers. Focused failure reruns passed 23/23 and 4/4; the complete backend verification then passed. Production validation was not weakened. English and Hinglish guides and the API contract describe the label field.
+
+The Word recorder changed exactly the five authorized checkbox ordinals, with every other document payload preserved. Word, Markdown and current state reconcile at 277 checked / 87 open; the audit reports `problems: []`. Packaged visual rendering was attempted but unavailable because the bundled Windows runtime has no LibreOffice; no visual re-render is claimed. No human, device, provider, staging or production evidence is claimed.
+
+| Still open | Remaining action |
+| --- | --- |
+| JOURNEY-010 | Validate bank accounts through the production payout provider. |
+| SEC-010 | Name alert owners in `docs/INCIDENT-READINESS.md` section 3; configure `UBOSS_ALERT_COMMAND`; prove an alert reaches its recipient; run `deploy/scripts/verify-restore.sh` against an off-site backup; complete a disaster-recovery rehearsal. |
+| LIVE-001 | Product Owner and QA sign-off. |
+| LIVE-002 | Test actual supported browsers and devices, including Safari, iOS and Android. |
+| LIVE-003 | Publish counsel-approved policy text; depends on LIVE-014. The empty/error/loading state audit is complete. |
+| LIVE-010 | Use the seller verification, inspection, dispute and finance reconciliation operating procedures operationally. |
+| LIVE-011 | Assign actual people to each owner and escalation role. The software page exists at `/operations/exception-queues`. |
+| LIVE-012 | Train the support team using UAT scenarios. |
+| LIVE-013 | External penetration testing and resolution of release-blocking findings. |
+| LIVE-014 | Qualified legal-counsel approval of launch-market policies. |
+| LIVE-015 | Restore test, disaster-recovery rehearsal and incident exercise. Staff-access review software is built. |
+| LIVE-016 | Test production integrations against real services. |
+| LIVE-017 | Staging outage test. Two software gaps are queued separately: scheduled carrier-tracking polling is absent although adapters expose `getTracking`; ambiguous payout errors currently reverse locally and allow a new payout key, risking double payment. Leave this row open after software remediation until the staging outage test passes. |
+| LIVE-018 | Rotate and monitor real production secrets. Rotation behavior is unit-tested; production evidence remains required. |
+| LIVE-019 | Business approval of master data. Software endpoint: `GET /admin/master-data-readiness`. |
+| LIVE-020 | Validate critical analytics against production traffic. |
+
+All other open boxes remain outside this five-row recording batch and retain their previous status; their exact IDs and requirements are in the verification inventory.
 
 ### Sequential continuation from d52998b5 — Master 45
 
@@ -412,6 +433,11 @@ Boxes outside the Master table (Definition of Done, Security, Go-live, Journeys 
 | JOURNEY-064 | Market-specific controls. Checks: Restricted products; document requirements; tax/duty presentation; label rules; serviceability; rule source/version/owner. | **VERIFIED** | Pass 9. Country rules: restricted products (BLOCK by product/category, checkout refusal), document requirements, tax/duty presentation (VAT rates, duties guidance, checkout note), serviceability (lane rate cards, delivery coverage), NEW label rules (LABEL_REQUIRED with labelText, shown on product, category, market pages and checkout via GET /catalog/label-requirements), rule source/owner/effective dates with NEW market_rule_versions written on every save and delete and a History dialog. Tests: country-rules-rate-cards-content.test.ts (labels, history), catalog-market-eligibility, catalog-product-sourcing, RulesRatesContent. Writing the real label rules for each market is a compliance owner's task. Full verify: backend 332 files / 5297 tests (four expectations updated for the new labelText field and seven ring groups, rerun 38/38), admin 380, customer 1787. | ☑ | 2026-10-02 (pass 8) |
 | JOURNEY-065 | Operate external connections. Checks: Payment/logistics/ERP/inspection/webhook status; retry; dead-letter queue; manual reconcile; outage banner. | **VERIFIED** | Pass 9. NEW GET /admin/integrations/health: payments, carriers, warehouse ERP, buyer ERP and inspection (the in-app agency portal's deadlines; there is no external inspection API), each webhook source's last delivery and accepted/refused counts for 24 hours; retry for dead jobs, failed notifications, ERP events and NEW carrier dead-letter requeue; dead-letter queue page; manual payment and order reconcile; NEW admin outage banner on every screen and storefront payments notice via public GET /service-status. Tests: IntegrationsPage.test.tsx, logistics IntegrationsPage.test.tsx, PaymentsNotice.test.tsx, dead-letter, anonymous-access. Validation against live provider outages remains LIVE-017. Full verify: backend 332 files / 5297 tests (four expectations updated for the new labelText field and seven ring groups, rerun 38/38), admin 380, customer 1787. | ☑ | 2026-10-02 (pass 8) |
 | JOURNEY-067 | Manage merchandising. Checks: Country/language targeting; schedule; approval; preview; rollback; coupon/rule conflict checks. | **VERIFIED** | Pass 9. Content blocks: country/language targeting and start/end schedule; NEW approval DRAFT to PENDING_APPROVAL to PUBLISHED by a different person (CONTENT_BLOCK_SAME_APPROVER), any edit returns it to draft; NEW preview for a chosen country, language and time including drafts; NEW content_block_versions with restore; NEW conflict checks on save (coupon not active or public, validity not covering the schedule, country/currency mismatch, overlapping banners) as warnings, and approval refuses an archived coupon or one ending before the block starts (CONTENT_BLOCK_CONFLICT). Tests: country-rules-rate-cards-content.test.ts (preview, versions, conflicts), coupons-currency, ContentBlocks tests. Full verify: backend 332 files / 5297 tests (four expectations updated for the new labelText field and seven ring groups, rerun 38/38), admin 380, customer 1787. | ☑ | 2026-10-02 (pass 8) |
+| JOURNEY-026 | Prioritized daily work queue. Checks: RFQs awaiting response; orders at risk; inspection actions; shipment docs; settlement holds; compliance expiries. | **VERIFIED** | Pass 9. Seller Hub daily queue reads RFQs awaiting response, inspection readiness/CAPA, compliance expiries, destination-document holds, fund/statement/operator payout holds and dispatch/dispute/payment risks from seller-scoped records. Dashboard links each action to its working screen and reports unavailable tiles without inventing zero-valued progress. Sources: seller/dashboard.service.ts, SellerDashboardPage.tsx. Tests: seller-performance-reports.test.ts (risk reasons, held INR amounts, other seller sees none), SellerDashboardPage.test.tsx (action links); destination-compliance.test.ts covers the shared document gate. Full sequential verify: admin 52 files/382 tests and build, customer 196 files/1800 tests and build, backend 335 files/5322 tests; all exit 0. docs:check: all three reference files match. No live-provider validation claimed. | ☑ | 2026-10-02 (pass 9) |
+| JOURNEY-027 | Maintain verified manufacturer data. Checks: Change-control for verified fields; re-approval after material changes; certificates expiry alerts; buyer-facing preview. | **VERIFIED** | Pass 9. Verified company fields change through audited proposals and staff decisions; approval of material registration/name/country/tax changes retires the old verification and opens a fresh case. Editable applications use onboarding instead; rejection preserves stored facts; other sellers cannot withdraw requests; duplicate decisions are refused. Factory change-control remains in trust/factory.service.ts. Certificate/factory warnings at thirty/seven days and lapse notices use stable subject/date/stage dedupe keys. Seller profile/factories link to the actual buyer-facing supplier preview. Sources: company-change.service.ts, expiry-alerts.service.ts, worker/handlers.ts, SellerCompanyChangeCard.tsx, SellerCompanyChangesPage.tsx. Tests: seller-company-changes.test.ts, seller-hub-journeys.test.ts, SellerCatalogAndProfile.test.tsx, SellerCompanyChangesPage.test.tsx. Full sequential verify: admin 52 files/382 tests and build, customer 196 files/1800 tests and build, backend 335 files/5322 tests; all exit 0. docs:check passed. Production bank validation remains JOURNEY-010. | ☑ | 2026-10-02 (pass 9) |
+| JOURNEY-028 | Manage products, variants, status and market eligibility. Checks: Draft/review/live/blocked; clone; bulk action; stock/capacity; missing-data flags; change history. | **VERIFIED** | Pass 9. Catalog Manager separates draft/review/live/blocked listings, preserves variant and stock controls, bulk actions and missing B2C-limit flags; listing detail adds per-offer production capacity, effective product/category country rules, certificate holds and resource-scoped history. Clone creates a new reviewable draft with category/brand/commercial terms, a new code and no stock; duplicate codes and another seller's listing are refused. Fixed a verification-discovered contract omission: listingMarketRules now selects and returns labelText. Its regression asserts a LABEL_REQUIRED instruction survives the seller API. Sources: offer.service.ts, listing-sourcing.service.ts, catalog/market-eligibility.service.ts, SellerListingsPage.tsx, ListingInsightPanels.tsx. Tests: seller-catalog-manager.test.ts 7/7 focused, SellerCatalogAndProfile.test.tsx, SellerListingsPage.test.tsx, ListingSourcingPanel.test.tsx. Full sequential verify: admin 52 files/382 tests and build, customer 196 files/1800 tests and build, backend 335 files/5322 tests; all exit 0. docs:check passed. English/Hinglish guides and API contract updated. | ☑ | 2026-10-02 (pass 9) |
+| JOURNEY-030 | Seller opportunity queue. Checks: Qualification score; deadline; buyer verification status; target market; hide irrelevant opportunities; assign owner. | **VERIFIED** | Pass 9. RFQ inbox/detail show qualification points with reasons/capacity flags, response deadline, buyer-business verification and destination market. Seller-local hide/unhide leaves the buyer's invitation intact; assignee choices are current members of that seller, with me/unassigned/member filtering and audited assignment. Foreign team members are refused. Sources: rfq/matching.service.ts, rfq/supplier.service.ts, routes/rfq.seller.ts, SellerRfqsPage.tsx, SellerRfqDetailPage.tsx. Tests: rfq-responses.test.ts (score, verification, hide/unhide, owner filters and foreign-team refusal), seller-hub-journeys.test.ts (score arithmetic), SellerRfqPages.test.tsx. Full sequential verify: admin 52 files/382 tests and build, customer 196 files/1800 tests and build, backend 335 files/5322 tests; all exit 0. docs:check passed. | ☑ | 2026-10-02 (pass 9) |
+| JOURNEY-034 | Explain every deduction and release condition. Checks: Gross sale; commission; inspection/logistics charges; tax; reserve/hold; refund; net settlement; payout status; reconciliation export. | **VERIFIED** | Pass 9. Settlement statements expose sale/shipping proceeds, commission and distinct commission-tax lines, approved seller-paid inspection fees once per invoice, refunds/adjustments, net payable, hold reasons and payout state. Funds summary shows held/on-hold/reserve amounts and reserve release dates by currency in exact minor-unit strings. Statement/date-window reconciliation CSV uses credit/debit columns, totals and payout references, with seller ownership and spreadsheet-injection protection. The screen explicitly explains when no marketplace logistics or inspection deduction applies. Sources: settlement-statement.service.ts, settlement-export.service.ts, SellerPaymentsPage.tsx. Tests: seller-settlement-statements.test.ts (net identity, repeat close, invoice dedupe, CSV and foreign statement refusal), commission-invoices.test.ts, SellerPaymentsPage.test.tsx, money-reconciliation.test.ts (separate commission and tax assertions). Full sequential verify: admin 52 files/382 tests and build, customer 196 files/1800 tests and build, backend 335 files/5322 tests; all exit 0. docs:check passed. Ambiguous payout retry remediation remains separate LIVE-017 work. | ☑ | 2026-10-02 (pass 9) |
 
 Reconciliation for these boxes: Word and this report agree
 

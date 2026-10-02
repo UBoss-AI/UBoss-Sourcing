@@ -1,0 +1,704 @@
+{
+  "featureCommit": "96624b29c25830049bbfb0b1cb48dd330c1da0ac",
+  "startingRemote": "4087d4f6fd68fd6776084ab03353bfd1f8cc7bff",
+  "date": "2026-10-02",
+  "before": {
+    "checked": 272,
+    "total": 364
+  },
+  "after": {
+    "checked": 277,
+    "total": 364
+  },
+  "sections": {
+    "12": {
+      "before": {
+        "checked": 9,
+        "total": 10
+      },
+      "after": {
+        "checked": 9,
+        "total": 10
+      }
+    },
+    "14": {
+      "before": {
+        "checked": 7,
+        "total": 21
+      },
+      "after": {
+        "checked": 7,
+        "total": 21
+      }
+    },
+    "17": {
+      "before": {
+        "checked": 61,
+        "total": 67
+      },
+      "after": {
+        "checked": 66,
+        "total": 67
+      }
+    }
+  },
+  "handoffDiscrepancy": "Section 17 was 61/67, not 60/67; JOURNEY-019 was already ticked with recorded evidence.",
+  "ticked": [
+    {
+      "id": "JOURNEY-026",
+      "requirement": "Prioritized daily work queue. Checks: RFQs awaiting response; orders at risk; inspection actions; shipment docs; settlement holds; compliance expiries.",
+      "ord": 266
+    },
+    {
+      "id": "JOURNEY-027",
+      "requirement": "Maintain verified manufacturer data. Checks: Change-control for verified fields; re-approval after material changes; certificates expiry alerts; buyer-facing preview.",
+      "ord": 267
+    },
+    {
+      "id": "JOURNEY-028",
+      "requirement": "Manage products, variants, status and market eligibility. Checks: Draft/review/live/blocked; clone; bulk action; stock/capacity; missing-data flags; change history.",
+      "ord": 268
+    },
+    {
+      "id": "JOURNEY-030",
+      "requirement": "Seller opportunity queue. Checks: Qualification score; deadline; buyer verification status; target market; hide irrelevant opportunities; assign owner.",
+      "ord": 270
+    },
+    {
+      "id": "JOURNEY-034",
+      "requirement": "Explain every deduction and release condition. Checks: Gross sale; commission; inspection/logistics charges; tax; reserve/hold; refund; net settlement; payout status; reconciliation export.",
+      "ord": 274
+    }
+  ],
+  "remaining": [
+    {
+      "id": "SCREEN-009",
+      "requirement": "Help / Policies / Legal — Terms, privacy, returns, inspection, prohibited items, buyer protection",
+      "section": "4. Master Screen Inventory & Development Checklist",
+      "status": "NEEDS_HUMAN_VERIFICATION"
+    },
+    {
+      "id": "SCREEN-012",
+      "requirement": "Seller Application / KYB — Legal entity, ownership, tax/export/bank and verification",
+      "section": "4. Master Screen Inventory & Development Checklist",
+      "status": "NEEDS_HUMAN_VERIFICATION"
+    },
+    {
+      "id": "DOD-001",
+      "requirement": "Clear primary action",
+      "section": "5. Standard Definition of Done - Apply to Every Screen",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "DOD-003",
+      "requirement": "Responsive desktop/tablet/mobile",
+      "section": "5. Standard Definition of Done - Apply to Every Screen",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "DOD-004",
+      "requirement": "Keyboard/focus usability",
+      "section": "5. Standard Definition of Done - Apply to Every Screen",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "DOD-043",
+      "requirement": "browser/device",
+      "section": "5. Standard Definition of Done - Apply to Every Screen",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "DOD-044",
+      "requirement": "performance",
+      "section": "5. Standard Definition of Done - Apply to Every Screen",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "TEMPLATE-001",
+      "requirement": "Pass",
+      "section": "8. Screen-Level Development & QA Checklist Template",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "TEMPLATE-002",
+      "requirement": "Fail",
+      "section": "8. Screen-Level Development & QA Checklist Template",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "TEMPLATE-003",
+      "requirement": "N/A",
+      "section": "8. Screen-Level Development & QA Checklist Template",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "TEMPLATE-004",
+      "requirement": "Pass",
+      "section": "8. Screen-Level Development & QA Checklist Template",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "TEMPLATE-005",
+      "requirement": "Fail",
+      "section": "8. Screen-Level Development & QA Checklist Template",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "TEMPLATE-006",
+      "requirement": "N/A",
+      "section": "8. Screen-Level Development & QA Checklist Template",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "TEMPLATE-007",
+      "requirement": "Pass",
+      "section": "8. Screen-Level Development & QA Checklist Template",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "TEMPLATE-008",
+      "requirement": "Fail",
+      "section": "8. Screen-Level Development & QA Checklist Template",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "TEMPLATE-009",
+      "requirement": "N/A",
+      "section": "8. Screen-Level Development & QA Checklist Template",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "TEMPLATE-010",
+      "requirement": "Pass",
+      "section": "8. Screen-Level Development & QA Checklist Template",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "TEMPLATE-011",
+      "requirement": "Fail",
+      "section": "8. Screen-Level Development & QA Checklist Template",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "TEMPLATE-012",
+      "requirement": "N/A",
+      "section": "8. Screen-Level Development & QA Checklist Template",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SEC-010",
+      "requirement": "Backup, restore, disaster recovery, monitoring, incident response and security alert ownership tested before go-live.",
+      "section": "12. Security, Privacy & Trust Checklist",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "LIVE-001",
+      "requirement": "All P0 screens approved by Product Owner and QA.",
+      "section": "14. Go-Live Readiness Checklist > Product & UX",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "LIVE-002",
+      "requirement": "Responsive behavior validated on supported devices/browsers.",
+      "section": "14. Go-Live Readiness Checklist > Product & UX",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "LIVE-003",
+      "requirement": "Empty/error/loading states complete; user guidance and policy links published.",
+      "section": "14. Go-Live Readiness Checklist > Product & UX",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "LIVE-010",
+      "requirement": "Seller verification SOP, inspection SOP, dispute SOP and finance reconciliation SOP operational.",
+      "section": "14. Go-Live Readiness Checklist > Operations",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "LIVE-011",
+      "requirement": "SLAs, escalation owners and admin exception queues defined.",
+      "section": "14. Go-Live Readiness Checklist > Operations",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "LIVE-012",
+      "requirement": "Support team trained using real UAT scenarios.",
+      "section": "14. Go-Live Readiness Checklist > Operations",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "LIVE-013",
+      "requirement": "Penetration/security testing issues resolved per release criteria.",
+      "section": "14. Go-Live Readiness Checklist > Security & Compliance",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "LIVE-014",
+      "requirement": "Privacy/terms/seller/buyer/inspection policies approved by qualified legal/compliance counsel for launch markets.",
+      "section": "14. Go-Live Readiness Checklist > Security & Compliance",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "LIVE-015",
+      "requirement": "Backup/restore, incident response and privileged access review tested.",
+      "section": "14. Go-Live Readiness Checklist > Security & Compliance",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "LIVE-016",
+      "requirement": "Payment, payout, logistics, notification, storage and inspection integrations production-tested.",
+      "section": "14. Go-Live Readiness Checklist > Integrations",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "LIVE-017",
+      "requirement": "Webhook retries, reconciliation and outage fallback validated.",
+      "section": "14. Go-Live Readiness Checklist > Integrations",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "LIVE-018",
+      "requirement": "Production credentials/secrets rotated and monitored.",
+      "section": "14. Go-Live Readiness Checklist > Integrations",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "LIVE-019",
+      "requirement": "Master data loaded and approved.",
+      "section": "14. Go-Live Readiness Checklist > Data & Analytics",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "LIVE-020",
+      "requirement": "Critical event analytics validated against source transactions.",
+      "section": "14. Go-Live Readiness Checklist > Data & Analytics",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-001",
+      "requirement": "Approve",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-002",
+      "requirement": "Hold",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-003",
+      "requirement": "Approve",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-004",
+      "requirement": "Hold",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-005",
+      "requirement": "Approve",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-006",
+      "requirement": "Hold",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-007",
+      "requirement": "Approve",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-008",
+      "requirement": "Hold",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-009",
+      "requirement": "Approve",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-010",
+      "requirement": "Hold",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-011",
+      "requirement": "Approve",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-012",
+      "requirement": "Hold",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-013",
+      "requirement": "Approve",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-014",
+      "requirement": "Hold",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-015",
+      "requirement": "Approve",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-016",
+      "requirement": "Hold",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-017",
+      "requirement": "Go Live",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "SIGNOFF-018",
+      "requirement": "Hold",
+      "section": "15. Release Sign-Off",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "HOME-009",
+      "requirement": "Natural-language and keyword search across products, categories, suppliers and capabilities. Checks: Autocomplete; spelling; synonyms; no-result recovery; recent searches; search analytics.",
+      "section": "16. Current Gloviaa Mart Home Screen - Development & QA Checklist",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "JOURNEY-010",
+      "requirement": "Verify Indian manufacturer/OEM before selling. Checks: PAN/GST/CIN/Udyam/IEC as applicable; bank validation; beneficial owner/contact; factory proof; export capability; sanctions/restriction screening as required by policy.",
+      "section": "17. Detailed Screen Checklist by User Journey > 17.2 Identity, Buyer & Seller Onboarding",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-001",
+      "requirement": "User describes need in plain language; AI converts it into filters/specifications and a draft RFQ.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-002",
+      "requirement": "AI summarizes differences only from verified catalog/quote data and links every conclusion to source fields.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-003",
+      "requirement": "Home changes for guest, B2B buyer, B2C buyer, seller and returning user.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-004",
+      "requirement": "One search can find product, supplier, RFQ, order, invoice, shipment or help depending on role.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-005",
+      "requirement": "Persistent actions: Create RFQ, Upload Image, Ask AI, Reorder, Track Order, Contact Support.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-008",
+      "requirement": "Explain match using capacity, MOQ, certifications, destination eligibility and response record; avoid opaque ranking.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-014",
+      "requirement": "Spending caps, supplier/category scope, expiry, pre-charge reminder and one-click pause.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-015",
+      "requirement": "Step-by-step mapping for PO, order acknowledgement, invoice, shipment and status with sandbox test.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-016",
+      "requirement": "Upload Excel/CSV requirements or SKU list to create multi-line RFQ/order.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-018",
+      "requirement": "Rank operational tasks by deadline and business impact, not merely dashboard metrics.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-019",
+      "requirement": "One queue for failed payment, missing doc, inspection NCR, late shipment, settlement mismatch and integration failure.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-020",
+      "requirement": "Bundle low-priority alerts; immediately escalate inspection fail, payment risk, shipping delay and RFQ expiry.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-021",
+      "requirement": "Translate product content/messages while retaining original text.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-022",
+      "requirement": "Inline prompts explain importer details, labeling or documents needed for selected destination.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-024",
+      "requirement": "Dedicated CTA captures branding, packaging, drawing/spec and target volume.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-025",
+      "requirement": "Approved sample becomes a controlled reference for bulk order and inspection.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-026",
+      "requirement": "System-generated final term sheet before acceptance, showing changed clauses.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-027",
+      "requirement": "Interactive quantity slider displays tier price, lead-time/capacity effect and estimated landed cost.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-029",
+      "requirement": "RFQ reply, order milestone, inspection readiness, document upload and notifications optimized for phone.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-030",
+      "requirement": "Visible countdowns for quote response, inspection assignment, report issuance, shipment readiness and dispute handling.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-031",
+      "requirement": "Controlled export/API for orders, RFQs, reports, settlements and analytics.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "ENH-032",
+      "requirement": "Explain fields, suggest values from existing verified data, but require user confirmation.",
+      "section": "18. Separate Recommendations - Make Gloviaa Mart More Dynamic, Easy to Use & Easy to Operate",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "DYNAMIC-001",
+      "requirement": "Header: Logo | Universal Search | Country/Language/Currency | Seller Hub | Messages/Notifications | Profile | Cart.",
+      "section": "20. Dynamic Home Screen - Recommended Component Order",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "DYNAMIC-002",
+      "requirement": "Hero: “Source from verified Indian manufacturers” + Search/AI input + quick chips (Product, Supplier, RFQ, Image Search).",
+      "section": "20. Dynamic Home Screen - Recommended Component Order",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "DYNAMIC-003",
+      "requirement": "Trust strip: Verified manufacturers | Independent inspection | Buyer protection / controlled payment | Global logistics.",
+      "section": "20. Dynamic Home Screen - Recommended Component Order",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "DYNAMIC-004",
+      "requirement": "Personalized task row for signed-in user: quotes awaiting decision, inspection status, shipments, payments, repeat orders.",
+      "section": "20. Dynamic Home Screen - Recommended Component Order",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "DYNAMIC-005",
+      "requirement": "AI sourcing assistant with examples and “Create RFQ from this conversation”.",
+      "section": "20. Dynamic Home Screen - Recommended Component Order",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "DYNAMIC-007",
+      "requirement": "B2B tools: Request Private Label/OEM | Upload Bulk Requirement | Landed Cost | Schedule Cart | ERP Integration.",
+      "section": "20. Dynamic Home Screen - Recommended Component Order",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "DYNAMIC-010",
+      "requirement": "Footer: Help, policies, inspection policy, buyer/seller terms, privacy, prohibited products, support and company information.",
+      "section": "20. Dynamic Home Screen - Recommended Component Order",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "UAT-UI-002",
+      "requirement": "User starts with image search, receives matches, opens a product and converts it to an RFQ with image retained as reference.",
+      "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "UAT-UI-007",
+      "requirement": "ERP sync receives duplicate PO event; idempotency prevents duplicate order creation.",
+      "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "UAT-UI-012",
+      "requirement": "Buyer destination is changed to a country where product is restricted; checkout/RFQ shows block and compliance reason.",
+      "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    },
+    {
+      "id": "UAT-UI-013",
+      "requirement": "Seller certificate expires; affected listings/markets follow configured warning/hold policy and buyer-facing badge updates.",
+      "section": "21. Additional UAT Scenarios for the Current UI & New Dynamic Features",
+      "status": "UNCHANGED_OUTSIDE_AUTHORIZED_BATCH"
+    }
+  ],
+  "verification": [
+    {
+      "command": "npm run verify",
+      "cwd": "apps/admin-web",
+      "exit": 0,
+      "files": 52,
+      "tests": 382,
+      "buildPassed": true,
+      "log": "uboss-pass9-admin-verify-access.log"
+    },
+    {
+      "command": "npm run verify",
+      "cwd": "apps/customer-web",
+      "exit": 0,
+      "files": 196,
+      "tests": 1800,
+      "buildPassed": true,
+      "log": "uboss-pass9-customer-verify.log"
+    },
+    {
+      "command": "npm run verify",
+      "cwd": "backend",
+      "exit": 0,
+      "files": 335,
+      "tests": 5322,
+      "log": "uboss-pass9-backend-verify-transport.log"
+    },
+    {
+      "command": "npm run docs:check",
+      "cwd": "scripts",
+      "exit": 0,
+      "referenceFiles": 3
+    }
+  ],
+  "repairs": [
+    "listingMarketRules selects/returns required labelText; catalog-manager regression 7/7",
+    "money-reconciliation asserts commission and commission tax separately",
+    "seller-team uses unused 10.96.0.* actual transport addresses",
+    "order-desk fixture uses its declared actual transport addresses for customer, seller-lock and staff requests"
+  ],
+  "focusedResults": [
+    {
+      "files": 1,
+      "tests": 7
+    },
+    {
+      "files": 2,
+      "tests": 23
+    },
+    {
+      "files": 2,
+      "tests": 4
+    }
+  ],
+  "initialFailures": [
+    {
+      "stage": "admin test startup",
+      "cause": "Sandbox esbuild parent-directory access denied; authorized access rerun passed"
+    },
+    {
+      "stage": "backend typecheck",
+      "cause": "Missing labelText in listing country-rule contract; fixed"
+    },
+    {
+      "stage": "new regression fixture typecheck",
+      "cause": "Missing required source/version/ownerName; fixture corrected"
+    },
+    {
+      "stage": "backend full run",
+      "filesFailed": 2,
+      "testsPassed": 5301,
+      "testsFailed": 1,
+      "testsSkipped": 20,
+      "cause": "Seller-team setup rate-limit collision; obsolete combined commission/tax assertion"
+    },
+    {
+      "stage": "backend full rerun",
+      "filesFailed": 2,
+      "testsPassed": 5318,
+      "testsSkipped": 4,
+      "cause": "Inspection shared order-desk fixture used untrusted proxy headers; actual transport addresses fixed"
+    }
+  ],
+  "word": {
+    "changedIds": [
+      "JOURNEY-026",
+      "JOURNEY-027",
+      "JOURNEY-028",
+      "JOURNEY-030",
+      "JOURNEY-034"
+    ],
+    "allOtherPackagePayloadsUnchanged": true,
+    "nonCheckboxDocumentXmlUnchanged": true,
+    "layoutRendering": "Packaged render_docx.py attempted with bundled Python and runtime-only PATH; exit 1 because bundled Windows runtime has no LibreOffice soffice.exe. No visual rendering claimed. Exact five-symbol XML change and all other package payloads unchanged were verified."
+  },
+  "audit": {
+    "problems": []
+  },
+  "logsLocation": "System TEMP; full logs were not placed in the repository",
+  "notClaimed": [
+    "human/legal approval",
+    "real-device testing",
+    "external penetration test",
+    "live provider/production validation",
+    "backup restore/DR rehearsal/incident exercise",
+    "staging outage test"
+  ]
+}

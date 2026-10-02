@@ -2665,6 +2665,36 @@
       "status": "VERIFIED",
       "evidence": "Pass 9. Content blocks: country/language targeting and start/end schedule; NEW approval DRAFT to PENDING_APPROVAL to PUBLISHED by a different person (CONTENT_BLOCK_SAME_APPROVER), any edit returns it to draft; NEW preview for a chosen country, language and time including drafts; NEW content_block_versions with restore; NEW conflict checks on save (coupon not active or public, validity not covering the schedule, country/currency mismatch, overlapping banners) as warnings, and approval refuses an archived coupon or one ending before the block starts (CONTENT_BLOCK_CONFLICT). Tests: country-rules-rate-cards-content.test.ts (preview, versions, conflicts), coupons-currency, ContentBlocks tests. Full verify: backend 332 files / 5297 tests (four expectations updated for the new labelText field and seven ring groups, rerun 38/38), admin 380, customer 1787.",
       "verifiedAt": "2026-10-02 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-026",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. Seller Hub daily queue reads RFQs awaiting response, inspection readiness/CAPA, compliance expiries, destination-document holds, fund/statement/operator payout holds and dispatch/dispute/payment risks from seller-scoped records. Dashboard links each action to its working screen and reports unavailable tiles without inventing zero-valued progress. Sources: seller/dashboard.service.ts, SellerDashboardPage.tsx. Tests: seller-performance-reports.test.ts (risk reasons, held INR amounts, other seller sees none), SellerDashboardPage.test.tsx (action links); destination-compliance.test.ts covers the shared document gate. Full sequential verify: admin 52 files/382 tests and build, customer 196 files/1800 tests and build, backend 335 files/5322 tests; all exit 0. docs:check: all three reference files match. No live-provider validation claimed.",
+      "verifiedAt": "2026-10-02 (pass 9)"
+    },
+    {
+      "id": "JOURNEY-027",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. Verified company fields change through audited proposals and staff decisions; approval of material registration/name/country/tax changes retires the old verification and opens a fresh case. Editable applications use onboarding instead; rejection preserves stored facts; other sellers cannot withdraw requests; duplicate decisions are refused. Factory change-control remains in trust/factory.service.ts. Certificate/factory warnings at thirty/seven days and lapse notices use stable subject/date/stage dedupe keys. Seller profile/factories link to the actual buyer-facing supplier preview. Sources: company-change.service.ts, expiry-alerts.service.ts, worker/handlers.ts, SellerCompanyChangeCard.tsx, SellerCompanyChangesPage.tsx. Tests: seller-company-changes.test.ts, seller-hub-journeys.test.ts, SellerCatalogAndProfile.test.tsx, SellerCompanyChangesPage.test.tsx. Full sequential verify: admin 52 files/382 tests and build, customer 196 files/1800 tests and build, backend 335 files/5322 tests; all exit 0. docs:check passed. Production bank validation remains JOURNEY-010.",
+      "verifiedAt": "2026-10-02 (pass 9)"
+    },
+    {
+      "id": "JOURNEY-028",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. Catalog Manager separates draft/review/live/blocked listings, preserves variant and stock controls, bulk actions and missing B2C-limit flags; listing detail adds per-offer production capacity, effective product/category country rules, certificate holds and resource-scoped history. Clone creates a new reviewable draft with category/brand/commercial terms, a new code and no stock; duplicate codes and another seller's listing are refused. Fixed a verification-discovered contract omission: listingMarketRules now selects and returns labelText. Its regression asserts a LABEL_REQUIRED instruction survives the seller API. Sources: offer.service.ts, listing-sourcing.service.ts, catalog/market-eligibility.service.ts, SellerListingsPage.tsx, ListingInsightPanels.tsx. Tests: seller-catalog-manager.test.ts 7/7 focused, SellerCatalogAndProfile.test.tsx, SellerListingsPage.test.tsx, ListingSourcingPanel.test.tsx. Full sequential verify: admin 52 files/382 tests and build, customer 196 files/1800 tests and build, backend 335 files/5322 tests; all exit 0. docs:check passed. English/Hinglish guides and API contract updated.",
+      "verifiedAt": "2026-10-02 (pass 9)"
+    },
+    {
+      "id": "JOURNEY-030",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. RFQ inbox/detail show qualification points with reasons/capacity flags, response deadline, buyer-business verification and destination market. Seller-local hide/unhide leaves the buyer's invitation intact; assignee choices are current members of that seller, with me/unassigned/member filtering and audited assignment. Foreign team members are refused. Sources: rfq/matching.service.ts, rfq/supplier.service.ts, routes/rfq.seller.ts, SellerRfqsPage.tsx, SellerRfqDetailPage.tsx. Tests: rfq-responses.test.ts (score, verification, hide/unhide, owner filters and foreign-team refusal), seller-hub-journeys.test.ts (score arithmetic), SellerRfqPages.test.tsx. Full sequential verify: admin 52 files/382 tests and build, customer 196 files/1800 tests and build, backend 335 files/5322 tests; all exit 0. docs:check passed.",
+      "verifiedAt": "2026-10-02 (pass 9)"
+    },
+    {
+      "id": "JOURNEY-034",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. Settlement statements expose sale/shipping proceeds, commission and distinct commission-tax lines, approved seller-paid inspection fees once per invoice, refunds/adjustments, net payable, hold reasons and payout state. Funds summary shows held/on-hold/reserve amounts and reserve release dates by currency in exact minor-unit strings. Statement/date-window reconciliation CSV uses credit/debit columns, totals and payout references, with seller ownership and spreadsheet-injection protection. The screen explicitly explains when no marketplace logistics or inspection deduction applies. Sources: settlement-statement.service.ts, settlement-export.service.ts, SellerPaymentsPage.tsx. Tests: seller-settlement-statements.test.ts (net identity, repeat close, invoice dedupe, CSV and foreign statement refusal), commission-invoices.test.ts, SellerPaymentsPage.test.tsx, money-reconciliation.test.ts (separate commission and tax assertions). Full sequential verify: admin 52 files/382 tests and build, customer 196 files/1800 tests and build, backend 335 files/5322 tests; all exit 0. docs:check passed. Ambiguous payout retry remediation remains separate LIVE-017 work.",
+      "verifiedAt": "2026-10-02 (pass 9)"
     }
   ],
   "pendingBoxes": []
