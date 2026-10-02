@@ -2533,6 +2533,36 @@
       "status": "VERIFIED",
       "evidence": "Pass 8. Returns (Master 30): reason codes, photo/video evidence where the reason needs it, eligibility and return window, seller return instructions (label/pickup), received and inspected states, refund or replacement, timeline (returns-http, ReturnPages tests). NEW refund method and timing stated on the return page before a refund is issued (ReturnPages.test.tsx assertion).",
       "verifiedAt": "2026-10-01 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-046",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. Shipment booking: carrier choice (hand booking, delivery partner, quote and purchase through the seller's own DHL/FedEx account; fake-adapter tests), mode, UN/LOCODE ports, Incoterms 2020 with place, pickup date/window, package weights/dimensions (seller-shipment-paperwork, carrier-purchase, ShipmentPaperwork, ConsignmentDocumentsPanel tests). NEW: origin/destination countries and an inspection-release prerequisite note on the booking panel; carrier quotes show valid-until or expired and a seller freight-options endpoint lists operator lanes with validFrom/validTo; cargo insurance option priced in BigInt (domain/cargo-insurance.ts), 409 SHIPMENT_INSURANCE_NOT_OFFERED when the operator offers none, 400 above the cap, rate and cap set by staff in Trade compliance settings (audited). Tests: destination-compliance.test.ts 6/6, cargo-insurance unit, ShipmentCompliance.test.tsx, TradeCompliance.test.tsx. Live carrier answers need each seller's own carrier account (not claimed).",
+      "verifiedAt": "2026-10-02 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-049",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. Destination documentation readiness: NEW HS code verification queue (verify with optional correction or reject with note, stale decision refused, audited, seller notified; changed code returns to DECLARED; state shown in SellerTradeCodesPanel); trade compliance rule admin (audited CRUD); required documents for every responsible party (seller, buyer, forwarder, operator) with restricted/prohibited badges, buyer sees what they owe on the order; MarketRule restricted goods and country rules unchanged; NEW pre-dispatch exception hold (domain/compliance-hold.ts) refusing READY_FOR_DISPATCH/SHIPPED/collection with 409 DESTINATION_DOCUMENTS_NOT_READY on a prohibited match, missing valid seller document or unverified HS code where required; staff override with reason, audited, revocable (migration 20261031100000_trade_compliance_overrides). Tests: destination-compliance.test.ts 6/6 (hold via evaluate+assert; the call sites in transitionSellerOrder, recordShipment and shipment events are covered by typecheck and the full backend suite), compliance-hold unit, admin TradeCompliance and customer ShipmentCompliance tests. Full verify: backend 314 files / 5195 tests (one unrelated hook timeout passed 25/25 alone), admin 44 / 352, customer 187 / 1751.",
+      "verifiedAt": "2026-10-02 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-051",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. AutoPay authority: per-transaction maximum and consult-above threshold, period cap, supplier/category scope, start/end dates, step-up MFA, revoke and pause (autopay, autopay-authority-http, customer-mfa, AutoPayPage tests). NEW failure handling honours the customer's retry preference (attempts = min(plan maxFailures, preference + 1), audited) and failure notices are always sent (locked on screen with the reason); NEW charge alert after a successful automatic charge (autopay.charged) when the customer keeps it on; NEW pre-charge notice says AutoPay will charge, or names the limit that will hold the charge, using the same evaluateAutoPay as the run. Tests: scheduled-orders.test.ts 60/60 (NONE/ONCE retries, alert on/off, reminder wording), autopay-retry-preference unit. Live off-session charges need a connected payment provider (not claimed).",
+      "verifiedAt": "2026-10-02 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-052",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. Double-entry ledger as the single source for money movement: order gross (PAYMENT_CAPTURED, SALE_ALLOCATED), platform fees and fee tax, refunds and chargebacks, holds and reserves with two-person early release, payouts initiated/settled/reversed. NEW accounts ORDER_TAX_COLLECTED, PLATFORM_LOGISTICS_REVENUE, PLATFORM_DISCOUNTS_FUNDED, PLATFORM_DIRECT_SALES (migration 20261031120000) so buyer clearing nets to zero; operator's own goods booked separately; inspection: no inspection money moves through the platform (agency invoices listed with payer on the order view, no fee invented). NEW immutability by grant: ledger_accounts/entries/lines have no UPDATE/DELETE grant (post-migrate-grants.sql, CI proof). Tests: escrow-ledger.test.ts (clearing ends at zero, line-by-line reversal, second reversal refused by uq_ledger_entry_reverses, every entry sums to zero per currency), ledger-money-movement unit, LedgerPage.test.tsx. Real payouts need the production payout provider (not claimed).",
+      "verifiedAt": "2026-10-02 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-054",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. Fee rules by category, value band, volume tier, seller tier, market and promotion, with effective dates and maker-checker (platform-fee-rules unit, platform-fee-rules-http, fee-maker-checker-http, FeeRulesPage tests). NEW admin seller fee tier screen (search, assign/remove with reason >= 10 characters, audited) and a read-only Seller Hub card of the seller's tier and live and upcoming rules. No retroactive surprise: approval moves a past effectiveFrom to the approval moment and an earlier settlement keeps its fee with no rule application (fee-tiers-no-retroactive-http.test.ts); published rules are not editable. Not built: a notification to sellers when a rule is published (stated in the PRD).",
+      "verifiedAt": "2026-10-02 (pass 8)"
     }
   ],
   "pendingBoxes": []
