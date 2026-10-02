@@ -2505,6 +2505,13 @@ the seller's own Stripe Connect account. Finance works it on *Finance ->
 Ledger*; sellers see their balances on *Seller Hub -> Payments*; buyers see how
 their payment is protected on the order page.
 
+The ledger is the one record of where each order's money went: seller share,
+platform fee and its tax, the tax on the order, delivery the operator
+arranged, discounts the platform carried and the operator's own goods each
+have their own line. It is append-only for the application's database account
+(`deploy/mariadb/post-migrate-grants.sql`, as for the audit log); a mistake is
+corrected with a reversing entry. No inspection money passes through it.
+
 | Variable | Default | What it does |
 |---|---|---|
 | `FEATURE_ESCROW_LEDGER` | `false` | The transaction ledger, held funds and payouts |

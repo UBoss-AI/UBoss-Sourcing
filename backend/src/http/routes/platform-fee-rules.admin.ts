@@ -186,9 +186,10 @@ export function registerAdminPlatformFeeRuleRoutes(app: FastifyInstance): Promis
 
   // --- Seller fee tiers --------------------------------------------------------
 
-  /** The sellers placed in a fee tier, and which tier. */
-  app.get('/seller-fee-tiers', { preHandler: requireAdmin(Permission.FINANCE_POLICY_READ) }, async (_request, reply) => {
-    return reply.status(200).send({ sellers: await listSellerFeeTiers() });
+  /** The sellers placed in a fee tier, and which tier; with q, the sellers matching a name or id. */
+  app.get('/seller-fee-tiers', { preHandler: requireAdmin(Permission.FINANCE_POLICY_READ) }, async (request, reply) => {
+    const query = z.object({ q: z.string().trim().max(120).optional() }).parse(request.query);
+    return reply.status(200).send({ sellers: await listSellerFeeTiers({ search: query.q ?? null }) });
   });
 
   /**

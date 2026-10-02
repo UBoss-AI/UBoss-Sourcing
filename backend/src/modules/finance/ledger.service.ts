@@ -63,13 +63,30 @@ async function accountId(
     throw internal(`Ledger account ${code} needs a seller.`);
   }
   const ownerKey = isSeller && sellerAccountId !== null ? sellerAccountId : PLATFORM_OWNER;
-  const row = await tx.ledgerAccount.upsert({
-    where: { code_ownerKey_currency: { code, ownerKey, currency } },
-    create: { id: newId(), code, ownerKey, sellerAccountId: isSeller ? sellerAccountId : null, currency },
-    update: {},
-    select: { id: true },
-  });
-  return row.id;
+  const where = { code_ownerKey_currency: { code, ownerKey, currency } };
+  // Read, then insert - never an upsert. Prisma's upsert on MariaDB issues an
+  // UPDATE (stamping updatedAt) when the row exists, and the application
+  // account holds no UPDATE grant on the ledger tables.
+  const found = await tx.ledgerAccount.findUnique({ where, select: { id: true } });
+  if (found !== null) return found.id;
+  const id = newId();
+  try {
+    await tx.ledgerAccount.create({
+      data: { id, code, ownerKey, sellerAccountId: isSeller ? sellerAccountId : null, currency },
+      select: { id: true },
+    });
+    return id;
+  } catch (error) {
+    // Created by a concurrent post a moment ago: use that one.
+    if ((error as { code?: string }).code !== 'P2002') throw error;
+    return (await tx.ledgerAccount.findUniqueOrThrow({ where, select: { id: true } })).id;
+  }
+}
+
+/** Every entry's lines must sum to zero; true when these do. */
+export function isBalanced(lines: readonly LedgerLineInput[]): boolean {
+  const nonZero = lines.filter((line) => line.amountMinor !== 0n);
+  return nonZero.length >= 2 && nonZero.reduce((total, line) => total + line.amountMinor, 0n) === 0n;
 }
 
 /** Write one balanced entry. Returns the existing entry when the key was used before. */
@@ -85,7 +102,7 @@ export async function postEntry(
 
   const lines = input.lines.filter((line) => line.amountMinor !== 0n);
   const sum = lines.reduce((total, line) => total + line.amountMinor, 0n);
-  if (lines.length < 2 || sum !== 0n) {
+  if (!isBalanced(lines)) {
     throw internal(`Ledger entry ${input.idempotencyKey} is not balanced (${sum.toString()}).`);
   }
 
@@ -221,12 +238,30 @@ export interface OrderLedgerSummary {
   releasedMinor: bigint;
   heldMinor: bigint;
   chargebackLossMinor: bigint;
+  /** Tax the buyer paid on top of the price. */
+  orderTaxMinor: bigint;
+  /** Delivery for levels the operator controls, plus its own shipping charge. */
+  logisticsMinor: bigint;
+  /** Discounts on marketplace lines, carried by the platform. */
+  discountsFundedMinor: bigint;
+  /** The operator's own goods, sold with no seller. */
+  operatorSalesMinor: bigint;
+  /**
+   * Buyer money received and not yet given a home. Zero once an order is
+   * fully allocated; a refund the sellers do not carry shows here.
+   */
+  unallocatedMinor: bigint;
 }
 
 export function summarise(rows: LedgerSumRow[], key: string, currency: string): OrderLedgerSummary {
   const pick = (code: LedgerAccountCode, kinds?: LedgerEntryKind[]): bigint =>
     total(rows, { code, key, currency, ...(kinds !== undefined ? { kinds } : {}) });
   return {
+    orderTaxMinor: -pick('ORDER_TAX_COLLECTED'),
+    logisticsMinor: -pick('PLATFORM_LOGISTICS_REVENUE'),
+    discountsFundedMinor: pick('PLATFORM_DISCOUNTS_FUNDED'),
+    operatorSalesMinor: -pick('PLATFORM_DIRECT_SALES'),
+    unallocatedMinor: -pick('BUYER_FUNDS_CLEARING'),
     currency,
     grossMinor: pick('PROVIDER_BALANCE', ['PAYMENT_CAPTURED']),
     platformFeeMinor: -pick('PLATFORM_COMMISSION'),

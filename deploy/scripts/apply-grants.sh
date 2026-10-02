@@ -131,13 +131,13 @@ GRANT_COUNT="$(printf '%s\n' "$STATEMENTS" | grep -c '^GRANT UPDATE, DELETE' || 
    Either $DB_NAME has no tables yet - run 'prisma migrate deploy' first - or
    the generator could not read information_schema."
 
-log "$GRANT_COUNT tables will be writable; audit_logs and _prisma_migrations will not"
+log "$GRANT_COUNT tables will be writable; audit_logs, _prisma_migrations and the three ledger tables will not"
 
 VERIFICATION="$(printf '%s\n' "$STATEMENTS" | "$CLIENT" -B "$DB_NAME")"
 printf '%s\n' "$VERIFICATION" | sed 's/^/    /'
 
 # The generated script ends with a query that names each protected table and
-# whether it is still writable. Anything other than "append-only" on both is a
+# whether it is still writable. Anything other than "append-only" on all five is a
 # failure, and it is a SECURITY failure - the application can rewrite its own
 # audit trail - so it exits non-zero rather than warning.
 if printf '%s\n' "$VERIFICATION" | grep -q 'NOT PROTECTED'; then
@@ -146,13 +146,13 @@ if printf '%s\n' "$VERIFICATION" | grep -q 'NOT PROTECTED'; then
    until this is resolved - docs/DATABASE-PRODUCTION.md section 6."
 fi
 
-if [[ "$(printf '%s\n' "$VERIFICATION" | grep -c 'append-only')" -ne 2 ]]; then
-  die "expected two protected tables in the verification output, got something else.
+if [[ "$(printf '%s\n' "$VERIFICATION" | grep -c 'append-only')" -ne 5 ]]; then
+  die "expected five protected tables in the verification output, got something else.
    Usually this means '$APP_USER'@'$APP_HOST' is not the account the application
    connects as - check the host part against DATABASE_URL."
 fi
 
-ok "audit_logs and _prisma_migrations are append-only for '$APP_USER'@'$APP_HOST'"
+ok "audit_logs, _prisma_migrations and the ledger tables are append-only for '$APP_USER'@'$APP_HOST'"
 
 # The maintenance account: SELECT and DELETE on audit_logs, UPDATE on exactly
 # actorEmail, ipAddress, userAgent and updatedAt (which Prisma stamps on every

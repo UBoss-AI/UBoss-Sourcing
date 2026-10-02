@@ -860,7 +860,13 @@ export async function disableAutoPay(actor: AutoPayActor): Promise<AutoPayView> 
 
 export type AutoPayDecision =
   /** Charge it, using this instrument. */
-  | { outcome: 'CHARGE'; paymentMethodId: string; retryPreference: AutoPayRetryPreference }
+  | {
+      outcome: 'CHARGE';
+      paymentMethodId: string;
+      retryPreference: AutoPayRetryPreference;
+      /** Send a charge alert once the money is taken. */
+      notifyOnCharge: boolean;
+    }
   /**
    * Do not charge, and ask the customer first. The amount crossed the threshold
    * they set for being consulted.
@@ -1103,6 +1109,7 @@ export async function evaluateAutoPay(input: {
     outcome: 'CHARGE',
     paymentMethodId: settings.paymentMethodId,
     retryPreference: settings.retryPreference,
+    notifyOnCharge: settings.notifyOnCharge,
   };
 }
 
@@ -1151,6 +1158,21 @@ export async function recordWithheldCharge(input: {
  * signal about the card itself.
  */
 export function retryAttemptsFor(preference: AutoPayRetryPreference): number {
+  return retryAttemptsForPreference(preference);
+}
+
+/**
+ * How many attempts one occurrence may have in all: the plan's own budget,
+ * narrowed by the customer's retry choice when the failure was a declined
+ * automatic charge (one first attempt plus the retries they allow). A
+ * preference never widens the plan's budget.
+ */
+export function attemptsAllowed(maxFailures: number, preference: AutoPayRetryPreference | null): number {
+  if (preference === null) return maxFailures;
+  return Math.min(maxFailures, retryAttemptsFor(preference) + 1);
+}
+
+function retryAttemptsForPreference(preference: AutoPayRetryPreference): number {
   switch (preference) {
     case 'NONE':
       return 0;

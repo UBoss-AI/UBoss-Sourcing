@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1301 endpoints** in 120 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1302 endpoints** in 120 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -29,7 +29,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 |---|---|
 | [Admin panel (staff)](#admin-panel-staff) | 528 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 321 |
+| [Seller Hub](#seller-hub) | 322 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
 | [Customer account](#customer-account) | 298 |
 | [Public and storefront](#public-and-storefront) | 54 |
@@ -889,7 +889,7 @@ Defined in `backend/src/http/routes/platform-fee-rules.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
-| GET | `/api/v1/admin/seller-fee-tiers` | Staff | Admin(FINANCE_POLICY_READ) | The sellers placed in a fee tier, and which tier. |
+| GET | `/api/v1/admin/seller-fee-tiers` | Staff | Admin(FINANCE_POLICY_READ) | The sellers placed in a fee tier, and which tier; with q, the sellers matching a name or id. |
 | PUT | `/api/v1/admin/seller-fee-tiers/:id` | Staff | Admin(FINANCE_POLICY_WRITE) | Put a seller in a fee tier, or take them out of one, with a reason. Only their next orders are affected. Writes an audit entry. |
 
 ### `admin/seller-listings`
@@ -1490,6 +1490,7 @@ Defined in `backend/src/http/routes/finance.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/seller/finance/balances` | Seller | Seller(FINANCE_READ) | The seller's receivables: gross, fees, refunds, held, reserve, available, in transit and paid out. |
 | GET | `/api/v1/seller/finance/holds` | Seller | Seller(FINANCE_READ) | The seller's held funds per order, with each release condition and the payout that carried it. |
+| GET | `/api/v1/seller/finance/fee-rules` | Seller | Seller(FINANCE_READ) | The published fee rules that can change this seller's fee, live now or starting later; read-only. |
 
 ### `seller/freight-quotes`
 

@@ -23619,7 +23619,12 @@ model LogisticsLaneBand {
 // credit negative, never zero). Entries are never updated or deleted: a
 // correction is a REVERSAL entry pointing at the one it undoes. The app
 // account holds no UPDATE or DELETE grant on the three ledger tables
-// (deploy/mariadb/post-migrate-grants.sql), the same rule as audit_logs.
+// (deploy/mariadb/post-migrate-grants.sql), the same rule as audit_logs; the
+// ledger service therefore only ever INSERTs into them.
+//
+// Inspection moves no money through this ledger: the buyer is not charged an
+// inspection fee at checkout, and an agency's invoice is paid outside the
+// platform's payment balance (inspection_agency_invoices tracks it).
 //
 // No foreign keys from the ledger to orders, sellers or payments, on purpose:
 // the ledger must outlive every row it mentions, and a reference that could
@@ -23654,6 +23659,17 @@ enum LedgerAccountCode {
   CHARGEBACK_RECEIVABLE
   /// Chargebacks lost and chargeback fees the platform bears.
   CHARGEBACK_LOSSES
+  /// Tax the buyer paid on top of the price, held for whoever must remit it.
+  /// Tax already inside a tax-inclusive price stays inside the goods amount.
+  ORDER_TAX_COLLECTED
+  /// Delivery the buyer paid for levels the operator controls, and the
+  /// operator's own shipping charge. Never part of a seller's share.
+  PLATFORM_LOGISTICS_REVENUE
+  /// Discounts on marketplace lines. The seller's share is worked out on the
+  /// undiscounted price, so the platform carries the discount. A debit.
+  PLATFORM_DISCOUNTS_FUNDED
+  /// The operator's own goods, sold with no seller.
+  PLATFORM_DIRECT_SALES
 }
 
 /// Why an entry was written.

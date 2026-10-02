@@ -128,7 +128,7 @@ export async function orderLedger(orderId: string) {
     select: { id: true, orderNumber: true, currency: true, paidMinor: true, refundedMinor: true },
   });
   if (order === null) throw notFound('Order');
-  const [rows, entries, holds, refunds, chargebacks, groups] = await Promise.all([
+  const [rows, entries, holds, refunds, chargebacks, groups, inspectionInvoices] = await Promise.all([
     sumLines('orderId', [orderId]),
     listEntries({ orderId, page: 1, pageSize: 200 }),
     prisma.sellerFundHold.findMany({ where: { orderId }, orderBy: { createdAt: 'asc' } }),
@@ -137,6 +137,11 @@ export async function orderLedger(orderId: string) {
     prisma.sellerOrderGroup.findMany({
       where: { orderId },
       select: { id: true, sellerOrderNumber: true, sellerAccount: { select: { displayName: true } } },
+    }),
+    prisma.inspectionAgencyInvoice.findMany({
+      where: { job: { requirement: { orderId } } },
+      orderBy: { submittedAt: 'asc' },
+      select: { id: true, invoiceNumber: true, amountMinor: true, currency: true, payer: true, status: true },
     }),
   ]);
   const payoutIds = holds.map((hold) => hold.payoutId).filter((id): id is string => id !== null);
@@ -201,6 +206,21 @@ export async function orderLedger(orderId: string) {
               ? 'WON_NO_MOVEMENT'
               : 'PENDING_OUTCOME',
       })),
+    // Inspection moves no money through the ledger: no inspection fee is
+    // charged to the buyer, and an agency's invoice is paid outside the
+    // platform's payment balance. Listed so finance sees the cost and who
+    // carries it beside the money that did move.
+    inspection: {
+      ledgerMinor: '0',
+      invoices: inspectionInvoices.map((invoice) => ({
+        id: invoice.id,
+        invoiceNumber: invoice.invoiceNumber,
+        amountMinor: invoice.amountMinor.toString(),
+        currency: invoice.currency,
+        payer: invoice.payer,
+        status: invoice.status,
+      })),
+    },
   };
 }
 
@@ -418,6 +438,8 @@ export async function runReconciliation(periodStart: Date, periodEnd: Date, star
       where: { sellerOrderGroupId: { in: allocations.map((entry) => entry.sellerOrderGroupId ?? '') } },
     });
     for (const entry of allocations) {
+      // The operator's own part of an order has no seller order to match.
+      if (entry.sellerOrderGroupId === null) continue;
       const settlement = settlements.find((row) => row.sellerOrderGroupId === entry.sellerOrderGroupId);
       const ledgerShare = -entry.lines.filter((line) => line.account.code === 'SELLER_HELD').reduce((sum, line) => sum + line.amountMinor, 0n);
       const expected =
@@ -560,7 +582,14 @@ export async function sellerFinance(sellerAccountId: string) {
       total(rows, { code, currency, ...(kinds !== undefined ? { kinds } : {}) });
     return {
       currency,
-      grossSalesMinor: pick('BUYER_FUNDS_CLEARING', ['SALE_ALLOCATED']).toString(),
+      // The seller's gross is their share plus what was taken from it. Not the
+      // clearing line: that also carries the tax on top of the price and the
+      // operator's delivery, which were never the seller's.
+      grossSalesMinor: (
+        -pick('SELLER_HELD', ['SALE_ALLOCATED']) -
+        pick('PLATFORM_COMMISSION', ['SALE_ALLOCATED']) -
+        pick('PLATFORM_FEE_TAX', ['SALE_ALLOCATED'])
+      ).toString(),
       platformFeesMinor: (-pick('PLATFORM_COMMISSION', ['SALE_ALLOCATED'])).toString(),
       platformFeeTaxMinor: (-pick('PLATFORM_FEE_TAX', ['SALE_ALLOCATED'])).toString(),
       refundsChargedMinor: (

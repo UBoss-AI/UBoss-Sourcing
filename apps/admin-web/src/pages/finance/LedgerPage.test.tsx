@@ -65,6 +65,11 @@ const ORDER = {
   releasedMinor: '0',
   heldMinor: '88200',
   chargebackLossMinor: '0',
+  orderTaxMinor: '18000',
+  logisticsMinor: '2500',
+  discountsFundedMinor: '0',
+  operatorSalesMinor: '0',
+  unallocatedMinor: '0',
 };
 
 afterEach(() => {
@@ -96,6 +101,10 @@ describe('LedgerPage', () => {
       holds: [],
       refunds: [],
       chargebacks: [],
+      inspection: {
+        ledgerMinor: '0',
+        invoices: [{ id: 'I1', invoiceNumber: 'AG-77', amountMinor: '50000', currency: 'INR', payer: 'PLATFORM', status: 'APPROVED' }],
+      },
     });
     renderPage('u1', ['payment.read']);
     const link = await screen.findByRole('button', { name: 'ORD-501' });
@@ -106,6 +115,12 @@ describe('LedgerPage', () => {
     expect(row?.textContent).toContain('882.00');
     fireEvent.click(link);
     expect(await screen.findByText(/SALE_ALLOCATED/)).toBeTruthy();
+    // Where the money went: the order tax and the operator's delivery have
+    // their own lines, and inspection says plainly that no money moved.
+    expect(screen.getByText('Tax on the order').closest('div')?.textContent).toContain('180.00');
+    expect(screen.getByText('Delivery we arranged').closest('div')?.textContent).toContain('25.00');
+    expect(screen.getByText(/No inspection money moves through the ledger/)).toBeTruthy();
+    expect(screen.getByText(/AG-77/).textContent).toContain('paid by us');
     // Read-only staff see no money-moving actions.
     expect(screen.queryByRole('button', { name: /payout/i })).toBeNull();
   });

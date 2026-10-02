@@ -89,12 +89,33 @@ SELECT CONCAT('GRANT SELECT, INSERT ON `', @db, '`.* TO ''', @app_user, '''@''',
 --                          is done, and the failure appears hours later as a
 --                          missing column. SELECT stays: the readiness probe
 --                          reports the applied count.
+--
+--   ledger_accounts        The transaction ledger: every movement of money -
+--   ledger_entries         a payment, a sale split, a refund, a release, a
+--   ledger_lines           payout. Its references are meant to be immutable,
+--                          and a correction is a REVERSAL entry, never an
+--                          edit. An UPDATE on ledger_accounts would be just as
+--                          bad as one on the lines: changing an account's code
+--                          moves every line booked to it. The ledger service
+--                          only ever INSERTs into these three.
 SELECT CONCAT('GRANT UPDATE, DELETE ON `', @db, '`.`', TABLE_NAME, '` TO ''', @app_user, '''@''', @app_host, ''';') AS ddl
   FROM information_schema.TABLES
  WHERE TABLE_SCHEMA = @db
    AND TABLE_TYPE = 'BASE TABLE'
-   AND TABLE_NAME NOT IN ('audit_logs', '_prisma_migrations')
+   AND TABLE_NAME NOT IN ('audit_logs', '_prisma_migrations', 'ledger_accounts', 'ledger_entries', 'ledger_lines')
  ORDER BY TABLE_NAME;
+
+-- A table that BECAME protected after a deployment had already granted it
+-- UPDATE and DELETE keeps that table-level grant until it is revoked - the
+-- grants above only ever add. So take them back, but only where a table-level
+-- row exists: a REVOKE of a grant that was never made is ERROR 1147 (see the
+-- header), which would stop the whole script.
+SELECT CONCAT('REVOKE UPDATE, DELETE ON `', @db, '`.`', p.Table_name, '` FROM ''', @app_user, '''@''', @app_host, ''';') AS ddl
+  FROM mysql.tables_priv p
+ WHERE p.User = @app_user AND p.Host = @app_host AND p.Db = @db
+   AND p.Table_name IN ('audit_logs', '_prisma_migrations', 'ledger_accounts', 'ledger_entries', 'ledger_lines')
+   AND (FIND_IN_SET('Update', p.Table_priv) OR FIND_IN_SET('Delete', p.Table_priv))
+ ORDER BY p.Table_name;
 
 -- --- 2b. The audit maintenance account ------------------------------------
 --
@@ -120,16 +141,16 @@ SELECT 'FLUSH PRIVILEGES;' AS ddl;
 
 -- --- 3. Prove it took ------------------------------------------------------
 --
--- Piped back in, this prints one row per protected table. Two rows, naming
--- audit_logs and _prisma_migrations and NOTHING else, is what success looks
--- like. No rows means the revoke went to a differently-spelled account - check
+-- Piped back in, this prints one row per protected table. Five rows, naming
+-- audit_logs, _prisma_migrations and the three ledger tables and NOTHING
+-- else, is what success looks like. No rows means the revoke went to a differently-spelled account - check
 -- the host part before assuming it worked.
 SELECT CONCAT(
   'SELECT ''PROTECTED'' AS status, t.TABLE_NAME, ',
   'IF(EXISTS(SELECT 1 FROM mysql.tables_priv p WHERE p.User=''', @app_user, ''' AND p.Host=''', @app_host, ''' ',
-  'AND p.Db=''', @db, ''' AND p.Table_name=t.TABLE_NAME AND FIND_IN_SET(''Update'', p.Table_priv)), ''WRITABLE - NOT PROTECTED'', ''append-only'') AS state ',
+  'AND p.Db=''', @db, ''' AND p.Table_name=t.TABLE_NAME AND (FIND_IN_SET(''Update'', p.Table_priv) OR FIND_IN_SET(''Delete'', p.Table_priv))), ''WRITABLE - NOT PROTECTED'', ''append-only'') AS state ',
   'FROM information_schema.TABLES t WHERE t.TABLE_SCHEMA=''', @db, ''' ',
-  'AND t.TABLE_NAME IN (''audit_logs'', ''_prisma_migrations'');'
+  'AND t.TABLE_NAME IN (''audit_logs'', ''_prisma_migrations'', ''ledger_accounts'', ''ledger_entries'', ''ledger_lines'');'
 ) AS ddl;
 
 -- One row for the maintenance account: 'maintenance-scoped' when it holds

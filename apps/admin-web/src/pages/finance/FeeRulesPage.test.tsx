@@ -33,6 +33,8 @@ vi.mock('@/lib/fee-rules', async (importOriginal) => {
     rejectFeeRule: vi.fn(),
     retireFeeRule: vi.fn(),
     fetchFeeRuleOrders: vi.fn(),
+    fetchSellerFeeTiers: vi.fn(),
+    setSellerFeeTier: vi.fn(),
   };
 });
 
@@ -42,6 +44,8 @@ const createFeeRule = vi.mocked(api.createFeeRule);
 const submitFeeRule = vi.mocked(api.submitFeeRule);
 const approveFeeRule = vi.mocked(api.approveFeeRule);
 const rejectFeeRule = vi.mocked(api.rejectFeeRule);
+const fetchSellerFeeTiers = vi.mocked(api.fetchSellerFeeTiers);
+const setSellerFeeTier = vi.mocked(api.setSellerFeeTier);
 
 // jsdom has no <dialog> methods. The smallest stand-in: toggle `open`.
 const dialogProto = HTMLDialogElement.prototype as HTMLDialogElement & { showModal?: () => void; close?: () => void };
@@ -134,6 +138,9 @@ beforeEach(async () => {
   submitFeeRule.mockReset();
   approveFeeRule.mockReset();
   rejectFeeRule.mockReset();
+  fetchSellerFeeTiers.mockReset();
+  setSellerFeeTier.mockReset();
+  fetchSellerFeeTiers.mockResolvedValue({ sellers: [] });
 });
 
 afterEach(() => {
@@ -292,5 +299,47 @@ describe('FeeRulesPage', () => {
 
     expect(await screen.findByText(/An amount is not valid for this currency/)).toBeTruthy();
     expect(createFeeRule).not.toHaveBeenCalled();
+  });
+});
+
+describe('FeeRulesPage: seller fee tiers (JOURNEY-054)', () => {
+  it('lists the sellers in a tier, read-only for staff who cannot write', async () => {
+    fetchFeeRules.mockResolvedValue({ rules: [] });
+    fetchSellerFeeTiers.mockResolvedValue({ sellers: [{ sellerAccountId: 'S1', displayName: 'North Mills', feeTier: 'GOLD' }] });
+    renderPage(CHECKER, READ);
+
+    const list = await screen.findByRole('list', { name: 'Seller fee tiers' });
+    expect(within(list).getByText('North Mills')).toBeTruthy();
+    expect(within(list).getByText('GOLD')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Change tier' })).toBeNull();
+    expect(screen.queryByLabelText('Find a seller')).toBeNull();
+  });
+
+  it('finds a seller and places them in a tier only with a reason of ten characters', async () => {
+    fetchFeeRules.mockResolvedValue({ rules: [] });
+    fetchSellerFeeTiers.mockImplementation((search?: string) =>
+      Promise.resolve({
+        sellers: search === undefined ? [] : [{ sellerAccountId: 'S2', displayName: 'South Weaving', feeTier: null }],
+      }),
+    );
+    setSellerFeeTier.mockResolvedValue({ sellerAccountId: 'S2', displayName: 'South Weaving', feeTier: 'SILVER' });
+    renderPage(MAKER, WRITE);
+
+    fireEvent.change(await screen.findByLabelText('Find a seller'), { target: { value: 'South' } });
+    const results = await screen.findByRole('list', { name: 'Matching sellers' });
+    fireEvent.click(within(results).getByRole('button', { name: 'Place in a tier' }));
+
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.change(within(dialog).getByLabelText('Tier'), { target: { value: 'silver' } });
+    const save = within(dialog).getByRole<HTMLButtonElement>('button', { name: 'Save tier' });
+    fireEvent.change(within(dialog).getByLabelText('Reason'), { target: { value: 'too short' } });
+    expect(save.disabled).toBe(true);
+    fireEvent.change(within(dialog).getByLabelText('Reason'), { target: { value: 'Consistent volume this year.' } });
+    expect(save.disabled).toBe(false);
+    fireEvent.click(save);
+
+    await waitFor(() => {
+      expect(setSellerFeeTier).toHaveBeenCalledWith('S2', 'SILVER', 'Consistent volume this year.');
+    });
   });
 });

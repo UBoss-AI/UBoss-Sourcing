@@ -500,13 +500,74 @@ export async function setSellerFeeTier(
   return { sellerAccountId, displayName: before.displayName, feeTier: tier };
 }
 
-/** The tiers sellers are in now, for the screen's tier list. */
-export async function listSellerFeeTiers() {
+/**
+ * The tiers sellers are in now, for the screen's tier list. With `search`
+ * (two characters or more), the sellers whose name contains it or whose id
+ * it is, tiered or not - how finance finds a seller to place in a tier.
+ */
+export async function listSellerFeeTiers(input: { search?: string | null } = {}) {
+  const search = (input.search ?? '').trim();
   const rows = await prisma.sellerAccount.findMany({
-    where: { feeTier: { not: null } },
+    where:
+      search.length >= 2
+        ? { OR: [{ displayName: { contains: search } }, { legalName: { contains: search } }, { id: search }] }
+        : { feeTier: { not: null } },
     select: { id: true, displayName: true, feeTier: true },
     orderBy: [{ feeTier: 'asc' }, { displayName: 'asc' }],
-    take: 500,
+    take: search.length >= 2 ? 20 : 500,
   });
   return rows.map((row) => ({ sellerAccountId: row.id, displayName: row.displayName, feeTier: row.feeTier }));
+}
+
+/**
+ * The fee rules that can change what THIS seller pays, live now or starting
+ * later, for Seller Hub. Read-only. Never another seller's own rule; a
+ * seller-tier rule only for the tier this seller is in. Upcoming rules are
+ * shown so a fee change is never a surprise: a rule only ever applies to
+ * orders confirmed after it starts.
+ */
+export async function sellerFeeRules(sellerAccountId: string, now = new Date()) {
+  const seller = await prisma.sellerAccount.findUnique({ where: { id: sellerAccountId }, select: { feeTier: true } });
+  if (seller === null) throw notFound('Seller');
+  const tier = seller.feeTier;
+  const rows = await prisma.platformFeeRule.findMany({
+    where: {
+      status: 'PUBLISHED',
+      OR: [{ effectiveTo: null }, { effectiveTo: { gt: now } }],
+      AND: [
+        { OR: [{ scope: { not: 'SELLER' } }, { sellerAccountId }] },
+        { OR: [{ kind: { not: 'SELLER_TIER' } }, ...(tier === null ? [] : [{ sellerTier: tier }])] },
+      ],
+    },
+    orderBy: [{ effectiveFrom: 'asc' }, { kind: 'asc' }],
+    take: 200,
+  });
+  const categoryIds = [...new Set(rows.map((row) => row.categoryId).filter((id): id is string => id !== null))];
+  const categories = await prisma.category.findMany({ where: { id: { in: categoryIds } }, select: { id: true, name: true } });
+  const categoryName = new Map(categories.map((row) => [row.id, row.name]));
+  return {
+    feeTier: tier,
+    rules: rows.map((row) => {
+      const view = toFeeRuleView(row);
+      return {
+        id: view.id,
+        kind: view.kind,
+        scope: view.scope,
+        name: view.name,
+        marketCountry: view.marketCountry,
+        categoryName: row.categoryId === null ? null : (categoryName.get(row.categoryId) ?? null),
+        currency: view.currency,
+        minValue: view.minValue,
+        maxValue: view.maxValue,
+        volumeThreshold: view.volumeThreshold,
+        volumeWindowDays: view.volumeWindowDays,
+        sellerTier: view.sellerTier,
+        percentRate: view.percentRate,
+        discountPercent: view.discountPercent,
+        effectiveFrom: view.effectiveFrom,
+        effectiveTo: view.effectiveTo,
+        upcoming: row.effectiveFrom > now,
+      };
+    }),
+  };
 }

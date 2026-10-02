@@ -4,6 +4,7 @@
  * Money is minor units as strings, formatted with `formatMinor`.
  */
 import { api } from './api';
+import type { Money } from './format';
 
 export type FundsStatus = 'NOT_ALLOCATED' | 'HELD' | 'ON_HOLD' | 'RELEASED';
 export type ReleaseConditionKey = 'DELIVERED' | 'ACCEPTANCE_WINDOW' | 'NO_OPEN_DISPUTE' | 'INSPECTION_PASSED';
@@ -121,4 +122,29 @@ export function fundsStatusKey(status: FundsStatus) {
 
 export function fundsTone(status: FundsStatus): 'neutral' | 'brand' | 'success' | 'warning' {
   return status === 'RELEASED' ? 'success' : status === 'ON_HOLD' ? 'warning' : status === 'HELD' ? 'brand' : 'neutral';
+}
+
+/** A published fee rule that can change this seller's fee, live now or starting later. */
+export interface SellerFeeRule {
+  id: string;
+  kind: 'VALUE_BAND' | 'VOLUME_TIER' | 'SELLER_TIER' | 'PROMOTION';
+  scope: 'GLOBAL' | 'MARKET' | 'CATEGORY' | 'SELLER';
+  name: string;
+  marketCountry: string | null;
+  categoryName: string | null;
+  currency: string | null;
+  minValue: Money | null;
+  maxValue: Money | null;
+  volumeThreshold: Money | null;
+  volumeWindowDays: number | null;
+  sellerTier: string | null;
+  percentRate: string | null;
+  discountPercent: string | null;
+  effectiveFrom: string;
+  effectiveTo: string | null;
+  upcoming: boolean;
+}
+
+export function fetchSellerFeeRules(): Promise<{ feeTier: string | null; rules: SellerFeeRule[] }> {
+  return api.get('/seller/finance/fee-rules');
 }

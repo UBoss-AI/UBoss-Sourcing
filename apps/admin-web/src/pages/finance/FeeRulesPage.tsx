@@ -49,6 +49,7 @@ import {
 } from '@/lib/fee-rules';
 import { currencyExponent, formatDate, formatMoney, majorToMinor } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
+import { SellerFeeTiers } from './SellerFeeTiers';
 
 const KEY = ['admin', 'platform-fee-rules'] as const;
 
@@ -347,6 +348,8 @@ export function FeeRulesPage(): React.JSX.Element {
           emptyDescription={t('feeRules.emptyBody')}
         />
       </Card>
+
+      <SellerFeeTiers mayWrite={mayWrite} />
 
       {editing !== null && (
         <RuleDialog

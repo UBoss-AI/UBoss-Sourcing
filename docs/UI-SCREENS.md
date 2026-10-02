@@ -2673,8 +2673,11 @@ limits you set.
   marketplace's own stock included) and categories; nothing ticked means
   everything.
 - **If a payment fails**: tell me and do not try again, try once more the next
-  day, or try a few times over a few days.
-- **Tell me when**: a payment is taken, a payment does not go through.
+  day, or try a few times over a few days. The worker honours it: one attempt,
+  two, or the deployment's standard, never more than the plan allows.
+- **Tell me when**: a payment is taken (sends a charge alert after each
+  automatic charge), a payment does not go through. The second box is ticked
+  and locked, with "Always sent": failure notices go out whatever is chosen.
 - When off: a consent box, never ticked in advance, and **Turn on Autopay**.
 - When on: **Save**, **Pause** or **Resume**, **Turn off**, and when the
   authorisation was given.
@@ -4190,8 +4193,14 @@ goes.
   while payouts are not set up, it stays Awaiting payout.
 - **Payouts**: reference, date, amount, status (Being prepared, On its way,
   Paid, Failed, Cancelled) and why one failed.
+- **Fee rules that apply to you** (`SellerFeeRulesCard.tsx`, JOURNEY-054),
+  read-only: the seller's fee tier, then each published fee rule that can
+  change their fee - its name, what it does ("Sellers in tier GOLD: fee 5%"),
+  where it applies, its dates, and **In force** or **Starts later**. A note says
+  a rule only applies to orders confirmed after it starts. Never another
+  seller's own rule.
 
-**API calls:** `GET /api/v1/seller/payout-account`,
+**API calls:** `GET /api/v1/seller/finance/fee-rules`, `GET /api/v1/seller/payout-account`,
 `POST /api/v1/seller/payout-account/refresh`,
 `GET /api/v1/seller/settlements`, `GET /api/v1/seller/settlements/:id/lines`,
 `GET /api/v1/seller/payouts`
@@ -6139,7 +6148,7 @@ see the fee and the estimated settlement.
 | | |
 |---|---|
 | **Who** | `finance.policy.read` to open. Every change (new, edit, submit, approve, send back, replace, retire): `finance.policy.write` |
-| **File** | `src/pages/finance/FeeRulesPage.tsx`, `src/lib/fee-rules.ts` |
+| **File** | `src/pages/finance/FeeRulesPage.tsx`, `src/pages/finance/SellerFeeTiers.tsx`, `src/lib/fee-rules.ts` |
 
 **Purpose.** Value bands, volume tiers, seller tiers and promotions that adjust
 the platform fee on top of a fee policy. Reached from **Finance → Fee rules**.
@@ -6170,12 +6179,21 @@ decimals for the currency is refused before anything is sent.
 edited. **Orders (n)** lists the seller orders whose fee the rule changed and
 by how much.
 
+**Seller fee tiers** (a card below the table, JOURNEY-054). Lists the sellers in
+a tier with a badge for each tier. Staff with write also get **Find a seller**
+(type two letters or more; matching sellers are listed, tiered or not) and, per
+seller, **Place in a tier** or **Change tier**. The dialog takes the tier name
+(up to 32 letters, digits, dashes or underscores; empty takes the seller out)
+and a reason of at least ten characters; **Save tier** stays disabled until
+both are valid. Only the seller's next orders change.
+
 **API calls**
 
 - `GET /api/v1/admin/platform-fee-rules?status=…`, `POST /api/v1/admin/platform-fee-rules`
 - `PUT /api/v1/admin/platform-fee-rules/:id` (drafts only)
 - `POST /api/v1/admin/platform-fee-rules/:id/submit`, `/approve`, `/reject`, `/retire`
 - `GET /api/v1/admin/platform-fee-rules/:id/orders`
+- `GET /api/v1/admin/seller-fee-tiers` (and `?q=` to find a seller), `PUT /api/v1/admin/seller-fee-tiers/:id`
 
 #### `/finance/commission-invoices` — Commission invoices
 
@@ -7703,7 +7721,7 @@ JOURNEY-046 and 049 additions. The **Shipment booking** form shows "From IN to D
 
 ## Held funds, ledger and payouts (Master rows 58–61, 43, 12)
 
-- **Admin → Finance → Ledger** (`/finance/ledger`, `payment.read`): tabs *Orders* (gross, fee, fee tax, refunds, seller share, settlement state; a row opens its journal, holds, refunds and chargebacks), *Held funds* (conditions; hold and resume; request an early release; approve or reject somebody else's request), *Refunds & chargebacks* (accounting status), *Reconciliation* (run for the last 30 days and see the differences). *Refresh* and *Run payouts* need `finance.policy.write`.
+- **Admin → Finance → Ledger** (`/finance/ledger`, `payment.read`): tabs *Orders* (gross, fee, fee tax, refunds, seller share, settlement state; a row opens *Where the money went* - paid by the buyer, tax on the order, platform fee, tax on the fee, delivery we arranged, discounts we paid for, our own goods, sellers' share, refunded, released, still held, not yet allocated - a note that entries are never changed (a correction reverses them), an *Inspection* note that no inspection money moves through the ledger with any agency invoices and who pays them, then its journal, holds, refunds and chargebacks), *Held funds* (conditions; hold and resume; request an early release; approve or reject somebody else's request), *Refunds & chargebacks* (accounting status), *Reconciliation* (run for the last 30 days and see the differences). *Refresh* and *Run payouts* need `finance.policy.write`.
 - **Seller Hub → Payments**: *Connect payout account* (Stripe account link, the connected account id, what Stripe still needs) inside the payout account card; *Balances* (gross, fees, fee tax, refunds, held, reserve, available, in transit, paid out, last reconciled); *Held funds* (per seller order: status, amounts, conditions, payout reference). Balances and held funds are hidden while the ledger is off.
 - **Storefront → order detail**: *How your payment is protected*, above the receipts — method, currency, amount paid, status, release terms and one milestone per seller with its conditions.
 

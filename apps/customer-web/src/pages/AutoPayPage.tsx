@@ -755,16 +755,15 @@ export function AutoPayPage(): React.JSX.Element {
             </label>
 
             <label className="flex items-start gap-2 text-sm text-ink-muted">
-              <input
-                type="checkbox"
-                className="mt-0.5"
-                checked={form.notifyOnFailure}
-                disabled={busy}
-                onChange={(event) => {
-                  setForm({ ...form, notifyOnFailure: event.target.checked });
-                }}
-              />
-              {t('autopay.notifyOnFailure')}
+              {/* Always on. A failed payment cancels that delivery's order or
+                pauses the plan, and nobody should find that out by the
+                delivery not arriving. Shown ticked and locked so the screen
+                says what the system does. */}
+              <input type="checkbox" className="mt-0.5" checked disabled readOnly />
+              <span>
+                {t('autopay.notifyOnFailure')}
+                <span className="block text-xs">{t('autopay.notifyOnFailureAlways')}</span>
+              </span>
             </label>
           </fieldset>
 

@@ -20358,6 +20358,10 @@ One finding of a run: a match, or a difference finance must look at.
 | `PLATFORM_FEE_TAX` | The tax charged on that fee. |
 | `CHARGEBACK_RECEIVABLE` | Money the provider withdrew for a chargeback, pending its outcome. |
 | `CHARGEBACK_LOSSES` | Chargebacks lost and chargeback fees the platform bears. |
+| `ORDER_TAX_COLLECTED` | Tax the buyer paid on top of the price, held for whoever must remit it. Tax already inside a tax-inclusive price stays inside the goods amount. |
+| `PLATFORM_LOGISTICS_REVENUE` | Delivery the buyer paid for levels the operator controls, and the operator's own shipping charge. Never part of a seller's share. |
+| `PLATFORM_DISCOUNTS_FUNDED` | Discounts on marketplace lines. The seller's share is worked out on the undiscounted price, so the platform carries the discount. A debit. |
+| `PLATFORM_DIRECT_SALES` | The operator's own goods, sold with no seller. |
 
 <a id="enum-ledgerentrykind"></a>
 

@@ -54,6 +54,7 @@ import {
 import {
   expireActionRequiredOccurrences,
   runOccurrence,
+  sendUpcomingReminders,
 } from '../../src/modules/recurring/occurrence.service.js';
 import { retryDueErpPushes } from '../../src/modules/integrations/erp-order.service.js';
 
@@ -1717,6 +1718,8 @@ describe('the customer’s own auto-pay limits', () => {
     status?: 'ACTIVE' | 'PAUSED';
     maxTransactionMinor?: bigint | null;
     approvalThresholdMinor?: bigint | null;
+    retryPreference?: 'NONE' | 'ONCE' | 'STANDARD';
+    notifyOnCharge?: boolean;
   }): Promise<void> {
     await prisma.customerAutoPaySetting.create({
       data: {
@@ -1726,6 +1729,8 @@ describe('the customer’s own auto-pay limits', () => {
         paymentMethodId,
         maxTransactionMinor: limits.maxTransactionMinor ?? null,
         approvalThresholdMinor: limits.approvalThresholdMinor ?? null,
+        retryPreference: limits.retryPreference ?? 'STANDARD',
+        notifyOnCharge: limits.notifyOnCharge ?? true,
         limitCurrency: 'INR',
         consentAcceptedAt: new Date(),
         consentVersion: 'test',
@@ -1852,6 +1857,113 @@ describe('the customer’s own auto-pay limits', () => {
 
     expect(outcome.result).toBe('COMPLETED');
     expect(world.chargeCalls).toHaveLength(1);
+  });
+
+  // JOURNEY-051: the customer's own failure handling and alerts are honoured.
+
+  it('schedules no retry when the customer chose "tell me, and do not try again"', async () => {
+    await fillCart(10);
+    const scheduleId = await liveSchedule(subscriptionConfig());
+    await setLimits({ maxTransactionMinor: 500_000n, retryPreference: 'NONE' });
+    world.charge = 'declines';
+
+    const slot = await makeDue(scheduleId);
+    const outcome = await runOccurrence(scheduleId, slot);
+
+    expect(outcome.result).toBe('FAILED');
+    const occurrence = await prisma.scheduleOccurrence.findFirstOrThrow({ where: { plannedRunAt: slot } });
+    expect(occurrence.status).toBe('FAILED');
+    expect(occurrence.nextRetryAt).toBeNull();
+    // Failure notices are always sent, whatever the preference.
+    expect(await prisma.notificationOutbox.count({ where: { eventKey: 'payment.failed' } })).toBe(1);
+    const audit = await prisma.auditLog.findFirstOrThrow({
+      where: { resourceType: 'schedule_occurrence', resourceId: occurrence.id, action: 'schedule.updated' },
+      orderBy: { createdAt: 'desc' },
+    });
+    expect(audit.afterJson).toMatchObject({ retryPreference: 'NONE', attemptsAllowed: 1 });
+  });
+
+  it('allows one retry for "try once more", and the plan budget otherwise', async () => {
+    await fillCart(10);
+    const scheduleId = await liveSchedule(subscriptionConfig());
+    await setLimits({ maxTransactionMinor: 500_000n, retryPreference: 'ONCE' });
+    world.charge = 'declines';
+
+    const slot = await makeDue(scheduleId);
+    await runOccurrence(scheduleId, slot);
+
+    const first = await prisma.scheduleOccurrence.findFirstOrThrow({ where: { plannedRunAt: slot } });
+    // First attempt failed: one retry is still allowed.
+    expect(first.nextRetryAt).not.toBeNull();
+    const audit = await prisma.auditLog.findFirstOrThrow({
+      where: { resourceType: 'schedule_occurrence', resourceId: first.id, action: 'schedule.updated' },
+      orderBy: { createdAt: 'desc' },
+    });
+    expect(audit.afterJson).toMatchObject({ retryPreference: 'ONCE', attemptsAllowed: 2 });
+  });
+
+  it('sends a charge alert after an automatic charge only when the customer asked for one', async () => {
+    await fillCart(10);
+    const scheduleId = await liveSchedule(subscriptionConfig());
+    await setLimits({ maxTransactionMinor: 500_000n, notifyOnCharge: true });
+    currentAmountMinor = 236_000;
+
+    const outcome = await runOccurrence(scheduleId, await makeDue(scheduleId));
+    expect(outcome.result).toBe('COMPLETED');
+    const alert = await prisma.notificationOutbox.findFirstOrThrow({ where: { eventKey: 'autopay.charged' } });
+    expect(JSON.stringify(alert.payloadJson)).toContain('/account/autopay');
+  });
+
+  it('sends no charge alert when the customer switched them off', async () => {
+    await fillCart(10);
+    const scheduleId = await liveSchedule(subscriptionConfig());
+    await setLimits({ maxTransactionMinor: 500_000n, notifyOnCharge: false });
+    currentAmountMinor = 236_000;
+
+    const outcome = await runOccurrence(scheduleId, await makeDue(scheduleId));
+    expect(outcome.result).toBe('COMPLETED');
+    expect(await prisma.notificationOutbox.count({ where: { eventKey: 'autopay.charged' } })).toBe(0);
+  });
+
+  it('says in the pre-charge notice that AutoPay will charge, or that a limit will hold it', async () => {
+    await fillCart(10);
+    const scheduleId = await liveSchedule(subscriptionConfig());
+    // The basket costs 236,000; above 200,000 the customer asked to be consulted.
+    await setLimits({ maxTransactionMinor: 500_000n, approvalThresholdMinor: 200_000n });
+
+    const soon = new Date(Date.now() + 3_600_000);
+    await prisma.recurringSchedule.update({ where: { id: scheduleId }, data: { nextRunAt: soon } });
+    // Push every planned run out of the reminder window; each keeps its own
+    // date because (scheduleId, plannedRunAt) is unique.
+    const planned = await prisma.scheduleOccurrence.findMany({ where: { scheduleId, status: 'SCHEDULED' }, select: { id: true } });
+    for (const [index, row] of planned.entries()) {
+      await prisma.scheduleOccurrence.update({
+        where: { id: row.id },
+        data: { plannedRunAt: new Date(Date.now() + (30 + index) * 86_400_000) },
+      });
+    }
+    await prisma.scheduleOccurrence.create({
+      data: {
+        id: newId(),
+        scheduleId,
+        plannedRunAt: soon,
+        timezone: 'Asia/Kolkata',
+        status: 'SCHEDULED',
+        idempotencyKey: occurrenceIdempotencyKey(scheduleId, soon),
+      },
+    });
+
+    expect(await sendUpcomingReminders(24)).toBeGreaterThanOrEqual(1);
+    const notice = await prisma.notificationOutbox.findFirstOrThrow({ where: { eventKey: 'schedule.reminder' } });
+    expect(JSON.stringify(notice.payloadJson)).toContain('AutoPay will NOT charge this one automatically');
+
+    // Inside the limits, the notice says it will be charged.
+    await prisma.customerAutoPaySetting.updateMany({ where: { customerProfileId }, data: { approvalThresholdMinor: null } });
+    await prisma.notificationOutbox.deleteMany({ where: { eventKey: 'schedule.reminder' } });
+    await prisma.scheduleOccurrence.updateMany({ where: { scheduleId, plannedRunAt: soon }, data: { reminderSentAt: null } });
+    await sendUpcomingReminders(24);
+    const again = await prisma.notificationOutbox.findFirstOrThrow({ where: { eventKey: 'schedule.reminder' } });
+    expect(JSON.stringify(again.payloadJson)).toContain('AutoPay will charge your saved card automatically');
   });
 });
 

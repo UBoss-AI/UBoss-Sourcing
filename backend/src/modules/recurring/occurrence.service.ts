@@ -77,8 +77,10 @@ import {
   dispatchPendingNotifications,
   enqueueNotification,
 } from '../notifications/notification.service.js';
+import type { AutoPayRetryPreference } from '../../generated/prisma/enums.js';
 import {
   type AutoPayDecision,
+  attemptsAllowed,
   evaluateAutoPay,
   recordWithheldCharge,
 } from '../payments/autopay.service.js';
@@ -1061,11 +1063,42 @@ async function executeOccurrence(
       charge.failureMessage ?? 'the payment failed',
       correlationId,
       charge.failureCode,
+      // The customer's own retry choice, where their automatic-payment
+      // authority governed this charge.
+      autoPayDecision?.outcome === 'CHARGE' ? autoPayDecision.retryPreference : null,
     );
   }
 
-  // Captured. Everything from here on is post-payment, and the rules change:
-  // nothing below may mark this occurrence FAILED.
+  // Captured. Tell the customer the money was taken, if they asked to hear.
+  // Before settlement, so an ERP delay never holds back the alert.
+  if (autoPayDecision?.outcome === 'CHARGE' && autoPayDecision.notifyOnCharge) {
+    const authority = await prisma.customerAutoPaySetting.findUnique({
+      where: { customerProfileId: schedule.customerProfileId },
+      select: { consentAcceptedAt: true },
+    });
+    await enqueueNotification({
+      eventKey: NotificationEvent.AUTOPAY_CHARGED,
+      recipientEmail: customerEmail,
+      recipientName: customerName,
+      variables: {
+        orderNumber,
+        amount: serialiseMoney(totalMinor, quote.currency).formatted,
+        cardLabel: describeCard(schedule.paymentMethod),
+        consentDate:
+          (authority?.consentAcceptedAt ?? null) === null
+            ? 'the day you switched it on'
+            : formatInZone(authority?.consentAcceptedAt ?? new Date(), schedule.timezone),
+        settingsUrl: `${env.CUSTOMER_WEB_PUBLIC_URL}/account/autopay`,
+      },
+      dedupeKey: `autopay_charged:${occurrenceId}`,
+      relatedType: 'order',
+      relatedId: orderId,
+      ...(correlationId !== undefined ? { correlationId } : {}),
+    });
+  }
+
+  // Everything from here on is post-payment, and the rules change: nothing
+  // below may mark this occurrence FAILED.
   return settleOccurrenceAfterPayment(occurrenceId, correlationId);
 }
 
@@ -1993,21 +2026,32 @@ async function recordFailure(
   message: string,
   correlationId?: string,
   failureCode?: string | null,
+  /**
+   * The customer's own "if a payment fails" choice, for a declined
+   * off-session charge under their automatic-payment authority. Null for
+   * every other failure, which keeps the plan's own retry budget.
+   */
+  retryPreference: AutoPayRetryPreference | null = null,
 ): Promise<OccurrenceOutcome> {
   const occurrence = await prisma.scheduleOccurrence.findUnique({
     where: { id: occurrenceId },
-    select: { attemptCount: true, plannedRunAt: true, status: true },
+    select: { attemptCount: true, paymentAttemptCount: true, plannedRunAt: true, status: true },
   });
-
-  const attempts = occurrence?.attemptCount ?? 1;
 
   const schedule = await prisma.recurringSchedule.findUnique({
     where: { id: scheduleId },
     select: { failureCount: true, maxFailures: true, name: true },
   });
 
+  const allowedAttempts = attemptsAllowed(schedule?.maxFailures ?? 3, retryPreference);
+  // A declined card counts its charge attempts; anything else its runs.
+  const attempts =
+    retryPreference === null
+      ? (occurrence?.attemptCount ?? 1)
+      : Math.max(occurrence?.attemptCount ?? 1, occurrence?.paymentAttemptCount ?? 1);
+
   const nextRetryAt =
-    attempts >= (schedule?.maxFailures ?? 3)
+    attempts >= allowedAttempts
       ? null
       : new Date(Date.now() + retryDelayMinutes(attempts) * 60_000);
 
@@ -2043,6 +2087,8 @@ async function recordFailure(
       scheduleFailureCount: failureCount,
       failureCode: failureCode ?? null,
       message: message.slice(0, 300),
+      retryPreference,
+      attemptsAllowed: allowedAttempts,
       nextRetryAt: nextRetryAt?.toISOString() ?? null,
     },
     correlationId: correlationId ?? null,
@@ -2152,6 +2198,39 @@ function formatInZone(instant: Date, timeZone: string): string {
     // notification going out.
     return instant.toISOString();
   }
+}
+
+/** "Visa ending 4242" - the card label the automatic-payment emails use. */
+function describeCard(method: { brand: string | null; last4: string | null } | null): string {
+  if (method === null) return 'card';
+  return `${method.brand ?? 'Card'} ending ${method.last4 ?? '????'}`;
+}
+
+/**
+ * The pre-charge notice's sentence about payment: whether the delivery will
+ * be charged automatically, and if the customer's own limits or scope would
+ * hold it for them instead. Read-only - the same decision the run will make,
+ * asked early.
+ */
+function reminderPaymentLine(
+  paymentMode: string,
+  hasCard: boolean,
+  decision: AutoPayDecision | null,
+  dueDate: string,
+): string {
+  if (paymentMode !== 'AUTO_PAY') {
+    return 'We will email you a payment link when the order is created.';
+  }
+  if (!hasCard) {
+    return 'There is no saved card on this schedule, so the order will wait for you to pay it.';
+  }
+  if (decision === null || decision.outcome === 'CHARGE') {
+    return `AutoPay will charge your saved card automatically on ${dueDate}.`;
+  }
+  if (decision.outcome === 'ASK_CUSTOMER') {
+    return `AutoPay will NOT charge this one automatically: ${decision.reason} We will ask you to pay it yourself.`;
+  }
+  return `AutoPay will NOT charge this one: ${decision.reason}`;
 }
 
 async function notifyPaused(
@@ -2341,13 +2420,34 @@ export async function sendUpcomingReminders(
       occurrence.plannedRunAt.getTime() - schedule.editCutoffMinutes * 60_000,
     );
 
+    // Will AutoPay take this one, or would the customer's own cap, limits or
+    // supplier and category scope hold it for them? Asked now, read-only, so
+    // the notice says what the run will do rather than leaving it a surprise.
+    const dueDate = formatInZone(occurrence.plannedRunAt, occurrence.timezone);
+    const autoPayDecision =
+      schedule.paymentMode === 'AUTO_PAY' && schedule.paymentMethodId !== null && quote !== null && totalMinor !== null
+        ? await customerAutoPayDecision(
+            schedule.customerProfileId,
+            totalMinor,
+            quote.currency,
+            quote.pricing.lines.map((line) => line.productId),
+          ).catch(() => null)
+        : null;
+    const paymentLine = reminderPaymentLine(
+      schedule.paymentMode,
+      schedule.paymentMethodId !== null,
+      autoPayDecision,
+      dueDate,
+    );
+
     const enqueued = await enqueueNotification({
       eventKey: NotificationEvent.SCHEDULE_REMINDER,
       recipientEmail: schedule.customerProfile.user.email,
       recipientName: schedule.customerProfile.fullName,
       variables: {
         scheduleName: schedule.name,
-        dueDate: formatInZone(occurrence.plannedRunAt, occurrence.timezone),
+        dueDate,
+        paymentLine,
         estimatedTotal:
           totalMinor === null || quote === null
             ? 'to be confirmed'

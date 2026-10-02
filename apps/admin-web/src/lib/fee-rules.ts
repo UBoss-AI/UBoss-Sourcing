@@ -130,3 +130,21 @@ export function retireFeeRule(id: string): Promise<{ rule: FeeRuleView }> {
 export function fetchFeeRuleOrders(id: string): Promise<FeeRuleOrders> {
   return api.get(`/admin/platform-fee-rules/${id}/orders`);
 }
+
+/** A seller and the fee tier they are in (null: none). */
+export interface SellerFeeTier {
+  sellerAccountId: string;
+  displayName: string;
+  feeTier: string | null;
+}
+
+/** Sellers in a tier; with a search of two characters or more, the sellers matching it. */
+export function fetchSellerFeeTiers(search?: string): Promise<{ sellers: SellerFeeTier[] }> {
+  const q = (search ?? '').trim();
+  return api.get(`/admin/seller-fee-tiers${q.length >= 2 ? `?q=${encodeURIComponent(q)}` : ''}`);
+}
+
+/** Put a seller in a tier, or take them out of one (null). Needs a reason; only their next orders change. */
+export function setSellerFeeTier(sellerAccountId: string, tier: string | null, reason: string): Promise<SellerFeeTier> {
+  return api.put(`/admin/seller-fee-tiers/${sellerAccountId}`, { tier, reason });
+}

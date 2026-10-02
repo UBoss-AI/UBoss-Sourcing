@@ -224,8 +224,35 @@ function OrderDetail({ orderId }: { orderId: string }): React.JSX.Element {
   const query = useQuery({ queryKey: ['finance', 'order-ledger', orderId], queryFn: () => fetchOrderLedger(orderId) });
   const data = query.data;
   if (data === undefined) return <p className="text-sm text-ink-muted">{t(k('finance.loading'))}</p>;
+  const summary = data.summary;
+  // Where the buyer's money went, one line per destination. Each figure is the
+  // sum of the journal below, never a second calculation.
+  const movement: { key: string; minor: string }[] = [
+    { key: 'gross', minor: summary.grossMinor },
+    { key: 'orderTax', minor: summary.orderTaxMinor },
+    { key: 'fee', minor: summary.platformFeeMinor },
+    { key: 'feeTax', minor: summary.platformFeeTaxMinor },
+    { key: 'logistics', minor: summary.logisticsMinor },
+    { key: 'discountsFunded', minor: summary.discountsFundedMinor },
+    { key: 'operatorSales', minor: summary.operatorSalesMinor },
+    { key: 'sellerShare', minor: summary.sellerShareMinor },
+    { key: 'refunds', minor: summary.refundsMinor },
+    { key: 'released', minor: summary.releasedMinor },
+    { key: 'held', minor: summary.heldMinor },
+    { key: 'unallocated', minor: summary.unallocatedMinor },
+  ];
   return (
     <div className="space-y-3 text-sm">
+      <h3 className="font-medium text-ink">{t(k('finance.ledger.movement'))}</h3>
+      <dl className="grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
+        {movement.map((item) => (
+          <div key={item.key} className="flex justify-between gap-3 border-b border-border-subtle py-1">
+            <dt className="text-ink-muted">{t(k(`finance.ledger.movement.${item.key}`))}</dt>
+            <dd className="tabular-nums text-ink">{formatMoney(money(item.minor, data.currency))}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="text-xs text-ink-muted">{t(k('finance.ledger.immutable'))}</p>
       <h3 className="font-medium text-ink">{t(k('finance.ledger.entries'))}</h3>
       <ul className="space-y-1">
         {data.entries.map((entry) => (
@@ -270,6 +297,18 @@ function OrderDetail({ orderId }: { orderId: string }): React.JSX.Element {
             ))}
           </ul>
         </>
+      )}
+      <h3 className="font-medium text-ink">{t(k('finance.ledger.inspection'))}</h3>
+      <p className="text-ink-muted">{t(k('finance.ledger.inspectionNone'))}</p>
+      {data.inspection.invoices.length > 0 && (
+        <ul>
+          {data.inspection.invoices.map((invoice) => (
+            <li key={invoice.id}>
+              {invoice.invoiceNumber} · {formatMoney(money(invoice.amountMinor, invoice.currency))} ·{' '}
+              {t(k(`finance.ledger.inspectionPayer.${invoice.payer}`))} · {invoice.status}
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

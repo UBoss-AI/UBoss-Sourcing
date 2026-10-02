@@ -25,6 +25,16 @@ export interface LedgerOrderRow {
   releasedMinor: string;
   heldMinor: string;
   chargebackLossMinor: string;
+  /** Tax the buyer paid on top of the price. */
+  orderTaxMinor: string;
+  /** Delivery for levels the operator controls, and its own shipping charge. */
+  logisticsMinor: string;
+  /** Discounts on marketplace lines, carried by the platform. */
+  discountsFundedMinor: string;
+  /** The operator's own goods, sold with no seller. */
+  operatorSalesMinor: string;
+  /** Buyer money received and not yet given a home. */
+  unallocatedMinor: string;
 }
 
 export interface Paged<T> {
@@ -83,6 +93,11 @@ export interface OrderLedger {
   holds: (FundHold & { payout: { reference: string; status: string; providerPayoutId: string | null } | null })[];
   refunds: { id: string; amountMinor: string; currency: string; status: string; reason: string; accounting: string }[];
   chargebacks: { id: string; reference: string; status: string; disputedAmountMinor: string; currency: string; evidenceDueAt: string | null; accounting: string }[];
+  /** No inspection money moves through the ledger; agency invoices are paid outside it. */
+  inspection: {
+    ledgerMinor: string;
+    invoices: { id: string; invoiceNumber: string; amountMinor: string; currency: string; payer: string; status: string }[];
+  };
 }
 
 export function fetchOrderLedger(orderId: string): Promise<OrderLedger> {

@@ -38,6 +38,7 @@ import {
   type SettlementRow,
 } from '@/lib/seller';
 import type { SellerOutletContext } from './SellerLayout';
+import { SellerFeeRulesCard } from './SellerFeeRulesCard';
 import { ConnectPayoutAccount, SellerFundsPanel } from './SellerFundsPanel';
 
 export function SellerPaymentsPage(): React.JSX.Element {
@@ -153,6 +154,8 @@ export function SellerPaymentsPage(): React.JSX.Element {
       </Card>
 
       <SellerFundsPanel />
+
+      <SellerFeeRulesCard />
 
       {/* ---- Statements ---------------------------------------------------- */}
       <Card

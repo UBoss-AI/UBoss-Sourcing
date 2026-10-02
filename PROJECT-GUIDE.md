@@ -5715,6 +5715,23 @@ to draft with the reason. A published rule is never edited: **Replace** drafts a
 rule with `supersedesRuleId`, and approving it retires the old one in the same
 transaction. Money is typed in normal units and sent as whole minor units.
 
+**Seller fee tiers** (JOURNEY-054) are set on the same screen, in the *Seller
+fee tiers* card: it lists the sellers in a tier, finds any seller by name
+(`GET /admin/seller-fee-tiers?q=`, two characters or more), and puts a seller
+in a tier, moves them or takes them out (`PUT /admin/seller-fee-tiers/:id`)
+with a reason of ten characters or more, audited as
+`seller.fee_tier_changed`. Only the seller's next orders change.
+
+**No retroactive surprise.** A rule applies only to orders confirmed inside
+`[effectiveFrom, effectiveTo)`; approving a draft whose start has passed
+publishes it from the approval instant; a settlement already calculated is
+never recalculated, and no `platform_fee_rule_applications` row is written for
+it. Sellers see what is coming in Seller Hub -> Payments, *Fee rules that
+apply to you* (`GET /seller/finance/fee-rules`, `seller.finance.read`): the
+published rules live now and those starting later, marked *Starts later*,
+their tier, and never another seller's own rule. There is no seller
+notification when a rule is published; the list is the notice.
+
 ##### Where an operator sets it
 
 Two screens, because there are two rates and they answer different questions.
@@ -6122,6 +6139,30 @@ disclosed release terms. Code: `backend/src/modules/finance/`.
   idempotency key comes from what caused it, so the worker sweep
   (`escrow.sweep`, every 15 minutes) and the finance *Refresh* button can run
   any number of times.
+- **Every part of the buyer's payment has a home** (JOURNEY-052). The sale
+  allocation also books the tax added on top of the price to
+  `ORDER_TAX_COLLECTED`, the delivery for levels the operator controls
+  (`SellerOrderSettlement.ubossDeliveryMinor`) to
+  `PLATFORM_LOGISTICS_REVENUE`, and a line discount to
+  `PLATFORM_DISCOUNTS_FUNDED` (the seller's share is worked out on the
+  undiscounted price). Once the order is paid in full, a second
+  `SALE_ALLOCATED` entry with no seller (`allocate-operator:<orderId>`) books
+  the operator's own goods to `PLATFORM_DIRECT_SALES`, their tax, and the
+  operator's own shipping charge. `BUYER_FUNDS_CLEARING` then nets to zero;
+  the order summary's `unallocatedMinor` shows anything still waiting (a
+  refund the sellers do not carry stays there). Tax already inside a
+  tax-inclusive price stays inside the goods amount. **Inspection moves no
+  money through the ledger**: the buyer is not charged an inspection fee, and
+  an agency's invoice is paid outside the platform; the order view lists those
+  invoices beside the ledger with "no money moved".
+- **Append-only by grant.** `deploy/mariadb/post-migrate-grants.sql` gives the
+  application account no UPDATE or DELETE on `ledger_accounts`,
+  `ledger_entries` and `ledger_lines` (as for `audit_logs`), takes back a
+  table-level grant an older run had made, and its proof step must show five
+  append-only tables. CI tries an UPDATE and a DELETE on each. The ledger
+  service therefore never upserts an account: it reads, then inserts.
+  A correction is `reverseEntry`, which flips every line once;
+  `uq_ledger_entry_reverses` refuses a second reversal of the same entry.
 - **Release conditions** (`seller_fund_holds`, terms snapshotted at the sale):
   delivered; `SELLER_FUNDS_RELEASE_AFTER_DAYS` since delivery (no default,
   required when the flag is on); no open dispute or chargeback on the order
@@ -6141,7 +6182,10 @@ disclosed release terms. Code: `backend/src/modules/finance/`.
   the seller is sent to Stripe's own onboarding. No bank details touch this
   system.
 - **Screens.** Admin *Finance -> Ledger* (orders with gross, fee, fee tax,
-  refunds and settlement state; the journal; held funds; refunds and
+  refunds and settlement state; per order, *Where the money went* - paid,
+  order tax, fee, fee tax, delivery we arranged, discounts we paid for, our
+  own goods, sellers' share, refunded, released, still held, not yet
+  allocated - and the inspection note; the journal; held funds; refunds and
   chargebacks with accounting status; reconciliation). Seller Hub -> Payments
   (gross, fees, refunds, held, reserve, available, in transit, paid out; held
   funds per order). Buyer order page (*How your payment is protected*: method,
@@ -14977,7 +15021,30 @@ mismatch refuses with its own code. `AUTOPAY_PLATFORM_MAX_MINOR` is the
 operator's backstop on top, so a pricing bug cannot become a five-figure charge.
 
 The customer also controls the retry preference, pause/resume, which card, and
-which notifications they get. **Withdrawing consent is not gated on the feature
+which notifications they get (JOURNEY-051):
+
+- **Retry preference.** When an automatic charge for a scheduled delivery is
+  declined, the occurrence may be tried `min(maxFailures,
+  retryAttemptsFor(preference) + 1)` times in all (`attemptsAllowed`):
+  *Tell me, and do not try again* is one attempt, *Try once more* two, the
+  standard choice follows `SCHEDULE_MAX_PAYMENT_ATTEMPTS`. The preference
+  never widens the plan's own budget, and the audit row records it.
+- **Charge alert.** With `notifyOnCharge` (on by default), a successful
+  automatic charge sends `autopay.charged`: the amount, the card and a link
+  to the settings.
+- **Failure notices are always sent.** A failed payment cancels that
+  delivery's order or pauses the plan, so `payment.failed` and
+  `schedule.paused` go out whatever `notifyOnFailure` says; the screen shows
+  that box ticked and locked, with the reason.
+- **Pre-charge notice.** `schedule.reminder` now carries `{{paymentLine}}`:
+  "AutoPay will charge your saved card automatically on ...", or "AutoPay will
+  NOT charge this one automatically: <reason>" when the customer's maximum,
+  consult-above amount, period cap or supplier/category scope would hold it,
+  worked out with the same read-only `evaluateAutoPay` the run uses. An
+  operator who replaced the template keeps theirs until they add the
+  placeholder.
+
+**Withdrawing consent is not gated on the feature
 flag** — a right to withdraw that depends on a deployment setting is not a right.
 
 ### Saving a card

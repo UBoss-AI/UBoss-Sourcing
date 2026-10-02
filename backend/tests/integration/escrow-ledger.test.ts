@@ -31,7 +31,7 @@ import {
   sellerFinance,
   sellerHolds,
 } from '../../src/modules/finance/finance-views.service.js';
-import { listEntries } from '../../src/modules/finance/ledger.service.js';
+import { listEntries, postEntry, reverseEntry } from '../../src/modules/finance/ledger.service.js';
 import {
   setPayoutAdapterForTests,
   startPayoutOnboarding,
@@ -288,6 +288,88 @@ describe('Row 59: one balanced ledger per order', () => {
     });
     expect(ledger.holds[0]?.status).toBe('HELD');
     expect(ledger.holds[0]?.terms).toMatchObject({ releaseAfterDays: 7, requiresDelivery: true });
+  });
+});
+
+describe('JOURNEY-052: one source for every movement of money', () => {
+  it("books the operator's delivery to logistics, so buyer clearing nets to zero", async () => {
+    switchOn();
+    const sellerId = await seller();
+    const f = await paidOrder(sellerId);
+    // The buyer also paid 3,000 for delivery levels the operator controls.
+    await prisma.sellerOrderSettlement.updateMany({ where: { sellerOrderGroupId: f.groupId }, data: { ubossDeliveryMinor: 3_000n } });
+    await prisma.paymentTransaction.update({ where: { id: f.paymentId }, data: { amountMinor: 103_000n, capturedMinor: 103_000n } });
+    // The fixture has no leg rows, so the order's shipping is left at zero: in a real
+    // order the 3,000 is a UBOSS-owned leg, which the operator entry never counts twice.
+    await prisma.order.update({ where: { id: f.orderId }, data: { grandTotalMinor: 103_000n, paidMinor: 103_000n } });
+
+    await allocateOrder(f.orderId);
+    const ledger = await orderLedger(f.orderId);
+    expect(ledger.summary).toMatchObject({
+      grossMinor: '103000',
+      logisticsMinor: '3000',
+      sellerShareMinor: '88200',
+      unallocatedMinor: '0',
+    });
+    expect(ledger.inspection).toEqual({ ledgerMinor: '0', invoices: [] });
+    for (const entry of await entriesOf(f.orderId)) {
+      expect(entry.lines.reduce((sum, line) => sum + line.amountMinor, 0n)).toBe(0n);
+    }
+  });
+
+  it('reverses an entry line by line, once, and refuses a second reversal', async () => {
+    switchOn();
+    const sellerId = await seller();
+    const f = await paidOrder(sellerId);
+    await allocateOrder(f.orderId);
+    const capture = (await entriesOf(f.orderId)).find((entry) => entry.kind === 'PAYMENT_CAPTURED');
+    expect(capture).toBeDefined();
+    const captureId = capture?.id ?? '';
+
+    const reversalId = await prisma.$transaction((tx) => reverseEntry(tx, captureId, 'Test correction'));
+    // Asking again returns the same reversal and writes nothing.
+    expect(await prisma.$transaction((tx) => reverseEntry(tx, captureId, 'Again'))).toBe(reversalId);
+    expect(await prisma.ledgerEntry.count({ where: { reversesEntryId: captureId } })).toBe(1);
+
+    const reversal = await prisma.ledgerEntry.findUniqueOrThrow({
+      where: { id: reversalId },
+      include: { lines: { include: { account: true } } },
+    });
+    expect(reversal.kind).toBe('REVERSAL');
+    const original = new Map(capture?.lines.map((line) => [line.account.code, line.amountMinor]));
+    for (const line of reversal.lines) {
+      expect(line.amountMinor).toBe(-(original.get(line.account.code) ?? 0n));
+    }
+
+    // A second reversal under any other key is refused by the database.
+    await expect(
+      prisma.$transaction((tx) =>
+        postEntry(tx, {
+          kind: 'REVERSAL',
+          idempotencyKey: `second-reversal:${captureId}`,
+          currency: 'INR',
+          memo: 'A second undo',
+          orderId: f.orderId,
+          reversesEntryId: captureId,
+          lines: [
+            { code: 'PROVIDER_BALANCE', amountMinor: -1n },
+            { code: 'BUYER_FUNDS_CLEARING', amountMinor: 1n },
+          ],
+        }),
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('keeps every entry balanced per currency across the whole ledger for these orders', async () => {
+    const orders = (await prisma.order.findMany({ where: { orderNumber: { startsWith: 'ESC-T-' } }, select: { id: true } })).map(
+      (row) => row.id,
+    );
+    const entries = await prisma.ledgerEntry.findMany({ where: { orderId: { in: orders } }, include: { lines: true } });
+    expect(entries.length).toBeGreaterThan(0);
+    for (const entry of entries) {
+      expect(entry.lines.every((line) => line.currency === entry.currency)).toBe(true);
+      expect(entry.lines.reduce((sum, line) => sum + line.amountMinor, 0n)).toBe(0n);
+    }
   });
 });
 

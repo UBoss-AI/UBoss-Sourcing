@@ -37,6 +37,7 @@ import {
   sellerHolds,
 } from '../../modules/finance/finance-views.service.js';
 import { listEntries } from '../../modules/finance/ledger.service.js';
+import { sellerFeeRules } from '../../modules/settings/platform-fee-rule.service.js';
 import { currentUser, orderScopeWhere, requireAdmin, requireCustomer } from '../plugins/auth.js';
 import { currentSeller, requireSeller } from '../plugins/seller.js';
 
@@ -187,6 +188,11 @@ export function registerSellerFinanceRoutes(app: FastifyInstance): Promise<void>
     return reply
       .header('cache-control', 'no-store')
       .send(await sellerHolds(currentSeller(request).sellerAccountId, page, pageSize));
+  });
+
+  // The published fee rules that can change this seller's fee, live now or starting later; read-only.
+  app.get('/finance/fee-rules', { preHandler: requireSeller(SellerPermission.FINANCE_READ) }, async (request, reply) => {
+    return reply.header('cache-control', 'no-store').send(await sellerFeeRules(currentSeller(request).sellerAccountId));
   });
 
   return Promise.resolve();

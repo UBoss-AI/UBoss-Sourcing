@@ -272,21 +272,21 @@ try {
 
     $grantCount = @($generated | Where-Object { $_ -like 'GRANT UPDATE, DELETE*' }).Count
     if ($grantCount -lt 1) { Stop-With 'The grant generator produced nothing. Did migrate deploy actually create the tables?' }
-    Write-Host "    $grantCount tables to be writable; audit_logs and _prisma_migrations not" -ForegroundColor DarkGray
+    Write-Host "    $grantCount tables to be writable; audit_logs, _prisma_migrations and the three ledger tables not" -ForegroundColor DarkGray
 
     $verification = @(Invoke-CompatSql ($generated -join "`n") 'uboss')
     foreach ($row in $verification) { Write-Host "    $row" -ForegroundColor DarkGray }
 
     # The generated script ends by naming each protected table and whether it is
-    # still writable. This is a security control, so anything short of two
+    # still writable. This is a security control, so anything short of five
     # append-only rows stops the rehearsal rather than warning about it.
     if (($verification -join ' ') -match 'NOT PROTECTED') {
         Stop-With 'A protected table is still writable by uboss_app: the application can rewrite its own audit log.'
     }
-    if (@($verification | Where-Object { $_ -like '*append-only*' }).Count -ne 2) {
-        Stop-With 'Expected two protected tables in the verification output. Check the account host part.'
+    if (@($verification | Where-Object { $_ -like '*append-only*' }).Count -ne 5) {
+        Stop-With 'Expected five protected tables in the verification output. Check the account host part.'
     }
-    Write-Ok 'audit_logs and _prisma_migrations are append-only for the runtime user'
+    Write-Ok 'audit_logs, _prisma_migrations and the ledger tables are append-only for the runtime user'
 
     # -----------------------------------------------------------------------
     # Drift

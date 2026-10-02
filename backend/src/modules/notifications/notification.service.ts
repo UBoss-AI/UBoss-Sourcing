@@ -740,7 +740,8 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
       body:
         'Hello {{recipientName}},\n\n' +
         'Your recurring order "{{scheduleName}}" is due on {{dueDate}}.\n' +
-        'Estimated amount: {{estimatedTotal}}.\n\n' +
+        'Estimated amount: {{estimatedTotal}}.\n' +
+        '{{paymentLine}}\n\n' +
         'The final amount is recalculated against current prices, tax, stock and ' +
         'your purchasing limits at the time the order is created.\n\n' +
         'You can change, skip or cancel this delivery until {{editableUntil}}.\n\n' +

@@ -254,10 +254,24 @@ jobs:
             echo "::error::uboss_app can create tables. The runtime account has DDL rights it must not have."
             exit 1
           fi
+          # The transaction ledger is append-only the same way: a correction is
+          # a REVERSAL entry, never an edit.
+          for table in ledger_accounts ledger_entries ledger_lines; do
+            if mariadb -h 127.0.0.1 -uuboss_app -pci-app-not-a-secret -e "UPDATE $table SET currency=currency WHERE 1=0;" uboss 2>/dev/null; then
+              echo "::error::uboss_app can UPDATE $table. The ledger is not append-only."
+              exit 1
+            fi
+            if mariadb -h 127.0.0.1 -uuboss_app -pci-app-not-a-secret -e "DELETE FROM $table WHERE 1=0;" uboss 2>/dev/null; then
+              echo "::error::uboss_app can DELETE from $table. The ledger is not append-only."
+              exit 1
+            fi
+            mariadb -h 127.0.0.1 -uuboss_app -pci-app-not-a-secret -e "SELECT COUNT(*) FROM $table;" uboss >/dev/null \
+              || { echo "::error::uboss_app cannot read $table - the grants are too tight."; exit 1; }
+          done
           # ...and it must still be able to do its actual job.
           mariadb -h 127.0.0.1 -uuboss_app -pci-app-not-a-secret -e "UPDATE orders SET internalNote=internalNote WHERE 1=0;" uboss \
             || { echo "::error::uboss_app cannot UPDATE orders - apply-grants missed a table."; exit 1; }
-          echo "audit_logs is append-only; DDL is denied; ordinary writes still work."
+          echo "audit_logs and the ledger are append-only; DDL is denied; ordinary writes still work."
 
           # The two exceptions GDPR requires run as a separate account whose
           # grant is column-level: blank an erased person's email/IP/user agent,

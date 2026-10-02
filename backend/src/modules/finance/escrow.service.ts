@@ -3,7 +3,13 @@
  *
  *   capture  -> the buyer's payment is on the platform balance (PAYMENT_CAPTURED)
  *   allocate -> each seller order's share is HELD for it; the platform's fee
- *               and the tax on it are recognised (SALE_ALLOCATED)
+ *               and the tax on it, the tax the buyer paid on top of the
+ *               price, the delivery for levels the operator controls and any
+ *               discount the platform carries are recognised; the operator's
+ *               own goods and shipping get their own entry once the order is
+ *               paid in full (SALE_ALLOCATED). Clearing then nets to zero.
+ *               Inspection moves no money here: no fee is charged to the
+ *               buyer, and an agency's invoice is paid outside the platform.
  *   refund   -> money back to the buyer; the seller's share is reduced by
  *               what the refund attributes to it (REFUND_ISSUED,
  *               REFUND_CHARGED_TO_SELLER)
@@ -124,25 +130,51 @@ export async function allocateOrder(orderId: string): Promise<{ captured: number
       },
     });
 
+    const order = await tx.order.findUnique({
+      where: { id: orderId },
+      select: { currency: true, shippingMinor: true, grandTotalMinor: true },
+    });
+    const items = await tx.orderItem.findMany({
+      where: { orderId },
+      select: {
+        lineTotalMinor: true,
+        taxAmountMinor: true,
+        taxInclusive: true,
+        discountMinor: true,
+        sellerOffer: { select: { sellerAccountId: true } },
+      },
+    });
+    const legs = await tx.orderLogisticsLeg.findMany({ where: { orderId }, select: { amountMinor: true } });
+
     let allocated = 0;
     for (const row of settlements) {
       // A share is only allocated out of money received in its own currency.
       if (!currencies.has(row.currency)) continue;
       const gross = row.grossProceedsMinor + row.sellerDeliveryProceedsMinor;
       const share = gross - row.platformFeeMinor - row.platformFeeTaxMinor;
+      const parts = sellerLineParts(items.filter((item) => item.sellerOffer?.sellerAccountId === row.sellerAccountId));
       const result = await postEntry(tx, {
         kind: 'SALE_ALLOCATED',
         idempotencyKey: `allocate:${row.sellerOrderGroupId}`,
         currency: row.currency,
-        memo: 'Sale allocated: seller share held, platform fee recognised',
+        memo: 'Sale allocated: seller share held; fee, tax and operator delivery recognised',
         orderId,
         sellerOrderGroupId: row.sellerOrderGroupId,
         sellerAccountId: row.sellerAccountId,
         lines: [
-          { code: 'BUYER_FUNDS_CLEARING', amountMinor: gross },
+          // What the buyer paid for this seller's part leaves clearing...
+          { code: 'BUYER_FUNDS_CLEARING', amountMinor: gross + parts.exclusiveTaxMinor + row.ubossDeliveryMinor - parts.discountMinor },
+          // ...the seller's share is held...
           { code: 'SELLER_HELD', amountMinor: -share },
           { code: 'PLATFORM_COMMISSION', amountMinor: -row.platformFeeMinor },
           { code: 'PLATFORM_FEE_TAX', amountMinor: -row.platformFeeTaxMinor },
+          // ...tax added on top of the price is not the seller's revenue...
+          { code: 'ORDER_TAX_COLLECTED', amountMinor: -parts.exclusiveTaxMinor },
+          // ...delivery for the levels the operator controls is the operator's...
+          { code: 'PLATFORM_LOGISTICS_REVENUE', amountMinor: -row.ubossDeliveryMinor },
+          // ...and a discount is carried by the platform: the share above is
+          // worked out on the undiscounted price.
+          { code: 'PLATFORM_DISCOUNTS_FUNDED', amountMinor: parts.discountMinor },
         ],
       });
       if (!result.created) continue;
@@ -160,10 +192,78 @@ export async function allocateOrder(orderId: string): Promise<{ captured: number
         },
       });
     }
+
+    // The operator's own part of the order: its own goods (no seller), the
+    // tax on them, and its own shipping charge. Posted once the order is paid
+    // in full, so a part-payment is never booked as the operator's revenue.
+    if (order !== null && currencies.has(order.currency)) {
+      const capturedTotal = payments
+        .filter((payment) => payment.currency === order.currency)
+        .reduce((sum, payment) => sum + payment.capturedMinor, 0n);
+      const own = operatorParts(
+        items.filter((item) => item.sellerOffer === null),
+        order.shippingMinor,
+        legs.reduce((sum, leg) => sum + leg.amountMinor, 0n),
+      );
+      const ownTotal = own.goodsMinor + own.taxMinor + own.shippingMinor;
+      if (capturedTotal >= order.grandTotalMinor && ownTotal > 0n) {
+        await postEntry(tx, {
+          kind: 'SALE_ALLOCATED',
+          idempotencyKey: `allocate-operator:${orderId}`,
+          currency: order.currency,
+          memo: "Operator's own goods, tax and shipping recognised",
+          orderId,
+          lines: [
+            { code: 'BUYER_FUNDS_CLEARING', amountMinor: ownTotal },
+            { code: 'PLATFORM_DIRECT_SALES', amountMinor: -own.goodsMinor },
+            { code: 'ORDER_TAX_COLLECTED', amountMinor: -own.taxMinor },
+            { code: 'PLATFORM_LOGISTICS_REVENUE', amountMinor: -own.shippingMinor },
+          ],
+        });
+      }
+    }
+
     // Refunds already made before allocation are charged now.
     await chargeSellerRefunds(tx, orderId);
     return { captured, allocated };
   });
+}
+
+interface AllocatedItem {
+  lineTotalMinor: bigint;
+  taxAmountMinor: bigint;
+  taxInclusive: boolean;
+  discountMinor: bigint;
+}
+
+/**
+ * The parts of one seller's lines the settlement does not carry.
+ *
+ * The seller's gross is the undiscounted line subtotal, which already holds
+ * any tax-inclusive tax. So what the buyer paid beyond it is the tax added
+ * on top (exclusive lines only), less the discount.
+ */
+export function sellerLineParts(items: readonly AllocatedItem[]): { exclusiveTaxMinor: bigint; discountMinor: bigint } {
+  return {
+    exclusiveTaxMinor: items.filter((item) => !item.taxInclusive).reduce((sum, item) => sum + item.taxAmountMinor, 0n),
+    discountMinor: items.reduce((sum, item) => sum + item.discountMinor, 0n),
+  };
+}
+
+/**
+ * The operator's own part of an order: its goods net of tax, all the tax on
+ * them (inclusive or not - the operator is the seller of record), and the
+ * shipping charge that is not a seller's delivery level.
+ */
+export function operatorParts(
+  items: readonly AllocatedItem[],
+  orderShippingMinor: bigint,
+  sellerLegsMinor: bigint,
+): { goodsMinor: bigint; taxMinor: bigint; shippingMinor: bigint } {
+  const paid = items.reduce((sum, item) => sum + item.lineTotalMinor, 0n);
+  const taxMinor = items.reduce((sum, item) => sum + item.taxAmountMinor, 0n);
+  const shippingMinor = orderShippingMinor - sellerLegsMinor;
+  return { goodsMinor: paid - taxMinor, taxMinor, shippingMinor: shippingMinor > 0n ? shippingMinor : 0n };
 }
 
 // ---------------------------------------------------------------------------
