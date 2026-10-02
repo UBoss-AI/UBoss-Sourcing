@@ -149,6 +149,43 @@ describe('RfqEditPage', () => {
     expect(box).toBeChecked();
   });
 
+  it('shows the configured compliance reason beside a changed destination after refusal', async () => {
+    const reason = 'An import licence is required for this category in Brazil.';
+    const current = rfq({ status: 'DRAFT', version: 0, requirement: { ...EMPTY_REQUIREMENT,
+      title: 'Nitrile gloves', categoryId: 'cat', quantity: '12000', unitOfMeasure: 'BOX',
+      destinationCountry: 'IN', destinationAddress: 'Receiving dock', incoterm: 'CIF',
+      responseDeadline: '2026-11-01T12:00:00.000Z' } });
+    const saved: Record<string, unknown>[] = [];
+    fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+      if (url.includes('/form-options')) return Promise.resolve(jsonResponse(OPTIONS));
+      if (url.includes('/catalog/categories')) return Promise.resolve(jsonResponse({ categories: [{ id: 'cat', name: 'Gloves' }] }));
+      if (url.includes('/matches')) return Promise.resolve(jsonResponse({ outcome: 'NO_MATCH', blockedReason: null, suppliers: [] }));
+      if (url.includes('/submit')) return Promise.resolve(jsonResponse({ error: {
+        code: 'RFQ_DESTINATION_BLOCKED', message: reason,
+        details: [{ field: 'destinationCountry', code: 'BLOCKED', meta: { reason } }],
+      } }, 409));
+      if (init?.method === 'PUT') {
+        const body = JSON.parse(init.body as string) as Record<string, unknown>;
+        saved.push(body);
+        return Promise.resolve(jsonResponse({ rfq: { ...current, version: 1,
+          requirement: { ...current.requirement, destinationCountry: body['destinationCountry'] } } }));
+      }
+      return Promise.resolve(jsonResponse({ rfq: current }));
+    });
+    renderWithProviders(<Routes><Route path="/account/rfqs/:id/edit" element={<RfqEditPage />} /></Routes>,
+      { route: `/account/rfqs/${current.id}/edit` });
+    const destination = await screen.findByLabelText(/^Destination country/);
+    await userEvent.selectOptions(destination, 'BR');
+    await userEvent.click(screen.getByRole('button', { name: 'Send to suppliers' }));
+    await waitFor(() => { expect(destination).toHaveAttribute('aria-invalid', 'true'); });
+    expect(saved).toHaveLength(1);
+    expect(saved[0]).toMatchObject({ destinationCountry: 'BR' });
+    const describedBy = destination.getAttribute('aria-describedby') ?? '';
+    expect(describedBy.split(' ').some(id => document.getElementById(id)?.textContent === reason)).toBe(true);
+    const summary = screen.getByText('Some details need attention').closest('[role="alert"]');
+    expect(within(summary as HTMLElement).getByText(/import licence is required/)).toBeInTheDocument();
+  });
+
   it('marks each field the server refused, beside the field and in the summary', async () => {
     fetchMock.mockImplementation((url: string, init?: RequestInit) => {
       if (url.includes('/form-options')) return Promise.resolve(jsonResponse(OPTIONS));

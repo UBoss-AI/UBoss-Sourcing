@@ -296,6 +296,30 @@ describe('submission', () => {
     expect(invitedIds(sent as unknown as RfqBody)).not.toContain(delta.id);
   });
 
+  it('blocks submission after an allowed destination changes and returns the compliance reason', async () => {
+    const started = await draft(world.buyer, completeDraft(world, { destinationCountry: 'IN' }));
+    const allowed = await as(world, world.buyer, 'GET', `/rfqs/${started.id}/matches`);
+    expect(allowed.statusCode, allowed.body).toBe(200);
+    expect(allowed.json<{ outcome: string }>().outcome).toBe('MATCHED');
+    const changed = await as(world, world.buyer, 'PUT', `/rfqs/${started.id}`, {
+      ...completeDraft(world, { destinationCountry: 'BR' }), expectedVersion: started.version,
+    });
+    expect(changed.statusCode, changed.body).toBe(200);
+    const saved = rfqOf(changed);
+    expect(saved.requirement['destinationCountry']).toBe('BR');
+    const blocked = await as(world, world.buyer, 'GET', `/rfqs/${saved.id}/matches`);
+    const reason = 'Not sold into this country by this marketplace.';
+    expect(blocked.json()).toMatchObject({ outcome: 'BLOCKED', blockedReason: reason });
+    const submitted = await as(world, world.buyer, 'POST', `/rfqs/${saved.id}/submit`,
+      { expectedVersion: saved.version }, { 'idempotency-key': key() });
+    expect(submitted.statusCode, submitted.body).toBe(409);
+    expect(errorCode(submitted)).toBe('RFQ_DESTINATION_BLOCKED');
+    expect(errorDetails(submitted)).toContainEqual({ field: 'destinationCountry', code: 'BLOCKED', meta: { reason } });
+    const after = rfqOf(await as(world, world.buyer, 'GET', `/rfqs/${saved.id}`));
+    expect(after.status).toBe('DRAFT');
+    expect(after.invitations).toEqual([]);
+  });
+
   it('refuses a category the marketplace does not sell into the destination, and sends nothing', async () => {
     const blocked = await draft(world.buyer, completeDraft(world, { destinationCountry: 'BR' }));
     const response = await as(world, world.buyer, 'POST', `/rfqs/${blocked.id}/submit`, { expectedVersion: 0 }, {

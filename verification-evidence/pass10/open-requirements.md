@@ -1,6 +1,6 @@
-# Remaining checklist requirements after Pass 10 batch 4
+# Remaining checklist requirements after Pass 10 batch 5
 
-Word / Markdown: **281/364 checked, 83 open; Master 95/97**. Audit: `problems: []`. AutoPay period-cap concurrency was corrected to enforce its existing documented spending rule; focused backend/UI regressions were added. Sample-to-bulk, duplicate outbound ERP AutoPay guardrails and controlled data exports/APIs were verified and ticked.
+Word / Markdown: **282/364 checked, 82 open; Master 95/97**. Audit: `problems: []`. AutoPay period-cap concurrency and RFQ compliance-reason display were corrected; focused backend/UI regressions were added. Sample-to-bulk, duplicate outbound ERP AutoPay guardrails and controlled data exports/APIs and destination-change blocking were verified and ticked.
 
 The owner limited this pass to checklist work while another task edits storefront, branding and Verified Suppliers. Remaining software requirements have not been declared complete. A/E rows require further implementation or exact evidence; excluded active screens await the other task. B rows retain both the stated software action and external evidence. No approval, provider result, device run, rehearsal or production result is fabricated.
 
@@ -87,5 +87,4 @@ The owner limited this pass to checklist work while another task edits storefron
 | DYNAMIC-007 | B2B tools: Request Private Label/OEM / Upload Bulk Requirement / Landed Cost / Schedule Cart / ERP Integration. | Unresolved software blocker / incomplete verification | Verify OEM/bulk/landed-cost/schedule/ERP tools separately against their dependent feature rows; defer active home edits. |
 | DYNAMIC-010 | Footer: Help, policies, inspection policy, buyer/seller terms, privacy, prohibited products, support and company information. | Legal approval; unresolved software verification | Verify every footer link after the active storefront task completes; approved policy content remains required. |
 | UAT-UI-002 | User starts with image search, receives matches, opens a product and converts it to an RFQ with image retained as reference. | Unresolved software blocker / incomplete verification | Verify image-search to product to RFQ preserves an authorized image reference; active product/storefront files currently excluded. |
-| UAT-UI-012 | Buyer destination is changed to a country where product is restricted; checkout/RFQ shows block and compliance reason. | Unresolved software blocker / incomplete verification | Verify destination change blocks restricted checkout and RFQ with a compliance reason through real routes. |
 | UAT-UI-013 | Seller certificate expires; affected listings/markets follow configured warning/hold policy and buyer-facing badge updates. | Unresolved software blocker / incomplete verification | Verify expired certificate changes buyer badge and affected listing/market warning or hold according to configured policy. |

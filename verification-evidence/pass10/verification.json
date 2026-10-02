@@ -6,8 +6,8 @@
     "open": 87
   },
   "after": {
-    "checked": 281,
-    "open": 83
+    "checked": 282,
+    "open": 82
   },
   "targeted": {
     "command": "npx vitest run tests/integration/rfq-samples.test.ts tests/integration/rfq-purchase-order-to-order.test.ts",
@@ -72,8 +72,8 @@
   },
   "audit": {
     "problems": [],
-    "checked": 281,
-    "open": 83
+    "checked": 282,
+    "open": 82
   },
   "secretScan": {
     "command": ".\\scripts\\secret-scan.ps1",
@@ -244,6 +244,86 @@
       },
       "visualResult": "Data Export & API Access checked in its existing row; surrounding selections and table layout preserved.",
       "limitations": "Inherited clipped section-19 heading and native font-playback limitation retained as recorded in batch 1.",
+      "cleanup": "Private read-only renderer closed without saving."
+    }
+  },
+  "batch5": {
+    "id": "UAT-UI-012",
+    "sourceBaseline": "633083bb31ab4385122b9564192e831d9acd6797",
+    "verifiedDate": "2026-10-03",
+    "before": {
+      "checked": 281,
+      "open": 83
+    },
+    "after": {
+      "checked": 282,
+      "open": 82
+    },
+    "targetedBackend": {
+      "command": "npx vitest run tests/integration/rfq-create.test.ts tests/integration/country-rules-rate-cards-content.test.ts tests/integration/fulfilment-options.test.ts",
+      "files": 3,
+      "tests": 69,
+      "exitCode": 0
+    },
+    "targetedCustomer": {
+      "command": "npx vitest run src/pages/rfq/RfqPages.test.tsx src/pages/CheckoutPage.test.tsx --config ../../output/pass10-customer.config.mts",
+      "files": 2,
+      "tests": 28,
+      "exitCode": 0
+    },
+    "backend": {
+      "command": "npm run verify",
+      "files": 337,
+      "tests": 5352,
+      "exitCode": 0
+    },
+    "customer": {
+      "commands": [
+        "npm run typecheck",
+        "npm run lint",
+        "npm run audit:contrast",
+        "npx vitest run --config ../../output/pass10-customer.config.mts",
+        "npm run build"
+      ],
+      "files": 196,
+      "tests": 1804,
+      "exitCode": 0
+    },
+    "admin": {
+      "command": "npm run verify",
+      "files": 52,
+      "tests": 382,
+      "exitCode": 0
+    },
+    "docs": "npm run docs:check; all three generated references match. Existing restriction/error guidance remains accurate. Active shared feature documents untouched by owner scope.",
+    "evidence": "batch-5.json",
+    "regression": {
+      "before": "RFQ destination field showed generic BLOCKED translation instead of the configured reason; new UI assertion failed.",
+      "after": "Existing meta.reason, or server message fallback, rendered as plain text beside the field and in the summary.",
+      "checkoutBoundary": "Legacy product restrictions previewed through warehouse options; category market rules enforced at final checkout, not by cart.checkoutReady alone."
+    },
+    "limitations": [
+      "Synthetic local test countries/rules/sessions; no real legal/provider/device validation."
+    ],
+    "word": {
+      "engine": "Microsoft Word 16.0",
+      "readOnly": true,
+      "totalPages": 29,
+      "changedPages": [
+        28
+      ],
+      "renderMethod": "Actual Word Page.EnhMetaFileBits rasterized with native GDI and visually inspected.",
+      "structuralComparison": {
+        "baseline": "633083bb",
+        "unchangedOtherParts": 18,
+        "changedPart": "word/document.xml",
+        "authorizedCharacterChanges": 1,
+        "ids": [
+          "UAT-UI-012"
+        ]
+      },
+      "visualResult": "Destination-change UAT checked in its original paragraph; other selections, blank sign-off choices, text and layout retained.",
+      "limitations": "Native font-playback limitation retained from earlier batches.",
       "cleanup": "Private read-only renderer closed without saving."
     }
   }

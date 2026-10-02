@@ -211,6 +211,39 @@ describe('country rules (Master row 69)', () => {
     expect(await prisma.order.count({ where: { customerProfileId: buyer.profileId } })).toBe(0);
   });
 
+  it('refuses real checkout after choosing a restricted destination and preserves its reason', async () => {
+    await prisma.customerProfile.update({ where: { id: buyer.profileId }, data: { activatedAt: new Date() } });
+    const allowedAddress = await prisma.address.create({ data: {
+      id: newId(), customerProfileId: buyer.profileId, contactName: 'CRC Buyer',
+      contactPhone: '+49 555 0100', line1: 'Receiving dock', city: 'Hamburg', state: 'Hamburg', postalCode: '20095', country: 'DE',
+    } });
+    const login = await app.inject({ method: 'POST', url: '/api/v1/auth/login',
+      payload: { email: BUYER, password: PASSWORD }, remoteAddress: '10.91.41.1' });
+    expect(login.statusCode, login.body).toBe(200);
+    const jar = login.cookies as { name: string; value: string }[];
+    const requestHeaders = { cookie: jar.map(c => `${c.name}=${c.value}`).join('; '),
+      'x-csrf-token': jar.find(c => c.name === 'uboss_shop_csrf')?.value ?? '' };
+    const allowed = await app.inject({ method: 'GET',
+      url: `/api/v1/cart?shippingAddressId=${allowedAddress.id}&shippingMethodCode=CRC-STD`, headers: requestHeaders });
+    expect(allowed.statusCode, allowed.body).toBe(200);
+    expect(allowed.json<{ cart: { checkoutReady: boolean } }>().cart.checkoutReady).toBe(true);
+    const changed = await app.inject({ method: 'GET',
+      url: `/api/v1/cart?shippingAddressId=${buyer.addressId}&shippingMethodCode=CRC-STD`, headers: requestHeaders });
+    expect(changed.statusCode, changed.body).toBe(200);
+    // Category market rules are enforced again by the checkout route.
+    // A cart read alone is not the final destination authorization.
+    const { currentTermsId } = await import('../support/legal.js');
+    const refused = await app.inject({ method: 'POST', url: '/api/v1/cart/checkout',
+      headers: { ...requestHeaders, 'idempotency-key': newId() }, payload: {
+        shippingAddressId: buyer.addressId, shippingMethodCode: 'CRC-STD', paymentMode: 'ONLINE',
+        acceptedTerms: true, termsDocumentId: await currentTermsId(),
+      } });
+    expect(refused.statusCode, refused.body).toBe(409);
+    expect(refused.json()).toMatchObject({ error: { code: 'MARKET_DESTINATION_RESTRICTED',
+      details: [{ meta: { productId, country: 'IN', reason: RULE.reason } }] } });
+    expect(await prisma.order.count({ where: { customerProfileId: buyer.profileId } })).toBe(0);
+  });
+
   it('applies a value threshold only at or above it, and never hides the product from a listing', async () => {
     const updated = await send(owner, 'PUT', `/market-rules/${ruleId}`, {
       ...RULE,

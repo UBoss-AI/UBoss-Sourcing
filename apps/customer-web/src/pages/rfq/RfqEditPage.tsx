@@ -241,7 +241,12 @@ function RfqForm({
       const lines: { field?: string; message: string }[] = [];
       for (const detail of error.details) {
         const field = detail.field ?? '';
-        const message = fieldMessage(detail.code ?? 'INVALID', detail.meta);
+        const restrictionReason = detail.meta?.['reason'];
+        const message = error.code === 'RFQ_DESTINATION_BLOCKED' && detail.code === 'BLOCKED'
+          ? typeof restrictionReason === 'string' && restrictionReason.trim().length > 0
+            ? restrictionReason
+            : error.message
+          : fieldMessage(detail.code ?? 'INVALID', detail.meta);
         if (field.length > 0 && next[field] === undefined) next[field] = message;
         lines.push({ field, message: field.length > 0 ? `${t(`rfq.fieldName.${field}` as TranslationKey, { defaultValue: field })}: ${message}` : message });
       }

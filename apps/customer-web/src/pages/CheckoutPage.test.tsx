@@ -476,6 +476,34 @@ describe('choosing a fulfilment warehouse', () => {
     expect(sent).toBeNull();
   });
 
+  it('blocks a changed delivery destination with the compliance reason and makes no checkout request', async () => {
+    const reason = 'An import licence is required for this product in Brazil.';
+    const restrictedAddress = { ...address, id: 'addr-br', label: 'Brazil receiving dock', country: 'BR',
+      city: 'Sao Paulo', state: 'SP', postalCode: '01000-000', isDefaultShipping: false };
+    let sent = false;
+    serve({ onCheckout: () => { sent = true; } });
+    const respond = fetchMock.getMockImplementation() as (url: string, init?: RequestInit) => Promise<Response>;
+    fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+      if (url.includes('/account/addresses')) return Promise.resolve(jsonResponse({ addresses: [address, restrictedAddress] }));
+      if (url.includes('/fulfilment/warehouse-options')) {
+        const body = JSON.parse(init?.body as string) as { deliveryAddressId?: string };
+        return Promise.resolve(jsonResponse(body.deliveryAddressId === restrictedAddress.id
+          ? makeWarehouseOptions({ restrictedLines: [{ productId: cart.lines[0]!.productId, variantId: null,
+            productName: cart.lines[0]!.name, reason }] }) : makeWarehouseOptions()));
+      }
+      return respond(url, init);
+    });
+    await renderCheckout();
+    await agreeToTerms();
+    const place = screen.getByRole('button', { name: /place order/i });
+    await waitFor(() => { expect(place).toBeEnabled(); });
+    await userEvent.click(screen.getByRole('radio', { name: /Brazil receiving dock/i }));
+    expect((await screen.findAllByText(reason, { exact: false })).length).toBeGreaterThan(0);
+    await waitFor(() => { expect(place).toBeDisabled(); });
+    await userEvent.click(place);
+    expect(sent).toBe(false);
+  });
+
   it('will not place an order when no warehouse can send it', async () => {
     serve({
       fulfilment: makeWarehouseOptions({
