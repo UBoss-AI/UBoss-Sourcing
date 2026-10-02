@@ -1,0 +1,17 @@
+{
+  "requirementId": "LIVE-017",
+  "date": "2026-10-02",
+  "softwareGap": "Scheduled carrier-tracking polling",
+  "status": "implemented and verified",
+  "requirementRemainsOpen": true,
+  "source": ["backend/src/modules/logistics/carrier/tracking-poll.service.ts", "backend/src/modules/logistics/shipment-event.service.ts", "backend/src/worker/index.ts", "backend/src/worker/handlers.ts", "backend/src/infra/queue/types.ts"],
+  "behavior": ["Feature-gated 15-minute sweep of active API connections and non-terminal shipments with tracking numbers", "Durable per-shipment dedupe keys and transactional scheduling prevent overlapping pending/running jobs", "30-second read deadline; late responses cannot write progress", "Original provider timestamps and references retained with connection/shipment-scoped event dedupe", "Stale and backward milestones ignored; established shipment/inspection domain rules and transaction version checks enforce valid concurrent transitions", "Five attempts use established queue backoff; dead jobs retain evidence and reschedule after cooldown", "Connection health and safe queue errors record outages without exposing credentials or marking progress"],
+  "focusedVerification": {"command": "npm test -- --run tests/integration/carrier-tracking-poll.test.ts tests/integration/logistics-carrier-webhook.test.ts", "filesPassed": 2, "testsPassed": 24, "exitCode": 0},
+  "completeVerification": {"command": "npm run verify", "package": "backend", "filesPassed": 336, "testsPassed": 5333, "exitCode": 0, "log": "%TEMP%/uboss-live017-tracking-final.log", "exitFile": "%TEMP%/uboss-live017-tracking-final.exit"},
+  "failuresRepaired": ["Fixture webhookPathToken supplied before focused integration verification", "Promise-returning test stub satisfies require-await", "Narrow documented lint exception prevents credential-bearing provider causes from being stored in queue errors; redacted operational evidence remains"],
+  "documentation": ["PROJECT-GUIDE.md", "PROJECT-GUIDE.hinglish.md (ignored)", "README.md", "docs/PRD.md", "docs/API.md", "scripts/build-feature-guide-doc.mjs", "output/UBOSS_Sourcing_Feature_Guide.docx (regenerated, ignored)"],
+  "schemaChanges": false,
+  "routesAdded": false,
+  "checklistChanges": "No checkboxes changed; LIVE-017 remains open for payout safety and staging outage evidence",
+  "remaining": "Ambiguous payout recovery is next. Real-provider and staging outage validation are not claimed."
+}

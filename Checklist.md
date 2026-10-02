@@ -11,7 +11,7 @@
 - Verification: admin 52 files/382 tests and build; customer 196 files/1800 tests and build; backend 335 files/5322 tests; all exit 0. Reference docs match.
 - Evidence: `verification-evidence/pass8/batch-9.json` and `pass9-verification.json`.
 - Checklist audit: no problems. Protected unrelated files retained.
-- Next authorized work: LIVE-017 carrier polling and ambiguous payout safety, after publishing the verified Seller Hub batch. LIVE-017 remains open for staging outage validation.
+- LIVE-017 tracking polling is implemented and verified (336 backend files / 5,333 tests). Next authorized work: ambiguous payout safety. LIVE-017 remains open for staging outage validation.
 - Updated at: 2026-10-02, Pass 9.
 
 ### Pass 8 — Sections 12, 14 and 17 (Word headings, not Master rows)
@@ -56,7 +56,7 @@ The Word recorder changed exactly the five authorized checkbox ordinals, with ev
 | LIVE-014 | Qualified legal-counsel approval of launch-market policies. |
 | LIVE-015 | Restore test, disaster-recovery rehearsal and incident exercise. Staff-access review software is built. |
 | LIVE-016 | Test production integrations against real services. |
-| LIVE-017 | Staging outage test. Two software gaps are queued separately: scheduled carrier-tracking polling is absent although adapters expose `getTracking`; ambiguous payout errors currently reverse locally and allow a new payout key, risking double payment. Leave this row open after software remediation until the staging outage test passes. |
+| LIVE-017 | Staging outage test remains required. Scheduled carrier-tracking polling is fixed: feature-gated 15-minute sweeps, eligible non-terminal shipments, domain/inspection rules, event dedupe and version checks, 30-second reads, queue retry/backoff and operational evidence. Focused polling/webhook tests 24/24; backend verify exit 0, 336 files / 5,333 tests. Ambiguous payout safety is still the next separate software gap. Leave this row open until the staging outage test passes. |
 | LIVE-018 | Rotate and monitor real production secrets. Rotation behavior is unit-tested; production evidence remains required. |
 | LIVE-019 | Business approval of master data. Software endpoint: `GET /admin/master-data-readiness`. |
 | LIVE-020 | Validate critical analytics against production traffic. |

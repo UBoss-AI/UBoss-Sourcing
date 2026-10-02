@@ -13,6 +13,7 @@
 import { email } from '../infra/email/index.js';
 import { sendSms } from '../infra/sms.js';
 import { env } from '../config/env.js';
+import { scheduleCarrierTrackingPolls, pollCarrierTracking } from '../modules/logistics/carrier/tracking-poll.service.js';
 import { logger } from '../infra/logger.js';
 import { prisma } from '../infra/prisma.js';
 import { JobType, type ClaimedJob } from '../infra/queue/index.js';
@@ -1047,6 +1048,8 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.SELLER_ERP_RECONCILE]: sellerErpReconcile,
   [JobType.SELLER_SETTLEMENT_CLOSE]: sellerSettlementClose,
   [JobType.ESCROW_SWEEP]: escrowSweep,
+  [JobType.CARRIER_TRACKING_SWEEP]: async () => { await scheduleCarrierTrackingPolls(); },
+  [JobType.CARRIER_TRACKING_POLL]: async payload => { await pollCarrierTracking(requireString(payload, 'shipmentId')); },
   [JobType.BUYER_COMPANY_CHECKS]: buyerCompanyChecks,
   [JobType.SELLER_DOCUMENT_EXPIRY_SWEEP]: sellerDocumentExpirySweep,
 });

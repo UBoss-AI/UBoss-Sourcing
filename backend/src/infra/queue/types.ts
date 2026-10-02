@@ -192,6 +192,10 @@ export const JobType = {
   SELLER_SETTLEMENT_CLOSE: 'seller_settlement.close',
   /** Post payments and refunds to the ledger, release held funds, pay sellers. */
   ESCROW_SWEEP: 'escrow.sweep',
+  /** Schedule one durable tracking poll per eligible shipment. */
+  CARRIER_TRACKING_SWEEP: 'carrier.tracking_sweep',
+  /** Read a carrier feed; queue leases and backoff protect retries. */
+  CARRIER_TRACKING_POLL: 'carrier.tracking_poll',
 
   /// Run the registry checks for a buyer company that has just been submitted
   /// or resubmitted, then put it in front of a reviewer. A job rather than part

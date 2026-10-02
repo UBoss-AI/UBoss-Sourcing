@@ -8474,6 +8474,16 @@ have already accepted stays theirs to finish. The dialog says which.
 
 ## Carriers with an API, and carriers without
 
+With the logistics portal enabled, the worker checks active API carriers every
+15 minutes for non-terminal consignments with a tracking number. Each
+consignment has one pending or running poll. Failed reads retry with queue
+backoff; a read expires after 30 seconds and its late answer cannot change
+progress. Tracking events retain the carrier's time and reference, pass the
+normal shipment and inspection rules, and cannot move progress backward.
+Repeated events are deduplicated per carrier connection and consignment.
+Queue failures and seller connection health provide operational evidence.
+Staging outage validation is still required before LIVE-017 can be closed.
+
 The portal talks to a carrier through one interface, whoever the carrier is:
 `createShipment`, `cancelShipment`, `getRates`, `schedulePickup`, `cancelPickup`,
 `getTracking`, `getProofOfDelivery`, `generateLabel`, `validateAddress`.

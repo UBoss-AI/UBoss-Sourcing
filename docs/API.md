@@ -1,5 +1,13 @@
 # The Gloviaa Mart API guide
 
+Carrier tracking also runs internally through the worker when the logistics
+portal is enabled. A 15-minute sweep schedules one job per eligible shipment;
+it introduces no public endpoint. Polled events keep provider timestamps and
+references. Their deduplication scope includes the connection and shipment,
+and a version check inside the domain transaction rejects concurrent changes.
+Unchanged, stale, backward and invalid transitions cannot mark progress.
+Timeouts and provider errors retry through the queue without storing credentials.
+
 This guide explains how the Gloviaa Mart backend API works and how to use it. Gloviaa Mart
 is the product name; the repository is called UBOSS Sourcing, and you will see
 both words in the code and in cookie names.

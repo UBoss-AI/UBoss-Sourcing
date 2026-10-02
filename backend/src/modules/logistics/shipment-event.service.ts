@@ -36,6 +36,7 @@
  *     events must not create duplicate inventory movements - is true by
  *     construction rather than by this file remembering to be careful.
  */
+import { createHash } from 'node:crypto';
 import type { Prisma } from '../../generated/prisma/client.js';
 import type { LogisticsEventSource } from '../../generated/prisma/enums.js';
 import { ErrorCode, conflict, notFound } from '../../domain/errors.js';
@@ -139,6 +140,10 @@ async function findExistingEvent(
 }
 
 export interface ShipmentEventInput {
+  /** A polling snapshot must still be current when its transition is applied. */
+  expectedVersion?: number;
+  /** Poll feeds may reuse event ids across connections and tracking numbers. */
+  externalEventScope?: string;
   shipmentId: string;
   status: ShipmentStatusName;
   actor: ShipmentActor;
@@ -225,6 +230,9 @@ export interface ShipmentEventResult {
  */
 function externalEventKeyFor(input: ShipmentEventInput, eventId: string): string {
   if ((input.externalEventId !== undefined && input.externalEventId !== null) && input.externalEventId.trim().length > 0) {
+    if (input.externalEventScope !== undefined) {
+      return `poll:${createHash('sha256').update(`${input.externalEventScope}\0${input.externalEventId}`).digest('hex')}`;
+    }
     const scope = input.carrierIntegrationId ?? 'carrier';
     return `${scope}:${input.externalEventId.trim()}`.slice(0, 200);
   }
@@ -378,6 +386,9 @@ async function attemptShipmentEvent(
       });
 
       if (shipment === null) throw notFound('Shipment');
+      if (input.expectedVersion !== undefined && shipment.version !== input.expectedVersion) {
+        throw conflict(ErrorCode.SHIPMENT_TRANSITION_NOT_ALLOWED, 'The shipment changed while tracking was being read.');
+      }
 
       const from = shipment.status;
 

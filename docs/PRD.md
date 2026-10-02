@@ -1,5 +1,14 @@
 # Gloviaa Mart — Product Requirements Document (PRD)
 
+Carrier tracking maintenance is built behind `FEATURE_LOGISTICS_PORTAL`.
+The worker schedules active API-carrier tracking every 15 minutes for
+non-terminal shipments with tracking references. It preserves provider event
+times and references, deduplicates repeated events, rejects stale or backward
+progress, and applies the established shipment and inspection transition rules.
+One pending/running job per shipment prevents duplicate scheduling; failures
+retry with queue backoff and remain visible as operational job evidence.
+Reads have a 30-second deadline. LIVE-017 still needs staging outage evidence.
+
 **A self-hosted B2B sourcing and ordering platform.**
 Product name: **Gloviaa Mart** · Tagline: *The Way to the Global Sourcing* · Made by **UBOSS** ("Powered by UBOSS").
 Repository and internal name: **UBOSS / UBOSS Sourcing**.

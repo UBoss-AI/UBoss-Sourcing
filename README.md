@@ -124,6 +124,9 @@ Two capabilities are optional and off until switched on:
   `sellerAccountId`, and no handler reads an owner out of a request.
 - **The logistics portal** gives each carrier company its own sign-in, on its
   own hostname, to accept consignments and run its drivers.
+  When enabled, its worker checks active API-carrier tracking every 15 minutes
+  for unfinished shipments. Repeated or older updates cannot invent progress;
+  outages retry with queue backoff and a 30-second read deadline.
 
 ---
 

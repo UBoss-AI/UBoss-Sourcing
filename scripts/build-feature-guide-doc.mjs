@@ -2244,6 +2244,7 @@ p('This chapter is about the companies that actually carry the goods. It is an o
 note('Off unless it is turned on', 'Until the business enables the logistics portal, a carrier cannot use it: every carrier screen refuses, and messages from carriers’ own systems are turned away. The Logistics section of the business’s own console is still there, so staff can set carriers up in advance and switch the portal on when they are ready.', C.orange);
 
 h2('12a.0 Where a delivery comes from');
+p('When the logistics feature is enabled and a delivery company is connected, the system checks its unfinished deliveries every fifteen minutes. Updates keep the company’s original time and tracking reference. Repeated updates do not appear twice and older updates cannot move a delivery backward. If the company is unavailable, the system tries again and leaves the delivery at its last confirmed stage. Staff can inspect failed background jobs.');
 p('Nobody types a delivery in. As soon as an order is paid for, the system raises one for each place the goods have to leave from, and it is waiting in the list before anybody looks at it. Goods the business sells itself leave the warehouse the order was priced against. Goods an outside seller sells leave that seller’s own place. An order with both raises one of each, because two lots of goods in two buildings cannot be collected as one.');
 table(['Situation', 'What the system does'], [
   ['The business’s own goods', 'Raises one delivery, collected from the warehouse the order was priced against.'],

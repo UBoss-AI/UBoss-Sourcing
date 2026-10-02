@@ -27,6 +27,7 @@ import { purgeExpiredExports } from '../modules/reports/export.service.js';
 import { runSavedSearchAlerts } from '../modules/catalog/saved-search.service.js';
 import { runRiskScan } from '../modules/risk/risk.service.js';
 import { PermanentJobError, handlerFor } from './handlers.js';
+import { TRACKING_POLL_INTERVAL_MS } from '../modules/logistics/carrier/tracking-poll.service.js';
 
 /** Identifies this worker in `leaseOwner`, so a stuck lease can be traced. */
 const WORKER_ID = `${hostname()}-${String(process.pid)}`;
@@ -365,6 +366,11 @@ async function maintenance(): Promise<void> {
       {},
       { dedupeKey: `logistics_maintenance:${slot}` },
     );
+    if (env.FEATURE_LOGISTICS_PORTAL) {
+      await queue.enqueue(JobType.CARRIER_TRACKING_SWEEP, {}, {
+        dedupeKey: `carrier_tracking_sweep:${String(Math.floor(Date.now() / TRACKING_POLL_INTERVAL_MS))}`,
+      });
+    }
 
     /*
      * Every SELLER's own accounting connection.
