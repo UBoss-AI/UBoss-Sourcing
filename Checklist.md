@@ -4,15 +4,121 @@
 - Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
 - Feature commit verified: `96624b29`; prior remote checkpoint: `4087d4f6`.
 - Master checked: 95/97; rows 9 and 12 require approved policy content and legal review.
-- Entire document checked: 277
-- Entire document unchecked: 87
+- Entire document checked: 278
+- Entire document unchecked: 86
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 9, Section 17.5 Seller Hub; exactly JOURNEY-026/027/028/030/034 ticked.
-- Verification: admin 52 files/382 tests and build; customer 196 files/1800 tests and build; backend 335 files/5322 tests; all exit 0. Reference docs match.
-- Evidence: `verification-evidence/pass8/batch-9.json` and `pass9-verification.json`.
+- Last completed work: Pass 10, ENH-025 Sample-to-Bulk Conversion verified against the committed implementation.
+- Verification: admin 52 files/382 tests; customer 196/1800, contrast and production build; backend 337/5349. All required stages passed; isolated customer dependency-path adjustment is recorded below. Reference docs match.
+- Evidence: `verification-evidence/pass10/batch-1.json` and `verification.json`; prior Pass 9 evidence is retained.
 - Checklist audit: no problems. Protected unrelated files retained.
 - Both LIVE-017 software gaps are fixed and tested: scheduled tracking polling and safe ambiguous-payout reconciliation. Latest backend verify: 337 files / 5,349 tests, exit 0. LIVE-017 remains open for staging outage validation.
-- Updated at: 2026-10-02, Pass 9.
+- Updated at: 2026-10-02, Pass 10.
+
+### Pass 10 — open-box classification and verification scope
+
+Baseline: **277/364 checked; 87 open; Master 95/97** at `5a22cf80`. Word, Markdown, mapping and current state reconcile; the existing audit reports `problems: []`. No checkbox changes are made by this classification.
+
+The owner confirmed another task is actively editing storefront, branding and Verified Suppliers: those files and their shared feature documentation are excluded from this pass. Verification uses an isolated checkout of the committed baseline. Software gaps remain software gaps; concurrent editing does not count as external completion evidence.
+
+A = software-verifiable; B = software plus outstanding external/human evidence; C = human/external evidence; D = mutually exclusive form choices; E = duplicate/dependent software checks. Sign-off choices additionally require named human decision-makers. These are work classifications, not completion claims.
+
+Baseline classification totals: A: 27; B: 13; C: 7; D: 30; E: 10. Exact requirements, ordinals, classifications and remaining actions: `verification-evidence/pass10/remaining.json`.
+
+Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist read-only and exported **29 pages**. Bundled LibreOffice is unavailable. The exported final sign-off page was rendered with bundled Poppler and inspected: no clipping or overlap; names and decisions remain blank. No Word checkbox changed at the initial classification checkpoint; batch 1 below records the subsequent page-27 change.
+
+| Open requirement | Class | Exact remaining action |
+| --- | --- | --- |
+| SCREEN-009 | B | Verify required policy routes and visible links; publish launch-market counsel-approved content. |
+| SCREEN-012 | B | Verify KYB fields, authorization and evidence flow; obtain real bank and legal verification results. |
+| DOD-001 | E | Audit the primary action on every applicable screen after feature verification; active storefront screens await the other task. |
+| DOD-003 | E | Verify desktop/tablet/phone layout on every applicable screen; active storefront screens await the other task. |
+| DOD-004 | E | Verify keyboard paths, accessible names and focus recovery on every applicable screen; active storefront screens await the other task. |
+| DOD-043 | C | Run and record the actual supported browser and physical-device matrix. |
+| DOD-044 | A | Trace configured performance budgets, measure applicable screens and APIs, and resolve measured regressions. |
+| TEMPLATE-001 | D | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
+| TEMPLATE-002 | D | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
+| TEMPLATE-003 | D | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
+| TEMPLATE-004 | D | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
+| TEMPLATE-005 | D | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
+| TEMPLATE-006 | D | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
+| TEMPLATE-007 | D | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
+| TEMPLATE-008 | D | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
+| TEMPLATE-009 | D | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
+| TEMPLATE-010 | D | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
+| TEMPLATE-011 | D | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
+| TEMPLATE-012 | D | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
+| SEC-010 | B | Verify restore/monitoring scripts; name alert owners, prove delivery, restore an off-site backup and record DR/incident rehearsals. |
+| LIVE-001 | C | Obtain actual Product Owner and QA approval for every P0 screen. |
+| LIVE-002 | C | Record supported browser and real-device validation. |
+| LIVE-003 | B | Verify screen states and guidance; publish approved policy links after legal approval. |
+| LIVE-010 | B | Verify SOP coverage; obtain operational use evidence for seller verification, inspection, disputes and reconciliation. |
+| LIVE-011 | B | Verify SLA and exception-queue software; assign named escalation owners. |
+| LIVE-012 | C | Train actual support staff using real UAT scenarios and record attendance/results. |
+| LIVE-013 | C | Obtain external penetration/security testing and resolve findings against release criteria. |
+| LIVE-014 | C | Obtain qualified counsel approval of all launch-market policies. |
+| LIVE-015 | B | Verify restore and access-review software; perform restore, DR and incident rehearsals. |
+| LIVE-016 | C | Test all listed integrations with real production providers and record results. |
+| LIVE-017 | B | Retain existing retry/reconciliation evidence; conduct the required staging outage exercise. |
+| LIVE-018 | B | Verify rotation/monitoring controls; rotate actual production credentials and record monitoring evidence. |
+| LIVE-019 | B | Verify readiness checks; obtain business approval of loaded master data. |
+| LIVE-020 | B | Verify transaction reconciliation controls; validate critical analytics against production traffic. |
+| SIGNOFF-001 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-002 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-003 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-004 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-005 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-006 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-007 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-008 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-009 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-010 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-011 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-012 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-013 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-014 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-015 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-016 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-017 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| SIGNOFF-018 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
+| HOME-009 | A | Verify all search scopes, autocomplete, spelling, synonyms, recovery, recents, analytics, authorization and accessible states; avoid active storefront edits. |
+| JOURNEY-010 | B | Verify applicable Indian identifiers, ownership/contact, factory/export and policy screening; obtain production bank validation. |
+| ENH-001 | A | Prove plain-language sourcing becomes filters/specifications and an editable draft RFQ, with confirmation and failure coverage. |
+| ENH-002 | A | Prove comparison uses verified catalogue/quote fields and links every conclusion to its source. |
+| ENH-003 | E | Verify guest/B2B/B2C/seller/returning persona home behavior after the active storefront task completes. |
+| ENH-004 | A | Verify one permission-scoped search covers product, supplier, RFQ, order, invoice, shipment and help; defer active header edits. |
+| ENH-005 | A | Verify persistent RFQ/image/AI/reorder/tracking/support actions across applicable roles; defer active storefront edits. |
+| ENH-008 | A | Verify explainable capacity/MOQ/certificate/destination/response matching and missing-data behavior; avoid active supplier panels. |
+| ENH-014 | A | Verify caps, supplier/category scope, expiry, pre-charge reminder and one-click pause including worker enforcement. |
+| ENH-015 | A | Verify self-service PO/acknowledgement/invoice/shipment/status mapping and a real local sandbox test. |
+| ENH-016 | A | Verify Excel and CSV parsing into multi-line RFQ/order, validation, limits and permission isolation. |
+| ENH-018 | A | Verify individual operational tasks ranked by deadline and business impact, with deterministic ties. |
+| ENH-019 | A | Verify one scoped queue covers all six named payment/document/inspection/shipment/settlement/integration exception types. |
+| ENH-020 | A | Verify low-priority bundling and immediate critical inspection/payment/shipping/RFQ escalation, including deduplication. |
+| ENH-021 | A | Verify product/message translation retains original text and handles provider failure and authorization. |
+| ENH-022 | A | Verify destination-dependent importer, label and document guidance in checkout and RFQ with compliance enforcement. |
+| ENH-024 | A | Verify OEM CTA captures branding, packaging, drawing/specification and target volume; avoid active product-page edits. |
+| ENH-025 | A | Verified in Pass 10 batch 1; no remaining software action. |
+| ENH-026 | A | Verify generated final term sheet and changed clauses before acceptance, including stale-version prevention. |
+| ENH-027 | A | Verify quantity slider tier pricing, lead time/capacity and landed estimate using exact money; avoid active product-page edits. |
+| ENH-029 | E | Verify phone layouts for all five seller operation flows; real-device evidence is separately required by DOD-043. |
+| ENH-030 | A | Verify visible RFQ/inspection/report/shipment/dispute countdowns, overdue states and time boundaries. |
+| ENH-031 | A | Verify controlled exports/APIs for all five named domains, permissions, tenant isolation and limits. |
+| ENH-032 | A | Verify complex-form explanations and verified-data suggestions require explicit user confirmation. |
+| DYNAMIC-001 | E | Verify every required header entry and role permission after the active storefront task completes. |
+| DYNAMIC-002 | E | Verify hero text, AI input and all four mode chips after the active storefront task completes. |
+| DYNAMIC-003 | E | Verify all four trust statements and their substantiation after the active storefront task completes. |
+| DYNAMIC-004 | A | Verify signed-in quote/inspection/shipment/payment/repeat-order tasks and isolation; defer active home edits. |
+| DYNAMIC-005 | E | Verify sourcing examples and conversation-to-RFQ flow against ENH-001; defer active home edits. |
+| DYNAMIC-007 | E | Verify OEM/bulk/landed-cost/schedule/ERP tools separately against their dependent feature rows; defer active home edits. |
+| DYNAMIC-010 | B | Verify every footer link after the active storefront task completes; approved policy content remains required. |
+| UAT-UI-002 | A | Verify image-search to product to RFQ preserves an authorized image reference; active product/storefront files currently excluded. |
+| UAT-UI-007 | A | Verify duplicate outbound marketplace-to-ERP PO events produce one ERP PO linked to the original marketplace order. Owner delegated direction choice; outbound fits the accepted-marketplace-terms sourcing flow. |
+| UAT-UI-012 | A | Verify destination change blocks restricted checkout and RFQ with a compliance reason through real routes. |
+| UAT-UI-013 | A | Verify expired certificate changes buyer badge and affected listing/market warning or hold according to configured policy. |
+
+**Batch 1 — verified and ticked: ENH-025 (Sample-to-Bulk Conversion).** Existing implementation proved by real HTTP/domain integration tests: approved reference sample, one bulk order, mandatory inspection naming its code and criteria, signed report and allowed dispatch. Participant permissions, invalid quantity, premature conversion, concurrent/repeated conversion and forged payment are covered. Targeted backend tests **9/9**; full backend **337 files / 5349 tests**; customer **196 / 1800**, contrast and production build; admin **52 / 382**. Reference docs match. Before **277/364**; after **278/364**, **86 open**. Feature behavior and shared feature documentation did not change. Details: `verification-evidence/pass10/batch-1.json`.
+
+Current open classification after batch 1: **A 26; B 13; C 7; D 30; E 10 — 86 open**. Word opens read-only as 29 pages; page 27 was rendered with Word’s page-image API and inspected. Exactly ENH-025’s checkbox changed; 18 other package parts are byte-identical. Full/page PDF exports stalled; native preview font playback is heavier than the baseline PDF, and the inherited clipped section-19 heading is preserved. Private rendering helpers and their owned document were closed without saving. Audit: `problems: []`. Full inherited-history secret scan: **No leaks found**; the pre-push scan will cover the new commit.
 
 ### Pass 8 — Sections 12, 14 and 17 (Word headings, not Master rows)
 
@@ -438,6 +544,7 @@ Boxes outside the Master table (Definition of Done, Security, Go-live, Journeys 
 | JOURNEY-028 | Manage products, variants, status and market eligibility. Checks: Draft/review/live/blocked; clone; bulk action; stock/capacity; missing-data flags; change history. | **VERIFIED** | Pass 9. Catalog Manager separates draft/review/live/blocked listings, preserves variant and stock controls, bulk actions and missing B2C-limit flags; listing detail adds per-offer production capacity, effective product/category country rules, certificate holds and resource-scoped history. Clone creates a new reviewable draft with category/brand/commercial terms, a new code and no stock; duplicate codes and another seller's listing are refused. Fixed a verification-discovered contract omission: listingMarketRules now selects and returns labelText. Its regression asserts a LABEL_REQUIRED instruction survives the seller API. Sources: offer.service.ts, listing-sourcing.service.ts, catalog/market-eligibility.service.ts, SellerListingsPage.tsx, ListingInsightPanels.tsx. Tests: seller-catalog-manager.test.ts 7/7 focused, SellerCatalogAndProfile.test.tsx, SellerListingsPage.test.tsx, ListingSourcingPanel.test.tsx. Full sequential verify: admin 52 files/382 tests and build, customer 196 files/1800 tests and build, backend 335 files/5322 tests; all exit 0. docs:check passed. English/Hinglish guides and API contract updated. | ☑ | 2026-10-02 (pass 9) |
 | JOURNEY-030 | Seller opportunity queue. Checks: Qualification score; deadline; buyer verification status; target market; hide irrelevant opportunities; assign owner. | **VERIFIED** | Pass 9. RFQ inbox/detail show qualification points with reasons/capacity flags, response deadline, buyer-business verification and destination market. Seller-local hide/unhide leaves the buyer's invitation intact; assignee choices are current members of that seller, with me/unassigned/member filtering and audited assignment. Foreign team members are refused. Sources: rfq/matching.service.ts, rfq/supplier.service.ts, routes/rfq.seller.ts, SellerRfqsPage.tsx, SellerRfqDetailPage.tsx. Tests: rfq-responses.test.ts (score, verification, hide/unhide, owner filters and foreign-team refusal), seller-hub-journeys.test.ts (score arithmetic), SellerRfqPages.test.tsx. Full sequential verify: admin 52 files/382 tests and build, customer 196 files/1800 tests and build, backend 335 files/5322 tests; all exit 0. docs:check passed. | ☑ | 2026-10-02 (pass 9) |
 | JOURNEY-034 | Explain every deduction and release condition. Checks: Gross sale; commission; inspection/logistics charges; tax; reserve/hold; refund; net settlement; payout status; reconciliation export. | **VERIFIED** | Pass 9. Settlement statements expose sale/shipping proceeds, commission and distinct commission-tax lines, approved seller-paid inspection fees once per invoice, refunds/adjustments, net payable, hold reasons and payout state. Funds summary shows held/on-hold/reserve amounts and reserve release dates by currency in exact minor-unit strings. Statement/date-window reconciliation CSV uses credit/debit columns, totals and payout references, with seller ownership and spreadsheet-injection protection. The screen explicitly explains when no marketplace logistics or inspection deduction applies. Sources: settlement-statement.service.ts, settlement-export.service.ts, SellerPaymentsPage.tsx. Tests: seller-settlement-statements.test.ts (net identity, repeat close, invoice dedupe, CSV and foreign statement refusal), commission-invoices.test.ts, SellerPaymentsPage.test.tsx, money-reconciliation.test.ts (separate commission and tax assertions). Full sequential verify: admin 52 files/382 tests and build, customer 196 files/1800 tests and build, backend 335 files/5322 tests; all exit 0. docs:check passed. Ambiguous payout retry remediation remains separate LIVE-017 work. | ☑ | 2026-10-02 (pass 9) |
+| ENH-025 | Approved sample becomes a controlled reference for bulk order and inspection. | **VERIFIED** | Pass 10, batch 1. An approved sample receives a terminal APPROVED state and reference code. The RFQ purchase order converts once into the bulk marketplace order; inspection/gate.service.ts selects that buyer-approved sample for the same RFQ and supplier and stores its ID on the inspection requirement. inspection/views.service.ts returns its code, criteria, approval date, buyer note and evidence files; ReferenceSample.tsx shows the reference to buyer, seller and inspector. Sources: domain/rfq-sample-state.ts; modules/rfq/sample.service.ts; modules/rfq/purchase-order-order.service.ts; modules/inspection/gate.service.ts; modules/inspection/views.service.ts; customer components/inspection/ReferenceSample.tsx and components/rfq/SamplesPanel.tsx. Tests: backend rfq-samples.test.ts and rfq-purchase-order-to-order.test.ts, 9/9 via npx vitest run tests/integration/rfq-samples.test.ts tests/integration/rfq-purchase-order-to-order.test.ts. Positive route workflow: approved sample -> company-approved PO -> one 1,200-unit bulk order -> mandatory inspection naming that sample -> signed PASS report -> dispatch/delivery. Negative coverage: wrong buyer/supplier cannot convert; unapproved PO, missing idempotency key and fractional quantity refused; repeated/concurrent conversion keeps one order; forged payment webhook cannot confirm payment; sample receipt/approval is buyer-only and sample files are participant-scoped. Full baseline verification: backend npm run verify 337 files/5349 tests; admin npm run verify 52/382; customer typecheck/lint/contrast, 196/1800 full tests and production build. Customer static dependency junction needed a temporary Vite fs.allow override limited to the world-atlas dependency folder; isolated SupportPage rerun 26/26 and complete suite then passed. Production configuration is unchanged. Reference docs check passed. No feature behavior changed and no external provider, human sign-off or physical sample quality is claimed. | ☑ | 2026-10-02 (pass 10) |
 
 Reconciliation for these boxes: Word and this report agree
 

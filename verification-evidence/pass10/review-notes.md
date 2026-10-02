@@ -1,0 +1,17 @@
+# Pass 10 source review
+
+Reviewed source baseline: `5a22cf80`, in an isolated checkout. These findings do not mark requirements complete. The owner's active storefront, branding, Verified Suppliers and shared feature documentation are excluded from changes.
+
+| Requirement | Existing behavior and exact remaining evidence |
+| --- | --- |
+| ENH-025 | `rfq/sample.service.ts` assigns an approved reference code; `inspection/gate.service.ts` links the same request/supplier's approved sample to the bulk order's inspection requirement; `inspection/views.service.ts` exposes criteria, approval and evidence. The route lifecycle in `rfq-purchase-order-to-order.test.ts` proves the inspector sees that code. Targeted suites passed 9/9. Full verification passed and this box is recorded in batch-1.json. |
+| UAT-UI-002 | `components/hero-search/ImageSearchDialog.tsx` passes search results onward; `assistant/image-search.service.ts` discards the upload after model interpretation. A retained image-to-product-to-RFQ reference is not established. Completing that flow intersects the excluded storefront/product files. |
+| UAT-UI-007 | The owner delegated the direction choice. Chosen flow: marketplace-approved order sent as a PO to the buyer's ERP. `customer-erp-live.test.ts` sends three PURCHASE_ORDER_CREATE events for one order and proves one queued event, one real mock-ERP POST and one ERP PO. Its transient-error and already-existing-document cases prove retry behavior. Run this suite and record the outbound scope explicitly; do not claim an inbound PO-import feature. |
+| UAT-UI-012 | `orders/order.service.ts` calls destination basket enforcement using the final shipping country. `rfq/rfq.service.ts` checks blocked category/destination at submission and amendment. Existing `rfq-create.test.ts` proves an initially blocked destination, not the exact previously-allowed-to-restricted change. Complete real-route change and displayed-reason verification before ticking. |
+| UAT-UI-013 | `trust/certification.service.ts` records expiry; `seller/listing-sourcing.service.ts` omits expired certificates from linked buyer-visible certification data. `seller-factory-verification.test.ts` proves certificate expiry/audit. This does not establish a configured affected-listing/market warning-or-hold policy. Verify or implement that policy and the buyer status transition before ticking. |
+| ENH-001 | `AiModePage.tsx` links the latest question to a new RFQ title. That alone does not prove AI extraction into filters, specifications and a complete editable draft. |
+| ENH-019 | `governance/exception-queues.definitions.ts` and `ExceptionQueuesPage.tsx` provide permission-scoped queue measures/settings. Those aggregate queues do not prove one item queue covering all six explicitly named exception types. |
+
+The complete remaining-action inventory is `remaining.json`. External approval, provider, device, rehearsal and production evidence is not replaced by these local source reviews.
+
+Word QA: 29 pages in the read-only source; page 27 rendered through the [read-only Word page-image API](https://learn.microsoft.com/en-us/office/vba/api/word.page.enhmetafilebits) and inspected. Exactly one checkbox character changed and the other 18 package parts are byte-identical. Full/page PDF exports stalled; private helpers and their owned document were closed without saving. The native preview has heavier font playback than the baseline PDF and preserves the inherited clipped section-19 heading.

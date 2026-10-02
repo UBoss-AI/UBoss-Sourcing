@@ -1,0 +1,84 @@
+{
+  "testedSourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c",
+  "scope": "Isolated committed baseline; active storefront, branding, Verified Suppliers and shared feature documents excluded.",
+  "before": {
+    "checked": 277,
+    "open": 87
+  },
+  "after": {
+    "checked": 278,
+    "open": 86
+  },
+  "targeted": {
+    "command": "npx vitest run tests/integration/rfq-samples.test.ts tests/integration/rfq-purchase-order-to-order.test.ts",
+    "files": 2,
+    "tests": 9,
+    "exitCode": 0
+  },
+  "backend": {
+    "command": "npm run verify",
+    "files": 337,
+    "tests": 5349,
+    "exitCode": 0
+  },
+  "admin": {
+    "command": "npm run verify",
+    "files": 52,
+    "tests": 382,
+    "exitCode": 0
+  },
+  "customer": {
+    "commands": [
+      "npm run verify (typecheck and lint passed; one dependency-path suite failed)",
+      "npx vitest run src/pages/SupportPage.test.tsx --config ../../output/pass10-customer.config.mts (26/26)",
+      "npm run audit:contrast",
+      "npx vitest run --config ../../output/pass10-customer.config.mts",
+      "npm run build"
+    ],
+    "files": 196,
+    "tests": 1800,
+    "exitCode": 0,
+    "temporaryConfiguration": "Only isolated application and shared world-atlas dependency directory allowed; committed Vite configuration unchanged."
+  },
+  "docs": {
+    "command": "npm run docs:check",
+    "result": "All three generated references match."
+  },
+  "evidence": "batch-1.json",
+  "limitations": [
+    "Deterministic local test providers and synthetic sample records; no production provider or physical sample evidence.",
+    "Page 27 has an inherited clipped section-19 heading; checklist content/layout is preserved."
+  ],
+  "word": {
+    "engine": "Microsoft Word 16.0",
+    "readOnly": true,
+    "totalPages": 29,
+    "changedPages": [
+      27
+    ],
+    "renderMethod": "Word Page.EnhMetaFileBits, rasterized with native GDI; changed page inspected.",
+    "methodReference": "https://learn.microsoft.com/en-us/office/vba/api/word.page.enhmetafilebits",
+    "structuralComparison": {
+      "unchangedOtherParts": 18,
+      "changedPart": "word/document.xml",
+      "authorizedCharacterChanges": 1,
+      "ids": [
+        "ENH-025"
+      ]
+    },
+    "visualResult": "Sample-to-Bulk checkbox checked in the existing table position; existing other selections preserved. The inherited clipped section-19 heading remains.",
+    "limitations": "Full and page-only PDF exports did not complete; retired private helpers. Native page-image playback has heavier text than the prior PDF preview; no font/style changes were made to the Word package.",
+    "cleanup": "Owned read-only checklist closed without saving; empty hidden renderer closed."
+  },
+  "audit": {
+    "problems": [],
+    "checked": 278,
+    "open": 86
+  },
+  "secretScan": {
+    "command": ".\\scripts\\secret-scan.ps1",
+    "result": "No leaks found",
+    "commitsScanned": 243,
+    "scope": "Full inherited history before this commit; pre-push scan must also cover the new commit."
+  }
+}
