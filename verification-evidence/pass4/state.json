@@ -2569,6 +2569,42 @@
       "status": "VERIFIED",
       "evidence": "Pass 9. Samples: quantity and cost, courier, approval criteria, buyer acceptance/rejection (rfq-samples tests). NEW reference sample link to final inspection: an approved RFQ purchase order converts to one marketplace order (POST /rfqs/:id/purchase-order/order, idempotent, migration 20261031200000), paid through the signed webhook and escrow, split to the awarded seller; on acceptance the inspection requirement is MANDATORY and links the buyer's approved reference sample (inspection_requirements.referenceSampleId), shown to buyer, seller and inspector as what the goods are measured against. rfq-purchase-order-to-order.test.ts 3/3 (convert, repeat/concurrent same order, forged webhook refused, split, mandatory inspection with sample linked, PASS, dispatch, delivered, refusals), rfq-po-order unit 6/6. Full verify: backend 316 files / 5204 tests (one preorders case failed under load, passed 39/39 alone), admin 44/352, customer 187/1755.",
       "verifiedAt": "2026-10-02 (pass 8)"
+    },
+    {
+      "id": "LIVE-004",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. Both end-to-end paths pass against the real routes with fake signed provider webhooks. B2B: rfq-purchase-order-to-order.test.ts (RFQ, quote, sample approved, accept, purchase order approved at both stages, converted once even when repeated or concurrent, forged webhook refused, signed webhook confirms, split to the seller, mandatory inspection against the reference sample, PASS, dispatch, shipment, delivered). B2C: acceptance-cart-to-settlement.test.ts (basket, checkout, signed capture webhook, split, seller accepts, ships, delivers, escrow hold released, statement closed, payout sent once, every ledger entry balanced). Full verify: backend 325 files / 5240 tests (one new file fixed for a missing default warehouse and rerun green with inventory.test.ts), admin 44 / 359, customer 1759. Product Owner acceptance on staging remains a human step.",
+      "verifiedAt": "2026-10-02 (pass 8)"
+    },
+    {
+      "id": "LIVE-005",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. money-reconciliation.test.ts ties each order together: order totals = buyer invoice; ORDER_TAX_COLLECTED and PLATFORM_DISCOUNTS_FUNDED ledger lines; seller share in ledger = settlement = statement lines; issued commission invoice taxable and tax = settlement fee and fee tax. Cases: GST with a coupon and a negotiated fee; EU reverse charge (Article 196 note, no tax booked, operator direct sale); a second currency through real checkout (rate used = snapshot mid + 2% margin at quote scale, base total converts back exactly, invoice and ledger in the charged currency). Plus existing fx-conversion, coupons-currency, eu-vat, ubl-invoice, commission-invoices, platform-fee and escrow-ledger suites. Approval of the tax and duty policy by a tax adviser and finance's reconciliation of real transactions are human steps.",
+      "verifiedAt": "2026-10-02 (pass 8)"
+    },
+    {
+      "id": "LIVE-006",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. acceptance-cart-to-settlement.test.ts branches: (a) cancel after payment: provider refund, refund.processed webhook, refund ledger entries, order REFUNDED; (b) partial return: return flow, refund webhook, settlement deduction and REFUND statement line; (c) dispute refund with second approver above the threshold, then ledger and settlement. provider-outage-recovery.test.ts: refund confirmed by the new REFUND_POLL job when the webhook never arrives (provider down then back); payout during an outage returns the money and pays once. Existing returns-http, disputes-http, escrow-ledger, seller-settlement-statements and seller-payout suites green. Live provider runs remain a finance step.",
+      "verifiedAt": "2026-10-02 (pass 8)"
+    },
+    {
+      "id": "LIVE-007",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. Full PASS: inspection-lifecycle-e2e.test.ts (rule, booking, accept, assign, readiness, conflict, start, sampling, checks, evidence with stored SHA-256, submit, QA signs PASS, automatic release, READY_FOR_DISPATCH, consignment, BINDING evidence, wrong seal refused, recordBinding with the rebound release). FAIL to NCR to re-inspection to PASS: inspection-http.test.ts 'runs end to end through every role' (MAJOR defect, signed FAIL, dispatch refused 409, corrective action with evidence, linked REINSPECTION, signed PASS, defect VERIFIED_CLOSED, original report unchanged, gate allowed). Both green in the full backend verify. A QA run with a real agency on staging remains a human step.",
+      "verifiedAt": "2026-10-02 (pass 8)"
+    },
+    {
+      "id": "LIVE-009",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. inspection-lifecycle-e2e.test.ts: an inspector cannot sign (403); a QA reviewer put on the job as inspector cannot sign their own work (409 INSPECTION_SELF_APPROVAL_FORBIDDEN); every audited step writes both an InspectionEvent and an AuditLog row; evidence downloads write an audit row naming the reader; evidence SHA-256 stored. inspection-http.test.ts: role boundaries, rival party 403/404, agency dashboard scoping, report hash immutable; authorization-matrix.test.ts agency and inspector refusals. Not built: reading a signed report through the JSON views writes no audit row (only evidence downloads do). Agency onboarding and legal review of the e-signature are human steps.",
+      "verifiedAt": "2026-10-02 (pass 8)"
+    },
+    {
+      "id": "LIVE-021",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. audit-operations-reconciliation.test.ts through the real routes: order transitions, refunds and dispute decisions; one audit row per status-history row with the same statuses and actor; one refund.created per refund and one dispute.decided per decision; /admin/audit-logs totals; /admin/dashboard orders by status and refund count/amount and /reports/marketplace disputes by resolution equal raw SQL counts over the same window. Plus reports.test.ts (figures against source tables), audit-log-admin and dashboard-tenancy suites. Reconciliation against live production data remains a finance and operations step.",
+      "verifiedAt": "2026-10-02 (pass 8)"
     }
   ],
   "pendingBoxes": []
