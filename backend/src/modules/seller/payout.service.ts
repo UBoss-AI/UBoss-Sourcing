@@ -28,7 +28,7 @@
  */
 import type { SellerPayoutAccountState } from '../../generated/prisma/enums.js';
 import { env } from '../../config/env.js';
-import { ErrorCode, conflict, notFound } from '../../domain/errors.js';
+import { AppError, ErrorCode, conflict, notFound } from '../../domain/errors.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
@@ -106,8 +106,24 @@ export interface PayoutProviderAdapter {
     reference: string;
   }): Promise<{ providerPayoutId: string; status: 'PENDING' | 'IN_TRANSIT' | 'PAID' }>;
 
+  /** Definitive lookup of the original operation. Absence/uncertainty must return UNKNOWN, never FAILED. */
+  readPayout?(input: { reference: string; idempotencyKey: string; amountMinor: bigint; currency: string }): Promise<PayoutLookupResult>;
+
   /** The provider's transfers in a period, for reconciliation. Optional. */
   listTransfers?(since: Date, until: Date): Promise<ProviderTransfer[]>;
+}
+
+export type PayoutLookupResult =
+  | { status: 'UNKNOWN' }
+  | { status: 'FAILED' }
+  | { status: 'IN_TRANSIT' | 'PAID'; providerPayoutId: string };
+
+/** Internal proof that the provider rejected this request before moving any funds. */
+export class PayoutProviderRejectedError extends AppError {
+  constructor(message: string) {
+    super({ statusCode: 409, code: ErrorCode.SELLER_PAYOUT_NOT_ELIGIBLE, message });
+    this.name = 'PayoutProviderRejectedError';
+  }
 }
 
 /**

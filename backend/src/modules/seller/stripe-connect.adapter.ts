@@ -16,6 +16,7 @@
  */
 import { conflict, ErrorCode } from '../../domain/errors.js';
 import { logger } from '../../infra/logger.js';
+import { PayoutProviderRejectedError } from './payout.service.js';
 import type {
   PayoutAccountStatus,
   PayoutOnboardingLink,
@@ -96,12 +97,19 @@ export function stripeConnectAdapter(secretKey: string): PayoutProviderAdapter {
         signal: controller.signal,
       });
       const parsed = (await response.json().catch(() => null)) as
-        | (T & { error?: { code?: string; message?: string } })
+        | (T & { error?: { code?: string; type?: string; message?: string } })
         | null;
       if (!response.ok || parsed === null) {
         // The body is not logged: Stripe echoes request fields, one of which
         // can be the seller's email.
         logger.warn({ httpStatus: response.status, path, providerCode: parsed?.error?.code }, 'stripe connect request failed');
+        // Only an explicit pre-execution validation rejection proves no transfer.
+        // Timeouts, 5xx, idempotency conflicts and unclassified errors are UNKNOWN.
+        if (method === 'POST' && path === '/transfers' && response.status === 400 && parsed?.error !== undefined &&
+          parsed.error.code !== 'idempotency_key_in_use' &&
+          (parsed.error.type === 'invalid_request_error' || parsed.error.code === 'insufficient_capabilities' || parsed.error.code === 'balance_insufficient')) {
+          throw new PayoutProviderRejectedError(parsed.error.message ?? 'Stripe rejected the transfer before processing it.');
+        }
         throw conflict(
           ErrorCode.SELLER_PAYOUT_NOT_ELIGIBLE,
           parsed?.error?.message ?? `Stripe refused the request (HTTP ${String(response.status)}).`,
@@ -158,12 +166,30 @@ export function stripeConnectAdapter(secretKey: string): PayoutProviderAdapter {
           destination: input.providerAccountId,
           transfer_group: input.reference,
           'metadata[reference]': input.reference,
+          'metadata[amountMinor]': input.amountMinor.toString(),
+          'metadata[currency]': input.currency.toUpperCase(),
         },
         input.idempotencyKey,
       );
+      if (typeof transfer.id !== 'string' || transfer.id.length === 0) throw new Error('Stripe returned no confirmed transfer reference.');
       // A transfer is complete when Stripe accepts it: the money is in the
       // connected account's balance. Its bank payout is the account's own.
       return { providerPayoutId: transfer.id, status: 'PAID' as const };
+    },
+
+    async readPayout(input) {
+      // Stripe documents transfer_group filtering. Never re-POST an unknown
+      // operation: provider idempotency-key retention is not an infinite lease.
+      const found = await call<{ data: { id: string; transfer_group?: string; reversed?: boolean; metadata?: Record<string, string> }[]; has_more: boolean }>(
+        'GET', `/transfers?limit=2&transfer_group=${encodeURIComponent(input.reference)}`,
+      );
+      const transfer = found.data?.[0];
+      if (found.has_more !== false || found.data?.length !== 1 || transfer === undefined ||
+        typeof transfer.id !== 'string' || transfer.id.length === 0 || transfer.reversed !== false ||
+        transfer.transfer_group !== input.reference || transfer.metadata?.reference !== input.reference ||
+        transfer.metadata.amountMinor !== input.amountMinor.toString() || transfer.metadata.currency !== input.currency.toUpperCase()) return { status: 'UNKNOWN' };
+      // Read decimal metadata, rather than converting JSON numeric money.
+      return { status: 'PAID', providerPayoutId: transfer.id };
     },
 
     async listTransfers(since, until): Promise<ProviderTransfer[]> {

@@ -1,5 +1,15 @@
 # The Gloviaa Mart API guide
 
+Running ledger payouts first reconciles existing unresolved operations by their
+original reference and idempotency key. The response's `failed` list reports
+failed attempts: an ambiguous attempt leaves the payout itself `PENDING`, with
+`providerStatusRaw = UNKNOWN`, funds in transit and a reconciliation instruction.
+Only explicit definitive rejection marks it `FAILED` and releases funds.
+Unknown, empty, mismatched or reversed provider lookup results never authorize
+another POST. Legacy FAILED rows without rejection evidence block fresh payouts.
+No route or response field is added. Money remains BigInt internally and decimal
+strings in provider metadata and API responses.
+
 Carrier tracking also runs internally through the worker when the logistics
 portal is enabled. A 15-minute sweep schedules one job per eligible shipment;
 it introduces no public endpoint. Polled events keep provider timestamps and

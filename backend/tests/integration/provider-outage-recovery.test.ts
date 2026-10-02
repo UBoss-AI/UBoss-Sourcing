@@ -13,13 +13,10 @@
  *      it - status, the seller's settlement, an audit row - and a second pass
  *      changes nothing.
  *   2. A seller payout while the payout provider is down: the connection is
- *      torn down, then a 503. Each failed attempt puts the money back in the
- *      seller's available balance with the reason recorded; when the provider
- *      recovers, one payout goes out and the balance is paid exactly once.
+ *      torn down, then a 503 during lookup. Money stays reserved. Recovery
+ *      confirms the original transfer without submitting another payout.
  *
- * Carrier tracking when webhooks stop is NOT covered here: there is no
- * tracking poll in the product (the carrier adapters can `getTracking`, but
- * nothing calls it on a schedule). That gap is reported, not papered over.
+ * Scheduled tracking is covered by carrier-tracking-poll.test.ts.
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { env } from '../../src/config/env.js';
@@ -308,7 +305,7 @@ describe('a refund whose webhook never arrives', () => {
 });
 
 describe('a seller payout while the payout provider is down', () => {
-  it('puts the money back on each failure and pays it exactly once when the provider recovers', async () => {
+  it('keeps unknown funds reserved and reconciles the original transfer without sending again', async () => {
     Object.assign(mutable, {
       FEATURE_ESCROW_LEDGER: true,
       SELLER_FUNDS_RELEASE_AFTER_DAYS: 7,
@@ -327,20 +324,22 @@ describe('a seller payout while the payout provider is down', () => {
     fake.script({ reset: true });
     const torn = await runPayouts('por17-test', sellerId);
     expect(torn.failed).toHaveLength(1);
-    expect((await sellerFinance(sellerId)).balances[0]?.availableMinor).toBe(share);
+    expect((await sellerFinance(sellerId)).balances[0]).toMatchObject({ availableMinor: '0', inTransitMinor: share });
+    const original = await prisma.sellerPayout.findFirstOrThrow({ where: { sellerAccountId: sellerId } });
+    expect(original).toMatchObject({ status: 'PENDING', providerStatusRaw: 'UNKNOWN' });
 
     // ...then the provider answers 503.
     fake.script({ status: 503, json: { error: { message: 'Service unavailable' } } });
     const down = await runPayouts('por17-test', sellerId);
-    expect(down.failed).toHaveLength(1);
-    expect((await sellerFinance(sellerId)).balances[0]?.availableMinor).toBe(share);
+    expect(down.skipped).toHaveLength(1);
+    expect((await sellerFinance(sellerId)).balances[0]).toMatchObject({ availableMinor: '0', inTransitMinor: share });
 
-    const failed = await prisma.sellerPayout.findMany({ where: { sellerAccountId: sellerId, status: 'FAILED' } });
-    expect(failed).toHaveLength(2);
-    expect(failed.every((payout) => (payout.failureReason ?? '').length > 0)).toBe(true);
+    expect(await prisma.sellerPayout.count({ where: { sellerAccountId: sellerId } })).toBe(1);
+    expect(await prisma.sellerPayout.count({ where: { sellerAccountId: sellerId, status: 'FAILED' } })).toBe(0);
 
     // Recovered: one transfer, the whole balance, once.
-    fake.script({ status: 200, json: { id: 'tr_por17_recovered', object: 'transfer' } });
+    fake.script({ status: 200, json: { data: [{ id: 'tr_por17_recovered', transfer_group: original.reference, reversed: false,
+      metadata: { reference: original.reference, amountMinor: share, currency: original.currency } }], has_more: false } });
     const paid = await runPayouts('por17-test', sellerId);
     expect(paid.paid).toHaveLength(1);
     expect(paid.paid[0]?.amountMinor).toBe(share);
@@ -351,12 +350,15 @@ describe('a seller payout while the payout provider is down', () => {
     const again = await runPayouts('por17-test', sellerId);
     expect(again.paid).toHaveLength(0);
 
-    // Each attempt carried its own payout's idempotency key.
+    // Exactly one POST; later attempts only read the original reference.
     const transfers = fake.requests.filter((request) => request.method === 'POST' && request.path === '/v1/transfers');
-    expect(transfers).toHaveLength(3);
+    expect(transfers).toHaveLength(1);
     const keys = transfers.map((request) => String(request.headers['idempotency-key']));
-    expect(new Set(keys).size).toBe(3);
+    expect(new Set(keys).size).toBe(1);
     expect(keys.every((key) => key.startsWith('ledger-payout:'))).toBe(true);
+    expect(keys[0]).toBe(original.idempotencyKey);
+    expect(fake.requests.filter(request => request.method === 'GET' && request.path.includes(`transfer_group=${original.reference}`))).toHaveLength(2);
+    expect(await prisma.ledgerEntry.count({ where: { payoutId: original.id, kind: 'REVERSAL' } })).toBe(0);
 
     // Every ledger entry for this seller still balances.
     const entries = await prisma.ledgerEntry.findMany({ where: { sellerAccountId: sellerId }, include: { lines: true } });

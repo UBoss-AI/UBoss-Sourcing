@@ -1,5 +1,13 @@
 # Gloviaa Mart — Every Screen
 
+Finance's existing payout action now reconciles unresolved ledger payouts
+before sending new funds. An unknown attempt remains Pending with money shown
+in transit. The payout record stores a reconciliation instruction; the existing
+action reports failed/skipped counts. A legacy failed payout without rejection
+proof blocks a fresh send.
+The existing Failed label is used only after definitive rejection in the new
+flow. No new page, control or response field is introduced.
+
 What each screen in the three Gloviaa Mart apps shows, who can open it, what
 people can do on it, and which server calls it makes. The repository is
 called UBOSS Sourcing; the product is Gloviaa Mart.

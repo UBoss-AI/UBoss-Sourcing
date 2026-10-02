@@ -1,5 +1,15 @@
 # Gloviaa Mart — Product Requirements Document (PRD)
 
+Ledger payouts now retain funds in transit when the provider outcome is unknown.
+Timeouts and server errors do not reverse or authorize a new send. Later runs
+query the original reference; confirmed success settles once and confirmed
+failure reverses once. An empty lookup stays unknown. Concurrent runs and
+restarts cannot create a fresh operation while the original is unresolved.
+Legacy FAILED rows without definitive rejection proof require finance review.
+Stripe recovery validates transfer-group and exact decimal metadata; older
+records without that evidence stay reserved for manual reconciliation.
+LIVE-017 remains open until its staging outage test is completed.
+
 Carrier tracking maintenance is built behind `FEATURE_LOGISTICS_PORTAL`.
 The worker schedules active API-carrier tracking every 15 minutes for
 non-terminal shipments with tracking references. It preserves provider event

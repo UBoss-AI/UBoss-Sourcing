@@ -6319,7 +6319,17 @@ disclosed release terms. Code: `backend/src/modules/finance/`.
 - **Payouts.** *Run payouts* (or `SELLER_FUNDS_AUTO_PAYOUT=true`) sends each
   seller's available balance as a Stripe transfer to their connected account,
   under a row lock and with the payout id as the Stripe idempotency key. A
-  refusal reverses the entry and leaves a FAILED payout with the reason.
+  definitive provider rejection reverses the entry and leaves a FAILED payout
+  with `DEFINITIVE_REJECTION` evidence. Timeouts, server errors and uncertain
+  responses instead leave `PENDING` / `UNKNOWN`, with funds in transit and the
+  original reference and key intact. Later runs query that same operation;
+  confirmed success settles once, confirmed failure reverses once, and an
+  empty or uncertain lookup never authorizes another send. The account lock
+  blocks a second operation during submission, across retries and restarts.
+  Stripe lookup validates the original transfer group and exact decimal
+  amount/currency metadata. Legacy FAILED reversals without rejection proof,
+  and older transfers without this metadata, need finance reconciliation;
+  they are not blindly resubmitted. LIVE-017 still requires staging outage tests.
 - **Onboarding.** With `STRIPE_CONNECT_CLIENT_ID` and `STRIPE_SECRET_KEY` set,
   Seller Hub -> Payments shows *Connect payout account*: an Express account is
   created, its `acct_...` id stored on `seller_payout_account_references`, and

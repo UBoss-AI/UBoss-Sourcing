@@ -1,5 +1,6 @@
 {
   "requirementId": "LIVE-017",
+  "exactRequirement": "Webhook retries, reconciliation and outage fallback validated.",
   "date": "2026-10-02",
   "softwareGap": "Scheduled carrier-tracking polling",
   "status": "implemented and verified",

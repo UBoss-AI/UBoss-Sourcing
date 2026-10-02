@@ -2563,6 +2563,12 @@ configured, and paying one is refused.
 
 #### Held funds and seller payouts (facilitator model)
 
+Payout timeouts and uncertain provider results keep funds reserved under the
+original payout reference and key. Later runs query that operation; they never
+blindly reverse and send again. Only confirmed success settles funds, and only
+definitive rejection releases them. Legacy failed payouts without rejection
+proof need finance review. Staging outage validation for LIVE-017 remains open.
+
 Off until `FEATURE_ESCROW_LEDGER=true`. The buyer's payment is held, each
 seller order's share is released when it meets its terms, and it is paid to
 the seller's own Stripe Connect account. Finance works it on *Finance ->

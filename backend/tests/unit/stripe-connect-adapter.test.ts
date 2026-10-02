@@ -5,6 +5,7 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mapStripeAccount, stripeConnectAdapter } from '../../src/modules/seller/stripe-connect.adapter.js';
+import { PayoutProviderRejectedError } from '../../src/modules/seller/payout.service.js';
 
 function respond(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
@@ -75,6 +76,8 @@ describe('Stripe Connect adapter', () => {
     expect(sent).toContain('currency=inr');
     expect(sent).toContain('destination=acct_123');
     expect(key).toBe('ledger-payout:P1');
+    expect(sent).toContain('metadata%5BamountMinor%5D=8820000000000');
+    expect(sent).toContain('metadata%5Bcurrency%5D=INR');
   });
 
   it('turns a Stripe refusal into SELLER_PAYOUT_NOT_ELIGIBLE with Stripe\'s message', async () => {
@@ -98,5 +101,29 @@ describe('Stripe Connect adapter', () => {
     ).toMatchObject({ state: 'REQUIREMENTS_DUE', pendingRequirements: ['external account', 'individual id number'] });
     expect(mapStripeAccount({ id: 'acct_3', details_submitted: true })).toMatchObject({ state: 'PENDING_VERIFICATION' });
     expect(mapStripeAccount({ id: 'acct_4', details_submitted: true, requirements: { disabled_reason: 'rejected.fraud' } })).toMatchObject({ state: 'RESTRICTED' });
+  });
+
+  it('queries the original transfer group and validates exact decimal money metadata', async () => {
+    const amountMinor = 9_007_199_254_740_993n;
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(respond({ data: [{ id: 'tr_original', reversed: false, transfer_group: 'PO-original',
+      metadata: { reference: 'PO-original', amountMinor: amountMinor.toString(), currency: 'INR' } }], has_more: false }));
+    const result = await stripeConnectAdapter('sk_test_x').readPayout?.({ reference: 'PO-original', idempotencyKey: 'original-key', amountMinor, currency: 'INR' });
+    expect(result).toEqual({ status: 'PAID', providerPayoutId: 'tr_original' });
+    expect(fetch).toHaveBeenCalledWith('https://api.stripe.com/v1/transfers?limit=2&transfer_group=PO-original', expect.objectContaining({ method: 'GET' }));
+  });
+  it.each(['missing', 'multiple', 'reversed', 'mismatched'])('keeps %s lookup results unknown without another POST', async kind => {
+    const row = { id: 'tr_original', reversed: kind === 'reversed', transfer_group: 'PO-original', metadata: { reference: 'PO-original', amountMinor: kind === 'mismatched' ? '2' : '1', currency: 'INR' } };
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(respond({ data: kind === 'missing' ? [] : kind === 'multiple' ? [row, row] : [row], has_more: false }));
+    expect(await stripeConnectAdapter('sk_test_x').readPayout?.({ reference: 'PO-original', idempotencyKey: 'original-key', amountMinor: 1n, currency: 'INR' })).toEqual({ status: 'UNKNOWN' });
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch.mock.calls[0]?.[1]?.method).toBe('GET');
+  });
+  it('distinguishes explicit rejection from an ambiguous server error', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch');
+    const input = { providerAccountId: 'acct_1', amountMinor: 1n, currency: 'INR', idempotencyKey: 'key', reference: 'ref' };
+    fetch.mockResolvedValueOnce(respond({ error: { type: 'invalid_request_error', message: 'No transfers capability' } }, 400));
+    await expect(stripeConnectAdapter('sk_test_x').sendPayout(input)).rejects.toBeInstanceOf(PayoutProviderRejectedError);
+    fetch.mockResolvedValueOnce(respond({ error: { type: 'invalid_request_error', message: 'Server unavailable' } }, 503));
+    await expect(stripeConnectAdapter('sk_test_x').sendPayout(input)).rejects.not.toBeInstanceOf(PayoutProviderRejectedError);
   });
 });

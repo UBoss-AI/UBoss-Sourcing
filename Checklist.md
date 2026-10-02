@@ -11,7 +11,7 @@
 - Verification: admin 52 files/382 tests and build; customer 196 files/1800 tests and build; backend 335 files/5322 tests; all exit 0. Reference docs match.
 - Evidence: `verification-evidence/pass8/batch-9.json` and `pass9-verification.json`.
 - Checklist audit: no problems. Protected unrelated files retained.
-- LIVE-017 tracking polling is implemented and verified (336 backend files / 5,333 tests). Next authorized work: ambiguous payout safety. LIVE-017 remains open for staging outage validation.
+- Both LIVE-017 software gaps are fixed and tested: scheduled tracking polling and safe ambiguous-payout reconciliation. Latest backend verify: 337 files / 5,349 tests, exit 0. LIVE-017 remains open for staging outage validation.
 - Updated at: 2026-10-02, Pass 9.
 
 ### Pass 8 — Sections 12, 14 and 17 (Word headings, not Master rows)
@@ -56,7 +56,7 @@ The Word recorder changed exactly the five authorized checkbox ordinals, with ev
 | LIVE-014 | Qualified legal-counsel approval of launch-market policies. |
 | LIVE-015 | Restore test, disaster-recovery rehearsal and incident exercise. Staff-access review software is built. |
 | LIVE-016 | Test production integrations against real services. |
-| LIVE-017 | Staging outage test remains required. Scheduled carrier-tracking polling is fixed: feature-gated 15-minute sweeps, eligible non-terminal shipments, domain/inspection rules, event dedupe and version checks, 30-second reads, queue retry/backoff and operational evidence. Focused polling/webhook tests 24/24; backend verify exit 0, 336 files / 5,333 tests. Ambiguous payout safety is still the next separate software gap. Leave this row open until the staging outage test passes. |
+| LIVE-017 | Staging outage test remains required. Scheduled tracking polling is fixed: feature-gated 15-minute sweeps, eligible non-terminal shipments, domain/inspection rules, dedupe/version checks, 30-second reads, retry/backoff and operational evidence. Polling/webhook tests 24/24; backend verify exit 0, 336 files / 5,333 tests. Ambiguous payout safety is fixed: funds remain reserved with the original reference/key; read-only reconciliation confirms settlement or definitive rejection; unknown results cannot create a second send; concurrent/restart recovery and legacy failed-record quarantine are tested. Payout focused tests 39/39; latest backend verify exit 0, 337 files / 5,349 tests. Evidence: live017-tracking.json and live017-payout.json. Leave this row open until the staging outage test passes; no live-provider validation is claimed. |
 | LIVE-018 | Rotate and monitor real production secrets. Rotation behavior is unit-tested; production evidence remains required. |
 | LIVE-019 | Business approval of master data. Software endpoint: `GET /admin/master-data-readiness`. |
 | LIVE-020 | Validate critical analytics against production traffic. |

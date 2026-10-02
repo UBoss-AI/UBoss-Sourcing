@@ -34,6 +34,7 @@ import {
 import { listEntries, postEntry, reverseEntry } from '../../src/modules/finance/ledger.service.js';
 import {
   setPayoutAdapterForTests,
+  PayoutProviderRejectedError,
   startPayoutOnboarding,
   type PayoutProviderAdapter,
 } from '../../src/modules/seller/payout.service.js';
@@ -82,7 +83,7 @@ const fakeAdapter: PayoutProviderAdapter = {
   readAccount: (id) =>
     Promise.resolve({ state: 'ENABLED', providerAccountId: id, payoutsEnabled: true, pendingRequirements: [], bankName: 'Test Bank', accountLast4: '6789' }),
   sendPayout: (input) => {
-    if (refusePayouts) return Promise.reject(new Error('Your destination account needs to have at least one of the following capabilities enabled: transfers'));
+    if (refusePayouts) return Promise.reject(new PayoutProviderRejectedError('Your destination account needs to have at least one of the following capabilities enabled: transfers'));
     sentPayouts.push({ providerAccountId: input.providerAccountId, amountMinor: input.amountMinor, idempotencyKey: input.idempotencyKey });
     return Promise.resolve({ providerPayoutId: `tr_${String(sentPayouts.length)}${input.idempotencyKey.slice(-6)}`, status: 'PAID' as const });
   },

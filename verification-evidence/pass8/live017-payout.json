@@ -1,0 +1,20 @@
+{
+  "requirementId": "LIVE-017",
+  "exactRequirement": "Webhook retries, reconciliation and outage fallback validated.",
+  "date": "2026-10-02",
+  "softwareGap": "Safe ambiguous-payout retry behavior",
+  "status": "implemented and verified",
+  "requirementRemainsOpen": true,
+  "source": ["backend/src/modules/finance/escrow.service.ts", "backend/src/modules/finance/ledger-payout-recovery.service.ts", "backend/src/modules/seller/payout.service.ts", "backend/src/modules/seller/stripe-connect.adapter.ts"],
+  "behavior": ["Persist PENDING/SUBMITTING and reserve funds before the provider request", "Unknown response or local settlement failure retains original key/reference, funds in transit and a reconciliation instruction", "Retries only query the original operation; no transfer POST occurs for an unresolved payout", "Empty, multiple, reversed or mismatched Stripe lookup results remain unknown", "Confirmed success settles once under a payout-row lock and ledger idempotency key", "Only typed definitive rejection or definitive original-operation failure reverses once", "Account-row locks block concurrent creation while the original operation is submitting or unresolved", "Database identity survives restarts; no in-process retry identity is required", "Legacy FAILED reversals without definitive rejection proof block new payouts for finance review", "Money remains BigInt; exact decimal amount/currency metadata identifies the original Stripe operation"],
+  "focusedVerification": {"command": "npm test -- --run tests/integration/ambiguous-payout-recovery.test.ts tests/integration/escrow-ledger.test.ts tests/integration/provider-outage-recovery.test.ts tests/unit/stripe-connect-adapter.test.ts", "filesPassed": 4, "testsPassed": 39, "exitCode": 0},
+  "completeVerification": {"command": "npm run verify", "package": "backend", "filesPassed": 337, "testsPassed": 5349, "exitCode": 0, "log": "%TEMP%/uboss-live017-payout-verify.log", "exitFile": "%TEMP%/uboss-live017-payout-verify.exit"},
+  "testScenarios": ["Provider accepts request but local call times out", "Repeated unknown retries retain the original key/reference and create one provider operation", "Provider confirms previous success", "Provider confirms definitive previous failure", "Concurrent retries settle once", "Fresh adapter instance simulates process restart using persisted operation identity", "Definitive provider rejection creates no transfer and releases reserved funds", "SUBMITTING crash-window identity remains reserved on unknown lookup", "Legacy ambiguous reversal with restored available balance still blocks another send", "Concurrent initial submissions create one operation", "Exact decimal metadata above JavaScript safe-integer precision", "Missing/multiple/reversed/mismatched provider lookup results remain UNKNOWN"],
+  "failuresRepaired": ["Removed obsolete escrow reverseEntry import", "Split unknown/failure lookup variants for TypeScript narrowing", "Replaced the obsolete outage assertion that expected reversal and a fresh payout key on each ambiguous failure", "Existing definitive refusal fixture now provides explicit typed rejection evidence"],
+  "documentation": ["PROJECT-GUIDE.md", "PROJECT-GUIDE.hinglish.md (ignored)", "README.md", "docs/PRD.md", "docs/API.md", "docs/DATABASE-DESIGN.md", "docs/UI-SCREENS.md", "scripts/build-feature-guide-doc.mjs", "output/UBOSS_Sourcing_Feature_Guide.docx (regenerated, ignored)", "Checklist.md"],
+  "providerSpecification": "https://docs.stripe.com/api/transfers/list",
+  "schemaChanges": false,
+  "routesAdded": false,
+  "checklistChanges": "No checkbox changed; LIVE-017 remains open",
+  "limitations": ["Staging outage and live-provider validation remain unperformed", "Legacy FAILED rows without rejection proof require finance reconciliation", "Older Stripe transfers without exact recovery metadata stay unresolved for finance review", "Unknown results are deliberately held rather than automatically resubmitted"]
+}

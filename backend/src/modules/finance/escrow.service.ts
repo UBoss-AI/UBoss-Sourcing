@@ -32,8 +32,9 @@ import type { DisputeStatus, SellerFundHoldStatus } from '../../generated/prisma
 import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
-import { assertPayable, payoutAdapter } from '../seller/payout.service.js';
-import { postEntry, reverseEntry, sumLines, total } from './ledger.service.js';
+import { assertPayable, payoutAdapter, PayoutProviderRejectedError } from '../seller/payout.service.js';
+import { reconcileLedgerPayouts, unresolvedPayoutWhere, settleLedgerPayout, rejectLedgerPayout, markPayoutUnknown, PAYOUT_UNKNOWN_MESSAGE } from './ledger-payout-recovery.service.js';
+import { postEntry, sumLines, total } from './ledger.service.js';
 
 /** Dispute statuses that stop a release. */
 export const OPEN_DISPUTE_STATUSES: DisputeStatus[] = [
@@ -677,10 +678,20 @@ export async function runPayouts(actorLabel = 'System', onlySellerAccountId?: st
     select: { id: true, sellerAccountId: true, currency: true },
   });
   const adapter = payoutAdapter();
-
   for (const account of accounts) {
     const sellerAccountId = account.sellerAccountId;
     if (sellerAccountId === null) continue;
+    // Reconcile before eligibility: a disabled account may still have received
+    // the original transfer. Never submit an unresolved operation again.
+    const recovery = await reconcileLedgerPayouts(sellerAccountId, account.currency, adapter, actorLabel);
+    result.paid.push(...recovery.paid);
+    result.failed.push(...recovery.failed);
+    if (recovery.unresolved > 0) {
+      result.skipped.push({ sellerAccountId, reason: PAYOUT_UNKNOWN_MESSAGE });
+      continue;
+    }
+    // A confirmed failure releases funds, but a new send requires a later run.
+    if (recovery.paid.length > 0 || recovery.failed.length > 0) continue;
     try {
       await assertPayable(sellerAccountId);
     } catch (error) {
@@ -688,105 +699,50 @@ export async function runPayouts(actorLabel = 'System', onlySellerAccountId?: st
       continue;
     }
     const reference = await prisma.sellerPayoutAccountReference.findUniqueOrThrow({
-      where: { sellerAccountId },
-      select: { providerAccountId: true },
+      where: { sellerAccountId }, select: { providerAccountId: true },
     });
-
-    // Claim the balance inside a transaction holding the account row, so two
-    // runs at once cannot both send it.
-    const claim = await prisma.$transaction(async (tx) => {
+    const claim = await prisma.$transaction(async tx => {
       await tx.$queryRaw`SELECT id FROM ledger_accounts WHERE id = ${account.id} FOR UPDATE`;
+      // Recheck under the account lock: concurrent callers cannot mint another
+      // business key while the first request is in flight or unknown.
+      if (await tx.sellerPayout.count({ where: unresolvedPayoutWhere(sellerAccountId, account.currency) }) > 0) return null;
       const sum = await tx.ledgerLine.aggregate({ where: { accountId: account.id }, _sum: { amountMinor: true } });
       const available = -(sum._sum.amountMinor ?? 0n);
       if (available <= 0n) return null;
       const payoutId = newId();
       const ref = `PO-${payoutId}`;
-      await tx.sellerPayout.create({
-        data: {
-          id: payoutId,
-          sellerAccountId,
-          reference: ref,
-          status: 'PENDING',
-          amountMinor: available,
-          currency: account.currency,
-          provider: adapter.name,
-          idempotencyKey: `ledger-payout:${payoutId}`,
-          scheduledFor: new Date(),
-        },
-      });
-      const entry = await postEntry(tx, {
-        kind: 'PAYOUT_INITIATED',
-        idempotencyKey: `payout:${payoutId}`,
-        currency: account.currency,
-        memo: `Payout ${ref} to the seller's connected account`,
-        actorLabel,
-        sellerAccountId,
-        payoutId,
-        lines: [
-          { code: 'SELLER_AVAILABLE', amountMinor: available },
-          { code: 'PAYOUTS_IN_TRANSIT', amountMinor: -available },
-        ],
+      const key = `ledger-payout:${payoutId}`;
+      await tx.sellerPayout.create({ data: {
+        id: payoutId, sellerAccountId, reference: ref, status: 'PENDING', providerStatusRaw: 'SUBMITTING',
+        amountMinor: available, currency: account.currency, provider: adapter.name, idempotencyKey: key, scheduledFor: new Date(),
+      } });
+      await postEntry(tx, {
+        kind: 'PAYOUT_INITIATED', idempotencyKey: `payout:${payoutId}`, currency: account.currency,
+        memo: `Payout ${ref} to the seller's connected account`, actorLabel, sellerAccountId, payoutId,
+        lines: [{ code: 'SELLER_AVAILABLE', amountMinor: available }, { code: 'PAYOUTS_IN_TRANSIT', amountMinor: -available }],
       });
       await tx.sellerFundHold.updateMany({
-        where: { sellerAccountId, currency: account.currency, status: 'RELEASED', payoutId: null },
-        data: { payoutId },
+        where: { sellerAccountId, currency: account.currency, status: 'RELEASED', payoutId: null }, data: { payoutId },
       });
-      return { payoutId, ref, available, entryId: entry.entryId };
+      return { payoutId, ref, available, key };
     });
     if (claim === null) continue;
-
+    let providerAccepted = false;
     try {
       const sent = await adapter.sendPayout({
-        providerAccountId: reference.providerAccountId ?? '',
-        amountMinor: claim.available,
-        currency: account.currency,
-        idempotencyKey: `ledger-payout:${claim.payoutId}`,
-        reference: claim.ref,
+        providerAccountId: reference.providerAccountId ?? '', amountMinor: claim.available,
+        currency: account.currency, idempotencyKey: claim.key, reference: claim.ref,
       });
-      await prisma.$transaction(async (tx) => {
-        await tx.sellerPayout.update({
-          where: { id: claim.payoutId },
-          data: {
-            status: sent.status === 'PAID' ? 'PAID' : 'IN_TRANSIT',
-            providerPayoutId: sent.providerPayoutId,
-            providerStatusRaw: sent.status,
-            paidAt: sent.status === 'PAID' ? new Date() : null,
-          },
-        });
-        if (sent.status === 'PAID') {
-          await postEntry(tx, {
-            kind: 'PAYOUT_SETTLED',
-            idempotencyKey: `payout-settled:${claim.payoutId}`,
-            currency: account.currency,
-            memo: `Payout ${claim.ref} accepted by the provider`,
-            actorLabel,
-            sellerAccountId,
-            payoutId: claim.payoutId,
-            providerReference: sent.providerPayoutId,
-            lines: [
-              { code: 'PAYOUTS_IN_TRANSIT', amountMinor: claim.available },
-              { code: 'PROVIDER_BALANCE', amountMinor: -claim.available },
-            ],
-          });
-        }
-      });
-      result.paid.push({ sellerAccountId, payoutId: claim.payoutId, amountMinor: claim.available.toString(), currency: account.currency });
+      providerAccepted = true;
+      const changed = await prisma.$transaction(tx => settleLedgerPayout(tx, claim.payoutId, sent, actorLabel));
+      if (changed) result.paid.push({ sellerAccountId, payoutId: claim.payoutId, amountMinor: claim.available.toString(), currency: account.currency });
     } catch (error) {
-      const reason = (error as Error).message.slice(0, 500);
-      logger.warn({ sellerAccountId, payoutId: claim.payoutId }, 'seller payout refused by the provider');
-      await prisma.$transaction(async (tx) => {
-        await tx.sellerPayout.update({
-          where: { id: claim.payoutId },
-          data: {
-            status: 'FAILED',
-            failureReason: reason,
-            lastAttemptError: reason,
-            remediationHint: 'Check the payout account in Seller Hub, then finance can run payouts again.',
-          },
-        });
-        await reverseEntry(tx, claim.entryId, `Payout ${claim.ref} refused: money back to available`, actorLabel);
-        await tx.sellerFundHold.updateMany({ where: { payoutId: claim.payoutId }, data: { payoutId: null } });
-      });
+      const definitive = !providerAccepted && error instanceof PayoutProviderRejectedError;
+      const reason = definitive ? error.message.slice(0, 500) : PAYOUT_UNKNOWN_MESSAGE;
+      logger.warn({ sellerAccountId, payoutId: claim.payoutId, definitive }, 'seller payout attempt requires recovery');
+      if (definitive) await prisma.$transaction(tx => rejectLedgerPayout(tx, claim.payoutId, reason, actorLabel));
+      else await markPayoutUnknown(claim.payoutId);
+      // This reports a failed ATTEMPT. An unknown payout itself stays PENDING.
       result.failed.push({ sellerAccountId, payoutId: claim.payoutId, reason });
     }
   }
