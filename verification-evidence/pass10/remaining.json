@@ -281,9 +281,10 @@
       "priority": "—",
       "requirement": "Backup, restore, disaster recovery, monitoring, incident response and security alert ownership tested before go-live.",
       "classification": "B",
-      "remainingAction": "Verify restore/monitoring scripts; name alert owners, prove delivery, restore an off-site backup and record DR/incident rehearsals.",
+      "remainingAction": "Repair the local Docker startup failure to exercise the existing restore verifier; then restore an actual off-site backup, prove external monitoring/alert delivery, assign named security-alert owners and record DR/incident rehearsals. Syntax and missing-input refusal are partial evidence only.",
       "status": "OPEN",
-      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
+      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c",
+      "partialEvidence": "verification-evidence/pass10/batch-6-partial.json"
     },
     {
       "id": "LIVE-001",
@@ -407,9 +408,10 @@
       "priority": "—",
       "requirement": "Backup/restore, incident response and privileged access review tested.",
       "classification": "B",
-      "remainingAction": "Verify restore and access-review software; perform restore, DR and incident rehearsals.",
+      "remainingAction": "Run the complete restore verifier after local Docker repair, perform an incident rehearsal and obtain the real privileged-access review. No restore or human access review was performed in batch 6.",
       "status": "OPEN",
-      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
+      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c",
+      "partialEvidence": "verification-evidence/pass10/batch-6-partial.json"
     },
     {
       "id": "LIVE-016",
@@ -435,9 +437,10 @@
       "priority": "—",
       "requirement": "Webhook retries, reconciliation and outage fallback validated.",
       "classification": "B",
-      "remainingAction": "Retain existing retry/reconciliation evidence; conduct the required staging outage exercise.",
+      "remainingAction": "Local adapter/refund/payout/tracking outage tests passed (4 files/51 tests); conduct and record the required staging provider-outage exercise with actual configured providers. Local injected adapters and fake sockets are not staging evidence.",
       "status": "OPEN",
-      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
+      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c",
+      "partialEvidence": "verification-evidence/pass10/batch-6-partial.json"
     },
     {
       "id": "LIVE-018",

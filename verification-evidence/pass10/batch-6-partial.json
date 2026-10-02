@@ -1,0 +1,29 @@
+[
+  {
+    "id": "SEC-010",
+    "requirement": "Backup, restore, disaster recovery, monitoring, incident response and security alert ownership tested before go-live.",
+    "status": "PARTIAL_SOFTWARE_EVIDENCE",
+    "ticked": false,
+    "sourceCommit": "b55ba77bec623ed4ddcbbf4f5d77345e5a5e9188",
+    "evidence": "Existing PowerShell export/restore/validation/compat scripts parse; existing Linux backup/restore/monitor scripts pass bash -n. Restore verifier run with a confirmed nonexistent dump returned exit 1 and No such file before its Docker/database branches. Installed Docker Desktop was started hidden; Docker API remained unavailable and its startup log reports failure to access sailor-ingest.sock. No dump restored, no restore database created, no factory reset or Docker configuration repair attempted. Monitoring syntax does not prove alert delivery, ownership or incident response.",
+    "remainingAction": "Repair the local Docker startup failure to exercise the existing restore verifier; then restore an actual off-site backup, prove external monitoring/alert delivery, assign named security-alert owners and record DR/incident rehearsals. Syntax and missing-input refusal are partial evidence only."
+  },
+  {
+    "id": "LIVE-015",
+    "requirement": "Backup/restore, incident response and privileged access review tested.",
+    "status": "PARTIAL_SOFTWARE_EVIDENCE",
+    "ticked": false,
+    "sourceCommit": "b55ba77bec623ed4ddcbbf4f5d77345e5a5e9188",
+    "evidence": "Existing PowerShell export/restore/validation/compat scripts parse; existing Linux backup/restore/monitor scripts pass bash -n. Restore verifier run with a confirmed nonexistent dump returned exit 1 and No such file before its Docker/database branches. Installed Docker Desktop was started hidden; Docker API remained unavailable and its startup log reports failure to access sailor-ingest.sock. No dump restored, no restore database created, no factory reset or Docker configuration repair attempted. Monitoring syntax does not prove alert delivery, ownership or incident response.",
+    "remainingAction": "Run the complete restore verifier after local Docker repair, perform an incident rehearsal and obtain the real privileged-access review. No restore or human access review was performed in batch 6."
+  },
+  {
+    "id": "LIVE-017",
+    "requirement": "Webhook retries, reconciliation and outage fallback validated.",
+    "status": "PARTIAL_SOFTWARE_EVIDENCE",
+    "ticked": false,
+    "sourceCommit": "b55ba77bec623ed4ddcbbf4f5d77345e5a5e9188",
+    "evidence": "Fresh existing regressions passed: typed retry-aware adapter failures, interrupted refund processing retains PROCESSING until provider recovery, ambiguous payout retains reserved BigInt funds and reconciles the original transfer without resending, carrier polling retries transient failure and deduplicates tracking updates. Real local database/queue/domain writes and fake provider sockets or injected adapters; no live provider calls.",
+    "remainingAction": "Local adapter/refund/payout/tracking outage tests passed (4 files/51 tests); conduct and record the required staging provider-outage exercise with actual configured providers. Local injected adapters and fake sockets are not staging evidence."
+  }
+]

@@ -1,4 +1,4 @@
-# Remaining checklist requirements after Pass 10 batch 5
+# Remaining checklist requirements after Pass 10 batch 6
 
 Word / Markdown: **282/364 checked, 82 open; Master 95/97**. Audit: `problems: []`. AutoPay period-cap concurrency and RFQ compliance-reason display were corrected; focused backend/UI regressions were added. Sample-to-bulk, duplicate outbound ERP AutoPay guardrails and controlled data exports/APIs and destination-change blocking were verified and ticked.
 
@@ -25,7 +25,7 @@ The owner limited this pass to checklist work while another task edits storefron
 | TEMPLATE-010 | Pass | Mutually exclusive form option | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
 | TEMPLATE-011 | Fail | Mutually exclusive form option | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
 | TEMPLATE-012 | N/A | Mutually exclusive form option | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
-| SEC-010 | Backup, restore, disaster recovery, monitoring, incident response and security alert ownership tested before go-live. | Staging exercise; human approval | Verify restore/monitoring scripts; name alert owners, prove delivery, restore an off-site backup and record DR/incident rehearsals. |
+| SEC-010 | Backup, restore, disaster recovery, monitoring, incident response and security alert ownership tested before go-live. | Staging exercise; human approval | Repair the local Docker startup failure to exercise the existing restore verifier; then restore an actual off-site backup, prove external monitoring/alert delivery, assign named security-alert owners and record DR/incident rehearsals. Syntax and missing-input refusal are partial evidence only. |
 | LIVE-001 | All P0 screens approved by Product Owner and QA. | Human approval | Obtain actual Product Owner and QA approval for every P0 screen. |
 | LIVE-002 | Responsive behavior validated on supported devices/browsers. | Real-device testing | Record supported browser and real-device validation. |
 | LIVE-003 | Empty/error/loading states complete; user guidance and policy links published. | Legal approval; unresolved software verification | Verify screen states and guidance; publish approved policy links after legal approval. |
@@ -34,9 +34,9 @@ The owner limited this pass to checklist work while another task edits storefron
 | LIVE-012 | Support team trained using real UAT scenarios. | Human approval | Train actual support staff using real UAT scenarios and record attendance/results. |
 | LIVE-013 | Penetration/security testing issues resolved per release criteria. | External provider | Obtain external penetration/security testing and resolve findings against release criteria. |
 | LIVE-014 | Privacy/terms/seller/buyer/inspection policies approved by qualified legal/compliance counsel for launch markets. | Legal approval | Obtain qualified counsel approval of all launch-market policies. |
-| LIVE-015 | Backup/restore, incident response and privileged access review tested. | Staging exercise | Verify restore and access-review software; perform restore, DR and incident rehearsals. |
+| LIVE-015 | Backup/restore, incident response and privileged access review tested. | Staging exercise | Run the complete restore verifier after local Docker repair, perform an incident rehearsal and obtain the real privileged-access review. No restore or human access review was performed in batch 6. |
 | LIVE-016 | Payment, payout, logistics, notification, storage and inspection integrations production-tested. | External provider; production validation | Test all listed integrations with real production providers and record results. |
-| LIVE-017 | Webhook retries, reconciliation and outage fallback validated. | Staging exercise | Retain existing retry/reconciliation evidence; conduct the required staging outage exercise. |
+| LIVE-017 | Webhook retries, reconciliation and outage fallback validated. | Staging exercise | Local adapter/refund/payout/tracking outage tests passed (4 files/51 tests); conduct and record the required staging provider-outage exercise with actual configured providers. Local injected adapters and fake sockets are not staging evidence. |
 | LIVE-018 | Production credentials/secrets rotated and monitored. | Production validation | Verify rotation/monitoring controls; rotate actual production credentials and record monitoring evidence. |
 | LIVE-019 | Master data loaded and approved. | Human approval | Verify readiness checks; obtain business approval of loaded master data. |
 | LIVE-020 | Critical event analytics validated against source transactions. | Production validation | Verify transaction reconciliation controls; validate critical analytics against production traffic. |

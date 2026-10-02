@@ -326,5 +326,77 @@
       "limitations": "Native font-playback limitation retained from earlier batches.",
       "cleanup": "Private read-only renderer closed without saving."
     }
+  },
+  "batch6": {
+    "sourceCommit": "b55ba77bec623ed4ddcbbf4f5d77345e5a5e9188",
+    "verifiedDate": "2026-10-03",
+    "ids": [
+      "SEC-010",
+      "LIVE-015",
+      "LIVE-017"
+    ],
+    "ticked": [],
+    "before": {
+      "checked": 282,
+      "open": 82
+    },
+    "after": {
+      "checked": 282,
+      "open": 82
+    },
+    "targeted": {
+      "command": "npx vitest run tests/unit/provider-fault-injection.test.ts tests/integration/provider-outage-recovery.test.ts tests/integration/ambiguous-payout-recovery.test.ts tests/integration/carrier-tracking-poll.test.ts",
+      "files": 4,
+      "tests": 51,
+      "exitCode": 0
+    },
+    "scriptChecks": {
+      "powershellParse": [
+        "scripts/db/export-xampp.ps1",
+        "scripts/db/verify-restore.ps1",
+        "scripts/db/validate-data.ps1",
+        "scripts/db/compat-test.ps1"
+      ],
+      "bashSyntax": [
+        "deploy/scripts/backup.sh",
+        "deploy/scripts/verify-restore.sh",
+        "deploy/scripts/monitor.sh"
+      ],
+      "missingDump": {
+        "script": "scripts/db/verify-restore.ps1",
+        "exitCode": 1,
+        "result": "Expected missing-input refusal before Docker or database operations."
+      }
+    },
+    "completeVerification": {
+      "reuseReason": "No source, API, schema, test, configuration or feature document changed since fully verified destination batch 5; only checklist evidence changed. Source diff guard is empty.",
+      "backend": {
+        "files": 337,
+        "tests": 5352,
+        "exitCode": 0
+      },
+      "customer": {
+        "files": 196,
+        "tests": 1804,
+        "exitCode": 0
+      },
+      "admin": {
+        "files": 52,
+        "tests": 382,
+        "exitCode": 0
+      }
+    },
+    "word": {
+      "changed": false,
+      "checkboxChanges": 0,
+      "visualQA": "Same byte-identical Word file inspected on page 28 for batch 5; no new changed page."
+    },
+    "environmentBlocker": "Docker Desktop startup cannot access sailor-ingest.sock; Linux engine pipe unavailable. No restore performed.",
+    "limitations": [
+      "No off-site restore, external monitor or alert delivery test.",
+      "No named incident/security owner, DR/incident rehearsal or actual privileged-access review.",
+      "No staging/production provider-outage validation."
+    ],
+    "evidence": "batch-6-partial.json"
   }
 }

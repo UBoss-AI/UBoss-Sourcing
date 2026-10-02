@@ -136,6 +136,8 @@ Current open classification after batch 4: **A 23; B 13; C 7; D 30; E 10 — 83 
 
 Current open classification after batch 5: **A 22; B 13; C 7; D 30; E 10 — 82 open**. Exact remaining actions: `verification-evidence/pass10/open-requirements.md`.
 
+**Batch 6 — partial recovery evidence; no boxes ticked.** SEC-010, LIVE-015 and LIVE-017 remain open. Local provider-fault/refund/payout/tracking regressions: **4 files /51 tests passed**. Four PowerShell recovery scripts parsed and three Linux backup/restore/monitor scripts passed syntax checks. The restore verifier refused a missing dump before any database operation. Docker startup failed while accessing `sailor-ingest.sock`; no restore occurred. Off-site restore, alert delivery/ownership, DR/incident rehearsal, actual privileged-access review and staging provider-outage exercise still need real evidence. Source unchanged; full batch 5 verification retained. Counts remain **282/364 checked, 82 open**; Word unchanged, audit `problems: []`. Evidence: `verification-evidence/pass10/batch-6-partial.json`.
+
 ### Pass 8 — Sections 12, 14 and 17 (Word headings, not Master rows)
 
 Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (the file the owner named in this session). Baseline 233/364 checked; Section 12 6/4, Section 14 1/20, Section 17 31/36.
