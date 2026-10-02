@@ -31,6 +31,8 @@ export interface SignInOptions {
    * suite happens to run.
    */
   ip?: string;
+  /** Actual injected transport address when proxy headers are not trusted. */
+  remoteAddress?: string;
   /** Somewhere in Pune, near enough. Any valid pair does. */
   latitude?: number;
   longitude?: number;
@@ -53,6 +55,7 @@ export async function signInAdmin(
   const login = await app.inject({
     method: 'POST',
     url: '/api/v1/admin/auth/login',
+    ...(options.remoteAddress === undefined ? {} : { remoteAddress: options.remoteAddress }),
     headers,
     payload: { email: options.email, password: options.password },
   });
@@ -66,6 +69,7 @@ export async function signInAdmin(
   const located = await app.inject({
     method: 'POST',
     url: '/api/v1/admin/auth/session/location',
+    ...(options.remoteAddress === undefined ? {} : { remoteAddress: options.remoteAddress }),
     headers: { ...headers, cookie: cookies, 'x-csrf-token': csrfToken },
     payload: {
       latitude: options.latitude ?? 18.5204,

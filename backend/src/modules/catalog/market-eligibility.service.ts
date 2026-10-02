@@ -254,6 +254,7 @@ export async function listingMarketRules(
       countryCode: true,
       effect: true,
       reason: true,
+      labelText: true,
       requiredDocumentsJson: true,
       minOrderValueMinor: true,
       thresholdCurrency: true,
@@ -267,6 +268,7 @@ export async function listingMarketRules(
     scope: rule.scope === 'PRODUCT' ? 'PRODUCT' : 'CATEGORY',
     effect: rule.effect,
     reason: rule.reason,
+    labelText: rule.labelText,
     requiredDocuments: Array.isArray(rule.requiredDocumentsJson)
       ? rule.requiredDocumentsJson.filter((entry): entry is string => typeof entry === 'string')
       : [],

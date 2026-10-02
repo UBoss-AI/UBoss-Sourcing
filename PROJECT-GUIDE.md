@@ -5670,7 +5670,7 @@ profile appears once the account is approved.
   categories above it, with the operator's reason, documents and threshold;
   the certificate holds that take it off sale everywhere; and the blocked and
   restricted countries. Shown on the listing's detail page. Countries not
-  listed are open.
+  listed are open. The API also preserves each rule's `labelText` instructions.
 - **Change history.** `GET /seller/audit?resourceId=` narrows the activity log
   to one record; the listing detail page shows its own history.
 - **Clone.** **Copy** on a listing now creates a new **listing draft** (category,

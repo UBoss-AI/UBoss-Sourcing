@@ -12,6 +12,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { prisma } from '../../src/infra/prisma.js';
 import { buildApp } from '../../src/http/app.js';
+import { newId } from '../../src/infra/ids.js';
 import { as, buildRfqWorld, cleanRfqWorld, errorCode, type RfqWorld } from '../support/rfq-fixture.js';
 
 const PREFIX = 'catm-';
@@ -88,6 +89,26 @@ describe('capacity on a listing', () => {
 });
 
 describe('market eligibility of a listing', () => {
+  it('preserves required label instructions in the seller country-rule contract', async () => {
+    const seller = world.sellers.delta;
+    const offer = await offerOf(seller.id);
+    const id = newId();
+    await prisma.marketRule.create({
+      data: {
+        id, scope: 'PRODUCT', productId: offer.productId, countryCode: 'FR', effect: 'LABEL_REQUIRED',
+        reason: 'French label required', labelText: 'French instructions on the package',
+        source: 'Catalog-manager test', version: '1', ownerName: 'Test compliance owner', effectiveFrom: new Date(0),
+      },
+    });
+    try {
+      const response = await as(world, seller.owner, 'GET', `/seller/listings/${offer.id}/market-eligibility`);
+      expect(response.statusCode, response.body).toBe(200);
+      expect(response.json<{ rules: unknown[] }>().rules).toContainEqual(expect.objectContaining({ countryCode: 'FR', effect: 'LABEL_REQUIRED', labelText: 'French instructions on the package' }));
+    } finally {
+      await prisma.marketRule.delete({ where: { id } });
+    }
+  });
+
   it('lists every rule touching the product with its reason, and blocks by country', async () => {
     const seller = world.sellers.delta;
     const offer = await offerOf(seller.id);

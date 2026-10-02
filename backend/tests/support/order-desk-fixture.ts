@@ -192,6 +192,7 @@ export async function customer(
   const login = await app.inject({
     method: 'POST',
     url: '/api/v1/auth/login',
+    remoteAddress: ip,
     headers: { 'x-forwarded-for': ip },
     payload: { email, password: PASSWORD },
   });
@@ -206,6 +207,7 @@ export async function customer(
     const opened = await app.inject({
       method: 'POST',
       url: '/api/v1/sellers/lock/open',
+      remoteAddress: ip,
       headers: { cookie: session.cookie, 'x-csrf-token': session.csrf, 'x-forwarded-for': ip },
       payload: { password: HUB_PASSWORD },
     });
@@ -238,7 +240,7 @@ export async function staff(
       roles: { create: { roleId: roleRow.id } },
     },
   });
-  const session = await signInAdmin(app, { email, password: PASSWORD, ip });
+  const session = await signInAdmin(app, { email, password: PASSWORD, ip, remoteAddress: ip });
   return { ...session, ip };
 }
 
@@ -423,6 +425,7 @@ export function asCustomer(
   return app.inject({
     method,
     url: `/api/v1${url}`,
+    remoteAddress: session.ip,
     headers: {
       cookie: session.cookie,
       'x-csrf-token': session.csrf,
@@ -448,6 +451,7 @@ export function asStaff(
   return app.inject({
     method,
     url: `/api/v1/admin${url}`,
+    remoteAddress: session.ip,
     headers: {
       cookie: session.cookies,
       'x-csrf-token': session.csrfToken,

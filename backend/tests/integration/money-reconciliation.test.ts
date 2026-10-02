@@ -420,9 +420,8 @@ describe('1. an Indian GST order from a marketplace seller, with a coupon', () =
     await closeSettlementPeriod(new Date(Date.now() + 62 * 86_400_000));
     const statementLines = await prisma.sellerSettlementLine.findMany({ where: { orderGroupId: group.id } });
     expect(statementLines.find((line) => line.kind === 'SALE')?.amountMinor).toBe(settlement.grossProceedsMinor);
-    expect(statementLines.filter((line) => line.kind === 'COMMISSION').reduce((sum, line) => sum + line.amountMinor, 0n)).toBe(
-      -(settlement.platformFeeMinor + settlement.platformFeeTaxMinor),
-    );
+    expect(statementLines.filter((line) => line.kind === 'COMMISSION').reduce((sum, line) => sum + line.amountMinor, 0n)).toBe(-settlement.platformFeeMinor);
+    expect(statementLines.filter((line) => line.kind === 'COMMISSION_TAX').reduce((sum, line) => sum + line.amountMinor, 0n)).toBe(-settlement.platformFeeTaxMinor);
     expect(statementLines.reduce((sum, line) => sum + line.amountMinor, 0n)).toBe(share);
   });
 });

@@ -62,14 +62,12 @@ function cookiesOf(response: LightMyRequestResponse): Map<string, string> {
 }
 
 async function signIn(who: Who, index: number): Promise<Session> {
-  const ip = `203.0.113.${String(200 + index)}`;
-  // Ten sign-ins per address per 15 minutes, and this file signs in eleven
-  // people from one test address. `tests/setup.ts` clears the counters before
-  // each test, not before `beforeAll`, so do the same here halfway.
-  if (index === 8) await prisma.rateLimitBucket.deleteMany({});
+  // This file owns 10.96.0.*, so other files cannot spend its login budget.
+  const ip = `10.96.0.${String(200 + index)}`;
   const response = await app.inject({
     method: 'POST',
     url: '/api/v1/auth/login',
+    remoteAddress: ip,
     headers: { 'x-forwarded-for': ip },
     payload: { email: EMAIL[who], password: PASSWORD },
   });
@@ -88,6 +86,7 @@ function call(who: Who, method: 'GET' | 'POST' | 'PATCH' | 'DELETE', url: string
   return app.inject({
     method,
     url: `/api/v1${url}`,
+    remoteAddress: session.ip,
     headers: { cookie: session.cookie, 'x-csrf-token': session.csrf, 'x-forwarded-for': session.ip },
     ...(payload === undefined ? {} : { payload: payload as Record<string, unknown> }),
   });
@@ -235,7 +234,7 @@ beforeAll(async () => {
       roles: { create: { roleId: ownerRole.id } },
     },
   });
-  ({ cookies: staffCookies } = await signInAdmin(app, { email: STAFF_EMAIL, password: PASSWORD, ip: '203.0.113.199' }));
+  ({ cookies: staffCookies } = await signInAdmin(app, { email: STAFF_EMAIL, password: PASSWORD, ip: '10.96.0.199', remoteAddress: '10.96.0.199' }));
 }, 120_000);
 
 afterAll(async () => {
@@ -561,7 +560,7 @@ describe('the access review', () => {
     const response = await app.inject({
       method: 'GET',
       url: `/api/v1/admin/sellers/${sellerA}/access-review`,
-      headers: { cookie: staffCookies, 'x-forwarded-for': '203.0.113.199' },
+      headers: { cookie: staffCookies, 'x-forwarded-for': '10.96.0.199' },
     });
     expect(response.statusCode, response.body).toBe(200);
     const view = response.json<{ members: { email: string; invitedByName: string | null; lastSignInAt: string | null }[]; accessReview: { reviews: unknown[] } }>();
@@ -573,7 +572,7 @@ describe('the access review', () => {
     const missing = await app.inject({
       method: 'GET',
       url: `/api/v1/admin/sellers/${newId()}/access-review`,
-      headers: { cookie: staffCookies, 'x-forwarded-for': '203.0.113.199' },
+      headers: { cookie: staffCookies, 'x-forwarded-for': '10.96.0.199' },
     });
     expect(missing.statusCode).toBe(404);
     // A seller's own session is not a staff session.

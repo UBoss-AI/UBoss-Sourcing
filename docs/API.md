@@ -3922,7 +3922,7 @@ Anything that moves money needs `FEATURE_ESCROW_LEDGER` (`ESCROW_LEDGER_DISABLED
   (0–730 or null); left out, kept. `GET .../sourcing` adds `capacity`, and the
   PUT's `terms` adds it too. `GET /api/v1/seller/listings/:id/market-eligibility`
   → `{ status, complianceHolds[], rules[] (countryCode, scope, effect, reason,
-  requiredDocuments, categoryName, minOrderValueMinor, thresholdCurrency),
+  requiredDocuments, labelText, categoryName, minOrderValueMinor, thresholdCurrency),
   blockedCountries, restrictedCountries }`. `GET /api/v1/seller/audit` takes
   `resourceId` and `resourceType`; an entry's `summary` may be null.
   `POST /api/v1/seller/listings/:id/duplicate` now answers `201 { draftId }`
