@@ -49,6 +49,7 @@ const TAG = 'aor21';
 const UPPER = TAG.toUpperCase();
 const KEY_ID = 'rzp_test_aor21key';
 
+let createdLocationId: string | null = null;
 let app: Awaited<ReturnType<typeof buildApp>>;
 let desk: OrderDesk;
 let owner: StaffSession;
@@ -135,6 +136,14 @@ beforeAll(async () => {
   await app.ready();
   await cleanUp();
 
+  // Stock moves need a default warehouse, and other files wipe them all.
+  if ((await prisma.inventoryLocation.findFirst({ where: { isDefault: true, isActive: true }, select: { id: true } })) === null) {
+    createdLocationId = newId();
+    await prisma.inventoryLocation.create({
+      data: { id: createdLocationId, code: 'AOR21-MAIN', name: 'Main', isDefault: true, isActive: true },
+    });
+  }
+
   // The one Razorpay TEST connection: borrowed and put back exactly, or made
   // and removed. Saved last, so it is the gateway a refund is sent through.
   const existing = await prisma.paymentProviderConnection.findUnique({
@@ -161,6 +170,11 @@ afterAll(async () => {
   vi.unstubAllGlobals();
   await fake.close();
   await cleanUp();
+  if (createdLocationId !== null) {
+    await prisma.inventoryMovement.deleteMany({ where: { locationId: createdLocationId } });
+    await prisma.inventoryBalance.deleteMany({ where: { locationId: createdLocationId } });
+    await prisma.inventoryLocation.deleteMany({ where: { id: createdLocationId } });
+  }
   if (savedConnection === null) {
     await prisma.paymentProviderConnection.deleteMany({ where: { id: connectionId } });
   } else {
