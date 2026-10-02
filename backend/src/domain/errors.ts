@@ -1953,6 +1953,14 @@ export const ErrorCode = {
   /// A purchase-order approval is stale, out of sequence, or would let its
   /// requestor approve their own order. 409. (Master row 21)
   RFQ_PURCHASE_ORDER_APPROVAL_INVALID: 'RFQ_PURCHASE_ORDER_APPROVAL_INVALID',
+  /// An RFQ purchase order cannot become an order: it is not approved
+  /// (`NOT_APPROVED`), its quantity is not a whole number of units
+  /// (`FRACTIONAL_QUANTITY`) or is too large (`QUANTITY_TOO_LARGE`), the
+  /// supplier can no longer trade (`SELLER_UNAVAILABLE`), tax for the
+  /// destination cannot be worked out (`TAX_UNAVAILABLE`), or the sealed
+  /// contract and its totals disagree (`CONTRACT_MISMATCH`).
+  /// `details[0].code` says which. 409. (LIVE-004)
+  RFQ_PURCHASE_ORDER_NOT_CONVERTIBLE: 'RFQ_PURCHASE_ORDER_NOT_CONVERTIBLE',
   /// A factory cannot be changed now: it is with a reviewer. 409. (Master row 13)
   FACTORY_NOT_EDITABLE: 'FACTORY_NOT_EDITABLE',
   /// A factory cannot be sent for review, or verified, yet: it has no

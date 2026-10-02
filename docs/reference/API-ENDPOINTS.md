@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1302 endpoints** in 120 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1303 endpoints** in 120 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -31,7 +31,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 322 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 298 |
+| [Customer account](#customer-account) | 299 |
 | [Public and storefront](#public-and-storefront) | 54 |
 
 ## Admin panel (staff)
@@ -2575,6 +2575,7 @@ Defined in `backend/src/http/routes/rfq.customer.ts`.
 | GET | `/api/v1/rfqs/:id/purchase-order` | Customer | Feature + Customer | The final contract preview, or the immutable purchase order already raised from it. |
 | POST | `/api/v1/rfqs/:id/purchase-order` | Customer | Feature + Customer | E-accept the exact awarded terms and raise the binding purchase order. |
 | POST | `/api/v1/rfqs/:id/purchase-order/decision` | Customer | Feature + Customer | Decide the next stage in the company's approver/finance matrix. |
+| POST | `/api/v1/rfqs/:id/purchase-order/order` | Customer | Feature + Customer | Turn the approved purchase order into an order awaiting payment. Needs an Idempotency-Key; a repeat, or a second tab, returns the same order. |
 | GET | `/api/v1/rfqs/:id/samples` | Customer | Feature + Customer | The samples asked for on your request, with their status, evidence and what you may do next. |
 | POST | `/api/v1/rfqs/:id/samples` | Customer | Feature + Customer | Ask a supplier taking part for a sample: quantity, address, date and approval criteria. Needs an Idempotency-Key. Tells the supplier; audited. |
 | POST | `/api/v1/rfqs/:id/samples/:sampleId/cancel` | Customer | Feature + Customer | Cancel a sample request before it is shipped. The supplier is told; audited. |

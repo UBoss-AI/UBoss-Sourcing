@@ -1461,6 +1461,22 @@ export interface SellerOrderRow {
   lineCount: number;
   itemCount: number;
   locationName: string | null;
+  /** The RFQ purchase order it was made from (LIVE-004); absent from an older server. */
+  purchaseOrderReference?: string | null;
+}
+
+/** What an order made from an RFQ purchase order carries from the contract (LIVE-004). */
+export interface OrderPurchaseOrderLink {
+  id: string;
+  reference: string;
+  rfqId: string;
+  rfqReference: string;
+  buyerSku: string | null;
+  incoterm: string | null;
+  incotermPlace: string | null;
+  paymentTerms: string | null;
+  inspectionTerms: string | null;
+  exportDocuments: string[];
 }
 
 export function fetchSellerOrders(
@@ -1602,6 +1618,8 @@ export interface SellerOrderDetail {
   id: string;
   sellerOrderNumber: string;
   orderNumber: string;
+  /** Set when the order was made from an RFQ purchase order; absent from an older server. */
+  purchaseOrder?: OrderPurchaseOrderLink | null;
   status: SellerOrderStatus;
   buyerOrderStatus: string;
   placedAt: string | null;

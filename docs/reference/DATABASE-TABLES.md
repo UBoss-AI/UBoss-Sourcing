@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**360 tables · 335 enums · 823 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
+**360 tables · 335 enums · 824 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -2093,6 +2093,7 @@ Table `orders`
 - `sellerOrderGroups` ← [SellerOrderGroup](#model-sellerordergroup) - has many
 - `preorderRequest` ← [PreorderRequest](#model-preorderrequest) - has zero or one
 - `rfqSample` ← [RfqSample](#model-rfqsample) - has zero or one
+- `rfqPurchaseOrder` ← [RfqPurchaseOrder](#model-rfqpurchaseorder) - has zero or one
 - `sellerInvoices` ← [SellerInvoice](#model-sellerinvoice) - has many
 - `packingLists` ← [SellerPackingList](#model-sellerpackinglist) - has many
 - `commissionInvoices` ← [CommissionInvoice](#model-commissioninvoice) - has many
@@ -2289,6 +2290,7 @@ Table `idempotency_records`
 | `RECURRING` |  |
 | `PREORDER` | Converted from a bulk preorder both parties confirmed. Appended: MariaDB stores an enum by position. |
 | `RFQ_SAMPLE` | The fee, tax and shipping for a paid RFQ sample (Master row 20). Has no lines: the sample is not a catalogue product. Appended. |
+| `RFQ_PURCHASE_ORDER` | Converted from an approved RFQ purchase order (LIVE-004). Its lines are on a private product and offer made for that purchase order alone. Appended. |
 
 <a id="enum-fxpricesource"></a>
 
@@ -17452,6 +17454,7 @@ erDiagram
     InspectionPlan |o--o{ InspectionRule : "plan"
     InspectionAgency ||--o{ InspectionAgencyMember : "agency"
     SellerOrderGroup ||--o{ InspectionRequirement : "sellerOrderGroup"
+    RfqSample |o--o{ InspectionRequirement : "referenceSample"
     InspectionRequirement ||--o{ InspectionJob : "requirement"
     InspectionAgency ||--o{ InspectionJob : "agency"
     InspectionJob ||--o{ InspectionConflictDeclaration : "job"
@@ -17497,6 +17500,7 @@ erDiagram
         String id PK
         String sellerOrderGroupId FK
         InspectionRequirementStatus status
+        String referenceSampleId FK
     }
     InspectionJob {
         String id PK
@@ -17778,6 +17782,7 @@ One seller order's inspection: whether it is needed, and why.
 | `buyerRequestNote` | String · VarChar(1024) | yes |  |  |  |
 | `evaluatedAt` | DateTime · DateTime(3) |  |  |  |  |
 | `loadReleasedAt` | DateTime · DateTime(3) | yes |  |  | When the gate first let the goods go. After this a change to the packages is recorded but can no longer be re-inspected. |
+| `referenceSampleId` | String · Char(26) | yes | FK → [RfqSample](#model-rfqsample) |  | The approved RFQ reference sample the goods are measured against, for an order made from an RFQ purchase order (JOURNEY-019). Null otherwise. (on delete: SetNull) |
 | `version` | Int |  |  | 0 |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
@@ -17785,6 +17790,7 @@ One seller order's inspection: whether it is needed, and why.
 **Relations**
 
 - `sellerOrderGroup` → [SellerOrderGroup](#model-sellerordergroup) via `sellerOrderGroupId` - many-to-one, required, on delete **Cascade**
+- `referenceSample` → [RfqSample](#model-rfqsample) via `referenceSampleId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
 - `jobs` ← [InspectionJob](#model-inspectionjob) - has many
 - `releases` ← [InspectionRelease](#model-inspectionrelease) - has many
 - `events` ← [InspectionEvent](#model-inspectionevent) - has many
@@ -17797,6 +17803,7 @@ One seller order's inspection: whether it is needed, and why.
 - `@@index([orderId], map: "ix_insp_requirement_order")`
 - `@@index([status, updatedAt], map: "ix_insp_requirement_status")`
 - `@@index([sellerAccountId, status], map: "ix_insp_requirement_seller")`
+- `@@index([referenceSampleId], map: "ix_insp_requirement_reference_sample")`
 
 <a id="model-inspectionjob"></a>
 
@@ -20494,6 +20501,7 @@ erDiagram
     SellerAccount ||--o{ RfqQuote : "sellerAccount"
     RfqQuote ||--o{ RfqQuoteVersion : "quote"
     RfqRequest ||--o| RfqPurchaseOrder : "rfq"
+    Order |o--o| RfqPurchaseOrder : "order"
     RfqPurchaseOrder ||--o{ RfqPurchaseOrderApproval : "purchaseOrder"
     RfqRequest ||--o{ RfqSample : "rfq"
     Order |o--o| RfqSample : "order"
@@ -20549,6 +20557,7 @@ erDiagram
         BigInt toolingMinor
         BigInt shippingMinor
         BigInt grandTotalMinor
+        String orderId FK
     }
     RfqPurchaseOrderApproval {
         String id PK
@@ -20922,12 +20931,16 @@ The binding buyer purchase order produced from one accepted RFQ quote. Commercia
 | `approvedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `rejectedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `rejectionReason` | String · VarChar(1000) | yes |  |  |  |
+| `orderId` | String · Char(26) | yes | UNIQUE, FK → [Order](#model-order) |  | The marketplace order this approved purchase order became (source RFQ_PURCHASE_ORDER, LIVE-004). Unique, so one purchase order makes one live order however often, or however concurrently, it is converted. A cancelled unpaid order may be replaced by a new one. (on delete: SetNull) |
+| `convertedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `convertedByUserId` | String · Char(26) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 
 **Relations**
 
 - `rfq` → [RfqRequest](#model-rfqrequest) via `rfqId` - one-to-one, required, on delete **Restrict**, on update **Restrict**
+- `order` → [Order](#model-order) via `orderId` - one-to-one, optional, on delete **SetNull**, on update **Restrict**
 - `approvals` ← [RfqPurchaseOrderApproval](#model-rfqpurchaseorderapproval) - has many
 
 **Indexes and keys**
@@ -21009,6 +21022,7 @@ A sample asked of one seller on a request (Master row 20), optionally against it
 
 - `rfq` → [RfqRequest](#model-rfqrequest) via `rfqId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
 - `order` → [Order](#model-order) via `orderId` - one-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `inspectionRequirements` ← [InspectionRequirement](#model-inspectionrequirement) - has many
 
 **Indexes and keys**
 

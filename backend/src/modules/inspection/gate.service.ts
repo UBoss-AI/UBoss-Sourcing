@@ -25,6 +25,7 @@ import {
 import { INSPECTION_GATED_SHIPMENT_STATUSES, type ShipmentStatusName } from '../../domain/logistics-shipment-state.js';
 import { decideRequirement, supplierRiskFrom, type RuleCandidate, type SupplierRiskTier } from '../../domain/inspection-rules.js';
 import { OPEN_JOB_STATUSES } from '../../domain/inspection-state.js';
+import { purchaseOrderInspectionReason } from '../../domain/rfq-po-order.js';
 import { createLogisticsNotification } from '../logistics/notification.service.js';
 import { notifySeller } from '../seller/notification.service.js';
 import {
@@ -187,6 +188,38 @@ export async function orderFactsFor(client: Client | typeof prisma, sellerOrderG
 }
 
 /**
+ * What an RFQ purchase order behind this order says about inspection: its
+ * reference, the reason it demands one (null when it asks for none), and the
+ * buyer's approved reference sample from that supplier - the latest one the
+ * buyer approved on the request. Null for an order not made from one.
+ */
+export async function purchaseOrderInspectionFor(
+  client: Client | typeof prisma,
+  orderId: string,
+  sellerAccountId: string,
+): Promise<{ reference: string; reason: string | null; referenceSampleId: string | null } | null> {
+  const po = await client.rfqPurchaseOrder.findUnique({
+    where: { orderId },
+    select: { reference: true, rfqId: true, sellerAccountId: true, contractJson: true },
+  });
+  if (po?.sellerAccountId !== sellerAccountId) return null;
+  const quality = (po.contractJson as { quality?: { inspectionRequirement?: string; inspectionTerms?: string | null } }).quality;
+  const sample = await client.rfqSample.findFirst({
+    where: { rfqId: po.rfqId, sellerAccountId, status: 'APPROVED', referenceCode: { not: null } },
+    orderBy: [{ decidedAt: 'desc' }, { id: 'desc' }],
+    select: { id: true },
+  });
+  return {
+    reference: po.reference,
+    reason: purchaseOrderInspectionReason(po.reference, {
+      inspectionRequirement: quality?.inspectionRequirement ?? 'NONE',
+      inspectionTerms: quality?.inspectionTerms ?? null,
+    }),
+    referenceSampleId: sample?.id ?? null,
+  };
+}
+
+/**
  * The requirement for a seller order, deciding it if nobody has yet.
  *
  * Returns null for a seller order whose goods had already left before this
@@ -211,7 +244,7 @@ export async function ensureRequirement(
   const risk = await supplierRiskOf(client, facts.group.sellerAccountId, policy);
   const now = new Date();
 
-  const decision = decideRequirement(await activeRules(client), {
+  const ruled = decideRequirement(await activeRules(client), {
     categoryIds: facts.categoryIds,
     valueMinor: facts.group.goodsTotalMinor,
     currency: facts.group.currency,
@@ -220,6 +253,23 @@ export async function ensureRequirement(
     buyerRequested: false,
     now,
   });
+
+  // An order made from an RFQ purchase order carries the contract's own
+  // inspection terms (LIVE-004), and they can only raise what the rules said:
+  // a purchase order that asks for an inspection makes it MANDATORY. Its
+  // approved reference sample is what the goods are measured against
+  // (JOURNEY-019).
+  const contracted = await purchaseOrderInspectionFor(client, facts.group.orderId, facts.group.sellerAccountId);
+  const decision =
+    contracted !== null && contracted.reason !== null && ruled.level !== 'MANDATORY'
+      ? {
+          ...ruled,
+          level: 'MANDATORY' as const,
+          reason: contracted.reason,
+          ruleId: null,
+          ruleName: `Purchase order ${contracted.reference}`,
+        }
+      : ruled;
 
   const id = newId();
   const inputs = {
@@ -231,6 +281,8 @@ export async function ensureRequirement(
     supplierRiskRated: risk.rated,
     recentFailures: risk.recentFailures,
     matched: decision.matched,
+    purchaseOrder: contracted === null ? null : { reference: contracted.reference, requiresInspection: contracted.reason !== null },
+    referenceSampleId: contracted?.referenceSampleId ?? null,
   };
 
   try {
@@ -249,6 +301,7 @@ export async function ensureRequirement(
         planId: decision.planId,
         preferredAgencyId: decision.preferredAgencyId,
         allowConditionalRelease: decision.allowConditionalRelease,
+        referenceSampleId: contracted?.referenceSampleId ?? null,
         evaluatedAt: now,
       },
     });

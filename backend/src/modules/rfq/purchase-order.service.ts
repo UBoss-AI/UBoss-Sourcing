@@ -237,7 +237,24 @@ function actionsFor(row: PurchaseOrderRow | null, buyer: RfqBuyer) {
   return { canSubmit: false, canApprove: allowed, canReject: allowed };
 }
 
-function view(row: PurchaseOrderRow, buyer: RfqBuyer) {
+/** The order this purchase order became, as the buyer's screen needs it. */
+interface LinkedOrder {
+  id: string;
+  orderNumber: string;
+  status: string;
+  currency: string;
+  grandTotalMinor: bigint;
+  confirmedAt: Date | null;
+}
+
+function view(row: PurchaseOrderRow, buyer: RfqBuyer, order: LinkedOrder | null = null) {
+  // A cancelled order nobody paid for no longer counts: it may be replaced.
+  const liveOrder =
+    order !== null && (order.status !== 'CANCELLED' || order.confirmedAt !== null) ? order : null;
+  const purchasing =
+    buyer.context.kind === 'INDIVIDUAL' ||
+    (buyer.context.companyStatus === 'APPROVED' &&
+      roleHasCapability(buyer.context.role, 'PURCHASE'));
   return {
     id: row.id,
     reference: row.reference,
@@ -274,7 +291,34 @@ function view(row: PurchaseOrderRow, buyer: RfqBuyer) {
     rejectionReason: row.rejectionReason,
     createdAt: row.createdAt.toISOString(),
     actions: actionsFor(row, buyer),
+    /** The marketplace order made from it (LIVE-004), or null before it is converted. */
+    order:
+      liveOrder === null
+        ? null
+        : {
+            id: liveOrder.id,
+            orderNumber: liveOrder.orderNumber,
+            status: liveOrder.status,
+            grandTotal: serialiseMoney(liveOrder.grandTotalMinor, liveOrder.currency),
+          },
+    /** Whether this buyer may turn it into an order now. */
+    canConvert: row.status === 'APPROVED' && liveOrder === null && purchasing,
   };
+}
+
+async function linkedOrder(orderId: string | null): Promise<LinkedOrder | null> {
+  if (orderId === null) return null;
+  return prisma.order.findUnique({
+    where: { id: orderId },
+    select: {
+      id: true,
+      orderNumber: true,
+      status: true,
+      currency: true,
+      grandTotalMinor: true,
+      confirmedAt: true,
+    },
+  });
 }
 
 async function loadExisting(rfqId: string): Promise<PurchaseOrderRow | null> {
@@ -286,7 +330,10 @@ export async function reviewPurchaseOrder(buyer: RfqBuyer, rfqId: string) {
   await loadRfqForBuyer(buyer, rfqId);
   const existing = await loadExisting(rfqId);
   if (existing !== null)
-    return { kind: 'PURCHASE_ORDER' as const, purchaseOrder: view(existing, buyer) };
+    return {
+      kind: 'PURCHASE_ORDER' as const,
+      purchaseOrder: view(existing, buyer, await linkedOrder(existing.orderId)),
+    };
   const built = await buildContract(buyer, rfqId, null);
   return {
     kind: 'PREVIEW' as const,

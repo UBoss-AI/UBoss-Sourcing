@@ -3298,8 +3298,64 @@ status write is conditional on the status and version that were read.
   5. Buyer scope returns 404 for another buyer's PO. Creation and every
      decision record the actor, contract hash, IP/correlation context and
      before/after approval state in the audit log.
-- **Status.** Built (checklist Master row 21). Converting an approved RFQ PO
-  into the fulfilment/payment order belongs to the following B2B order flow.
+- **Status.** Built (checklist Master row 21). Converting an approved PO into
+  an order is FR-RFQ-006.
+
+### FR-RFQ-006 — An approved purchase order becomes an order (LIVE-004, JOURNEY-019)
+
+- **Statement.** The buyer turns an approved RFQ purchase order into an
+  ordinary marketplace order, pays it, and the supplier makes, has inspected,
+  ships and delivers it through the same steps as any other seller order.
+- **Rules.**
+  1. `POST /rfqs/:id/purchase-order/order` (Idempotency-Key required) works
+     only on an `APPROVED` PO, only for a buyer who can see it and may
+     purchase in that context (an approved company). Anyone else - another
+     buyer, the supplier - gets 404. A PO that is not approved, whose
+     quantity is not a whole number of units, whose supplier can no longer
+     trade, whose tax cannot be worked out, or whose contract and totals
+     disagree is refused with `RFQ_PURCHASE_ORDER_NOT_CONVERTIBLE`
+     (`details[0].code` says which).
+  2. One PO makes one live order. `rfq_purchase_orders.orderId` is unique and
+     is set conditionally in the same transaction that creates the order, so
+     a repeat or a concurrent press returns the same order. A cancelled order
+     that was never paid may be replaced; a paid one never is.
+  3. The order (source `RFQ_PURCHASE_ORDER`) has one line for the goods at the
+     agreed unit price and quantity and, when there is tooling, a second
+     one-unit line for it. The supplier's shipping estimate is the order's
+     shipping charge and is credited to the seller as their own delivery in
+     the split. The quoted price is treated as before tax; tax for the
+     destination is added by the ordinary tax engine with the deployment's
+     default tax class. The goods and shipping must equal the sealed PO
+     figures or the conversion is refused.
+  4. Order lines name a private product and seller offer made for that PO
+     alone: in the RFQ's category, for the awarded seller, never published,
+     never orderable, archived. This keeps the seller split, platform fee,
+     inspection rules and documents working without special cases, and
+     nothing can buy the private product from the catalogue.
+  5. The full total is paid on the ordinary payment screen and held until the
+     goods are inspected and delivered. The quote's payment terms text is
+     recorded on the order; staged or deferred payment is not modelled - the
+     operator can send a payment link instead. The order is confirmed only by
+     a signature-verified payment webhook; that confirmation records
+     `PURCHASE_ORDER_PAID` on the request and tells the supplier.
+  6. Goods made to a PO are not held from stock when the seller accepts; the
+     seller records production milestones instead.
+  7. Inspection: when the PO's requirement asked for any inspection, or the
+     accepted offer named inspection terms, the seller order's inspection is
+     `MANDATORY` with the PO named as the reason, whatever the marketplace
+     rules say (rules can only raise it). The buyer's latest approved
+     reference sample from that supplier is linked to the inspection
+     (`inspection_requirements.referenceSampleId`) and shown to the buyer, the
+     seller and the inspector with its code, criteria and evidence.
+  8. A consignment of the order must be booked on the PO's Incoterm
+     (`BOOKING_TERMS_INVALID`, `PURCHASE_ORDER_INCOTERM`); the booking form
+     starts from the PO's Incoterm and place and lists the export documents
+     promised.
+  9. The buyer's order page, the seller's order list and detail, and the
+     admin order page show the PO reference and its terms. The privacy
+     export lists the order number each PO became. Conversion is audited
+     (`rfq.purchase_order_converted`) with the order created.
+- **Status.** Built (LIVE-004, JOURNEY-019). Behind `FEATURE_RFQ`.
 
 ### FR-RFQ-006 — Sample requests (checklist Master row 20)
 

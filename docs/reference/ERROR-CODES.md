@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**519 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**520 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -66,7 +66,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Pre-shipment inspection and the dispatch gate](#pre-shipment-inspection-and-the-dispatch-gate) | 17 |
 | [Returns](#returns) | 5 |
 | [The buyer experience: cart, checkout, account, alerts, reviews](#the-buyer-experience-cart-checkout-account-alerts-reviews) | 27 |
-| [Requests for quotation (Master rows 16-19)](#requests-for-quotation-master-rows-16-19) | 25 |
+| [Requests for quotation (Master rows 16-19)](#requests-for-quotation-master-rows-16-19) | 26 |
 | [Country rules, rate cards and storefront content (Master rows 69, 71, 72)](#country-rules-rate-cards-and-storefront-content-master-rows-69-71-72) | 3 |
 | [Held funds, the transaction ledger and seller payouts (Master rows 58-61, 43)](#held-funds-the-transaction-ledger-and-seller-payouts-master-rows-58-61-43) | 4 |
 
@@ -789,6 +789,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `RFQ_SAMPLE_TRANSITION_NOT_ALLOWED` | A sample request cannot move that way from where it is, by that side - or it changed while the screen was open (`STALE`). 409. (Master row 20) |
 | `RFQ_PURCHASE_ORDER_INVALID` | A purchase order cannot be raised because accepted terms are missing, changed, or the buyer did not e-accept the exact contract shown. 409. |
 | `RFQ_PURCHASE_ORDER_APPROVAL_INVALID` | A purchase-order approval is stale, out of sequence, or would let its requestor approve their own order. 409. (Master row 21) |
+| `RFQ_PURCHASE_ORDER_NOT_CONVERTIBLE` | An RFQ purchase order cannot become an order: it is not approved (`NOT_APPROVED`), its quantity is not a whole number of units (`FRACTIONAL_QUANTITY`) or is too large (`QUANTITY_TOO_LARGE`), the supplier can no longer trade (`SELLER_UNAVAILABLE`), tax for the destination cannot be worked out (`TAX_UNAVAILABLE`), or the sealed contract and its totals disagree (`CONTRACT_MISMATCH`). `details[0].code` says which. 409. (LIVE-004) |
 | `FACTORY_NOT_EDITABLE` | A factory cannot be changed now: it is with a reviewer. 409. (Master row 13) |
 | `FACTORY_INCOMPLETE` | A factory cannot be sent for review, or verified, yet: it has no evidence attached. `details` names what is missing. 400 for the seller, 409 for a reviewer. |
 | `FACTORY_TRANSITION_INVALID` | The factory's verification cannot move that way from where it is - including a reviewer deciding a check a colleague already decided (`details[0].code` is `STALE`). 409. |

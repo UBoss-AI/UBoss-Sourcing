@@ -1160,6 +1160,12 @@ export async function transitionOrder(
       // way a charged sample becomes PAID. A no-op for every other order.
       const samples = await import('../rfq/sample.service.js');
       await samples.onSampleOrderConfirmed(input.orderId, tx);
+
+      // And the RFQ purchase order this order was made from (LIVE-004): paid
+      // only here, so a paid order and its purchase order cannot disagree. A
+      // no-op for every other order.
+      const purchaseOrders = await import('../rfq/purchase-order-order.service.js');
+      await purchaseOrders.onRfqOrderConfirmed(input.orderId, tx);
     }
 
     /*

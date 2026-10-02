@@ -44,6 +44,7 @@ import {
   PageHeader,
   Select,
 } from '@/components/ui';
+import { PurchaseOrderTermsCard } from '@/components/rfq/PurchaseOrderTermsCard';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
@@ -128,6 +129,8 @@ export function SellerOrderDetailPage(): React.JSX.Element {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-6">
+          {/* LIVE-004: the purchase order this order was made from, and its terms. */}
+          {order.purchaseOrder != null && <PurchaseOrderTermsCard purchaseOrder={order.purchaseOrder} />}
           <Lines order={order} />
           {/* L1-L4, where this order was priced on four delivery levels. */}
           {/* Raw material, production, QA, ready and exceptions (Master row 40). */}

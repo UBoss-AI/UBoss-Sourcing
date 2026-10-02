@@ -37,6 +37,25 @@ export interface InspectionJobView {
   samplingRecord?: { lotReference?: string; sampledQuantity?: number; acceptedQuantity?: number; rejectedQuantity?: number } | null;
 }
 
+/** The RFQ purchase order an inspected order was bought on (LIVE-004). */
+export interface InspectionPurchaseOrder {
+  reference: string;
+  inspectionRequirement: string | null;
+  inspectionTerms: string | null;
+}
+
+/** The approved RFQ reference sample the goods are measured against (JOURNEY-019). */
+export interface InspectionReferenceSample {
+  reference: string;
+  referenceCode: string | null;
+  quantity: string;
+  unitOfMeasure: string | null;
+  approvalCriteria: string;
+  decisionReason: string | null;
+  approvedAt: string | null;
+  files: string[];
+}
+
 export interface InspectionView {
   requirement: {
     id: string;
@@ -47,6 +66,9 @@ export interface InspectionView {
     status: string;
     reason: string | null;
     gate: { allowed?: boolean; sentence: string };
+    /** Optional: absent from an older server. */
+    purchaseOrder?: InspectionPurchaseOrder | null;
+    referenceSample?: InspectionReferenceSample | null;
   };
   jobs: InspectionJobView[];
   releases: { id: string; kind: string; state: string; reason?: string | null }[];

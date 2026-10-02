@@ -424,6 +424,7 @@ export type RfqSampleWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"RfqSample"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
   order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
+  inspectionRequirements?: Prisma.InspectionRequirementListRelationFilter
 }
 
 export type RfqSampleOrderByWithRelationInput = {
@@ -458,6 +459,7 @@ export type RfqSampleOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   rfq?: Prisma.RfqRequestOrderByWithRelationInput
   order?: Prisma.OrderOrderByWithRelationInput
+  inspectionRequirements?: Prisma.InspectionRequirementOrderByRelationAggregateInput
   _relevance?: Prisma.RfqSampleOrderByRelevanceInput
 }
 
@@ -496,6 +498,7 @@ export type RfqSampleWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"RfqSample"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
   order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
+  inspectionRequirements?: Prisma.InspectionRequirementListRelationFilter
 }, "id" | "reference" | "orderId" | "referenceCode">
 
 export type RfqSampleOrderByWithAggregationInput = {
@@ -600,6 +603,7 @@ export type RfqSampleCreateInput = {
   updatedAt?: Date | string
   rfq: Prisma.RfqRequestCreateNestedOneWithoutSamplesInput
   order?: Prisma.OrderCreateNestedOneWithoutRfqSampleInput
+  inspectionRequirements?: Prisma.InspectionRequirementCreateNestedManyWithoutReferenceSampleInput
 }
 
 export type RfqSampleUncheckedCreateInput = {
@@ -632,6 +636,7 @@ export type RfqSampleUncheckedCreateInput = {
   requestedByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  inspectionRequirements?: Prisma.InspectionRequirementUncheckedCreateNestedManyWithoutReferenceSampleInput
 }
 
 export type RfqSampleUpdateInput = {
@@ -664,6 +669,7 @@ export type RfqSampleUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutSamplesNestedInput
   order?: Prisma.OrderUpdateOneWithoutRfqSampleNestedInput
+  inspectionRequirements?: Prisma.InspectionRequirementUpdateManyWithoutReferenceSampleNestedInput
 }
 
 export type RfqSampleUncheckedUpdateInput = {
@@ -696,6 +702,7 @@ export type RfqSampleUncheckedUpdateInput = {
   requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  inspectionRequirements?: Prisma.InspectionRequirementUncheckedUpdateManyWithoutReferenceSampleNestedInput
 }
 
 export type RfqSampleCreateManyInput = {
@@ -955,6 +962,22 @@ export type RfqSampleUncheckedUpdateOneWithoutOrderNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RfqSampleUpdateToOneWithWhereWithoutOrderInput, Prisma.RfqSampleUpdateWithoutOrderInput>, Prisma.RfqSampleUncheckedUpdateWithoutOrderInput>
 }
 
+export type RfqSampleCreateNestedOneWithoutInspectionRequirementsInput = {
+  create?: Prisma.XOR<Prisma.RfqSampleCreateWithoutInspectionRequirementsInput, Prisma.RfqSampleUncheckedCreateWithoutInspectionRequirementsInput>
+  connectOrCreate?: Prisma.RfqSampleCreateOrConnectWithoutInspectionRequirementsInput
+  connect?: Prisma.RfqSampleWhereUniqueInput
+}
+
+export type RfqSampleUpdateOneWithoutInspectionRequirementsNestedInput = {
+  create?: Prisma.XOR<Prisma.RfqSampleCreateWithoutInspectionRequirementsInput, Prisma.RfqSampleUncheckedCreateWithoutInspectionRequirementsInput>
+  connectOrCreate?: Prisma.RfqSampleCreateOrConnectWithoutInspectionRequirementsInput
+  upsert?: Prisma.RfqSampleUpsertWithoutInspectionRequirementsInput
+  disconnect?: Prisma.RfqSampleWhereInput | boolean
+  delete?: Prisma.RfqSampleWhereInput | boolean
+  connect?: Prisma.RfqSampleWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RfqSampleUpdateToOneWithWhereWithoutInspectionRequirementsInput, Prisma.RfqSampleUpdateWithoutInspectionRequirementsInput>, Prisma.RfqSampleUncheckedUpdateWithoutInspectionRequirementsInput>
+}
+
 export type RfqSampleCreateNestedManyWithoutRfqInput = {
   create?: Prisma.XOR<Prisma.RfqSampleCreateWithoutRfqInput, Prisma.RfqSampleUncheckedCreateWithoutRfqInput> | Prisma.RfqSampleCreateWithoutRfqInput[] | Prisma.RfqSampleUncheckedCreateWithoutRfqInput[]
   connectOrCreate?: Prisma.RfqSampleCreateOrConnectWithoutRfqInput | Prisma.RfqSampleCreateOrConnectWithoutRfqInput[]
@@ -1034,6 +1057,7 @@ export type RfqSampleCreateWithoutOrderInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   rfq: Prisma.RfqRequestCreateNestedOneWithoutSamplesInput
+  inspectionRequirements?: Prisma.InspectionRequirementCreateNestedManyWithoutReferenceSampleInput
 }
 
 export type RfqSampleUncheckedCreateWithoutOrderInput = {
@@ -1065,6 +1089,7 @@ export type RfqSampleUncheckedCreateWithoutOrderInput = {
   requestedByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  inspectionRequirements?: Prisma.InspectionRequirementUncheckedCreateNestedManyWithoutReferenceSampleInput
 }
 
 export type RfqSampleCreateOrConnectWithoutOrderInput = {
@@ -1112,6 +1137,7 @@ export type RfqSampleUpdateWithoutOrderInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutSamplesNestedInput
+  inspectionRequirements?: Prisma.InspectionRequirementUpdateManyWithoutReferenceSampleNestedInput
 }
 
 export type RfqSampleUncheckedUpdateWithoutOrderInput = {
@@ -1133,6 +1159,151 @@ export type RfqSampleUncheckedUpdateWithoutOrderInput = {
   paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFieldUpdateOperationsInput | $Enums.RfqSamplePaymentStatus
   supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  courier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referenceCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  inspectionRequirements?: Prisma.InspectionRequirementUncheckedUpdateManyWithoutReferenceSampleNestedInput
+}
+
+export type RfqSampleCreateWithoutInspectionRequirementsInput = {
+  id: string
+  reference: string
+  sellerAccountId: string
+  quoteId?: string | null
+  status?: $Enums.RfqSampleStatus
+  version?: number
+  quantity: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitOfMeasure?: string | null
+  deliveryAddress: string
+  requestedByDate?: Date | string | null
+  approvalCriteria: string
+  notes?: string | null
+  costMinor?: bigint | number | null
+  currency?: string | null
+  paymentStatus?: $Enums.RfqSamplePaymentStatus
+  supplierNote?: string | null
+  shippingMinor?: bigint | number | null
+  courier?: string | null
+  trackingNumber?: string | null
+  shippedAt?: Date | string | null
+  deliveredAt?: Date | string | null
+  decidedAt?: Date | string | null
+  decisionReason?: string | null
+  referenceCode?: string | null
+  requestedByUserId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rfq: Prisma.RfqRequestCreateNestedOneWithoutSamplesInput
+  order?: Prisma.OrderCreateNestedOneWithoutRfqSampleInput
+}
+
+export type RfqSampleUncheckedCreateWithoutInspectionRequirementsInput = {
+  id: string
+  reference: string
+  rfqId: string
+  sellerAccountId: string
+  quoteId?: string | null
+  status?: $Enums.RfqSampleStatus
+  version?: number
+  quantity: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitOfMeasure?: string | null
+  deliveryAddress: string
+  requestedByDate?: Date | string | null
+  approvalCriteria: string
+  notes?: string | null
+  costMinor?: bigint | number | null
+  currency?: string | null
+  paymentStatus?: $Enums.RfqSamplePaymentStatus
+  supplierNote?: string | null
+  shippingMinor?: bigint | number | null
+  orderId?: string | null
+  courier?: string | null
+  trackingNumber?: string | null
+  shippedAt?: Date | string | null
+  deliveredAt?: Date | string | null
+  decidedAt?: Date | string | null
+  decisionReason?: string | null
+  referenceCode?: string | null
+  requestedByUserId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RfqSampleCreateOrConnectWithoutInspectionRequirementsInput = {
+  where: Prisma.RfqSampleWhereUniqueInput
+  create: Prisma.XOR<Prisma.RfqSampleCreateWithoutInspectionRequirementsInput, Prisma.RfqSampleUncheckedCreateWithoutInspectionRequirementsInput>
+}
+
+export type RfqSampleUpsertWithoutInspectionRequirementsInput = {
+  update: Prisma.XOR<Prisma.RfqSampleUpdateWithoutInspectionRequirementsInput, Prisma.RfqSampleUncheckedUpdateWithoutInspectionRequirementsInput>
+  create: Prisma.XOR<Prisma.RfqSampleCreateWithoutInspectionRequirementsInput, Prisma.RfqSampleUncheckedCreateWithoutInspectionRequirementsInput>
+  where?: Prisma.RfqSampleWhereInput
+}
+
+export type RfqSampleUpdateToOneWithWhereWithoutInspectionRequirementsInput = {
+  where?: Prisma.RfqSampleWhereInput
+  data: Prisma.XOR<Prisma.RfqSampleUpdateWithoutInspectionRequirementsInput, Prisma.RfqSampleUncheckedUpdateWithoutInspectionRequirementsInput>
+}
+
+export type RfqSampleUpdateWithoutInspectionRequirementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  quoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumRfqSampleStatusFieldUpdateOperationsInput | $Enums.RfqSampleStatus
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitOfMeasure?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedByDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalCriteria?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  costMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFieldUpdateOperationsInput | $Enums.RfqSamplePaymentStatus
+  supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  courier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referenceCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutSamplesNestedInput
+  order?: Prisma.OrderUpdateOneWithoutRfqSampleNestedInput
+}
+
+export type RfqSampleUncheckedUpdateWithoutInspectionRequirementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  rfqId?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  quoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumRfqSampleStatusFieldUpdateOperationsInput | $Enums.RfqSampleStatus
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitOfMeasure?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedByDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalCriteria?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  costMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.EnumRfqSamplePaymentStatusFieldUpdateOperationsInput | $Enums.RfqSamplePaymentStatus
+  supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1174,6 +1345,7 @@ export type RfqSampleCreateWithoutRfqInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   order?: Prisma.OrderCreateNestedOneWithoutRfqSampleInput
+  inspectionRequirements?: Prisma.InspectionRequirementCreateNestedManyWithoutReferenceSampleInput
 }
 
 export type RfqSampleUncheckedCreateWithoutRfqInput = {
@@ -1205,6 +1377,7 @@ export type RfqSampleUncheckedCreateWithoutRfqInput = {
   requestedByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  inspectionRequirements?: Prisma.InspectionRequirementUncheckedCreateNestedManyWithoutReferenceSampleInput
 }
 
 export type RfqSampleCreateOrConnectWithoutRfqInput = {
@@ -1328,6 +1501,7 @@ export type RfqSampleUpdateWithoutRfqInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneWithoutRfqSampleNestedInput
+  inspectionRequirements?: Prisma.InspectionRequirementUpdateManyWithoutReferenceSampleNestedInput
 }
 
 export type RfqSampleUncheckedUpdateWithoutRfqInput = {
@@ -1359,6 +1533,7 @@ export type RfqSampleUncheckedUpdateWithoutRfqInput = {
   requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  inspectionRequirements?: Prisma.InspectionRequirementUncheckedUpdateManyWithoutReferenceSampleNestedInput
 }
 
 export type RfqSampleUncheckedUpdateManyWithoutRfqInput = {
@@ -1393,6 +1568,35 @@ export type RfqSampleUncheckedUpdateManyWithoutRfqInput = {
 }
 
 
+/**
+ * Count Type RfqSampleCountOutputType
+ */
+
+export type RfqSampleCountOutputType = {
+  inspectionRequirements: number
+}
+
+export type RfqSampleCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  inspectionRequirements?: boolean | RfqSampleCountOutputTypeCountInspectionRequirementsArgs
+}
+
+/**
+ * RfqSampleCountOutputType without action
+ */
+export type RfqSampleCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RfqSampleCountOutputType
+   */
+  select?: Prisma.RfqSampleCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * RfqSampleCountOutputType without action
+ */
+export type RfqSampleCountOutputTypeCountInspectionRequirementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InspectionRequirementWhereInput
+}
+
 
 export type RfqSampleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1426,6 +1630,8 @@ export type RfqSampleSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   updatedAt?: boolean
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
   order?: boolean | Prisma.RfqSample$orderArgs<ExtArgs>
+  inspectionRequirements?: boolean | Prisma.RfqSample$inspectionRequirementsArgs<ExtArgs>
+  _count?: boolean | Prisma.RfqSampleCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["rfqSample"]>
 
 
@@ -1466,6 +1672,8 @@ export type RfqSampleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type RfqSampleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
   order?: boolean | Prisma.RfqSample$orderArgs<ExtArgs>
+  inspectionRequirements?: boolean | Prisma.RfqSample$inspectionRequirementsArgs<ExtArgs>
+  _count?: boolean | Prisma.RfqSampleCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $RfqSamplePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1473,6 +1681,10 @@ export type $RfqSamplePayload<ExtArgs extends runtime.Types.Extensions.InternalA
   objects: {
     rfq: Prisma.$RfqRequestPayload<ExtArgs>
     order: Prisma.$OrderPayload<ExtArgs> | null
+    /**
+     * Final inspections measured against this approved reference sample (JOURNEY-019).
+     */
+    inspectionRequirements: Prisma.$InspectionRequirementPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1865,6 +2077,7 @@ export interface Prisma__RfqSampleClient<T, Null = never, ExtArgs extends runtim
   readonly [Symbol.toStringTag]: "PrismaPromise"
   rfq<T extends Prisma.RfqRequestDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RfqRequestDefaultArgs<ExtArgs>>): Prisma.Prisma__RfqRequestClient<runtime.Types.Result.GetResult<Prisma.$RfqRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   order<T extends Prisma.RfqSample$orderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RfqSample$orderArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  inspectionRequirements<T extends Prisma.RfqSample$inspectionRequirementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RfqSample$inspectionRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InspectionRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2287,6 +2500,30 @@ export type RfqSample$orderArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   include?: Prisma.OrderInclude<ExtArgs> | null
   where?: Prisma.OrderWhereInput
+}
+
+/**
+ * RfqSample.inspectionRequirements
+ */
+export type RfqSample$inspectionRequirementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InspectionRequirement
+   */
+  select?: Prisma.InspectionRequirementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InspectionRequirement
+   */
+  omit?: Prisma.InspectionRequirementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InspectionRequirementInclude<ExtArgs> | null
+  where?: Prisma.InspectionRequirementWhereInput
+  orderBy?: Prisma.InspectionRequirementOrderByWithRelationInput | Prisma.InspectionRequirementOrderByWithRelationInput[]
+  cursor?: Prisma.InspectionRequirementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InspectionRequirementScalarFieldEnum | Prisma.InspectionRequirementScalarFieldEnum[]
 }
 
 /**

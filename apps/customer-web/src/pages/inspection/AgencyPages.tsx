@@ -22,14 +22,15 @@ import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 import { formatDate, formatDateTime, formatMoneyMinor } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
-import { agencyAction, fetchAgencyCalendar, fetchAgencyDashboard, fetchAgencyJob, fetchAgencyMe, inspectionKeys, uploadAgencyEvidence } from '@/lib/inspection';
+import { agencyAction, fetchAgencyCalendar, fetchAgencyDashboard, fetchAgencyJob, fetchAgencyMe, inspectionKeys, uploadAgencyEvidence, type InspectionPurchaseOrder, type InspectionReferenceSample } from '@/lib/inspection';
+import { ReferenceSample } from '@/components/inspection/ReferenceSample';
 
 /** Keys added with ENH-011/012; typed loosely until every locale carries them. */
 const tk = (key: string): TranslationKey => key as TranslationKey;
 
 interface JobDetail {
   job: { id: string; jobNumber: string; status: string; kind: string; scheduledFor: string | null; inspectionPoint: { label?: string; city?: string } | null; report: { status: string; result: string | null } | null; defects?: { id: string; ncrNumber: string; severity: string; description: string }[] };
-  requirement: { orderNumber: string; sellerName: string; level: string };
+  requirement: { orderNumber: string; sellerName: string; level: string; purchaseOrder?: InspectionPurchaseOrder | null; referenceSample?: InspectionReferenceSample | null };
   checklist: { code?: string; itemCode?: string; label?: string; text?: string }[];
   conflictCheck: { agencyProblems: string[] };
   me: { role: string; isNamedInspector: boolean; allowedTransitions: { to: string; requiresReason: boolean }[] };
@@ -229,6 +230,7 @@ export function AgencyJobPage(): React.JSX.Element {
         <p><Badge>{d.job.status}</Badge> {d.job.kind} · {formatDateTime(d.job.scheduledFor)} · {d.job.inspectionPoint?.label} {d.job.inspectionPoint?.city}</p>
         {d.conflictCheck.agencyProblems.length > 0 && <p className="text-danger">{t('inspection.conflicts')}: {d.conflictCheck.agencyProblems.join(', ')}</p>}
         {d.job.report !== null && <p>{t('inspection.report')}: <strong>{d.job.report.result ?? d.job.report.status}</strong></p>}
+        <ReferenceSample purchaseOrder={d.requirement.purchaseOrder} referenceSample={d.requirement.referenceSample} />
       </Card>
 
       <Card title={t('inspection.actions')} bodyClassName="space-y-3 px-5 py-4 text-sm">

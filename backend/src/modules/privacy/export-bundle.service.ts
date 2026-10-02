@@ -1459,7 +1459,12 @@ export async function buildCustomerBundle(
             events: { orderBy: { createdAt: 'asc' }, take: 1_000 },
             messages: { orderBy: { id: 'asc' }, take: 2_000 },
             samples: { orderBy: { createdAt: 'asc' } },
-            purchaseOrder: { include: { approvals: { orderBy: { createdAt: 'asc' } } } },
+            purchaseOrder: {
+              include: {
+                approvals: { orderBy: { createdAt: 'asc' } },
+                order: { select: { orderNumber: true } },
+              },
+            },
             quotes: {
               include: {
                 sellerAccount: { select: { displayName: true } },
@@ -1563,6 +1568,9 @@ export async function buildCustomerBundle(
             rejectedAt: iso(request.purchaseOrder.rejectedAt),
             rejectionReason: request.purchaseOrder.rejectionReason,
             approvals: request.purchaseOrder.approvals.map(approval => ({ stage: approval.stage, decision: approval.decision, reason: approval.reason, at: iso(approval.decidedAt) })),
+            // The order it became (LIVE-004); the order itself is in `orders`.
+            orderNumber: request.purchaseOrder.order?.orderNumber ?? null,
+            convertedAt: iso(request.purchaseOrder.convertedAt),
           },
           samples: request.samples.map((sample) => ({
             reference: sample.reference,

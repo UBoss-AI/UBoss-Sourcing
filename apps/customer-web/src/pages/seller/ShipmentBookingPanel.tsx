@@ -55,8 +55,10 @@ function formFrom(booking: SellerShipmentBooking): FormState {
     insuredValue:
       terms?.insuredValueMinor == null ? '' : minorToMajor(terms.insuredValueMinor, currencyExponent(currency)),
     mode: terms?.mode ?? (booking.crossBorder ? 'SEA' : 'ROAD'),
-    incoterm: terms?.incoterm ?? (booking.crossBorder ? 'FOB' : 'DAP'),
-    incotermPlace: terms?.incotermPlace ?? '',
+    // An order made from an RFQ purchase order ships on the Incoterm it was
+    // signed on (LIVE-004); the server refuses any other.
+    incoterm: terms?.incoterm ?? booking.contractTerms?.incoterm ?? (booking.crossBorder ? 'FOB' : 'DAP'),
+    incotermPlace: terms?.incotermPlace ?? booking.contractTerms?.incotermPlace ?? '',
     originPort: terms?.originPort ?? '',
     destinationPort: terms?.destinationPort ?? '',
     routeNote: terms?.routeNote ?? '',
@@ -182,6 +184,20 @@ function BookingForm({
         </p>
       )}
       <DispatchReadinessNote booking={booking} />
+      {booking.contractTerms != null && (
+        <p className="rounded-md bg-surface-sunken px-3 py-2 text-xs text-ink" data-testid="booking-contract-terms">
+          {t('shipmentBooking.contractTerms', {
+            reference: booking.contractTerms.purchaseOrderReference,
+            incoterm: booking.contractTerms.incoterm ?? t('rfq.notProvided'),
+          })}
+          {booking.contractTerms.exportDocuments.length > 0 &&
+            ` ${t('shipmentBooking.contractDocuments', {
+              documents: booking.contractTerms.exportDocuments
+                .map((code) => t(`rfq.exportDocument.${code}` as 'rfq.exportDocument.PACKING_LIST'))
+                .join(', '),
+            })}`}
+        </p>
+      )}
 
       <fieldset disabled={disabled} className="grid gap-3 sm:grid-cols-2">
         <Field label={t('shipmentBooking.field.mode')} required>

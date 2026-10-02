@@ -12,6 +12,7 @@
 import type { Money } from './format';
 import type { BuyablePackaging, LinePackaging } from './bulk-packaging';
 import type { RatingBadge } from './ratings';
+import type { OrderPurchaseOrderLink } from './seller';
 
 export type { Money };
 
@@ -1492,6 +1493,8 @@ export interface OrderDetail extends OrderListItem {
   billingAddress: OrderAddress | null;
   shippingMethodName: string | null;
   customerNote: string | null;
+  /** The RFQ purchase order this order was made from (LIVE-004); absent from an older server. */
+  purchaseOrder?: OrderPurchaseOrderLink | null;
   cancelReason: string | null;
   shipments: OrderShipment[];
   approval: OrderApproval | null;

@@ -662,9 +662,26 @@ bullets([
   'The buyer can sort, keep a shortlist and download the comparison as a spreadsheet file.',
   'From a quote, the buyer and that supplier can negotiate: either sends a counter-offer with a new price, quantity, minimum order, lead time, Incoterm, payment or inspection terms, a comment and how long it stands. Each offer is kept exactly as it was sent.',
   'The side that did not make an offer can accept or reject it. An offer that has run out of time cannot be accepted, but either side can send a new one.',
-  'Accepting awards the request to that supplier, closes every other quote and locks the agreed terms, with a fingerprint that any later order must match. Two people pressing accept at the same moment cannot both win. Turning agreed terms into a purchase order is not available yet.',
+  'Accepting awards the request to that supplier, closes every other quote and locks the agreed terms, with a fingerprint that any later order must match. Two people pressing accept at the same moment cannot both win. The buyer then signs a purchase order on exactly those terms, and turns it into an order once it is approved (see 5.4d).',
   'Under Samples, the buyer can ask any supplier taking part for a sample: how many, where to send it, by when, and what it must show to be approved. The supplier accepts (saying what it costs and what sending it costs, if anything) or declines with a reason, and marks it shipped by entering the courier and tracking number. The buyer confirms it arrived, then approves it or rejects it with a reason. Photos and reports can be attached by either side.',
   'Nothing about a sample is marked done before it happens: it is not shipped until there is a tracking number, not delivered until the buyer says so, and not shown as paid until the payment has really arrived. If a sample costs something, the buyer presses "Pay for the sample", pays it like any order (tax and shipping are worked out the same way), and the supplier can ship it only after that. A free sample skips payment. An approved sample becomes the reference sample for later inspection.',
+]);
+
+h2('5.4d From an agreed quote to a delivered order');
+p('Once a buyer has accepted a supplier’s terms, those terms become a purchase order, and an approved purchase order becomes an ordinary order that is paid, made, inspected, shipped and delivered.');
+table(['Step', 'What the person does', 'What the system does back'], [
+  ['1', 'The buyer opens Review purchase order on the request, checks every term, types their name, ticks the box and presses Accept and raise purchase order.', 'Seals the purchase order so its terms can never change. For a company whose rules ask for it, it waits for an order approver and then a finance member, who must be two different people from the one who raised it.'],
+  ['2', 'Once it is approved, the buyer presses Create the order and pay.', 'Makes one order from it: the goods at the agreed price and quantity, any tooling charge as its own line, the supplier’s shipping estimate, and tax for the delivery country on top. Pressing twice, or in two tabs, still makes one order. It then opens the usual payment screen.'],
+  ['3', 'The buyer pays.', 'Takes the full total and holds it until the goods have passed inspection and been delivered. The payment terms agreed with the supplier are written on the order. The order is confirmed only when the payment provider’s signed message arrives, and the supplier is told it is paid.'],
+  ['4', 'The supplier accepts the order in Seller Hub, where it shows the purchase order number.', 'Does not set stock aside, because the goods are made to order; the supplier records production stages instead. If the purchase order asked for an inspection, the inspection becomes required and nothing can ship until it passes.'],
+  ['5', 'The inspection company inspects the goods.', 'Shows the buyer, the supplier and the inspector the same standard: the purchase order’s inspection terms and the reference sample the buyer approved, with its code, its criteria and the evidence on file.'],
+  ['6', 'The supplier books the shipment and sends it.', 'Starts the booking on the Incoterm the purchase order fixed, lists the export documents the supplier promised, and refuses a different Incoterm. The buyer follows the order to delivery as usual.'],
+]);
+bullets([
+  'Only a buyer who can see the purchase order, and may buy for that company, can turn it into an order. Another buyer, or the supplier, cannot.',
+  'A purchase order whose quantity is not a whole number of units cannot become an order; it is refused rather than rounded, so nobody is billed for an amount they did not sign for.',
+  'If the order is cancelled before it is paid, the buyer can make a new one from the same purchase order. A paid order is never replaced.',
+  'The buyer’s order page, the supplier’s order screen and the staff order screen all show which purchase order the order came from, with its terms.',
 ]);
 
 h2('5.4b Asking the team about a preorder');
@@ -2811,6 +2828,18 @@ table(['Step', 'Who acts', 'What happens'], [
   ['5', 'The shopper', 'Adds 80 units to the clinic’s basket. No limit applies, because the clinic is approved.'],
   ['6', 'The seller', 'Later lowers the limit to 30. Nothing changes for the clinic, and no order already placed changes.'],
   ['7', 'Another shopper, buying for themselves', 'Already has 40 in their basket. The basket keeps all 40, but warns that the limit is now 30 and offers “Reduce to 30”. Checkout waits until they reduce it or buy through an approved company.'],
+], [700, 2300, 7000]);
+
+h2('Example P — A hospital group buys made-to-order gloves through a request for quotation');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'A buyer at a hospital group, buying for the group', 'Sends a request for 1,200 boxes of nitrile gloves, delivered CIF Nhava Sheva, with a third-party inspection before shipment.'],
+  ['2', 'A glove maker', 'Quotes a price per box, a tooling charge, a shipping estimate, “30% advance” as payment terms and “SGS, AQL 2.5” as inspection terms.'],
+  ['3', 'The buyer and the glove maker', 'The buyer asks for a sample, receives it and approves it. It becomes the reference sample.'],
+  ['4', 'The buyer', 'Accepts the quote and signs the purchase order. The group’s order approver and then its finance member approve it.'],
+  ['5', 'The buyer', 'Presses Create the order and pay, then pays the full total. The money is held, and the glove maker is told the order is paid.'],
+  ['6', 'The glove maker', 'Accepts the order in Seller Hub, where it shows the purchase order number, and makes the gloves.'],
+  ['7', 'The inspection company', 'Inspects the lot against the purchase order’s terms and the approved reference sample, which the inspector sees on their screen, and signs a pass.'],
+  ['8', 'The glove maker', 'Books the shipment on CIF, as the purchase order fixed, sends it and marks it delivered. The buyer’s order shows delivered.'],
 ], [700, 2300, 7000]);
 
 h2('Example O — A clinic reports a damaged delivery');

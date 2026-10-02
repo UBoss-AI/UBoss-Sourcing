@@ -664,6 +664,7 @@ export const AuditAction = {
   RFQ_PURCHASE_ORDER_CREATED: 'rfq.purchase_order_created',
   RFQ_PURCHASE_ORDER_APPROVED: 'rfq.purchase_order_approved',
   RFQ_PURCHASE_ORDER_REJECTED: 'rfq.purchase_order_rejected',
+  RFQ_PURCHASE_ORDER_CONVERTED: 'rfq.purchase_order_converted',
 } as const;
 
 export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];

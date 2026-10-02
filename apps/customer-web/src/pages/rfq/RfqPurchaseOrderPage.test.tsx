@@ -155,4 +155,61 @@ describe('RfqPurchaseOrderPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Approve' }));
     await waitFor(() => { expect(decision).toMatchObject({ expectedVersion: 1, approved: true, reason: 'Budget checked' }); });
   });
+
+  it('turns an approved purchase order into an order with an idempotency key, then links to it', async () => {
+    const approved: RfqPurchaseOrder = {
+      id: '01PO000000000000000000000', reference: 'PO-2026-0000000001', rfqId: RFQ_ID,
+      quoteId: contract.quote.id, status: 'APPROVED', version: 2, acceptedTermsHash: HASH,
+      contractHash: 'c'.repeat(64), contract, buyerSku: null, amounts,
+      electronicAcceptance: { acceptedAt: '2026-09-30T11:00:00.000Z', signatureName: 'Asha Buyer', signatureTitle: null },
+      approvals: [], approvedAt: '2026-09-30T11:20:00.000Z', rejectedAt: null, rejectionReason: null,
+      createdAt: '2026-09-30T11:00:00.000Z', actions: { canSubmit: false, canApprove: false, canReject: false },
+      order: null, canConvert: true,
+    };
+    let converted = false;
+    let idempotencyKey: string | null = null;
+    fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+      if ((init?.method ?? 'GET') === 'POST' && url.endsWith('/purchase-order/order')) {
+        converted = true;
+        idempotencyKey = new Headers(init?.headers).get('Idempotency-Key');
+        return Promise.resolve(jsonResponse({ order: { id: '01ORDER000000000000000000', orderNumber: 'UB-2026-000099', status: 'PENDING_PAYMENT' } }, 201));
+      }
+      const purchaseOrder = converted
+        ? { ...approved, canConvert: false, order: { id: '01ORDER000000000000000000', orderNumber: 'UB-2026-000099', status: 'PENDING_PAYMENT', grandTotal: money('1275000000', '₹12,750,000.00') } }
+        : approved;
+      return Promise.resolve(jsonResponse({ kind: 'PURCHASE_ORDER', purchaseOrder }));
+    });
+    renderWithProviders(
+      <Routes>
+        <Route path="/account/rfqs/:id/purchase-order" element={<RfqPurchaseOrderPage />} />
+        <Route path="/checkout/payment/:orderId" element={<p>Payment screen</p>} />
+      </Routes>,
+      { route: `/account/rfqs/${RFQ_ID}/purchase-order` },
+    );
+    await userEvent.click(await screen.findByRole('button', { name: 'Create the order and pay' }));
+    expect(await screen.findByText('Payment screen')).toBeInTheDocument();
+    expect(converted).toBe(true);
+    expect(idempotencyKey).toMatch(/.+/);
+  });
+
+  it('shows the order already made instead of the convert button', async () => {
+    fetchMock.mockImplementation(() => Promise.resolve(jsonResponse({
+      kind: 'PURCHASE_ORDER',
+      purchaseOrder: {
+        id: '01PO000000000000000000000', reference: 'PO-2026-0000000001', rfqId: RFQ_ID,
+        quoteId: contract.quote.id, status: 'APPROVED', version: 2, acceptedTermsHash: HASH,
+        contractHash: 'c'.repeat(64), contract, buyerSku: null, amounts,
+        electronicAcceptance: { acceptedAt: '2026-09-30T11:00:00.000Z', signatureName: 'Asha Buyer', signatureTitle: null },
+        approvals: [], approvedAt: '2026-09-30T11:20:00.000Z', rejectedAt: null, rejectionReason: null,
+        createdAt: '2026-09-30T11:00:00.000Z', actions: { canSubmit: false, canApprove: false, canReject: false },
+        canConvert: false,
+        order: { id: '01ORDER000000000000000000', orderNumber: 'UB-2026-000099', status: 'CONFIRMED', grandTotal: money('1275000000', '₹12,750,000.00') },
+      },
+    })));
+    renderPage();
+    expect(await screen.findByText(/UB-2026-000099/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Create the order and pay' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Pay now' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'View the order' })).toHaveAttribute('href', '/account/orders/01ORDER000000000000000000');
+  });
 });

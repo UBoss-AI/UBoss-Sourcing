@@ -54,6 +54,7 @@ import {
   submitPurchaseOrder,
   submitPurchaseOrderSchema,
 } from '../../modules/rfq/purchase-order.service.js';
+import { convertPurchaseOrderToOrder } from '../../modules/rfq/purchase-order-order.service.js';
 import {
   listBuyerQuotes,
   loadQuoteForBuyer,
@@ -526,6 +527,27 @@ export function registerCustomerRfqRoutes(app: FastifyInstance): Promise<void> {
         { userId: auth.id, email: auth.email, ipAddress: request.ip, correlationId: request.correlationId },
       );
       return reply.status(200).send({ purchaseOrder });
+    },
+  );
+
+  /**
+   * Turn the approved purchase order into an order awaiting payment. Needs an
+   * Idempotency-Key; a repeat, or a second tab, returns the same order.
+   */
+  app.post(
+    '/:id/purchase-order/order',
+    { preHandler: requireCustomer, config: { rateLimit: WRITE_RATE_LIMIT } },
+    async (request, reply) => {
+      assertPurchasing(request);
+      const { id } = idParams.parse(request.params);
+      const auth = currentUser(request);
+      const converted = await convertPurchaseOrderToOrder(buyerOf(request), id, {
+        userId: auth.id,
+        email: auth.email,
+        ipAddress: request.ip,
+        correlationId: request.correlationId,
+      });
+      return reply.status(converted.created ? 201 : 200).send({ order: converted.order });
     },
   );
 

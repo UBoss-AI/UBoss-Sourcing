@@ -111,6 +111,28 @@ export interface CarrierSummary {
   trackingNumber: string | null;
 }
 
+/** The shipping terms an RFQ purchase order fixed for the order a consignment belongs to. */
+export interface ContractShippingTerms {
+  purchaseOrderReference: string;
+  incoterm: string | null;
+  incotermPlace: string | null;
+  /** The export documents the supplier promised on the accepted quote. */
+  exportDocuments: string[];
+}
+
+async function contractTermsFor(orderId: string | null): Promise<ContractShippingTerms | null> {
+  if (orderId === null) return null;
+  const { purchaseOrderForOrder } = await import('../rfq/purchase-order-order.service.js');
+  const po = await purchaseOrderForOrder(orderId);
+  if (po === null) return null;
+  return {
+    purchaseOrderReference: po.reference,
+    incoterm: po.incoterm,
+    incotermPlace: po.incotermPlace,
+    exportDocuments: po.exportDocuments,
+  };
+}
+
 export interface SellerShipmentBooking {
   shipmentId: string;
   reference: string;
@@ -119,6 +141,8 @@ export interface SellerShipmentBooking {
   destinationCountry: string;
   insurance: InsuranceOffer;
   dispatchReadiness: DispatchReadiness;
+  /** Set when the order was made from an RFQ purchase order: the Incoterm, place and documents it fixed. */
+  contractTerms: ContractShippingTerms | null;
   terms: BookingTermsView | null;
   carrier: CarrierSummary;
   /** False once the parcel has been collected: a booking after that would be fiction. */
@@ -323,7 +347,7 @@ export async function readShipmentBooking(
   const [shipment, terms, carrier, insurance] = await Promise.all([
     prisma.logisticsShipment.findUnique({
       where: { id: shipmentId },
-      select: { originCountry: true, destinationCountry: true, sellerOrderGroupId: true },
+      select: { originCountry: true, destinationCountry: true, sellerOrderGroupId: true, orderId: true },
     }),
     prisma.consignmentBookingTerms.findUnique({ where: { shipmentId }, select: TERMS_SELECT }),
     carrierSummaryFor(shipmentId),
@@ -339,6 +363,7 @@ export async function readShipmentBooking(
     destinationCountry: shipment.destinationCountry,
     insurance,
     dispatchReadiness: await dispatchReadinessFor(shipment.sellerOrderGroupId),
+    contractTerms: await contractTermsFor(shipment.orderId),
     terms: terms === null ? null : termsView(terms),
     carrier,
     canEdit: canEditFrom(state),
@@ -416,10 +441,21 @@ export async function saveShipmentBooking(input: {
 
   const shipment = await prisma.logisticsShipment.findUnique({
     where: { id: input.shipmentId },
-    select: { originCountry: true, destinationCountry: true },
+    select: { originCountry: true, destinationCountry: true, orderId: true },
   });
   if (shipment === null) throw notFound('Consignment');
   const crossBorder = shipment.originCountry !== shipment.destinationCountry;
+
+  // An order made from an RFQ purchase order ships on the Incoterm both sides
+  // signed for (LIVE-004). The booking may add detail; it may not change it.
+  const contracted = await contractTermsFor(shipment.orderId);
+  if (contracted !== null && contracted.incoterm !== null && contracted.incoterm !== incoterm) {
+    invalid(
+      `Purchase order ${contracted.purchaseOrderReference} was agreed on ${contracted.incoterm}. Book this consignment on the same Incoterm.`,
+      'incoterm',
+      'PURCHASE_ORDER_INCOTERM',
+    );
+  }
 
   if (crossBorder && (mode === 'AIR' || mode === 'SEA')) {
     if (originPort === null) invalid('Name the port the goods leave from.', 'originPort', 'REQUIRED');

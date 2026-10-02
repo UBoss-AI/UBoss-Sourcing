@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api, newIdempotencyKey } from './api';
 import type { Money } from './format';
 
 export interface RfqPoContract {
@@ -96,6 +96,10 @@ export interface RfqPurchaseOrder {
   rejectionReason: string | null;
   createdAt: string;
   actions: { canSubmit: false; canApprove: boolean; canReject: boolean };
+  /** The order made from it (LIVE-004), or null before it is converted. Optional for an older server. */
+  order?: { id: string; orderNumber: string; status: string; grandTotal: Money } | null;
+  /** Whether this buyer may turn it into an order now. */
+  canConvert?: boolean;
 }
 
 export type RfqPoReview =
@@ -111,6 +115,23 @@ export async function submitRfqPurchaseOrder(
   input: { acceptedTermsHash: string; eAccepted: true; signatureName: string; signatureTitle: string | null; buyerSku: string | null },
 ): Promise<RfqPurchaseOrder> {
   return (await api.post<{ purchaseOrder: RfqPurchaseOrder }>(`/rfqs/${rfqId}/purchase-order`, input)).purchaseOrder;
+}
+
+/**
+ * Turn the approved purchase order into an order awaiting payment. The key is
+ * made once per press, and the server returns the same order for a repeat.
+ */
+export async function convertRfqPurchaseOrder(
+  rfqId: string,
+  idempotencyKey: string = newIdempotencyKey(),
+): Promise<{ id: string; orderNumber: string; status: string }> {
+  return (
+    await api.post<{ order: { id: string; orderNumber: string; status: string } }>(
+      `/rfqs/${rfqId}/purchase-order/order`,
+      {},
+      { idempotencyKey },
+    )
+  ).order;
 }
 
 export async function decideRfqPurchaseOrder(

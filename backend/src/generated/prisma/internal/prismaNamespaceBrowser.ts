@@ -7314,6 +7314,7 @@ export const InspectionRequirementScalarFieldEnum = {
   buyerRequestNote: 'buyerRequestNote',
   evaluatedAt: 'evaluatedAt',
   loadReleasedAt: 'loadReleasedAt',
+  referenceSampleId: 'referenceSampleId',
   version: 'version',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -8650,6 +8651,9 @@ export const RfqPurchaseOrderScalarFieldEnum = {
   approvedAt: 'approvedAt',
   rejectedAt: 'rejectedAt',
   rejectionReason: 'rejectionReason',
+  orderId: 'orderId',
+  convertedAt: 'convertedAt',
+  convertedByUserId: 'convertedByUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -13032,7 +13036,8 @@ export const InspectionRequirementOrderByRelevanceFieldEnum = {
   reason: 'reason',
   planId: 'planId',
   preferredAgencyId: 'preferredAgencyId',
-  buyerRequestNote: 'buyerRequestNote'
+  buyerRequestNote: 'buyerRequestNote',
+  referenceSampleId: 'referenceSampleId'
 } as const
 
 export type InspectionRequirementOrderByRelevanceFieldEnum = (typeof InspectionRequirementOrderByRelevanceFieldEnum)[keyof typeof InspectionRequirementOrderByRelevanceFieldEnum]
@@ -13912,7 +13917,9 @@ export const RfqPurchaseOrderOrderByRelevanceFieldEnum = {
   requestedByUserId: 'requestedByUserId',
   signatureName: 'signatureName',
   signatureTitle: 'signatureTitle',
-  rejectionReason: 'rejectionReason'
+  rejectionReason: 'rejectionReason',
+  orderId: 'orderId',
+  convertedByUserId: 'convertedByUserId'
 } as const
 
 export type RfqPurchaseOrderOrderByRelevanceFieldEnum = (typeof RfqPurchaseOrderOrderByRelevanceFieldEnum)[keyof typeof RfqPurchaseOrderOrderByRelevanceFieldEnum]

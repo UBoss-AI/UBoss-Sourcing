@@ -227,6 +227,13 @@ export interface SellerShipmentBooking {
   destinationCountry?: string;
   insurance?: InsuranceOffer;
   dispatchReadiness?: DispatchReadiness;
+  /** The Incoterm, place and documents an RFQ purchase order fixed (LIVE-004); absent from an older server. */
+  contractTerms?: {
+    purchaseOrderReference: string;
+    incoterm: string | null;
+    incotermPlace: string | null;
+    exportDocuments: string[];
+  } | null;
   terms: (BookingTerms & { updatedByLabel: string; updatedAt: string }) | null;
   carrier: CarrierSummary;
   canEdit: boolean;

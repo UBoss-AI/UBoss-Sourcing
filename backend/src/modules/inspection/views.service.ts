@@ -82,9 +82,41 @@ async function requirementBundle(requirementId: string, audience: Audience) {
         orderBy: { createdAt: 'asc' },
       },
       evidence: { select: EVIDENCE_SELECT, orderBy: { receivedAt: 'asc' } },
+      referenceSample: {
+        select: {
+          id: true,
+          reference: true,
+          referenceCode: true,
+          quantity: true,
+          unitOfMeasure: true,
+          approvalCriteria: true,
+          decisionReason: true,
+          decidedAt: true,
+        },
+      },
     },
   });
   if (requirement === null) throw notFound('Inspection');
+
+  // JOURNEY-019: the RFQ purchase order behind this order and the reference
+  // sample the buyer approved, so the inspector measures the goods against
+  // what was agreed and the buyer can see the two are linked.
+  const purchaseOrder = await prisma.rfqPurchaseOrder.findUnique({
+    where: { orderId: requirement.orderId },
+    select: { reference: true, contractJson: true },
+  });
+  const sampleFiles =
+    requirement.referenceSample === null
+      ? []
+      : await prisma.rfqAttachment.findMany({
+          where: { sampleId: requirement.referenceSample.id, purpose: 'SAMPLE' },
+          select: { fileName: true },
+          orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+        });
+  const contractQuality =
+    purchaseOrder === null
+      ? null
+      : (purchaseOrder.contractJson as { quality?: { inspectionTerms?: string | null; inspectionRequirement?: string } }).quality ?? null;
 
   const gate = await peekGate(requirement.id);
   const memberIds = requirement.jobs.flatMap((job) => [job.inspectorMemberId, job.backupInspectorMemberId]).filter((id): id is string => id !== null);
@@ -256,6 +288,29 @@ async function requirementBundle(requirementId: string, audience: Audience) {
       allowConditionalRelease: requirement.allowConditionalRelease,
       evaluatedAt: iso(requirement.evaluatedAt),
       loadReleasedAt: iso(requirement.loadReleasedAt),
+      /** The RFQ purchase order the goods were bought on, with its inspection terms. Null otherwise. */
+      purchaseOrder:
+        purchaseOrder === null
+          ? null
+          : {
+              reference: purchaseOrder.reference,
+              inspectionRequirement: contractQuality?.inspectionRequirement ?? null,
+              inspectionTerms: contractQuality?.inspectionTerms ?? null,
+            },
+      /** The approved reference sample the goods are measured against (JOURNEY-019). Null when there is none. */
+      referenceSample:
+        requirement.referenceSample === null
+          ? null
+          : {
+              reference: requirement.referenceSample.reference,
+              referenceCode: requirement.referenceSample.referenceCode,
+              quantity: requirement.referenceSample.quantity.toString(),
+              unitOfMeasure: requirement.referenceSample.unitOfMeasure,
+              approvalCriteria: requirement.referenceSample.approvalCriteria,
+              decisionReason: requirement.referenceSample.decisionReason,
+              approvedAt: iso(requirement.referenceSample.decidedAt),
+              files: sampleFiles.map((file) => file.fileName),
+            },
     },
     gate: { ...gate, sentence: gateSentence(gate.reason) },
     jobs,

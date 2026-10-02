@@ -606,6 +606,36 @@ export function OrderDetailPage(): React.JSX.Element {
             )}
           </Card>
 
+          {/* LIVE-004: the RFQ purchase order this order was made from. */}
+          {order.purchaseOrder != null && (
+            <Card title={t('orderDetail.purchaseOrder.title', { reference: order.purchaseOrder.reference })}>
+              <dl className="grid grid-cols-1 gap-4 px-5 py-4 text-sm sm:grid-cols-2">
+                {[
+                  { label: t('orderDetail.purchaseOrder.rfq'), value: order.purchaseOrder.rfqReference },
+                  { label: t('orderDetail.purchaseOrder.buyerSku'), value: order.purchaseOrder.buyerSku },
+                  {
+                    label: t('orderDetail.purchaseOrder.incoterm'),
+                    value:
+                      order.purchaseOrder.incoterm === null
+                        ? null
+                        : `${order.purchaseOrder.incoterm}${order.purchaseOrder.incotermPlace === null ? '' : ` · ${order.purchaseOrder.incotermPlace}`}`,
+                  },
+                  { label: t('orderDetail.purchaseOrder.paymentTerms'), value: order.purchaseOrder.paymentTerms },
+                  { label: t('orderDetail.purchaseOrder.inspectionTerms'), value: order.purchaseOrder.inspectionTerms },
+                  {
+                    label: t('orderDetail.purchaseOrder.exportDocuments'),
+                    value: order.purchaseOrder.exportDocuments.length === 0 ? null : order.purchaseOrder.exportDocuments.join(', '),
+                  },
+                ].map((row) => (
+                  <div key={row.label}>
+                    <dt className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">{row.label}</dt>
+                    <dd className="mt-1 whitespace-pre-wrap break-words text-ink">{row.value ?? t('orderDetail.purchaseOrder.none')}</dd>
+                  </div>
+                ))}
+              </dl>
+            </Card>
+          )}
+
           <InternalNote order={order} />
 
           <Card

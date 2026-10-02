@@ -3619,6 +3619,43 @@ strings in API responses. The PO total contains goods, tooling and the quoted
 shipping estimate; tax is calculated separately by the existing order
 checkout.
 
+### Turning an approved purchase order into an order (LIVE-004)
+
+| Method and path | Body | Result |
+|---|---|---|
+| `POST /api/v1/rfqs/:id/purchase-order/order` | `{}`; **`Idempotency-Key` header required** | `201 { order: { id, orderNumber, status } }` when the order is made, `200` with the same order on a repeat or a concurrent press |
+
+Needs the `PURCHASE` capability in an approved company (or an individual
+buyer). Another buyer, or the supplier, gets 404. A refusal is 409
+`RFQ_PURCHASE_ORDER_NOT_CONVERTIBLE` with `details[0].code` one of
+`NOT_APPROVED`, `FRACTIONAL_QUANTITY`, `QUANTITY_TOO_LARGE`,
+`SELLER_UNAVAILABLE`, `TAX_UNAVAILABLE`, `CONTRACT_MISMATCH`. The order is
+`PENDING_PAYMENT` (or `PENDING_APPROVAL` where the account requires order
+approval) and is paid through `POST /payments/orders/:orderId/session` like
+any order; it becomes `CONFIRMED` only from a signature-verified webhook.
+
+What else now carries the purchase order:
+
+- `GET /rfqs/:id/purchase-order` adds `purchaseOrder.order` (`id`,
+  `orderNumber`, `status`, `grandTotal` as a money object) and
+  `purchaseOrder.canConvert`.
+- `GET /orders/:id`, `GET /admin/orders/:id` and `GET /seller/orders/:id` add
+  `purchaseOrder`: `{ id, reference, rfqId, rfqReference, buyerSku, incoterm,
+  incotermPlace, paymentTerms, inspectionTerms, exportDocuments }`, or `null`.
+  `GET /seller/orders` rows add `purchaseOrderReference`.
+- The inspection views (buyer, seller, agency, operator) add
+  `requirement.purchaseOrder` (`reference`, `inspectionRequirement`,
+  `inspectionTerms`) and `requirement.referenceSample` (`reference`,
+  `referenceCode`, `quantity`, `unitOfMeasure`, `approvalCriteria`,
+  `decisionReason`, `approvedAt`, `files` as file names), each `null` when
+  there is none.
+- `GET /seller/consignments/:id/booking` adds `booking.contractTerms`
+  (`purchaseOrderReference`, `incoterm`, `incotermPlace`, `exportDocuments`).
+  Saving a booking on another Incoterm is 400 `BOOKING_TERMS_INVALID` with
+  detail code `PURCHASE_ORDER_INCOTERM`.
+- The customer data export adds `orderNumber` and `convertedAt` to each
+  `rfqRequests.requests[].purchaseOrder`.
+
 ---
 
 # 12. Glossary

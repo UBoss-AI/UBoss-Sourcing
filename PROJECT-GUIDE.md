@@ -13431,6 +13431,40 @@ optimistic locking at `POST /rfqs/:id/purchase-order/decision`. Individual or
 below-threshold POs approve immediately. Every creation and decision is
 audited against the immutable contract hash.
 
+**PO to order (LIVE-004, JOURNEY-019).** `POST /rfqs/:id/purchase-order/order`
+(Idempotency-Key required, `modules/rfq/purchase-order-order.service.ts`)
+turns an `APPROVED` PO into an ordinary order with source
+`RFQ_PURCHASE_ORDER`. Only a buyer who can see the PO and may purchase in an
+approved company converts it; another buyer or the supplier gets 404. The
+unique `rfq_purchase_orders.orderId`, set conditionally in the transaction
+that creates the order, makes one PO one live order under repeats and
+concurrent presses; a cancelled order that was never paid may be replaced.
+Refusals are `RFQ_PURCHASE_ORDER_NOT_CONVERTIBLE` with `NOT_APPROVED`,
+`FRACTIONAL_QUANTITY` (the quantity must be a whole number of units - never
+rounded), `QUANTITY_TOO_LARGE`, `SELLER_UNAVAILABLE`, `TAX_UNAVAILABLE` or
+`CONTRACT_MISMATCH`. Every order line names a product, so conversion makes a
+private product and seller offer for that PO alone (the RFQ's category, the
+awarded seller, never published or orderable, archived); the seller split,
+platform fee, inspection rules and documents then need no special case. Lines:
+the goods at the agreed unit price and quantity, plus a one-unit tooling line
+when there is tooling; the supplier's shipping estimate is the order's
+shipping charge and the split credits it to the seller as their own delivery.
+The quoted price is treated as before tax; tax is added by `priceLines` with
+the default tax class, and the goods and shipping must equal the sealed PO
+figures. The buyer pays the full total on the ordinary payment screen and the
+money is held until inspection and delivery; the quote's payment terms text is
+recorded on the order (staged payment is not modelled - use a payment link).
+`onRfqOrderConfirmed`, inside `transitionOrder`'s move to CONFIRMED, records
+`PURCHASE_ORDER_PAID` and tells the supplier. The seller's accept holds no
+stock (made to order). `ensureRequirement` makes the inspection `MANDATORY`
+when the PO asked for any inspection or named inspection terms, and links the
+buyer's latest approved reference sample from that supplier
+(`inspection_requirements.referenceSampleId`); the buyer, seller and
+inspector views show it as "What the goods are measured against". A
+consignment must be booked on the PO's Incoterm (`PURCHASE_ORDER_INCOTERM`).
+The buyer's, seller's and admin order pages show the PO; the ERP push skips
+these orders like RFQ samples. Audited as `rfq.purchase_order_converted`.
+
 **Samples (row 20).** On an open or awarded request the buyer asks a supplier
 taking part for a sample (`rfq_samples`, Idempotency-Key required): quantity,
 address, date and approval criteria. The supplier accepts (with a cost, or

@@ -20,6 +20,7 @@ import { Permission } from '../../domain/permissions.js';
 import { customerDeliveryStage, logisticsStage } from '../../domain/logistics-stage.js';
 import { prisma } from '../../infra/prisma.js';
 import { cardStatusesForOrders } from '../../modules/inspection/gate.service.js';
+import { purchaseOrderForOrder } from '../../modules/rfq/purchase-order-order.service.js';
 import {
   availableTransitions,
   decideApproval,
@@ -458,6 +459,8 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
         // pair, and exactly one of the two is ever set.
         fulfilment: serialiseFulfilment(order),
         customerNote: order.customerNote,
+        // The RFQ purchase order this order was made from, or null (LIVE-004).
+        purchaseOrder: await purchaseOrderForOrder(order.id),
         /*
          * How the customer said they would pay, and with which of their cards.
          *
@@ -799,6 +802,8 @@ export function registerAdminOrderRoutes(app: FastifyInstance): Promise<void> {
           // a support conversation is two people reading one fact.
           fulfilment: serialiseFulfilment(order),
           customerNote: order.customerNote,
+          // The RFQ purchase order this order was made from, or null (LIVE-004).
+          purchaseOrder: await purchaseOrderForOrder(order.id),
           internalNote: order.internalNote,
           cancelReason: order.cancelReason,
           items: order.items.map((item) => ({

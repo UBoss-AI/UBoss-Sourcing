@@ -2936,8 +2936,18 @@ and never hiding the figure as quoted - shortlists, and downloads the
 comparison as CSV. Buyer and seller then negotiate in counter-offers, each an
 unchangeable version; accepting one awards the request once, closes the other
 quotes and locks the agreed terms (with a fingerprint an order would have to
-match). Turning agreed terms into a purchase order is not built yet. The
-buyer can also ask any supplier taking part for a sample and follow it from
+match). The buyer then signs a binding purchase order on those exact terms,
+which a company's approver and finance member sign off where its policy asks.
+An approved purchase order becomes an ordinary order with one press (once,
+however often it is pressed): the goods at the agreed price, tooling as its
+own line, the supplier's shipping estimate, tax for the destination on top.
+It is paid in full on the usual payment screen and held until the goods pass
+inspection and are delivered; the agreed payment terms are recorded on the
+order. The supplier sees it in their orders with the purchase-order
+reference and makes it to order. When the purchase order asked for an
+inspection the goods cannot ship until it has passed, measured against the
+buyer's approved reference sample, and they ship on the Incoterm the
+purchase order fixed. The buyer can also ask any supplier taking part for a sample and follow it from
 request to shipped (courier and tracking), delivered and approved or rejected
 against written criteria; an approved sample becomes the reference sample.
 A charged sample (fee and any shipping charge) is paid through the ordinary

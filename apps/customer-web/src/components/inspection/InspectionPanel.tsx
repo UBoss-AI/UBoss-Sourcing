@@ -14,6 +14,7 @@ import { useI18n } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 import { formatDateTime } from '@/lib/format';
 import { submitCapa, submitReadiness, uploadCorrectiveEvidence, type InspectionDefect, type InspectionJobView, type InspectionView } from '@/lib/inspection';
+import { ReferenceSample } from './ReferenceSample';
 
 function ReadinessForm({ job, onDone }: { job: InspectionJobView; onDone: () => void }): React.JSX.Element {
   const { t } = useI18n();
@@ -96,6 +97,7 @@ export function InspectionPanel({ view, audience, queryKey }: { view: Inspection
         <Badge tone={requirement.gate.allowed === true ? 'success' : 'action'}>{requirement.status}</Badge>
         <span className="text-ink-muted">{requirement.gate.sentence}</span>
       </div>
+      <ReferenceSample purchaseOrder={requirement.purchaseOrder} referenceSample={requirement.referenceSample} />
       {view.jobs.map((job) => (
         <section key={job.id} aria-label={job.jobNumber} className="rounded-md border border-border-subtle p-3">
           <p className="font-medium">

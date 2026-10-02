@@ -192,7 +192,8 @@ export const OrderSource = {
   ONE_TIME: 'ONE_TIME',
   RECURRING: 'RECURRING',
   PREORDER: 'PREORDER',
-  RFQ_SAMPLE: 'RFQ_SAMPLE'
+  RFQ_SAMPLE: 'RFQ_SAMPLE',
+  RFQ_PURCHASE_ORDER: 'RFQ_PURCHASE_ORDER'
 } as const
 
 export type OrderSource = (typeof OrderSource)[keyof typeof OrderSource]

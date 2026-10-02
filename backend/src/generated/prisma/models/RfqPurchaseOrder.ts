@@ -69,6 +69,9 @@ export type RfqPurchaseOrderMinAggregateOutputType = {
   approvedAt: Date | null
   rejectedAt: Date | null
   rejectionReason: string | null
+  orderId: string | null
+  convertedAt: Date | null
+  convertedByUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -98,6 +101,9 @@ export type RfqPurchaseOrderMaxAggregateOutputType = {
   approvedAt: Date | null
   rejectedAt: Date | null
   rejectionReason: string | null
+  orderId: string | null
+  convertedAt: Date | null
+  convertedByUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -129,6 +135,9 @@ export type RfqPurchaseOrderCountAggregateOutputType = {
   approvedAt: number
   rejectedAt: number
   rejectionReason: number
+  orderId: number
+  convertedAt: number
+  convertedByUserId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -176,6 +185,9 @@ export type RfqPurchaseOrderMinAggregateInputType = {
   approvedAt?: true
   rejectedAt?: true
   rejectionReason?: true
+  orderId?: true
+  convertedAt?: true
+  convertedByUserId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -205,6 +217,9 @@ export type RfqPurchaseOrderMaxAggregateInputType = {
   approvedAt?: true
   rejectedAt?: true
   rejectionReason?: true
+  orderId?: true
+  convertedAt?: true
+  convertedByUserId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -236,6 +251,9 @@ export type RfqPurchaseOrderCountAggregateInputType = {
   approvedAt?: true
   rejectedAt?: true
   rejectionReason?: true
+  orderId?: true
+  convertedAt?: true
+  convertedByUserId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -354,6 +372,9 @@ export type RfqPurchaseOrderGroupByOutputType = {
   approvedAt: Date | null
   rejectedAt: Date | null
   rejectionReason: string | null
+  orderId: string | null
+  convertedAt: Date | null
+  convertedByUserId: string | null
   createdAt: Date
   updatedAt: Date
   _count: RfqPurchaseOrderCountAggregateOutputType | null
@@ -408,9 +429,13 @@ export type RfqPurchaseOrderWhereInput = {
   approvedAt?: Prisma.DateTimeNullableFilter<"RfqPurchaseOrder"> | Date | string | null
   rejectedAt?: Prisma.DateTimeNullableFilter<"RfqPurchaseOrder"> | Date | string | null
   rejectionReason?: Prisma.StringNullableFilter<"RfqPurchaseOrder"> | string | null
+  orderId?: Prisma.StringNullableFilter<"RfqPurchaseOrder"> | string | null
+  convertedAt?: Prisma.DateTimeNullableFilter<"RfqPurchaseOrder"> | Date | string | null
+  convertedByUserId?: Prisma.StringNullableFilter<"RfqPurchaseOrder"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RfqPurchaseOrder"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RfqPurchaseOrder"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
+  order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
   approvals?: Prisma.RfqPurchaseOrderApprovalListRelationFilter
 }
 
@@ -441,9 +466,13 @@ export type RfqPurchaseOrderOrderByWithRelationInput = {
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   rejectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  orderId?: Prisma.SortOrderInput | Prisma.SortOrder
+  convertedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  convertedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   rfq?: Prisma.RfqRequestOrderByWithRelationInput
+  order?: Prisma.OrderOrderByWithRelationInput
   approvals?: Prisma.RfqPurchaseOrderApprovalOrderByRelationAggregateInput
   _relevance?: Prisma.RfqPurchaseOrderOrderByRelevanceInput
 }
@@ -453,6 +482,7 @@ export type RfqPurchaseOrderWhereUniqueInput = Prisma.AtLeast<{
   reference?: string
   rfqId?: string
   quoteId?: string
+  orderId?: string
   AND?: Prisma.RfqPurchaseOrderWhereInput | Prisma.RfqPurchaseOrderWhereInput[]
   OR?: Prisma.RfqPurchaseOrderWhereInput[]
   NOT?: Prisma.RfqPurchaseOrderWhereInput | Prisma.RfqPurchaseOrderWhereInput[]
@@ -478,11 +508,14 @@ export type RfqPurchaseOrderWhereUniqueInput = Prisma.AtLeast<{
   approvedAt?: Prisma.DateTimeNullableFilter<"RfqPurchaseOrder"> | Date | string | null
   rejectedAt?: Prisma.DateTimeNullableFilter<"RfqPurchaseOrder"> | Date | string | null
   rejectionReason?: Prisma.StringNullableFilter<"RfqPurchaseOrder"> | string | null
+  convertedAt?: Prisma.DateTimeNullableFilter<"RfqPurchaseOrder"> | Date | string | null
+  convertedByUserId?: Prisma.StringNullableFilter<"RfqPurchaseOrder"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RfqPurchaseOrder"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RfqPurchaseOrder"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
+  order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
   approvals?: Prisma.RfqPurchaseOrderApprovalListRelationFilter
-}, "id" | "reference" | "rfqId" | "quoteId">
+}, "id" | "reference" | "rfqId" | "quoteId" | "orderId">
 
 export type RfqPurchaseOrderOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -511,6 +544,9 @@ export type RfqPurchaseOrderOrderByWithAggregationInput = {
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   rejectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  orderId?: Prisma.SortOrderInput | Prisma.SortOrder
+  convertedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  convertedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.RfqPurchaseOrderCountOrderByAggregateInput
@@ -550,6 +586,9 @@ export type RfqPurchaseOrderScalarWhereWithAggregatesInput = {
   approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RfqPurchaseOrder"> | Date | string | null
   rejectedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RfqPurchaseOrder"> | Date | string | null
   rejectionReason?: Prisma.StringNullableWithAggregatesFilter<"RfqPurchaseOrder"> | string | null
+  orderId?: Prisma.StringNullableWithAggregatesFilter<"RfqPurchaseOrder"> | string | null
+  convertedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RfqPurchaseOrder"> | Date | string | null
+  convertedByUserId?: Prisma.StringNullableWithAggregatesFilter<"RfqPurchaseOrder"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RfqPurchaseOrder"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"RfqPurchaseOrder"> | Date | string
 }
@@ -580,9 +619,12 @@ export type RfqPurchaseOrderCreateInput = {
   approvedAt?: Date | string | null
   rejectedAt?: Date | string | null
   rejectionReason?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   rfq: Prisma.RfqRequestCreateNestedOneWithoutPurchaseOrderInput
+  order?: Prisma.OrderCreateNestedOneWithoutRfqPurchaseOrderInput
   approvals?: Prisma.RfqPurchaseOrderApprovalCreateNestedManyWithoutPurchaseOrderInput
 }
 
@@ -613,6 +655,9 @@ export type RfqPurchaseOrderUncheckedCreateInput = {
   approvedAt?: Date | string | null
   rejectedAt?: Date | string | null
   rejectionReason?: string | null
+  orderId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   approvals?: Prisma.RfqPurchaseOrderApprovalUncheckedCreateNestedManyWithoutPurchaseOrderInput
@@ -644,9 +689,12 @@ export type RfqPurchaseOrderUpdateInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutPurchaseOrderNestedInput
+  order?: Prisma.OrderUpdateOneWithoutRfqPurchaseOrderNestedInput
   approvals?: Prisma.RfqPurchaseOrderApprovalUpdateManyWithoutPurchaseOrderNestedInput
 }
 
@@ -677,6 +725,9 @@ export type RfqPurchaseOrderUncheckedUpdateInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvals?: Prisma.RfqPurchaseOrderApprovalUncheckedUpdateManyWithoutPurchaseOrderNestedInput
@@ -709,6 +760,9 @@ export type RfqPurchaseOrderCreateManyInput = {
   approvedAt?: Date | string | null
   rejectedAt?: Date | string | null
   rejectionReason?: string | null
+  orderId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -739,6 +793,8 @@ export type RfqPurchaseOrderUpdateManyMutationInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -770,6 +826,9 @@ export type RfqPurchaseOrderUncheckedUpdateManyInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -812,6 +871,9 @@ export type RfqPurchaseOrderCountOrderByAggregateInput = {
   approvedAt?: Prisma.SortOrder
   rejectedAt?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
+  orderId?: Prisma.SortOrder
+  convertedAt?: Prisma.SortOrder
+  convertedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -849,6 +911,9 @@ export type RfqPurchaseOrderMaxOrderByAggregateInput = {
   approvedAt?: Prisma.SortOrder
   rejectedAt?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
+  orderId?: Prisma.SortOrder
+  convertedAt?: Prisma.SortOrder
+  convertedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -878,6 +943,9 @@ export type RfqPurchaseOrderMinOrderByAggregateInput = {
   approvedAt?: Prisma.SortOrder
   rejectedAt?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
+  orderId?: Prisma.SortOrder
+  convertedAt?: Prisma.SortOrder
+  convertedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -893,6 +961,38 @@ export type RfqPurchaseOrderSumOrderByAggregateInput = {
 export type RfqPurchaseOrderScalarRelationFilter = {
   is?: Prisma.RfqPurchaseOrderWhereInput
   isNot?: Prisma.RfqPurchaseOrderWhereInput
+}
+
+export type RfqPurchaseOrderCreateNestedOneWithoutOrderInput = {
+  create?: Prisma.XOR<Prisma.RfqPurchaseOrderCreateWithoutOrderInput, Prisma.RfqPurchaseOrderUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.RfqPurchaseOrderCreateOrConnectWithoutOrderInput
+  connect?: Prisma.RfqPurchaseOrderWhereUniqueInput
+}
+
+export type RfqPurchaseOrderUncheckedCreateNestedOneWithoutOrderInput = {
+  create?: Prisma.XOR<Prisma.RfqPurchaseOrderCreateWithoutOrderInput, Prisma.RfqPurchaseOrderUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.RfqPurchaseOrderCreateOrConnectWithoutOrderInput
+  connect?: Prisma.RfqPurchaseOrderWhereUniqueInput
+}
+
+export type RfqPurchaseOrderUpdateOneWithoutOrderNestedInput = {
+  create?: Prisma.XOR<Prisma.RfqPurchaseOrderCreateWithoutOrderInput, Prisma.RfqPurchaseOrderUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.RfqPurchaseOrderCreateOrConnectWithoutOrderInput
+  upsert?: Prisma.RfqPurchaseOrderUpsertWithoutOrderInput
+  disconnect?: Prisma.RfqPurchaseOrderWhereInput | boolean
+  delete?: Prisma.RfqPurchaseOrderWhereInput | boolean
+  connect?: Prisma.RfqPurchaseOrderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RfqPurchaseOrderUpdateToOneWithWhereWithoutOrderInput, Prisma.RfqPurchaseOrderUpdateWithoutOrderInput>, Prisma.RfqPurchaseOrderUncheckedUpdateWithoutOrderInput>
+}
+
+export type RfqPurchaseOrderUncheckedUpdateOneWithoutOrderNestedInput = {
+  create?: Prisma.XOR<Prisma.RfqPurchaseOrderCreateWithoutOrderInput, Prisma.RfqPurchaseOrderUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.RfqPurchaseOrderCreateOrConnectWithoutOrderInput
+  upsert?: Prisma.RfqPurchaseOrderUpsertWithoutOrderInput
+  disconnect?: Prisma.RfqPurchaseOrderWhereInput | boolean
+  delete?: Prisma.RfqPurchaseOrderWhereInput | boolean
+  connect?: Prisma.RfqPurchaseOrderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RfqPurchaseOrderUpdateToOneWithWhereWithoutOrderInput, Prisma.RfqPurchaseOrderUpdateWithoutOrderInput>, Prisma.RfqPurchaseOrderUncheckedUpdateWithoutOrderInput>
 }
 
 export type RfqPurchaseOrderCreateNestedOneWithoutRfqInput = {
@@ -945,6 +1045,158 @@ export type RfqPurchaseOrderUpdateOneRequiredWithoutApprovalsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RfqPurchaseOrderUpdateToOneWithWhereWithoutApprovalsInput, Prisma.RfqPurchaseOrderUpdateWithoutApprovalsInput>, Prisma.RfqPurchaseOrderUncheckedUpdateWithoutApprovalsInput>
 }
 
+export type RfqPurchaseOrderCreateWithoutOrderInput = {
+  id: string
+  reference: string
+  quoteId: string
+  customerProfileId: string
+  buyerCompanyId?: string | null
+  sellerAccountId: string
+  status: $Enums.RfqPurchaseOrderStatus
+  version?: number
+  acceptedTermsHash: string
+  contractHash: string
+  contractJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buyerSku?: string | null
+  currency: string
+  goodsTotalMinor: bigint | number
+  toolingMinor: bigint | number
+  shippingMinor: bigint | number
+  grandTotalMinor: bigint | number
+  requestedByUserId: string
+  eAcceptedAt: Date | string
+  signatureName: string
+  signatureTitle?: string | null
+  approvalPolicyJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  rejectionReason?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rfq: Prisma.RfqRequestCreateNestedOneWithoutPurchaseOrderInput
+  approvals?: Prisma.RfqPurchaseOrderApprovalCreateNestedManyWithoutPurchaseOrderInput
+}
+
+export type RfqPurchaseOrderUncheckedCreateWithoutOrderInput = {
+  id: string
+  reference: string
+  rfqId: string
+  quoteId: string
+  customerProfileId: string
+  buyerCompanyId?: string | null
+  sellerAccountId: string
+  status: $Enums.RfqPurchaseOrderStatus
+  version?: number
+  acceptedTermsHash: string
+  contractHash: string
+  contractJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buyerSku?: string | null
+  currency: string
+  goodsTotalMinor: bigint | number
+  toolingMinor: bigint | number
+  shippingMinor: bigint | number
+  grandTotalMinor: bigint | number
+  requestedByUserId: string
+  eAcceptedAt: Date | string
+  signatureName: string
+  signatureTitle?: string | null
+  approvalPolicyJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  approvedAt?: Date | string | null
+  rejectedAt?: Date | string | null
+  rejectionReason?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  approvals?: Prisma.RfqPurchaseOrderApprovalUncheckedCreateNestedManyWithoutPurchaseOrderInput
+}
+
+export type RfqPurchaseOrderCreateOrConnectWithoutOrderInput = {
+  where: Prisma.RfqPurchaseOrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.RfqPurchaseOrderCreateWithoutOrderInput, Prisma.RfqPurchaseOrderUncheckedCreateWithoutOrderInput>
+}
+
+export type RfqPurchaseOrderUpsertWithoutOrderInput = {
+  update: Prisma.XOR<Prisma.RfqPurchaseOrderUpdateWithoutOrderInput, Prisma.RfqPurchaseOrderUncheckedUpdateWithoutOrderInput>
+  create: Prisma.XOR<Prisma.RfqPurchaseOrderCreateWithoutOrderInput, Prisma.RfqPurchaseOrderUncheckedCreateWithoutOrderInput>
+  where?: Prisma.RfqPurchaseOrderWhereInput
+}
+
+export type RfqPurchaseOrderUpdateToOneWithWhereWithoutOrderInput = {
+  where?: Prisma.RfqPurchaseOrderWhereInput
+  data: Prisma.XOR<Prisma.RfqPurchaseOrderUpdateWithoutOrderInput, Prisma.RfqPurchaseOrderUncheckedUpdateWithoutOrderInput>
+}
+
+export type RfqPurchaseOrderUpdateWithoutOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  quoteId?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  buyerCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRfqPurchaseOrderStatusFieldUpdateOperationsInput | $Enums.RfqPurchaseOrderStatus
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  acceptedTermsHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contractHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contractJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buyerSku?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  goodsTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  toolingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  eAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  signatureName?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalPolicyJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutPurchaseOrderNestedInput
+  approvals?: Prisma.RfqPurchaseOrderApprovalUpdateManyWithoutPurchaseOrderNestedInput
+}
+
+export type RfqPurchaseOrderUncheckedUpdateWithoutOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  rfqId?: Prisma.StringFieldUpdateOperationsInput | string
+  quoteId?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  buyerCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRfqPurchaseOrderStatusFieldUpdateOperationsInput | $Enums.RfqPurchaseOrderStatus
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  acceptedTermsHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contractHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contractJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buyerSku?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  goodsTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  toolingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  eAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  signatureName?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalPolicyJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvals?: Prisma.RfqPurchaseOrderApprovalUncheckedUpdateManyWithoutPurchaseOrderNestedInput
+}
+
 export type RfqPurchaseOrderCreateWithoutRfqInput = {
   id: string
   reference: string
@@ -971,8 +1223,11 @@ export type RfqPurchaseOrderCreateWithoutRfqInput = {
   approvedAt?: Date | string | null
   rejectedAt?: Date | string | null
   rejectionReason?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  order?: Prisma.OrderCreateNestedOneWithoutRfqPurchaseOrderInput
   approvals?: Prisma.RfqPurchaseOrderApprovalCreateNestedManyWithoutPurchaseOrderInput
 }
 
@@ -1002,6 +1257,9 @@ export type RfqPurchaseOrderUncheckedCreateWithoutRfqInput = {
   approvedAt?: Date | string | null
   rejectedAt?: Date | string | null
   rejectionReason?: string | null
+  orderId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   approvals?: Prisma.RfqPurchaseOrderApprovalUncheckedCreateNestedManyWithoutPurchaseOrderInput
@@ -1049,8 +1307,11 @@ export type RfqPurchaseOrderUpdateWithoutRfqInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUpdateOneWithoutRfqPurchaseOrderNestedInput
   approvals?: Prisma.RfqPurchaseOrderApprovalUpdateManyWithoutPurchaseOrderNestedInput
 }
 
@@ -1080,6 +1341,9 @@ export type RfqPurchaseOrderUncheckedUpdateWithoutRfqInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvals?: Prisma.RfqPurchaseOrderApprovalUncheckedUpdateManyWithoutPurchaseOrderNestedInput
@@ -1111,9 +1375,12 @@ export type RfqPurchaseOrderCreateWithoutApprovalsInput = {
   approvedAt?: Date | string | null
   rejectedAt?: Date | string | null
   rejectionReason?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   rfq: Prisma.RfqRequestCreateNestedOneWithoutPurchaseOrderInput
+  order?: Prisma.OrderCreateNestedOneWithoutRfqPurchaseOrderInput
 }
 
 export type RfqPurchaseOrderUncheckedCreateWithoutApprovalsInput = {
@@ -1143,6 +1410,9 @@ export type RfqPurchaseOrderUncheckedCreateWithoutApprovalsInput = {
   approvedAt?: Date | string | null
   rejectedAt?: Date | string | null
   rejectionReason?: string | null
+  orderId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1189,9 +1459,12 @@ export type RfqPurchaseOrderUpdateWithoutApprovalsInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutPurchaseOrderNestedInput
+  order?: Prisma.OrderUpdateOneWithoutRfqPurchaseOrderNestedInput
 }
 
 export type RfqPurchaseOrderUncheckedUpdateWithoutApprovalsInput = {
@@ -1221,6 +1494,9 @@ export type RfqPurchaseOrderUncheckedUpdateWithoutApprovalsInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1283,9 +1559,13 @@ export type RfqPurchaseOrderSelect<ExtArgs extends runtime.Types.Extensions.Inte
   approvedAt?: boolean
   rejectedAt?: boolean
   rejectionReason?: boolean
+  orderId?: boolean
+  convertedAt?: boolean
+  convertedByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
+  order?: boolean | Prisma.RfqPurchaseOrder$orderArgs<ExtArgs>
   approvals?: boolean | Prisma.RfqPurchaseOrder$approvalsArgs<ExtArgs>
   _count?: boolean | Prisma.RfqPurchaseOrderCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["rfqPurchaseOrder"]>
@@ -1319,13 +1599,17 @@ export type RfqPurchaseOrderSelectScalar = {
   approvedAt?: boolean
   rejectedAt?: boolean
   rejectionReason?: boolean
+  orderId?: boolean
+  convertedAt?: boolean
+  convertedByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RfqPurchaseOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reference" | "rfqId" | "quoteId" | "customerProfileId" | "buyerCompanyId" | "sellerAccountId" | "status" | "version" | "acceptedTermsHash" | "contractHash" | "contractJson" | "buyerSku" | "currency" | "goodsTotalMinor" | "toolingMinor" | "shippingMinor" | "grandTotalMinor" | "requestedByUserId" | "eAcceptedAt" | "signatureName" | "signatureTitle" | "approvalPolicyJson" | "approvedAt" | "rejectedAt" | "rejectionReason" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqPurchaseOrder"]>
+export type RfqPurchaseOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reference" | "rfqId" | "quoteId" | "customerProfileId" | "buyerCompanyId" | "sellerAccountId" | "status" | "version" | "acceptedTermsHash" | "contractHash" | "contractJson" | "buyerSku" | "currency" | "goodsTotalMinor" | "toolingMinor" | "shippingMinor" | "grandTotalMinor" | "requestedByUserId" | "eAcceptedAt" | "signatureName" | "signatureTitle" | "approvalPolicyJson" | "approvedAt" | "rejectedAt" | "rejectionReason" | "orderId" | "convertedAt" | "convertedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqPurchaseOrder"]>
 export type RfqPurchaseOrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
+  order?: boolean | Prisma.RfqPurchaseOrder$orderArgs<ExtArgs>
   approvals?: boolean | Prisma.RfqPurchaseOrder$approvalsArgs<ExtArgs>
   _count?: boolean | Prisma.RfqPurchaseOrderCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1334,6 +1618,7 @@ export type $RfqPurchaseOrderPayload<ExtArgs extends runtime.Types.Extensions.In
   name: "RfqPurchaseOrder"
   objects: {
     rfq: Prisma.$RfqRequestPayload<ExtArgs>
+    order: Prisma.$OrderPayload<ExtArgs> | null
     approvals: Prisma.$RfqPurchaseOrderApprovalPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1363,6 +1648,15 @@ export type $RfqPurchaseOrderPayload<ExtArgs extends runtime.Types.Extensions.In
     approvedAt: Date | null
     rejectedAt: Date | null
     rejectionReason: string | null
+    /**
+     * The marketplace order this approved purchase order became (source
+     * RFQ_PURCHASE_ORDER, LIVE-004). Unique, so one purchase order makes one
+     * live order however often, or however concurrently, it is converted. A
+     * cancelled unpaid order may be replaced by a new one.
+     */
+    orderId: string | null
+    convertedAt: Date | null
+    convertedByUserId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["rfqPurchaseOrder"]>
@@ -1706,6 +2000,7 @@ readonly fields: RfqPurchaseOrderFieldRefs;
 export interface Prisma__RfqPurchaseOrderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   rfq<T extends Prisma.RfqRequestDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RfqRequestDefaultArgs<ExtArgs>>): Prisma.Prisma__RfqRequestClient<runtime.Types.Result.GetResult<Prisma.$RfqRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  order<T extends Prisma.RfqPurchaseOrder$orderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RfqPurchaseOrder$orderArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   approvals<T extends Prisma.RfqPurchaseOrder$approvalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RfqPurchaseOrder$approvalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RfqPurchaseOrderApprovalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1762,6 +2057,9 @@ export interface RfqPurchaseOrderFieldRefs {
   readonly approvedAt: Prisma.FieldRef<"RfqPurchaseOrder", 'DateTime'>
   readonly rejectedAt: Prisma.FieldRef<"RfqPurchaseOrder", 'DateTime'>
   readonly rejectionReason: Prisma.FieldRef<"RfqPurchaseOrder", 'String'>
+  readonly orderId: Prisma.FieldRef<"RfqPurchaseOrder", 'String'>
+  readonly convertedAt: Prisma.FieldRef<"RfqPurchaseOrder", 'DateTime'>
+  readonly convertedByUserId: Prisma.FieldRef<"RfqPurchaseOrder", 'String'>
   readonly createdAt: Prisma.FieldRef<"RfqPurchaseOrder", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"RfqPurchaseOrder", 'DateTime'>
 }
@@ -2109,6 +2407,25 @@ export type RfqPurchaseOrderDeleteManyArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many RfqPurchaseOrders to delete.
    */
   limit?: number
+}
+
+/**
+ * RfqPurchaseOrder.order
+ */
+export type RfqPurchaseOrder$orderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
 }
 
 /**

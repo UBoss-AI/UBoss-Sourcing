@@ -68,6 +68,8 @@ const REQUIRED_SERVICE: Record<string, string> = {
   [`POST ${P}/admin/commission-invoices/:id/credit-notes`]: 'Issues a credit note.',
   [`POST ${P}/preorders`]: 'Sends a preorder request.',
   [`POST ${P}/preorders/:id/confirm`]: 'Confirms preorder terms, which creates the order.',
+  [`POST ${P}/rfqs/:id/purchase-order/order`]:
+    'Turns an approved RFQ purchase order into an order; the conditional, unique link of the purchase order to its order replays the same order, including for concurrent requests.',
   [`POST ${P}/support/tickets`]: 'Opens a support request (storefront).',
   [`POST ${P}/support/tickets/:reference/messages`]: 'Writes on a support request (storefront).',
   [`POST ${P}/seller/support/tickets`]: 'Opens a support request (Seller Hub).',

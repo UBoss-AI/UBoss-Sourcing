@@ -39,6 +39,7 @@ import { PaymentProtectionCard } from '@/components/PaymentProtectionCard';
 import { OrderTracking } from '@/components/order-tracking/OrderTracking';
 import { OrderShipmentDetails } from '@/components/OrderShipmentDetails';
 import { BuyerOrderInspections } from '@/components/inspection/OrderInspections';
+import { PurchaseOrderTermsCard } from '@/components/rfq/PurchaseOrderTermsCard';
 import { OrderMilestoneTimeline } from '@/components/OrderMilestoneTimeline';
 import { CheckIcon, DotIcon, HeadsetIcon, RepeatIcon } from '@/components/icons';
 import { api } from '@/lib/api';
@@ -602,6 +603,15 @@ export function OrderDetailPage(): React.JSX.Element {
             {/* How each consignment ships, and its trade documents (Master rows 42, 56). */}
             <OrderShipmentDetails orderId={order.id} />
             <BuyerOrderInspections orderId={order.id} />
+            {/* LIVE-004: the RFQ purchase order this order was made from. */}
+            {order.purchaseOrder != null && (
+              <div className="mt-4 space-y-2">
+                <PurchaseOrderTermsCard purchaseOrder={order.purchaseOrder} />
+                <Link to={`/account/rfqs/${order.purchaseOrder.rfqId}/purchase-order`} className="text-sm font-medium text-brand hover:underline">
+                  {t('rfq.po.orderFrom.open')}
+                </Link>
+              </div>
+            )}
 
             {order.customerNote !== null && (
               <div className="mt-4 border-t border-border pt-4">

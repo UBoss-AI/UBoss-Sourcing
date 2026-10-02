@@ -158,7 +158,13 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
 
   const order = await tx.order.findUniqueOrThrow({
     where: { id: orderId },
-    select: { currency: true, orderNumber: true, shippingAddressJson: true },
+    select: {
+      currency: true,
+      orderNumber: true,
+      shippingAddressJson: true,
+      source: true,
+      shippingMinor: true,
+    },
   });
 
   // The four-level delivery each seller's buyer paid for, frozen at checkout.
@@ -235,7 +241,14 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
      * never touches what the buyer paid.
      */
     const sellerLegs = legCharges.filter((leg) => leg.sellerAccountId === sellerAccountId);
-    const sellerDeliveryMinor = sumMinor(sellerLegs.filter((leg) => leg.owner === 'SELLER').map((leg) => leg.amountMinor));
+    // An order made from an RFQ purchase order has one seller, and its whole
+    // shipping charge is that seller's own quoted estimate - their delivery
+    // to perform and to be paid for, as a policy leg would be.
+    const rfqSellerDeliveryMinor =
+      order.source === 'RFQ_PURCHASE_ORDER' && sellerLegs.length === 0 ? order.shippingMinor : 0n;
+    const sellerDeliveryMinor =
+      sumMinor(sellerLegs.filter((leg) => leg.owner === 'SELLER').map((leg) => leg.amountMinor)) +
+      rfqSellerDeliveryMinor;
     const ubossDeliveryMinor = sumMinor(sellerLegs.filter((leg) => leg.owner === 'UBOSS').map((leg) => leg.amountMinor));
 
     const settlement = await calculateSettlement(tx, {
@@ -293,7 +306,7 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
         // this is a sum of real charges and not a share of anything. Zero for
         // every other seller, which is still the honest figure: the operator's
         // own shipping method is not apportioned to sellers.
-        shippingTotalMinor: sumMinor(sellerLegs.map((leg) => leg.amountMinor)),
+        shippingTotalMinor: sumMinor(sellerLegs.map((leg) => leg.amountMinor)) + rfqSellerDeliveryMinor,
         commissionMinor,
         sellerNetMinor: goodsTotalMinor - commissionMinor,
         currency: order.currency,

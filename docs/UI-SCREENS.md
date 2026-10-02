@@ -2321,6 +2321,12 @@ it.
 - Totals, and the delivery charge by level (L1 to L4) when sellers charge per
   level.
 - **Progress**: the order's timeline.
+- **Purchase order** (only for an order made from an RFQ purchase order,
+  LIVE-004): the purchase order's reference, request, item code, Incoterm,
+  payment and inspection terms and export documents, and **Open the purchase
+  order**. The inspection card above it says what the goods are measured
+  against: the purchase order's inspection terms and the reference sample
+  you approved (its code, criteria, your note and the evidence on file).
 - **Delivery**: addresses, method, and one tracking block per shipment: the
   carrier, the stage (Waiting for the seller to confirm, Carrier assigned,
   Picked up, In transit, Out for delivery, Delivered …), the seller who sent
@@ -2564,11 +2570,34 @@ only when the supplier wrote it and it has not expired (each confirmed in a
 dialog), a counter-offer form (unit price in the quote's currency, quantity,
 MOQ, lead time, Incoterm and place, validity in UTC, payment and inspection
 terms, comment), and every offer so far, newest first. Once accepted: "Agreed
-terms" with the date, the terms fingerprint (hash) and that turning them
-into a purchase order is not available yet. The seller's **Your quote** tab
+terms" with the date, the terms fingerprint (hash) and a line saying the
+buyer next signs a purchase order on these terms, which becomes an order once
+approved. The seller's **Your quote** tab
 uses the same panel, with **Withdraw the quote**. **Calls**
 `GET /rfqs/:id/quotes/:quoteId`, `POST …/offers`, `POST …/accept`,
 `POST …/reject`; seller `POST /seller/rfqs/:id/quote/{offers,accept,reject,withdraw}`.
+
+#### `/account/rfqs/:id/purchase-order` — The purchase order, and the order it becomes
+
+| | |
+|---|---|
+| **Who** | The buyer who owns the request; signing and creating the order need PURCHASE in an approved company (or an individual buyer); approving needs the approver or finance role |
+| **File** | `pages/rfq/RfqPurchaseOrderPage.tsx` |
+
+**On the screen.** The contract (supplier, item, buyer SKU, quantity, unit
+price, goods, tooling, shipping, total, Incoterm, payment terms, tax note,
+specification, certifications, warranty, export documents, delivery, lead
+time, inspection, documents). Before it is raised: the signature form and
+**Accept and raise purchase order**. After: its approval stages and, for the
+next approver, **Approve** and **Reject**. Once it is approved, an **Order and
+payment** card (LIVE-004): a sentence saying the full total is collected now
+and held until the goods pass inspection and are delivered, and that the
+agreed payment terms are recorded on the order; **Create the order and pay**
+makes the order (with an Idempotency-Key, so a double press makes one) and
+goes to the payment screen. Once made, the card says which order it became
+and its total, with **Pay now** while it waits for payment and **View the
+order**. **Calls** `GET /rfqs/:id/purchase-order`, `POST /rfqs/:id/purchase-order`,
+`POST /rfqs/:id/purchase-order/decision`, `POST /rfqs/:id/purchase-order/order`.
 
 #### `/account/preorders/:id` — One preorder
 
@@ -3987,8 +4016,9 @@ lines from three sellers becomes three seller orders.
 go, Shipped, Delivered, Returns, Cancelled. **Past dispatch time only**. Each
 row: the seller order number, status, "Past dispatch time" in red when late,
 items and lines, the place it ships from, the dispatch deadline, and **your net
-amount** ("your share of …"). The buyer's email, phone and payment reference
-are deliberately not shown. The list refreshes every minute.
+amount** ("your share of …"), and a **Purchase order PO-…** badge on an order
+made from an RFQ purchase order. The buyer's email, phone and payment
+reference are deliberately not shown. The list refreshes every minute.
 
 **Quick buttons**
 
@@ -4019,6 +4049,7 @@ returns, and the next steps.
 
 | Section | What is in it | What you can do |
 |---|---|---|
+| Purchase order | Only for an order made from an RFQ purchase order (LIVE-004): **Purchase order PO-…** with the request reference, the buyer's item code, the Incoterm and place, the agreed payment and inspection terms and the export documents promised. Such an order is made to order, so accepting it holds no stock | Read only |
 | What to send | Each line: the product name as ordered, ordered, sent, returned, still to send, "The buyer asked for" when there is a line note, and **Ordered product information** (collapsed; tabs Description, Specifications, Packaging - order unit, quantity, pieces per unit, equivalent pieces, minimum, carton and container figures - and Order selections), read only, from the snapshot taken when the order was created; an older order shows the current listing under "Historical product snapshot was not available…" | Open **Ordered product information**; **View current listing** (`/seller/listings/:offerId`) |
 | Delivery levels | Only for orders priced on four levels. L1 First mile, L2 International transport, L3 Destination inland transport, L4 Last mile; who manages each; status (Waiting for the level before, Needs a carrier, Carrier named, Accepted by the carrier, Moving, Handed over) | On the levels **you** manage: choose **Who carries this level**, **Save tracking**, **Mark as started**, **Mark as handed over** (or **Mark as delivered** for L4). UBOSS levels are read-only |
 | Who carries this | One block per consignment: stage (from "Awaiting logistics assignment" through "Picked up", "In transit" to "Delivered", "Returned"), partner, carrier, driver (shown masked), tracking number, assignment history | **Prepare the consignment** when none exists. **Assign Logistics Partner** (a delivery company on the marketplace, or DHL, FedEx or India Post booked by you). **Take it back from the partner**. For a hand booking: enter the tracking number and dates, record milestones (Picked up, In transit, Delayed, Out for delivery, Delivered …), attach proof of delivery. With your own carrier account: **Ask what it costs**, **Choose this**, **Book it for …**, **Book a parcel pickup**, **The goods are ready** |
@@ -5214,6 +5245,9 @@ Placed.
 - **Items**: product (links to it), the customer's line instructions,
   quantity in cartons and pieces, unit price, tax, line total, and the totals.
 - **Delivery**: method, addresses, the customer's note.
+- **Made from purchase order PO-…** (only for an order made from an RFQ
+  purchase order, LIVE-004): the request, the buyer's item code, the Incoterm,
+  the agreed payment and inspection terms and the export documents promised.
 - **Internal note**: **Save note**.
 - **Timeline**: every status change, who made it and why.
 
@@ -7707,6 +7741,18 @@ Agency members open `/inspection` to see assignments, acceptance and report dead
 The dedicated agency screen `/inspection/jobs/:id/packaging` shows the PACKAGING and LABELLING items frozen in the booked plan: inner/outer packaging, carton count, pallets, marks, barcodes, destination labels and applicable safety symbols. The named inspector can record a result, measured value and notes while the job is IN_PROGRESS; a nonconformance needs a reason. Evidence is linked to its check and visible after saving. Agency readers see saved findings without edit controls. Unknown evidence check codes are refused by the server, and completed reports stay locked. Custom plans show only their own booked items; an empty plan gets an explicit empty state.
 
 
+## What the goods are measured against (JOURNEY-019)
+
+On an order made from an RFQ purchase order, the inspection card for the buyer
+(`/account/orders/:id`) and the seller (`/seller/orders/:id`) and the agency's
+job screen (`/inspection/jobs/:id`) show a **What the goods are measured
+against** block: "Bought on purchase order PO-…", the agreed inspection terms,
+and the reference sample the buyer approved - its code, approval date, the
+approval criteria, the buyer's note and the names of the evidence files on
+file. When no sample was approved it says the goods are measured against the
+written specification. Such an inspection is mandatory whenever the purchase
+order asked for any inspection.
+
 ## Corrective evidence and linked re-inspection
 
 After a signed inspection fails, the seller uploads corrective evidence on each NCR and submits the response and corrective action. All severities can require correction; evidence must be stored before submission. Staff with inspection.manage choose the original failed inspection in the booking form. Booking stays blocked while any completed inspection has an open finding or another job is active. The server enforces these conditions and the original-job relationship. Both seller and admin views display the original inspection number. A passing repeat report closes the corrected findings; the original failed report stays immutable.
@@ -7715,7 +7761,7 @@ Inspection responses now expose report as the latest report visible to that audi
 
 ## Seller order: shipment documents and booking; buyer order: shipment details (Master rows 42 and 56)
 
-Seller order detail (`/seller/orders/:id`): each consignment in the carrier card has a **Shipment booking** form — mode, Incoterm, named place, outside carrier (DHL, FedEx, India Post, or keep the current carrier), origin and destination port, pickup date, window from and to, route note — locked once collected. Below the invoice and packing list panel, **Shipment documents** lists each document with consignment, version, review state, whether the buyer sees it, issuer, number, expiry, a link to the file and earlier versions; shows the documents a trade rule requires; and offers a form to record a new version (kind, consignment or whole order, issuer, number, issue and expiry dates, optional file) and a **Generate certificate of origin draft** button. Buyer order detail (`/account/orders/:id`): a **Shipment details** card, after tracking, with each booked consignment's mode, Incoterm and place, ports, pickup, route and carrier with tracking number, and the documents the buyer may open. It is hidden when there is nothing to show.
+Seller order detail (`/seller/orders/:id`): each consignment in the carrier card has a **Shipment booking** form — mode, Incoterm, named place, outside carrier (DHL, FedEx, India Post, or keep the current carrier), origin and destination port, pickup date, window from and to, route note — locked once collected. For an order made from an RFQ purchase order the form starts from the purchase order's Incoterm and place, says it was agreed on that Incoterm and lists the export documents promised; the server refuses any other Incoterm (LIVE-004). Below the invoice and packing list panel, **Shipment documents** lists each document with consignment, version, review state, whether the buyer sees it, issuer, number, expiry, a link to the file and earlier versions; shows the documents a trade rule requires; and offers a form to record a new version (kind, consignment or whole order, issuer, number, issue and expiry dates, optional file) and a **Generate certificate of origin draft** button. Buyer order detail (`/account/orders/:id`): a **Shipment details** card, after tracking, with each booked consignment's mode, Incoterm and place, ports, pickup, route and carrier with tracking number, and the documents the buyer may open. It is hidden when there is nothing to show.
 
 JOURNEY-046 and 049 additions. The **Shipment booking** form shows "From IN to DE", a note when dispatch waits for the inspection release or for destination documents (with the number of open holds, or that staff overrode the hold), a **Cargo insurance** block (a tick box and the value to insure, with the premium rate and the most that may be insured; "not offered" when the operator has no rate; the saved premium), and **Freight options**: the operator's rate cards for this route and weight with carrier, mode, transit days, price and "Rate valid until …" (asks for package weights when there are none). In the carrier price list (own carrier account) each price shows "Price valid until …" or an **expired** badge. **Shipment documents** marks each required document with who provides it (you, the buyer, the forwarder, the marketplace) and Restricted where it applies, lists the destination's restrictions and HS-verification rules, and shows a red **Dispatch hold** box naming each cause, or the staff override reason. The listing's **HSN code** card shows the review state (waiting, verified, verified as a corrected code, rejected with the note). The buyer's **Shipment details** shows the insured value and premium and **Documents you need to provide**. Admin: **Settings → Trade compliance** (`/settings/trade-compliance`, settings.read) has Cargo insurance (rate and cap in basis points; logistics permissions), Trade rules (list, add, edit, delete; settings.write) and HS code verification (filter by state; corrected code, note, Verify and Reject; product.publish). The admin order detail page has a **Destination documents** card per seller order with the rules, the holds and an **Override the hold** form (reason, logistics.write) or **Withdraw the override**; it is hidden when no rule applies.
 

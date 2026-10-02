@@ -220,6 +220,11 @@ function OrdersBody(): React.JSX.Element {
                         <Badge tone="danger">{t('seller.orders.pastDispatch')}</Badge>
                       )}
                       <InspectionStatusBadge status={row.inspectionStatus} />
+                      {(row.purchaseOrderReference ?? null) !== null && (
+                        <Badge tone="neutral">
+                          {t('seller.orders.purchaseOrder', { reference: row.purchaseOrderReference ?? '' })}
+                        </Badge>
+                      )}
                     </div>
                     <p className="mt-1 text-xxs text-ink-subtle">
                       {t('seller.orders.itemCount', { count: row.itemCount })}{' '}

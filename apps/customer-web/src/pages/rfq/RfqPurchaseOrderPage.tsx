@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/toast-context';
 import { Button, Card, ErrorState, Input, LoadingState, PageHeader, Textarea } from '@/components/ui';
@@ -7,6 +7,7 @@ import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 import { formatMoneyMinor } from '@/lib/format';
 import {
+  convertRfqPurchaseOrder,
   decideRfqPurchaseOrder,
   fetchRfqPoReview,
   submitRfqPurchaseOrder,
@@ -112,6 +113,48 @@ function Status({ purchaseOrder }: { purchaseOrder: RfqPurchaseOrder }): React.J
   );
 }
 
+/** LIVE-004: an approved purchase order becomes an order, which is paid on the ordinary payment screen. */
+function OrderPanel({ rfqId, purchaseOrder }: { rfqId: string; purchaseOrder: RfqPurchaseOrder }): React.JSX.Element | null {
+  const { t } = useI18n();
+  const toast = useToast();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const convert = useMutation({
+    mutationFn: () => convertRfqPurchaseOrder(rfqId),
+    onSuccess: (order) => {
+      void queryClient.invalidateQueries({ queryKey: ['rfq', rfqId, 'purchase-order'] });
+      void navigate(order.status === 'PENDING_PAYMENT' ? `/checkout/payment/${order.id}` : `/account/orders/${order.id}`);
+    },
+    onError: (error) => { toast.error(errorMessage(t, error)); },
+  });
+  const order = purchaseOrder.order ?? null;
+  if (order === null && purchaseOrder.canConvert !== true) return null;
+  return (
+    <Card title={t('rfq.po.orderTitle')} bodyClassName="space-y-3 px-5 py-5">
+      {order === null ? (
+        <>
+          <p className="text-sm text-ink-muted">{t('rfq.po.orderIntro')}</p>
+          <Button variant="primary" disabled={convert.isPending} onClick={() => { convert.mutate(); }}>
+            {convert.isPending ? t('rfq.po.converting') : t('rfq.po.convert')}
+          </Button>
+        </>
+      ) : (
+        <>
+          <p role="status" className="text-sm text-ink">
+            {t('rfq.po.orderCreated', { orderNumber: order.orderNumber, total: formatMoneyMinor(order.grandTotal.minor, order.grandTotal.currency) })}
+          </p>
+          <div className="flex flex-wrap gap-3 text-sm font-medium">
+            {order.status === 'PENDING_PAYMENT' && (
+              <Link to={`/checkout/payment/${order.id}`} className="text-brand hover:underline">{t('rfq.po.payNow')}</Link>
+            )}
+            <Link to={`/account/orders/${order.id}`} className="text-brand hover:underline">{t('rfq.po.viewOrder')}</Link>
+          </div>
+        </>
+      )}
+    </Card>
+  );
+}
+
 export function RfqPurchaseOrderPage(): React.JSX.Element {
   const { id = '' } = useParams<{ id: string }>();
   const { t } = useI18n();
@@ -205,6 +248,7 @@ export function RfqPurchaseOrderPage(): React.JSX.Element {
       ) : (
         <div className="mt-4 space-y-4">
           {purchaseOrder !== null && <Status purchaseOrder={purchaseOrder} />}
+          {purchaseOrder !== null && <OrderPanel rfqId={id} purchaseOrder={purchaseOrder} />}
           {purchaseOrder !== null && (purchaseOrder.actions.canApprove || purchaseOrder.actions.canReject) && (
             <Card title={t('rfq.po.decisionTitle')} bodyClassName="space-y-3 px-5 py-5">
               <label className="block text-sm font-medium text-ink">

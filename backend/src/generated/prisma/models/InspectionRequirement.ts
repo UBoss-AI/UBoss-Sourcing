@@ -52,6 +52,7 @@ export type InspectionRequirementMinAggregateOutputType = {
   buyerRequestNote: string | null
   evaluatedAt: Date | null
   loadReleasedAt: Date | null
+  referenceSampleId: string | null
   version: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -75,6 +76,7 @@ export type InspectionRequirementMaxAggregateOutputType = {
   buyerRequestNote: string | null
   evaluatedAt: Date | null
   loadReleasedAt: Date | null
+  referenceSampleId: string | null
   version: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -99,6 +101,7 @@ export type InspectionRequirementCountAggregateOutputType = {
   buyerRequestNote: number
   evaluatedAt: number
   loadReleasedAt: number
+  referenceSampleId: number
   version: number
   createdAt: number
   updatedAt: number
@@ -132,6 +135,7 @@ export type InspectionRequirementMinAggregateInputType = {
   buyerRequestNote?: true
   evaluatedAt?: true
   loadReleasedAt?: true
+  referenceSampleId?: true
   version?: true
   createdAt?: true
   updatedAt?: true
@@ -155,6 +159,7 @@ export type InspectionRequirementMaxAggregateInputType = {
   buyerRequestNote?: true
   evaluatedAt?: true
   loadReleasedAt?: true
+  referenceSampleId?: true
   version?: true
   createdAt?: true
   updatedAt?: true
@@ -179,6 +184,7 @@ export type InspectionRequirementCountAggregateInputType = {
   buyerRequestNote?: true
   evaluatedAt?: true
   loadReleasedAt?: true
+  referenceSampleId?: true
   version?: true
   createdAt?: true
   updatedAt?: true
@@ -290,6 +296,7 @@ export type InspectionRequirementGroupByOutputType = {
   buyerRequestNote: string | null
   evaluatedAt: Date
   loadReleasedAt: Date | null
+  referenceSampleId: string | null
   version: number
   createdAt: Date
   updatedAt: Date
@@ -337,10 +344,12 @@ export type InspectionRequirementWhereInput = {
   buyerRequestNote?: Prisma.StringNullableFilter<"InspectionRequirement"> | string | null
   evaluatedAt?: Prisma.DateTimeFilter<"InspectionRequirement"> | Date | string
   loadReleasedAt?: Prisma.DateTimeNullableFilter<"InspectionRequirement"> | Date | string | null
+  referenceSampleId?: Prisma.StringNullableFilter<"InspectionRequirement"> | string | null
   version?: Prisma.IntFilter<"InspectionRequirement"> | number
   createdAt?: Prisma.DateTimeFilter<"InspectionRequirement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InspectionRequirement"> | Date | string
   sellerOrderGroup?: Prisma.XOR<Prisma.SellerOrderGroupScalarRelationFilter, Prisma.SellerOrderGroupWhereInput>
+  referenceSample?: Prisma.XOR<Prisma.RfqSampleNullableScalarRelationFilter, Prisma.RfqSampleWhereInput> | null
   jobs?: Prisma.InspectionJobListRelationFilter
   releases?: Prisma.InspectionReleaseListRelationFilter
   events?: Prisma.InspectionEventListRelationFilter
@@ -367,10 +376,12 @@ export type InspectionRequirementOrderByWithRelationInput = {
   buyerRequestNote?: Prisma.SortOrderInput | Prisma.SortOrder
   evaluatedAt?: Prisma.SortOrder
   loadReleasedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  referenceSampleId?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   sellerOrderGroup?: Prisma.SellerOrderGroupOrderByWithRelationInput
+  referenceSample?: Prisma.RfqSampleOrderByWithRelationInput
   jobs?: Prisma.InspectionJobOrderByRelationAggregateInput
   releases?: Prisma.InspectionReleaseOrderByRelationAggregateInput
   events?: Prisma.InspectionEventOrderByRelationAggregateInput
@@ -401,10 +412,12 @@ export type InspectionRequirementWhereUniqueInput = Prisma.AtLeast<{
   buyerRequestNote?: Prisma.StringNullableFilter<"InspectionRequirement"> | string | null
   evaluatedAt?: Prisma.DateTimeFilter<"InspectionRequirement"> | Date | string
   loadReleasedAt?: Prisma.DateTimeNullableFilter<"InspectionRequirement"> | Date | string | null
+  referenceSampleId?: Prisma.StringNullableFilter<"InspectionRequirement"> | string | null
   version?: Prisma.IntFilter<"InspectionRequirement"> | number
   createdAt?: Prisma.DateTimeFilter<"InspectionRequirement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InspectionRequirement"> | Date | string
   sellerOrderGroup?: Prisma.XOR<Prisma.SellerOrderGroupScalarRelationFilter, Prisma.SellerOrderGroupWhereInput>
+  referenceSample?: Prisma.XOR<Prisma.RfqSampleNullableScalarRelationFilter, Prisma.RfqSampleWhereInput> | null
   jobs?: Prisma.InspectionJobListRelationFilter
   releases?: Prisma.InspectionReleaseListRelationFilter
   events?: Prisma.InspectionEventListRelationFilter
@@ -431,6 +444,7 @@ export type InspectionRequirementOrderByWithAggregationInput = {
   buyerRequestNote?: Prisma.SortOrderInput | Prisma.SortOrder
   evaluatedAt?: Prisma.SortOrder
   loadReleasedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  referenceSampleId?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -463,6 +477,7 @@ export type InspectionRequirementScalarWhereWithAggregatesInput = {
   buyerRequestNote?: Prisma.StringNullableWithAggregatesFilter<"InspectionRequirement"> | string | null
   evaluatedAt?: Prisma.DateTimeWithAggregatesFilter<"InspectionRequirement"> | Date | string
   loadReleasedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"InspectionRequirement"> | Date | string | null
+  referenceSampleId?: Prisma.StringNullableWithAggregatesFilter<"InspectionRequirement"> | string | null
   version?: Prisma.IntWithAggregatesFilter<"InspectionRequirement"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"InspectionRequirement"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"InspectionRequirement"> | Date | string
@@ -490,6 +505,7 @@ export type InspectionRequirementCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerOrderGroup: Prisma.SellerOrderGroupCreateNestedOneWithoutInspectionRequirementInput
+  referenceSample?: Prisma.RfqSampleCreateNestedOneWithoutInspectionRequirementsInput
   jobs?: Prisma.InspectionJobCreateNestedManyWithoutRequirementInput
   releases?: Prisma.InspectionReleaseCreateNestedManyWithoutRequirementInput
   events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
@@ -516,6 +532,7 @@ export type InspectionRequirementUncheckedCreateInput = {
   buyerRequestNote?: string | null
   evaluatedAt: Date | string
   loadReleasedAt?: Date | string | null
+  referenceSampleId?: string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -548,6 +565,7 @@ export type InspectionRequirementUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneRequiredWithoutInspectionRequirementNestedInput
+  referenceSample?: Prisma.RfqSampleUpdateOneWithoutInspectionRequirementsNestedInput
   jobs?: Prisma.InspectionJobUpdateManyWithoutRequirementNestedInput
   releases?: Prisma.InspectionReleaseUpdateManyWithoutRequirementNestedInput
   events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
@@ -574,6 +592,7 @@ export type InspectionRequirementUncheckedUpdateInput = {
   buyerRequestNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   loadReleasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  referenceSampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -603,6 +622,7 @@ export type InspectionRequirementCreateManyInput = {
   buyerRequestNote?: string | null
   evaluatedAt: Date | string
   loadReleasedAt?: Date | string | null
+  referenceSampleId?: string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -650,6 +670,7 @@ export type InspectionRequirementUncheckedUpdateManyInput = {
   buyerRequestNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   loadReleasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  referenceSampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -685,6 +706,7 @@ export type InspectionRequirementCountOrderByAggregateInput = {
   buyerRequestNote?: Prisma.SortOrder
   evaluatedAt?: Prisma.SortOrder
   loadReleasedAt?: Prisma.SortOrder
+  referenceSampleId?: Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -712,6 +734,7 @@ export type InspectionRequirementMaxOrderByAggregateInput = {
   buyerRequestNote?: Prisma.SortOrder
   evaluatedAt?: Prisma.SortOrder
   loadReleasedAt?: Prisma.SortOrder
+  referenceSampleId?: Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -735,6 +758,7 @@ export type InspectionRequirementMinOrderByAggregateInput = {
   buyerRequestNote?: Prisma.SortOrder
   evaluatedAt?: Prisma.SortOrder
   loadReleasedAt?: Prisma.SortOrder
+  referenceSampleId?: Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -747,6 +771,16 @@ export type InspectionRequirementSumOrderByAggregateInput = {
 export type InspectionRequirementScalarRelationFilter = {
   is?: Prisma.InspectionRequirementWhereInput
   isNot?: Prisma.InspectionRequirementWhereInput
+}
+
+export type InspectionRequirementListRelationFilter = {
+  every?: Prisma.InspectionRequirementWhereInput
+  some?: Prisma.InspectionRequirementWhereInput
+  none?: Prisma.InspectionRequirementWhereInput
+}
+
+export type InspectionRequirementOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type InspectionRequirementCreateNestedOneWithoutSellerOrderGroupInput = {
@@ -855,6 +889,48 @@ export type InspectionRequirementUpdateOneRequiredWithoutEventsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InspectionRequirementUpdateToOneWithWhereWithoutEventsInput, Prisma.InspectionRequirementUpdateWithoutEventsInput>, Prisma.InspectionRequirementUncheckedUpdateWithoutEventsInput>
 }
 
+export type InspectionRequirementCreateNestedManyWithoutReferenceSampleInput = {
+  create?: Prisma.XOR<Prisma.InspectionRequirementCreateWithoutReferenceSampleInput, Prisma.InspectionRequirementUncheckedCreateWithoutReferenceSampleInput> | Prisma.InspectionRequirementCreateWithoutReferenceSampleInput[] | Prisma.InspectionRequirementUncheckedCreateWithoutReferenceSampleInput[]
+  connectOrCreate?: Prisma.InspectionRequirementCreateOrConnectWithoutReferenceSampleInput | Prisma.InspectionRequirementCreateOrConnectWithoutReferenceSampleInput[]
+  createMany?: Prisma.InspectionRequirementCreateManyReferenceSampleInputEnvelope
+  connect?: Prisma.InspectionRequirementWhereUniqueInput | Prisma.InspectionRequirementWhereUniqueInput[]
+}
+
+export type InspectionRequirementUncheckedCreateNestedManyWithoutReferenceSampleInput = {
+  create?: Prisma.XOR<Prisma.InspectionRequirementCreateWithoutReferenceSampleInput, Prisma.InspectionRequirementUncheckedCreateWithoutReferenceSampleInput> | Prisma.InspectionRequirementCreateWithoutReferenceSampleInput[] | Prisma.InspectionRequirementUncheckedCreateWithoutReferenceSampleInput[]
+  connectOrCreate?: Prisma.InspectionRequirementCreateOrConnectWithoutReferenceSampleInput | Prisma.InspectionRequirementCreateOrConnectWithoutReferenceSampleInput[]
+  createMany?: Prisma.InspectionRequirementCreateManyReferenceSampleInputEnvelope
+  connect?: Prisma.InspectionRequirementWhereUniqueInput | Prisma.InspectionRequirementWhereUniqueInput[]
+}
+
+export type InspectionRequirementUpdateManyWithoutReferenceSampleNestedInput = {
+  create?: Prisma.XOR<Prisma.InspectionRequirementCreateWithoutReferenceSampleInput, Prisma.InspectionRequirementUncheckedCreateWithoutReferenceSampleInput> | Prisma.InspectionRequirementCreateWithoutReferenceSampleInput[] | Prisma.InspectionRequirementUncheckedCreateWithoutReferenceSampleInput[]
+  connectOrCreate?: Prisma.InspectionRequirementCreateOrConnectWithoutReferenceSampleInput | Prisma.InspectionRequirementCreateOrConnectWithoutReferenceSampleInput[]
+  upsert?: Prisma.InspectionRequirementUpsertWithWhereUniqueWithoutReferenceSampleInput | Prisma.InspectionRequirementUpsertWithWhereUniqueWithoutReferenceSampleInput[]
+  createMany?: Prisma.InspectionRequirementCreateManyReferenceSampleInputEnvelope
+  set?: Prisma.InspectionRequirementWhereUniqueInput | Prisma.InspectionRequirementWhereUniqueInput[]
+  disconnect?: Prisma.InspectionRequirementWhereUniqueInput | Prisma.InspectionRequirementWhereUniqueInput[]
+  delete?: Prisma.InspectionRequirementWhereUniqueInput | Prisma.InspectionRequirementWhereUniqueInput[]
+  connect?: Prisma.InspectionRequirementWhereUniqueInput | Prisma.InspectionRequirementWhereUniqueInput[]
+  update?: Prisma.InspectionRequirementUpdateWithWhereUniqueWithoutReferenceSampleInput | Prisma.InspectionRequirementUpdateWithWhereUniqueWithoutReferenceSampleInput[]
+  updateMany?: Prisma.InspectionRequirementUpdateManyWithWhereWithoutReferenceSampleInput | Prisma.InspectionRequirementUpdateManyWithWhereWithoutReferenceSampleInput[]
+  deleteMany?: Prisma.InspectionRequirementScalarWhereInput | Prisma.InspectionRequirementScalarWhereInput[]
+}
+
+export type InspectionRequirementUncheckedUpdateManyWithoutReferenceSampleNestedInput = {
+  create?: Prisma.XOR<Prisma.InspectionRequirementCreateWithoutReferenceSampleInput, Prisma.InspectionRequirementUncheckedCreateWithoutReferenceSampleInput> | Prisma.InspectionRequirementCreateWithoutReferenceSampleInput[] | Prisma.InspectionRequirementUncheckedCreateWithoutReferenceSampleInput[]
+  connectOrCreate?: Prisma.InspectionRequirementCreateOrConnectWithoutReferenceSampleInput | Prisma.InspectionRequirementCreateOrConnectWithoutReferenceSampleInput[]
+  upsert?: Prisma.InspectionRequirementUpsertWithWhereUniqueWithoutReferenceSampleInput | Prisma.InspectionRequirementUpsertWithWhereUniqueWithoutReferenceSampleInput[]
+  createMany?: Prisma.InspectionRequirementCreateManyReferenceSampleInputEnvelope
+  set?: Prisma.InspectionRequirementWhereUniqueInput | Prisma.InspectionRequirementWhereUniqueInput[]
+  disconnect?: Prisma.InspectionRequirementWhereUniqueInput | Prisma.InspectionRequirementWhereUniqueInput[]
+  delete?: Prisma.InspectionRequirementWhereUniqueInput | Prisma.InspectionRequirementWhereUniqueInput[]
+  connect?: Prisma.InspectionRequirementWhereUniqueInput | Prisma.InspectionRequirementWhereUniqueInput[]
+  update?: Prisma.InspectionRequirementUpdateWithWhereUniqueWithoutReferenceSampleInput | Prisma.InspectionRequirementUpdateWithWhereUniqueWithoutReferenceSampleInput[]
+  updateMany?: Prisma.InspectionRequirementUpdateManyWithWhereWithoutReferenceSampleInput | Prisma.InspectionRequirementUpdateManyWithWhereWithoutReferenceSampleInput[]
+  deleteMany?: Prisma.InspectionRequirementScalarWhereInput | Prisma.InspectionRequirementScalarWhereInput[]
+}
+
 export type InspectionRequirementCreateWithoutSellerOrderGroupInput = {
   id: string
   orderId: string
@@ -876,6 +952,7 @@ export type InspectionRequirementCreateWithoutSellerOrderGroupInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  referenceSample?: Prisma.RfqSampleCreateNestedOneWithoutInspectionRequirementsInput
   jobs?: Prisma.InspectionJobCreateNestedManyWithoutRequirementInput
   releases?: Prisma.InspectionReleaseCreateNestedManyWithoutRequirementInput
   events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
@@ -901,6 +978,7 @@ export type InspectionRequirementUncheckedCreateWithoutSellerOrderGroupInput = {
   buyerRequestNote?: string | null
   evaluatedAt: Date | string
   loadReleasedAt?: Date | string | null
+  referenceSampleId?: string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -948,6 +1026,7 @@ export type InspectionRequirementUpdateWithoutSellerOrderGroupInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  referenceSample?: Prisma.RfqSampleUpdateOneWithoutInspectionRequirementsNestedInput
   jobs?: Prisma.InspectionJobUpdateManyWithoutRequirementNestedInput
   releases?: Prisma.InspectionReleaseUpdateManyWithoutRequirementNestedInput
   events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
@@ -973,6 +1052,7 @@ export type InspectionRequirementUncheckedUpdateWithoutSellerOrderGroupInput = {
   buyerRequestNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   loadReleasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  referenceSampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1005,6 +1085,7 @@ export type InspectionRequirementCreateWithoutJobsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerOrderGroup: Prisma.SellerOrderGroupCreateNestedOneWithoutInspectionRequirementInput
+  referenceSample?: Prisma.RfqSampleCreateNestedOneWithoutInspectionRequirementsInput
   releases?: Prisma.InspectionReleaseCreateNestedManyWithoutRequirementInput
   events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutRequirementInput
@@ -1030,6 +1111,7 @@ export type InspectionRequirementUncheckedCreateWithoutJobsInput = {
   buyerRequestNote?: string | null
   evaluatedAt: Date | string
   loadReleasedAt?: Date | string | null
+  referenceSampleId?: string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1077,6 +1159,7 @@ export type InspectionRequirementUpdateWithoutJobsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneRequiredWithoutInspectionRequirementNestedInput
+  referenceSample?: Prisma.RfqSampleUpdateOneWithoutInspectionRequirementsNestedInput
   releases?: Prisma.InspectionReleaseUpdateManyWithoutRequirementNestedInput
   events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutRequirementNestedInput
@@ -1102,6 +1185,7 @@ export type InspectionRequirementUncheckedUpdateWithoutJobsInput = {
   buyerRequestNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   loadReleasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  referenceSampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1133,6 +1217,7 @@ export type InspectionRequirementCreateWithoutEvidenceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerOrderGroup: Prisma.SellerOrderGroupCreateNestedOneWithoutInspectionRequirementInput
+  referenceSample?: Prisma.RfqSampleCreateNestedOneWithoutInspectionRequirementsInput
   jobs?: Prisma.InspectionJobCreateNestedManyWithoutRequirementInput
   releases?: Prisma.InspectionReleaseCreateNestedManyWithoutRequirementInput
   events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
@@ -1158,6 +1243,7 @@ export type InspectionRequirementUncheckedCreateWithoutEvidenceInput = {
   buyerRequestNote?: string | null
   evaluatedAt: Date | string
   loadReleasedAt?: Date | string | null
+  referenceSampleId?: string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1205,6 +1291,7 @@ export type InspectionRequirementUpdateWithoutEvidenceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneRequiredWithoutInspectionRequirementNestedInput
+  referenceSample?: Prisma.RfqSampleUpdateOneWithoutInspectionRequirementsNestedInput
   jobs?: Prisma.InspectionJobUpdateManyWithoutRequirementNestedInput
   releases?: Prisma.InspectionReleaseUpdateManyWithoutRequirementNestedInput
   events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
@@ -1230,6 +1317,7 @@ export type InspectionRequirementUncheckedUpdateWithoutEvidenceInput = {
   buyerRequestNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   loadReleasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  referenceSampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1261,6 +1349,7 @@ export type InspectionRequirementCreateWithoutReleasesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerOrderGroup: Prisma.SellerOrderGroupCreateNestedOneWithoutInspectionRequirementInput
+  referenceSample?: Prisma.RfqSampleCreateNestedOneWithoutInspectionRequirementsInput
   jobs?: Prisma.InspectionJobCreateNestedManyWithoutRequirementInput
   events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutRequirementInput
@@ -1286,6 +1375,7 @@ export type InspectionRequirementUncheckedCreateWithoutReleasesInput = {
   buyerRequestNote?: string | null
   evaluatedAt: Date | string
   loadReleasedAt?: Date | string | null
+  referenceSampleId?: string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1333,6 +1423,7 @@ export type InspectionRequirementUpdateWithoutReleasesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneRequiredWithoutInspectionRequirementNestedInput
+  referenceSample?: Prisma.RfqSampleUpdateOneWithoutInspectionRequirementsNestedInput
   jobs?: Prisma.InspectionJobUpdateManyWithoutRequirementNestedInput
   events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutRequirementNestedInput
@@ -1358,6 +1449,7 @@ export type InspectionRequirementUncheckedUpdateWithoutReleasesInput = {
   buyerRequestNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   loadReleasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  referenceSampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1389,6 +1481,7 @@ export type InspectionRequirementCreateWithoutBindingsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerOrderGroup: Prisma.SellerOrderGroupCreateNestedOneWithoutInspectionRequirementInput
+  referenceSample?: Prisma.RfqSampleCreateNestedOneWithoutInspectionRequirementsInput
   jobs?: Prisma.InspectionJobCreateNestedManyWithoutRequirementInput
   releases?: Prisma.InspectionReleaseCreateNestedManyWithoutRequirementInput
   events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
@@ -1414,6 +1507,7 @@ export type InspectionRequirementUncheckedCreateWithoutBindingsInput = {
   buyerRequestNote?: string | null
   evaluatedAt: Date | string
   loadReleasedAt?: Date | string | null
+  referenceSampleId?: string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1461,6 +1555,7 @@ export type InspectionRequirementUpdateWithoutBindingsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneRequiredWithoutInspectionRequirementNestedInput
+  referenceSample?: Prisma.RfqSampleUpdateOneWithoutInspectionRequirementsNestedInput
   jobs?: Prisma.InspectionJobUpdateManyWithoutRequirementNestedInput
   releases?: Prisma.InspectionReleaseUpdateManyWithoutRequirementNestedInput
   events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
@@ -1486,6 +1581,7 @@ export type InspectionRequirementUncheckedUpdateWithoutBindingsInput = {
   buyerRequestNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   loadReleasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  referenceSampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1517,6 +1613,7 @@ export type InspectionRequirementCreateWithoutEventsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sellerOrderGroup: Prisma.SellerOrderGroupCreateNestedOneWithoutInspectionRequirementInput
+  referenceSample?: Prisma.RfqSampleCreateNestedOneWithoutInspectionRequirementsInput
   jobs?: Prisma.InspectionJobCreateNestedManyWithoutRequirementInput
   releases?: Prisma.InspectionReleaseCreateNestedManyWithoutRequirementInput
   evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutRequirementInput
@@ -1542,6 +1639,7 @@ export type InspectionRequirementUncheckedCreateWithoutEventsInput = {
   buyerRequestNote?: string | null
   evaluatedAt: Date | string
   loadReleasedAt?: Date | string | null
+  referenceSampleId?: string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1589,6 +1687,7 @@ export type InspectionRequirementUpdateWithoutEventsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneRequiredWithoutInspectionRequirementNestedInput
+  referenceSample?: Prisma.RfqSampleUpdateOneWithoutInspectionRequirementsNestedInput
   jobs?: Prisma.InspectionJobUpdateManyWithoutRequirementNestedInput
   releases?: Prisma.InspectionReleaseUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUpdateManyWithoutRequirementNestedInput
@@ -1614,6 +1713,7 @@ export type InspectionRequirementUncheckedUpdateWithoutEventsInput = {
   buyerRequestNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   loadReleasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  referenceSampleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1621,6 +1721,224 @@ export type InspectionRequirementUncheckedUpdateWithoutEventsInput = {
   releases?: Prisma.InspectionReleaseUncheckedUpdateManyWithoutRequirementNestedInput
   evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutRequirementNestedInput
   bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutRequirementNestedInput
+}
+
+export type InspectionRequirementCreateWithoutReferenceSampleInput = {
+  id: string
+  orderId: string
+  sellerAccountId: string
+  level: $Enums.InspectionRequirementLevel
+  status: $Enums.InspectionRequirementStatus
+  ruleId?: string | null
+  ruleName?: string | null
+  reason: string
+  inputsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planId?: string | null
+  preferredAgencyId?: string | null
+  allowConditionalRelease?: boolean
+  buyerRequested?: boolean
+  buyerRequestedAt?: Date | string | null
+  buyerRequestNote?: string | null
+  evaluatedAt: Date | string
+  loadReleasedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sellerOrderGroup: Prisma.SellerOrderGroupCreateNestedOneWithoutInspectionRequirementInput
+  jobs?: Prisma.InspectionJobCreateNestedManyWithoutRequirementInput
+  releases?: Prisma.InspectionReleaseCreateNestedManyWithoutRequirementInput
+  events?: Prisma.InspectionEventCreateNestedManyWithoutRequirementInput
+  evidence?: Prisma.InspectionEvidenceCreateNestedManyWithoutRequirementInput
+  bindings?: Prisma.InspectionShipmentBindingCreateNestedManyWithoutRequirementInput
+}
+
+export type InspectionRequirementUncheckedCreateWithoutReferenceSampleInput = {
+  id: string
+  sellerOrderGroupId: string
+  orderId: string
+  sellerAccountId: string
+  level: $Enums.InspectionRequirementLevel
+  status: $Enums.InspectionRequirementStatus
+  ruleId?: string | null
+  ruleName?: string | null
+  reason: string
+  inputsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planId?: string | null
+  preferredAgencyId?: string | null
+  allowConditionalRelease?: boolean
+  buyerRequested?: boolean
+  buyerRequestedAt?: Date | string | null
+  buyerRequestNote?: string | null
+  evaluatedAt: Date | string
+  loadReleasedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  jobs?: Prisma.InspectionJobUncheckedCreateNestedManyWithoutRequirementInput
+  releases?: Prisma.InspectionReleaseUncheckedCreateNestedManyWithoutRequirementInput
+  events?: Prisma.InspectionEventUncheckedCreateNestedManyWithoutRequirementInput
+  evidence?: Prisma.InspectionEvidenceUncheckedCreateNestedManyWithoutRequirementInput
+  bindings?: Prisma.InspectionShipmentBindingUncheckedCreateNestedManyWithoutRequirementInput
+}
+
+export type InspectionRequirementCreateOrConnectWithoutReferenceSampleInput = {
+  where: Prisma.InspectionRequirementWhereUniqueInput
+  create: Prisma.XOR<Prisma.InspectionRequirementCreateWithoutReferenceSampleInput, Prisma.InspectionRequirementUncheckedCreateWithoutReferenceSampleInput>
+}
+
+export type InspectionRequirementCreateManyReferenceSampleInputEnvelope = {
+  data: Prisma.InspectionRequirementCreateManyReferenceSampleInput | Prisma.InspectionRequirementCreateManyReferenceSampleInput[]
+  skipDuplicates?: boolean
+}
+
+export type InspectionRequirementUpsertWithWhereUniqueWithoutReferenceSampleInput = {
+  where: Prisma.InspectionRequirementWhereUniqueInput
+  update: Prisma.XOR<Prisma.InspectionRequirementUpdateWithoutReferenceSampleInput, Prisma.InspectionRequirementUncheckedUpdateWithoutReferenceSampleInput>
+  create: Prisma.XOR<Prisma.InspectionRequirementCreateWithoutReferenceSampleInput, Prisma.InspectionRequirementUncheckedCreateWithoutReferenceSampleInput>
+}
+
+export type InspectionRequirementUpdateWithWhereUniqueWithoutReferenceSampleInput = {
+  where: Prisma.InspectionRequirementWhereUniqueInput
+  data: Prisma.XOR<Prisma.InspectionRequirementUpdateWithoutReferenceSampleInput, Prisma.InspectionRequirementUncheckedUpdateWithoutReferenceSampleInput>
+}
+
+export type InspectionRequirementUpdateManyWithWhereWithoutReferenceSampleInput = {
+  where: Prisma.InspectionRequirementScalarWhereInput
+  data: Prisma.XOR<Prisma.InspectionRequirementUpdateManyMutationInput, Prisma.InspectionRequirementUncheckedUpdateManyWithoutReferenceSampleInput>
+}
+
+export type InspectionRequirementScalarWhereInput = {
+  AND?: Prisma.InspectionRequirementScalarWhereInput | Prisma.InspectionRequirementScalarWhereInput[]
+  OR?: Prisma.InspectionRequirementScalarWhereInput[]
+  NOT?: Prisma.InspectionRequirementScalarWhereInput | Prisma.InspectionRequirementScalarWhereInput[]
+  id?: Prisma.StringFilter<"InspectionRequirement"> | string
+  sellerOrderGroupId?: Prisma.StringFilter<"InspectionRequirement"> | string
+  orderId?: Prisma.StringFilter<"InspectionRequirement"> | string
+  sellerAccountId?: Prisma.StringFilter<"InspectionRequirement"> | string
+  level?: Prisma.EnumInspectionRequirementLevelFilter<"InspectionRequirement"> | $Enums.InspectionRequirementLevel
+  status?: Prisma.EnumInspectionRequirementStatusFilter<"InspectionRequirement"> | $Enums.InspectionRequirementStatus
+  ruleId?: Prisma.StringNullableFilter<"InspectionRequirement"> | string | null
+  ruleName?: Prisma.StringNullableFilter<"InspectionRequirement"> | string | null
+  reason?: Prisma.StringFilter<"InspectionRequirement"> | string
+  inputsJson?: Prisma.JsonFilter<"InspectionRequirement">
+  planId?: Prisma.StringNullableFilter<"InspectionRequirement"> | string | null
+  preferredAgencyId?: Prisma.StringNullableFilter<"InspectionRequirement"> | string | null
+  allowConditionalRelease?: Prisma.BoolFilter<"InspectionRequirement"> | boolean
+  buyerRequested?: Prisma.BoolFilter<"InspectionRequirement"> | boolean
+  buyerRequestedAt?: Prisma.DateTimeNullableFilter<"InspectionRequirement"> | Date | string | null
+  buyerRequestNote?: Prisma.StringNullableFilter<"InspectionRequirement"> | string | null
+  evaluatedAt?: Prisma.DateTimeFilter<"InspectionRequirement"> | Date | string
+  loadReleasedAt?: Prisma.DateTimeNullableFilter<"InspectionRequirement"> | Date | string | null
+  referenceSampleId?: Prisma.StringNullableFilter<"InspectionRequirement"> | string | null
+  version?: Prisma.IntFilter<"InspectionRequirement"> | number
+  createdAt?: Prisma.DateTimeFilter<"InspectionRequirement"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"InspectionRequirement"> | Date | string
+}
+
+export type InspectionRequirementCreateManyReferenceSampleInput = {
+  id: string
+  sellerOrderGroupId: string
+  orderId: string
+  sellerAccountId: string
+  level: $Enums.InspectionRequirementLevel
+  status: $Enums.InspectionRequirementStatus
+  ruleId?: string | null
+  ruleName?: string | null
+  reason: string
+  inputsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planId?: string | null
+  preferredAgencyId?: string | null
+  allowConditionalRelease?: boolean
+  buyerRequested?: boolean
+  buyerRequestedAt?: Date | string | null
+  buyerRequestNote?: string | null
+  evaluatedAt: Date | string
+  loadReleasedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type InspectionRequirementUpdateWithoutReferenceSampleInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.EnumInspectionRequirementLevelFieldUpdateOperationsInput | $Enums.InspectionRequirementLevel
+  status?: Prisma.EnumInspectionRequirementStatusFieldUpdateOperationsInput | $Enums.InspectionRequirementStatus
+  ruleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ruleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  inputsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredAgencyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowConditionalRelease?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  buyerRequested?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  buyerRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerRequestNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  loadReleasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneRequiredWithoutInspectionRequirementNestedInput
+  jobs?: Prisma.InspectionJobUpdateManyWithoutRequirementNestedInput
+  releases?: Prisma.InspectionReleaseUpdateManyWithoutRequirementNestedInput
+  events?: Prisma.InspectionEventUpdateManyWithoutRequirementNestedInput
+  evidence?: Prisma.InspectionEvidenceUpdateManyWithoutRequirementNestedInput
+  bindings?: Prisma.InspectionShipmentBindingUpdateManyWithoutRequirementNestedInput
+}
+
+export type InspectionRequirementUncheckedUpdateWithoutReferenceSampleInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerOrderGroupId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.EnumInspectionRequirementLevelFieldUpdateOperationsInput | $Enums.InspectionRequirementLevel
+  status?: Prisma.EnumInspectionRequirementStatusFieldUpdateOperationsInput | $Enums.InspectionRequirementStatus
+  ruleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ruleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  inputsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredAgencyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowConditionalRelease?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  buyerRequested?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  buyerRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerRequestNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  loadReleasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  jobs?: Prisma.InspectionJobUncheckedUpdateManyWithoutRequirementNestedInput
+  releases?: Prisma.InspectionReleaseUncheckedUpdateManyWithoutRequirementNestedInput
+  events?: Prisma.InspectionEventUncheckedUpdateManyWithoutRequirementNestedInput
+  evidence?: Prisma.InspectionEvidenceUncheckedUpdateManyWithoutRequirementNestedInput
+  bindings?: Prisma.InspectionShipmentBindingUncheckedUpdateManyWithoutRequirementNestedInput
+}
+
+export type InspectionRequirementUncheckedUpdateManyWithoutReferenceSampleInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerOrderGroupId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.EnumInspectionRequirementLevelFieldUpdateOperationsInput | $Enums.InspectionRequirementLevel
+  status?: Prisma.EnumInspectionRequirementStatusFieldUpdateOperationsInput | $Enums.InspectionRequirementStatus
+  ruleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ruleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  inputsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredAgencyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowConditionalRelease?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  buyerRequested?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  buyerRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerRequestNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  loadReleasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1709,10 +2027,12 @@ export type InspectionRequirementSelect<ExtArgs extends runtime.Types.Extensions
   buyerRequestNote?: boolean
   evaluatedAt?: boolean
   loadReleasedAt?: boolean
+  referenceSampleId?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   sellerOrderGroup?: boolean | Prisma.SellerOrderGroupDefaultArgs<ExtArgs>
+  referenceSample?: boolean | Prisma.InspectionRequirement$referenceSampleArgs<ExtArgs>
   jobs?: boolean | Prisma.InspectionRequirement$jobsArgs<ExtArgs>
   releases?: boolean | Prisma.InspectionRequirement$releasesArgs<ExtArgs>
   events?: boolean | Prisma.InspectionRequirement$eventsArgs<ExtArgs>
@@ -1742,14 +2062,16 @@ export type InspectionRequirementSelectScalar = {
   buyerRequestNote?: boolean
   evaluatedAt?: boolean
   loadReleasedAt?: boolean
+  referenceSampleId?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type InspectionRequirementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerOrderGroupId" | "orderId" | "sellerAccountId" | "level" | "status" | "ruleId" | "ruleName" | "reason" | "inputsJson" | "planId" | "preferredAgencyId" | "allowConditionalRelease" | "buyerRequested" | "buyerRequestedAt" | "buyerRequestNote" | "evaluatedAt" | "loadReleasedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionRequirement"]>
+export type InspectionRequirementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerOrderGroupId" | "orderId" | "sellerAccountId" | "level" | "status" | "ruleId" | "ruleName" | "reason" | "inputsJson" | "planId" | "preferredAgencyId" | "allowConditionalRelease" | "buyerRequested" | "buyerRequestedAt" | "buyerRequestNote" | "evaluatedAt" | "loadReleasedAt" | "referenceSampleId" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionRequirement"]>
 export type InspectionRequirementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerOrderGroup?: boolean | Prisma.SellerOrderGroupDefaultArgs<ExtArgs>
+  referenceSample?: boolean | Prisma.InspectionRequirement$referenceSampleArgs<ExtArgs>
   jobs?: boolean | Prisma.InspectionRequirement$jobsArgs<ExtArgs>
   releases?: boolean | Prisma.InspectionRequirement$releasesArgs<ExtArgs>
   events?: boolean | Prisma.InspectionRequirement$eventsArgs<ExtArgs>
@@ -1762,6 +2084,7 @@ export type $InspectionRequirementPayload<ExtArgs extends runtime.Types.Extensio
   name: "InspectionRequirement"
   objects: {
     sellerOrderGroup: Prisma.$SellerOrderGroupPayload<ExtArgs>
+    referenceSample: Prisma.$RfqSamplePayload<ExtArgs> | null
     jobs: Prisma.$InspectionJobPayload<ExtArgs>[]
     releases: Prisma.$InspectionReleasePayload<ExtArgs>[]
     events: Prisma.$InspectionEventPayload<ExtArgs>[]
@@ -1797,6 +2120,11 @@ export type $InspectionRequirementPayload<ExtArgs extends runtime.Types.Extensio
      * packages is recorded but can no longer be re-inspected.
      */
     loadReleasedAt: Date | null
+    /**
+     * The approved RFQ reference sample the goods are measured against, for an
+     * order made from an RFQ purchase order (JOURNEY-019). Null otherwise.
+     */
+    referenceSampleId: string | null
     version: number
     createdAt: Date
     updatedAt: Date
@@ -2141,6 +2469,7 @@ readonly fields: InspectionRequirementFieldRefs;
 export interface Prisma__InspectionRequirementClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   sellerOrderGroup<T extends Prisma.SellerOrderGroupDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOrderGroupDefaultArgs<ExtArgs>>): Prisma.Prisma__SellerOrderGroupClient<runtime.Types.Result.GetResult<Prisma.$SellerOrderGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  referenceSample<T extends Prisma.InspectionRequirement$referenceSampleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InspectionRequirement$referenceSampleArgs<ExtArgs>>): Prisma.Prisma__RfqSampleClient<runtime.Types.Result.GetResult<Prisma.$RfqSamplePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   jobs<T extends Prisma.InspectionRequirement$jobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InspectionRequirement$jobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InspectionJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   releases<T extends Prisma.InspectionRequirement$releasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InspectionRequirement$releasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InspectionReleasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   events<T extends Prisma.InspectionRequirement$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InspectionRequirement$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InspectionEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2193,6 +2522,7 @@ export interface InspectionRequirementFieldRefs {
   readonly buyerRequestNote: Prisma.FieldRef<"InspectionRequirement", 'String'>
   readonly evaluatedAt: Prisma.FieldRef<"InspectionRequirement", 'DateTime'>
   readonly loadReleasedAt: Prisma.FieldRef<"InspectionRequirement", 'DateTime'>
+  readonly referenceSampleId: Prisma.FieldRef<"InspectionRequirement", 'String'>
   readonly version: Prisma.FieldRef<"InspectionRequirement", 'Int'>
   readonly createdAt: Prisma.FieldRef<"InspectionRequirement", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"InspectionRequirement", 'DateTime'>
@@ -2541,6 +2871,25 @@ export type InspectionRequirementDeleteManyArgs<ExtArgs extends runtime.Types.Ex
    * Limit how many InspectionRequirements to delete.
    */
   limit?: number
+}
+
+/**
+ * InspectionRequirement.referenceSample
+ */
+export type InspectionRequirement$referenceSampleArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RfqSample
+   */
+  select?: Prisma.RfqSampleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RfqSample
+   */
+  omit?: Prisma.RfqSampleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RfqSampleInclude<ExtArgs> | null
+  where?: Prisma.RfqSampleWhereInput
 }
 
 /**

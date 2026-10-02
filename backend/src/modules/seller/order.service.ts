@@ -82,6 +82,8 @@ export interface SellerOrderRow {
   locationName: string | null;
   /** The pre-shipment inspection badge, or null while nobody has decided it. */
   inspectionStatus: string | null;
+  /** The RFQ purchase order it was made from (PO-2026-...), or null. */
+  purchaseOrderReference: string | null;
 }
 
 export interface SellerOrderQuery {
@@ -134,7 +136,13 @@ export async function listSellerOrders(
       skip: (page - 1) * pageSize,
       take: pageSize,
       include: {
-        order: { select: { orderNumber: true, placedAt: true } },
+        order: {
+          select: {
+            orderNumber: true,
+            placedAt: true,
+            rfqPurchaseOrder: { select: { reference: true } },
+          },
+        },
         lines: { select: { quantity: true } },
       },
     }),
@@ -179,6 +187,7 @@ export async function listSellerOrders(
       lineCount: row.lines.length,
       itemCount: row.lines.reduce((sum, line) => sum + line.quantity, 0),
       locationName: row.locationId === null ? null : (locationName.get(row.locationId) ?? null),
+      purchaseOrderReference: row.order.rfqPurchaseOrder?.reference ?? null,
     })),
     total,
     counts: Object.fromEntries(grouped.map((entry) => [entry.status, entry._count._all])),
@@ -315,10 +324,16 @@ export async function readSellerOrder(membership: SellerMembership, groupId: str
     ]),
   );
 
+  // The RFQ purchase order this order was made from, if it was (LIVE-004):
+  // the contract terms the seller agreed to and now has to ship against.
+  const { purchaseOrderForOrder } = await import('../rfq/purchase-order-order.service.js');
+  const purchaseOrder = await purchaseOrderForOrder(group.orderId);
+
   return {
     id: group.id,
     sellerOrderNumber: group.sellerOrderNumber,
     orderNumber: group.order.orderNumber,
+    purchaseOrder,
     status: group.status,
     buyerOrderStatus: group.order.status,
     placedAt: group.order.placedAt?.toISOString() ?? null,
@@ -513,7 +528,14 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
       const preorders = await import('../preorders/request.service.js');
       const handover = await preorders.preparePreorderGroupAcceptance(group.orderId, tx);
 
-      for (const line of group.lines) {
+      // Goods made to an RFQ purchase order do not exist on a shelf yet: the
+      // seller makes them after accepting (the production milestones), so
+      // there is no stock to hold. Their private offer never had any.
+      const madeToOrder =
+        (await tx.order.findUnique({ where: { id: group.orderId }, select: { source: true } }))
+          ?.source === 'RFQ_PURCHASE_ORDER';
+
+      for (const line of madeToOrder ? [] : group.lines) {
         const outstanding = line.quantity - line.fulfilledQuantity;
         if (outstanding <= 0) continue;
 

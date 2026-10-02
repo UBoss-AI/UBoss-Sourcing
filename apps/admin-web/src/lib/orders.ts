@@ -155,11 +155,27 @@ export interface OrderApproval {
   approverEmail: string | null;
 }
 
+/** The RFQ purchase order an order was made from (LIVE-004). */
+export interface OrderPurchaseOrderLink {
+  id: string;
+  reference: string;
+  rfqId: string;
+  rfqReference: string;
+  buyerSku: string | null;
+  incoterm: string | null;
+  incotermPlace: string | null;
+  paymentTerms: string | null;
+  inspectionTerms: string | null;
+  exportDocuments: string[];
+}
+
 export interface OrderDetail extends OrderListItem {
   shippingAddress: OrderAddress | null;
   billingAddress: OrderAddress | null;
   shippingMethodName: string | null;
   customerNote: string | null;
+  /** Set when the order was made from an RFQ purchase order; absent from an older server. */
+  purchaseOrder?: OrderPurchaseOrderLink | null;
   internalNote: string | null;
   cancelReason: string | null;
   items: OrderItem[];

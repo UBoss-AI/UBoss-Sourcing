@@ -2654,6 +2654,10 @@ enum OrderSource {
   /// The fee, tax and shipping for a paid RFQ sample (Master row 20). Has no
   /// lines: the sample is not a catalogue product. Appended.
   RFQ_SAMPLE
+  /// Converted from an approved RFQ purchase order (LIVE-004). Its lines are
+  /// on a private product and offer made for that purchase order alone.
+  /// Appended.
+  RFQ_PURCHASE_ORDER
 }
 
 /// How an order's money was arrived at in the currency it was charged in.
@@ -2926,6 +2930,7 @@ model Order {
   preorderRequest PreorderRequest?
   /// The RFQ sample this order collects payment for, where it is one.
   rfqSample       RfqSample?
+  rfqPurchaseOrder RfqPurchaseOrder?
 
   /// Invoices and packing lists the SELLERS issued for their parts of this
   /// order - several of each, one per consignment. Not the operator's own
@@ -21953,11 +21958,16 @@ model InspectionRequirement {
   /// packages is recorded but can no longer be re-inspected.
   loadReleasedAt DateTime? @db.DateTime(3)
 
+  /// The approved RFQ reference sample the goods are measured against, for an
+  /// order made from an RFQ purchase order (JOURNEY-019). Null otherwise.
+  referenceSampleId String? @db.Char(26)
+
   version   Int      @default(0)
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
   sellerOrderGroup SellerOrderGroup         @relation(fields: [sellerOrderGroupId], references: [id], onDelete: Cascade, map: "fk_insp_requirement_group")
+  referenceSample  RfqSample?               @relation(fields: [referenceSampleId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_insp_requirement_reference_sample")
   jobs             InspectionJob[]
   releases         InspectionRelease[]
   events           InspectionEvent[]
@@ -21968,6 +21978,7 @@ model InspectionRequirement {
   @@index([orderId], map: "ix_insp_requirement_order")
   @@index([status, updatedAt], map: "ix_insp_requirement_status")
   @@index([sellerAccountId, status], map: "ix_insp_requirement_seller")
+  @@index([referenceSampleId], map: "ix_insp_requirement_reference_sample")
   @@map("inspection_requirements")
 }
 
@@ -24488,10 +24499,18 @@ model RfqPurchaseOrder {
   approvedAt       DateTime? @db.DateTime(3)
   rejectedAt       DateTime? @db.DateTime(3)
   rejectionReason  String?   @db.VarChar(1000)
+  /// The marketplace order this approved purchase order became (source
+  /// RFQ_PURCHASE_ORDER, LIVE-004). Unique, so one purchase order makes one
+  /// live order however often, or however concurrently, it is converted. A
+  /// cancelled unpaid order may be replaced by a new one.
+  orderId           String?   @unique(map: "uq_rfq_po_order") @db.Char(26)
+  convertedAt       DateTime? @db.DateTime(3)
+  convertedByUserId String?   @db.Char(26)
   createdAt        DateTime  @default(now()) @db.DateTime(3)
   updatedAt        DateTime  @updatedAt @db.DateTime(3)
 
   rfq       RfqRequest                 @relation(fields: [rfqId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_rfq_po_rfq")
+  order     Order?                     @relation(fields: [orderId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_rfq_po_order")
   approvals RfqPurchaseOrderApproval[]
 
   @@index([buyerCompanyId, status, createdAt], map: "ix_rfq_po_buyer_status")
@@ -24586,6 +24605,8 @@ model RfqSample {
 
   rfq   RfqRequest @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_sample_rfq")
   order Order?     @relation(fields: [orderId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_rfq_sample_order")
+  /// Final inspections measured against this approved reference sample (JOURNEY-019).
+  inspectionRequirements InspectionRequirement[]
 
   @@index([rfqId, sellerAccountId], map: "ix_rfq_sample_rfq")
   @@index([sellerAccountId, status], map: "ix_rfq_sample_seller")

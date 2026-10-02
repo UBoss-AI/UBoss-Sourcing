@@ -21,6 +21,37 @@ const view: InspectionView = {
 };
 
 describe('the inspection panel', () => {
+  it('shows the purchase order and the approved reference sample the goods are measured against (JOURNEY-019)', () => {
+    renderWithProviders(
+      <InspectionPanel
+        view={{
+          ...view,
+          requirement: {
+            ...view.requirement,
+            purchaseOrder: { reference: 'PO-2026-ABC', inspectionRequirement: 'THIRD_PARTY_PRE_SHIPMENT', inspectionTerms: 'SGS, AQL 2.5' },
+            referenceSample: {
+              reference: 'SMP-2026-000001', referenceCode: 'REF-SMP-2026-000001', quantity: '10', unitOfMeasure: 'BOX',
+              approvalCriteria: 'No pinholes in 10 of 10', decisionReason: 'Meets every criterion', approvedAt: '2026-09-30T00:00:00Z', files: ['tensile.pdf'],
+            },
+          },
+        }}
+        audience="BUYER"
+        queryKey={['x']}
+      />,
+    );
+    expect(screen.getByText('What the goods are measured against')).toBeInTheDocument();
+    expect(screen.getByText(/PO-2026-ABC/)).toBeInTheDocument();
+    expect(screen.getByText(/SGS, AQL 2.5/)).toBeInTheDocument();
+    expect(screen.getByText(/REF-SMP-2026-000001/)).toBeInTheDocument();
+    expect(screen.getByText(/No pinholes in 10 of 10/)).toBeInTheDocument();
+    expect(screen.getByText(/tensile\.pdf/)).toBeInTheDocument();
+  });
+
+  it('shows no contract block for an ordinary order', () => {
+    renderWithProviders(<InspectionPanel view={view} audience="BUYER" queryKey={['x']} />);
+    expect(screen.queryByText('What the goods are measured against')).toBeNull();
+  });
+
   it('shows the buyer the result, the NCR and that shipment is blocked, with no seller forms', () => {
     renderWithProviders(<InspectionPanel view={view} audience="BUYER" queryKey={['x']} />);
     expect(screen.getByText('FAIL')).toBeInTheDocument();
