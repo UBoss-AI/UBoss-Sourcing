@@ -6,8 +6,8 @@
     "open": 87
   },
   "after": {
-    "checked": 278,
-    "open": 86
+    "checked": 279,
+    "open": 85
   },
   "targeted": {
     "command": "npx vitest run tests/integration/rfq-samples.test.ts tests/integration/rfq-purchase-order-to-order.test.ts",
@@ -72,13 +72,52 @@
   },
   "audit": {
     "problems": [],
-    "checked": 278,
-    "open": 86
+    "checked": 279,
+    "open": 85
   },
   "secretScan": {
     "command": ".\\scripts\\secret-scan.ps1",
     "result": "No leaks found",
     "commitsScanned": 243,
     "scope": "Full inherited history before this commit; pre-push scan must also cover the new commit."
+  },
+  "batch2": {
+    "id": "UAT-UI-007",
+    "direction": "Outbound marketplace order -> buyer ERP PO",
+    "targeted": {
+      "command": "npx vitest run tests/integration/customer-erp-live.test.ts",
+      "files": 1,
+      "tests": 20,
+      "exitCode": 0
+    },
+    "fullVerification": "Reused batch-1 complete package results on byte-identical production/test source; checklist and evidence changes only.",
+    "docsCheck": "Rerun; all three references match.",
+    "evidence": "batch-2.json",
+    "word": {
+      "engine": "Microsoft Word 16.0",
+      "readOnly": true,
+      "totalPages": 29,
+      "changedPages": [
+        28
+      ],
+      "renderMethod": "Actual Word Page.EnhMetaFileBits rasterized by native GDI; inspected.",
+      "visualResult": "UAT-UI-007 checked in its original paragraph; other UAT and Dynamic Home selections preserved. No new clipping or overlap on page 28. Native font playback limitation inherited from batch 1.",
+      "structuralComparison": {
+        "baseline": "97fec6ba",
+        "unchangedOtherParts": 18,
+        "changedPart": "word/document.xml",
+        "authorizedCharacterChanges": 1,
+        "ids": [
+          "UAT-UI-007"
+        ]
+      },
+      "cleanup": "Private read-only renderer exited successfully without saving."
+    },
+    "secretScan": {
+      "command": ".\\scripts\\secret-scan.ps1",
+      "result": "No leaks found",
+      "commitsScanned": 244,
+      "scope": "Full history before batch-2 commit; new commit is scanned again before push."
+    }
   }
 }

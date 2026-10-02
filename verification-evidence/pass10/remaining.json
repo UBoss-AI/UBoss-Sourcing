@@ -1191,8 +1191,8 @@
       "priority": "—",
       "requirement": "ERP sync receives duplicate PO event; idempotency prevents duplicate order creation.",
       "classification": "A",
-      "remainingAction": "Verify duplicate outbound marketplace-to-ERP PO events produce one ERP PO linked to the original marketplace order. Owner delegated direction choice; outbound fits the accepted-marketplace-terms sourcing flow.",
-      "status": "OPEN",
+      "remainingAction": "None for the chosen outbound software scenario; verified by pass10/batch-2.json. Live ERP deployment and inbound PO import are not claimed.",
+      "status": "VERIFIED",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
     {
@@ -1225,8 +1225,8 @@
     }
   ],
   "current": {
-    "checked": 278,
-    "open": 86,
+    "checked": 279,
+    "open": 85,
     "total": 364
   },
   "baselineCounts": {
@@ -1333,7 +1333,7 @@
       "total": 10
     },
     "UAT": {
-      "checked": 11,
+      "checked": 12,
       "total": 15
     }
   },
@@ -1421,7 +1421,6 @@
     "DYNAMIC-007",
     "DYNAMIC-010",
     "UAT-UI-002",
-    "UAT-UI-007",
     "UAT-UI-012",
     "UAT-UI-013"
   ]
