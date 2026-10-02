@@ -243,7 +243,7 @@ describe('product page sourcing', () => {
   it('blocks delivery under a rule on a parent category, giving the reason', async () => {
     const result = await sourcing('sold', BLOCKED);
     expect(result.delivery.status).toBe('BLOCKED');
-    expect(result.delivery.notes).toEqual([{ effect: 'BLOCK', reason: `${PREFIX}BLOCK`, requiredDocuments: [] }]);
+    expect(result.delivery.notes).toEqual([{ effect: 'BLOCK', reason: `${PREFIX}BLOCK`, requiredDocuments: [], labelText: null }]);
   });
 
   it('lists the documents a buyer there must hold', async () => {

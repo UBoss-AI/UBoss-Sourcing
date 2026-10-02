@@ -171,7 +171,7 @@ describe('the operations chart and the navigation badges', () => {
 
   it('places every queue in a group the chart knows how to draw', () => {
     const groups = new Set<string>(Object.values(OperationsGroup));
-    expect(groups.size).toBe(5);
+    expect(groups.size).toBe(7);
   });
 });
 
