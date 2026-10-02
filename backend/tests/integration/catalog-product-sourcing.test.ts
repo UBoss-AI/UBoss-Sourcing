@@ -209,6 +209,9 @@ describe('product page sourcing', () => {
       kind: 'MANUFACTURER',
       registrationCountry: 'IN',
       verifiedAt: '2026-03-01T00:00:00.000Z',
+      // No published reviews or signed inspections for this seller yet.
+      reviewScore: null,
+      inspectionSummary: null,
     });
     expect(result.handlingTimeDays).toBe(12);
     expect(result.countryOfOrigin).toBe('IN');

@@ -138,6 +138,9 @@ describe('GET /api/v1/config', () => {
       // — but travels as its own field so the storefront never infers one
       // capability from another.
       'imageSearch',
+      // Whether a "Translate" action is offered on message threads
+      // (FEATURE_MESSAGE_TRANSLATION). A boolean; no key leaves the server.
+      'messageTranslation',
       // Whether stars and the review form are shown. A boolean; reviews
       // themselves are read from their own endpoint.
       'productReviews',
