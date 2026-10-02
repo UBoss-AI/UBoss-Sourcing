@@ -2563,6 +2563,12 @@
       "status": "VERIFIED",
       "evidence": "Pass 9. Fee rules by category, value band, volume tier, seller tier, market and promotion, with effective dates and maker-checker (platform-fee-rules unit, platform-fee-rules-http, fee-maker-checker-http, FeeRulesPage tests). NEW admin seller fee tier screen (search, assign/remove with reason >= 10 characters, audited) and a read-only Seller Hub card of the seller's tier and live and upcoming rules. No retroactive surprise: approval moves a past effectiveFrom to the approval moment and an earlier settlement keeps its fee with no rule application (fee-tiers-no-retroactive-http.test.ts); published rules are not editable. Not built: a notification to sellers when a rule is published (stated in the PRD).",
       "verifiedAt": "2026-10-02 (pass 8)"
+    },
+    {
+      "id": "JOURNEY-019",
+      "status": "VERIFIED",
+      "evidence": "Pass 9. Samples: quantity and cost, courier, approval criteria, buyer acceptance/rejection (rfq-samples tests). NEW reference sample link to final inspection: an approved RFQ purchase order converts to one marketplace order (POST /rfqs/:id/purchase-order/order, idempotent, migration 20261031200000), paid through the signed webhook and escrow, split to the awarded seller; on acceptance the inspection requirement is MANDATORY and links the buyer's approved reference sample (inspection_requirements.referenceSampleId), shown to buyer, seller and inspector as what the goods are measured against. rfq-purchase-order-to-order.test.ts 3/3 (convert, repeat/concurrent same order, forged webhook refused, split, mandatory inspection with sample linked, PASS, dispatch, delivered, refusals), rfq-po-order unit 6/6. Full verify: backend 316 files / 5204 tests (one preorders case failed under load, passed 39/39 alone), admin 44/352, customer 187/1755.",
+      "verifiedAt": "2026-10-02 (pass 8)"
     }
   ],
   "pendingBoxes": []
