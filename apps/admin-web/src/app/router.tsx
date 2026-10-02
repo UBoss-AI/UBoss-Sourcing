@@ -280,6 +280,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        // Messages buyers and sellers reported as abusive (JOURNEY-055).
+        path: 'message-reports',
+        ...lazyRoute(
+          () => import('@/pages/MessageReportsPage').then((m) => m.MessageReportsPage),
+          [Permission.REVIEW_READ],
+        ),
+      },
+      {
         path: 'brand-requests',
         ...lazyRoute(
           () => import('@/pages/BrandRequestsPage').then((m) => m.BrandRequestsPage),

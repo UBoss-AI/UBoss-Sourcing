@@ -123,6 +123,9 @@ export const SECTIONS = Object.freeze({
     // Every Terms and Conditions document they agreed to: which one, which
     // version and language, its hash and when. Buyers and carrier staff alike.
     'termsAcceptances',
+    // The notification families they switched off and on which channel. Their
+    // own choices, so disclosed whole.
+    'notificationPreferences',
     // Claims they raised about an order, and chargebacks on their payments:
     // what they said, what they asked for, what was decided and why, and every
     // message and status change they were shown. Staff's internal notes and
@@ -453,11 +456,29 @@ export async function buildCustomerBundle(
     acceptedAt: iso(row.acceptedAt),
   }));
 
+  // The notification families they switched off, and on which channel.
+  // Loaded before the profile branch: a seller member or staff account has
+  // choices too.
+  const notificationPreferences = (
+    await prisma.notificationPreference.findMany({
+      where: { userId: subject.userId },
+      orderBy: { createdAt: 'asc' },
+      select: { family: true, channel: true, createdAt: true },
+    })
+  ).map((row) => ({ family: row.family, channel: row.channel, mutedAt: iso(row.createdAt) }));
+
   // A staff account, or a customer whose profile was never created, still gets
   // a bundle - it is just a short one. Returning early here rather than
   // guarding every query below keeps the shape of the file predictable.
   if (profile === null) {
-    return envelope(subject, { account, profile: null, dataRequests, supportTickets, termsAcceptances });
+    return envelope(subject, {
+      account,
+      profile: null,
+      dataRequests,
+      supportTickets,
+      termsAcceptances,
+      notificationPreferences,
+    });
   }
 
   const [
@@ -1023,6 +1044,7 @@ export async function buildCustomerBundle(
     dataRequests,
     supportTickets,
     termsAcceptances,
+    notificationPreferences,
 
     identityCheck: await (async () => {
       if (profile === null) return null;

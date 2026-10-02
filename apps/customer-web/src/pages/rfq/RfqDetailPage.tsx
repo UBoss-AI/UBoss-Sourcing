@@ -64,6 +64,10 @@ function QuestionsPanel({ rfq }: { rfq: BuyerRfq }): React.JSX.Element {
         path={`/rfqs/${rfq.id}/invitations/${invitation.id}/messages`}
         canWrite={rfq.status === 'OPEN' && ['INVITED', 'VIEWED', 'QUOTED'].includes(invitation.status)}
         otherPartyName={invitation.supplier.displayName}
+        audience="buyer"
+        // A published requirement file is the one file every invited seller may open.
+        attachableFiles={rfq.attachments.filter((file) => file.purpose === 'REQUIREMENT' && file.requirementVersion !== null)}
+        attachmentHref={(attachmentId) => rfqAttachmentUrl('/rfqs', rfq.id, attachmentId)}
       />
     </Card>
   );

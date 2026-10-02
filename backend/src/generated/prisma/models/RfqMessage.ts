@@ -34,6 +34,7 @@ export type RfqMessageMinAggregateOutputType = {
   authorUserId: string | null
   body: string | null
   clientMessageId: string | null
+  attachmentId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,6 +47,7 @@ export type RfqMessageMaxAggregateOutputType = {
   authorUserId: string | null
   body: string | null
   clientMessageId: string | null
+  attachmentId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -58,6 +60,7 @@ export type RfqMessageCountAggregateOutputType = {
   authorUserId: number
   body: number
   clientMessageId: number
+  attachmentId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -72,6 +75,7 @@ export type RfqMessageMinAggregateInputType = {
   authorUserId?: true
   body?: true
   clientMessageId?: true
+  attachmentId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -84,6 +88,7 @@ export type RfqMessageMaxAggregateInputType = {
   authorUserId?: true
   body?: true
   clientMessageId?: true
+  attachmentId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -96,6 +101,7 @@ export type RfqMessageCountAggregateInputType = {
   authorUserId?: true
   body?: true
   clientMessageId?: true
+  attachmentId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -181,6 +187,7 @@ export type RfqMessageGroupByOutputType = {
   authorUserId: string
   body: string
   clientMessageId: string | null
+  attachmentId: string | null
   createdAt: Date
   updatedAt: Date
   _count: RfqMessageCountAggregateOutputType | null
@@ -214,9 +221,11 @@ export type RfqMessageWhereInput = {
   authorUserId?: Prisma.StringFilter<"RfqMessage"> | string
   body?: Prisma.StringFilter<"RfqMessage"> | string
   clientMessageId?: Prisma.StringNullableFilter<"RfqMessage"> | string | null
+  attachmentId?: Prisma.StringNullableFilter<"RfqMessage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RfqMessage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RfqMessage"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
+  attachment?: Prisma.XOR<Prisma.RfqAttachmentNullableScalarRelationFilter, Prisma.RfqAttachmentWhereInput> | null
 }
 
 export type RfqMessageOrderByWithRelationInput = {
@@ -227,9 +236,11 @@ export type RfqMessageOrderByWithRelationInput = {
   authorUserId?: Prisma.SortOrder
   body?: Prisma.SortOrder
   clientMessageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  attachmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   rfq?: Prisma.RfqRequestOrderByWithRelationInput
+  attachment?: Prisma.RfqAttachmentOrderByWithRelationInput
   _relevance?: Prisma.RfqMessageOrderByRelevanceInput
 }
 
@@ -245,9 +256,11 @@ export type RfqMessageWhereUniqueInput = Prisma.AtLeast<{
   authorUserId?: Prisma.StringFilter<"RfqMessage"> | string
   body?: Prisma.StringFilter<"RfqMessage"> | string
   clientMessageId?: Prisma.StringNullableFilter<"RfqMessage"> | string | null
+  attachmentId?: Prisma.StringNullableFilter<"RfqMessage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RfqMessage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RfqMessage"> | Date | string
   rfq?: Prisma.XOR<Prisma.RfqRequestScalarRelationFilter, Prisma.RfqRequestWhereInput>
+  attachment?: Prisma.XOR<Prisma.RfqAttachmentNullableScalarRelationFilter, Prisma.RfqAttachmentWhereInput> | null
 }, "id" | "rfqId_sellerAccountId_clientMessageId">
 
 export type RfqMessageOrderByWithAggregationInput = {
@@ -258,6 +271,7 @@ export type RfqMessageOrderByWithAggregationInput = {
   authorUserId?: Prisma.SortOrder
   body?: Prisma.SortOrder
   clientMessageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  attachmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.RfqMessageCountOrderByAggregateInput
@@ -276,6 +290,7 @@ export type RfqMessageScalarWhereWithAggregatesInput = {
   authorUserId?: Prisma.StringWithAggregatesFilter<"RfqMessage"> | string
   body?: Prisma.StringWithAggregatesFilter<"RfqMessage"> | string
   clientMessageId?: Prisma.StringNullableWithAggregatesFilter<"RfqMessage"> | string | null
+  attachmentId?: Prisma.StringNullableWithAggregatesFilter<"RfqMessage"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RfqMessage"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"RfqMessage"> | Date | string
 }
@@ -290,6 +305,7 @@ export type RfqMessageCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   rfq: Prisma.RfqRequestCreateNestedOneWithoutMessagesInput
+  attachment?: Prisma.RfqAttachmentCreateNestedOneWithoutMessagesInput
 }
 
 export type RfqMessageUncheckedCreateInput = {
@@ -300,6 +316,7 @@ export type RfqMessageUncheckedCreateInput = {
   authorUserId: string
   body: string
   clientMessageId?: string | null
+  attachmentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -314,6 +331,7 @@ export type RfqMessageUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutMessagesNestedInput
+  attachment?: Prisma.RfqAttachmentUpdateOneWithoutMessagesNestedInput
 }
 
 export type RfqMessageUncheckedUpdateInput = {
@@ -324,6 +342,7 @@ export type RfqMessageUncheckedUpdateInput = {
   authorUserId?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
   clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -336,6 +355,7 @@ export type RfqMessageCreateManyInput = {
   authorUserId: string
   body: string
   clientMessageId?: string | null
+  attachmentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -359,6 +379,7 @@ export type RfqMessageUncheckedUpdateManyInput = {
   authorUserId?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
   clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -393,6 +414,7 @@ export type RfqMessageCountOrderByAggregateInput = {
   authorUserId?: Prisma.SortOrder
   body?: Prisma.SortOrder
   clientMessageId?: Prisma.SortOrder
+  attachmentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -405,6 +427,7 @@ export type RfqMessageMaxOrderByAggregateInput = {
   authorUserId?: Prisma.SortOrder
   body?: Prisma.SortOrder
   clientMessageId?: Prisma.SortOrder
+  attachmentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -417,6 +440,7 @@ export type RfqMessageMinOrderByAggregateInput = {
   authorUserId?: Prisma.SortOrder
   body?: Prisma.SortOrder
   clientMessageId?: Prisma.SortOrder
+  attachmentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -463,6 +487,48 @@ export type RfqMessageUncheckedUpdateManyWithoutRfqNestedInput = {
   deleteMany?: Prisma.RfqMessageScalarWhereInput | Prisma.RfqMessageScalarWhereInput[]
 }
 
+export type RfqMessageCreateNestedManyWithoutAttachmentInput = {
+  create?: Prisma.XOR<Prisma.RfqMessageCreateWithoutAttachmentInput, Prisma.RfqMessageUncheckedCreateWithoutAttachmentInput> | Prisma.RfqMessageCreateWithoutAttachmentInput[] | Prisma.RfqMessageUncheckedCreateWithoutAttachmentInput[]
+  connectOrCreate?: Prisma.RfqMessageCreateOrConnectWithoutAttachmentInput | Prisma.RfqMessageCreateOrConnectWithoutAttachmentInput[]
+  createMany?: Prisma.RfqMessageCreateManyAttachmentInputEnvelope
+  connect?: Prisma.RfqMessageWhereUniqueInput | Prisma.RfqMessageWhereUniqueInput[]
+}
+
+export type RfqMessageUncheckedCreateNestedManyWithoutAttachmentInput = {
+  create?: Prisma.XOR<Prisma.RfqMessageCreateWithoutAttachmentInput, Prisma.RfqMessageUncheckedCreateWithoutAttachmentInput> | Prisma.RfqMessageCreateWithoutAttachmentInput[] | Prisma.RfqMessageUncheckedCreateWithoutAttachmentInput[]
+  connectOrCreate?: Prisma.RfqMessageCreateOrConnectWithoutAttachmentInput | Prisma.RfqMessageCreateOrConnectWithoutAttachmentInput[]
+  createMany?: Prisma.RfqMessageCreateManyAttachmentInputEnvelope
+  connect?: Prisma.RfqMessageWhereUniqueInput | Prisma.RfqMessageWhereUniqueInput[]
+}
+
+export type RfqMessageUpdateManyWithoutAttachmentNestedInput = {
+  create?: Prisma.XOR<Prisma.RfqMessageCreateWithoutAttachmentInput, Prisma.RfqMessageUncheckedCreateWithoutAttachmentInput> | Prisma.RfqMessageCreateWithoutAttachmentInput[] | Prisma.RfqMessageUncheckedCreateWithoutAttachmentInput[]
+  connectOrCreate?: Prisma.RfqMessageCreateOrConnectWithoutAttachmentInput | Prisma.RfqMessageCreateOrConnectWithoutAttachmentInput[]
+  upsert?: Prisma.RfqMessageUpsertWithWhereUniqueWithoutAttachmentInput | Prisma.RfqMessageUpsertWithWhereUniqueWithoutAttachmentInput[]
+  createMany?: Prisma.RfqMessageCreateManyAttachmentInputEnvelope
+  set?: Prisma.RfqMessageWhereUniqueInput | Prisma.RfqMessageWhereUniqueInput[]
+  disconnect?: Prisma.RfqMessageWhereUniqueInput | Prisma.RfqMessageWhereUniqueInput[]
+  delete?: Prisma.RfqMessageWhereUniqueInput | Prisma.RfqMessageWhereUniqueInput[]
+  connect?: Prisma.RfqMessageWhereUniqueInput | Prisma.RfqMessageWhereUniqueInput[]
+  update?: Prisma.RfqMessageUpdateWithWhereUniqueWithoutAttachmentInput | Prisma.RfqMessageUpdateWithWhereUniqueWithoutAttachmentInput[]
+  updateMany?: Prisma.RfqMessageUpdateManyWithWhereWithoutAttachmentInput | Prisma.RfqMessageUpdateManyWithWhereWithoutAttachmentInput[]
+  deleteMany?: Prisma.RfqMessageScalarWhereInput | Prisma.RfqMessageScalarWhereInput[]
+}
+
+export type RfqMessageUncheckedUpdateManyWithoutAttachmentNestedInput = {
+  create?: Prisma.XOR<Prisma.RfqMessageCreateWithoutAttachmentInput, Prisma.RfqMessageUncheckedCreateWithoutAttachmentInput> | Prisma.RfqMessageCreateWithoutAttachmentInput[] | Prisma.RfqMessageUncheckedCreateWithoutAttachmentInput[]
+  connectOrCreate?: Prisma.RfqMessageCreateOrConnectWithoutAttachmentInput | Prisma.RfqMessageCreateOrConnectWithoutAttachmentInput[]
+  upsert?: Prisma.RfqMessageUpsertWithWhereUniqueWithoutAttachmentInput | Prisma.RfqMessageUpsertWithWhereUniqueWithoutAttachmentInput[]
+  createMany?: Prisma.RfqMessageCreateManyAttachmentInputEnvelope
+  set?: Prisma.RfqMessageWhereUniqueInput | Prisma.RfqMessageWhereUniqueInput[]
+  disconnect?: Prisma.RfqMessageWhereUniqueInput | Prisma.RfqMessageWhereUniqueInput[]
+  delete?: Prisma.RfqMessageWhereUniqueInput | Prisma.RfqMessageWhereUniqueInput[]
+  connect?: Prisma.RfqMessageWhereUniqueInput | Prisma.RfqMessageWhereUniqueInput[]
+  update?: Prisma.RfqMessageUpdateWithWhereUniqueWithoutAttachmentInput | Prisma.RfqMessageUpdateWithWhereUniqueWithoutAttachmentInput[]
+  updateMany?: Prisma.RfqMessageUpdateManyWithWhereWithoutAttachmentInput | Prisma.RfqMessageUpdateManyWithWhereWithoutAttachmentInput[]
+  deleteMany?: Prisma.RfqMessageScalarWhereInput | Prisma.RfqMessageScalarWhereInput[]
+}
+
 export type RfqMessageCreateWithoutRfqInput = {
   id: string
   sellerAccountId: string
@@ -472,6 +538,7 @@ export type RfqMessageCreateWithoutRfqInput = {
   clientMessageId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  attachment?: Prisma.RfqAttachmentCreateNestedOneWithoutMessagesInput
 }
 
 export type RfqMessageUncheckedCreateWithoutRfqInput = {
@@ -481,6 +548,7 @@ export type RfqMessageUncheckedCreateWithoutRfqInput = {
   authorUserId: string
   body: string
   clientMessageId?: string | null
+  attachmentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -522,8 +590,59 @@ export type RfqMessageScalarWhereInput = {
   authorUserId?: Prisma.StringFilter<"RfqMessage"> | string
   body?: Prisma.StringFilter<"RfqMessage"> | string
   clientMessageId?: Prisma.StringNullableFilter<"RfqMessage"> | string | null
+  attachmentId?: Prisma.StringNullableFilter<"RfqMessage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RfqMessage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RfqMessage"> | Date | string
+}
+
+export type RfqMessageCreateWithoutAttachmentInput = {
+  id: string
+  sellerAccountId: string
+  authorParty: $Enums.RfqParty
+  authorUserId: string
+  body: string
+  clientMessageId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rfq: Prisma.RfqRequestCreateNestedOneWithoutMessagesInput
+}
+
+export type RfqMessageUncheckedCreateWithoutAttachmentInput = {
+  id: string
+  rfqId: string
+  sellerAccountId: string
+  authorParty: $Enums.RfqParty
+  authorUserId: string
+  body: string
+  clientMessageId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RfqMessageCreateOrConnectWithoutAttachmentInput = {
+  where: Prisma.RfqMessageWhereUniqueInput
+  create: Prisma.XOR<Prisma.RfqMessageCreateWithoutAttachmentInput, Prisma.RfqMessageUncheckedCreateWithoutAttachmentInput>
+}
+
+export type RfqMessageCreateManyAttachmentInputEnvelope = {
+  data: Prisma.RfqMessageCreateManyAttachmentInput | Prisma.RfqMessageCreateManyAttachmentInput[]
+  skipDuplicates?: boolean
+}
+
+export type RfqMessageUpsertWithWhereUniqueWithoutAttachmentInput = {
+  where: Prisma.RfqMessageWhereUniqueInput
+  update: Prisma.XOR<Prisma.RfqMessageUpdateWithoutAttachmentInput, Prisma.RfqMessageUncheckedUpdateWithoutAttachmentInput>
+  create: Prisma.XOR<Prisma.RfqMessageCreateWithoutAttachmentInput, Prisma.RfqMessageUncheckedCreateWithoutAttachmentInput>
+}
+
+export type RfqMessageUpdateWithWhereUniqueWithoutAttachmentInput = {
+  where: Prisma.RfqMessageWhereUniqueInput
+  data: Prisma.XOR<Prisma.RfqMessageUpdateWithoutAttachmentInput, Prisma.RfqMessageUncheckedUpdateWithoutAttachmentInput>
+}
+
+export type RfqMessageUpdateManyWithWhereWithoutAttachmentInput = {
+  where: Prisma.RfqMessageScalarWhereInput
+  data: Prisma.XOR<Prisma.RfqMessageUpdateManyMutationInput, Prisma.RfqMessageUncheckedUpdateManyWithoutAttachmentInput>
 }
 
 export type RfqMessageCreateManyRfqInput = {
@@ -533,6 +652,7 @@ export type RfqMessageCreateManyRfqInput = {
   authorUserId: string
   body: string
   clientMessageId?: string | null
+  attachmentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -546,6 +666,7 @@ export type RfqMessageUpdateWithoutRfqInput = {
   clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attachment?: Prisma.RfqAttachmentUpdateOneWithoutMessagesNestedInput
 }
 
 export type RfqMessageUncheckedUpdateWithoutRfqInput = {
@@ -555,12 +676,62 @@ export type RfqMessageUncheckedUpdateWithoutRfqInput = {
   authorUserId?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
   clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RfqMessageUncheckedUpdateManyWithoutRfqInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorParty?: Prisma.EnumRfqPartyFieldUpdateOperationsInput | $Enums.RfqParty
+  authorUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RfqMessageCreateManyAttachmentInput = {
+  id: string
+  rfqId: string
+  sellerAccountId: string
+  authorParty: $Enums.RfqParty
+  authorUserId: string
+  body: string
+  clientMessageId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RfqMessageUpdateWithoutAttachmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorParty?: Prisma.EnumRfqPartyFieldUpdateOperationsInput | $Enums.RfqParty
+  authorUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rfq?: Prisma.RfqRequestUpdateOneRequiredWithoutMessagesNestedInput
+}
+
+export type RfqMessageUncheckedUpdateWithoutAttachmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  rfqId?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorParty?: Prisma.EnumRfqPartyFieldUpdateOperationsInput | $Enums.RfqParty
+  authorUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RfqMessageUncheckedUpdateManyWithoutAttachmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  rfqId?: Prisma.StringFieldUpdateOperationsInput | string
   sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
   authorParty?: Prisma.EnumRfqPartyFieldUpdateOperationsInput | $Enums.RfqParty
   authorUserId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -580,9 +751,11 @@ export type RfqMessageSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   authorUserId?: boolean
   body?: boolean
   clientMessageId?: boolean
+  attachmentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
+  attachment?: boolean | Prisma.RfqMessage$attachmentArgs<ExtArgs>
 }, ExtArgs["result"]["rfqMessage"]>
 
 
@@ -595,19 +768,22 @@ export type RfqMessageSelectScalar = {
   authorUserId?: boolean
   body?: boolean
   clientMessageId?: boolean
+  attachmentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RfqMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rfqId" | "sellerAccountId" | "authorParty" | "authorUserId" | "body" | "clientMessageId" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqMessage"]>
+export type RfqMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rfqId" | "sellerAccountId" | "authorParty" | "authorUserId" | "body" | "clientMessageId" | "attachmentId" | "createdAt" | "updatedAt", ExtArgs["result"]["rfqMessage"]>
 export type RfqMessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rfq?: boolean | Prisma.RfqRequestDefaultArgs<ExtArgs>
+  attachment?: boolean | Prisma.RfqMessage$attachmentArgs<ExtArgs>
 }
 
 export type $RfqMessagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "RfqMessage"
   objects: {
     rfq: Prisma.$RfqRequestPayload<ExtArgs>
+    attachment: Prisma.$RfqAttachmentPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -625,6 +801,12 @@ export type $RfqMessagePayload<ExtArgs extends runtime.Types.Extensions.Internal
      * message sent without one is never deduplicated).
      */
     clientMessageId: string | null
+    /**
+     * One file already uploaded to this request, which the message points at.
+     * Must belong to this thread or be a published requirement file. SET NULL:
+     * a removed file leaves the message standing.
+     */
+    attachmentId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["rfqMessage"]>
@@ -968,6 +1150,7 @@ readonly fields: RfqMessageFieldRefs;
 export interface Prisma__RfqMessageClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   rfq<T extends Prisma.RfqRequestDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RfqRequestDefaultArgs<ExtArgs>>): Prisma.Prisma__RfqRequestClient<runtime.Types.Result.GetResult<Prisma.$RfqRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  attachment<T extends Prisma.RfqMessage$attachmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RfqMessage$attachmentArgs<ExtArgs>>): Prisma.Prisma__RfqAttachmentClient<runtime.Types.Result.GetResult<Prisma.$RfqAttachmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1004,6 +1187,7 @@ export interface RfqMessageFieldRefs {
   readonly authorUserId: Prisma.FieldRef<"RfqMessage", 'String'>
   readonly body: Prisma.FieldRef<"RfqMessage", 'String'>
   readonly clientMessageId: Prisma.FieldRef<"RfqMessage", 'String'>
+  readonly attachmentId: Prisma.FieldRef<"RfqMessage", 'String'>
   readonly createdAt: Prisma.FieldRef<"RfqMessage", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"RfqMessage", 'DateTime'>
 }
@@ -1351,6 +1535,25 @@ export type RfqMessageDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many RfqMessages to delete.
    */
   limit?: number
+}
+
+/**
+ * RfqMessage.attachment
+ */
+export type RfqMessage$attachmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RfqAttachment
+   */
+  select?: Prisma.RfqAttachmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RfqAttachment
+   */
+  omit?: Prisma.RfqAttachmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RfqAttachmentInclude<ExtArgs> | null
+  where?: Prisma.RfqAttachmentWhereInput
 }
 
 /**

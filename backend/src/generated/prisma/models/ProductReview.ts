@@ -81,6 +81,12 @@ export type ProductReviewMinAggregateOutputType = {
   moderationReason: string | null
   moderatedByUserId: string | null
   moderatedAt: Date | null
+  sellerAccountId: string | null
+  sellerResponse: string | null
+  sellerResponseStatus: $Enums.ProductReviewStatus | null
+  sellerResponseAt: Date | null
+  sellerResponseByUserId: string | null
+  sellerResponseHiddenReason: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -98,6 +104,12 @@ export type ProductReviewMaxAggregateOutputType = {
   moderationReason: string | null
   moderatedByUserId: string | null
   moderatedAt: Date | null
+  sellerAccountId: string | null
+  sellerResponse: string | null
+  sellerResponseStatus: $Enums.ProductReviewStatus | null
+  sellerResponseAt: Date | null
+  sellerResponseByUserId: string | null
+  sellerResponseHiddenReason: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -115,6 +127,12 @@ export type ProductReviewCountAggregateOutputType = {
   moderationReason: number
   moderatedByUserId: number
   moderatedAt: number
+  sellerAccountId: number
+  sellerResponse: number
+  sellerResponseStatus: number
+  sellerResponseAt: number
+  sellerResponseByUserId: number
+  sellerResponseHiddenReason: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -148,6 +166,12 @@ export type ProductReviewMinAggregateInputType = {
   moderationReason?: true
   moderatedByUserId?: true
   moderatedAt?: true
+  sellerAccountId?: true
+  sellerResponse?: true
+  sellerResponseStatus?: true
+  sellerResponseAt?: true
+  sellerResponseByUserId?: true
+  sellerResponseHiddenReason?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -165,6 +189,12 @@ export type ProductReviewMaxAggregateInputType = {
   moderationReason?: true
   moderatedByUserId?: true
   moderatedAt?: true
+  sellerAccountId?: true
+  sellerResponse?: true
+  sellerResponseStatus?: true
+  sellerResponseAt?: true
+  sellerResponseByUserId?: true
+  sellerResponseHiddenReason?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -182,6 +212,12 @@ export type ProductReviewCountAggregateInputType = {
   moderationReason?: true
   moderatedByUserId?: true
   moderatedAt?: true
+  sellerAccountId?: true
+  sellerResponse?: true
+  sellerResponseStatus?: true
+  sellerResponseAt?: true
+  sellerResponseByUserId?: true
+  sellerResponseHiddenReason?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -286,6 +322,12 @@ export type ProductReviewGroupByOutputType = {
   moderationReason: string | null
   moderatedByUserId: string | null
   moderatedAt: Date | null
+  sellerAccountId: string | null
+  sellerResponse: string | null
+  sellerResponseStatus: $Enums.ProductReviewStatus | null
+  sellerResponseAt: Date | null
+  sellerResponseByUserId: string | null
+  sellerResponseHiddenReason: string | null
   createdAt: Date
   updatedAt: Date
   _count: ProductReviewCountAggregateOutputType | null
@@ -326,12 +368,20 @@ export type ProductReviewWhereInput = {
   moderationReason?: Prisma.StringNullableFilter<"ProductReview"> | string | null
   moderatedByUserId?: Prisma.StringNullableFilter<"ProductReview"> | string | null
   moderatedAt?: Prisma.DateTimeNullableFilter<"ProductReview"> | Date | string | null
+  sellerAccountId?: Prisma.StringNullableFilter<"ProductReview"> | string | null
+  sellerResponse?: Prisma.StringNullableFilter<"ProductReview"> | string | null
+  sellerResponseStatus?: Prisma.EnumProductReviewStatusNullableFilter<"ProductReview"> | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.DateTimeNullableFilter<"ProductReview"> | Date | string | null
+  sellerResponseByUserId?: Prisma.StringNullableFilter<"ProductReview"> | string | null
+  sellerResponseHiddenReason?: Prisma.StringNullableFilter<"ProductReview"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductReview"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductReview"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
   moderatedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  sellerAccount?: Prisma.XOR<Prisma.SellerAccountNullableScalarRelationFilter, Prisma.SellerAccountWhereInput> | null
+  responder?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type ProductReviewOrderByWithRelationInput = {
@@ -347,12 +397,20 @@ export type ProductReviewOrderByWithRelationInput = {
   moderationReason?: Prisma.SortOrderInput | Prisma.SortOrder
   moderatedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   moderatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerResponse?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerResponseStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerResponseAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerResponseByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerResponseHiddenReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   product?: Prisma.ProductOrderByWithRelationInput
   customerProfile?: Prisma.CustomerProfileOrderByWithRelationInput
   order?: Prisma.OrderOrderByWithRelationInput
   moderatedBy?: Prisma.UserOrderByWithRelationInput
+  sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
+  responder?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.ProductReviewOrderByRelevanceInput
 }
 
@@ -373,12 +431,20 @@ export type ProductReviewWhereUniqueInput = Prisma.AtLeast<{
   moderationReason?: Prisma.StringNullableFilter<"ProductReview"> | string | null
   moderatedByUserId?: Prisma.StringNullableFilter<"ProductReview"> | string | null
   moderatedAt?: Prisma.DateTimeNullableFilter<"ProductReview"> | Date | string | null
+  sellerAccountId?: Prisma.StringNullableFilter<"ProductReview"> | string | null
+  sellerResponse?: Prisma.StringNullableFilter<"ProductReview"> | string | null
+  sellerResponseStatus?: Prisma.EnumProductReviewStatusNullableFilter<"ProductReview"> | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.DateTimeNullableFilter<"ProductReview"> | Date | string | null
+  sellerResponseByUserId?: Prisma.StringNullableFilter<"ProductReview"> | string | null
+  sellerResponseHiddenReason?: Prisma.StringNullableFilter<"ProductReview"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductReview"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductReview"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
   moderatedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  sellerAccount?: Prisma.XOR<Prisma.SellerAccountNullableScalarRelationFilter, Prisma.SellerAccountWhereInput> | null
+  responder?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id" | "customerProfileId_productId">
 
 export type ProductReviewOrderByWithAggregationInput = {
@@ -394,6 +460,12 @@ export type ProductReviewOrderByWithAggregationInput = {
   moderationReason?: Prisma.SortOrderInput | Prisma.SortOrder
   moderatedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   moderatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerResponse?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerResponseStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerResponseAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerResponseByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerResponseHiddenReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductReviewCountOrderByAggregateInput
@@ -419,6 +491,12 @@ export type ProductReviewScalarWhereWithAggregatesInput = {
   moderationReason?: Prisma.StringNullableWithAggregatesFilter<"ProductReview"> | string | null
   moderatedByUserId?: Prisma.StringNullableWithAggregatesFilter<"ProductReview"> | string | null
   moderatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProductReview"> | Date | string | null
+  sellerAccountId?: Prisma.StringNullableWithAggregatesFilter<"ProductReview"> | string | null
+  sellerResponse?: Prisma.StringNullableWithAggregatesFilter<"ProductReview"> | string | null
+  sellerResponseStatus?: Prisma.EnumProductReviewStatusNullableWithAggregatesFilter<"ProductReview"> | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProductReview"> | Date | string | null
+  sellerResponseByUserId?: Prisma.StringNullableWithAggregatesFilter<"ProductReview"> | string | null
+  sellerResponseHiddenReason?: Prisma.StringNullableWithAggregatesFilter<"ProductReview"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductReview"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductReview"> | Date | string
 }
@@ -432,12 +510,18 @@ export type ProductReviewCreateInput = {
   status?: $Enums.ProductReviewStatus
   moderationReason?: string | null
   moderatedAt?: Date | string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutReviewsInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutProductReviewsInput
   order?: Prisma.OrderCreateNestedOneWithoutProductReviewsInput
   moderatedBy?: Prisma.UserCreateNestedOneWithoutModeratedProductReviewsInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutProductReviewsInput
+  responder?: Prisma.UserCreateNestedOneWithoutProductReviewResponsesInput
 }
 
 export type ProductReviewUncheckedCreateInput = {
@@ -453,6 +537,12 @@ export type ProductReviewUncheckedCreateInput = {
   moderationReason?: string | null
   moderatedByUserId?: string | null
   moderatedAt?: Date | string | null
+  sellerAccountId?: string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseByUserId?: string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -466,12 +556,18 @@ export type ProductReviewUpdateInput = {
   status?: Prisma.EnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutReviewsNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutProductReviewsNestedInput
   order?: Prisma.OrderUpdateOneWithoutProductReviewsNestedInput
   moderatedBy?: Prisma.UserUpdateOneWithoutModeratedProductReviewsNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutProductReviewsNestedInput
+  responder?: Prisma.UserUpdateOneWithoutProductReviewResponsesNestedInput
 }
 
 export type ProductReviewUncheckedUpdateInput = {
@@ -487,6 +583,12 @@ export type ProductReviewUncheckedUpdateInput = {
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -504,6 +606,12 @@ export type ProductReviewCreateManyInput = {
   moderationReason?: string | null
   moderatedByUserId?: string | null
   moderatedAt?: Date | string | null
+  sellerAccountId?: string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseByUserId?: string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -517,6 +625,10 @@ export type ProductReviewUpdateManyMutationInput = {
   status?: Prisma.EnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -534,6 +646,12 @@ export type ProductReviewUncheckedUpdateManyInput = {
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -572,6 +690,12 @@ export type ProductReviewCountOrderByAggregateInput = {
   moderationReason?: Prisma.SortOrder
   moderatedByUserId?: Prisma.SortOrder
   moderatedAt?: Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrder
+  sellerResponse?: Prisma.SortOrder
+  sellerResponseStatus?: Prisma.SortOrder
+  sellerResponseAt?: Prisma.SortOrder
+  sellerResponseByUserId?: Prisma.SortOrder
+  sellerResponseHiddenReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -596,6 +720,12 @@ export type ProductReviewMaxOrderByAggregateInput = {
   moderationReason?: Prisma.SortOrder
   moderatedByUserId?: Prisma.SortOrder
   moderatedAt?: Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrder
+  sellerResponse?: Prisma.SortOrder
+  sellerResponseStatus?: Prisma.SortOrder
+  sellerResponseAt?: Prisma.SortOrder
+  sellerResponseByUserId?: Prisma.SortOrder
+  sellerResponseHiddenReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -613,6 +743,12 @@ export type ProductReviewMinOrderByAggregateInput = {
   moderationReason?: Prisma.SortOrder
   moderatedByUserId?: Prisma.SortOrder
   moderatedAt?: Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrder
+  sellerResponse?: Prisma.SortOrder
+  sellerResponseStatus?: Prisma.SortOrder
+  sellerResponseAt?: Prisma.SortOrder
+  sellerResponseByUserId?: Prisma.SortOrder
+  sellerResponseHiddenReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -631,10 +767,24 @@ export type ProductReviewCreateNestedManyWithoutModeratedByInput = {
   connect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
 }
 
+export type ProductReviewCreateNestedManyWithoutResponderInput = {
+  create?: Prisma.XOR<Prisma.ProductReviewCreateWithoutResponderInput, Prisma.ProductReviewUncheckedCreateWithoutResponderInput> | Prisma.ProductReviewCreateWithoutResponderInput[] | Prisma.ProductReviewUncheckedCreateWithoutResponderInput[]
+  connectOrCreate?: Prisma.ProductReviewCreateOrConnectWithoutResponderInput | Prisma.ProductReviewCreateOrConnectWithoutResponderInput[]
+  createMany?: Prisma.ProductReviewCreateManyResponderInputEnvelope
+  connect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+}
+
 export type ProductReviewUncheckedCreateNestedManyWithoutModeratedByInput = {
   create?: Prisma.XOR<Prisma.ProductReviewCreateWithoutModeratedByInput, Prisma.ProductReviewUncheckedCreateWithoutModeratedByInput> | Prisma.ProductReviewCreateWithoutModeratedByInput[] | Prisma.ProductReviewUncheckedCreateWithoutModeratedByInput[]
   connectOrCreate?: Prisma.ProductReviewCreateOrConnectWithoutModeratedByInput | Prisma.ProductReviewCreateOrConnectWithoutModeratedByInput[]
   createMany?: Prisma.ProductReviewCreateManyModeratedByInputEnvelope
+  connect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+}
+
+export type ProductReviewUncheckedCreateNestedManyWithoutResponderInput = {
+  create?: Prisma.XOR<Prisma.ProductReviewCreateWithoutResponderInput, Prisma.ProductReviewUncheckedCreateWithoutResponderInput> | Prisma.ProductReviewCreateWithoutResponderInput[] | Prisma.ProductReviewUncheckedCreateWithoutResponderInput[]
+  connectOrCreate?: Prisma.ProductReviewCreateOrConnectWithoutResponderInput | Prisma.ProductReviewCreateOrConnectWithoutResponderInput[]
+  createMany?: Prisma.ProductReviewCreateManyResponderInputEnvelope
   connect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
 }
 
@@ -652,6 +802,20 @@ export type ProductReviewUpdateManyWithoutModeratedByNestedInput = {
   deleteMany?: Prisma.ProductReviewScalarWhereInput | Prisma.ProductReviewScalarWhereInput[]
 }
 
+export type ProductReviewUpdateManyWithoutResponderNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductReviewCreateWithoutResponderInput, Prisma.ProductReviewUncheckedCreateWithoutResponderInput> | Prisma.ProductReviewCreateWithoutResponderInput[] | Prisma.ProductReviewUncheckedCreateWithoutResponderInput[]
+  connectOrCreate?: Prisma.ProductReviewCreateOrConnectWithoutResponderInput | Prisma.ProductReviewCreateOrConnectWithoutResponderInput[]
+  upsert?: Prisma.ProductReviewUpsertWithWhereUniqueWithoutResponderInput | Prisma.ProductReviewUpsertWithWhereUniqueWithoutResponderInput[]
+  createMany?: Prisma.ProductReviewCreateManyResponderInputEnvelope
+  set?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  disconnect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  delete?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  connect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  update?: Prisma.ProductReviewUpdateWithWhereUniqueWithoutResponderInput | Prisma.ProductReviewUpdateWithWhereUniqueWithoutResponderInput[]
+  updateMany?: Prisma.ProductReviewUpdateManyWithWhereWithoutResponderInput | Prisma.ProductReviewUpdateManyWithWhereWithoutResponderInput[]
+  deleteMany?: Prisma.ProductReviewScalarWhereInput | Prisma.ProductReviewScalarWhereInput[]
+}
+
 export type ProductReviewUncheckedUpdateManyWithoutModeratedByNestedInput = {
   create?: Prisma.XOR<Prisma.ProductReviewCreateWithoutModeratedByInput, Prisma.ProductReviewUncheckedCreateWithoutModeratedByInput> | Prisma.ProductReviewCreateWithoutModeratedByInput[] | Prisma.ProductReviewUncheckedCreateWithoutModeratedByInput[]
   connectOrCreate?: Prisma.ProductReviewCreateOrConnectWithoutModeratedByInput | Prisma.ProductReviewCreateOrConnectWithoutModeratedByInput[]
@@ -663,6 +827,20 @@ export type ProductReviewUncheckedUpdateManyWithoutModeratedByNestedInput = {
   connect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
   update?: Prisma.ProductReviewUpdateWithWhereUniqueWithoutModeratedByInput | Prisma.ProductReviewUpdateWithWhereUniqueWithoutModeratedByInput[]
   updateMany?: Prisma.ProductReviewUpdateManyWithWhereWithoutModeratedByInput | Prisma.ProductReviewUpdateManyWithWhereWithoutModeratedByInput[]
+  deleteMany?: Prisma.ProductReviewScalarWhereInput | Prisma.ProductReviewScalarWhereInput[]
+}
+
+export type ProductReviewUncheckedUpdateManyWithoutResponderNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductReviewCreateWithoutResponderInput, Prisma.ProductReviewUncheckedCreateWithoutResponderInput> | Prisma.ProductReviewCreateWithoutResponderInput[] | Prisma.ProductReviewUncheckedCreateWithoutResponderInput[]
+  connectOrCreate?: Prisma.ProductReviewCreateOrConnectWithoutResponderInput | Prisma.ProductReviewCreateOrConnectWithoutResponderInput[]
+  upsert?: Prisma.ProductReviewUpsertWithWhereUniqueWithoutResponderInput | Prisma.ProductReviewUpsertWithWhereUniqueWithoutResponderInput[]
+  createMany?: Prisma.ProductReviewCreateManyResponderInputEnvelope
+  set?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  disconnect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  delete?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  connect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  update?: Prisma.ProductReviewUpdateWithWhereUniqueWithoutResponderInput | Prisma.ProductReviewUpdateWithWhereUniqueWithoutResponderInput[]
+  updateMany?: Prisma.ProductReviewUpdateManyWithWhereWithoutResponderInput | Prisma.ProductReviewUpdateManyWithWhereWithoutResponderInput[]
   deleteMany?: Prisma.ProductReviewScalarWhereInput | Prisma.ProductReviewScalarWhereInput[]
 }
 
@@ -796,6 +974,52 @@ export type EnumProductReviewStatusFieldUpdateOperationsInput = {
   set?: $Enums.ProductReviewStatus
 }
 
+export type NullableEnumProductReviewStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ProductReviewStatus | null
+}
+
+export type ProductReviewCreateNestedManyWithoutSellerAccountInput = {
+  create?: Prisma.XOR<Prisma.ProductReviewCreateWithoutSellerAccountInput, Prisma.ProductReviewUncheckedCreateWithoutSellerAccountInput> | Prisma.ProductReviewCreateWithoutSellerAccountInput[] | Prisma.ProductReviewUncheckedCreateWithoutSellerAccountInput[]
+  connectOrCreate?: Prisma.ProductReviewCreateOrConnectWithoutSellerAccountInput | Prisma.ProductReviewCreateOrConnectWithoutSellerAccountInput[]
+  createMany?: Prisma.ProductReviewCreateManySellerAccountInputEnvelope
+  connect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+}
+
+export type ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput = {
+  create?: Prisma.XOR<Prisma.ProductReviewCreateWithoutSellerAccountInput, Prisma.ProductReviewUncheckedCreateWithoutSellerAccountInput> | Prisma.ProductReviewCreateWithoutSellerAccountInput[] | Prisma.ProductReviewUncheckedCreateWithoutSellerAccountInput[]
+  connectOrCreate?: Prisma.ProductReviewCreateOrConnectWithoutSellerAccountInput | Prisma.ProductReviewCreateOrConnectWithoutSellerAccountInput[]
+  createMany?: Prisma.ProductReviewCreateManySellerAccountInputEnvelope
+  connect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+}
+
+export type ProductReviewUpdateManyWithoutSellerAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductReviewCreateWithoutSellerAccountInput, Prisma.ProductReviewUncheckedCreateWithoutSellerAccountInput> | Prisma.ProductReviewCreateWithoutSellerAccountInput[] | Prisma.ProductReviewUncheckedCreateWithoutSellerAccountInput[]
+  connectOrCreate?: Prisma.ProductReviewCreateOrConnectWithoutSellerAccountInput | Prisma.ProductReviewCreateOrConnectWithoutSellerAccountInput[]
+  upsert?: Prisma.ProductReviewUpsertWithWhereUniqueWithoutSellerAccountInput | Prisma.ProductReviewUpsertWithWhereUniqueWithoutSellerAccountInput[]
+  createMany?: Prisma.ProductReviewCreateManySellerAccountInputEnvelope
+  set?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  disconnect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  delete?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  connect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  update?: Prisma.ProductReviewUpdateWithWhereUniqueWithoutSellerAccountInput | Prisma.ProductReviewUpdateWithWhereUniqueWithoutSellerAccountInput[]
+  updateMany?: Prisma.ProductReviewUpdateManyWithWhereWithoutSellerAccountInput | Prisma.ProductReviewUpdateManyWithWhereWithoutSellerAccountInput[]
+  deleteMany?: Prisma.ProductReviewScalarWhereInput | Prisma.ProductReviewScalarWhereInput[]
+}
+
+export type ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductReviewCreateWithoutSellerAccountInput, Prisma.ProductReviewUncheckedCreateWithoutSellerAccountInput> | Prisma.ProductReviewCreateWithoutSellerAccountInput[] | Prisma.ProductReviewUncheckedCreateWithoutSellerAccountInput[]
+  connectOrCreate?: Prisma.ProductReviewCreateOrConnectWithoutSellerAccountInput | Prisma.ProductReviewCreateOrConnectWithoutSellerAccountInput[]
+  upsert?: Prisma.ProductReviewUpsertWithWhereUniqueWithoutSellerAccountInput | Prisma.ProductReviewUpsertWithWhereUniqueWithoutSellerAccountInput[]
+  createMany?: Prisma.ProductReviewCreateManySellerAccountInputEnvelope
+  set?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  disconnect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  delete?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  connect?: Prisma.ProductReviewWhereUniqueInput | Prisma.ProductReviewWhereUniqueInput[]
+  update?: Prisma.ProductReviewUpdateWithWhereUniqueWithoutSellerAccountInput | Prisma.ProductReviewUpdateWithWhereUniqueWithoutSellerAccountInput[]
+  updateMany?: Prisma.ProductReviewUpdateManyWithWhereWithoutSellerAccountInput | Prisma.ProductReviewUpdateManyWithWhereWithoutSellerAccountInput[]
+  deleteMany?: Prisma.ProductReviewScalarWhereInput | Prisma.ProductReviewScalarWhereInput[]
+}
+
 export type ProductReviewCreateWithoutModeratedByInput = {
   id: string
   qualityRating: number
@@ -805,11 +1029,17 @@ export type ProductReviewCreateWithoutModeratedByInput = {
   status?: $Enums.ProductReviewStatus
   moderationReason?: string | null
   moderatedAt?: Date | string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutReviewsInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutProductReviewsInput
   order?: Prisma.OrderCreateNestedOneWithoutProductReviewsInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutProductReviewsInput
+  responder?: Prisma.UserCreateNestedOneWithoutProductReviewResponsesInput
 }
 
 export type ProductReviewUncheckedCreateWithoutModeratedByInput = {
@@ -824,6 +1054,12 @@ export type ProductReviewUncheckedCreateWithoutModeratedByInput = {
   status?: $Enums.ProductReviewStatus
   moderationReason?: string | null
   moderatedAt?: Date | string | null
+  sellerAccountId?: string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseByUserId?: string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -835,6 +1071,60 @@ export type ProductReviewCreateOrConnectWithoutModeratedByInput = {
 
 export type ProductReviewCreateManyModeratedByInputEnvelope = {
   data: Prisma.ProductReviewCreateManyModeratedByInput | Prisma.ProductReviewCreateManyModeratedByInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProductReviewCreateWithoutResponderInput = {
+  id: string
+  qualityRating: number
+  deliveryRating: number
+  experienceRating: number
+  supportRating: number
+  status?: $Enums.ProductReviewStatus
+  moderationReason?: string | null
+  moderatedAt?: Date | string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseHiddenReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  product: Prisma.ProductCreateNestedOneWithoutReviewsInput
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutProductReviewsInput
+  order?: Prisma.OrderCreateNestedOneWithoutProductReviewsInput
+  moderatedBy?: Prisma.UserCreateNestedOneWithoutModeratedProductReviewsInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutProductReviewsInput
+}
+
+export type ProductReviewUncheckedCreateWithoutResponderInput = {
+  id: string
+  productId: string
+  customerProfileId: string
+  orderId?: string | null
+  qualityRating: number
+  deliveryRating: number
+  experienceRating: number
+  supportRating: number
+  status?: $Enums.ProductReviewStatus
+  moderationReason?: string | null
+  moderatedByUserId?: string | null
+  moderatedAt?: Date | string | null
+  sellerAccountId?: string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseHiddenReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ProductReviewCreateOrConnectWithoutResponderInput = {
+  where: Prisma.ProductReviewWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductReviewCreateWithoutResponderInput, Prisma.ProductReviewUncheckedCreateWithoutResponderInput>
+}
+
+export type ProductReviewCreateManyResponderInputEnvelope = {
+  data: Prisma.ProductReviewCreateManyResponderInput | Prisma.ProductReviewCreateManyResponderInput[]
   skipDuplicates?: boolean
 }
 
@@ -870,8 +1160,30 @@ export type ProductReviewScalarWhereInput = {
   moderationReason?: Prisma.StringNullableFilter<"ProductReview"> | string | null
   moderatedByUserId?: Prisma.StringNullableFilter<"ProductReview"> | string | null
   moderatedAt?: Prisma.DateTimeNullableFilter<"ProductReview"> | Date | string | null
+  sellerAccountId?: Prisma.StringNullableFilter<"ProductReview"> | string | null
+  sellerResponse?: Prisma.StringNullableFilter<"ProductReview"> | string | null
+  sellerResponseStatus?: Prisma.EnumProductReviewStatusNullableFilter<"ProductReview"> | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.DateTimeNullableFilter<"ProductReview"> | Date | string | null
+  sellerResponseByUserId?: Prisma.StringNullableFilter<"ProductReview"> | string | null
+  sellerResponseHiddenReason?: Prisma.StringNullableFilter<"ProductReview"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductReview"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductReview"> | Date | string
+}
+
+export type ProductReviewUpsertWithWhereUniqueWithoutResponderInput = {
+  where: Prisma.ProductReviewWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProductReviewUpdateWithoutResponderInput, Prisma.ProductReviewUncheckedUpdateWithoutResponderInput>
+  create: Prisma.XOR<Prisma.ProductReviewCreateWithoutResponderInput, Prisma.ProductReviewUncheckedCreateWithoutResponderInput>
+}
+
+export type ProductReviewUpdateWithWhereUniqueWithoutResponderInput = {
+  where: Prisma.ProductReviewWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProductReviewUpdateWithoutResponderInput, Prisma.ProductReviewUncheckedUpdateWithoutResponderInput>
+}
+
+export type ProductReviewUpdateManyWithWhereWithoutResponderInput = {
+  where: Prisma.ProductReviewScalarWhereInput
+  data: Prisma.XOR<Prisma.ProductReviewUpdateManyMutationInput, Prisma.ProductReviewUncheckedUpdateManyWithoutResponderInput>
 }
 
 export type ProductReviewCreateWithoutProductInput = {
@@ -883,11 +1195,17 @@ export type ProductReviewCreateWithoutProductInput = {
   status?: $Enums.ProductReviewStatus
   moderationReason?: string | null
   moderatedAt?: Date | string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutProductReviewsInput
   order?: Prisma.OrderCreateNestedOneWithoutProductReviewsInput
   moderatedBy?: Prisma.UserCreateNestedOneWithoutModeratedProductReviewsInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutProductReviewsInput
+  responder?: Prisma.UserCreateNestedOneWithoutProductReviewResponsesInput
 }
 
 export type ProductReviewUncheckedCreateWithoutProductInput = {
@@ -902,6 +1220,12 @@ export type ProductReviewUncheckedCreateWithoutProductInput = {
   moderationReason?: string | null
   moderatedByUserId?: string | null
   moderatedAt?: Date | string | null
+  sellerAccountId?: string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseByUserId?: string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -941,11 +1265,17 @@ export type ProductReviewCreateWithoutCustomerProfileInput = {
   status?: $Enums.ProductReviewStatus
   moderationReason?: string | null
   moderatedAt?: Date | string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutReviewsInput
   order?: Prisma.OrderCreateNestedOneWithoutProductReviewsInput
   moderatedBy?: Prisma.UserCreateNestedOneWithoutModeratedProductReviewsInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutProductReviewsInput
+  responder?: Prisma.UserCreateNestedOneWithoutProductReviewResponsesInput
 }
 
 export type ProductReviewUncheckedCreateWithoutCustomerProfileInput = {
@@ -960,6 +1290,12 @@ export type ProductReviewUncheckedCreateWithoutCustomerProfileInput = {
   moderationReason?: string | null
   moderatedByUserId?: string | null
   moderatedAt?: Date | string | null
+  sellerAccountId?: string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseByUserId?: string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -999,11 +1335,17 @@ export type ProductReviewCreateWithoutOrderInput = {
   status?: $Enums.ProductReviewStatus
   moderationReason?: string | null
   moderatedAt?: Date | string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutReviewsInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutProductReviewsInput
   moderatedBy?: Prisma.UserCreateNestedOneWithoutModeratedProductReviewsInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutProductReviewsInput
+  responder?: Prisma.UserCreateNestedOneWithoutProductReviewResponsesInput
 }
 
 export type ProductReviewUncheckedCreateWithoutOrderInput = {
@@ -1018,6 +1360,12 @@ export type ProductReviewUncheckedCreateWithoutOrderInput = {
   moderationReason?: string | null
   moderatedByUserId?: string | null
   moderatedAt?: Date | string | null
+  sellerAccountId?: string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseByUserId?: string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1048,6 +1396,76 @@ export type ProductReviewUpdateManyWithWhereWithoutOrderInput = {
   data: Prisma.XOR<Prisma.ProductReviewUpdateManyMutationInput, Prisma.ProductReviewUncheckedUpdateManyWithoutOrderInput>
 }
 
+export type ProductReviewCreateWithoutSellerAccountInput = {
+  id: string
+  qualityRating: number
+  deliveryRating: number
+  experienceRating: number
+  supportRating: number
+  status?: $Enums.ProductReviewStatus
+  moderationReason?: string | null
+  moderatedAt?: Date | string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseHiddenReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  product: Prisma.ProductCreateNestedOneWithoutReviewsInput
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutProductReviewsInput
+  order?: Prisma.OrderCreateNestedOneWithoutProductReviewsInput
+  moderatedBy?: Prisma.UserCreateNestedOneWithoutModeratedProductReviewsInput
+  responder?: Prisma.UserCreateNestedOneWithoutProductReviewResponsesInput
+}
+
+export type ProductReviewUncheckedCreateWithoutSellerAccountInput = {
+  id: string
+  productId: string
+  customerProfileId: string
+  orderId?: string | null
+  qualityRating: number
+  deliveryRating: number
+  experienceRating: number
+  supportRating: number
+  status?: $Enums.ProductReviewStatus
+  moderationReason?: string | null
+  moderatedByUserId?: string | null
+  moderatedAt?: Date | string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseByUserId?: string | null
+  sellerResponseHiddenReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ProductReviewCreateOrConnectWithoutSellerAccountInput = {
+  where: Prisma.ProductReviewWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductReviewCreateWithoutSellerAccountInput, Prisma.ProductReviewUncheckedCreateWithoutSellerAccountInput>
+}
+
+export type ProductReviewCreateManySellerAccountInputEnvelope = {
+  data: Prisma.ProductReviewCreateManySellerAccountInput | Prisma.ProductReviewCreateManySellerAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProductReviewUpsertWithWhereUniqueWithoutSellerAccountInput = {
+  where: Prisma.ProductReviewWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProductReviewUpdateWithoutSellerAccountInput, Prisma.ProductReviewUncheckedUpdateWithoutSellerAccountInput>
+  create: Prisma.XOR<Prisma.ProductReviewCreateWithoutSellerAccountInput, Prisma.ProductReviewUncheckedCreateWithoutSellerAccountInput>
+}
+
+export type ProductReviewUpdateWithWhereUniqueWithoutSellerAccountInput = {
+  where: Prisma.ProductReviewWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProductReviewUpdateWithoutSellerAccountInput, Prisma.ProductReviewUncheckedUpdateWithoutSellerAccountInput>
+}
+
+export type ProductReviewUpdateManyWithWhereWithoutSellerAccountInput = {
+  where: Prisma.ProductReviewScalarWhereInput
+  data: Prisma.XOR<Prisma.ProductReviewUpdateManyMutationInput, Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountInput>
+}
+
 export type ProductReviewCreateManyModeratedByInput = {
   id: string
   productId: string
@@ -1060,6 +1478,34 @@ export type ProductReviewCreateManyModeratedByInput = {
   status?: $Enums.ProductReviewStatus
   moderationReason?: string | null
   moderatedAt?: Date | string | null
+  sellerAccountId?: string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseByUserId?: string | null
+  sellerResponseHiddenReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ProductReviewCreateManyResponderInput = {
+  id: string
+  productId: string
+  customerProfileId: string
+  orderId?: string | null
+  qualityRating: number
+  deliveryRating: number
+  experienceRating: number
+  supportRating: number
+  status?: $Enums.ProductReviewStatus
+  moderationReason?: string | null
+  moderatedByUserId?: string | null
+  moderatedAt?: Date | string | null
+  sellerAccountId?: string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1073,11 +1519,17 @@ export type ProductReviewUpdateWithoutModeratedByInput = {
   status?: Prisma.EnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutReviewsNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutProductReviewsNestedInput
   order?: Prisma.OrderUpdateOneWithoutProductReviewsNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutProductReviewsNestedInput
+  responder?: Prisma.UserUpdateOneWithoutProductReviewResponsesNestedInput
 }
 
 export type ProductReviewUncheckedUpdateWithoutModeratedByInput = {
@@ -1092,6 +1544,12 @@ export type ProductReviewUncheckedUpdateWithoutModeratedByInput = {
   status?: Prisma.EnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1108,6 +1566,78 @@ export type ProductReviewUncheckedUpdateManyWithoutModeratedByInput = {
   status?: Prisma.EnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProductReviewUpdateWithoutResponderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  qualityRating?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryRating?: Prisma.IntFieldUpdateOperationsInput | number
+  experienceRating?: Prisma.IntFieldUpdateOperationsInput | number
+  supportRating?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus
+  moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  product?: Prisma.ProductUpdateOneRequiredWithoutReviewsNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutProductReviewsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutProductReviewsNestedInput
+  moderatedBy?: Prisma.UserUpdateOneWithoutModeratedProductReviewsNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutProductReviewsNestedInput
+}
+
+export type ProductReviewUncheckedUpdateWithoutResponderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityRating?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryRating?: Prisma.IntFieldUpdateOperationsInput | number
+  experienceRating?: Prisma.IntFieldUpdateOperationsInput | number
+  supportRating?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus
+  moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProductReviewUncheckedUpdateManyWithoutResponderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityRating?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryRating?: Prisma.IntFieldUpdateOperationsInput | number
+  experienceRating?: Prisma.IntFieldUpdateOperationsInput | number
+  supportRating?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus
+  moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1124,6 +1654,12 @@ export type ProductReviewCreateManyProductInput = {
   moderationReason?: string | null
   moderatedByUserId?: string | null
   moderatedAt?: Date | string | null
+  sellerAccountId?: string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseByUserId?: string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1137,11 +1673,17 @@ export type ProductReviewUpdateWithoutProductInput = {
   status?: Prisma.EnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutProductReviewsNestedInput
   order?: Prisma.OrderUpdateOneWithoutProductReviewsNestedInput
   moderatedBy?: Prisma.UserUpdateOneWithoutModeratedProductReviewsNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutProductReviewsNestedInput
+  responder?: Prisma.UserUpdateOneWithoutProductReviewResponsesNestedInput
 }
 
 export type ProductReviewUncheckedUpdateWithoutProductInput = {
@@ -1156,6 +1698,12 @@ export type ProductReviewUncheckedUpdateWithoutProductInput = {
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1172,6 +1720,12 @@ export type ProductReviewUncheckedUpdateManyWithoutProductInput = {
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1188,6 +1742,12 @@ export type ProductReviewCreateManyCustomerProfileInput = {
   moderationReason?: string | null
   moderatedByUserId?: string | null
   moderatedAt?: Date | string | null
+  sellerAccountId?: string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseByUserId?: string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1201,11 +1761,17 @@ export type ProductReviewUpdateWithoutCustomerProfileInput = {
   status?: Prisma.EnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutReviewsNestedInput
   order?: Prisma.OrderUpdateOneWithoutProductReviewsNestedInput
   moderatedBy?: Prisma.UserUpdateOneWithoutModeratedProductReviewsNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutProductReviewsNestedInput
+  responder?: Prisma.UserUpdateOneWithoutProductReviewResponsesNestedInput
 }
 
 export type ProductReviewUncheckedUpdateWithoutCustomerProfileInput = {
@@ -1220,6 +1786,12 @@ export type ProductReviewUncheckedUpdateWithoutCustomerProfileInput = {
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1236,6 +1808,12 @@ export type ProductReviewUncheckedUpdateManyWithoutCustomerProfileInput = {
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1252,6 +1830,12 @@ export type ProductReviewCreateManyOrderInput = {
   moderationReason?: string | null
   moderatedByUserId?: string | null
   moderatedAt?: Date | string | null
+  sellerAccountId?: string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseByUserId?: string | null
+  sellerResponseHiddenReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1265,11 +1849,17 @@ export type ProductReviewUpdateWithoutOrderInput = {
   status?: Prisma.EnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutReviewsNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutProductReviewsNestedInput
   moderatedBy?: Prisma.UserUpdateOneWithoutModeratedProductReviewsNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutProductReviewsNestedInput
+  responder?: Prisma.UserUpdateOneWithoutProductReviewResponsesNestedInput
 }
 
 export type ProductReviewUncheckedUpdateWithoutOrderInput = {
@@ -1284,6 +1874,12 @@ export type ProductReviewUncheckedUpdateWithoutOrderInput = {
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1300,6 +1896,100 @@ export type ProductReviewUncheckedUpdateManyWithoutOrderInput = {
   moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProductReviewCreateManySellerAccountInput = {
+  id: string
+  productId: string
+  customerProfileId: string
+  orderId?: string | null
+  qualityRating: number
+  deliveryRating: number
+  experienceRating: number
+  supportRating: number
+  status?: $Enums.ProductReviewStatus
+  moderationReason?: string | null
+  moderatedByUserId?: string | null
+  moderatedAt?: Date | string | null
+  sellerResponse?: string | null
+  sellerResponseStatus?: $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Date | string | null
+  sellerResponseByUserId?: string | null
+  sellerResponseHiddenReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ProductReviewUpdateWithoutSellerAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  qualityRating?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryRating?: Prisma.IntFieldUpdateOperationsInput | number
+  experienceRating?: Prisma.IntFieldUpdateOperationsInput | number
+  supportRating?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus
+  moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  product?: Prisma.ProductUpdateOneRequiredWithoutReviewsNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutProductReviewsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutProductReviewsNestedInput
+  moderatedBy?: Prisma.UserUpdateOneWithoutModeratedProductReviewsNestedInput
+  responder?: Prisma.UserUpdateOneWithoutProductReviewResponsesNestedInput
+}
+
+export type ProductReviewUncheckedUpdateWithoutSellerAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityRating?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryRating?: Prisma.IntFieldUpdateOperationsInput | number
+  experienceRating?: Prisma.IntFieldUpdateOperationsInput | number
+  supportRating?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus
+  moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProductReviewUncheckedUpdateManyWithoutSellerAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityRating?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryRating?: Prisma.IntFieldUpdateOperationsInput | number
+  experienceRating?: Prisma.IntFieldUpdateOperationsInput | number
+  supportRating?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus
+  moderationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderatedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseStatus?: Prisma.NullableEnumProductReviewStatusFieldUpdateOperationsInput | $Enums.ProductReviewStatus | null
+  sellerResponseAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerResponseByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerResponseHiddenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1319,12 +2009,20 @@ export type ProductReviewSelect<ExtArgs extends runtime.Types.Extensions.Interna
   moderationReason?: boolean
   moderatedByUserId?: boolean
   moderatedAt?: boolean
+  sellerAccountId?: boolean
+  sellerResponse?: boolean
+  sellerResponseStatus?: boolean
+  sellerResponseAt?: boolean
+  sellerResponseByUserId?: boolean
+  sellerResponseHiddenReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   order?: boolean | Prisma.ProductReview$orderArgs<ExtArgs>
   moderatedBy?: boolean | Prisma.ProductReview$moderatedByArgs<ExtArgs>
+  sellerAccount?: boolean | Prisma.ProductReview$sellerAccountArgs<ExtArgs>
+  responder?: boolean | Prisma.ProductReview$responderArgs<ExtArgs>
 }, ExtArgs["result"]["productReview"]>
 
 
@@ -1342,16 +2040,24 @@ export type ProductReviewSelectScalar = {
   moderationReason?: boolean
   moderatedByUserId?: boolean
   moderatedAt?: boolean
+  sellerAccountId?: boolean
+  sellerResponse?: boolean
+  sellerResponseStatus?: boolean
+  sellerResponseAt?: boolean
+  sellerResponseByUserId?: boolean
+  sellerResponseHiddenReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductReviewOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "customerProfileId" | "orderId" | "qualityRating" | "deliveryRating" | "experienceRating" | "supportRating" | "status" | "moderationReason" | "moderatedByUserId" | "moderatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["productReview"]>
+export type ProductReviewOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "customerProfileId" | "orderId" | "qualityRating" | "deliveryRating" | "experienceRating" | "supportRating" | "status" | "moderationReason" | "moderatedByUserId" | "moderatedAt" | "sellerAccountId" | "sellerResponse" | "sellerResponseStatus" | "sellerResponseAt" | "sellerResponseByUserId" | "sellerResponseHiddenReason" | "createdAt" | "updatedAt", ExtArgs["result"]["productReview"]>
 export type ProductReviewInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   order?: boolean | Prisma.ProductReview$orderArgs<ExtArgs>
   moderatedBy?: boolean | Prisma.ProductReview$moderatedByArgs<ExtArgs>
+  sellerAccount?: boolean | Prisma.ProductReview$sellerAccountArgs<ExtArgs>
+  responder?: boolean | Prisma.ProductReview$responderArgs<ExtArgs>
 }
 
 export type $ProductReviewPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1367,6 +2073,8 @@ export type $ProductReviewPayload<ExtArgs extends runtime.Types.Extensions.Inter
     customerProfile: Prisma.$CustomerProfilePayload<ExtArgs>
     order: Prisma.$OrderPayload<ExtArgs> | null
     moderatedBy: Prisma.$UserPayload<ExtArgs> | null
+    sellerAccount: Prisma.$SellerAccountPayload<ExtArgs> | null
+    responder: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1392,6 +2100,22 @@ export type $ProductReviewPayload<ExtArgs extends runtime.Types.Extensions.Inter
     moderationReason: string | null
     moderatedByUserId: string | null
     moderatedAt: Date | null
+    /**
+     * Whose goods the qualifying order line was - the seller this review counts
+     * towards. Null for the marketplace's own stock. Taken from the order line
+     * at write time, never from who sells the product today.
+     */
+    sellerAccountId: string | null
+    /**
+     * The seller's public answer, written once and edited in place, at most
+     * 1000 characters. Shown under the review while PUBLISHED; staff can hide it
+     * (HIDDEN, with a reason the seller is shown) without touching the scores.
+     */
+    sellerResponse: string | null
+    sellerResponseStatus: $Enums.ProductReviewStatus | null
+    sellerResponseAt: Date | null
+    sellerResponseByUserId: string | null
+    sellerResponseHiddenReason: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["productReview"]>
@@ -1738,6 +2462,8 @@ export interface Prisma__ProductReviewClient<T, Null = never, ExtArgs extends ru
   customerProfile<T extends Prisma.CustomerProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerProfileClient<runtime.Types.Result.GetResult<Prisma.$CustomerProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   order<T extends Prisma.ProductReview$orderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductReview$orderArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   moderatedBy<T extends Prisma.ProductReview$moderatedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductReview$moderatedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sellerAccount<T extends Prisma.ProductReview$sellerAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductReview$sellerAccountArgs<ExtArgs>>): Prisma.Prisma__SellerAccountClient<runtime.Types.Result.GetResult<Prisma.$SellerAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  responder<T extends Prisma.ProductReview$responderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductReview$responderArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1779,6 +2505,12 @@ export interface ProductReviewFieldRefs {
   readonly moderationReason: Prisma.FieldRef<"ProductReview", 'String'>
   readonly moderatedByUserId: Prisma.FieldRef<"ProductReview", 'String'>
   readonly moderatedAt: Prisma.FieldRef<"ProductReview", 'DateTime'>
+  readonly sellerAccountId: Prisma.FieldRef<"ProductReview", 'String'>
+  readonly sellerResponse: Prisma.FieldRef<"ProductReview", 'String'>
+  readonly sellerResponseStatus: Prisma.FieldRef<"ProductReview", 'ProductReviewStatus'>
+  readonly sellerResponseAt: Prisma.FieldRef<"ProductReview", 'DateTime'>
+  readonly sellerResponseByUserId: Prisma.FieldRef<"ProductReview", 'String'>
+  readonly sellerResponseHiddenReason: Prisma.FieldRef<"ProductReview", 'String'>
   readonly createdAt: Prisma.FieldRef<"ProductReview", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ProductReview", 'DateTime'>
 }
@@ -2151,6 +2883,44 @@ export type ProductReview$orderArgs<ExtArgs extends runtime.Types.Extensions.Int
  * ProductReview.moderatedBy
  */
 export type ProductReview$moderatedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * ProductReview.sellerAccount
+ */
+export type ProductReview$sellerAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerAccount
+   */
+  select?: Prisma.SellerAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerAccount
+   */
+  omit?: Prisma.SellerAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerAccountInclude<ExtArgs> | null
+  where?: Prisma.SellerAccountWhereInput
+}
+
+/**
+ * ProductReview.responder
+ */
+export type ProductReview$responderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the User
    */

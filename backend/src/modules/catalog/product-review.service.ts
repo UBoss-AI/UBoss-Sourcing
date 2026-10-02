@@ -30,11 +30,25 @@
  *
  * **The public never learns who a buyer is.** A review is signed with a first
  * name and an initial. The company, the email and the order stay with staff.
+ *
+ * Added by JOURNEY-059:
+ *
+ * **A review counts towards the seller of the order line it rests on**
+ * (`sellerAccountId`), which gives each seller a service score - delivery and
+ * support - kept apart from the product's own rating. **The seller may answer
+ * once, in public**, up to 1000 characters; staff can hide the answer without
+ * touching the review. **Anti-fraud**: a seller's own team cannot review that
+ * seller's sale, a buyer may write at most REVIEW_MAX_PER_DAY new reviews a
+ * day, and both refusals raise a risk signal. **An inspection result is never
+ * a rating**: no figure here is ever blended with one.
  */
 import type { Prisma, ProductReviewStatus } from '../../generated/prisma/client.js';
-import { AppError, ErrorCode, notFound } from '../../domain/errors.js';
+import { env } from '../../config/env.js';
+import { AppError, ErrorCode, badRequest, notFound } from '../../domain/errors.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
+import { AuditAction, recordAudit } from '../audit/audit.service.js';
+import { RiskRuleCode, raiseRiskSignal } from '../risk/risk.service.js';
 import { publicProductWhere } from './catalog.visibility.js';
 
 /** The four things a buyer scores, in the order every screen shows them. */
@@ -82,6 +96,11 @@ export interface PublicReview {
   createdAt: string;
   /** Set when the buyer changed it after first writing it. */
   editedAt: string | null;
+  /**
+   * The seller's public answer, when one was written and staff have not
+   * hidden it. Signed with the seller's trading name, never a person's.
+   */
+  response: { sellerName: string; body: string; at: string } | null;
 }
 
 export interface OwnReview {
@@ -369,6 +388,10 @@ export async function listPublicReviews(
         createdAt: true,
         updatedAt: true,
         customerProfile: { select: { firstName: true, lastName: true, fullName: true } },
+        sellerResponse: true,
+        sellerResponseStatus: true,
+        sellerResponseAt: true,
+        sellerAccount: { select: { displayName: true } },
       },
     }),
     prisma.productReview.count({ where }),
@@ -390,6 +413,13 @@ export async function listPublicReviews(
         average: meanOf(scores),
         createdAt: row.createdAt.toISOString(),
         editedAt: edited ? row.updatedAt.toISOString() : null,
+        response:
+          row.sellerResponse !== null &&
+          row.sellerResponseStatus === 'PUBLISHED' &&
+          row.sellerResponseAt !== null &&
+          row.sellerAccount !== null
+            ? { sellerName: row.sellerAccount.displayName, body: row.sellerResponse, at: row.sellerResponseAt.toISOString() }
+            : null,
       };
     }),
     pagination: {
@@ -413,17 +443,18 @@ export async function listPublicReviews(
 async function findQualifyingOrder(
   customerProfileId: string,
   productId: string,
-): Promise<{ orderId: string } | null> {
+): Promise<{ orderId: string; sellerAccountId: string | null } | null> {
   const line = await prisma.orderItem.findFirst({
     where: {
       productId,
       order: { customerProfileId, status: { in: [...RECEIVED_STATUSES] } },
     },
     orderBy: { order: { createdAt: 'desc' } },
-    select: { orderId: true },
+    // Whose goods they were: the seller this review will count towards.
+    select: { orderId: true, sellerOffer: { select: { sellerAccountId: true } } },
   });
 
-  return line;
+  return line === null ? null : { orderId: line.orderId, sellerAccountId: line.sellerOffer?.sellerAccountId ?? null };
 }
 
 /**
@@ -460,6 +491,7 @@ export async function readOwnReview(
 export async function saveOwnReview(
   customerProfileId: string,
   input: { productId: string; scores: RatingScores },
+  actor: { userId: string | null; email: string | null } = { userId: null, email: null },
 ): Promise<OwnReview> {
   const product = await prisma.product.findFirst({
     where: { id: input.productId, ...publicProductWhere() },
@@ -471,7 +503,7 @@ export async function saveOwnReview(
   const [existing, qualifying] = await Promise.all([
     prisma.productReview.findUnique({
       where: { customerProfileId_productId: { customerProfileId, productId: product.id } },
-      select: { id: true, orderId: true },
+      select: { id: true, orderId: true, sellerAccountId: true },
     }),
     findQualifyingOrder(customerProfileId, product.id),
   ]);
@@ -484,6 +516,10 @@ export async function saveOwnReview(
     });
   }
 
+  const sellerAccountId = existing?.sellerAccountId ?? qualifying?.sellerAccountId ?? null;
+  await assertNotSelfDealing(customerProfileId, sellerAccountId, product.id, actor);
+  if (existing === null) await assertWithinDailyLimit(customerProfileId, actor);
+
   const columns = {
     qualityRating: input.scores.quality,
     deliveryRating: input.scores.delivery,
@@ -495,17 +531,85 @@ export async function saveOwnReview(
   // does not republish it. See the file header.
   const row = await prisma.productReview.upsert({
     where: { customerProfileId_productId: { customerProfileId, productId: product.id } },
-    update: { ...columns, orderId: existing?.orderId ?? qualifying?.orderId ?? null },
+    update: { ...columns, orderId: existing?.orderId ?? qualifying?.orderId ?? null, sellerAccountId },
     create: {
       id: newId(),
       customerProfileId,
       productId: product.id,
       orderId: qualifying?.orderId ?? null,
+      sellerAccountId,
       ...columns,
     },
   });
 
   return toOwnReview(row);
+}
+
+/**
+ * A seller's own people cannot rate that seller's sale (JOURNEY-059).
+ *
+ * Decided against the seller of the QUALIFYING ORDER LINE, not whoever sells
+ * the product today: what is being rated is that transaction. Refused with
+ * REVIEW_SELF_DEALING, audited, and raised as a risk signal - somebody buying
+ * their own goods to rate them is worth a person's look even when the review
+ * never got written.
+ */
+async function assertNotSelfDealing(
+  customerProfileId: string,
+  sellerAccountId: string | null,
+  productId: string,
+  actor: { userId: string | null; email: string | null },
+): Promise<void> {
+  if (sellerAccountId === null) return;
+  const member = await prisma.sellerMember.findUnique({
+    where: { customerProfileId },
+    select: { sellerAccountId: true },
+  });
+  if (member?.sellerAccountId !== sellerAccountId) return;
+
+  await recordAudit({
+    action: AuditAction.PRODUCT_REVIEW_REFUSED,
+    resourceType: 'product',
+    resourceId: productId,
+    actorType: 'CUSTOMER',
+    actorUserId: actor.userId,
+    actorEmail: actor.email,
+    after: { reason: 'SELF_DEALING', sellerAccountId },
+  });
+  await raiseRiskSignal({
+    ruleCode: RiskRuleCode.REVIEW_SELF_DEALING,
+    subjectType: 'SELLER_ACCOUNT',
+    subjectId: sellerAccountId,
+    facts: { customerProfileId, productId },
+  });
+  throw new AppError({
+    statusCode: 403,
+    code: ErrorCode.REVIEW_SELF_DEALING,
+    message: "A seller's own team cannot review that seller's goods.",
+  });
+}
+
+/** At most REVIEW_MAX_PER_DAY new reviews per buyer in 24 hours. */
+async function assertWithinDailyLimit(
+  customerProfileId: string,
+  actor: { userId: string | null; email: string | null },
+): Promise<void> {
+  const since = new Date(Date.now() - 86_400_000);
+  const written = await prisma.productReview.count({ where: { customerProfileId, createdAt: { gte: since } } });
+  if (written < env.REVIEW_MAX_PER_DAY) return;
+
+  await raiseRiskSignal({
+    ruleCode: RiskRuleCode.REVIEW_VELOCITY,
+    subjectType: 'CUSTOMER_PROFILE',
+    subjectId: customerProfileId,
+    observed: written + 1,
+    facts: { reviewsInLastDay: written, limit: env.REVIEW_MAX_PER_DAY, actorUserId: actor.userId },
+  });
+  throw new AppError({
+    statusCode: 429,
+    code: ErrorCode.REVIEW_RATE_LIMITED,
+    message: 'You have written the most reviews allowed in one day. Try again tomorrow.',
+  });
 }
 
 /**
@@ -650,6 +754,15 @@ export interface AdminReview {
   moderatedBy: string | null;
   createdAt: string;
   updatedAt: string;
+  /** The seller this review counts towards; null for the marketplace's own stock. */
+  seller: { id: string; name: string } | null;
+  /** The seller's answer and whether staff hid it. */
+  response: {
+    body: string;
+    status: ProductReviewStatus;
+    at: string | null;
+    hiddenReason: string | null;
+  } | null;
 }
 
 const ADMIN_INCLUDE = {
@@ -657,6 +770,7 @@ const ADMIN_INCLUDE = {
   customerProfile: { select: { id: true, fullName: true, user: { select: { email: true } } } },
   order: { select: { orderNumber: true } },
   moderatedBy: { select: { email: true } },
+  sellerAccount: { select: { id: true, displayName: true } },
 } satisfies Prisma.ProductReviewInclude;
 
 type AdminRow = Prisma.ProductReviewGetPayload<{ include: typeof ADMIN_INCLUDE }>;
@@ -682,6 +796,16 @@ function toAdminReview(row: AdminRow): AdminReview {
     moderatedBy: row.moderatedBy?.email ?? null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
+    seller: row.sellerAccount === null ? null : { id: row.sellerAccount.id, name: row.sellerAccount.displayName },
+    response:
+      row.sellerResponse === null
+        ? null
+        : {
+            body: row.sellerResponse,
+            status: row.sellerResponseStatus ?? 'PUBLISHED',
+            at: row.sellerResponseAt?.toISOString() ?? null,
+            hiddenReason: row.sellerResponseHiddenReason,
+          },
   };
 }
 
@@ -796,4 +920,238 @@ export async function moderateReview(
   });
 
   return { before: toAdminReview(existing), after: toAdminReview(updated) };
+}
+
+
+// ---------------------------------------------------------------------------
+// Seller score (JOURNEY-059)
+// ---------------------------------------------------------------------------
+
+/**
+ * How buyers rated a seller's SERVICE: the mean of the delivery and support
+ * scores on every published review of goods that seller sold, and how many.
+ *
+ * Separate from a product's rating on purpose. A product's figure is about
+ * the thing (all four scores, whoever sold it); a seller's is about how that
+ * seller delivered and answered, across everything they sold. Neither is ever
+ * blended with an inspection result: an inspection is a measured fact about a
+ * consignment, a rating is a buyer's opinion, and the screens show them side
+ * by side, never averaged.
+ *
+ * Null when the seller has no published review, so a new seller is not shown
+ * "0 stars".
+ */
+export interface SellerScore {
+  /** Mean of delivery and support, two decimals. */
+  average: number;
+  delivery: number;
+  support: number;
+  count: number;
+}
+
+export async function sellerScores(sellerAccountIds: readonly string[]): Promise<Map<string, SellerScore>> {
+  const ids = [...new Set(sellerAccountIds)];
+  if (ids.length === 0) return new Map();
+  const groups = await prisma.productReview.groupBy({
+    by: ['sellerAccountId'],
+    where: { sellerAccountId: { in: ids }, status: 'PUBLISHED' },
+    _avg: { deliveryRating: true, supportRating: true },
+    _count: { _all: true },
+  });
+  return new Map(
+    groups
+      .filter((group) => group.sellerAccountId !== null)
+      .map((group) => {
+        const delivery = round2(group._avg.deliveryRating ?? 0);
+        const support = round2(group._avg.supportRating ?? 0);
+        return [
+          group.sellerAccountId as string,
+          { average: round2((delivery + support) / 2), delivery, support, count: group._count._all },
+        ];
+      }),
+  );
+}
+
+export async function sellerScore(sellerAccountId: string): Promise<SellerScore | null> {
+  return (await sellerScores([sellerAccountId])).get(sellerAccountId) ?? null;
+}
+
+// ---------------------------------------------------------------------------
+// Seller responses (JOURNEY-059)
+// ---------------------------------------------------------------------------
+
+/** The longest answer a seller may publish under a review. */
+export const SELLER_RESPONSE_MAX_LENGTH = 1000;
+
+export interface SellerReviewView {
+  id: string;
+  product: { name: string; slug: string };
+  reviewerName: string;
+  scores: RatingScores;
+  average: number;
+  status: ProductReviewStatus;
+  createdAt: string;
+  response: { body: string; status: ProductReviewStatus; at: string | null; hiddenReason: string | null } | null;
+}
+
+/** Reviews of goods this seller sold, newest first, with its own answers. */
+export async function listSellerReviews(
+  sellerAccountId: string,
+  options: { page: number; limit: number },
+): Promise<{ reviews: SellerReviewView[]; score: SellerScore | null; pagination: { page: number; limit: number; total: number; totalPages: number } }> {
+  const where: Prisma.ProductReviewWhereInput = { sellerAccountId, status: 'PUBLISHED' };
+  const [rows, total, score] = await Promise.all([
+    prisma.productReview.findMany({
+      where,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      skip: (options.page - 1) * options.limit,
+      take: options.limit,
+      include: {
+        product: { select: { name: true, slug: true } },
+        customerProfile: { select: { firstName: true, lastName: true, fullName: true } },
+      },
+    }),
+    prisma.productReview.count({ where }),
+    sellerScore(sellerAccountId),
+  ]);
+  return {
+    score,
+    reviews: rows.map((row) => {
+      const scores = scoresOf(row);
+      return {
+        id: row.id,
+        product: row.product,
+        reviewerName: publicReviewerName(row.customerProfile),
+        scores,
+        average: meanOf(scores),
+        status: row.status,
+        createdAt: row.createdAt.toISOString(),
+        response:
+          row.sellerResponse === null
+            ? null
+            : {
+                body: row.sellerResponse,
+                status: row.sellerResponseStatus ?? 'PUBLISHED',
+                at: row.sellerResponseAt?.toISOString() ?? null,
+                // The seller is told why staff hid its answer.
+                hiddenReason: row.sellerResponseHiddenReason,
+              },
+      };
+    }),
+    pagination: { page: options.page, limit: options.limit, total, totalPages: Math.ceil(total / options.limit) },
+  };
+}
+
+/**
+ * Write or replace this seller's public answer under one review.
+ *
+ * Only a review of this seller's own sale - anything else is "not found".
+ * Plain text, at most 1000 characters. Published at once, like the review; an
+ * answer staff have hidden stays hidden when edited, for the same reason an
+ * edited hidden review does - otherwise hiding would be a suggestion. The
+ * scores are never touched. Audited.
+ */
+export async function respondToReview(
+  sellerAccountId: string,
+  reviewId: string,
+  body: string,
+  actor: { userId: string; email: string },
+): Promise<SellerReviewView['response']> {
+  const text = body.trim();
+  if (text === '' || text.length > SELLER_RESPONSE_MAX_LENGTH) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'Write an answer of up to 1000 characters.', [
+      { field: 'body', code: ErrorCode.VALIDATION_FAILED },
+    ]);
+  }
+  const existing = await prisma.productReview.findFirst({
+    where: { id: reviewId, sellerAccountId, status: 'PUBLISHED' },
+    select: { id: true, sellerResponse: true, sellerResponseStatus: true },
+  });
+  if (existing === null) throw notFound('Review');
+
+  const updated = await prisma.$transaction(async (tx) => {
+    const row = await tx.productReview.update({
+      where: { id: reviewId },
+      data: {
+        sellerResponse: text,
+        sellerResponseStatus: existing.sellerResponseStatus ?? 'PUBLISHED',
+        sellerResponseAt: new Date(),
+        sellerResponseByUserId: actor.userId,
+      },
+      select: { sellerResponse: true, sellerResponseStatus: true, sellerResponseAt: true, sellerResponseHiddenReason: true },
+    });
+    await recordAudit(
+      {
+        action: AuditAction.PRODUCT_REVIEW_RESPONDED,
+        resourceType: 'product_review',
+        resourceId: reviewId,
+        actorType: 'CUSTOMER',
+        actorUserId: actor.userId,
+        actorEmail: actor.email,
+        before: { response: existing.sellerResponse },
+        after: { response: text },
+      },
+      tx,
+    );
+    return row;
+  });
+
+  return {
+    body: updated.sellerResponse ?? text,
+    status: updated.sellerResponseStatus ?? 'PUBLISHED',
+    at: updated.sellerResponseAt?.toISOString() ?? null,
+    hiddenReason: updated.sellerResponseHiddenReason,
+  };
+}
+
+/**
+ * Staff hide a seller's answer (a reason is required; the seller is shown it)
+ * or put it back. The review and its scores are untouched. Audited.
+ */
+export async function moderateReviewResponse(
+  reviewId: string,
+  input: { status: ProductReviewStatus; reason?: string | null },
+  actor: { userId: string; email: string },
+): Promise<AdminReview> {
+  const existing = await prisma.productReview.findUnique({ where: { id: reviewId }, include: ADMIN_INCLUDE });
+  if (existing?.sellerResponse === null || existing === null) throw notFound('Response');
+
+  const reason = input.reason?.trim() ?? '';
+  if (input.status === 'HIDDEN' && reason === '') {
+    throw new AppError({
+      statusCode: 400,
+      code: ErrorCode.VALIDATION_FAILED,
+      message: "Say why the seller's answer is being hidden. The seller is shown the reason.",
+      details: [{ field: 'reason', code: 'REQUIRED' }],
+    });
+  }
+
+  const updated = await prisma.$transaction(async (tx) => {
+    const row = await tx.productReview.update({
+      where: { id: reviewId },
+      data: {
+        sellerResponseStatus: input.status,
+        sellerResponseHiddenReason: input.status === 'HIDDEN' ? reason.slice(0, MODERATION_REASON_MAX_LENGTH) : null,
+      },
+      include: ADMIN_INCLUDE,
+    });
+    await recordAudit(
+      {
+        action:
+          input.status === 'HIDDEN'
+            ? AuditAction.PRODUCT_REVIEW_RESPONSE_HIDDEN
+            : AuditAction.PRODUCT_REVIEW_RESPONSE_PUBLISHED,
+        resourceType: 'product_review',
+        resourceId: reviewId,
+        actorType: 'ADMIN',
+        actorUserId: actor.userId,
+        actorEmail: actor.email,
+        before: { responseStatus: existing.sellerResponseStatus },
+        after: { responseStatus: input.status, reason: input.status === 'HIDDEN' ? reason : null },
+      },
+      tx,
+    );
+    return row;
+  });
+  return toAdminReview(updated);
 }

@@ -174,6 +174,43 @@ describe('who can read it', () => {
   });
 });
 
+describe('the case view (JOURNEY-058)', () => {
+  it('gives staff the payment, any chargeback, the seller funds held and the inspection behind the claim', async () => {
+    const response = await asStaff(app, desk.orderDesk, 'GET', `/disputes/${disputeId}`);
+    expect(response.statusCode, response.body).toBe(200);
+    const view = response.json<{
+      dispute: {
+        openChargeback: unknown;
+        fundHolds: { status: string; allocated: { minor: string } }[];
+        inspection: { requirementId: string | null; linkPath: string | null; reports: unknown[] }[];
+        approval: { thresholdMinor: string };
+      };
+    }>().dispute;
+    expect(view.openChargeback).toBeNull();
+    expect(Array.isArray(view.fundHolds)).toBe(true);
+    for (const hold of view.fundHolds) expect(typeof hold.allocated.minor).toBe('string');
+    expect(Array.isArray(view.inspection)).toBe(true);
+    for (const entry of view.inspection) expect(entry.linkPath).toBe(`/inspection/${entry.requirementId ?? ''}`);
+    expect(typeof view.approval.thresholdMinor).toBe('string');
+  });
+
+  it('shows the parties the inspection without the operator’s requirement id', async () => {
+    const seller = await asCustomer(app, desk.sellerA, 'GET', `/seller/disputes/${reference}`);
+    const buyer = await asCustomer(app, desk.buyer, 'GET', `/disputes/${reference}`);
+    for (const response of [seller, buyer]) {
+      expect(response.statusCode, response.body).toBe(200);
+      const view = response.json<{ dispute: { inspection: { requirementId: string | null; reports: { status: string }[] }[]; fundHolds?: unknown } }>().dispute;
+      expect(Array.isArray(view.inspection)).toBe(true);
+      expect(view.fundHolds).toBeUndefined();
+      for (const entry of view.inspection) {
+        expect(entry.requirementId).toBeNull();
+        // Only signed reports ever reach a party.
+        for (const report of entry.reports) expect(report.status).toBe('SIGNED');
+      }
+    }
+  });
+});
+
 describe('the seller answers', () => {
   it('lets the seller whose goods they are answer, and only them', async () => {
     const body = { body: 'We packed it carefully; please send photos of the box.' };

@@ -30,6 +30,7 @@ import { TradeDocumentsPanel } from './TradeDocumentsPanel';
 import { Link, useParams } from 'react-router-dom';
 import { SellerOrderInspection } from '@/components/inspection/OrderInspections';
 import { SellerProductionPanel } from './SellerProductionPanel';
+import { OrderMessagesPanel } from '@/components/messages/OrderMessagesPanel';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
@@ -148,6 +149,8 @@ export function SellerOrderDetailPage(): React.JSX.Element {
           <TradeDocumentsPanel sellerOrderId={order.id} canAct={order.status !== 'NEW' && order.status !== 'CANCELLED'} />
           <Shipments order={order} />
           <Returns order={order} />
+          {/* The buyer's and your messages about this order (JOURNEY-055). */}
+          <OrderMessagesPanel audience="seller" groupId={order.id} />
         </div>
 
         <div className="space-y-6">

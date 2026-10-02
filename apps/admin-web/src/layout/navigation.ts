@@ -186,6 +186,15 @@ export const NAVIGATION: NavGroup[] = [
         permissions: [Permission.REVIEW_READ],
         matchPrefix: true,
       },
+      {
+        // Messages buyers and sellers reported as abusive. Beside reviews:
+        // the same moderation remit and the same grant.
+        labelKey: 'nav.messageReports',
+        to: '/message-reports',
+        icon: ReviewStarIcon,
+        permissions: [Permission.REVIEW_READ],
+        matchPrefix: true,
+      },
     ],
   },
   {

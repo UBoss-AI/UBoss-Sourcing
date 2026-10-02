@@ -339,6 +339,10 @@ bullets([
   'A review appears straight away. There is no waiting for approval.',
   'The store’s staff can hide a review that breaks the rules, and must say why. The buyer sees that it was hidden and the reason. Changing a hidden review does not bring it back; only staff can.',
   'The public never sees the buyer’s surname, company or email address.',
+  'A review counts towards the seller who sold that buyer the goods. Each seller gets its own service score: how buyers rated its delivery and its support, across everything it sold. The score is shown on the seller’s profile and next to “Sold by” on the product page. The product’s own rating does not change.',
+  'The seller can answer a review once, in public, up to 1000 characters. The answer appears under the review with the seller’s trading name. Staff can hide an answer that breaks the rules, with a reason the seller sees, without touching the review.',
+  'A seller’s own staff cannot review that seller’s goods, even if they bought them. One buyer can write only a limited number of new reviews in a day. Both are refused and flagged to staff as a possible fraud signal.',
+  'Inspection results are shown beside the ratings in a box of their own, with no stars. They are measured checks, not opinions, and they are never mixed into any rating.',
 ]);
 h2('3.2a Choosing between forms of the same product');
 p('Many things are sold in more than one form. A safety shoe comes in two colours and six sizes. A bag of seeds comes as a single packet or as a pack of ten. A cable comes in three thicknesses and two lengths. Each of those is a separate thing to pick, weigh and ship, with its own reference number and often its own price — so the page has to let a buyer get to the exact one they want, and stop them asking for one that does not exist.');
@@ -382,7 +386,10 @@ p('On a delivered order, the customer can choose Return items. They pick what to
 h2('3.2g2 Raising a claim when something went wrong');
 p('If an order arrived damaged, short, not as described or not at all, the customer can raise a claim from the order. They say what went wrong and what they would like: a full refund, part of the money back, or a replacement. The seller is asked to answer within a set time. The customer can add photos or documents, write messages, ask the marketplace to decide if the seller does not answer in time, withdraw the claim, and appeal the decision once.');
 p('On the marketplace side, staff work through a queue of open claims. For each one they see both sides, the money, the evidence and the messages. They can write to the buyer, the seller or both, keep internal notes, and record a decision with a reason. A large refund waits for a second person to approve it.');
-p('Every notification a customer receives opens the screen it is about: the quote, the order, the return or the claim. Staff can see a payment check that lists any order whose recorded payments or refunds do not match what the payment provider actually took or paid back.');
+p('The claim screen lays out everything a decision needs. Every file arrives in order on a timeline, with who sent it and when, and can be downloaded. Staff can add their own file, such as an inspection report. The screen shows each deadline and whether it has passed, who is handling the claim (and lets staff hand it to a colleague), the amount above which a second person must approve a refund, the payment and whether the buyer’s bank has opened a chargeback, any seller money being held, and the result of any inspection of the goods. The buyer and the seller see the evidence and the inspection result too, but never the inspection’s inner workings, and a claim never changes an inspection result.');
+p('Sellers answer claims in Seller Hub under Claims. They see the buyer’s claim and evidence, the deadline to answer and the inspection result, and they can answer with an offer (a full refund, part of the money back, or a replacement), write messages, add their own evidence and appeal a decision once. The Claims page stays open even when a seller’s trading is paused, so a deadline can still be met.');
+p('Every notification a customer receives opens the exact thing it is about: that order, that claim, that request. New notifications are marked unread until the customer opens them, important ones (a payment that failed, a sign-in from a new device, a delivery problem) are marked Important, and Mark all as read clears the list. Below the list the customer chooses, for each kind of notification, whether it reaches them by email, by text message or only on the page. Messages about account security, orders, payments and personal data are always sent and cannot be switched off. Staff can see a payment check that lists any order whose recorded payments or refunds do not match what the payment provider actually took or paid back.');
+p('Buyers and sellers can also message each other about an order. On the order page the buyer writes to each seller of that order, and the seller answers from the order in Seller Hub; a seller only ever sees the conversation about its own goods. Account → Messages lists these order conversations beside the chats with the marketplace team. A message about a request for quotation can point at a file already attached to the request. Above every message box a warning says never to send bank details, passwords or card numbers, and never to pay outside the marketplace; it speaks up more loudly when what is typed looks like one of those. Anybody can report a message from the other side as abusive. The report goes to the marketplace’s moderators, who decide it and record why; a report never hides anything by itself.');
 h2('3.2i Estimating the landed cost');
 p('From any product page, a buyer can open a calculator and type in the price, quantity, freight, inspection fee and the duty, tax and platform fee rates. It shows what the goods would cost once they arrive, in total and per unit. It is an estimate from their own figures, not a quote.');
 h2('3.2h Buy again and quick quote requests');
@@ -822,7 +829,8 @@ table(['Feature', 'Customer benefit'], [
   ['Wishlist', 'Save product lines without buying them immediately.'],
   ['My reviews', 'Rate products that have been delivered, and change or delete the reviews already written. A hidden review shows the reason staff gave.'],
   ['Support', 'See every support ticket they have raised, read the team’s replies, write again and add files (see 6.6).'],
-  ['Notifications', 'See account-related notifications and delivery messages.'],
+  ['Notifications', 'See account-related notifications and delivery messages, which are still unread and which are important, open the order or claim each one is about, and choose which kinds arrive by email, by text message or only on the page.'],
+  ['Messages', 'Read and answer chats with the marketplace team and conversations with sellers about orders, report a message, and (where the marketplace has switched it on) translate one.'],
   ['My orders', 'Open past orders and their detailed order history. Order these again puts every product from the order into the cart at today\'s prices. If some cannot be added, the page stays and lists each one with the reason, instead of stopping at the first that fails.'],
   ['Security', 'The account menu has a Security entry that opens the profile page at the password and two-step sign-in settings.'],
   ['Schedules', 'Manage Buy Later and Subscribe & Reorder plans.'],
@@ -1127,7 +1135,10 @@ table(['Area', 'What the seller can do'], [
   ['Orders', 'Accept or reject an order, choose which address it ships from, and mark it picked, ready and shipped. Opening one shows what to pack, where to send it, what it earns after commission, and a form for recording a shipment with its carrier and tracking number — including a part shipment, where the quantities are itemised.'],
   ['Payments', 'Read every statement line by line — sales, commission, processing, refunds and adjustments — and see the payouts made against them.'],
   ['Brands', 'See every brand name asked for, whether it was approved, refused or is still being looked at, the reason given, and take back a request nobody has decided yet.'],
-  ['Notifications', 'Read every decision the marketplace has made about the business, and mark each one read. Read marks are per person, so one colleague reading something does not hide it from the rest.'],
+  ['Notifications', 'Read every decision the marketplace has made about the business, and mark each one read. Read marks are per person, so one colleague reading something does not hide it from the rest. Important notices are marked, and each person can switch off kinds of news they do not need in their own list; essential notices and open problems always show.'],
+  ['Claims', 'Answer buyers’ claims before the deadline: make an offer, write messages, add evidence, see the inspection result and appeal a decision once.'],
+  ['Reviews', 'See what buyers said about goods the seller sold, the seller’s own service score, and publish one public answer under each review.'],
+  ['Order messages', 'Read and answer the buyer’s messages from the order itself, and report one that is abusive.'],
   ['Activity', 'A record of everything that has happened to the account, its listings and its orders. Marketplace actions appear as a role rather than as a named member of staff.'],
   ['Profile', 'Review the business details, add and correct the addresses shipped from, close one that is no longer used, and manage who else can use the seller account — including removing somebody.'],
 ], [1800, 8200]);
@@ -1813,7 +1824,10 @@ bullets([
   'Show again puts a hidden review back, and it counts towards the averages again.',
   'Every hide and every show is recorded with who did it and when.',
   'Catalog Managers can read and hide reviews. Order Managers can read them, because a low delivery score is usually about an order they handled. The Business Owner can do both.',
+  'Each review shows which seller it counts towards and that seller’s answer. Hide answer takes the answer off the product page, with a reason the seller is shown; the review itself stays. Restore answer puts it back.',
 ]);
+h2('8.9b Message reports');
+p('When a buyer or a seller reports a message as abusive, it arrives under Message reports and on the notification bell. Each report shows where the message was written, the reason given, the words that were reported, who reported them and any note. Staff mark it actioned or dismissed and must say why; that closes the alert. A report never hides or deletes anything by itself — staff use the normal tools for that, such as removing a chat message. The same staff who look after product reviews can read and decide reports, and every report and decision is recorded.');
 h2('6a.11 A seller’s own shop front');
 p('A seller can be given a web address of their own — their name in front of the marketplace’s, such as northwind.example.com. Opening it shows their shop and nobody else’s: their products, their prices, their name at the top and their support details at the bottom. Somebody buying there is buying from them.');
 table(['What a buyer sees there', 'How it differs from the marketplace’s own shop'], [
@@ -2471,6 +2485,9 @@ bullets([
   'Staff notifications can include sign-ins, low stock, payment/order actions, customer approval and operational alerts.',
   'Support tickets send four emails: to the person who raised a ticket when it arrives and when the team replies; to the business’s published support email address when a new ticket arrives; and to a member of staff when a ticket is given to them. Each gives the ticket number and a link, never the message. The business can change the wording of all four under Settings → Notifications.',
   'Notification work is queued after the business record is committed, reducing the risk of an email being sent for an order that was not saved.',
+  'The same notification is never sent twice for the same event, even if the work behind it is retried.',
+  'A person can switch off kinds of notification by email, by text message or on the page. Account security, orders, payments and personal-data messages cannot be switched off.',
+  'Text messages go only for notifications the business has switched text messages on for, and only through the business’s own text-message service. Without one, the system records that nothing was sent and why. WhatsApp is not connected and is recorded the same way.',
   'On-screen warnings about something going wrong close themselves at the moment the work that fixes them is completed, rather than waiting for anybody to tidy them up. They are kept afterwards, with who closed them and why.',
 ]);
 page();
@@ -2539,6 +2556,8 @@ bullets([
   'Only a buyer whose own order containing the product was delivered can review it. This is checked by the system itself, not only by hiding a button, so it cannot be got around.',
   'Each score must be a whole number from one to five. The database itself refuses anything else.',
   'A buyer’s reviews are included in the copy of their data they can ask for, and deleted when their account is erased.',
+  'A seller’s own staff cannot review that seller’s sale, and a buyer can write only a set number of new reviews a day. Both are refused and raised as fraud signals for staff to look at.',
+  'An inspection result is never turned into stars or averaged into a rating.',
 ]);
 h2('14.1c The individual purchase limit');
 bullets([
@@ -2594,6 +2613,8 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Cargo insurance on bookings', 'Off until staff set a premium rate on the Trade compliance page. Then sellers can insure a consignment when they book it, up to the share of the goods value staff choose.'],
   ['Preorder chat', 'On by default and can be switched off. Attachments appear only when a virus scanner is connected. A business running more than one server switches on shared live updates so every server delivers every message. The business’s own team can work under its own name — for example a shop called Gloviaa Mart whose customers are told “the UBoss team is available” and whose sellers choose “Self”, “UBoss” or “Self + UBoss” for each delivery level — without renaming the shop.'],
   ['Company buyers', 'On by default and can be switched off by a setting. On, the sign-in page has Individual and Company tabs, buyers can apply for a company account and switch between themselves and their companies, and staff get the Buyer companies screen. Off, none of this appears and buyers buy as themselves. The business can also change how many unfinished applications one person may have, the largest document allowed, and the version of the declarations.'],
+  ['Message translation', 'Off by default and turned on by a setting. It also needs the translation service key the business already uses to translate its catalogue. On, a Translate button appears under messages from the other side, and shows the message in the reader’s language. Nothing translated is kept.'],
+  ['Text-message notifications', 'Appear only when the business connects its own text-message service and switches text messages on for a notification. Each customer can still switch them off for most kinds of notification.'],
   ['Product reviews', 'On by default and can be switched off by a setting. Off, no stars or reviews appear anywhere on the shop and buyers cannot write one. Reviews already written are kept, and staff can still read and hide them, so switching it back on loses nothing.'],
   ['Support tickets', 'On by default and can be switched off by a setting. Off, the Support page shows only the business’s published email and phone number, and nobody can raise a new ticket. Tickets already raised stay readable, their senders can still reply and add files, and staff keep answering them. The business can also change how many tickets one account may raise in a day and the largest file allowed. Files can be attached only when a virus scanner is connected.'],
   ['Requests for quotation', 'On by default and can be switched off by a setting. Off, the Request quotes links, the account’s requests pages and the Seller Hub inbox disappear, and nothing can be sent or answered. Requests already raised are kept. Files on a request appear only when a virus scanner is connected. The business sets how far ahead a deadline may be and how many suppliers one request may reach.'],

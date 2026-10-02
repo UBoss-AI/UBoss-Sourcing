@@ -62,6 +62,14 @@ export const RiskRuleCode = {
   ORDER_VELOCITY: 'ORDER_VELOCITY',
   /** Several high-severity signals on the same subject within the window. */
   MULTIPLE_HIGH_RISK: 'MULTIPLE_HIGH_RISK',
+  /** Product reviews written by one buyer within the window (JOURNEY-059). */
+  REVIEW_VELOCITY: 'REVIEW_VELOCITY',
+  /**
+   * A seller's own member tried to review that seller's sale (JOURNEY-059).
+   * Raised at the moment it is refused, by `raiseRiskSignal`; the scan has
+   * nothing to find because the review was never written.
+   */
+  REVIEW_SELF_DEALING: 'REVIEW_SELF_DEALING',
 } as const;
 
 export type RiskRuleCodeValue = (typeof RiskRuleCode)[keyof typeof RiskRuleCode];
@@ -277,6 +285,22 @@ const EVALUATORS: Record<RiskRuleCodeValue, Evaluator> = {
       .map((row) => ({ subjectType: 'CUSTOMER_PROFILE', subjectId: row.customerProfileId, observed: row._count._all, bucket: bucketOf(rule, now), facts: { orders: row._count._all } }));
   },
 
+  async REVIEW_VELOCITY(rule, now) {
+    const rows = await prisma.productReview.groupBy({
+      by: ['customerProfileId'],
+      where: { createdAt: { gte: windowStart(rule, now) } },
+      _count: { _all: true },
+    });
+    return rows
+      .filter((row) => row._count._all >= rule.threshold)
+      .map((row) => ({ subjectType: 'CUSTOMER_PROFILE', subjectId: row.customerProfileId, observed: row._count._all, bucket: bucketOf(rule, now), facts: { reviews: row._count._all } }));
+  },
+
+  // Raised when it happens (see `raiseRiskSignal`); nothing to scan for.
+  REVIEW_SELF_DEALING() {
+    return Promise.resolve([]);
+  },
+
   async MULTIPLE_HIGH_RISK(rule, now) {
     const rows = await prisma.riskSignal.groupBy({
       by: ['subjectType', 'subjectId'],
@@ -316,40 +340,80 @@ export async function runRiskScan(now: Date = new Date()): Promise<number> {
     const evaluate = EVALUATORS[rule.code as RiskRuleCodeValue] as Evaluator | undefined;
     if (evaluate === undefined) continue;
     for (const candidate of await evaluate(rule, now)) {
-      const dedupeKey = `${rule.code}:${candidate.subjectType}:${candidate.subjectId}:${candidate.bucket}`.slice(0, 191);
-      const id = newId();
-      const created = await prisma.riskSignal.createMany({
-        data: [{
-          id,
-          ruleCode: rule.code,
-          severity: rule.severity,
-          subjectType: candidate.subjectType,
-          subjectId: candidate.subjectId,
-          observed: candidate.observed,
-          threshold: rule.threshold,
-          facts: { ...candidate.facts, ruleVersion: rule.version, approvedForProduction: rule.approvedForProduction },
-          dedupeKey,
-          detectedAt: now,
-        }],
-        skipDuplicates: true,
-      });
-      if (created.count === 0) continue;
-      raised += 1;
-      if (rule.severity === 'HIGH' || rule.severity === 'CRITICAL') {
-        await createAdminNotification({
-          kind: AdminNotificationKind.RISK_SIGNAL_RAISED,
-          variables: { rule: rule.code, severity: rule.severity, subjectType: candidate.subjectType },
-          requiredPermission: Permission.RISK_READ,
-          relatedType: 'risk_signal',
-          relatedId: id,
-          linkPath: '/risk',
-          dedupeKey: `risk_signal:${id}`,
-          resolutionKey: ResolutionKey.riskSignal(id),
-        });
-      }
+      if (await insertSignal(rule, candidate, now)) raised += 1;
     }
   }
   return raised;
+}
+
+/** Write one signal; false when its dedupe key was already raised. HIGH and CRITICAL ring the bell. */
+async function insertSignal(rule: RiskRule, candidate: Candidate, now: Date): Promise<boolean> {
+  const dedupeKey = `${rule.code}:${candidate.subjectType}:${candidate.subjectId}:${candidate.bucket}`.slice(0, 191);
+  const id = newId();
+  const created = await prisma.riskSignal.createMany({
+    data: [{
+      id,
+      ruleCode: rule.code,
+      severity: rule.severity,
+      subjectType: candidate.subjectType,
+      subjectId: candidate.subjectId,
+      observed: candidate.observed,
+      threshold: rule.threshold,
+      facts: { ...candidate.facts, ruleVersion: rule.version, approvedForProduction: rule.approvedForProduction },
+      dedupeKey,
+      detectedAt: now,
+    }],
+    skipDuplicates: true,
+  });
+  if (created.count === 0) return false;
+  if (rule.severity === 'HIGH' || rule.severity === 'CRITICAL') {
+    await createAdminNotification({
+      kind: AdminNotificationKind.RISK_SIGNAL_RAISED,
+      variables: { rule: rule.code, severity: rule.severity, subjectType: candidate.subjectType },
+      requiredPermission: Permission.RISK_READ,
+      relatedType: 'risk_signal',
+      relatedId: id,
+      linkPath: '/risk',
+      dedupeKey: `risk_signal:${id}`,
+      resolutionKey: ResolutionKey.riskSignal(id),
+    });
+  }
+  return true;
+}
+
+/**
+ * Raise a signal at the moment something happens, for a rule whose pattern
+ * leaves no record for the scan to find - a review that was refused was never
+ * written. Same rules table, same dedupe (one per subject per window), same
+ * bell. Does nothing while the rule is disabled or missing. Never throws: a
+ * signal that could not be written must not turn the refusal into a 500.
+ */
+export async function raiseRiskSignal(input: {
+  ruleCode: RiskRuleCodeValue;
+  subjectType: string;
+  subjectId: string;
+  observed?: number;
+  facts: Record<string, unknown>;
+  now?: Date;
+}): Promise<boolean> {
+  try {
+    const rule = await prisma.riskRule.findUnique({ where: { code: input.ruleCode } });
+    if (rule === null || !rule.enabled) return false;
+    const now = input.now ?? new Date();
+    return await insertSignal(
+      rule,
+      {
+        subjectType: input.subjectType,
+        subjectId: input.subjectId,
+        observed: input.observed ?? 1,
+        bucket: bucketOf(rule, now),
+        facts: input.facts,
+      },
+      now,
+    );
+  } catch {
+    return false;
+  }
 }
 
 export interface RiskActor {

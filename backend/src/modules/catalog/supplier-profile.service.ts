@@ -43,7 +43,9 @@ import { notFound } from '../../domain/errors.js';
 import { prisma } from '../../infra/prisma.js';
 import { logoUrlFor } from '../seller/logo.service.js';
 import { verifiedFactoryIds } from '../trust/factory.service.js';
+import { env } from '../../config/env.js';
 import { publicProductWhere } from './catalog.visibility.js';
+import { sellerScore } from './product-review.service.js';
 import { verifiedSupplierWhere } from './supplier-directory.service.js';
 
 export interface SupplierProfile {
@@ -66,6 +68,13 @@ export interface SupplierProfile {
   /** Only for registered companies; see the header. */
   legalName: string | null;
   inspectionSummary: { months: number; reports: number; passed: number; failed: number } | null;
+  /**
+   * What buyers said about this seller's delivery and support, from published
+   * reviews of goods it sold (JOURNEY-059). Null with no reviews, or with
+   * reviews switched off. Never blended with `inspectionSummary`: one is
+   * buyers' opinion, the other measured inspections.
+   */
+  reviewScore: { average: number; count: number } | null;
   factories: {
     name: string;
     city: string;
@@ -205,6 +214,7 @@ export async function supplierProfile(slug: string, now: Date = new Date()): Pro
     }),
     inspectionSummaryFor(account.id, now),
   ]);
+  const score = env.FEATURE_PRODUCT_REVIEWS ? await sellerScore(account.id) : null;
 
   const byCategory = new Map<string, { slug: string; name: string; productCount: number }>();
   for (const offer of offers) {
@@ -233,6 +243,7 @@ export async function supplierProfile(slug: string, now: Date = new Date()): Pro
     capabilities: strings(trust?.capabilitiesJson),
     legalName: REGISTERED_COMPANY_FORMS.has(account.businessProfile?.legalForm ?? '') ? account.legalName : null,
     inspectionSummary,
+    reviewScore: score === null ? null : { average: score.average, count: score.count },
     factories: allFactories
       .filter((factory) => verifiedFactories.has(factory.id))
       .map(({ id, ...factory }) => ({ ...factory, verifiedAt: verifiedFactories.get(id)?.toISOString() ?? null })),

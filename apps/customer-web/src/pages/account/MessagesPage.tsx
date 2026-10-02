@@ -10,6 +10,10 @@
  * A new conversation is not started here - it is about a product, so it
  * starts from that product's page.
  *
+ * ORDER MESSAGES (JOURNEY-055). `?view=orders` lists the buyer's threads with
+ * sellers about their orders, most recently active first; each leads to the
+ * order, where the thread itself is read and answered.
+ *
  * THE FRAME
  *
  * This page is exactly as tall as the space `StoreLayout` and `AccountLayout`
@@ -22,7 +26,7 @@
  * without it is how a long conversation makes the whole page scroll again.
  */
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
 import { ChatThread } from '@/components/preorder-chat/ChatThread';
 import { Button, ErrorState } from '@/components/ui';
@@ -45,6 +49,7 @@ import {
 } from '@/lib/preorder-chat';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { fetchMyRfqs } from '@/lib/rfq';
+import { fetchRecentOrderThreads, type OrderThreadSummary } from '@/lib/order-messages';
 
 export function MessagesPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -59,6 +64,8 @@ export function MessagesPage(): React.JSX.Element {
   const openRfqs = (rfqs.data?.items ?? []).filter((rfq) => rfq.status === 'OPEN' || rfq.status === 'AWARDED').slice(0, 4);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [search] = useSearchParams();
+  const ordersView = id === undefined && search.get('view') === 'orders';
   useDocumentMeta({ title: t('preorderChat.page.title'), noIndex: true }, business.displayName);
 
   const list = useInfiniteQuery({
@@ -95,6 +102,22 @@ export function MessagesPage(): React.JSX.Element {
       >
         <h1 className="text-xl font-semibold text-ink sm:text-2xl">{t('preorderChat.page.title')}</h1>
         <p className="text-sm text-ink-muted">{t('preorderChat.page.subtitle')}</p>
+        <nav aria-label={t('orderMessages.page.views')} className="mt-2 flex gap-2 text-sm">
+          <Link
+            to={MESSAGES_PATH}
+            aria-current={ordersView ? undefined : 'page'}
+            className={cx('rounded-md px-3 py-1 font-medium', ordersView ? 'text-ink-muted hover:bg-surface-hover' : 'bg-brand-soft text-brand')}
+          >
+            {t('orderMessages.page.teamTab')}
+          </Link>
+          <Link
+            to={`${MESSAGES_PATH}?view=orders`}
+            aria-current={ordersView ? 'page' : undefined}
+            className={cx('rounded-md px-3 py-1 font-medium', ordersView ? 'bg-brand-soft text-brand' : 'text-ink-muted hover:bg-surface-hover')}
+          >
+            {t('orderMessages.page.ordersTab')}
+          </Link>
+        </nav>
         {openRfqs.length > 0 && (
           <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm">
             <span className="text-ink-muted">{t('preorderChat.page.rfqThreads')}</span>
@@ -107,6 +130,9 @@ export function MessagesPage(): React.JSX.Element {
         )}
       </header>
 
+      {ordersView ? (
+        <OrderThreadList />
+      ) : (
       <div className="grid min-h-0 flex-1 overflow-hidden rounded-lg border border-border bg-surface shadow-card md:grid-cols-[17rem_minmax(0,1fr)] lg:grid-cols-[20rem_minmax(0,1fr)]">
         {/* The list. */}
         <nav
@@ -169,7 +195,72 @@ export function MessagesPage(): React.JSX.Element {
           )}
         </section>
       </div>
+      )}
     </div>
+  );
+}
+
+/** The buyer's order threads with sellers, most recently active first. */
+function OrderThreadList(): React.JSX.Element {
+  const { t } = useI18n();
+  const threads = useQuery({ queryKey: ['order-messages', 'recent'], queryFn: fetchRecentOrderThreads, refetchInterval: 60_000 });
+
+  return (
+    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-lg border border-border bg-surface shadow-card">
+      {threads.isPending && <ConversationListSkeleton label={t('orderMessages.loading')} />}
+      {threads.isError && (
+        <ErrorState
+          error={threads.error}
+          onRetry={() => {
+            void threads.refetch();
+          }}
+        />
+      )}
+      {threads.isSuccess && threads.data.length === 0 && (
+        <ChatEmptyState title={t('orderMessages.page.emptyTitle')} description={t('orderMessages.page.empty')} />
+      )}
+      {threads.isSuccess && threads.data.length > 0 && (
+        <ul className="divide-y divide-border-subtle" aria-label={t('orderMessages.page.listLabel')}>
+          {threads.data.map((thread) => (
+            <li key={thread.sellerOrderGroupId}>
+              <OrderThreadRow thread={thread} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function OrderThreadRow({ thread }: { thread: OrderThreadSummary }): React.JSX.Element {
+  const { t } = useI18n();
+  return (
+    <Link
+      to={`/account/orders/${thread.orderId}`}
+      className="flex gap-3 px-3 py-3 text-sm hover:bg-surface-hover focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
+    >
+      <ChatAvatar name={thread.sellerName} />
+      <span className="min-w-0 flex-1">
+        <span className="flex items-baseline justify-between gap-2">
+          <span className="truncate font-medium text-ink">{thread.sellerName}</span>
+          <time
+            dateTime={thread.lastMessage.at}
+            title={formatDateTime(thread.lastMessage.at)}
+            className="shrink-0 text-xxs text-ink-subtle"
+          >
+            {formatRelative(thread.lastMessage.at)}
+          </time>
+        </span>
+        <span className="block truncate text-xxs text-ink-muted">
+          {t('orderMessages.page.order', { number: thread.orderNumber })}
+        </span>
+        <span className="mt-0.5 block truncate text-xs text-ink-muted">
+          {thread.lastMessage.from === 'BUYER'
+            ? t('preorderChat.page.fromYou', { text: thread.lastMessage.body })
+            : thread.lastMessage.body}
+        </span>
+      </span>
+    </Link>
   );
 }
 

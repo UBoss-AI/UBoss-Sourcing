@@ -37,6 +37,7 @@ import {
   fetchPublicReviews,
   formatRating,
   reviewKeys,
+  type InspectionSummary,
   type PublicReview,
   type RatingSummary,
   type ReviewSort,
@@ -50,10 +51,17 @@ export function ProductReviews({
   productId,
   productSlug,
   productName,
+  inspection = null,
 }: {
   productId: string;
   productSlug: string;
   productName: string;
+  /**
+   * The listed seller's signed inspections (JOURNEY-059). Drawn in its own
+   * box beside the ratings and never averaged into them: an inspection is a
+   * measured check of a consignment, a rating is a buyer's opinion.
+   */
+  inspection?: InspectionSummary | null;
 }): React.JSX.Element | null {
   const { t } = useI18n();
   const { features } = useStorefront();
@@ -96,6 +104,7 @@ export function ProductReviews({
         <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:gap-8">
           <div className="space-y-5">
             <SummaryCard summary={summary} loading={list.isPending} />
+            {inspection !== null && <InspectionResultsCard inspection={inspection} />}
             <WriteReviewPrompt
               productId={productId}
               onOpen={() => {
@@ -238,6 +247,36 @@ function SummaryCard({
         })}
       </ol>
     </div>
+  );
+}
+
+/**
+ * The seller's inspection record, in a box of its own.
+ *
+ * Deliberately not part of the summary card: no star, no average, nothing
+ * that could be read as a rating. Passed and failed are counts of signed
+ * reports, and the sentence under them says why they are kept apart.
+ */
+function InspectionResultsCard({ inspection }: { inspection: InspectionSummary }): React.JSX.Element {
+  const { t } = useI18n();
+  return (
+    <section
+      aria-labelledby="inspection-results-heading"
+      data-testid="inspection-results"
+      className="rounded-lg border border-border bg-surface-sunken/60 px-4 py-4 text-sm"
+    >
+      <h3 id="inspection-results-heading" className="font-medium text-ink">
+        {t('reviews.inspection.title')}
+      </h3>
+      <p className="mt-1 text-ink">
+        {t('reviews.inspection.counts', {
+          passed: formatNumber(inspection.passed),
+          failed: formatNumber(inspection.failed),
+          months: formatNumber(inspection.months),
+        })}
+      </p>
+      <p className="mt-2 text-xs text-ink-muted">{t('reviews.inspection.separate')}</p>
+    </section>
   );
 }
 
@@ -473,6 +512,17 @@ function ReviewCard({ review }: { review: PublicReview }): React.JSX.Element {
         ))}
       </dl>
 
+      {/* The seller's answer, signed with its trading name. Plain text. */}
+      {review.response !== undefined && review.response !== null && (
+        <div className="mt-3 rounded-md border-l-2 border-brand/40 bg-surface-sunken/60 px-3 py-2 text-sm">
+          <p className="text-xs font-medium text-ink-muted">
+            {t('reviews.response.from', { seller: review.response.sellerName })}
+            {' · '}
+            <time dateTime={review.response.at}>{formatDate(review.response.at)}</time>
+          </p>
+          <p className="mt-1 whitespace-pre-line text-ink [overflow-wrap:anywhere]">{review.response.body}</p>
+        </div>
+      )}
     </li>
   );
 }

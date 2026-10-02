@@ -424,6 +424,10 @@ export type UserWhereInput = {
   disputeAttachments?: Prisma.DisputeAttachmentListRelationFilter
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewListRelationFilter
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewListRelationFilter
+  messageReportsFiled?: Prisma.MessageReportListRelationFilter
+  messageReportsReviewed?: Prisma.MessageReportListRelationFilter
+  notificationPreferences?: Prisma.NotificationPreferenceListRelationFilter
+  productReviewResponses?: Prisma.ProductReviewListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -482,6 +486,10 @@ export type UserOrderByWithRelationInput = {
   disputeAttachments?: Prisma.DisputeAttachmentOrderByRelationAggregateInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewOrderByRelationAggregateInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewOrderByRelationAggregateInput
+  messageReportsFiled?: Prisma.MessageReportOrderByRelationAggregateInput
+  messageReportsReviewed?: Prisma.MessageReportOrderByRelationAggregateInput
+  notificationPreferences?: Prisma.NotificationPreferenceOrderByRelationAggregateInput
+  productReviewResponses?: Prisma.ProductReviewOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
 
@@ -544,6 +552,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   disputeAttachments?: Prisma.DisputeAttachmentListRelationFilter
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewListRelationFilter
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewListRelationFilter
+  messageReportsFiled?: Prisma.MessageReportListRelationFilter
+  messageReportsReviewed?: Prisma.MessageReportListRelationFilter
+  notificationPreferences?: Prisma.NotificationPreferenceListRelationFilter
+  productReviewResponses?: Prisma.ProductReviewListRelationFilter
 }, "id" | "emailNormalized">
 
 export type UserOrderByWithAggregationInput = {
@@ -670,6 +682,10 @@ export type UserCreateInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -728,6 +744,10 @@ export type UserUncheckedCreateInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserUpdateInput = {
@@ -786,6 +806,10 @@ export type UserUpdateInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -844,6 +868,10 @@ export type UserUncheckedUpdateInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1138,6 +1166,20 @@ export type UserUpdateOneRequiredWithoutAuthTokensNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuthTokensInput, Prisma.UserUpdateWithoutAuthTokensInput>, Prisma.UserUncheckedUpdateWithoutAuthTokensInput>
 }
 
+export type UserCreateNestedOneWithoutNotificationPreferencesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationPreferencesInput, Prisma.UserUncheckedCreateWithoutNotificationPreferencesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationPreferencesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutNotificationPreferencesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationPreferencesInput, Prisma.UserUncheckedCreateWithoutNotificationPreferencesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationPreferencesInput
+  upsert?: Prisma.UserUpsertWithoutNotificationPreferencesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationPreferencesInput, Prisma.UserUpdateWithoutNotificationPreferencesInput>, Prisma.UserUncheckedUpdateWithoutNotificationPreferencesInput>
+}
+
 export type UserCreateNestedOneWithoutCustomerProfileInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutCustomerProfileInput, Prisma.UserUncheckedCreateWithoutCustomerProfileInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutCustomerProfileInput
@@ -1204,6 +1246,12 @@ export type UserCreateNestedOneWithoutModeratedProductReviewsInput = {
   connect?: Prisma.UserWhereUniqueInput
 }
 
+export type UserCreateNestedOneWithoutProductReviewResponsesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutProductReviewResponsesInput, Prisma.UserUncheckedCreateWithoutProductReviewResponsesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutProductReviewResponsesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
 export type UserUpdateOneWithoutModeratedProductReviewsNestedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutModeratedProductReviewsInput, Prisma.UserUncheckedCreateWithoutModeratedProductReviewsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutModeratedProductReviewsInput
@@ -1212,6 +1260,16 @@ export type UserUpdateOneWithoutModeratedProductReviewsNestedInput = {
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutModeratedProductReviewsInput, Prisma.UserUpdateWithoutModeratedProductReviewsInput>, Prisma.UserUncheckedUpdateWithoutModeratedProductReviewsInput>
+}
+
+export type UserUpdateOneWithoutProductReviewResponsesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutProductReviewResponsesInput, Prisma.UserUncheckedCreateWithoutProductReviewResponsesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutProductReviewResponsesInput
+  upsert?: Prisma.UserUpsertWithoutProductReviewResponsesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProductReviewResponsesInput, Prisma.UserUpdateWithoutProductReviewResponsesInput>, Prisma.UserUncheckedUpdateWithoutProductReviewResponsesInput>
 }
 
 export type UserCreateNestedOneWithoutSupportTicketsRequestedInput = {
@@ -1516,6 +1574,36 @@ export type UserUpdateOneRequiredWithoutBuyerCompanyEmailChallengesNestedInput =
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBuyerCompanyEmailChallengesInput, Prisma.UserUpdateWithoutBuyerCompanyEmailChallengesInput>, Prisma.UserUncheckedUpdateWithoutBuyerCompanyEmailChallengesInput>
 }
 
+export type UserCreateNestedOneWithoutMessageReportsFiledInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMessageReportsFiledInput, Prisma.UserUncheckedCreateWithoutMessageReportsFiledInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMessageReportsFiledInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutMessageReportsReviewedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMessageReportsReviewedInput, Prisma.UserUncheckedCreateWithoutMessageReportsReviewedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMessageReportsReviewedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMessageReportsFiledNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMessageReportsFiledInput, Prisma.UserUncheckedCreateWithoutMessageReportsFiledInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMessageReportsFiledInput
+  upsert?: Prisma.UserUpsertWithoutMessageReportsFiledInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMessageReportsFiledInput, Prisma.UserUpdateWithoutMessageReportsFiledInput>, Prisma.UserUncheckedUpdateWithoutMessageReportsFiledInput>
+}
+
+export type UserUpdateOneWithoutMessageReportsReviewedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMessageReportsReviewedInput, Prisma.UserUncheckedCreateWithoutMessageReportsReviewedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMessageReportsReviewedInput
+  upsert?: Prisma.UserUpsertWithoutMessageReportsReviewedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMessageReportsReviewedInput, Prisma.UserUpdateWithoutMessageReportsReviewedInput>, Prisma.UserUncheckedUpdateWithoutMessageReportsReviewedInput>
+}
+
 export type UserCreateWithoutRolesInput = {
   id: string
   type: $Enums.UserType
@@ -1571,6 +1659,10 @@ export type UserCreateWithoutRolesInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutRolesInput = {
@@ -1628,6 +1720,10 @@ export type UserUncheckedCreateWithoutRolesInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutRolesInput = {
@@ -1701,6 +1797,10 @@ export type UserUpdateWithoutRolesInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRolesInput = {
@@ -1758,6 +1858,10 @@ export type UserUncheckedUpdateWithoutRolesInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -1815,6 +1919,10 @@ export type UserCreateWithoutSessionsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -1872,6 +1980,10 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -1945,6 +2057,10 @@ export type UserUpdateWithoutSessionsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -2002,6 +2118,10 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutAuthTokensInput = {
@@ -2059,6 +2179,10 @@ export type UserCreateWithoutAuthTokensInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutAuthTokensInput = {
@@ -2116,6 +2240,10 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutAuthTokensInput = {
@@ -2189,6 +2317,10 @@ export type UserUpdateWithoutAuthTokensInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuthTokensInput = {
@@ -2246,6 +2378,270 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
+}
+
+export type UserCreateWithoutNotificationPreferencesInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: number
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutUserInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutAssignedReviewerInput
+  moderatedProductReviews?: Prisma.ProductReviewCreateNestedManyWithoutModeratedByInput
+  supportTicketsRequested?: Prisma.SupportTicketCreateNestedManyWithoutRequesterInput
+  supportTicketsAssigned?: Prisma.SupportTicketCreateNestedManyWithoutAssignedAdminInput
+  supportTicketEvents?: Prisma.SupportTicketEventCreateNestedManyWithoutActorInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentCreateNestedManyWithoutUploadedByInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutUserInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeCreateNestedManyWithoutUserInput
+  disputesRaised?: Prisma.DisputeCreateNestedManyWithoutRaisedByInput
+  disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
+  disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
+  disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
+}
+
+export type UserUncheckedCreateWithoutNotificationPreferencesInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: number
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutAssignedReviewerInput
+  moderatedProductReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutModeratedByInput
+  supportTicketsRequested?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutRequesterInput
+  supportTicketsAssigned?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutAssignedAdminInput
+  supportTicketEvents?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutActorInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUncheckedCreateNestedManyWithoutUserInput
+  disputesRaised?: Prisma.DisputeUncheckedCreateNestedManyWithoutRaisedByInput
+  disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
+  disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
+  disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
+}
+
+export type UserCreateOrConnectWithoutNotificationPreferencesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutNotificationPreferencesInput, Prisma.UserUncheckedCreateWithoutNotificationPreferencesInput>
+}
+
+export type UserUpsertWithoutNotificationPreferencesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutNotificationPreferencesInput, Prisma.UserUncheckedUpdateWithoutNotificationPreferencesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutNotificationPreferencesInput, Prisma.UserUncheckedCreateWithoutNotificationPreferencesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutNotificationPreferencesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutNotificationPreferencesInput, Prisma.UserUncheckedUpdateWithoutNotificationPreferencesInput>
+}
+
+export type UserUpdateWithoutNotificationPreferencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUpdateManyWithoutUserNestedInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutAssignedReviewerNestedInput
+  moderatedProductReviews?: Prisma.ProductReviewUpdateManyWithoutModeratedByNestedInput
+  supportTicketsRequested?: Prisma.SupportTicketUpdateManyWithoutRequesterNestedInput
+  supportTicketsAssigned?: Prisma.SupportTicketUpdateManyWithoutAssignedAdminNestedInput
+  supportTicketEvents?: Prisma.SupportTicketEventUpdateManyWithoutActorNestedInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUpdateManyWithoutUploadedByNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutUserNestedInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUpdateManyWithoutUserNestedInput
+  disputesRaised?: Prisma.DisputeUpdateManyWithoutRaisedByNestedInput
+  disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
+  disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
+  disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutNotificationPreferencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutAssignedReviewerNestedInput
+  moderatedProductReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutModeratedByNestedInput
+  supportTicketsRequested?: Prisma.SupportTicketUncheckedUpdateManyWithoutRequesterNestedInput
+  supportTicketsAssigned?: Prisma.SupportTicketUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  supportTicketEvents?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutActorNestedInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUncheckedUpdateManyWithoutUserNestedInput
+  disputesRaised?: Prisma.DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
+  disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
+  disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutCustomerProfileInput = {
@@ -2303,6 +2699,10 @@ export type UserCreateWithoutCustomerProfileInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutCustomerProfileInput = {
@@ -2360,6 +2760,10 @@ export type UserUncheckedCreateWithoutCustomerProfileInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutCustomerProfileInput = {
@@ -2433,6 +2837,10 @@ export type UserUpdateWithoutCustomerProfileInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCustomerProfileInput = {
@@ -2490,6 +2898,10 @@ export type UserUncheckedUpdateWithoutCustomerProfileInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutNotificationsResolvedInput = {
@@ -2547,6 +2959,10 @@ export type UserCreateWithoutNotificationsResolvedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsResolvedInput = {
@@ -2604,6 +3020,10 @@ export type UserUncheckedCreateWithoutNotificationsResolvedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsResolvedInput = {
@@ -2677,6 +3097,10 @@ export type UserUpdateWithoutNotificationsResolvedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsResolvedInput = {
@@ -2734,6 +3158,10 @@ export type UserUncheckedUpdateWithoutNotificationsResolvedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutNotificationReadsInput = {
@@ -2791,6 +3219,10 @@ export type UserCreateWithoutNotificationReadsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutNotificationReadsInput = {
@@ -2848,6 +3280,10 @@ export type UserUncheckedCreateWithoutNotificationReadsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutNotificationReadsInput = {
@@ -2921,6 +3357,10 @@ export type UserUpdateWithoutNotificationReadsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationReadsInput = {
@@ -2978,6 +3418,10 @@ export type UserUncheckedUpdateWithoutNotificationReadsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutAuditLogsInput = {
@@ -3035,6 +3479,10 @@ export type UserCreateWithoutAuditLogsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -3092,6 +3540,10 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -3165,6 +3617,10 @@ export type UserUpdateWithoutAuditLogsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -3222,6 +3678,10 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutModeratedProductReviewsInput = {
@@ -3279,6 +3739,10 @@ export type UserCreateWithoutModeratedProductReviewsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutModeratedProductReviewsInput = {
@@ -3336,11 +3800,142 @@ export type UserUncheckedCreateWithoutModeratedProductReviewsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutModeratedProductReviewsInput = {
   where: Prisma.UserWhereUniqueInput
   create: Prisma.XOR<Prisma.UserCreateWithoutModeratedProductReviewsInput, Prisma.UserUncheckedCreateWithoutModeratedProductReviewsInput>
+}
+
+export type UserCreateWithoutProductReviewResponsesInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: number
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutUserInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutAssignedReviewerInput
+  moderatedProductReviews?: Prisma.ProductReviewCreateNestedManyWithoutModeratedByInput
+  supportTicketsRequested?: Prisma.SupportTicketCreateNestedManyWithoutRequesterInput
+  supportTicketsAssigned?: Prisma.SupportTicketCreateNestedManyWithoutAssignedAdminInput
+  supportTicketEvents?: Prisma.SupportTicketEventCreateNestedManyWithoutActorInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentCreateNestedManyWithoutUploadedByInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutUserInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeCreateNestedManyWithoutUserInput
+  disputesRaised?: Prisma.DisputeCreateNestedManyWithoutRaisedByInput
+  disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
+  disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
+  disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutProductReviewResponsesInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: number
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutAssignedReviewerInput
+  moderatedProductReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutModeratedByInput
+  supportTicketsRequested?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutRequesterInput
+  supportTicketsAssigned?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutAssignedAdminInput
+  supportTicketEvents?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutActorInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUncheckedCreateNestedManyWithoutUserInput
+  disputesRaised?: Prisma.DisputeUncheckedCreateNestedManyWithoutRaisedByInput
+  disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
+  disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
+  disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutProductReviewResponsesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutProductReviewResponsesInput, Prisma.UserUncheckedCreateWithoutProductReviewResponsesInput>
 }
 
 export type UserUpsertWithoutModeratedProductReviewsInput = {
@@ -3409,6 +4004,10 @@ export type UserUpdateWithoutModeratedProductReviewsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutModeratedProductReviewsInput = {
@@ -3466,6 +4065,143 @@ export type UserUncheckedUpdateWithoutModeratedProductReviewsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
+}
+
+export type UserUpsertWithoutProductReviewResponsesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutProductReviewResponsesInput, Prisma.UserUncheckedUpdateWithoutProductReviewResponsesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutProductReviewResponsesInput, Prisma.UserUncheckedCreateWithoutProductReviewResponsesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutProductReviewResponsesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutProductReviewResponsesInput, Prisma.UserUncheckedUpdateWithoutProductReviewResponsesInput>
+}
+
+export type UserUpdateWithoutProductReviewResponsesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUpdateManyWithoutUserNestedInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutAssignedReviewerNestedInput
+  moderatedProductReviews?: Prisma.ProductReviewUpdateManyWithoutModeratedByNestedInput
+  supportTicketsRequested?: Prisma.SupportTicketUpdateManyWithoutRequesterNestedInput
+  supportTicketsAssigned?: Prisma.SupportTicketUpdateManyWithoutAssignedAdminNestedInput
+  supportTicketEvents?: Prisma.SupportTicketEventUpdateManyWithoutActorNestedInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUpdateManyWithoutUploadedByNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutUserNestedInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUpdateManyWithoutUserNestedInput
+  disputesRaised?: Prisma.DisputeUpdateManyWithoutRaisedByNestedInput
+  disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
+  disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
+  disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutProductReviewResponsesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutAssignedReviewerNestedInput
+  moderatedProductReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutModeratedByNestedInput
+  supportTicketsRequested?: Prisma.SupportTicketUncheckedUpdateManyWithoutRequesterNestedInput
+  supportTicketsAssigned?: Prisma.SupportTicketUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  supportTicketEvents?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutActorNestedInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUncheckedUpdateManyWithoutUserNestedInput
+  disputesRaised?: Prisma.DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
+  disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
+  disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSupportTicketsRequestedInput = {
@@ -3523,6 +4259,10 @@ export type UserCreateWithoutSupportTicketsRequestedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutSupportTicketsRequestedInput = {
@@ -3580,6 +4320,10 @@ export type UserUncheckedCreateWithoutSupportTicketsRequestedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutSupportTicketsRequestedInput = {
@@ -3642,6 +4386,10 @@ export type UserCreateWithoutSupportTicketsAssignedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutSupportTicketsAssignedInput = {
@@ -3699,6 +4447,10 @@ export type UserUncheckedCreateWithoutSupportTicketsAssignedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutSupportTicketsAssignedInput = {
@@ -3772,6 +4524,10 @@ export type UserUpdateWithoutSupportTicketsRequestedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupportTicketsRequestedInput = {
@@ -3829,6 +4585,10 @@ export type UserUncheckedUpdateWithoutSupportTicketsRequestedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUpsertWithoutSupportTicketsAssignedInput = {
@@ -3897,6 +4657,10 @@ export type UserUpdateWithoutSupportTicketsAssignedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupportTicketsAssignedInput = {
@@ -3954,6 +4718,10 @@ export type UserUncheckedUpdateWithoutSupportTicketsAssignedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutSupportTicketEventsInput = {
@@ -4011,6 +4779,10 @@ export type UserCreateWithoutSupportTicketEventsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutSupportTicketEventsInput = {
@@ -4068,6 +4840,10 @@ export type UserUncheckedCreateWithoutSupportTicketEventsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutSupportTicketEventsInput = {
@@ -4141,6 +4917,10 @@ export type UserUpdateWithoutSupportTicketEventsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupportTicketEventsInput = {
@@ -4198,6 +4978,10 @@ export type UserUncheckedUpdateWithoutSupportTicketEventsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutSupportTicketAttachmentsInput = {
@@ -4255,6 +5039,10 @@ export type UserCreateWithoutSupportTicketAttachmentsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutSupportTicketAttachmentsInput = {
@@ -4312,6 +5100,10 @@ export type UserUncheckedCreateWithoutSupportTicketAttachmentsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutSupportTicketAttachmentsInput = {
@@ -4385,6 +5177,10 @@ export type UserUpdateWithoutSupportTicketAttachmentsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupportTicketAttachmentsInput = {
@@ -4442,6 +5238,10 @@ export type UserUncheckedUpdateWithoutSupportTicketAttachmentsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutDisputesRaisedInput = {
@@ -4499,6 +5299,10 @@ export type UserCreateWithoutDisputesRaisedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutDisputesRaisedInput = {
@@ -4556,6 +5360,10 @@ export type UserUncheckedCreateWithoutDisputesRaisedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutDisputesRaisedInput = {
@@ -4618,6 +5426,10 @@ export type UserCreateWithoutDisputesAssignedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutDisputesAssignedInput = {
@@ -4675,6 +5487,10 @@ export type UserUncheckedCreateWithoutDisputesAssignedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutDisputesAssignedInput = {
@@ -4748,6 +5564,10 @@ export type UserUpdateWithoutDisputesRaisedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDisputesRaisedInput = {
@@ -4805,6 +5625,10 @@ export type UserUncheckedUpdateWithoutDisputesRaisedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUpsertWithoutDisputesAssignedInput = {
@@ -4873,6 +5697,10 @@ export type UserUpdateWithoutDisputesAssignedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDisputesAssignedInput = {
@@ -4930,6 +5758,10 @@ export type UserUncheckedUpdateWithoutDisputesAssignedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutDisputeEventsInput = {
@@ -4987,6 +5819,10 @@ export type UserCreateWithoutDisputeEventsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutDisputeEventsInput = {
@@ -5044,6 +5880,10 @@ export type UserUncheckedCreateWithoutDisputeEventsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutDisputeEventsInput = {
@@ -5117,6 +5957,10 @@ export type UserUpdateWithoutDisputeEventsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDisputeEventsInput = {
@@ -5174,6 +6018,10 @@ export type UserUncheckedUpdateWithoutDisputeEventsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutDisputeAttachmentsInput = {
@@ -5231,6 +6079,10 @@ export type UserCreateWithoutDisputeAttachmentsInput = {
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutDisputeAttachmentsInput = {
@@ -5288,6 +6140,10 @@ export type UserUncheckedCreateWithoutDisputeAttachmentsInput = {
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutDisputeAttachmentsInput = {
@@ -5361,6 +6217,10 @@ export type UserUpdateWithoutDisputeAttachmentsInput = {
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDisputeAttachmentsInput = {
@@ -5418,6 +6278,10 @@ export type UserUncheckedUpdateWithoutDisputeAttachmentsInput = {
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutLogisticsMembershipInput = {
@@ -5475,6 +6339,10 @@ export type UserCreateWithoutLogisticsMembershipInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutLogisticsMembershipInput = {
@@ -5532,6 +6400,10 @@ export type UserUncheckedCreateWithoutLogisticsMembershipInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutLogisticsMembershipInput = {
@@ -5605,6 +6477,10 @@ export type UserUpdateWithoutLogisticsMembershipInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogisticsMembershipInput = {
@@ -5662,6 +6538,10 @@ export type UserUncheckedUpdateWithoutLogisticsMembershipInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutLogisticsPingsInput = {
@@ -5719,6 +6599,10 @@ export type UserCreateWithoutLogisticsPingsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutLogisticsPingsInput = {
@@ -5776,6 +6660,10 @@ export type UserUncheckedCreateWithoutLogisticsPingsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutLogisticsPingsInput = {
@@ -5849,6 +6737,10 @@ export type UserUpdateWithoutLogisticsPingsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogisticsPingsInput = {
@@ -5906,6 +6798,10 @@ export type UserUncheckedUpdateWithoutLogisticsPingsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutLogisticsAuditLogsInput = {
@@ -5963,6 +6859,10 @@ export type UserCreateWithoutLogisticsAuditLogsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutLogisticsAuditLogsInput = {
@@ -6020,6 +6920,10 @@ export type UserUncheckedCreateWithoutLogisticsAuditLogsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutLogisticsAuditLogsInput = {
@@ -6093,6 +6997,10 @@ export type UserUpdateWithoutLogisticsAuditLogsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogisticsAuditLogsInput = {
@@ -6150,6 +7058,10 @@ export type UserUncheckedUpdateWithoutLogisticsAuditLogsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutAcknowledgementsInput = {
@@ -6207,6 +7119,10 @@ export type UserCreateWithoutAcknowledgementsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutAcknowledgementsInput = {
@@ -6264,6 +7180,10 @@ export type UserUncheckedCreateWithoutAcknowledgementsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutAcknowledgementsInput = {
@@ -6337,6 +7257,10 @@ export type UserUpdateWithoutAcknowledgementsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAcknowledgementsInput = {
@@ -6394,6 +7318,10 @@ export type UserUncheckedUpdateWithoutAcknowledgementsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutPreorderChatsAssignedInput = {
@@ -6451,6 +7379,10 @@ export type UserCreateWithoutPreorderChatsAssignedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutPreorderChatsAssignedInput = {
@@ -6508,6 +7440,10 @@ export type UserUncheckedCreateWithoutPreorderChatsAssignedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutPreorderChatsAssignedInput = {
@@ -6581,6 +7517,10 @@ export type UserUpdateWithoutPreorderChatsAssignedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPreorderChatsAssignedInput = {
@@ -6638,6 +7578,10 @@ export type UserUncheckedUpdateWithoutPreorderChatsAssignedInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutPreorderChatParticipantsInput = {
@@ -6695,6 +7639,10 @@ export type UserCreateWithoutPreorderChatParticipantsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutPreorderChatParticipantsInput = {
@@ -6752,6 +7700,10 @@ export type UserUncheckedCreateWithoutPreorderChatParticipantsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutPreorderChatParticipantsInput = {
@@ -6825,6 +7777,10 @@ export type UserUpdateWithoutPreorderChatParticipantsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPreorderChatParticipantsInput = {
@@ -6882,6 +7838,10 @@ export type UserUncheckedUpdateWithoutPreorderChatParticipantsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutStaffAccessReviewsReceivedInput = {
@@ -6939,6 +7899,10 @@ export type UserCreateWithoutStaffAccessReviewsReceivedInput = {
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutStaffAccessReviewsReceivedInput = {
@@ -6996,6 +7960,10 @@ export type UserUncheckedCreateWithoutStaffAccessReviewsReceivedInput = {
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutStaffAccessReviewsReceivedInput = {
@@ -7058,6 +8026,10 @@ export type UserCreateWithoutStaffAccessReviewsGivenInput = {
   disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutStaffAccessReviewsGivenInput = {
@@ -7115,6 +8087,10 @@ export type UserUncheckedCreateWithoutStaffAccessReviewsGivenInput = {
   disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutStaffAccessReviewsGivenInput = {
@@ -7188,6 +8164,10 @@ export type UserUpdateWithoutStaffAccessReviewsReceivedInput = {
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStaffAccessReviewsReceivedInput = {
@@ -7245,6 +8225,10 @@ export type UserUncheckedUpdateWithoutStaffAccessReviewsReceivedInput = {
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUpsertWithoutStaffAccessReviewsGivenInput = {
@@ -7313,6 +8297,10 @@ export type UserUpdateWithoutStaffAccessReviewsGivenInput = {
   disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStaffAccessReviewsGivenInput = {
@@ -7370,6 +8358,10 @@ export type UserUncheckedUpdateWithoutStaffAccessReviewsGivenInput = {
   disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutBuyerCompanyMembershipsInput = {
@@ -7427,6 +8419,10 @@ export type UserCreateWithoutBuyerCompanyMembershipsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutBuyerCompanyMembershipsInput = {
@@ -7484,6 +8480,10 @@ export type UserUncheckedCreateWithoutBuyerCompanyMembershipsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutBuyerCompanyMembershipsInput = {
@@ -7557,6 +8557,10 @@ export type UserUpdateWithoutBuyerCompanyMembershipsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBuyerCompanyMembershipsInput = {
@@ -7614,6 +8618,10 @@ export type UserUncheckedUpdateWithoutBuyerCompanyMembershipsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutBuyerCompanyCasesInput = {
@@ -7671,6 +8679,10 @@ export type UserCreateWithoutBuyerCompanyCasesInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutBuyerCompanyCasesInput = {
@@ -7728,6 +8740,10 @@ export type UserUncheckedCreateWithoutBuyerCompanyCasesInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutBuyerCompanyCasesInput = {
@@ -7801,6 +8817,10 @@ export type UserUpdateWithoutBuyerCompanyCasesInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBuyerCompanyCasesInput = {
@@ -7858,6 +8878,10 @@ export type UserUncheckedUpdateWithoutBuyerCompanyCasesInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutConsentRecordsInput = {
@@ -7915,6 +8939,10 @@ export type UserCreateWithoutConsentRecordsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutConsentRecordsInput = {
@@ -7972,6 +9000,10 @@ export type UserUncheckedCreateWithoutConsentRecordsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutConsentRecordsInput = {
@@ -8045,6 +9077,10 @@ export type UserUpdateWithoutConsentRecordsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutConsentRecordsInput = {
@@ -8102,6 +9138,10 @@ export type UserUncheckedUpdateWithoutConsentRecordsInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 export type UserCreateWithoutBuyerCompanyEmailChallengesInput = {
@@ -8159,6 +9199,10 @@ export type UserCreateWithoutBuyerCompanyEmailChallengesInput = {
   disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
 }
 
 export type UserUncheckedCreateWithoutBuyerCompanyEmailChallengesInput = {
@@ -8216,6 +9260,10 @@ export type UserUncheckedCreateWithoutBuyerCompanyEmailChallengesInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
 }
 
 export type UserCreateOrConnectWithoutBuyerCompanyEmailChallengesInput = {
@@ -8289,6 +9337,10 @@ export type UserUpdateWithoutBuyerCompanyEmailChallengesInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBuyerCompanyEmailChallengesInput = {
@@ -8346,6 +9398,530 @@ export type UserUncheckedUpdateWithoutBuyerCompanyEmailChallengesInput = {
   disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
   staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
   staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
+}
+
+export type UserCreateWithoutMessageReportsFiledInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: number
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutUserInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutAssignedReviewerInput
+  moderatedProductReviews?: Prisma.ProductReviewCreateNestedManyWithoutModeratedByInput
+  supportTicketsRequested?: Prisma.SupportTicketCreateNestedManyWithoutRequesterInput
+  supportTicketsAssigned?: Prisma.SupportTicketCreateNestedManyWithoutAssignedAdminInput
+  supportTicketEvents?: Prisma.SupportTicketEventCreateNestedManyWithoutActorInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentCreateNestedManyWithoutUploadedByInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutUserInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeCreateNestedManyWithoutUserInput
+  disputesRaised?: Prisma.DisputeCreateNestedManyWithoutRaisedByInput
+  disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
+  disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
+  disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsReviewed?: Prisma.MessageReportCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
+}
+
+export type UserUncheckedCreateWithoutMessageReportsFiledInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: number
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutAssignedReviewerInput
+  moderatedProductReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutModeratedByInput
+  supportTicketsRequested?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutRequesterInput
+  supportTicketsAssigned?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutAssignedAdminInput
+  supportTicketEvents?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutActorInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUncheckedCreateNestedManyWithoutUserInput
+  disputesRaised?: Prisma.DisputeUncheckedCreateNestedManyWithoutRaisedByInput
+  disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
+  disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
+  disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReviewedByInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
+}
+
+export type UserCreateOrConnectWithoutMessageReportsFiledInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMessageReportsFiledInput, Prisma.UserUncheckedCreateWithoutMessageReportsFiledInput>
+}
+
+export type UserCreateWithoutMessageReportsReviewedInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: number
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberCreateNestedManyWithoutUserInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseCreateNestedManyWithoutAssignedReviewerInput
+  moderatedProductReviews?: Prisma.ProductReviewCreateNestedManyWithoutModeratedByInput
+  supportTicketsRequested?: Prisma.SupportTicketCreateNestedManyWithoutRequesterInput
+  supportTicketsAssigned?: Prisma.SupportTicketCreateNestedManyWithoutAssignedAdminInput
+  supportTicketEvents?: Prisma.SupportTicketEventCreateNestedManyWithoutActorInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentCreateNestedManyWithoutUploadedByInput
+  consentRecords?: Prisma.ConsentRecordCreateNestedManyWithoutUserInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeCreateNestedManyWithoutUserInput
+  disputesRaised?: Prisma.DisputeCreateNestedManyWithoutRaisedByInput
+  disputesAssigned?: Prisma.DisputeCreateNestedManyWithoutAssignedAdminInput
+  disputeEvents?: Prisma.DisputeEventCreateNestedManyWithoutActorInput
+  disputeAttachments?: Prisma.DisputeAttachmentCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportCreateNestedManyWithoutReporterInput
+  notificationPreferences?: Prisma.NotificationPreferenceCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewCreateNestedManyWithoutResponderInput
+}
+
+export type UserUncheckedCreateWithoutMessageReportsReviewedInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: number
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUncheckedCreateNestedManyWithoutAssignedReviewerInput
+  moderatedProductReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutModeratedByInput
+  supportTicketsRequested?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutRequesterInput
+  supportTicketsAssigned?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutAssignedAdminInput
+  supportTicketEvents?: Prisma.SupportTicketEventUncheckedCreateNestedManyWithoutActorInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  consentRecords?: Prisma.ConsentRecordUncheckedCreateNestedManyWithoutUserInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUncheckedCreateNestedManyWithoutUserInput
+  disputesRaised?: Prisma.DisputeUncheckedCreateNestedManyWithoutRaisedByInput
+  disputesAssigned?: Prisma.DisputeUncheckedCreateNestedManyWithoutAssignedAdminInput
+  disputeEvents?: Prisma.DisputeEventUncheckedCreateNestedManyWithoutActorInput
+  disputeAttachments?: Prisma.DisputeAttachmentUncheckedCreateNestedManyWithoutUploadedByInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewedUserInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedCreateNestedManyWithoutReviewerInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedCreateNestedManyWithoutReporterInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutResponderInput
+}
+
+export type UserCreateOrConnectWithoutMessageReportsReviewedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMessageReportsReviewedInput, Prisma.UserUncheckedCreateWithoutMessageReportsReviewedInput>
+}
+
+export type UserUpsertWithoutMessageReportsFiledInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMessageReportsFiledInput, Prisma.UserUncheckedUpdateWithoutMessageReportsFiledInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMessageReportsFiledInput, Prisma.UserUncheckedCreateWithoutMessageReportsFiledInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMessageReportsFiledInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMessageReportsFiledInput, Prisma.UserUncheckedUpdateWithoutMessageReportsFiledInput>
+}
+
+export type UserUpdateWithoutMessageReportsFiledInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUpdateManyWithoutUserNestedInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutAssignedReviewerNestedInput
+  moderatedProductReviews?: Prisma.ProductReviewUpdateManyWithoutModeratedByNestedInput
+  supportTicketsRequested?: Prisma.SupportTicketUpdateManyWithoutRequesterNestedInput
+  supportTicketsAssigned?: Prisma.SupportTicketUpdateManyWithoutAssignedAdminNestedInput
+  supportTicketEvents?: Prisma.SupportTicketEventUpdateManyWithoutActorNestedInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUpdateManyWithoutUploadedByNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutUserNestedInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUpdateManyWithoutUserNestedInput
+  disputesRaised?: Prisma.DisputeUpdateManyWithoutRaisedByNestedInput
+  disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
+  disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
+  disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMessageReportsFiledInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutAssignedReviewerNestedInput
+  moderatedProductReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutModeratedByNestedInput
+  supportTicketsRequested?: Prisma.SupportTicketUncheckedUpdateManyWithoutRequesterNestedInput
+  supportTicketsAssigned?: Prisma.SupportTicketUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  supportTicketEvents?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutActorNestedInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUncheckedUpdateManyWithoutUserNestedInput
+  disputesRaised?: Prisma.DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
+  disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
+  disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsReviewed?: Prisma.MessageReportUncheckedUpdateManyWithoutReviewedByNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
+}
+
+export type UserUpsertWithoutMessageReportsReviewedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMessageReportsReviewedInput, Prisma.UserUncheckedUpdateWithoutMessageReportsReviewedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMessageReportsReviewedInput, Prisma.UserUncheckedCreateWithoutMessageReportsReviewedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMessageReportsReviewedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMessageReportsReviewedInput, Prisma.UserUncheckedUpdateWithoutMessageReportsReviewedInput>
+}
+
+export type UserUpdateWithoutMessageReportsReviewedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUpdateManyWithoutUserNestedInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUpdateManyWithoutAssignedReviewerNestedInput
+  moderatedProductReviews?: Prisma.ProductReviewUpdateManyWithoutModeratedByNestedInput
+  supportTicketsRequested?: Prisma.SupportTicketUpdateManyWithoutRequesterNestedInput
+  supportTicketsAssigned?: Prisma.SupportTicketUpdateManyWithoutAssignedAdminNestedInput
+  supportTicketEvents?: Prisma.SupportTicketEventUpdateManyWithoutActorNestedInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUpdateManyWithoutUploadedByNestedInput
+  consentRecords?: Prisma.ConsentRecordUpdateManyWithoutUserNestedInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUpdateManyWithoutUserNestedInput
+  disputesRaised?: Prisma.DisputeUpdateManyWithoutRaisedByNestedInput
+  disputesAssigned?: Prisma.DisputeUpdateManyWithoutAssignedAdminNestedInput
+  disputeEvents?: Prisma.DisputeEventUpdateManyWithoutActorNestedInput
+  disputeAttachments?: Prisma.DisputeAttachmentUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUpdateManyWithoutReporterNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUpdateManyWithoutResponderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMessageReportsReviewedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mfaFailedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyMemberships?: Prisma.BuyerCompanyMemberUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyCases?: Prisma.BuyerCompanyVerificationCaseUncheckedUpdateManyWithoutAssignedReviewerNestedInput
+  moderatedProductReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutModeratedByNestedInput
+  supportTicketsRequested?: Prisma.SupportTicketUncheckedUpdateManyWithoutRequesterNestedInput
+  supportTicketsAssigned?: Prisma.SupportTicketUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  supportTicketEvents?: Prisma.SupportTicketEventUncheckedUpdateManyWithoutActorNestedInput
+  supportTicketAttachments?: Prisma.SupportTicketAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  consentRecords?: Prisma.ConsentRecordUncheckedUpdateManyWithoutUserNestedInput
+  buyerCompanyEmailChallenges?: Prisma.BuyerCompanyEmailChallengeUncheckedUpdateManyWithoutUserNestedInput
+  disputesRaised?: Prisma.DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
+  disputesAssigned?: Prisma.DisputeUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  disputeEvents?: Prisma.DisputeEventUncheckedUpdateManyWithoutActorNestedInput
+  disputeAttachments?: Prisma.DisputeAttachmentUncheckedUpdateManyWithoutUploadedByNestedInput
+  staffAccessReviewsReceived?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewedUserNestedInput
+  staffAccessReviewsGiven?: Prisma.StaffAccessReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  messageReportsFiled?: Prisma.MessageReportUncheckedUpdateManyWithoutReporterNestedInput
+  notificationPreferences?: Prisma.NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  productReviewResponses?: Prisma.ProductReviewUncheckedUpdateManyWithoutResponderNestedInput
 }
 
 
@@ -8380,6 +9956,10 @@ export type UserCountOutputType = {
   disputeAttachments: number
   staffAccessReviewsReceived: number
   staffAccessReviewsGiven: number
+  messageReportsFiled: number
+  messageReportsReviewed: number
+  notificationPreferences: number
+  productReviewResponses: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -8409,6 +9989,10 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   disputeAttachments?: boolean | UserCountOutputTypeCountDisputeAttachmentsArgs
   staffAccessReviewsReceived?: boolean | UserCountOutputTypeCountStaffAccessReviewsReceivedArgs
   staffAccessReviewsGiven?: boolean | UserCountOutputTypeCountStaffAccessReviewsGivenArgs
+  messageReportsFiled?: boolean | UserCountOutputTypeCountMessageReportsFiledArgs
+  messageReportsReviewed?: boolean | UserCountOutputTypeCountMessageReportsReviewedArgs
+  notificationPreferences?: boolean | UserCountOutputTypeCountNotificationPreferencesArgs
+  productReviewResponses?: boolean | UserCountOutputTypeCountProductReviewResponsesArgs
 }
 
 /**
@@ -8603,6 +10187,34 @@ export type UserCountOutputTypeCountStaffAccessReviewsGivenArgs<ExtArgs extends 
   where?: Prisma.StaffAccessReviewWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMessageReportsFiledArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MessageReportWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMessageReportsReviewedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MessageReportWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountNotificationPreferencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationPreferenceWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountProductReviewResponsesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductReviewWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -8660,6 +10272,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   disputeAttachments?: boolean | Prisma.User$disputeAttachmentsArgs<ExtArgs>
   staffAccessReviewsReceived?: boolean | Prisma.User$staffAccessReviewsReceivedArgs<ExtArgs>
   staffAccessReviewsGiven?: boolean | Prisma.User$staffAccessReviewsGivenArgs<ExtArgs>
+  messageReportsFiled?: boolean | Prisma.User$messageReportsFiledArgs<ExtArgs>
+  messageReportsReviewed?: boolean | Prisma.User$messageReportsReviewedArgs<ExtArgs>
+  notificationPreferences?: boolean | Prisma.User$notificationPreferencesArgs<ExtArgs>
+  productReviewResponses?: boolean | Prisma.User$productReviewResponsesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -8725,6 +10341,10 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   disputeAttachments?: boolean | Prisma.User$disputeAttachmentsArgs<ExtArgs>
   staffAccessReviewsReceived?: boolean | Prisma.User$staffAccessReviewsReceivedArgs<ExtArgs>
   staffAccessReviewsGiven?: boolean | Prisma.User$staffAccessReviewsGivenArgs<ExtArgs>
+  messageReportsFiled?: boolean | Prisma.User$messageReportsFiledArgs<ExtArgs>
+  messageReportsReviewed?: boolean | Prisma.User$messageReportsReviewedArgs<ExtArgs>
+  notificationPreferences?: boolean | Prisma.User$notificationPreferencesArgs<ExtArgs>
+  productReviewResponses?: boolean | Prisma.User$productReviewResponsesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -8803,6 +10423,21 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      */
     staffAccessReviewsReceived: Prisma.$StaffAccessReviewPayload<ExtArgs>[]
     staffAccessReviewsGiven: Prisma.$StaffAccessReviewPayload<ExtArgs>[]
+    /**
+     * Messages this person reported as abusive, and the reports they decided as
+     * staff. See MESSAGE REPORTS.
+     */
+    messageReportsFiled: Prisma.$MessageReportPayload<ExtArgs>[]
+    messageReportsReviewed: Prisma.$MessageReportPayload<ExtArgs>[]
+    /**
+     * The notification families and channels this person switched off. See
+     * NotificationPreference.
+     */
+    notificationPreferences: Prisma.$NotificationPreferencePayload<ExtArgs>[]
+    /**
+     * Answers this seller member wrote under a buyer's review.
+     */
+    productReviewResponses: Prisma.$ProductReviewPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -9290,6 +10925,10 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   disputeAttachments<T extends Prisma.User$disputeAttachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$disputeAttachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DisputeAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   staffAccessReviewsReceived<T extends Prisma.User$staffAccessReviewsReceivedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$staffAccessReviewsReceivedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffAccessReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   staffAccessReviewsGiven<T extends Prisma.User$staffAccessReviewsGivenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$staffAccessReviewsGivenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffAccessReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  messageReportsFiled<T extends Prisma.User$messageReportsFiledArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$messageReportsFiledArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessageReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  messageReportsReviewed<T extends Prisma.User$messageReportsReviewedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$messageReportsReviewedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessageReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notificationPreferences<T extends Prisma.User$notificationPreferencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationPreferencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPreferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  productReviewResponses<T extends Prisma.User$productReviewResponsesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$productReviewResponsesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10353,6 +11992,102 @@ export type User$staffAccessReviewsGivenArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.StaffAccessReviewScalarFieldEnum | Prisma.StaffAccessReviewScalarFieldEnum[]
+}
+
+/**
+ * User.messageReportsFiled
+ */
+export type User$messageReportsFiledArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MessageReport
+   */
+  select?: Prisma.MessageReportSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MessageReport
+   */
+  omit?: Prisma.MessageReportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MessageReportInclude<ExtArgs> | null
+  where?: Prisma.MessageReportWhereInput
+  orderBy?: Prisma.MessageReportOrderByWithRelationInput | Prisma.MessageReportOrderByWithRelationInput[]
+  cursor?: Prisma.MessageReportWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MessageReportScalarFieldEnum | Prisma.MessageReportScalarFieldEnum[]
+}
+
+/**
+ * User.messageReportsReviewed
+ */
+export type User$messageReportsReviewedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MessageReport
+   */
+  select?: Prisma.MessageReportSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MessageReport
+   */
+  omit?: Prisma.MessageReportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MessageReportInclude<ExtArgs> | null
+  where?: Prisma.MessageReportWhereInput
+  orderBy?: Prisma.MessageReportOrderByWithRelationInput | Prisma.MessageReportOrderByWithRelationInput[]
+  cursor?: Prisma.MessageReportWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MessageReportScalarFieldEnum | Prisma.MessageReportScalarFieldEnum[]
+}
+
+/**
+ * User.notificationPreferences
+ */
+export type User$notificationPreferencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the NotificationPreference
+   */
+  select?: Prisma.NotificationPreferenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the NotificationPreference
+   */
+  omit?: Prisma.NotificationPreferenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationPreferenceInclude<ExtArgs> | null
+  where?: Prisma.NotificationPreferenceWhereInput
+  orderBy?: Prisma.NotificationPreferenceOrderByWithRelationInput | Prisma.NotificationPreferenceOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationPreferenceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationPreferenceScalarFieldEnum | Prisma.NotificationPreferenceScalarFieldEnum[]
+}
+
+/**
+ * User.productReviewResponses
+ */
+export type User$productReviewResponsesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductReview
+   */
+  select?: Prisma.ProductReviewSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductReview
+   */
+  omit?: Prisma.ProductReviewOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductReviewInclude<ExtArgs> | null
+  where?: Prisma.ProductReviewWhereInput
+  orderBy?: Prisma.ProductReviewOrderByWithRelationInput | Prisma.ProductReviewOrderByWithRelationInput[]
+  cursor?: Prisma.ProductReviewWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductReviewScalarFieldEnum | Prisma.ProductReviewScalarFieldEnum[]
 }
 
 /**

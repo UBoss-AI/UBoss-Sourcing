@@ -45,7 +45,7 @@ import {
   type SellerIdentity,
 } from '@/lib/seller';
 import { SellerNotificationBell } from './SellerNotificationBell';
-import { DocumentIcon, HeadsetIcon } from '@/components/icons';
+import { DocumentIcon, HeadsetIcon, StarIcon } from '@/components/icons';
 
 // ---------------------------------------------------------------------------
 // Icons
@@ -350,7 +350,7 @@ interface NavItem {
   /** Shown only to members holding this permission. The server refuses anyway. */
   permission?: string;
   /** Shown only where the deployment offers this feature. */
-  feature?: 'rfq';
+  feature?: 'rfq' | 'productReviews';
 }
 
 const NAV_ITEMS: readonly NavItem[] = Object.freeze([
@@ -403,6 +403,25 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
   // Buyers asking this seller to quote. Beside preorders: both are an answer
   // before an order exists.
   { to: '/seller/rfqs', labelKey: 'seller.nav.rfqs', icon: DocumentIcon, needsApproval: true, feature: 'rfq' },
+  // Claims buyers raised on this seller's goods. Not locked behind approval:
+  // a seller whose trading is paused still has to answer a claim on time.
+  {
+    to: '/seller/disputes',
+    labelKey: 'seller.nav.disputes',
+    icon: HeadsetIcon,
+    needsApproval: false,
+    permission: 'seller.order.read',
+  },
+  // What buyers rated this seller's sales, and the seller's public answers
+  // (JOURNEY-059). Beside claims: both are buyers speaking about a sale.
+  {
+    to: '/seller/reviews',
+    labelKey: 'seller.nav.reviews',
+    icon: StarIcon,
+    needsApproval: true,
+    permission: 'seller.order.read',
+    feature: 'productReviews',
+  },
   // Beside orders, because that is where a seller is standing when they need
   // it: a paid order is the reason to go looking for who will carry it.
   {
@@ -1046,7 +1065,8 @@ export function SellerLayout(): React.JSX.Element {
           {NAV_ITEMS.filter(
             (item) =>
               (item.permission === undefined || seller.permissions.includes(item.permission)) &&
-              (item.feature !== 'rfq' || features.rfq === true),
+              (item.feature !== 'rfq' || features.rfq === true) &&
+              (item.feature !== 'productReviews' || features.productReviews === true),
           ).map((item) => (
             <RailLink
               key={item.to}

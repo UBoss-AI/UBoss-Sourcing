@@ -107,6 +107,18 @@ export type FeatureFlag = Prisma.FeatureFlagModel
  */
 export type NotificationSetting = Prisma.NotificationSettingModel
 /**
+ * Model NotificationPreference
+ * One notification family switched off on one channel, by one person.
+ * 
+ * A row means "do not send me these this way"; no row means the default,
+ * which is on. Families are fixed in code (`notification-preferences.ts`).
+ * Security and transaction families are mandatory: the code refuses to store
+ * a mute for them and ignores one if it were ever written, because a
+ * password-reset or a payment receipt that a setting swallowed is a support
+ * case and sometimes a legal one.
+ */
+export type NotificationPreference = Prisma.NotificationPreferenceModel
+/**
  * Model MediaAsset
  * 
  */
@@ -3360,6 +3372,21 @@ export type RfqEvent = Prisma.RfqEventModel
  * for as long as the request is.
  */
 export type RfqMessage = Prisma.RfqMessageModel
+/**
+ * Model OrderMessage
+ * A message between the buyer and one seller about that seller's part of an
+ * order. One thread per seller order group, so a seller only ever sees the
+ * thread about its own goods and never another seller's. Kept as long as the
+ * order is.
+ */
+export type OrderMessage = Prisma.OrderMessageModel
+/**
+ * Model MessageReport
+ * A buyer or a seller saying "this message is abusive". One per person per
+ * message. Never deletes or hides anything by itself: staff decide, with a
+ * note, and both the report and the decision are in the audit log.
+ */
+export type MessageReport = Prisma.MessageReportModel
 /**
  * Model RfqQuote
  * One seller's quote on one request (Master row 18): a chain of immutable

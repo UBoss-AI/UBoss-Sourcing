@@ -17,8 +17,10 @@ import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
 import { JobType, queue } from '../../infra/queue/index.js';
+import { smsConfigured } from '../../infra/sms.js';
 import { env } from '../../config/env.js';
 import { marketplaceNameFrom } from '../settings/marketplace-name.js';
+import { mutedChannelsFor } from './notification-preferences.js';
 
 /** Notification events. Each maps to a `notification_settings.eventKey` row. */
 export const NotificationEvent = {
@@ -92,6 +94,9 @@ export const NotificationEvent = {
   /// A seller recorded a production milestone or a delay on the buyer's order.
   /// Only the structured, buyer-safe update is in it - never the seller's notes.
   ORDER_PRODUCTION_UPDATE: 'order.production_update',
+  /// A seller wrote in the order's message thread (JOURNEY-055). At most one
+  /// an hour per thread; the words themselves stay on the order page.
+  ORDER_MESSAGE_FOR_BUYER: 'order.message',
   /// A consignment's milestones, told to the BUYER. One email per consignment
   /// per milestone, however many carrier scans report it. PICKED_UP is sent
   /// only where the order has more than one consignment - with one, the
@@ -336,6 +341,13 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'Hello {{recipientName}},\n\n' +
         '{{sellerName}} has an update on your order {{orderNumber}}: {{updateLine}}\n\n' +
         '{{messageLine}}Follow the order here:\n{{orderUrl}}\n',
+    },
+    [NotificationEvent.ORDER_MESSAGE_FOR_BUYER]: {
+      subject: 'New message about order {{orderNumber}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        '{{sellerName}} wrote to you about your order {{orderNumber}}.\n\n' +
+        'Read and answer it here:\n{{orderUrl}}\n',
     },
     [NotificationEvent.SHIPMENT_PICKED_UP]: {
       subject: 'Part of order {{orderNumber}} has been collected',
@@ -1170,6 +1182,12 @@ const FALLBACK_TEMPLATE = {
 /** Recorded on every WhatsApp row: this product ships no WhatsApp provider. */
 export const WHATSAPP_NO_PROVIDER = 'No WhatsApp provider is configured; nothing was sent.';
 
+/** Recorded on an SMS row when SMS is switched on but no gateway is configured. */
+export const SMS_NO_GATEWAY = 'No SMS gateway is configured (SMS_HTTP_URL); nothing was sent.';
+
+/** Recorded on an SMS row when the recipient has no telephone number on file. */
+export const SMS_NO_NUMBER = 'The recipient has no telephone number on file; nothing was sent.';
+
 /**
  * Every built-in event with the wording it uses when nobody has customised
  * it. The admin template screen lists these beside the customised rows.
@@ -1195,7 +1213,10 @@ export async function enqueueNotification(
 ): Promise<string | null> {
   const client =
     (tx as
-      | Pick<typeof prisma, 'notificationOutbox' | 'notificationSetting' | 'businessProfile'>
+      | Pick<
+          typeof prisma,
+          'notificationOutbox' | 'notificationSetting' | 'businessProfile' | 'user' | 'notificationPreference'
+        >
       | undefined) ?? prisma;
 
   const setting = await client.notificationSetting.findUnique({
@@ -1243,12 +1264,21 @@ export async function enqueueNotification(
    * that is SENT on arrival - nothing is delivered, and no delivery job is
    * queued for it - so the customer's notification centre can still list it.
    */
-  const emailOn = setting === null || setting.emailEnabled;
-  const inAppOnly = !emailOn && setting?.inAppEnabled === true;
-  if (!emailOn && !inAppOnly) {
+  /*
+   * The recipient's own mutes (JOURNEY-056). Empty for a mandatory event -
+   * security, orders, payments, data rights - whatever they chose, and for an
+   * address with no account.
+   */
+  const muted = await mutedChannelsFor(client, input.recipientEmail, input.eventKey);
+  const emailOn = (setting === null || setting.emailEnabled) && !muted.has('EMAIL');
+  const inAppAllowed = (setting === null || setting.inAppEnabled) && !muted.has('IN_APP');
+  const inAppOnly = !emailOn && inAppAllowed;
+  const smsWanted = setting?.smsEnabled === true && !muted.has('SMS');
+  if (!emailOn && !inAppOnly && !smsWanted) {
     logger.debug({ eventKey: input.eventKey }, 'notification has no enabled channel');
     return null;
   }
+  const hasPrimary = emailOn || inAppOnly;
 
   const row = {
     id,
@@ -1288,20 +1318,52 @@ export async function enqueueNotification(
         }
       : null;
 
-  if (input.dedupeKey !== undefined) {
-    // skipDuplicates rather than a caught unique violation: inside a caller's
-    // transaction a raised constraint error would abort the whole transaction.
-    const result = await client.notificationOutbox.createMany({
-      data: [row],
-      skipDuplicates: true,
-    });
+  /*
+   * SMS (JOURNEY-056). With the event's SMS switch on and the recipient not
+   * having muted it, an SMS row is written beside the email - its own row, its
+   * own dedupe key, so a retry cannot text twice. It is delivered through the
+   * operator's gateway (`infra/sms.ts`) when one is configured and the account
+   * has a telephone number; otherwise it is SUPPRESSED with the reason, like
+   * WhatsApp, and never retried.
+   */
+  const phone = smsWanted
+    ? ((
+        await client.user.findUnique({
+          where: { emailNormalized: input.recipientEmail.trim().toLowerCase() },
+          select: { phone: true },
+        })
+      )?.phone ?? null)
+    : null;
+  const smsReason = !smsConfigured() ? SMS_NO_GATEWAY : phone === null || phone.trim() === '' ? SMS_NO_NUMBER : null;
+  const smsRow = smsWanted
+    ? {
+        ...row,
+        id: newId(),
+        channel: 'SMS' as const,
+        recipientPhone: phone,
+        status: smsReason === null ? ('PENDING' as const) : ('SUPPRESSED' as const),
+        sentAt: null,
+        lastError: smsReason,
+        ...(input.dedupeKey !== undefined ? { dedupeKey: `${input.dedupeKey}:sms`.slice(0, 191) } : {}),
+      }
+    : null;
 
-    if (result.count === 0) {
-      logger.debug({ dedupeKey: input.dedupeKey }, 'notification already queued; skipped');
-      return null;
+  if (hasPrimary) {
+    if (input.dedupeKey !== undefined) {
+      // skipDuplicates rather than a caught unique violation: inside a caller's
+      // transaction a raised constraint error would abort the whole transaction.
+      const result = await client.notificationOutbox.createMany({
+        data: [row],
+        skipDuplicates: true,
+      });
+
+      if (result.count === 0) {
+        logger.debug({ dedupeKey: input.dedupeKey }, 'notification already queued; skipped');
+        return null;
+      }
+    } else {
+      await client.notificationOutbox.create({ data: row });
     }
-  } else {
-    await client.notificationOutbox.create({ data: row });
   }
 
   if (whatsappRow !== null) {
@@ -1309,24 +1371,37 @@ export async function enqueueNotification(
     logger.warn({ eventKey: input.eventKey }, 'WhatsApp is enabled for this event but no provider is configured');
   }
 
+  let smsQueued = false;
+  if (smsRow !== null) {
+    const result = await client.notificationOutbox.createMany({ data: [smsRow], skipDuplicates: true });
+    smsQueued = result.count > 0 && smsRow.status === 'PENDING';
+    if (!hasPrimary && result.count === 0) {
+      logger.debug({ dedupeKey: input.dedupeKey }, 'notification already queued; skipped');
+      return null;
+    }
+  }
+
   // Standalone call: dispatch the delivery job immediately. Inside a
   // transaction, leave it to `dispatchPendingNotifications` after commit.
   // An in-app-only row is already SENT and has nothing to deliver.
-  if (tx === undefined && !inAppOnly) {
+  const jobOptions = {
+    ...(input.sendAt !== undefined ? { runAt: input.sendAt } : {}),
+    ...(input.correlationId !== null && input.correlationId !== undefined
+      ? { correlationId: input.correlationId }
+      : {}),
+  };
+  if (tx === undefined && hasPrimary && !inAppOnly) {
+    await queue.enqueue(JobType.NOTIFICATION_SEND, { outboxId: id }, { dedupeKey: `notification:${id}`, ...jobOptions });
+  }
+  if (tx === undefined && smsRow !== null && smsQueued) {
     await queue.enqueue(
       JobType.NOTIFICATION_SEND,
-      { outboxId: id },
-      {
-        dedupeKey: `notification:${id}`,
-        ...(input.sendAt !== undefined ? { runAt: input.sendAt } : {}),
-        ...(input.correlationId !== null && input.correlationId !== undefined
-          ? { correlationId: input.correlationId }
-          : {}),
-      },
+      { outboxId: smsRow.id },
+      { dedupeKey: `notification:${smsRow.id}`, ...jobOptions },
     );
   }
 
-  return id;
+  return hasPrimary ? id : (smsRow?.id ?? null);
 }
 
 /**
@@ -1360,7 +1435,9 @@ export async function dispatchPendingNotifications(limit = 100): Promise<number>
 export async function loadOutboxRow(outboxId: string): Promise<{
   id: string;
   eventKey: string;
+  channel: 'EMAIL' | 'SMS' | 'WHATSAPP' | 'IN_APP';
   recipientEmail: string | null;
+  recipientPhone: string | null;
   recipientName: string | null;
   subject: string;
   body: string;
@@ -1373,7 +1450,9 @@ export async function loadOutboxRow(outboxId: string): Promise<{
     select: {
       id: true,
       eventKey: true,
+      channel: true,
       recipientEmail: true,
+      recipientPhone: true,
       recipientName: true,
       subject: true,
       body: true,

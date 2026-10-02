@@ -46,6 +46,61 @@ export interface PublicReview {
   average: number;
   createdAt: string;
   editedAt: string | null;
+  /** The seller's public answer, when one was written and staff have not hidden it. Absent from an older API. */
+  response?: { sellerName: string; body: string; at: string } | null;
+}
+
+/** Signed inspections on a seller's orders. Shown beside ratings, never averaged in. */
+export interface InspectionSummary {
+  months: number;
+  reports: number;
+  passed: number;
+  failed: number;
+}
+
+/** Buyers' rating of a seller's delivery and support across what it sold. */
+export interface SellerReviewScore {
+  average: number;
+  count: number;
+}
+
+/** The longest answer a seller may publish under a review. */
+export const SELLER_RESPONSE_MAX_LENGTH = 1000;
+
+export interface SellerReviewResponse {
+  body: string;
+  status: 'PUBLISHED' | 'HIDDEN';
+  at: string | null;
+  hiddenReason: string | null;
+}
+
+export interface SellerReview {
+  id: string;
+  product: { name: string; slug: string };
+  reviewerName: string;
+  scores: RatingScores;
+  average: number;
+  status: 'PUBLISHED' | 'HIDDEN';
+  createdAt: string;
+  response: SellerReviewResponse | null;
+}
+
+export interface SellerReviewsResponse {
+  reviews: SellerReview[];
+  score: (SellerReviewScore & { delivery: number; support: number }) | null;
+  pagination: { page: number; limit: number; total: number; totalPages: number };
+}
+
+export function fetchSellerReviews(page: number): Promise<SellerReviewsResponse> {
+  return api.get<SellerReviewsResponse>('/seller/product-reviews', { query: { page, limit: 20 } });
+}
+
+export async function saveSellerResponse(reviewId: string, body: string): Promise<SellerReviewResponse> {
+  const response = await api.put<{ response: SellerReviewResponse }>(
+    `/seller/product-reviews/${reviewId}/response`,
+    { body },
+  );
+  return response.response;
 }
 
 export interface PublicReviewsResponse {

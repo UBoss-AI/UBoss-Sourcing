@@ -164,8 +164,13 @@ export function supplierAttachmentWhere(
       {
         purpose: { in: ['QUOTE', 'NEGOTIATION', 'SAMPLE'] },
         sellerAccountId,
-        // Its own uploads at once; the buyer's only once they were sent.
-        OR: [{ uploadedByParty: 'SUPPLIER' }, { quoteVersionId: { not: null } }],
+        // Its own uploads at once; the buyer's once they were sent with an
+        // offer, or once a message in this seller's thread points at them.
+        OR: [
+          { uploadedByParty: 'SUPPLIER' },
+          { quoteVersionId: { not: null } },
+          { messages: { some: { sellerAccountId } } },
+        ],
       },
     ],
   };

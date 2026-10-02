@@ -238,6 +238,11 @@ export const AdminNotificationKind = {
   BUYER_COMPANY_SUBMITTED: 'buyer_company.submitted',
   /// The applicant answered a reviewer's request. Same variables and grant.
   BUYER_COMPANY_RESPONDED: 'buyer_company.responded',
+  /// A buyer or a seller reported a message as abusive (JOURNEY-055). The
+  /// variables are threadKind, reason and reporterParty - never the words.
+  /// Carries `review.read`, the content-moderation grant. An ALERT, closed by
+  /// a member of staff deciding the report and by nothing else.
+  MESSAGE_REPORTED: 'message.reported',
 } as const;
 
 export type AdminNotificationKindKey =
@@ -387,6 +392,11 @@ const KIND_POLICY: Readonly<Record<string, KindPolicy>> = Object.freeze({
   [AdminNotificationKind.DISPUTE_CHARGEBACK]: INFORMATION,
   [AdminNotificationKind.BUYER_COMPANY_SUBMITTED]: INFORMATION,
   [AdminNotificationKind.BUYER_COMPANY_RESPONDED]: INFORMATION,
+  [AdminNotificationKind.MESSAGE_REPORTED]: Object.freeze({
+    class: 'ALERT',
+    resolutionPolicy: 'DOMAIN_ONLY',
+    resolvedInstead: 'the decision on the report',
+  }),
 });
 
 function policyFor(kind: string): KindPolicy {
@@ -425,6 +435,8 @@ export const ResolutionKey = {
   feeTaxVerification: (policyId: string): string => `fee-tax:${policyId}`,
   /** A customer waiting for an answer in a preorder chat. Closed by a staff reply. */
   preorderChatReply: (conversationId: string): string => `preorder-chat-reply:${conversationId}`,
+  /** A reported message, until staff decide the report. */
+  messageReport: (reportId: string): string => `message-report:${reportId}`,
 } as const;
 
 /**

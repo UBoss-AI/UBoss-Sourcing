@@ -1525,7 +1525,8 @@ export const SellerNotificationKind = {
   INVOICE_CREDIT_NOTE_REQUIRED: 'INVOICE_CREDIT_NOTE_REQUIRED',
   INSPECTION_UPDATE: 'INSPECTION_UPDATE',
   RFQ_INVITATION: 'RFQ_INVITATION',
-  RFQ_UPDATE: 'RFQ_UPDATE'
+  RFQ_UPDATE: 'RFQ_UPDATE',
+  ORDER_MESSAGE: 'ORDER_MESSAGE'
 } as const
 
 export type SellerNotificationKind = (typeof SellerNotificationKind)[keyof typeof SellerNotificationKind]
@@ -3584,6 +3585,44 @@ export const RfqAttachmentPurpose = {
 } as const
 
 export type RfqAttachmentPurpose = (typeof RfqAttachmentPurpose)[keyof typeof RfqAttachmentPurpose]
+
+
+export const OrderMessageParty = {
+  BUYER: 'BUYER',
+  SELLER: 'SELLER'
+} as const
+
+export type OrderMessageParty = (typeof OrderMessageParty)[keyof typeof OrderMessageParty]
+
+
+export const MessageThreadKind = {
+  PREORDER_CHAT: 'PREORDER_CHAT',
+  RFQ: 'RFQ',
+  ORDER: 'ORDER'
+} as const
+
+export type MessageThreadKind = (typeof MessageThreadKind)[keyof typeof MessageThreadKind]
+
+
+export const MessageReportReason = {
+  SPAM: 'SPAM',
+  ABUSE: 'ABUSE',
+  FRAUD: 'FRAUD',
+  PERSONAL_DATA: 'PERSONAL_DATA',
+  OFF_PLATFORM: 'OFF_PLATFORM',
+  OTHER: 'OTHER'
+} as const
+
+export type MessageReportReason = (typeof MessageReportReason)[keyof typeof MessageReportReason]
+
+
+export const MessageReportStatus = {
+  OPEN: 'OPEN',
+  ACTIONED: 'ACTIONED',
+  DISMISSED: 'DISMISSED'
+} as const
+
+export type MessageReportStatus = (typeof MessageReportStatus)[keyof typeof MessageReportStatus]
 
 
 export const RfqQuoteStatus = {

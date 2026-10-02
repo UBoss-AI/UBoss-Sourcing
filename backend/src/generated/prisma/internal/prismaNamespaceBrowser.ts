@@ -66,6 +66,7 @@ export const ModelName = {
   CatalogTranslationSync: 'CatalogTranslationSync',
   FeatureFlag: 'FeatureFlag',
   NotificationSetting: 'NotificationSetting',
+  NotificationPreference: 'NotificationPreference',
   MediaAsset: 'MediaAsset',
   Category: 'Category',
   Product: 'Product',
@@ -403,6 +404,8 @@ export const ModelName = {
   RfqAttachment: 'RfqAttachment',
   RfqEvent: 'RfqEvent',
   RfqMessage: 'RfqMessage',
+  OrderMessage: 'OrderMessage',
+  MessageReport: 'MessageReport',
   RfqQuote: 'RfqQuote',
   RfqQuoteVersion: 'RfqQuoteVersion',
   RfqPurchaseOrder: 'RfqPurchaseOrder',
@@ -709,6 +712,18 @@ export const NotificationSettingScalarFieldEnum = {
 } as const
 
 export type NotificationSettingScalarFieldEnum = (typeof NotificationSettingScalarFieldEnum)[keyof typeof NotificationSettingScalarFieldEnum]
+
+
+export const NotificationPreferenceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  family: 'family',
+  channel: 'channel',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationPreferenceScalarFieldEnum = (typeof NotificationPreferenceScalarFieldEnum)[keyof typeof NotificationPreferenceScalarFieldEnum]
 
 
 export const MediaAssetScalarFieldEnum = {
@@ -1980,7 +1995,8 @@ export const NotificationOutboxScalarFieldEnum = {
   relatedId: 'relatedId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  sentAt: 'sentAt'
+  sentAt: 'sentAt',
+  readAt: 'readAt'
 } as const
 
 export type NotificationOutboxScalarFieldEnum = (typeof NotificationOutboxScalarFieldEnum)[keyof typeof NotificationOutboxScalarFieldEnum]
@@ -2723,6 +2739,12 @@ export const ProductReviewScalarFieldEnum = {
   moderationReason: 'moderationReason',
   moderatedByUserId: 'moderatedByUserId',
   moderatedAt: 'moderatedAt',
+  sellerAccountId: 'sellerAccountId',
+  sellerResponse: 'sellerResponse',
+  sellerResponseStatus: 'sellerResponseStatus',
+  sellerResponseAt: 'sellerResponseAt',
+  sellerResponseByUserId: 'sellerResponseByUserId',
+  sellerResponseHiddenReason: 'sellerResponseHiddenReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -8571,11 +8593,46 @@ export const RfqMessageScalarFieldEnum = {
   authorUserId: 'authorUserId',
   body: 'body',
   clientMessageId: 'clientMessageId',
+  attachmentId: 'attachmentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type RfqMessageScalarFieldEnum = (typeof RfqMessageScalarFieldEnum)[keyof typeof RfqMessageScalarFieldEnum]
+
+
+export const OrderMessageScalarFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  authorParty: 'authorParty',
+  authorUserId: 'authorUserId',
+  body: 'body',
+  clientMessageId: 'clientMessageId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrderMessageScalarFieldEnum = (typeof OrderMessageScalarFieldEnum)[keyof typeof OrderMessageScalarFieldEnum]
+
+
+export const MessageReportScalarFieldEnum = {
+  id: 'id',
+  threadKind: 'threadKind',
+  messageId: 'messageId',
+  threadId: 'threadId',
+  reporterUserId: 'reporterUserId',
+  reporterParty: 'reporterParty',
+  reason: 'reason',
+  note: 'note',
+  status: 'status',
+  reviewedByUserId: 'reviewedByUserId',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MessageReportScalarFieldEnum = (typeof MessageReportScalarFieldEnum)[keyof typeof MessageReportScalarFieldEnum]
 
 
 export const RfqQuoteScalarFieldEnum = {
@@ -9020,6 +9077,15 @@ export const NotificationSettingOrderByRelevanceFieldEnum = {
 } as const
 
 export type NotificationSettingOrderByRelevanceFieldEnum = (typeof NotificationSettingOrderByRelevanceFieldEnum)[keyof typeof NotificationSettingOrderByRelevanceFieldEnum]
+
+
+export const NotificationPreferenceOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  family: 'family'
+} as const
+
+export type NotificationPreferenceOrderByRelevanceFieldEnum = (typeof NotificationPreferenceOrderByRelevanceFieldEnum)[keyof typeof NotificationPreferenceOrderByRelevanceFieldEnum]
 
 
 export const MediaAssetOrderByRelevanceFieldEnum = {
@@ -10283,7 +10349,11 @@ export const ProductReviewOrderByRelevanceFieldEnum = {
   customerProfileId: 'customerProfileId',
   orderId: 'orderId',
   moderationReason: 'moderationReason',
-  moderatedByUserId: 'moderatedByUserId'
+  moderatedByUserId: 'moderatedByUserId',
+  sellerAccountId: 'sellerAccountId',
+  sellerResponse: 'sellerResponse',
+  sellerResponseByUserId: 'sellerResponseByUserId',
+  sellerResponseHiddenReason: 'sellerResponseHiddenReason'
 } as const
 
 export type ProductReviewOrderByRelevanceFieldEnum = (typeof ProductReviewOrderByRelevanceFieldEnum)[keyof typeof ProductReviewOrderByRelevanceFieldEnum]
@@ -13887,10 +13957,36 @@ export const RfqMessageOrderByRelevanceFieldEnum = {
   sellerAccountId: 'sellerAccountId',
   authorUserId: 'authorUserId',
   body: 'body',
-  clientMessageId: 'clientMessageId'
+  clientMessageId: 'clientMessageId',
+  attachmentId: 'attachmentId'
 } as const
 
 export type RfqMessageOrderByRelevanceFieldEnum = (typeof RfqMessageOrderByRelevanceFieldEnum)[keyof typeof RfqMessageOrderByRelevanceFieldEnum]
+
+
+export const OrderMessageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  authorUserId: 'authorUserId',
+  body: 'body',
+  clientMessageId: 'clientMessageId'
+} as const
+
+export type OrderMessageOrderByRelevanceFieldEnum = (typeof OrderMessageOrderByRelevanceFieldEnum)[keyof typeof OrderMessageOrderByRelevanceFieldEnum]
+
+
+export const MessageReportOrderByRelevanceFieldEnum = {
+  id: 'id',
+  messageId: 'messageId',
+  threadId: 'threadId',
+  reporterUserId: 'reporterUserId',
+  reporterParty: 'reporterParty',
+  note: 'note',
+  reviewedByUserId: 'reviewedByUserId',
+  reviewNote: 'reviewNote'
+} as const
+
+export type MessageReportOrderByRelevanceFieldEnum = (typeof MessageReportOrderByRelevanceFieldEnum)[keyof typeof MessageReportOrderByRelevanceFieldEnum]
 
 
 export const RfqQuoteOrderByRelevanceFieldEnum = {

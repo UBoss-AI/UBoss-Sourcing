@@ -307,6 +307,7 @@ const LISTED_NOT_NEEDED_GROUPS: Array<{ reason: string; routes: string[] }> = [
       'admin/disputes/:id/assignment', 'admin/disputes/:id/decision/refuse', 'admin/disputes/:id/review',
       'admin/platform-fee-rules/:id/retire', 'admin/platform-fees/:id/retire',
       'admin/platform-fees/:id/verify-tax', 'admin/product-reviews/:reviewId/moderation',
+      'admin/product-reviews/:reviewId/response/moderation',
       'admin/returns/:id/instructions', 'admin/returns/:id/labels', 'admin/sellers/:id/screening',
       'admin/support-tickets/:id/assignment', 'admin/logistics/partners/:id/verification',
       'admin/logistics/managed-levels/rates/:rateId/publish-price', 'admin/preorder-chats/:id/preorder',

@@ -70,6 +70,9 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   // Their reviews of products they received - four scores, and whether staff
   // hid them and why. Published under their name, so disclosed in full.
   ProductReview: 'productReviews',
+  // The notification families they switched off, per channel. Their own
+  // choices, so disclosed in full.
+  NotificationPreference: 'notificationPreferences',
   // Support requests they sent, and the thread they were shown. The event
   // table is caught by `actorUserId`; its requester-visible rows are disclosed
   // inside each request, and staff's internal notes go under `internalNotes`.

@@ -225,6 +225,16 @@ model User {
   /// this owner recorded about others. See StaffAccessReview.
   staffAccessReviewsReceived StaffAccessReview[] @relation("StaffAccessReviewSubject")
   staffAccessReviewsGiven    StaffAccessReview[] @relation("StaffAccessReviewReviewer")
+
+  /// Messages this person reported as abusive, and the reports they decided as
+  /// staff. See MESSAGE REPORTS.
+  messageReportsFiled    MessageReport[] @relation("MessageReportReporter")
+  messageReportsReviewed MessageReport[] @relation("MessageReportReviewer")
+  /// The notification families and channels this person switched off. See
+  /// NotificationPreference.
+  notificationPreferences NotificationPreference[]
+  /// Answers this seller member wrote under a buyer's review.
+  productReviewResponses ProductReview[] @relation("ProductReviewResponder")
   @@index([type, status], map: "ix_user_type_status")
   @@index([createdAt], map: "ix_user_created_at")
   /// Created by 20260909233000_account_profile_contact_change_and_wishlist and
@@ -834,6 +844,31 @@ model NotificationSetting {
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
   @@map("notification_settings")
+}
+
+/// One notification family switched off on one channel, by one person.
+///
+/// A row means "do not send me these this way"; no row means the default,
+/// which is on. Families are fixed in code (`notification-preferences.ts`).
+/// Security and transaction families are mandatory: the code refuses to store
+/// a mute for them and ignores one if it were ever written, because a
+/// password-reset or a payment receipt that a setting swallowed is a support
+/// case and sometimes a legal one.
+model NotificationPreference {
+  id      String              @id @db.Char(26)
+  userId  String              @db.Char(26)
+  /// e.g. shipments, quotes, scheduled, disputes, inspection, reviews.
+  family  String              @db.VarChar(32)
+  channel NotificationChannel
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  /// Cascade: erasing a person takes their choices with them.
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_notification_preference_user")
+
+  @@unique([userId, family, channel], map: "uq_notification_preference")
+  @@map("notification_preferences")
 }
 
 // ===========================================================================
@@ -4916,6 +4951,9 @@ model NotificationOutbox {
   createdAt DateTime  @default(now()) @db.DateTime(3)
   updatedAt DateTime  @updatedAt @db.DateTime(3)
   sentAt    DateTime? @db.DateTime(3)
+  /// When the recipient opened it in their notification centre. A row is one
+  /// recipient, so this is that person's own read mark. Null = unread.
+  readAt    DateTime? @db.DateTime(3)
 
   deliveries NotificationDelivery[]
 
@@ -7452,6 +7490,20 @@ model ProductReview {
   moderatedByUserId String?   @db.Char(26)
   moderatedAt       DateTime? @db.DateTime(3)
 
+  /// Whose goods the qualifying order line was - the seller this review counts
+  /// towards. Null for the marketplace's own stock. Taken from the order line
+  /// at write time, never from who sells the product today.
+  sellerAccountId String? @db.Char(26)
+
+  /// The seller's public answer, written once and edited in place, at most
+  /// 1000 characters. Shown under the review while PUBLISHED; staff can hide it
+  /// (HIDDEN, with a reason the seller is shown) without touching the scores.
+  sellerResponse             String?              @db.VarChar(1000)
+  sellerResponseStatus       ProductReviewStatus?
+  sellerResponseAt           DateTime?            @db.DateTime(3)
+  sellerResponseByUserId     String?              @db.Char(26)
+  sellerResponseHiddenReason String?              @db.VarChar(500)
+
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
@@ -7461,12 +7513,16 @@ model ProductReview {
   customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade, map: "fk_product_review_customer")
   order           Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull, map: "fk_product_review_order")
   moderatedBy     User?           @relation("ProductReviewModerator", fields: [moderatedByUserId], references: [id], onDelete: SetNull, map: "fk_product_review_moderator")
+  sellerAccount   SellerAccount?  @relation(fields: [sellerAccountId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_product_review_seller")
+  responder       User?           @relation("ProductReviewResponder", fields: [sellerResponseByUserId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_product_review_responder")
 
   @@unique([customerProfileId, productId], map: "uq_product_review")
   @@index([productId, status, createdAt], map: "ix_product_review_product")
   @@index([status, createdAt], map: "ix_product_review_status")
   @@index([orderId], map: "ix_product_review_order")
   @@index([moderatedByUserId], map: "ix_product_review_moderator")
+  @@index([sellerAccountId, status], map: "ix_product_review_seller")
+  @@index([sellerResponseByUserId], map: "ix_product_review_responder")
   @@map("product_reviews")
 }
 
@@ -9847,6 +9903,8 @@ model SellerAccount {
   screeningChecks       SellerScreeningCheck[]
   profileChangeRequests SellerProfileChangeRequest[]
   listingTrust          SellerListingTrust[]
+  /// Reviews of goods this seller sold - the source of its seller score.
+  productReviews        ProductReview[]
   @@index([status, createdAt], map: "ix_seller_status")
   @@index([registrationCountry], map: "ix_seller_country")
   @@map("seller_accounts")
@@ -11710,6 +11768,8 @@ model SellerOrderGroup {
   /// The export and trade documents for this part of the order.
   tradeDocuments       OrderTradeDocument[]
   complianceOverride   TradeComplianceOverride?
+  /// The buyer's and this seller's messages about this part of the order.
+  messages             OrderMessage[]
   @@unique([sellerAccountId, sellerOrderNumber], map: "uq_seller_order_number")
   @@unique([orderId, sellerAccountId], map: "uq_seller_order_group")
   @@index([sellerAccountId, status, createdAt], map: "ix_seller_order_group_status")
@@ -12184,6 +12244,8 @@ enum SellerNotificationKind {
   /// Something moved on a request this seller is quoting on: the requirement
   /// changed, the buyer asked or answered, countered, accepted or closed it.
   RFQ_UPDATE
+  /// The buyer wrote in the order's message thread (JOURNEY-055).
+  ORDER_MESSAGE
 }
 
 /// An in-app notification for a seller organisation.
@@ -24316,6 +24378,9 @@ model RfqAttachment {
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
   rfq RfqRequest @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_attachment_rfq")
+  /// Messages that point at this file. A seller may download a buyer's file a
+  /// message in its own thread points at, even before an offer carries it.
+  messages RfqMessage[]
 
   @@index([rfqId, purpose, createdAt], map: "ix_rfq_attachment_rfq")
   @@index([rfqId, sellerAccountId], map: "ix_rfq_attachment_seller")
@@ -24365,15 +24430,112 @@ model RfqMessage {
   /// the first one rather than writing a second (NULLs are distinct, so a
   /// message sent without one is never deduplicated).
   clientMessageId String?  @db.VarChar(64)
+  /// One file already uploaded to this request, which the message points at.
+  /// Must belong to this thread or be a published requirement file. SET NULL:
+  /// a removed file leaves the message standing.
+  attachmentId    String?  @db.Char(26)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
-  rfq RfqRequest @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_message_rfq")
+  rfq        RfqRequest     @relation(fields: [rfqId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_rfq_message_rfq")
+  attachment RfqAttachment? @relation(fields: [attachmentId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_rfq_message_attachment")
 
   @@unique([rfqId, sellerAccountId, clientMessageId], map: "uq_rfq_message_client")
   @@index([rfqId, sellerAccountId, id], map: "ix_rfq_message_thread")
+  @@index([attachmentId], map: "ix_rfq_message_attachment")
   @@map("rfq_messages")
+}
+
+// ---------------------------------------------------------------------------
+// ORDER MESSAGES AND MESSAGE REPORTS (checklist JOURNEY-055)
+// ---------------------------------------------------------------------------
+
+enum OrderMessageParty {
+  BUYER
+  SELLER
+}
+
+/// A message between the buyer and one seller about that seller's part of an
+/// order. One thread per seller order group, so a seller only ever sees the
+/// thread about its own goods and never another seller's. Kept as long as the
+/// order is.
+model OrderMessage {
+  id                 String            @id @db.Char(26)
+  sellerOrderGroupId String            @db.Char(26)
+  authorParty        OrderMessageParty
+  authorUserId       String            @db.Char(26)
+  body               String            @db.Text
+  /// The sender's own id for this message: a resend finds the first one.
+  clientMessageId    String?           @db.VarChar(64)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  sellerOrderGroup SellerOrderGroup @relation(fields: [sellerOrderGroupId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_order_message_group")
+
+  @@unique([sellerOrderGroupId, clientMessageId], map: "uq_order_message_client")
+  @@index([sellerOrderGroupId, id], map: "ix_order_message_thread")
+  @@map("order_messages")
+}
+
+/// Which conversation a reported message is in.
+enum MessageThreadKind {
+  PREORDER_CHAT
+  RFQ
+  ORDER
+}
+
+enum MessageReportReason {
+  SPAM
+  ABUSE
+  FRAUD
+  PERSONAL_DATA
+  OFF_PLATFORM
+  OTHER
+}
+
+enum MessageReportStatus {
+  /// Waiting for staff.
+  OPEN
+  /// Staff agreed and acted through the normal controls.
+  ACTIONED
+  /// Staff found nothing wrong. Kept.
+  DISMISSED
+}
+
+/// A buyer or a seller saying "this message is abusive". One per person per
+/// message. Never deletes or hides anything by itself: staff decide, with a
+/// note, and both the report and the decision are in the audit log.
+model MessageReport {
+  id         String            @id @db.Char(26)
+  threadKind MessageThreadKind
+  messageId  String            @db.Char(26)
+  /// The conversation, request or seller order group the message is in.
+  threadId   String            @db.Char(26)
+
+  reporterUserId String              @db.Char(26)
+  /// BUYER or SELLER.
+  reporterParty  String              @db.VarChar(16)
+  reason         MessageReportReason
+  note           String?             @db.VarChar(1000)
+
+  status           MessageReportStatus @default(OPEN)
+  reviewedByUserId String?             @db.Char(26)
+  reviewedAt       DateTime?           @db.DateTime(3)
+  reviewNote       String?             @db.VarChar(1000)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  reporter   User  @relation("MessageReportReporter", fields: [reporterUserId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_message_report_reporter")
+  reviewedBy User? @relation("MessageReportReviewer", fields: [reviewedByUserId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_message_report_reviewer")
+
+  @@unique([threadKind, messageId, reporterUserId], map: "uq_message_report_once")
+  @@index([status, createdAt], map: "ix_message_report_queue")
+  @@index([reporterUserId], map: "ix_message_report_reporter")
+  @@index([reviewedByUserId], map: "ix_message_report_reviewer")
+  @@map("message_reports")
 }
 
 enum RfqQuoteStatus {

@@ -32,6 +32,8 @@ export const messageBodySchema = z
       .regex(/^[A-Za-z0-9_-]{8,64}$/)
       .nullable()
       .default(null),
+    /** One file already uploaded to this request for this thread, which the message points at. */
+    attachmentId: z.string().length(26).nullable().default(null),
   })
   .strict();
 
@@ -43,14 +45,33 @@ export interface RfqMessageView {
   body: string;
   mine: boolean;
   at: string;
+  /** The file the message points at, downloaded through the request's own attachment route. */
+  attachment: { id: string; fileName: string; contentType: string; byteSize: number } | null;
 }
 
+const MESSAGE_INCLUDE = {
+  attachment: { select: { id: true, fileName: true, contentType: true, byteSize: true } },
+} as const;
+
 function view(
-  row: { id: string; authorParty: string; body: string; createdAt: Date },
+  row: {
+    id: string;
+    authorParty: string;
+    body: string;
+    createdAt: Date;
+    attachment?: { id: string; fileName: string; contentType: string; byteSize: number } | null;
+  },
   reader: 'BUYER' | 'SUPPLIER',
 ): RfqMessageView {
   const from = row.authorParty === 'SUPPLIER' ? 'SUPPLIER' : 'BUYER';
-  return { id: row.id, from, body: row.body, mine: from === reader, at: row.createdAt.toISOString() };
+  return {
+    id: row.id,
+    from,
+    body: row.body,
+    mine: from === reader,
+    at: row.createdAt.toISOString(),
+    attachment: row.attachment ?? null,
+  };
 }
 
 /** The thread with one seller, oldest first; only what follows `after` when given. */
@@ -64,6 +85,7 @@ export async function listThread(
     where: { rfqId, sellerAccountId, ...(after === undefined ? {} : { id: { gt: after } }) },
     orderBy: { id: 'asc' },
     take: 500,
+    include: MESSAGE_INCLUDE,
   });
   return rows.map((row) => view(row, reader));
 }
@@ -100,8 +122,34 @@ export async function postMessage(input: {
           clientMessageId: input.body.clientMessageId,
         },
       },
+      include: MESSAGE_INCLUDE,
     });
     if (existing !== null) return view(existing, input.party);
+  }
+
+  /*
+   * A file the message points at (JOURNEY-055). It must already be on this
+   * request and belong to this thread: the writer's own quote, negotiation or
+   * sample upload for this seller, or a published requirement file. A file
+   * from another seller's thread is not found, whatever id is sent.
+   */
+  if (input.body.attachmentId !== null) {
+    const file = await prisma.rfqAttachment.findFirst({
+      where: {
+        id: input.body.attachmentId,
+        rfqId: input.rfq.id,
+        OR: [
+          { purpose: 'REQUIREMENT', requirementVersion: { not: null } },
+          {
+            purpose: { in: ['QUOTE', 'NEGOTIATION', 'SAMPLE'] },
+            sellerAccountId: input.sellerAccountId,
+            uploadedByParty: input.party,
+          },
+        ],
+      },
+      select: { id: true },
+    });
+    if (file === null) rfqNotFound();
   }
 
   const id = newId();
@@ -116,6 +164,7 @@ export async function postMessage(input: {
           authorUserId: input.userId,
           body: input.body.body,
           clientMessageId: input.body.clientMessageId,
+          attachmentId: input.body.attachmentId,
         },
       ],
       skipDuplicates: true,
@@ -170,7 +219,7 @@ export async function postMessage(input: {
   await dispatchPendingNotifications();
 
   const row =
-    (await prisma.rfqMessage.findUnique({ where: { id } })) ??
+    (await prisma.rfqMessage.findUnique({ where: { id }, include: MESSAGE_INCLUDE })) ??
     (input.body.clientMessageId === null
       ? null
       : await prisma.rfqMessage.findUnique({
@@ -181,6 +230,7 @@ export async function postMessage(input: {
               clientMessageId: input.body.clientMessageId,
             },
           },
+          include: MESSAGE_INCLUDE,
         }));
   if (row === null) rfqNotFound();
   return view(row, input.party);

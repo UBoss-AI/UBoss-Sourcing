@@ -1546,10 +1546,35 @@ all absent (`BUYER_COMPANIES_DISABLED`).
   7. Hiding and showing are audited (`product_review.hidden`,
      `product_review.published`). Reviews are in the Art. 15 export
      (`productReviews`) and deleted on erasure.
+  8. **Verified transaction, and whose (JOURNEY-059).** A review counts
+     towards the seller of the delivered order line it rests on
+     (`product_reviews.sellerAccountId`, taken from the line at write time);
+     the marketplace's own stock has none.
+  9. **Product score versus seller score.** The product's rating is the four
+     scores of its reviews. A seller's **service score** is the mean of the
+     delivery and support scores across every published review of goods it
+     sold, with the count; it is shown on the supplier profile and on the
+     product's "sold by" panel. Neither is stored.
+  10. **Seller response.** The seller (Seller Hub → Reviews) may publish one
+      answer under a review of its own sale, up to 1000 characters, edited in
+      place, shown under the review signed with the trading name. Staff with
+      `review.moderate` can hide the answer with a reason the seller is shown,
+      without touching the review; editing a hidden answer does not republish
+      it. Audited (`product_review.responded`,
+      `product_review.response_hidden`, `product_review.response_published`).
+  11. **Anti-fraud.** A member of the selling seller's own team cannot review
+      that sale (`REVIEW_SELF_DEALING`, 403, audited as
+      `product_review.refused` and raised as a `REVIEW_SELF_DEALING` risk
+      signal). A buyer may write at most `REVIEW_MAX_PER_DAY` (default 10) new
+      reviews in 24 hours (`REVIEW_RATE_LIMITED`, 429, and a `REVIEW_VELOCITY`
+      risk signal; the risk scan also counts reviews per buyer per window).
+  12. **An inspection result is not a rating.** Inspection results (signed
+      reports, passed and failed, last twelve months) are shown beside the
+      ratings in their own box and are never averaged into any score.
 - **Status.** Built. **Behind a flag** — `FEATURE_PRODUCT_REVIEWS` (default
-  `true`); off hides every star and refuses the storefront review routes,
-  while written reviews are kept and the console screen still works.
-  **Not built:** seller replies, reviews in Seller Hub, photos on a review.
+  `true`); off hides every star and refuses the storefront and Seller Hub
+  review routes, while written reviews are kept and the console screen still
+  works. **Not built:** photos or text comments on a review.
 
 ### FR-CAT-016 — Recurring eligibility
 
@@ -2451,6 +2476,10 @@ Built. The review step has an unticked box: "I have read and agree to the Terms 
 
 **Admin dispute console (built).** `/disputes` (queue: status filter, search) and `/disputes/:id` (buyer, seller, money paid/refunded/refundable, evidence, thread; take into review, record a decision with a mandatory reason and a server preview that says when a second approver is needed, approve or send back, message buyer/seller/both, internal notes). Needs `dispute.view`; each action follows the case's `can` block.
 
+**Dispute console case view (JOURNEY-058, built).** The case page shows every file as an **evidence timeline** (oldest first, who sent it, when, its size) with a single-use download link per file, and staff can add their own file (an inspection report, a carrier's statement) which both parties see. A **Deadlines, authority and owner** card shows the seller-answer, decision, evidence and appeal deadlines (marked overdue when passed), the refund amount above which a second approver is needed, and an assignee picker (`/disputes/assignees`, `/disputes/:id/assignment`). A **Payment, chargeback and seller funds** card shows the payment's status and provider, an open chargeback's provider status and evidence deadline (a warning says no refund can be decided while it is open), and each seller's held funds with the hold reason. A linked **inspection report** panel shows each inspection of the order's seller parts — revision, status and result — linking to the inspection console. The decision card shows the proposed remedy, any proposal waiting for a second approver, who decided and who approved; the decision preview shows the money each seller's settlement moves. The buyer and the seller see the evidence timeline with downloads and the inspection **result** only (a signed report; buyers only once the inspection policy releases it to them), never its contents; a claim never changes an inspection result.
+
+**Seller Hub claims (JOURNEY-058, built).** `/seller/disputes` (Open / Closed / All) and `/seller/disputes/:reference`: the buyer's claim and evidence, the answer deadline, the inspection result, and the seller's actions — answer with an optional offer (full refund, partial refund, replacement), write a message, add and download evidence, and appeal a decision once inside the appeal window. Needs `seller.order.read`; open even while the seller's trading is paused, so a deadline can still be met.
+
 **Buyer claim screens (built).** Any placed, uncancelled order shows "Raise a claim about this order", opening `/account/orders/:id/claim`: the buyer picks the whole order or one line, a reason from those the operator enabled, a description (minimum length from the server), and a remedy (full refund, partial refund with an amount, or replacement). `/account/disputes` lists claims; `/account/disputes/:reference` shows status, the requested remedy, the decision and refund, evidence, and the message thread. Evidence upload, messages, escalation, withdrawal and appeal are offered only when the claim's `can` block allows them.
 
 **Buyer return screens (built).** A delivered order shows "Return items from this order", which opens `/account/orders/:id/return`: the buyer picks lines and quantities, a reason, optional details, photos (required when the operator's policy says so for that reason) and, where offered, refund or replacement. `/account/returns` lists every return and `/account/returns/:id` shows status, return instructions, the refund and the history. The screens call the existing returns API and compute nothing.
@@ -3116,10 +3145,79 @@ and has no route that reads these conversations.
 
 ### FR-PCH-011 — What preorder chat does not do
 
-- **Status.** **Not built:** machine translation of messages ("View
-  translation"); a seller participant; mobile push; message editing by the
-  sender. **By decision:** staff appear to the customer as "the {marketplace} team",
-  never by name.
+- **Status.** **Not built:** a seller participant; mobile push; message
+  editing by the sender. Translation is now an optional "Translate" action
+  (FR-MSG-004, off by default). **By decision:** staff appear to the customer
+  as "the {marketplace} team", never by name.
+
+---
+
+## 5.11a-2 Message centre (MSG) — JOURNEY-055
+
+Three conversations carry messages between people: a preorder chat (buyer and
+the operator's team), an RFQ thread (buyer and one invited seller) and, new, an
+**order thread** (buyer and one seller about that seller's part of an order).
+`/account/messages` reaches all three.
+
+### FR-MSG-001 — Order threads
+
+- **Statement.** On an order, the buyer can write to each seller of it, and the
+  seller answers from the order in Seller Hub. The message centre has an
+  **Order messages** tab listing threads with any message, most recent first.
+- **Rules.** One thread per seller order group (`order_messages`); a seller sees
+  only its own and another buyer or seller gets "not found". Plain text, up to
+  4000 characters; a resend with the same `clientMessageId` is one message. The
+  seller is told in Seller Hub (`ORDER_MESSAGE`), the buyer by the
+  `order.message` email, each at most once an hour per thread. Marketplace-own
+  stock has no seller thread; the buyer uses support.
+- **Status.** Built.
+
+### FR-MSG-002 — Files on RFQ messages
+
+- **Statement.** An RFQ message may point at one file already uploaded to that
+  request.
+- **Rules.** The file must belong to that seller's thread (the writer's own
+  quote, negotiation or sample upload) or be a published requirement file; a
+  file from another seller's thread is "not found". A seller may download a
+  buyer's file once a message in its own thread points at it. Preorder chats
+  keep their own attachment rules.
+- **Status.** Built.
+
+### FR-MSG-003 — Report a message
+
+- **Statement.** A buyer or a seller can **Report** a message written by the
+  other side — in an order thread, an RFQ thread or (buyers) a preorder chat —
+  giving a reason (spam, abuse, fraud, personal data, asked to deal off the
+  platform, other) and an optional note.
+- **Rules.** One report per person per message (a repeat returns the first);
+  your own message cannot be reported (`MESSAGE_REPORT_OWN_MESSAGE`); a message
+  you cannot read is "not found". A report rings the staff bell as an ALERT
+  (`message.reported`, `review.read`) and is audited (`message.reported`).
+  Nothing is hidden by a report: staff with `review.moderate` decide it in
+  **Message reports** (`/message-reports`) — ACTIONED or DISMISSED, with a note
+  (audited, `message_report.decided`) — which closes the bell, and act through
+  the existing controls (redacting a chat message, suspending an account).
+- **Status.** Built.
+
+### FR-MSG-004 — Translate a message (optional)
+
+- **Statement.** Under a message from the other side, **Translate** shows it in
+  the reader's language, with "Show original".
+- **Rules.** Off by default (`FEATURE_MESSAGE_TRANSLATION`), and offered only
+  while the operator has stored a DeepL key under Settings → Catalogue
+  translation — the same key, no other provider. Nothing is stored. Off, or with
+  no key, the API refuses with `MESSAGE_TRANSLATION_UNAVAILABLE`.
+- **Status.** Built, **behind a flag** (default off).
+
+### FR-MSG-005 — Sensitive-data warning
+
+- **Statement.** Above every order and RFQ composer, a standing warning: never
+  send bank details, passwords or card numbers, and never pay outside the
+  marketplace. Typing something that looks like an email address, a telephone
+  number, an IBAN or a card number shows a stronger warning before sending.
+- **Rules.** A warning only: nothing is blocked, scanned on the server or
+  rewritten — a message is the sender's own words.
+- **Status.** Built.
 
 ---
 
@@ -3631,7 +3729,7 @@ selling involves) is public.
 - **Statement.** A seller has its own bell. Decisions and acceptances are
   **news**; a refusal and a lapsed carrier offer are **alerts** that stay until
   the parcel has somebody.
-- **Rules.** `seller_notifications` separates read (per person), active (per business) and resolved (kept, with what closed it). Deduplication is a UNIQUE index.
+- **Rules.** `seller_notifications` separates read (per person), active (per business) and resolved (kept, with what closed it). Deduplication is a UNIQUE index. Each row carries a **priority** (HIGH for a warning or critical severity) and its in-app link. A member can switch off Seller Hub families for their own feed only (listings and brands, low stock, carriers and delivery, ERP, preorders, quotes, buyer messages, inspection); the essential family — application, security, payouts, new orders, claims, dispatch deadlines, expiring documents — and any ALERT still open are always shown (JOURNEY-056).
 - **Status.** Built.
 
 ### FR-SEL-015 — Seller audit history and activity
@@ -4367,11 +4465,44 @@ The marketplace's staff (`logistics.read`) see every document on a consignment o
 - **Rules.** Notifications are written to `notification_outbox` **after the business record commits** (in the same transaction), deduplicated by `unique(dedupeKey)`, and sent by the worker; a safety net re-dispatches rows stranded by a crash. `EMAIL_DRIVER=smtp` sends; `log` prints to the worker (development only; refused in production). Sender name and address are settings.
 - **Status.** Built.
 
-### FR-NOT-002 — The buyer's notification record
+### FR-NOT-002 — The buyer's notification centre (JOURNEY-056)
 
 - **Statement.** A buyer sees at `/account/notifications` what was **sent** to
-  them, grouped by family.
-- **Rules.** No body (emails carry single-use links), no read state, no preferences.
+  them, newest first, with an **unread** mark, a **priority** ("Important" for
+  what needs acting on now), and a **link to the thing itself** — the order,
+  the claim, the request. They can mark one or all as read, show unread only,
+  and choose, per family of notification, whether it reaches them by **email**,
+  **text message** or **on this page**.
+- **Rules.**
+  1. Unread is the recipient's own mark (`notification_outbox.readAt`; one
+     outbox row is one recipient). Opening the page marks nothing; opening a
+     row or "Mark all as read" does.
+  2. Priority is derived from the event key, never stored: HIGH for a failed
+     payment, a new sign-in, a delivery problem, a price change waiting for
+     consent; LOW for news asked for (saved-search matches, reminders).
+  3. Families are matched on the longest key prefix (`order.message` is a
+     message, not an order confirmation). **Account security, orders, payments
+     and data rights are mandatory** and cannot be muted; the API refuses with
+     `NOTIFICATION_PREFERENCE_MANDATORY`, and the send path ignores a mute for
+     them even if one were written. A few single events are mandatory inside an
+     optional family (the delivery code, a payment the bank wants confirmed, a
+     price change, a claim decision). An unknown event is treated as mandatory.
+  4. A mute is checked in `enqueueNotification` before any row is written.
+     Email muted with this page still on records an IN_APP row, so the centre
+     still lists it; this page muted hides the family from the centre only.
+  5. **Channel mapping.** Email by the outbox and the email worker. **SMS**:
+     when the operator switched SMS on for that event and the person has not
+     muted it, an SMS row is written beside the email with its own dedupe key
+     (`<key>:sms`) and delivered through the operator's gateway (`SMS_HTTP_URL`);
+     with no gateway, or no telephone number on the account, it is SUPPRESSED
+     with the reason and never retried. **WhatsApp** has no provider and stays
+     SUPPRESSED as before. **In-app** is this page.
+  6. **Duplicate suppression.** Every row carries the caller's dedupe key, so a
+     retried business operation writes nothing new; conversations send at most
+     one notice an hour per thread.
+  7. No body is returned (emails carry single-use links). Choices are audited
+     (`notification.preferences_changed`) and in the Art. 15 export
+     (`notificationPreferences`).
 - **Status.** Built.
 
 ### FR-NOT-003 — The console bell: news versus alerts
@@ -4393,7 +4524,16 @@ The marketplace's staff (`logistics.read`) see every document on a consignment o
 
 ### FR-NOT-005 — SMS
 
-- **Status.** **Not built.** `NotificationChannel` names SMS; nothing sends it. Phone-change codes go to the verified email. Gap **M6**.
+- **Statement.** Where the operator switches SMS on for a notification (the
+  notification template screen), a text message goes beside the email to the
+  account's telephone number, through the operator's own gateway.
+- **Rules.** Delivered by the worker through `infra/sms.ts` (`SMS_HTTP_URL`,
+  `SMS_HTTP_TOKEN`, `SMS_SENDER_ID`). Its own outbox row and dedupe key; a
+  person can mute it per family. No gateway or no number: SUPPRESSED with the
+  reason, never faked as sent. Phone-change codes still go to the verified
+  email.
+- **Status.** Built, **off until configured** (no gateway and no event with SMS
+  switched on by default).
 
 ### FR-NOT-006 — Dead background jobs and undeliverable emails
 
@@ -6044,6 +6184,7 @@ Remove-Item Env:\DATABASE_URL
 | `PREORDER_OPEN_TO_ALL` | `true` | Preorders on every product (platform default terms; staff answer the operator's own) |
 | `FEATURE_PREORDER_CHAT` | `true` | **Chat with {marketplace}** on product pages and the **Preorder Chats** inbox (FR-PCH). Tuning: `REALTIME_BUS_DRIVER` (`memory`; `database` for several API processes), `PREORDER_CHAT_TYPICAL_RESPONSE`, `OPERATOR_TEAM_NAME` (the operator team's name in chat and delivery levels; empty = the marketplace name), `PREORDER_CHAT_SLA_MINUTES` (240), `PREORDER_CHAT_EMAIL_DELAY_MINUTES` (10), `PREORDER_CHAT_MESSAGES_PER_MINUTE` (20), `PREORDER_CHAT_CONVERSATIONS_PER_HOUR` (10), `PREORDER_CHAT_MAX_MESSAGE_CHARS` (4000), `PREORDER_CHAT_ATTACHMENTS_ENABLED` (`true`), `PREORDER_CHAT_ATTACHMENT_MAX_BYTES` (10 MB), `PREORDER_CHAT_ALLOW_UNSCANNED_ATTACHMENTS` (`false`, refused in production), `PREORDER_CHAT_RETENTION_DAYS` (0 = keep) |
 | `FEATURE_PRODUCT_REVIEWS` | `true` | **Product reviews** (FR-CAT-018): stars on cards and product pages, the review form, **Rate this product** on delivered orders and **Account → My reviews**. Reported as `features.productReviews` in the public config. Off refuses the storefront review routes; the console screen stays |
+| `FEATURE_MESSAGE_TRANSLATION` | `false` | **Translate a message** (FR-MSG-004): a "Translate" action under messages in order, RFQ and preorder-chat threads, using the DeepL key stored under Settings → Catalogue translation (no other provider). Reported as `features.messageTranslation` (true only while a key is stored). Off refuses the translate routes with `MESSAGE_TRANSLATION_UNAVAILABLE`; nothing translated is ever stored |
 | `FEATURE_RFQ` | `true` | **Requests for quotation** (§5.11b): the account's RFQ pages, "Request quotes" on category and product pages, and the Seller Hub inbox. Reported as `features.rfq`. Off refuses every RFQ route with `404 FEATURE_DISABLED` on both sides; nothing is deleted. Tuning: `RFQ_MAX_RESPONSE_DAYS` (90), `RFQ_MAX_MATCHED_SUPPLIERS` (25), `RFQ_MAX_INVITED_SUPPLIERS` (50), `RFQ_ATTACHMENT_MAX_BYTES` (10 MB), `RFQ_ATTACHMENTS_PER_RFQ` (40), `RFQ_ALLOW_UNSCANNED_ATTACHMENTS` (`false`; refused in production) |
 | `FEATURE_SUPPORT_TICKETS` | `true` | **Support tickets** (§5.19a): the **Raise a ticket** form on the Support page in the storefront, Seller Hub and the portal. Reported as `features.supportTickets` in the public config. Off shows only the published contacts and refuses new tickets with `403 FEATURE_DISABLED`; existing tickets stay readable, senders can still reply and add files, and the console inbox keeps working. Settings in §10.12 |
 | `PAYMENT_MOCK_SUCCESS` | `false` | Development-only "Mark this order as paid" test path |
@@ -6248,7 +6389,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 | **Unsplash** | Demo catalogue photographs | Optional | `UNSPLASH_ACCESS_KEY` | Built |
 | **Payout provider** (Stripe Connect or similar) | Pay sellers | — | — | **Not built** (`PROVIDER_UNCONFIGURED`). The operator is merchant of record; Stripe Connect's fund-splitting charge types are not supported for India-registered platforms |
 | **Peppol / SdI / KSeF / IRP** | E-invoicing transport and registration | — | — | **Not built** (UBL document is produced; transport is not) |
-| **SMS provider** | SMS notifications | — | — | **Not built** |
+| **SMS provider** | SMS notifications and phone-change links | Optional | `SMS_HTTP_URL`, `SMS_HTTP_TOKEN`, `SMS_SENDER_ID` | Built (any HTTPS gateway; notifications go only for events the operator switched SMS on for) |
 | **Google sign-in** | People's OAuth sign-in | — | — | **Not built** |
 
 ---

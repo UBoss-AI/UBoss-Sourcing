@@ -1462,6 +1462,19 @@ reason the buyer is shown).
   are grouped on read over `ix_product_review_product (productId, status,
   createdAt)`, so an edit, a hide or an erasure is reflected at once. Added in
   `20261005090000_product_reviews`.
+- **Seller score and seller response (JOURNEY-059).** `sellerAccountId`
+  (nullable, `SetNull`, `ON UPDATE RESTRICT`) is the seller of the qualifying
+  order line, taken at write time from `order_items.sellerOfferId`; NULL for
+  the marketplace's own stock. A seller's service score (delivery and support)
+  is grouped on read over `ix_product_review_seller (sellerAccountId, status)`;
+  nothing is stored. `sellerResponse` (1000 characters),
+  `sellerResponseStatus` (`PUBLISHED` or `HIDDEN`, NULL while unanswered),
+  `sellerResponseAt`, `sellerResponseByUserId` (`SetNull`) and
+  `sellerResponseHiddenReason` hold the seller's public answer and whether
+  staff hid it; hiding it never changes the review's own `status`. Existing
+  reviews were back-filled from their order line in
+  `20261101200000_messages_notifications_reviews`, which also adds the risk
+  rules `REVIEW_VELOCITY` and `REVIEW_SELF_DEALING` with placeholder values.
 - `cart_items.note` (500 characters) is the instruction for **one product**;
   it is copied to `order_items.noteSnapshot` because the basket is emptied the
   moment the order commits. `orders.customerNote` is for the whole delivery.
@@ -5705,6 +5718,42 @@ re-verification required, restored, document refused) go through
 `BUYER_COMPANY_RESPONDED`. There is no storefront bell table; the buyer's
 notifications page reads what the outbox sent.
 
+**The buyer's notification centre (JOURNEY-056).**
+
+- `notification_outbox.readAt` (nullable) is the recipient's own read mark.
+  One outbox row is one recipient, so a column is enough; NULL means unread.
+  Only rows with status SENT and channel EMAIL or IN_APP are listed.
+- `notification_outbox` now also carries **SMS rows**: when an event's
+  `smsEnabled` is on and the recipient has not muted it, a second row with
+  `channel = SMS`, `recipientPhone` from the account and the dedupe key
+  `<key>:sms` is written beside the email. With no gateway configured or no
+  number, it is written SUPPRESSED with the reason in `lastError`.
+- `notification_preferences` — one row per person per family per channel
+  they switched off (`uq_notification_preference (userId, family, channel)`).
+  No row means on. Families are fixed in code
+  (`modules/notifications/notification-preferences.ts`); the mandatory ones
+  (account security, orders, payments, data rights) are never stored. Seller
+  Hub families are keyed `seller.<name>` on the IN_APP channel and filter only
+  that member's own feed. Cascade on the user. In the Art. 15 export
+  (`notificationPreferences`). Migration
+  `20261101200000_messages_notifications_reviews`.
+
+**Message centre (JOURNEY-055).**
+
+- `order_messages` — a message between the buyer and one seller about that
+  seller's part of an order, keyed on `sellerOrderGroupId` (cascade with the
+  group). `UNIQUE (sellerOrderGroupId, clientMessageId)` makes a resend find
+  the first message. `authorParty` is BUYER or SELLER.
+- `message_reports` — "report this message": `threadKind` (PREORDER_CHAT, RFQ,
+  ORDER), `messageId`, `threadId`, the reporter and their party, a `reason`, an
+  optional note, and staff's decision (`status` OPEN, ACTIONED or DISMISSED,
+  `reviewedByUserId`, `reviewedAt`, `reviewNote`). `UNIQUE (threadKind,
+  messageId, reporterUserId)`: one report per person per message. The reported
+  words are not copied. Cascade on the reporter, SET NULL on the reviewer.
+- `rfq_messages.attachmentId` (nullable, SET NULL) points at one file already on
+  the request.
+- `seller_notifications.kind` gains `ORDER_MESSAGE`.
+
 ---
 
 ## 7. Migrations
@@ -6115,7 +6164,7 @@ The tables from `20261016800100_transaction_ledger_and_payouts` are now written 
 
 Migration `20261030110000_risk_signals` adds two tables.
 
-- `risk_rules` - one row per rule, keyed by `code` (for example `LOGIN_FAILURES`): `enabled`, `severity` (LOW, MEDIUM, HIGH, CRITICAL), `threshold`, `windowMinutes`, and for value rules `thresholdMinor` (BIGINT minor units) with `currency`. `approvedForProduction` is false until the business approves the values; `version` is the optimistic lock for edits. The migration inserts ten rules with placeholder values.
+- `risk_rules` - one row per rule, keyed by `code` (for example `LOGIN_FAILURES`): `enabled`, `severity` (LOW, MEDIUM, HIGH, CRITICAL), `threshold`, `windowMinutes`, and for value rules `thresholdMinor` (BIGINT minor units) with `currency`. `approvedForProduction` is false until the business approves the values; `version` is the optimistic lock for edits. The migration inserts ten rules with placeholder values; `20261101200000_messages_notifications_reviews` adds `REVIEW_VELOCITY` (reviews by one buyer in the window) and `REVIEW_SELF_DEALING` (a seller's own team trying to review its sale, raised at the moment it is refused).
 - `risk_signals` - one row per pattern found: `ruleCode`, `severity`, `subjectType` and `subjectId` (a user, a buyer profile, a seller identifier fingerprint, an evidence file or hash), `observed` against `threshold`, `facts` (JSON: the records behind it; tax numbers only as fingerprint plus last four characters), and the review: `status` (OPEN, CONFIRMED, FALSE_POSITIVE), `reviewedById`, `reviewedAt`, `reviewReason`. `dedupeKey` is unique (`uq_risk_signal_dedupe`): rule, subject and time bucket, or a fingerprint of the group for standing patterns, so a rescan inserts nothing new. Indexed by `(status, detectedAt)` for the queue and `(subjectType, subjectId)`.
 
 Neither table has a foreign key: a signal must survive the record it is about, and the subject may be a fingerprint rather than a row. Reviews and rule changes are written to `audit_logs`.

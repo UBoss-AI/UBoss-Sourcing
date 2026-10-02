@@ -42,7 +42,8 @@ console and a carrier portal — all on one Fastify + MariaDB backend.
 | [Preorder chat](#preorder-chat) | Buyers ask your team live from the product page; the Preorder Chats inbox; proposals into the preorder form |
 | [Individual and company buyers](#individual-and-company-buyers) | Buying as yourself or for a verified company; the application, the registry checks and the Company verification review console |
 | [The individual purchase limit (B2C Maximum Order Quantity)](#the-individual-purchase-limit-b2c-maximum-order-quantity) | The most units one Individual buyer may buy of a seller's product in one order; approved companies are exempt |
-| [Product reviews](#product-reviews) | Buyers who received a product score quality, delivery, experience and support; stars on every card; hiding a review with a reason |
+| [Product reviews](#product-reviews) | Buyers who received a product score quality, delivery, experience and support; stars on every card; seller service scores and answers; hiding a review with a reason |
+| [Message and notification centre](#message-and-notification-centre) | Order threads with sellers, reporting a message, optional translation, unread notifications and per-channel choices |
 | [Support tickets](#support-tickets) | Buyers, sellers and carriers raise a ticket from their account; the console's Tickets inbox; private threads and files |
 | [Seller invoices and packing lists](#seller-invoices-and-packing-lists) | GST tax invoices in the seller's name, packing lists per consignment |
 | [Seller commission invoices](#seller-commission-invoices) | The marketplace's own A6 invoice to a seller for the platform fee, its credit notes, and what it will not claim about tax |
@@ -533,7 +534,11 @@ inspection faults waiting for corrective action, and certificates, holds and
 checks waiting on the seller, each linking to where it is done.
 **Performance** (`/seller/performance`) shows RFQ conversion, on-time-in-full
 delivery, returns, inspection fail rate, cancellations and claims over 30, 90
-or 365 days, each with the counts behind it.
+or 365 days, each with the counts behind it. **Claims** (`/seller/disputes`)
+answers buyers' claims before the deadline — with an offer, messages,
+evidence and an appeal — and shows the inspection result; **Reviews**
+(`/seller/reviews`) shows the seller's service score and lets it answer a
+review in public; each order has a **message thread with the buyer**.
 
 **Every order says exactly what was bought.** Each line of a seller's order
 has **Ordered product information** - the description, the specifications
@@ -1464,9 +1469,11 @@ What these do is explained in [Product reviews](#product-reviews).
 | Variable | What it does |
 |---|---|
 | `FEATURE_PRODUCT_REVIEWS` | The whole feature: the stars on product cards and product pages, the review form, **Rate this product** on a delivered order and **Account → My reviews**. Default `true`. `false` hides every star and refuses the storefront review routes; reviews already written are kept and the console's **Product reviews** screen still works |
+| `REVIEW_MAX_PER_DAY` | The most new reviews one buyer may write in 24 hours. Default `10`. Editing a review does not count. Past it the write is refused with `REVIEW_RATE_LIMITED` and staff get a `REVIEW_VELOCITY` risk signal |
+| `FEATURE_MESSAGE_TRANSLATION` | A **Translate** action under messages in order, RFQ and preorder-chat threads. Default `false`. It uses the DeepL key stored under **Settings → Catalogue translation** — the same key, no other provider — and is offered only while one is stored. Nothing translated is kept |
 
 The storefront learns whether the feature is on from `features.productReviews`
-in `GET /api/v1/config`.
+in `GET /api/v1/config` (and `features.messageTranslation` for translation).
 
 </details>
 
@@ -3065,8 +3072,9 @@ joined"*. There are no settings: it is part of `FEATURE_PREORDER_CHAT`.
 
 ### What it does not do
 
-No machine translation of messages yet, no seller in the conversation, no
-mobile push, and no editing a message once sent. Spreadsheets are not accepted
+Translation is an optional **Translate** action, off by default
+(`FEATURE_MESSAGE_TRANSLATION`). No seller in the conversation, no mobile push,
+and no editing a message once sent. Spreadsheets are not accepted
 as attachments.
 
 ---
@@ -3350,19 +3358,56 @@ is a five and a one, and an average of three says neither.
 
 | Permission | Allows | Granted to |
 |---|---|---|
-| `review.read` | Read every review, including hidden ones and who wrote them | Business Owner, Catalog Manager, Order Manager |
-| `review.moderate` | Hide a review and show it again | Business Owner, Catalog Manager |
+| `review.read` | Read every review, including hidden ones and who wrote them, and the message reports queue | Business Owner, Catalog Manager, Order Manager |
+| `review.moderate` | Hide a review or a seller's answer and show it again; decide a message report | Business Owner, Catalog Manager |
 
 ### Configuration
 
 `FEATURE_PRODUCT_REVIEWS` (default `true`) switches the storefront side on and
 off. See [Configuration](#configuration).
 
+### Sellers, scores and fraud
+
+- A review counts towards the **seller of the order line** it rests on. Each
+  seller gets a **service score** — the average of the delivery and support
+  scores across everything it sold — on its supplier profile and on the
+  product's "Sold by" panel. The product's own rating is unchanged.
+- **Seller Hub → Reviews** lists reviews of the seller's sales; the seller may
+  publish one answer under each (up to 1000 characters). Staff can hide an
+  answer with a reason, without touching the review.
+- A seller's own team cannot review that seller's sale (`REVIEW_SELF_DEALING`),
+  and a buyer may write at most `REVIEW_MAX_PER_DAY` new reviews a day
+  (`REVIEW_RATE_LIMITED`). Both raise a risk signal for the **Risk** screen.
+- **Inspection results are shown beside the ratings and never averaged into
+  them.**
+
 ### What it does not do
 
-- Sellers cannot reply to a review, and do not see reviews in Seller Hub yet.
-- There is no photo upload on a review.
-- A review is about the product, not about one seller's offer of it.
+- There is no photo upload or text comment on a review.
+
+---
+
+## Message and notification centre
+
+- **Order messages.** On an order, the buyer writes to each seller of it and
+  the seller answers from the order in Seller Hub; **Account → Messages**
+  lists the order threads beside the preorder chats. RFQ messages may point at
+  a file already on the request.
+- **Report message.** Buyers and sellers can report a message from the other
+  side; staff decide it in the console's **Message reports** screen
+  (`review.read` to read, `review.moderate` to decide). A report hides nothing
+  by itself, and both report and decision are audited.
+- **Translate** (optional, `FEATURE_MESSAGE_TRANSLATION`, off by default).
+- **A warning above every composer** not to send bank details, passwords or
+  card numbers, or to pay outside the marketplace.
+- **Notifications** (**Account → Notifications**): unread marks, an
+  "Important" badge, a link to the order or claim itself, mark all as read,
+  and choices per kind of notification for email, text message and the page.
+  Account security, orders, payments and data rights are always sent. A text
+  message goes only where you switched SMS on for that notification in the
+  console's notification templates and an SMS gateway is set (`SMS_HTTP_URL`);
+  otherwise it is recorded as not sent, with the reason. Seller Hub members can
+  mute non-essential kinds in their own feed.
 
 ---
 ## Support tickets

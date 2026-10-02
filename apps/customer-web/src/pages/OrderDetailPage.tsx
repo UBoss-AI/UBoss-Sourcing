@@ -39,6 +39,7 @@ import { PaymentProtectionCard } from '@/components/PaymentProtectionCard';
 import { OrderTracking } from '@/components/order-tracking/OrderTracking';
 import { OrderShipmentDetails } from '@/components/OrderShipmentDetails';
 import { BuyerOrderInspections } from '@/components/inspection/OrderInspections';
+import { OrderMessagesPanel } from '@/components/messages/OrderMessagesPanel';
 import { PurchaseOrderTermsCard } from '@/components/rfq/PurchaseOrderTermsCard';
 import { OrderMilestoneTimeline } from '@/components/OrderMilestoneTimeline';
 import { CheckIcon, DotIcon, HeadsetIcon, RepeatIcon } from '@/components/icons';
@@ -603,6 +604,11 @@ export function OrderDetailPage(): React.JSX.Element {
             {/* How each consignment ships, and its trade documents (Master rows 42, 56). */}
             <OrderShipmentDetails orderId={order.id} />
             <BuyerOrderInspections orderId={order.id} />
+            {/* Messages with each seller on this order (JOURNEY-055). Nothing
+                for the marketplace's own stock, which has no seller. */}
+            <div className="mt-4">
+              <OrderMessagesPanel audience="buyer" orderId={order.id} />
+            </div>
             {/* LIVE-004: the RFQ purchase order this order was made from. */}
             {order.purchaseOrder != null && (
               <div className="mt-4 space-y-2">

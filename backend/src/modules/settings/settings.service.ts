@@ -25,6 +25,7 @@ import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { listActiveCountries, listActiveCurrencies } from './currency.service.js';
 import { marketplaceNameFrom } from './marketplace-name.js';
 import { publicCaptchaConfig } from '../identity/captcha.service.js';
+import { messageTranslationAvailable } from '../messages/message-safety.service.js';
 
 export interface SettingsActor {
   userId: string;
@@ -933,6 +934,12 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
        * Seller Hub inbox; the backend refuses every RFQ route either way.
        */
       rfq: env.FEATURE_RFQ,
+      /**
+       * Whether "Translate" is offered under messages: FEATURE_MESSAGE_TRANSLATION
+       * is on and the operator has stored a DeepL key. The backend refuses
+       * the translate routes otherwise, so a stale page cannot use it.
+       */
+      messageTranslation: await messageTranslationAvailable(),
       /**
        * Whether a customer can set up Autopay at `/account/autopay`. Both
        * flags, because the standing authority needs the card enrolment that

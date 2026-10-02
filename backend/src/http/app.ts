@@ -96,6 +96,7 @@ import {
   registerAdminProductReviewRoutes,
   registerCustomerProductReviewRoutes,
   registerPublicProductReviewRoutes,
+  registerSellerProductReviewRoutes,
 } from './routes/product-reviews.js';
 import { registerSitemapRoutes } from './routes/sitemap.public.js';
 import { registerPublicDeliveryRoutes } from './routes/delivery.public.js';
@@ -162,6 +163,12 @@ import {
   registerCustomerDisputeRoutes,
   registerSellerDisputeRoutes,
 } from './routes/disputes.js';
+import {
+  registerAdminMessageReportRoutes,
+  registerCustomerMessageSafetyRoutes,
+  registerCustomerOrderMessageRoutes,
+  registerSellerMessageRoutes,
+} from './routes/messages.js';
 import { registerAdminInspectionRoutes, registerAgencyInspectionRoutes, registerBuyerInspectionRoutes, registerSellerInspectionRoutes } from './routes/inspection.js';
 import { resolveHost } from '../modules/seller/storefront.service.js';
 import type { SellerStorefront } from '../modules/seller/storefront.service.js';
@@ -660,6 +667,8 @@ export async function buildApp() {
   await app.register(registerPublicProductReviewRoutes, { prefix: `${API_PREFIX}/catalog` });
   await app.register(registerCustomerProductReviewRoutes, { prefix: `${API_PREFIX}/account` });
   await app.register(registerAdminProductReviewRoutes, { prefix: `${API_PREFIX}/admin` });
+  // A seller's reviews, service score and public answers (JOURNEY-059).
+  await app.register(registerSellerProductReviewRoutes, { prefix: `${API_PREFIX}/seller` });
   // Support requests: sent from the storefront, Seller Hub and the logistics
   // portal, answered in the console. See `support-ticket.service.ts`.
   await app.register(registerCustomerSupportRoutes, { prefix: `${API_PREFIX}/support` });
@@ -678,6 +687,13 @@ export async function buildApp() {
   await app.register(registerAdminInspectionRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerSellerDisputeRoutes, { prefix: `${API_PREFIX}/seller` });
   await app.register(registerAdminDisputeRoutes, { prefix: `${API_PREFIX}/admin` });
+  // The message centre (JOURNEY-055): order threads between a buyer and one
+  // seller, "report this message", optional translation, and the staff
+  // moderation queue. See `modules/messages/`.
+  await app.register(registerCustomerOrderMessageRoutes, { prefix: `${API_PREFIX}/orders` });
+  await app.register(registerCustomerMessageSafetyRoutes, { prefix: `${API_PREFIX}/account` });
+  await app.register(registerSellerMessageRoutes, { prefix: `${API_PREFIX}/seller` });
+  await app.register(registerAdminMessageReportRoutes, { prefix: `${API_PREFIX}/admin` });
   // The sitemap. Unauthenticated because a sitemap has to be, and it discloses
   // nothing a visitor could not find by browsing: the same products, at the
   // same addresses, under the same visibility rules the catalogue uses.

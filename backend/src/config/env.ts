@@ -1782,6 +1782,20 @@ const envSchema = z
     /// routes. Reviews already written are kept, and staff can still read and
     /// moderate them, so turning it back on loses nothing.
     FEATURE_PRODUCT_REVIEWS: booleanFromString.default(true),
+    /// The most reviews one buyer may write in 24 hours (JOURNEY-059).
+    /// Editing a review already written does not count. Past it the write is
+    /// refused with REVIEW_RATE_LIMITED and a REVIEW_VELOCITY risk signal is
+    /// raised for staff.
+    REVIEW_MAX_PER_DAY: intFromString(1, 1000).default(10),
+
+    // --- Message centre ---
+    //
+    // "Translate" under a message in an order, RFQ or preorder-chat thread
+    // (JOURNEY-055). Off by default. On, it uses the DeepL key stored under
+    // Settings -> Catalogue translation - the same key, no other provider -
+    // and is offered only while that key is stored. Nothing is kept: the
+    // translation is shown to the reader who asked and the original stays.
+    FEATURE_MESSAGE_TRANSLATION: booleanFromString.default(false),
 
     // --- Requests for quotation (RFQ) ---
     //

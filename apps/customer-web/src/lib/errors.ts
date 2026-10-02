@@ -326,6 +326,14 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
     // a page left open, or an order that was cancelled in the meantime.
     if (error.code === 'REVIEW_NOT_ELIGIBLE') return t('reviews.error.notEligible');
 
+    // Message centre (JOURNEY-055): reporting your own message, or pressing
+    // Translate after the marketplace switched it off.
+    if (error.code === 'MESSAGE_REPORT_OWN_MESSAGE') return t('errors.messages.reportOwn');
+    if (error.code === 'MESSAGE_TRANSLATION_UNAVAILABLE') return t('errors.messages.translationUnavailable');
+    // A seller's own team rating its sale, or too many new reviews in a day.
+    if (error.code === 'REVIEW_SELF_DEALING') return t('reviews.error.selfDealing');
+    if (error.code === 'REVIEW_RATE_LIMITED') return t('reviews.error.rateLimited');
+
     // Requests for quotation. A stale screen is told to reload, whatever the code.
     if (MARKET_CODES.has(error.code)) {
       const reason = error.details[0]?.meta?.reason;

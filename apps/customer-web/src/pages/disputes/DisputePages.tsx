@@ -32,6 +32,7 @@ import {
   type DisputeRemedy,
   type DisputeView,
 } from '@/lib/disputes';
+import { EvidenceTimeline, InspectionCard } from './DisputeShared';
 
 const statusLabel = (t: (key: TranslationKey) => string, status: string): string =>
   t(`disputes.status.${status}` as TranslationKey);
@@ -219,7 +220,7 @@ export function DisputesPage(): React.JSX.Element {
   );
 }
 
-function DecisionBlock({ dispute }: { dispute: DisputeView }): React.JSX.Element {
+export function DecisionBlock({ dispute }: { dispute: DisputeView }): React.JSX.Element {
   const { t } = useI18n();
   if (dispute.decision === null) return <p className="text-sm text-ink-muted">{t('disputes.noDecision')}</p>;
   const { decision } = dispute;
@@ -311,9 +312,10 @@ export function DisputeDetailPage(): React.JSX.Element {
             {dispute.requestedAmount !== null && ` · ${formatMoney(dispute.requestedAmount)}`}
           </p>
           <p className="whitespace-pre-wrap">{dispute.description}</p>
-          {dispute.attachments.length > 0 && (
-            <p className="text-ink-muted">{dispute.attachments.map((file) => file.fileName).join(', ')}</p>
-          )}
+          <div>
+            <p className="font-medium text-ink">{t('disputes.evidenceTitle')}</p>
+            <EvidenceTimeline surface="BUYER" dispute={dispute} />
+          </div>
           {dispute.can.addEvidence && (
             <label className="block text-sm">
               <span className="font-medium text-ink">{t('disputes.addEvidence')}</span>
@@ -345,6 +347,7 @@ export function DisputeDetailPage(): React.JSX.Element {
             )}
           </div>
         </Card>
+        <InspectionCard dispute={dispute} />
       </div>
 
       <Card title={t('disputes.threadTitle')} className="mt-4" bodyClassName="space-y-3 px-5 py-4">

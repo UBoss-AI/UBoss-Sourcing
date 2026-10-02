@@ -15,6 +15,7 @@
  * link to the listing rather than a sentence that leaves the seller hunting.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '@/components/toast-context';
 import {
@@ -29,9 +30,12 @@ import {
 import { useI18n } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
+import type { TranslationKey } from '@/i18n/i18n-context';
 import {
   fetchNotifications,
+  fetchSellerNotificationPreferences,
   markNotificationRead,
+  saveSellerNotificationPreferences,
   type SellerNotification,
 } from '@/lib/seller';
 
@@ -110,7 +114,90 @@ export function SellerNotificationsPage(): React.JSX.Element {
           </ul>
         </Card>
       )}
+
+      <SellerNotificationPreferencesCard />
     </div>
+  );
+}
+
+/**
+ * Which Seller Hub families this member sees (JOURNEY-056). Only their own
+ * feed changes; teammates are unaffected. Essential families - the
+ * application, security, payouts, new orders, claims, dispatch deadlines - and
+ * any problem still open are always shown.
+ */
+function SellerNotificationPreferencesCard(): React.JSX.Element | null {
+  const { t } = useI18n();
+  const toast = useToast();
+  const client = useQueryClient();
+  const query = useQuery({
+    queryKey: ['seller', 'notification-preferences'],
+    queryFn: fetchSellerNotificationPreferences,
+  });
+  const [muted, setMuted] = useState<Set<string> | null>(null);
+
+  useEffect(() => {
+    if (query.data === undefined) return;
+    setMuted(new Set(query.data.families.filter((family) => family.channels.IN_APP === false).map((family) => family.key)));
+  }, [query.data]);
+
+  const save = useMutation({
+    mutationFn: (families: Set<string>) => saveSellerNotificationPreferences([...families]),
+    onSuccess: async (data) => {
+      client.setQueryData(['seller', 'notification-preferences'], data);
+      await client.invalidateQueries({ queryKey: ['seller', 'notifications'] });
+      toast.success(t('seller.notifications.preferences.saved'));
+    },
+    onError: (error: unknown) => {
+      toast.error(errorMessage(t, error));
+    },
+  });
+
+  if (!query.isSuccess || muted === null) return null;
+
+  return (
+    <Card title={t('seller.notifications.preferences.title')}>
+      <div className="space-y-3 px-6 py-4">
+        <p className="max-w-prose text-sm text-ink-muted">{t('seller.notifications.preferences.description')}</p>
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {query.data.families.map((family) => {
+            const label = t(`seller.notifications.family.${family.key.replace('seller.', '')}` as TranslationKey);
+            return (
+              <li key={family.key}>
+                <label className="flex items-center gap-2 text-sm text-ink">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 accent-brand"
+                    checked={family.mandatory || !muted.has(family.key)}
+                    disabled={family.mandatory}
+                    onChange={() => {
+                      setMuted((current) => {
+                        const next = new Set(current ?? []);
+                        if (next.has(family.key)) next.delete(family.key);
+                        else next.add(family.key);
+                        return next;
+                      });
+                    }}
+                  />
+                  <span>{label}</span>
+                  {family.mandatory && (
+                    <span className="text-xs text-ink-muted">{t('seller.notifications.preferences.alwaysOn')}</span>
+                  )}
+                </label>
+              </li>
+            );
+          })}
+        </ul>
+        <Button
+          isLoading={save.isPending}
+          onClick={() => {
+            save.mutate(muted);
+          }}
+        >
+          {t('seller.notifications.preferences.save')}
+        </Button>
+      </div>
+    </Card>
   );
 }
 
@@ -139,6 +226,9 @@ function NotificationRow({
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm font-medium text-ink">{notification.title}</p>
             {!notification.isRead && <Badge tone="brand">{t('seller.notifications.new')}</Badge>}
+            {notification.priority === 'HIGH' && (
+              <Badge tone="danger">{t('seller.notifications.important')}</Badge>
+            )}
             <Badge tone={SEVERITY_TONES[notification.severity] ?? 'neutral'}>
               {notification.severity.toLowerCase()}
             </Badge>

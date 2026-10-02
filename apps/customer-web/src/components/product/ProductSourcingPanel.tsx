@@ -122,6 +122,25 @@ export function ProductSourcingPanel({ sourcing }: { sourcing: ProductSourcing |
                   ? t('home.supplierVerified')
                   : t('home.supplierVerifiedSince', { date: verifiedOn })}
               </span>
+              {/* Two separate facts, never one figure: what buyers said about
+                  the seller's service, and what inspections measured. */}
+              {seller.reviewScore !== undefined && seller.reviewScore !== null && (
+                <span className="mt-1 block text-xs text-ink" data-testid="seller-service-rating">
+                  {t('product.sourcing.sellerRating', {
+                    average: formatNumber(Math.round(seller.reviewScore.average * 10) / 10),
+                    reviews: formatNumber(seller.reviewScore.count),
+                  })}
+                </span>
+              )}
+              {seller.inspectionSummary !== undefined && seller.inspectionSummary !== null && (
+                <span className="mt-1 block text-xs text-ink-muted" data-testid="seller-inspections">
+                  {t('product.sourcing.sellerInspections', {
+                    passed: formatNumber(seller.inspectionSummary.passed),
+                    failed: formatNumber(seller.inspectionSummary.failed),
+                    months: formatNumber(seller.inspectionSummary.months),
+                  })}
+                </span>
+              )}
             </>
           )}
         </Row>

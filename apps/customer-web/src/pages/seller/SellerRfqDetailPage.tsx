@@ -190,7 +190,18 @@ function SellerRfqWorkspace({ rfq }: { rfq: SellerRfq }): React.JSX.Element {
         {tab === 'samples' && <SamplesPanel party="SUPPLIER" rfqId={rfq.id} filesAvailable={rfq.attachmentPolicy.available} />}
         {tab === 'questions' && (
           <Card bodyClassName="px-6 py-5">
-            <RfqThread path={`/seller/rfqs/${rfq.id}/messages`} canWrite={rfq.actions.canAsk} otherPartyName={buyerName} />
+            <RfqThread
+              path={`/seller/rfqs/${rfq.id}/messages`}
+              canWrite={rfq.actions.canAsk}
+              otherPartyName={buyerName}
+              audience="seller"
+              attachableFiles={rfq.attachments.filter(
+                (file) =>
+                  (file.purpose === 'REQUIREMENT' && file.requirementVersion !== null) ||
+                  (file.purpose !== 'REQUIREMENT' && file.uploadedBy === 'SUPPLIER'),
+              )}
+              attachmentHref={(attachmentId) => rfqAttachmentUrl('/seller/rfqs', rfq.id, attachmentId)}
+            />
           </Card>
         )}
         {tab === 'files' && (

@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1306 endpoints** in 120 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1325 endpoints** in 125 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,11 +27,11 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 531 |
+| [Admin panel (staff)](#admin-panel-staff) | 534 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 322 |
+| [Seller Hub](#seller-hub) | 330 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 299 |
+| [Customer account](#customer-account) | 307 |
 | [Public and storefront](#public-and-storefront) | 54 |
 
 ## Admin panel (staff)
@@ -566,6 +566,15 @@ Defined in `backend/src/http/routes/master-data.admin.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/admin/master-data-readiness` | Staff | Admin(SETTINGS_READ) | Go-live check: is each required master list present, and is any demonstration seed data left? |
 
+### `admin/message-reports`
+
+Defined in `backend/src/http/routes/messages.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/message-reports` | Staff | Admin(REVIEW_READ) | Reported messages, open first, with the words, who reported them and why. |
+| POST | `/api/v1/admin/message-reports/:id/decision` | Staff | Admin(REVIEW_MODERATE) | Decide a report - actioned or dismissed - with a note. Closes its bell alert; audited. |
+
 ### `admin/notifications`
 
 Defined in `backend/src/http/routes/notifications.admin.ts`.
@@ -738,6 +747,7 @@ Defined in `backend/src/http/routes/product-reviews.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/admin/product-reviews` | Staff | Admin(REVIEW_READ) | Every review, newest first, with who wrote it. Filter by status, score or text. |
 | POST | `/api/v1/admin/product-reviews/:reviewId/moderation` | Staff | Admin(REVIEW_MODERATE) | Hide a review from the storefront (a reason is required) or put it back. |
+| POST | `/api/v1/admin/product-reviews/:reviewId/response/moderation` | Staff | Admin(REVIEW_MODERATE) | Hide a seller's answer under a review (a reason is required) or put it back. The review is untouched; audited. |
 
 ### `admin/products`
 
@@ -1723,6 +1733,15 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 | PATCH | `/api/v1/seller/members/:memberId` | Seller | Seller + Seller(MEMBER_WRITE) | Change a team member's role. Refused if it would leave the business with no owner, would grant a role the person making the change does not hold, or touches yourself or somebody holding more than you. Writes an audit entry. |
 | DELETE | `/api/v1/seller/members/:memberId` | Seller | Seller + Seller(MEMBER_WRITE) | Remove someone from the seller's team. Their past actions still show their name. Removing the last owner, yourself, or somebody holding more than you is refused. Writes an audit entry. |
 
+### `seller/messages`
+
+Defined in `backend/src/http/routes/messages.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/seller/messages/reports` | Seller | Seller(ORDER_READ) | Report a message from a buyer as abusive. Staff review it; a repeat finds the first report. |
+| POST | `/api/v1/seller/messages/translate` | Seller | Seller(ORDER_READ) | Translate one message in your RFQ or order threads into your language. Off unless switched on. |
+
 ### `seller/new-id`
 
 Defined in `backend/src/http/routes/seller.account.ts`.
@@ -1730,6 +1749,15 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/seller/new-id` | Seller | Seller | An idempotency-safe id the client can use for a draft it is about to create. |
+
+### `seller/notification-preferences`
+
+Defined in `backend/src/http/routes/seller.operations.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/notification-preferences` | Seller | Seller | Which Seller Hub notification families you see. Essential ones and open problems are always shown. |
+| PUT | `/api/v1/seller/notification-preferences` | Seller | Seller | Replace the Seller Hub families you muted. Only your own feed changes; audited. |
 
 ### `seller/notifications`
 
@@ -1770,10 +1798,12 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 
 ### `seller/orders`
 
-Defined in `backend/src/http/routes/seller.operations.ts`, `backend/src/http/routes/seller.workbench.ts`, `backend/src/http/routes/seller.logistics.ts`, `backend/src/http/routes/seller.documents.ts`, `backend/src/http/routes/seller.shipment-paperwork.ts`.
+Defined in `backend/src/http/routes/messages.ts`, `backend/src/http/routes/seller.operations.ts`, `backend/src/http/routes/seller.workbench.ts`, `backend/src/http/routes/seller.logistics.ts`, `backend/src/http/routes/seller.documents.ts`, `backend/src/http/routes/seller.shipment-paperwork.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| GET | `/api/v1/seller/orders/:id/messages` | Seller | Seller(ORDER_READ) | The buyer's and your messages about one of your orders, oldest first; `?after=` for only new ones. |
+| POST | `/api/v1/seller/orders/:id/messages` | Seller | TradingSeller(ORDER_READ) | Write to the buyer about one of your orders. A resend with the same clientMessageId is not a second message. |
 | GET | `/api/v1/seller/orders` | Seller | Seller + Seller(ORDER_READ) | One page of the seller's orders. Can be filtered by status, a search, dispatch place, or only those past their dispatch deadline. |
 | GET | `/api/v1/seller/orders/:id` | Seller | Seller + Seller(ORDER_READ) | One of the seller's orders in full: the items they are shipping and where to. The buyer's email, phone and payment details are not included. |
 | PATCH | `/api/v1/seller/orders/:id/status` | Seller | Seller + TradingSeller(ORDER_READ) | Move one of the seller's orders to its next stage, such as accepted, packing, ready or cancelled. Only allowed moves are accepted; cancelling needs the cancel permission and releases the stock the order was holding. Writes an audit entry. |
@@ -1865,6 +1895,15 @@ Defined in `backend/src/http/routes/seller.preorders.ts`.
 | POST | `/api/v1/seller/preorders/:id/reject` | Seller | TradingSeller(ORDER_FULFIL) | Turn down a preorder with a reason. Releases any capacity it was holding, withdraws open offers, emails the buyer and writes an audit entry. |
 | POST | `/api/v1/seller/preorders/:id/start-production` | Seller | TradingSeller(ORDER_FULFIL) | Mark a confirmed preorder as in production, with an optional note. Emails the buyer and writes an audit entry. |
 | POST | `/api/v1/seller/preorders/:id/ready` | Seller | TradingSeller(ORDER_FULFIL) | Mark a preorder as made and ready to ship, with an optional note. Emails the buyer and writes an audit entry. |
+
+### `seller/product-reviews`
+
+Defined in `backend/src/http/routes/product-reviews.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/product-reviews` | Seller | Seller(ORDER_READ) | Reviews of goods you sold, newest first, with your service score and your answers. |
+| PUT | `/api/v1/seller/product-reviews/:reviewId/response` | Seller | TradingSeller(ORDER_READ) | Write or replace your public answer under a review of your sale, up to 1000 characters. Audited. |
 
 ### `seller/returns`
 
@@ -2189,6 +2228,24 @@ Defined in `backend/src/http/routes/account.customer.ts`.
 | GET | `/api/v1/account/locale` | Customer | Customer | Public capability flags the storefront branches on before rendering. |
 | PUT | `/api/v1/account/locale` | Customer | Customer | Save the shopper's country and the currency they want prices in. Refused for a country this store does not ship to or a currency it does not sell in; with no currency given, the country's own currency is used. |
 
+### `account/messages`
+
+Defined in `backend/src/http/routes/messages.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/account/messages/reports` | Customer | Customer | Report a message in one of your conversations as abusive. Staff review it; a repeat finds the first report. |
+| POST | `/api/v1/account/messages/translate` | Customer | Customer | Translate one message you can read into your language. Off unless the marketplace switched it on. |
+
+### `account/notification-preferences`
+
+Defined in `backend/src/http/routes/account.customer.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/account/notification-preferences` | Customer | Customer | Which notification families you receive on which channel. Security, order, payment and data-rights ones are always on. |
+| PUT | `/api/v1/account/notification-preferences` | Customer | Customer | Replace your muted families: each entry switches one family off on one channel. Audited. |
+
 ### `account/notifications`
 
 Defined in `backend/src/http/routes/account.customer.ts`.
@@ -2196,6 +2253,15 @@ Defined in `backend/src/http/routes/account.customer.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/account/notifications` | Customer | Customer | What this deployment has sent to this customer |
+| POST | `/api/v1/account/notifications/read` | Customer | Customer | Mark notifications read: the ids given, or all of them with `{ "all": true }`. |
+
+### `account/order-messages`
+
+Defined in `backend/src/http/routes/messages.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/account/order-messages` | Customer | Customer | Your order threads with sellers that have messages, most recently active first. |
 
 ### `account/payment-methods`
 
@@ -2428,10 +2494,12 @@ Defined in `backend/src/http/routes/inspection.ts`.
 
 ### `orders`
 
-Defined in `backend/src/http/routes/returns.ts`, `backend/src/http/routes/orders.ts`, `backend/src/http/routes/order-tracking.customer.ts`, `backend/src/http/routes/order-shipment-details.customer.ts`, `backend/src/http/routes/order-milestones.customer.ts`, `backend/src/http/routes/payment-receipts.ts`, `backend/src/http/routes/finance.ts`, `backend/src/http/routes/logistics-levels.admin.ts`.
+Defined in `backend/src/http/routes/messages.ts`, `backend/src/http/routes/returns.ts`, `backend/src/http/routes/orders.ts`, `backend/src/http/routes/order-tracking.customer.ts`, `backend/src/http/routes/order-shipment-details.customer.ts`, `backend/src/http/routes/order-milestones.customer.ts`, `backend/src/http/routes/payment-receipts.ts`, `backend/src/http/routes/finance.ts`, `backend/src/http/routes/logistics-levels.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| GET | `/api/v1/orders/:id/messages` | Customer | Customer | Your messages with each seller on one of your orders, oldest first; `?after=` for only new ones. |
+| POST | `/api/v1/orders/:id/messages/:groupId` | Customer | Customer | Write to the seller of one part of your order. A resend with the same clientMessageId is not a second message. |
 | GET | `/api/v1/orders/:id/returns/eligibility` | Customer | Customer | What can be returned from one of your orders: the window, the reasons offered and each line's quantity left. |
 | POST | `/api/v1/orders/:id/returns` | Customer | Customer | Ask to return lines of your own delivered order, with a reason and photos. Needs an Idempotency-Key. |
 | GET | `/api/v1/orders` | Customer | Customer | The signed-in customer orders |

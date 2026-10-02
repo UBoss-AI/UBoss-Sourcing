@@ -77,6 +77,7 @@ import {
   type SellerActor,
   type StaffActor,
 } from './dispute-common.js';
+import { disputeFundHolds, disputeInspection } from './dispute-inspection.js';
 import { readDisputeSettings, settingsView } from './dispute-settings.service.js';
 
 type Tx = PrismaTransaction;
@@ -300,7 +301,15 @@ function partyView(row: DisputeRow, actor: PartyActor, now = new Date()) {
   };
 }
 
-export type PartyDisputeView = ReturnType<typeof partyView>;
+/** A party's view with the inspection behind the claim, as far as that party may see it. */
+async function partyDetail(row: DisputeRow, actor: PartyActor) {
+  return {
+    ...partyView(row, actor),
+    inspection: await disputeInspection(row, actor.side === 'BUYER' ? 'BUYER' : 'SELLER'),
+  };
+}
+
+export type PartyDisputeView = Awaited<ReturnType<typeof partyDetail>>;
 
 function summaryOf(row: {
   reference: string;
@@ -677,7 +686,7 @@ export async function createClaim(actor: BuyerActor, input: CreateClaimInput): P
         return row;
       });
       await dispatchPendingNotifications().catch(() => undefined);
-      return { dispute: partyView(created, actor) };
+      return { dispute: await partyDetail(created, actor) };
     } catch (error) {
       const candidate = error as { code?: unknown; meta?: { target?: unknown } };
       if (attempt < 3 && candidate.code === 'P2002' && (JSON.stringify(candidate.meta?.target) ?? '').includes('reference')) {
@@ -722,7 +731,7 @@ export async function listPartyDisputes(
 }
 
 export async function readPartyDispute(actor: PartyActor, reference: string): Promise<PartyDisputeView> {
-  return partyView(await loadDispute(prisma, await ownDisputeId(actor, reference)), actor);
+  return partyDetail(await loadDispute(prisma, await ownDisputeId(actor, reference)), actor);
 }
 
 // ---------------------------------------------------------------------------
@@ -771,7 +780,7 @@ export async function addPartyMessage(actor: PartyActor, reference: string, rawB
     }
     return loadDispute(tx, id);
   });
-  return partyView(row, actor);
+  return partyDetail(row, actor);
 }
 
 export interface SellerResponseInput {
@@ -850,7 +859,7 @@ export async function respondAsSeller(
     await tellBuyer(tx, current, 'UPDATE');
     return loadDispute(tx, id);
   });
-  return partyView(row, actor);
+  return partyDetail(row, actor);
 }
 
 /** The buyer asks the operator to step in, once the seller's time is up. */
@@ -871,7 +880,7 @@ export async function escalateClaim(actor: BuyerActor, reference: string): Promi
     await tellSeller(tx, current, `Claim ${current.reference} went to the marketplace`, 'The buyer asked the marketplace to decide, because the time to answer had passed.');
     return loadDispute(tx, id);
   });
-  return partyView(row, actor);
+  return partyDetail(row, actor);
 }
 
 /** The buyer takes the claim back. Final. */
@@ -887,7 +896,7 @@ export async function withdrawClaim(actor: BuyerActor, reference: string): Promi
     await tellSeller(tx, current, `Claim ${current.reference} was withdrawn`, 'The buyer withdrew the claim. Nothing more is needed from you.');
     return loadDispute(tx, id);
   });
-  return partyView(row, actor);
+  return partyDetail(row, actor);
 }
 
 /** Either party asks for a decision to be looked at again. Once, inside the window. */
@@ -925,7 +934,7 @@ export async function appealDecision(actor: PartyActor, reference: string, rawBo
     }
     return loadDispute(tx, id);
   });
-  return partyView(row, actor);
+  return partyDetail(row, actor);
 }
 
 // ---------------------------------------------------------------------------
@@ -1047,10 +1056,11 @@ export async function readDisputeForAdmin(actor: StaffActor, id: string) {
     row.kind === 'CLAIM'
       ? await prisma.dispute.findFirst({
           where: { orderId: row.orderId, kind: 'CHARGEBACK', status: { in: [...OPEN_CHARGEBACK_STATUSES] } },
-          select: { id: true, reference: true, status: true },
+          select: { id: true, reference: true, status: true, providerStatus: true, evidenceDueAt: true },
         })
       : null;
   const settings = await readDisputeSettings();
+  const [inspection, fundHolds] = await Promise.all([disputeInspection(row, 'OPERATOR'), disputeFundHolds(row)]);
   const pending = row.status === 'PENDING_APPROVAL';
 
   return {
@@ -1076,7 +1086,14 @@ export async function readDisputeForAdmin(actor: StaffActor, id: string) {
       payment === null
         ? null
         : { provider: payment.provider, status: payment.status, disputedAt: iso(payment.disputedAt), amount: money(payment.amountMinor, row.currency) },
-    openChargeback,
+    openChargeback:
+      openChargeback === null
+        ? null
+        : { ...openChargeback, evidenceDueAt: iso(openChargeback.evidenceDueAt) },
+    // The seller money this order is holding, and why (JOURNEY-058).
+    fundHolds,
+    // The inspection behind the claim: status and result of each report.
+    inspection,
     buyer: { name: row.order.customerProfile.fullName, email: row.order.customerProfile.user.email },
     line:
       row.orderItem === null

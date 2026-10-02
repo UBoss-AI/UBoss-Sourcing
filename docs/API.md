@@ -1031,7 +1031,8 @@ routes it guards refuse to work. What they answer is shown below.
 | `ASSISTANT_ALLOW_GUESTS` | `false` | Whether the AI assistant answers visitors who are not signed in | `401` for a guest |
 | `FEATURE_BUYER_COMPANIES` | `true` | Every `/api/v1/buyer-companies/*` route, and every company buyer context | `403 BUYER_COMPANIES_DISABLED`. `GET /api/v1/auth/buyer-context` and the sign-in still answer, with an empty `companies` list; a session that was in a company context is reset to Individual with `403 BUYER_CONTEXT_INVALID`. The staff routes under `/api/v1/admin/buyer-companies` are not switched off by the flag, so existing applications can still be read |
 | `FEATURE_PREORDER_CHAT` | `true` | Every `/api/v1/preorder-chats/*` and `/api/v1/admin/preorder-chats/*` route, including both sockets | `404 NOT_FOUND`; `GET /api/v1/preorder-chats/availability` still answers, with `"enabled": false` |
-| `FEATURE_PRODUCT_REVIEWS` | `true` | `GET /api/v1/catalog/products/:slug/reviews` and every customer review route (`/api/v1/account/product-reviews*`, `/api/v1/account/products/:productId/review`). The staff routes under `/api/v1/admin/product-reviews` stay on. Catalogue products carry `rating: null` while it is off | `403 FEATURE_DISABLED` |
+| `FEATURE_PRODUCT_REVIEWS` | `true` | `GET /api/v1/catalog/products/:slug/reviews` and every customer review route (`/api/v1/account/product-reviews*`, `/api/v1/account/products/:productId/review`), and the Seller Hub review routes (`/api/v1/seller/product-reviews*`). The staff routes under `/api/v1/admin/product-reviews` stay on. Catalogue products carry `rating: null` and sellers `reviewScore: null` while it is off | `403 FEATURE_DISABLED` |
+| `FEATURE_MESSAGE_TRANSLATION` | `false` | `POST /api/v1/account/messages/translate` and `POST /api/v1/seller/messages/translate`; also needs a DeepL key stored under Settings → Catalogue translation. The public config reports `features.messageTranslation` | `409 MESSAGE_TRANSLATION_UNAVAILABLE` |
 | `FEATURE_SUPPORT_TICKETS` | `true` | Raising a new ticket: `POST /api/v1/support/tickets`, `POST /api/v1/seller/support/tickets` and `POST /api/v1/logistics/support/tickets`. Reading existing tickets, writing again on them, adding files and every staff route under `/api/v1/admin/support-tickets` stay on. The `context` routes answer `"enabled": false`, and the public config reports `features.supportTickets` | `403 FEATURE_DISABLED` |
 
 A webhook answers `404` rather than `403` when its feature is off, so that
@@ -3432,6 +3433,106 @@ write, is limited to 10 per 15 minutes, and reports its size in two headers,
 `X-Audit-Export-Rows` (in the file) and `X-Audit-Export-Total` (matched),
 exposed to the panel through CORS. Before the file is sent it writes an
 `audit.exported` entry with the filter and the counts.
+
+## Message centre (`messages.ts`, JOURNEY-055)
+
+**Order threads.** A thread is the buyer and ONE seller about that seller's
+part of an order (a seller order group). Another buyer's order, or another
+seller's group, answers `404 NOT_FOUND`.
+
+- `GET /api/v1/orders/:id/messages[?after=<id>]` (buyer) →
+  `{ threads: [{ sellerOrderGroupId, sellerName, sellerOrderNumber, messages:
+  [{ id, from: 'BUYER'|'SELLER', body, mine, at }] }] }`. An order with no
+  seller part returns `threads: []`.
+- `POST /api/v1/orders/:id/messages/:groupId` (buyer) and
+  `POST /api/v1/seller/orders/:id/messages` (seller, `:id` is the group) take
+  `{ body (1–4000), clientMessageId? }` and answer `201 { message }`. A resend
+  with the same `clientMessageId` returns the first message. Rate limited.
+- `GET /api/v1/seller/orders/:id/messages[?after=]` (seller, `seller.order.read`)
+  → `{ thread }`.
+- `GET /api/v1/account/order-messages` → `{ threads: [{ orderId, orderNumber,
+  sellerOrderGroupId, sellerName, lastMessage: { from, body (first 160
+  characters), at } }] }`, at most 50, most recently active first.
+
+**RFQ messages** take an optional `attachmentId` (a file already on the
+request, in that seller's thread or a published requirement file; anything
+else is `404`) and return `attachment: { id, fileName, contentType, byteSize }
+| null` on each message. The file downloads through the request's existing
+attachment routes.
+
+**Report a message.** `POST /api/v1/account/messages/reports` (buyer) and
+`POST /api/v1/seller/messages/reports` (seller) take `{ threadKind:
+'PREORDER_CHAT'|'RFQ'|'ORDER', messageId, reason: 'SPAM'|'ABUSE'|'FRAUD'|
+'PERSONAL_DATA'|'OFF_PLATFORM'|'OTHER', note? (≤1000) }` and answer `201 {
+report: { id, status, createdAt } }`. A repeat returns the first report. Your
+own message is `409 MESSAGE_REPORT_OWN_MESSAGE`; a message you cannot read is
+`404`. Sellers cannot report in preorder chats (they are not in them).
+
+**Translate a message.** `POST /api/v1/account/messages/translate` and
+`POST /api/v1/seller/messages/translate` take `{ threadKind, messageId,
+language: en|de|el|es|fr|it|nl|pl }` and answer `{ text, detectedLanguage,
+language }`. Off by default: with `FEATURE_MESSAGE_TRANSLATION` off or no
+DeepL key stored, `409 MESSAGE_TRANSLATION_UNAVAILABLE`. The public config
+reports `features.messageTranslation`. Nothing is stored.
+
+**Staff.** `GET /api/v1/admin/message-reports[?status=OPEN|ACTIONED|DISMISSED]`
+(`review.read`) lists reports with the reported words read from where they are
+(`messageBody`, empty if removed since). `POST
+/api/v1/admin/message-reports/:id/decision` (`review.moderate`) takes `{
+decision: 'ACTIONED'|'DISMISSED', note }` and answers `204`; it closes the
+`message.reported` bell alert and is audited.
+
+## Notification centre (`account.customer.ts`, `seller.operations.ts`, JOURNEY-056)
+
+- `GET /api/v1/account/notifications[?limit=&unreadOnly=true]` now answers `{
+  unreadCount, notifications: [{ id, eventKey, subject, sentAt, relatedType,
+  relatedId, readAt, priority: 'HIGH'|'NORMAL'|'LOW', family, mandatory, link
+  }] }`. `link` is the storefront path of what it is about (an order, a claim
+  by its reference, a request), or null. Still no body.
+- `POST /api/v1/account/notifications/read` takes `{ ids: [...] }` (1–200) or
+  `{ all: true }` and answers `{ updated }`. Only the caller's own rows change.
+- `GET /api/v1/account/notification-preferences` → `{ families: [{ key,
+  mandatory, channels: { EMAIL, SMS, IN_APP } }] }` (true = delivered).
+  `PUT` with `{ muted: [{ family, channel }] }` replaces the caller's mutes; a
+  mandatory or unknown family is `400 NOTIFICATION_PREFERENCE_MANDATORY`.
+  Audited.
+- Seller Hub: `GET /api/v1/seller/notifications` rows gain `priority` and
+  `family`; `GET`/`PUT /api/v1/seller/notification-preferences` work the same
+  way on the IN_APP channel only, for the member's own feed.
+- An SMS outbox row's dedupe key is the email row's key with `:sms` appended.
+
+## Disputes: case view additions (`disputes.ts`, JOURNEY-058)
+
+- `GET /api/v1/admin/disputes/:id`: `openChargeback` gains `providerStatus`
+  and `evidenceDueAt`; new `fundHolds[]` (`sellerOrderGroupId`, `sellerName`,
+  `status` HELD|ON_HOLD|RELEASED, `allocated` and `released` as money,
+  `holdCode`, `holdReason`, `holdPlacedAt`, `releasedAt`); new `inspection[]`
+  (`requirementId`, `sellerOrderGroupId`, `status`, `reports: [{ id,
+  revision, status, result, signedAt }]`, `linkPath`).
+- Every buyer and seller dispute response carries `inspection[]` in the same
+  shape with `requirementId: null` and the party's own `linkPath`. Parties
+  never get `fundHolds`. Sellers see signed reports only; buyers only once the
+  inspection policy releases them.
+
+## Reviews: seller score and responses (`product-reviews.ts`, JOURNEY-059)
+
+- Public review rows gain `response: { sellerName, body, at } | null` (only a
+  published answer).
+- `GET /api/v1/seller/product-reviews[?page=&limit=]` (`seller.order.read`) →
+  `{ score: { average, delivery, support, count } | null, reviews: [...],
+  pagination }`, the seller's own sales only.
+- `PUT /api/v1/seller/product-reviews/:reviewId/response` takes `{ body
+  (1–1000) }`; a review of another seller's sale is `404`. Audited.
+- `POST /api/v1/admin/product-reviews/:reviewId/response/moderation`
+  (`review.moderate`) takes `{ status: 'PUBLISHED'|'HIDDEN', reason }`
+  (reason required to hide). Admin review rows gain `seller` and `response`.
+- Supplier profile (`GET /api/v1/catalog/suppliers/:slug`) and the product's
+  `sourcing.seller` gain `reviewScore: { average, count } | null`;
+  `sourcing.seller` also gains `inspectionSummary`. Neither is ever blended
+  with the other.
+- Writing a review: `403 REVIEW_SELF_DEALING` when the reviewer belongs to the
+  seller of the qualifying order line; `429 REVIEW_RATE_LIMITED` past
+  `REVIEW_MAX_PER_DAY` new reviews in 24 hours.
 
 ## Partner invitations (`partner-invitations.public.ts`)
 

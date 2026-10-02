@@ -84,6 +84,13 @@ import {
 import { currentSeller, requireSeller, requireTradingSeller } from '../plugins/seller.js';
 import { currentUser } from '../plugins/auth.js';
 import { assertRecentStepUp } from '../../modules/identity/customer-mfa.service.js';
+import {
+  mutedSellerFamilies,
+  readPreferences,
+  savePreferences,
+  sellerFamilyOf,
+  sellerPriorityOf,
+} from '../../modules/notifications/notification-preferences.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 
@@ -758,13 +765,28 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
        */
       where: { sellerAccountId: seller.sellerAccountId, status: { not: 'ARCHIVED' } },
       orderBy: { createdAt: 'desc' },
-      take: 50,
+      take: 80,
     });
 
     const profileId = seller.customerProfileId;
 
+    /*
+     * This member's own mutes (JOURNEY-056). News of a muted family is left
+     * out of their feed; an ALERT never is, because a problem still open is
+     * not something a setting may hide, and the mandatory families cannot be
+     * muted at all. Teammates are unaffected.
+     */
+    const muted = await mutedSellerFamilies(currentUser(request).id);
+    const visible = rows
+      .filter((row) => {
+        if (row.class === 'ALERT') return true;
+        const family = sellerFamilyOf(row.kind);
+        return family === null || family.mandatory || !muted.has(family.key);
+      })
+      .slice(0, 50);
+
     return reply.header('cache-control', 'no-store').status(200).send({
-      notifications: rows.map((row) => {
+      notifications: visible.map((row) => {
         const readBy = (row.readByJson ?? {}) as Record<string, string>;
 
         return {
@@ -774,6 +796,8 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
           body: row.body,
           linkPath: row.linkPath,
           severity: row.severity,
+          priority: sellerPriorityOf(row.severity),
+          family: sellerFamilyOf(row.kind)?.key ?? null,
           /*
            * The two columns the bell counts on.
            *
@@ -792,6 +816,29 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
         };
       }),
     });
+  });
+
+  // Which Seller Hub notification families you see. Essential ones and open problems are always shown.
+  app.get('/notification-preferences', async (request, reply) => {
+    return reply
+      .header('cache-control', 'no-store')
+      .status(200)
+      .send(await readPreferences(currentUser(request).id, 'seller'));
+  });
+
+  // Replace the Seller Hub families you muted. Only your own feed changes; audited.
+  app.put('/notification-preferences', async (request, reply) => {
+    const auth = currentUser(request);
+    const body = z
+      .object({
+        muted: z
+          .array(z.object({ family: z.string().trim().min(1).max(32), channel: z.literal('IN_APP') }).strict())
+          .max(50),
+      })
+      .strict()
+      .parse(request.body);
+    const view = await savePreferences({ userId: auth.id, email: auth.email, actorType: 'CUSTOMER' }, body.muted, 'seller');
+    return reply.status(200).send(view);
   });
 
   /**

@@ -30,6 +30,9 @@ import { activeRules, supplierRiskOf } from '../inspection/gate.service.js';
 import { readPolicy } from '../inspection/context.js';
 import { productMarketNotes } from './market-eligibility.service.js';
 import { SELLABLE_SELLER } from './marketplace-price.service.js';
+import { env } from '../../config/env.js';
+import { sellerScore } from './product-review.service.js';
+import { inspectionSummaryFor } from './supplier-profile.service.js';
 
 export type DeliveryStatus =
   | 'AVAILABLE'
@@ -52,6 +55,16 @@ export interface ProductSourcing {
     kind: SellerKind;
     registrationCountry: string;
     verifiedAt: string | null;
+    /**
+     * Buyers' rating of this seller's delivery and support across everything
+     * it sold (JOURNEY-059); null with no reviews or reviews switched off.
+     */
+    reviewScore: { average: number; count: number } | null;
+    /**
+     * Signed inspections on this seller's orders in the last twelve months.
+     * Shown beside the rating and never averaged into it.
+     */
+    inspectionSummary: { months: number; reports: number; passed: number; failed: number } | null;
   } | null;
   destination: string | null;
   delivery: {
@@ -207,6 +220,14 @@ export async function productSourcingFor(input: {
     else inspection = { outlook: 'NOT_REQUIRED', fromValueMinor: null, currency: null };
   }
 
+  const [score, inspections] =
+    listed === null
+      ? [null, null]
+      : await Promise.all([
+          env.FEATURE_PRODUCT_REVIEWS ? sellerScore(listed.id) : Promise.resolve(null),
+          inspectionSummaryFor(listed.id),
+        ]);
+
   return {
     seller:
       listed === null
@@ -217,6 +238,8 @@ export async function productSourcingFor(input: {
             kind: listed.kind,
             registrationCountry: listed.registrationCountry,
             verifiedAt: listed.approvedAt?.toISOString() ?? null,
+            reviewScore: score === null ? null : { average: score.average, count: score.count },
+            inspectionSummary: inspections,
           },
     destination: input.destination,
     delivery: { status, notes },

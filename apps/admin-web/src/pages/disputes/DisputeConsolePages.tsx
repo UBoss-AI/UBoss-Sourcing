@@ -1,10 +1,13 @@
 /**
- * The dispute resolution console (checklist Master row 64).
+ * The dispute resolution console (checklist Master row 64, JOURNEY-058).
  *
  *   /disputes      the queue: claims and chargebacks, filter by status, search
- *   /disputes/:id  one dispute: both sides, evidence, SLA, money, the thread,
- *                  and the decision - which a refund above the threshold sends
- *                  to a second approver
+ *   /disputes/:id  one dispute: both sides, the evidence timeline (each file
+ *                  downloadable, staff may add their own), the inspection
+ *                  report behind the claim, the payment, any chargeback and
+ *                  the seller money held for it, deadlines, who may decide,
+ *                  the assignee, the thread, and the decision - which a
+ *                  refund above the threshold sends to a second approver
  *
  * Every rule is the server's. What the signed-in person may do comes from the
  * dispute's own `can` block, and the preview of a decision's money comes from
@@ -16,9 +19,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/toast-context';
 import { Badge, Button, Card, EmptyState, ErrorState, Input, LoadingState, PageHeader, Select, Textarea } from '@/components/ui';
 import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
-import { api } from '@/lib/api';
+import { api, downloadFile } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
-import { formatDateTime, formatMoney, type Money } from '@/lib/format';
+import { currencyExponent, formatDateTime, formatMoney, humanise, minorToMajor, type Money } from '@/lib/format';
 
 interface QueueRow {
   id: string;
@@ -44,13 +47,70 @@ interface CaseView {
   desiredOutcome: string | null;
   requestedAmount: Money | null;
   currency: string;
-  order: { id: string | null; orderNumber: string; paid: Money | null; refunded: Money | null; maxRefundable: Money | null };
+  order: { id: string | null; orderNumber: string; status?: string; paid: Money | null; refunded: Money | null; maxRefundable: Money | null };
+  payment?: { provider: string; status: string; disputedAt: string | null; amount: Money | null } | null;
+  openChargeback?: { id: string; reference: string; status: string; providerStatus: string | null; evidenceDueAt: string | null } | null;
+  chargeback?: { providerDisputeId: string | null; providerStatus: string | null; disputedAmount: Money | null; evidenceDueAt: string | null } | null;
+  fundHolds?: {
+    sellerOrderGroupId: string;
+    sellerName: string | null;
+    status: string;
+    allocated: Money;
+    released: Money;
+    holdCode: string | null;
+    holdReason: string | null;
+    holdPlacedAt: string | null;
+    releasedAt: string | null;
+  }[];
+  inspection?: {
+    requirementId: string | null;
+    sellerOrderGroupId: string;
+    status: string;
+    reports: { id: string; revision: number; status: string; result: string; signedAt: string | null }[];
+    linkPath: string | null;
+  }[];
   buyer: { name: string; email: string };
   seller: { displayName?: string } | null;
   sellerProposal: { resolution: string; amount: Money | null } | null;
-  decision: { resolution: string; amount: Money | null; reason: string | null } | null;
-  attachments: { id: string; fileName: string }[];
-  events: { id: string; kind: string; party: string; body: string | null; createdAt: string }[];
+  proposal?: {
+    resolution: string | null;
+    amount: Money | null;
+    reason: string | null;
+    proposedBy: { id: string; email: string | null } | null;
+    proposedAt: string | null;
+  } | null;
+  decision: {
+    resolution: string;
+    amount: Money | null;
+    reason: string | null;
+    decidedBy?: { id: string; email: string | null } | null;
+    approvedBy?: { id: string; email: string | null } | null;
+  } | null;
+  assignee?: { id: string; email: string } | null;
+  sla?: {
+    sellerResponseDueAt: string | null;
+    sellerResponseBreached: boolean;
+    decisionDueAt: string | null;
+    decisionBreached: boolean;
+    evidenceDueAt: string | null;
+    evidenceBreached: boolean;
+    appealDueAt: string | null;
+  };
+  appealCount?: number;
+  approval?: { thresholdMinor: string; currency: string };
+  attachments: { id: string; fileName: string; party?: string; kind?: string; byteSize?: number; createdAt?: string }[];
+  events: {
+    id: string;
+    kind: string;
+    party: string;
+    body: string | null;
+    toValue?: string | null;
+    amount?: Money | null;
+    actor?: { id: string; email: string } | null;
+    visibleToBuyer?: boolean;
+    visibleToSeller?: boolean;
+    createdAt: string;
+  }[];
   can: { manage: boolean; note: boolean; decide: boolean; approve: boolean; assign: boolean };
 }
 
@@ -118,6 +178,137 @@ export function DisputeQueuePage(): React.JSX.Element {
   );
 }
 
+/** Ask for a five-minute, single-use link to one file, then download it. */
+async function downloadEvidence(disputeId: string, file: { id: string; fileName: string }): Promise<void> {
+  const link = await api.post<{ url: string }>(`/admin/disputes/${disputeId}/attachments/${file.id}/link`);
+  await downloadFile(link.url.replace(/^\/api\/v1/, ''), file.fileName);
+}
+
+function sizeOf(bytes: number | undefined): string {
+  if (bytes === undefined) return '';
+  if (bytes < 1024 * 1024) return `${String(Math.max(1, Math.round(bytes / 1024)))} KB`;
+  return `${(bytes / 1_048_576).toFixed(1).replace(/\.0$/, '')} MB`;
+}
+
+/** A deadline line, marked when it has passed. */
+function Deadline({ label, at, breached }: { label: string; at: string | null; breached: boolean }): React.JSX.Element | null {
+  const { t } = useI18n();
+  if (at === null) return null;
+  return (
+    <p className="flex flex-wrap items-center gap-2">
+      <span className="text-ink-muted">{label}:</span>
+      <span className="tabular">{formatDateTime(at)}</span>
+      {breached && <Badge tone="danger">{t('disputes.console.breached')}</Badge>}
+    </p>
+  );
+}
+
+/** The payment, any chargeback against it, and the seller money held. */
+function MoneyPanel({ d }: { d: CaseView }): React.JSX.Element {
+  const { t } = useI18n();
+  const chargeback = d.chargeback ?? null;
+  const open = d.openChargeback ?? null;
+  const holds = d.fundHolds ?? [];
+  return (
+    <Card title={t('disputes.console.moneyTitle')} bodyClassName="space-y-2 px-5 py-4 text-sm">
+      {d.payment === undefined || d.payment === null ? (
+        <p className="text-ink-muted">{t('disputes.console.noPayment')}</p>
+      ) : (
+        <p>
+          {t('disputes.console.paymentLine', {
+            provider: d.payment.provider,
+            status: humanise(d.payment.status),
+            amount: formatMoney(d.payment.amount),
+          })}
+          {d.payment.disputedAt !== null && ` · ${t('disputes.console.disputedAt', { at: formatDateTime(d.payment.disputedAt) })}`}
+        </p>
+      )}
+      {chargeback !== null && (
+        <p>
+          {t('disputes.console.chargebackLine', {
+            status: chargeback.providerStatus ?? '—',
+            amount: formatMoney(chargeback.disputedAmount),
+            due: formatDateTime(chargeback.evidenceDueAt),
+          })}
+        </p>
+      )}
+      {open !== null && (
+        <p className="rounded-md border border-warning/30 bg-warning-soft px-3 py-2 text-warning">
+          {t('disputes.console.openChargeback', {
+            reference: open.reference,
+            status: open.providerStatus ?? humanise(open.status),
+            due: formatDateTime(open.evidenceDueAt),
+          })}{' '}
+          <Link to={`/disputes/${open.id}`} className="font-medium underline">
+            {t('disputes.console.openIt')}
+          </Link>
+        </p>
+      )}
+      <div>
+        <p className="font-medium text-ink">{t('disputes.console.holdsTitle')}</p>
+        {holds.length === 0 ? (
+          <p className="text-ink-muted">{t('disputes.console.noHolds')}</p>
+        ) : (
+          <ul className="mt-1 space-y-1">
+            {holds.map((hold) => (
+              <li key={hold.sellerOrderGroupId} className="flex flex-wrap items-center gap-2">
+                <Badge tone={hold.status === 'ON_HOLD' ? 'warning' : hold.status === 'RELEASED' ? 'success' : 'neutral'}>
+                  {humanise(hold.status)}
+                </Badge>
+                <span>
+                  {[hold.sellerName, formatMoney(hold.allocated), hold.holdCode === null ? null : humanise(hold.holdCode), hold.holdReason]
+                    .filter((part) => part !== null && part !== '')
+                    .join(' · ')}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </Card>
+  );
+}
+
+/** The inspection reports behind the claim: a rating or a claim never replaces them. */
+function InspectionPanel({ d }: { d: CaseView }): React.JSX.Element {
+  const { t } = useI18n();
+  const rows = d.inspection ?? [];
+  return (
+    <Card title={t('disputes.console.inspectionTitle')} bodyClassName="space-y-2 px-5 py-4 text-sm">
+      {rows.length === 0 ? (
+        <p className="text-ink-muted">{t('disputes.console.noInspection')}</p>
+      ) : (
+        rows.map((row) => (
+          <div key={row.sellerOrderGroupId} className="space-y-1">
+            <p className="flex flex-wrap items-center gap-2">
+              <Badge>{humanise(row.status)}</Badge>
+              {row.linkPath !== null && (
+                <Link to={row.linkPath} className="font-medium text-brand hover:underline">
+                  {t('disputes.console.openInspection')}
+                </Link>
+              )}
+            </p>
+            {row.reports.length === 0 ? (
+              <p className="text-ink-muted">{t('disputes.console.noReport')}</p>
+            ) : (
+              <ul className="space-y-0.5">
+                {row.reports.map((report) => (
+                  <li key={report.id} className="flex flex-wrap items-center gap-2">
+                    <span>{t('disputes.console.reportRevision', { revision: String(report.revision) })}</span>
+                    <Badge>{humanise(report.status)}</Badge>
+                    <Badge tone={report.result === 'PASS' ? 'success' : 'danger'}>{humanise(report.result)}</Badge>
+                    {report.signedAt !== null && <span className="text-xs text-ink-muted">{formatDateTime(report.signedAt)}</span>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))
+      )}
+    </Card>
+  );
+}
+
 /** One dispute. */
 export function DisputeCasePage(): React.JSX.Element {
   const { id = '' } = useParams();
@@ -140,6 +331,11 @@ export function DisputeCasePage(): React.JSX.Element {
       }),
     enabled: query.data?.dispute.can.decide === true,
   });
+  const assignees = useQuery({
+    queryKey: ['admin', 'disputes', 'assignees'],
+    queryFn: () => api.get<{ assignees: { id: string; email: string }[] }>('/admin/disputes/assignees'),
+    enabled: query.data?.dispute.can.assign === true,
+  });
 
   const done = async (): Promise<void> => {
     await queryClient.invalidateQueries({ queryKey: ['admin', 'dispute', id] });
@@ -155,11 +351,35 @@ export function DisputeCasePage(): React.JSX.Element {
     },
     onError: (failure) => { toast.error(errorMessage(t, failure)); },
   });
+  const upload = useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append('file', file);
+      return api.upload(`/admin/disputes/${id}/attachments`, form);
+    },
+    onSuccess: async () => {
+      toast.success(t('disputes.console.uploaded'));
+      await done();
+    },
+    onError: (failure) => { toast.error(errorMessage(t, failure)); },
+  });
+  const download = useMutation({
+    mutationFn: (file: { id: string; fileName: string }) => downloadEvidence(id, file),
+    onError: (failure) => { toast.error(errorMessage(t, failure)); },
+  });
 
   if (query.isPending) return <LoadingState />;
   if (query.isError) return <ErrorState error={query.error} onRetry={() => { void query.refetch(); }} />;
   const d = query.data.dispute;
   const busy = run.isPending;
+  const threshold =
+    d.approval === undefined
+      ? null
+      : formatMoney({
+          minor: d.approval.thresholdMinor,
+          formatted: minorToMajor(d.approval.thresholdMinor, currencyExponent(d.approval.currency)),
+          currency: d.approval.currency,
+        });
 
   return (
     <>
@@ -185,14 +405,116 @@ export function DisputeCasePage(): React.JSX.Element {
           {d.sellerProposal !== null && (
             <p>{t('disputes.sellerOffered', { outcome: d.sellerProposal.resolution, amount: formatMoney(d.sellerProposal.amount) })}</p>
           )}
-          {d.attachments.length > 0 && <p className="text-ink-muted">{d.attachments.map((file) => file.fileName).join(', ')}</p>}
+        </Card>
+
+        <Card title={t('disputes.console.caseTitle')} bodyClassName="space-y-2 px-5 py-4 text-sm">
+          {d.sla !== undefined && (
+            <>
+              <Deadline label={t('disputes.console.sellerDue')} at={d.sla.sellerResponseDueAt} breached={d.sla.sellerResponseBreached} />
+              <Deadline label={t('disputes.console.decisionDue')} at={d.sla.decisionDueAt} breached={d.sla.decisionBreached} />
+              <Deadline label={t('disputes.console.evidenceDue')} at={d.sla.evidenceDueAt} breached={d.sla.evidenceBreached} />
+              <Deadline label={t('disputes.console.appealDue')} at={d.sla.appealDueAt} breached={false} />
+            </>
+          )}
+          {d.appealCount !== undefined && d.appealCount > 0 && (
+            <p><Badge tone="warning">{t('disputes.console.appealed')}</Badge></p>
+          )}
+          {threshold !== null && <p className="text-ink-muted">{t('disputes.console.authority', { amount: threshold })}</p>}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-ink-muted">{t('disputes.console.assignee')}:</span>
+            {d.can.assign ? (
+              <Select
+                aria-label={t('disputes.console.assignee')}
+                value={d.assignee?.id ?? ''}
+                disabled={busy || assignees.isPending}
+                onChange={(event) => {
+                  run.mutate({ path: 'assignment', body: { assigneeUserId: event.target.value === '' ? null : event.target.value } });
+                }}
+              >
+                <option value="">{t('disputes.console.unassigned')}</option>
+                {d.assignee !== undefined && d.assignee !== null && !(assignees.data?.assignees ?? []).some((user) => user.id === d.assignee?.id) && (
+                  <option value={d.assignee.id}>{d.assignee.email}</option>
+                )}
+                {(assignees.data?.assignees ?? []).map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.email}
+                  </option>
+                ))}
+              </Select>
+            ) : (
+              <span>{d.assignee?.email ?? t('disputes.console.unassigned')}</span>
+            )}
+          </div>
+        </Card>
+
+        <MoneyPanel d={d} />
+        <InspectionPanel d={d} />
+
+        <Card title={t('disputes.console.evidenceTitle')} bodyClassName="space-y-3 px-5 py-4 text-sm">
+          {d.attachments.length === 0 ? (
+            <p className="text-ink-muted">{t('disputes.console.noEvidence')}</p>
+          ) : (
+            <ol className="space-y-2 border-l border-border-subtle pl-4">
+              {d.attachments.map((file) => (
+                <li key={file.id}>
+                  <p className="text-xs text-ink-muted">
+                    {[file.party === undefined ? null : humanise(file.party), file.createdAt === undefined ? null : formatDateTime(file.createdAt), sizeOf(file.byteSize)]
+                      .filter((part) => part !== null && part !== '')
+                      .join(' · ')}
+                  </p>
+                  <button
+                    type="button"
+                    className="font-medium text-brand hover:underline disabled:opacity-60"
+                    disabled={download.isPending}
+                    onClick={() => { download.mutate(file); }}
+                  >
+                    {t('disputes.console.download', { name: file.fileName })}
+                  </button>
+                </li>
+              ))}
+            </ol>
+          )}
+          {d.can.note && (
+            <label className="block text-sm">
+              <span className="font-medium text-ink">{t('disputes.console.addEvidence')}</span>
+              <span className="block text-xs text-ink-muted">{t('disputes.console.addEvidenceHint')}</span>
+              <input
+                type="file"
+                className="mt-1 block w-full text-sm"
+                disabled={upload.isPending}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file !== undefined) upload.mutate(file);
+                  event.target.value = '';
+                }}
+              />
+            </label>
+          )}
         </Card>
 
         <Card title={t('disputes.decisionTitle')} bodyClassName="space-y-3 px-5 py-4 text-sm">
-          {d.decision !== null && (
-            <p className="font-medium">
-              {d.decision.resolution} · {formatMoney(d.decision.amount)} {d.decision.reason !== null && `— ${d.decision.reason}`}
+          {d.proposal !== undefined && d.proposal !== null && (
+            <p className="rounded-md border border-warning/30 bg-warning-soft px-3 py-2 text-warning">
+              {t('disputes.console.pendingProposal', {
+                outcome: d.proposal.resolution ?? '—',
+                amount: formatMoney(d.proposal.amount),
+                by: d.proposal.proposedBy?.email ?? '—',
+              })}
+              {d.proposal.reason !== null && ` — ${d.proposal.reason}`}
             </p>
+          )}
+          {d.decision !== null && (
+            <div className="space-y-1">
+              <p className="font-medium">
+                {d.decision.resolution} · {formatMoney(d.decision.amount)} {d.decision.reason !== null && `— ${d.decision.reason}`}
+              </p>
+              {(d.decision.decidedBy ?? null) !== null && (
+                <p className="text-xs text-ink-muted">
+                  {t('disputes.console.decidedBy', { email: d.decision.decidedBy?.email ?? '—' })}
+                  {(d.decision.approvedBy ?? null) !== null && ` · ${t('disputes.console.approvedBy', { email: d.decision.approvedBy?.email ?? '—' })}`}
+                </p>
+              )}
+            </div>
           )}
           {d.status === 'AWAITING_SELLER' && d.can.manage && (
             <Button variant="secondary" disabled={busy} onClick={() => { run.mutate({ path: 'review' }); }}>
@@ -254,7 +576,19 @@ export function DisputeCasePage(): React.JSX.Element {
           {d.events.map((event) => (
             <li key={event.id}>
               <p className="text-xs text-ink-muted">
-                {event.party} · {event.kind} · {formatDateTime(event.createdAt)}
+                {[
+                  event.party,
+                  humanise(event.kind),
+                  event.actor?.email ?? null,
+                  event.toValue ?? null,
+                  event.amount === undefined || event.amount === null ? null : formatMoney(event.amount),
+                  formatDateTime(event.createdAt),
+                ]
+                  .filter((part) => part !== null && part !== '')
+                  .join(' · ')}
+                {event.visibleToBuyer === false && event.visibleToSeller === false && (
+                  <> · <Badge>{t('disputes.console.internal')}</Badge></>
+                )}
               </p>
               {event.body !== null && <p className="whitespace-pre-wrap">{event.body}</p>}
             </li>

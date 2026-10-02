@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**361 tables · 336 enums · 826 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
+**364 tables · 340 enums · 836 extra indexes and unique keys**, in 56 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -26,7 +26,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | Group | Tables | Enums |
 |---|---|---|
 | [Identity & access](#group-identity-access) | 8 | 3 |
-| [Business configuration](#group-business-configuration) | 7 | 1 |
+| [Business configuration](#group-business-configuration) | 8 | 1 |
 | [Media](#group-media) | 1 | 0 |
 | [Catalog](#group-catalog) | 11 | 5 |
 | [/ whether a warehouse is currently shipping, and how well. / / deliberately not the same axis as `isactive`, and confusing the two is the / mistake this enum exists to prevent. `isactive` answers "is this place part / of the business at all" - a retired warehouse is archived master data and / disappears from every picker. this answers "of the places that are, can / this one move a box today". a warehouse under a roof repair is thoroughly / active and cannot ship a thing.](#group-whether-a-warehouse-is-currently-shipping-and-how-well-deliberately-not-the-same-axis-as-isactive-and-confusing-the-two-is-the-mistake-this-enum-exists-to-prevent-isactive-answers-is-this-place-part-of-the-business-at-all-a-retired-warehouse-is-archived-master-data-and-disappears-from-every-picker-this-answers-of-the-places-that-are-can-this-one-move-a-box-today-a-warehouse-under-a-roof-repair-is-thoroughly-active-and-cannot-ship-a-thing) | 6 | 4 |
@@ -79,7 +79,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ where an individual buyer's identity check stands (master row 11). moves / only through `domain/customer-kyc-state.ts`.](#group-where-an-individual-buyer-s-identity-check-stands-master-row-11-moves-only-through-domain-customer-kyc-state-ts) | 15 | 11 |
 | [/ what a ledger account represents. balances are never stored; they are the / sum of the account's lines.](#group-what-a-ledger-account-represents-balances-are-never-stored-they-are-the-sum-of-the-account-s-lines) | 8 | 7 |
 | [/ when each application secret was first seen in use - the source of / `uboss_secret_age_seconds` and the start-up warning when a secret is older / than secret_max_age_days. the fingerprint is a truncated, domain-separated / sha-256 (infra/key-management.ts), never the secret. see infra/secret-age.ts.](#group-when-each-application-secret-was-first-seen-in-use-the-source-of-uboss-secret-age-seconds-and-the-start-up-warning-when-a-secret-is-older-than-secret-max-age-days-the-fingerprint-is-a-truncated-domain-separated-sha-256-infra-key-management-ts-never-the-secret-see-infra-secret-age-ts) | 1 | 0 |
-| [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 11 | 12 |
+| [Requests for quotation (rfq) - checklist master rows 16-19](#group-requests-for-quotation-rfq-checklist-master-rows-16-19) | 13 | 16 |
 | [Master data (master row 75)](#group-master-data-master-row-75) | 4 | 3 |
 
 <a id="group-identity-access"></a>
@@ -195,6 +195,10 @@ Table `users`
 - `disputeAttachments` ← [DisputeAttachment](#model-disputeattachment) - has many
 - `staffAccessReviewsReceived` ← [StaffAccessReview](#model-staffaccessreview) - has many
 - `staffAccessReviewsGiven` ← [StaffAccessReview](#model-staffaccessreview) - has many
+- `messageReportsFiled` ← [MessageReport](#model-messagereport) - has many
+- `messageReportsReviewed` ← [MessageReport](#model-messagereport) - has many
+- `notificationPreferences` ← [NotificationPreference](#model-notificationpreference) - has many
+- `productReviewResponses` ← [ProductReview](#model-productreview) - has many
 
 **Indexes and keys**
 
@@ -424,11 +428,12 @@ Table `login_attempts`
 
 ## Business configuration
 
-[BusinessProfile](#model-businessprofile) · [TaxClass](#model-taxclass) · [ShippingMethod](#model-shippingmethod) · [CurrencyRateSync](#model-currencyratesync) · [CatalogTranslationSync](#model-catalogtranslationsync) · [FeatureFlag](#model-featureflag) · [NotificationSetting](#model-notificationsetting)
+[BusinessProfile](#model-businessprofile) · [TaxClass](#model-taxclass) · [ShippingMethod](#model-shippingmethod) · [CurrencyRateSync](#model-currencyratesync) · [CatalogTranslationSync](#model-catalogtranslationsync) · [FeatureFlag](#model-featureflag) · [NotificationSetting](#model-notificationsetting) · [NotificationPreference](#model-notificationpreference)
 
 ```mermaid
 erDiagram
     MediaAsset |o--o{ BusinessProfile : "logoMedia"
+    User ||--o{ NotificationPreference : "user"
     BusinessProfile {
         String id PK
         String logoMediaId FK
@@ -454,6 +459,10 @@ erDiagram
     }
     NotificationSetting {
         String id PK
+    }
+    NotificationPreference {
+        String id PK
+        String userId FK
     }
 ```
 
@@ -637,6 +646,31 @@ Table `notification_settings`
 | `isActive` | Boolean |  |  | true |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+<a id="model-notificationpreference"></a>
+
+### NotificationPreference
+
+Table `notification_preferences`
+
+One notification family switched off on one channel, by one person.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `userId` | String · Char(26) |  | FK → [User](#model-user) |  | (on delete: Cascade) |
+| `family` | String · VarChar(32) |  |  |  | e.g. shipments, quotes, scheduled, disputes, inspection, reviews. |
+| `channel` | [enum NotificationChannel](#enum-notificationchannel) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `user` → [User](#model-user) via `userId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([userId, family, channel], map: "uq_notification_preference")`
 
 ### Enums in Business configuration
 
@@ -3931,6 +3965,7 @@ Table `notification_outbox`
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 | `sentAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `readAt` | DateTime · DateTime(3) | yes |  |  | When the recipient opened it in their notification centre. A row is one recipient, so this is that person's own read mark. Null = unread. |
 
 **Relations**
 
@@ -5888,6 +5923,8 @@ erDiagram
     CustomerProfile ||--o{ ProductReview : "customerProfile"
     Order |o--o{ ProductReview : "order"
     User |o--o{ ProductReview : "moderatedBy"
+    SellerAccount |o--o{ ProductReview : "sellerAccount"
+    User |o--o{ ProductReview : "responder"
     ProductReview {
         String id PK
         String productId FK
@@ -5895,6 +5932,9 @@ erDiagram
         String orderId FK
         ProductReviewStatus status
         String moderatedByUserId FK
+        String sellerAccountId FK
+        ProductReviewStatus sellerResponseStatus
+        String sellerResponseByUserId FK
     }
 ```
 
@@ -5918,6 +5958,12 @@ Table `product_reviews`
 | `moderationReason` | String · VarChar(500) | yes |  |  | Why staff hid it, shown back to the buyer who wrote it. Null while published. |
 | `moderatedByUserId` | String · Char(26) | yes | FK → [User](#model-user) |  | (on delete: SetNull) |
 | `moderatedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `sellerAccountId` | String · Char(26) | yes | FK → [SellerAccount](#model-selleraccount) |  | Whose goods the qualifying order line was - the seller this review counts towards. Null for the marketplace's own stock. Taken from the order line at write time, never from who sells the product today. (on delete: SetNull) |
+| `sellerResponse` | String · VarChar(1000) | yes |  |  | The seller's public answer, written once and edited in place, at most 1000 characters. Shown under the review while PUBLISHED; staff can hide it (HIDDEN, with a reason the seller is shown) without touching the scores. |
+| `sellerResponseStatus` | [enum ProductReviewStatus](#enum-productreviewstatus) | yes |  |  |  |
+| `sellerResponseAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `sellerResponseByUserId` | String · Char(26) | yes | FK → [User](#model-user) |  | (on delete: SetNull) |
+| `sellerResponseHiddenReason` | String · VarChar(500) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 
@@ -5927,6 +5973,8 @@ Table `product_reviews`
 - `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - many-to-one, required, on delete **Cascade**
 - `order` → [Order](#model-order) via `orderId` - many-to-one, optional, on delete **SetNull**
 - `moderatedBy` → [User](#model-user) via `moderatedByUserId` - many-to-one, optional, on delete **SetNull**
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `responder` → [User](#model-user) via `sellerResponseByUserId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
 
 **Indexes and keys**
 
@@ -5935,6 +5983,8 @@ Table `product_reviews`
 - `@@index([status, createdAt], map: "ix_product_review_status")`
 - `@@index([orderId], map: "ix_product_review_order")`
 - `@@index([moderatedByUserId], map: "ix_product_review_moderator")`
+- `@@index([sellerAccountId, status], map: "ix_product_review_seller")`
+- `@@index([sellerResponseByUserId], map: "ix_product_review_responder")`
 
 ### Enums in  / whether a review is shown on the storefront. / / two members. a review is published the moment it is written - there is no / queue a buyer waits in - and a member of staff can hide one afterwards and / put it back. appending a member later is safe; reordering is not, because / MariaDB stores an enum by position.
 
@@ -8004,6 +8054,7 @@ A seller business, as a tenant.
 - `screeningChecks` ← [SellerScreeningCheck](#model-sellerscreeningcheck) - has many
 - `profileChangeRequests` ← [SellerProfileChangeRequest](#model-sellerprofilechangerequest) - has many
 - `listingTrust` ← [SellerListingTrust](#model-sellerlistingtrust) - has many
+- `productReviews` ← [ProductReview](#model-productreview) - has many
 
 **Indexes and keys**
 
@@ -8957,6 +9008,7 @@ One seller's part of one buyer order.
 - `buyerUpdates` ← [SellerOrderBuyerUpdate](#model-sellerorderbuyerupdate) - has many
 - `tradeDocuments` ← [OrderTradeDocument](#model-ordertradedocument) - has many
 - `complianceOverride` ← [TradeComplianceOverride](#model-tradecomplianceoverride) - has zero or one
+- `messages` ← [OrderMessage](#model-ordermessage) - has many
 
 **Indexes and keys**
 
@@ -9703,6 +9755,7 @@ What a seller is being told about.
 | `INSPECTION_UPDATE` | An inspection moved: booked, reported, failed, released. See the THIRD-PARTY PRE-SHIPMENT INSPECTION block. |
 | `RFQ_INVITATION` | A buyer asked this seller to quote. An ALERT: it waits on the seller, and is closed by a quote or a decline. |
 | `RFQ_UPDATE` | Something moved on a request this seller is quoting on: the requirement changed, the buyer asked or answered, countered, accepted or closed it. |
+| `ORDER_MESSAGE` | The buyer wrote in the order's message thread (JOURNEY-055). |
 
 <a id="group-how-a-seller-came-to-be-able-to-use-a-carrier-stored-because-it-decides-who-may-end-the-relationship-and-on-what-notice-which-is-a-question-that-gets-asked-exactly-once-during-a-dispute"></a>
 
@@ -20535,7 +20588,7 @@ Table `secret_fingerprints`
 
 ## Requests for quotation (rfq) - checklist master rows 16-19
 
-[RfqRequest](#model-rfqrequest) · [RfqRequirementVersion](#model-rfqrequirementversion) · [RfqInvitation](#model-rfqinvitation) · [RfqAttachment](#model-rfqattachment) · [RfqEvent](#model-rfqevent) · [RfqMessage](#model-rfqmessage) · [RfqQuote](#model-rfqquote) · [RfqQuoteVersion](#model-rfqquoteversion) · [RfqPurchaseOrder](#model-rfqpurchaseorder) · [RfqPurchaseOrderApproval](#model-rfqpurchaseorderapproval) · [RfqSample](#model-rfqsample)
+[RfqRequest](#model-rfqrequest) · [RfqRequirementVersion](#model-rfqrequirementversion) · [RfqInvitation](#model-rfqinvitation) · [RfqAttachment](#model-rfqattachment) · [RfqEvent](#model-rfqevent) · [RfqMessage](#model-rfqmessage) · [OrderMessage](#model-ordermessage) · [MessageReport](#model-messagereport) · [RfqQuote](#model-rfqquote) · [RfqQuoteVersion](#model-rfqquoteversion) · [RfqPurchaseOrder](#model-rfqpurchaseorder) · [RfqPurchaseOrderApproval](#model-rfqpurchaseorderapproval) · [RfqSample](#model-rfqsample)
 
 ```mermaid
 erDiagram
@@ -20548,6 +20601,10 @@ erDiagram
     RfqRequest ||--o{ RfqAttachment : "rfq"
     RfqRequest ||--o{ RfqEvent : "rfq"
     RfqRequest ||--o{ RfqMessage : "rfq"
+    RfqAttachment |o--o{ RfqMessage : "attachment"
+    SellerOrderGroup ||--o{ OrderMessage : "sellerOrderGroup"
+    User ||--o{ MessageReport : "reporter"
+    User |o--o{ MessageReport : "reviewedBy"
     RfqRequest ||--o{ RfqQuote : "rfq"
     SellerAccount ||--o{ RfqQuote : "sellerAccount"
     RfqQuote ||--o{ RfqQuoteVersion : "quote"
@@ -20585,6 +20642,17 @@ erDiagram
     RfqMessage {
         String id PK
         String rfqId FK
+        String attachmentId FK
+    }
+    OrderMessage {
+        String id PK
+        String sellerOrderGroupId FK
+    }
+    MessageReport {
+        String id PK
+        String reporterUserId FK
+        MessageReportStatus status
+        String reviewedByUserId FK
     }
     RfqQuote {
         String id PK
@@ -20788,6 +20856,7 @@ A file on a request. The bytes are private objects; who may download one is who 
 **Relations**
 
 - `rfq` → [RfqRequest](#model-rfqrequest) via `rfqId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `messages` ← [RfqMessage](#model-rfqmessage) - has many
 
 **Indexes and keys**
 
@@ -20840,17 +20909,85 @@ A question or an answer in one seller's thread on a request (Master row 17). A s
 | `authorUserId` | String · Char(26) |  |  |  |  |
 | `body` | String · Text |  |  |  |  |
 | `clientMessageId` | String · VarChar(64) | yes |  |  | The sender's own id for this message. A resend with the same id finds the first one rather than writing a second (NULLs are distinct, so a message sent without one is never deduplicated). |
+| `attachmentId` | String · Char(26) | yes | FK → [RfqAttachment](#model-rfqattachment) |  | One file already uploaded to this request, which the message points at. Must belong to this thread or be a published requirement file. SET NULL: a removed file leaves the message standing. (on delete: SetNull) |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 
 **Relations**
 
 - `rfq` → [RfqRequest](#model-rfqrequest) via `rfqId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `attachment` → [RfqAttachment](#model-rfqattachment) via `attachmentId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
 
 **Indexes and keys**
 
 - `@@unique([rfqId, sellerAccountId, clientMessageId], map: "uq_rfq_message_client")`
 - `@@index([rfqId, sellerAccountId, id], map: "ix_rfq_message_thread")`
+- `@@index([attachmentId], map: "ix_rfq_message_attachment")`
+
+<a id="model-ordermessage"></a>
+
+### OrderMessage
+
+Table `order_messages`
+
+A message between the buyer and one seller about that seller's part of an order. One thread per seller order group, so a seller only ever sees the thread about its own goods and never another seller's. Kept as long as the order is.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `sellerOrderGroupId` | String · Char(26) |  | FK → [SellerOrderGroup](#model-sellerordergroup) |  | (on delete: Cascade) |
+| `authorParty` | [enum OrderMessageParty](#enum-ordermessageparty) |  |  |  |  |
+| `authorUserId` | String · Char(26) |  |  |  |  |
+| `body` | String · Text |  |  |  |  |
+| `clientMessageId` | String · VarChar(64) | yes |  |  | The sender's own id for this message: a resend finds the first one. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `sellerOrderGroup` → [SellerOrderGroup](#model-sellerordergroup) via `sellerOrderGroupId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([sellerOrderGroupId, clientMessageId], map: "uq_order_message_client")`
+- `@@index([sellerOrderGroupId, id], map: "ix_order_message_thread")`
+
+<a id="model-messagereport"></a>
+
+### MessageReport
+
+Table `message_reports`
+
+A buyer or a seller saying "this message is abusive". One per person per message. Never deletes or hides anything by itself: staff decide, with a note, and both the report and the decision are in the audit log.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `threadKind` | [enum MessageThreadKind](#enum-messagethreadkind) |  |  |  |  |
+| `messageId` | String · Char(26) |  |  |  |  |
+| `threadId` | String · Char(26) |  |  |  | The conversation, request or seller order group the message is in. |
+| `reporterUserId` | String · Char(26) |  | FK → [User](#model-user) |  | (on delete: Cascade) |
+| `reporterParty` | String · VarChar(16) |  |  |  | BUYER or SELLER. |
+| `reason` | [enum MessageReportReason](#enum-messagereportreason) |  |  |  |  |
+| `note` | String · VarChar(1000) | yes |  |  |  |
+| `status` | [enum MessageReportStatus](#enum-messagereportstatus) |  |  | OPEN |  |
+| `reviewedByUserId` | String · Char(26) | yes | FK → [User](#model-user) |  | (on delete: SetNull) |
+| `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reviewNote` | String · VarChar(1000) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated | now() |  |
+
+**Relations**
+
+- `reporter` → [User](#model-user) via `reporterUserId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `reviewedBy` → [User](#model-user) via `reviewedByUserId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([threadKind, messageId, reporterUserId], map: "uq_message_report_once")`
+- `@@index([status, createdAt], map: "ix_message_report_queue")`
+- `@@index([reporterUserId], map: "ix_message_report_reporter")`
+- `@@index([reviewedByUserId], map: "ix_message_report_reviewer")`
 
 <a id="model-rfqquote"></a>
 
@@ -21140,6 +21277,50 @@ How a seller came to be asked: matched on category and destination, or picked by
 | `QUOTE` | Sent with a seller's quote. Seen by the buyer and that seller. |
 | `NEGOTIATION` | Sent with a counter-offer, by either side. Seen by the buyer and that seller. |
 | `SAMPLE` | Evidence about a sample (a photograph, a test report). Seen by the buyer and that seller. |
+
+<a id="enum-ordermessageparty"></a>
+
+#### enum OrderMessageParty
+
+| Value | Meaning |
+|---|---|
+| `BUYER` |  |
+| `SELLER` |  |
+
+<a id="enum-messagethreadkind"></a>
+
+#### enum MessageThreadKind
+
+Which conversation a reported message is in.
+
+| Value | Meaning |
+|---|---|
+| `PREORDER_CHAT` |  |
+| `RFQ` |  |
+| `ORDER` |  |
+
+<a id="enum-messagereportreason"></a>
+
+#### enum MessageReportReason
+
+| Value | Meaning |
+|---|---|
+| `SPAM` |  |
+| `ABUSE` |  |
+| `FRAUD` |  |
+| `PERSONAL_DATA` |  |
+| `OFF_PLATFORM` |  |
+| `OTHER` |  |
+
+<a id="enum-messagereportstatus"></a>
+
+#### enum MessageReportStatus
+
+| Value | Meaning |
+|---|---|
+| `OPEN` | Waiting for staff. |
+| `ACTIONED` | Staff agreed and acted through the normal controls. |
+| `DISMISSED` | Staff found nothing wrong. Kept. |
 
 <a id="enum-rfqquotestatus"></a>
 

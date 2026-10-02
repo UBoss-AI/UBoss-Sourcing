@@ -11,6 +11,7 @@
  *      earn a retry.
  */
 import { email } from '../infra/email/index.js';
+import { sendSms } from '../infra/sms.js';
 import { env } from '../config/env.js';
 import { logger } from '../infra/logger.js';
 import { prisma } from '../infra/prisma.js';
@@ -142,6 +143,29 @@ const sendNotification: JobHandler = async (payload) => {
 
   if (row.status === 'DEAD' || row.status === 'SUPPRESSED') {
     logger.debug({ outboxId, status: row.status }, 'notification not eligible for delivery');
+    return;
+  }
+
+  // An SMS row (JOURNEY-056) goes through the operator's gateway, never the
+  // email provider. The number is personal data and is not logged.
+  if (row.channel === 'SMS') {
+    if (row.recipientPhone === null || row.recipientPhone.length === 0) {
+      throw new PermanentJobError(`Outbox row ${outboxId} has no telephone number`);
+    }
+    const started = Date.now();
+    try {
+      await sendSms(row.recipientPhone, row.body);
+      await markNotificationSent(outboxId, { provider: 'sms-http', providerMessageId: null, durationMs: Date.now() - started });
+      logger.info({ outboxId, eventKey: row.eventKey }, 'sms notification sent');
+    } catch (error) {
+      await markNotificationFailed(outboxId, error instanceof Error ? error.message : 'unknown sms error', 'sms-http');
+      throw error;
+    }
+    return;
+  }
+
+  if (row.channel === 'WHATSAPP' || row.channel === 'IN_APP') {
+    logger.debug({ outboxId, channel: row.channel }, 'notification channel has nothing to deliver');
     return;
   }
 

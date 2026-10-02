@@ -51,6 +51,7 @@ import {
   RATING_CATEGORIES,
   fetchReviews,
   moderateReview,
+  moderateReviewResponse,
   type AdminReview,
 } from '@/lib/product-reviews';
 import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
@@ -105,7 +106,12 @@ function formatScore(value: number): string {
 export function ProductReviewsPage(): React.JSX.Element {
   const { t } = useI18n();
   const [params, setParams] = useSearchParams();
-  const [deciding, setDeciding] = useState<{ review: AdminReview; hide: boolean } | null>(null);
+  const [deciding, setDeciding] = useState<{
+    review: AdminReview;
+    hide: boolean;
+    /** The review itself, or the seller's answer under it (JOURNEY-059). */
+    target: 'review' | 'response';
+  } | null>(null);
   const [searchDraft, setSearchDraft] = useState(params.get('search') ?? '');
 
   const page = Math.max(1, Number(params.get('page') ?? '1'));
@@ -204,7 +210,10 @@ export function ProductReviewsPage(): React.JSX.Element {
               <ReviewCard
                 review={review}
                 onDecide={(hide) => {
-                  setDeciding({ review, hide });
+                  setDeciding({ review, hide, target: 'review' });
+                }}
+                onDecideResponse={(hide) => {
+                  setDeciding({ review, hide, target: 'response' });
                 }}
               />
             </li>
@@ -228,6 +237,7 @@ export function ProductReviewsPage(): React.JSX.Element {
         <ModerationDialog
           review={deciding.review}
           hide={deciding.hide}
+          target={deciding.target}
           onClose={() => {
             setDeciding(null);
           }}
@@ -240,9 +250,11 @@ export function ProductReviewsPage(): React.JSX.Element {
 function ReviewCard({
   review,
   onDecide,
+  onDecideResponse,
 }: {
   review: AdminReview;
   onDecide: (hide: boolean) => void;
+  onDecideResponse: (hide: boolean) => void;
 }): React.JSX.Element {
   const { t } = useI18n();
   const { can } = useSession();
@@ -329,6 +341,43 @@ function ReviewCard({
           </div>
         </dl>
 
+        {review.seller !== undefined && review.seller !== null && (
+          <p className="text-xs text-ink-muted">{t('productReviews.soldBy', { seller: review.seller.name })}</p>
+        )}
+
+        {/* The seller's public answer, moderated separately from the review. */}
+        {review.response !== undefined && review.response !== null && (
+          <div className="rounded-md border border-border-subtle bg-surface-sunken/60 px-3 py-2">
+            <p className="flex flex-wrap items-center gap-2 text-xs font-medium text-ink-muted">
+              {t('productReviews.response.title')}
+              <Badge tone={review.response.status === 'HIDDEN' ? 'warning' : 'success'} dot>
+                {t(`productReviews.status.${review.response.status}` as TranslationKey)}
+              </Badge>
+            </p>
+            <p className="mt-1 whitespace-pre-line text-sm text-ink [overflow-wrap:anywhere]">{review.response.body}</p>
+            {review.response.status === 'HIDDEN' && review.response.hiddenReason !== null && (
+              <p className="mt-1 text-xs text-warning">
+                {t('productReviews.response.hiddenReason', { reason: review.response.hiddenReason })}
+              </p>
+            )}
+            {can(Permission.REVIEW_MODERATE) && (
+              <div className="mt-2 flex justify-end">
+                <Button
+                  size="sm"
+                  variant={review.response.status === 'HIDDEN' ? 'primary' : 'danger'}
+                  onClick={() => {
+                    onDecideResponse(review.response?.status !== 'HIDDEN');
+                  }}
+                >
+                  {review.response.status === 'HIDDEN'
+                    ? t('productReviews.response.show')
+                    : t('productReviews.response.hide')}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
         {hidden && (
           <Callout tone="warning" title={t('productReviews.hiddenTitle')}>
             <p className="text-sm">{review.moderationReason ?? '—'}</p>
@@ -374,20 +423,23 @@ function ReviewCard({
 function ModerationDialog({
   review,
   hide,
+  target,
   onClose,
 }: {
   review: AdminReview;
   hide: boolean;
+  target: 'review' | 'response';
   onClose: () => void;
 }): React.JSX.Element {
   const { t } = useI18n();
   const toast = useToast();
   const client = useQueryClient();
   const [reason, setReason] = useState('');
+  const forResponse = target === 'response';
 
   const mutation = useMutation({
     mutationFn: () =>
-      moderateReview(review.id, {
+      (forResponse ? moderateReviewResponse : moderateReview)(review.id, {
         status: hide ? 'HIDDEN' : 'PUBLISHED',
         reason: hide ? reason.trim() : null,
       }),
@@ -407,12 +459,28 @@ function ModerationDialog({
     <Modal
       isOpen
       onClose={onClose}
-      title={hide ? t('productReviews.hideTitle') : t('productReviews.showTitle')}
+      title={
+        forResponse
+          ? hide
+            ? t('productReviews.response.hideTitle')
+            : t('productReviews.response.showTitle')
+          : hide
+            ? t('productReviews.hideTitle')
+            : t('productReviews.showTitle')
+      }
       description={review.product.name}
     >
       <div className="space-y-4">
         <Callout tone={hide ? 'warning' : 'info'}>
-          <p className="text-sm">{hide ? t('productReviews.hideExplain') : t('productReviews.showExplain')}</p>
+          <p className="text-sm">
+            {forResponse
+              ? hide
+                ? t('productReviews.response.hideExplain')
+                : t('productReviews.response.showExplain')
+              : hide
+                ? t('productReviews.hideExplain')
+                : t('productReviews.showExplain')}
+          </p>
         </Callout>
 
         {hide && (

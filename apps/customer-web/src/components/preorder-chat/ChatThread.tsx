@@ -83,6 +83,7 @@ import { faqQuestionText, signedAnswers, takeHandoffIntent, type FaqId } from '@
 import { usePreorderAssistant } from '@/lib/use-preorder-assistant';
 import { AnswerLines, AssistantLabel, AssistantMark, PreorderAssistant, type HandoffStatus } from './PreorderAssistant';
 import { ProposalCard } from './ProposalCard';
+import { MessageActions } from '@/components/messages/MessageActions';
 
 export interface ChatThreadProps {
   conversationId: string | null;
@@ -1186,6 +1187,10 @@ const MessageBubble = memo(function MessageBubble({
               <DeliveryMark state={state} label={t(`preorderChat.status.${state}` as TranslationKey)} />
             )}
           </p>
+        )}
+        {/* Report, and Translate where switched on, under the team's words (JOURNEY-055). */}
+        {!mine && message.messageType === 'TEXT' && !message.redacted && (
+          <MessageActions threadKind="PREORDER_CHAT" messageId={message.id} audience="buyer" className="px-1" />
         )}
       </div>
     </div>

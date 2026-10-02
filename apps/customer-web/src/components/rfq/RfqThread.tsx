@@ -6,15 +6,22 @@
  * those after the last one it holds, and merges by id - so a message is
  * never shown twice. Each send carries its own id, so pressing Send twice on
  * a bad line is still one message.
+ *
+ * JOURNEY-055: a message may point at one file already on the request
+ * (`attachableFiles`), each message from the other side carries Report and,
+ * where switched on, Translate, and the composer warns against sending bank
+ * or card details.
  */
 import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
+import { Button, ErrorState, Field, LoadingState, Select, Textarea } from '@/components/ui';
 import { useToast } from '@/components/toast-context';
 import { useI18n } from '@/i18n/i18n-context';
 import { api, newIdempotencyKey } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
 import { formatUtc } from '@/lib/rfq-format';
+import { MessageActions } from '@/components/messages/MessageActions';
+import { SensitiveDataNotice } from '@/components/messages/SensitiveDataNotice';
 
 export interface RfqMessage {
   id: string;
@@ -22,22 +29,34 @@ export interface RfqMessage {
   body: string;
   mine: boolean;
   at: string;
+  /** The file the message points at. Absent from an older API. */
+  attachment?: { id: string; fileName: string; contentType: string; byteSize: number } | null;
 }
 
 export function RfqThread({
   path,
   canWrite,
   otherPartyName,
+  audience = 'buyer',
+  attachableFiles = [],
+  attachmentHref,
 }: {
   /** The thread's messages route, e.g. `/rfqs/:id/invitations/:invitationId/messages`. */
   path: string;
   canWrite: boolean;
   otherPartyName: string;
+  /** Whose session reads it: decides where Report and Translate are sent. */
+  audience?: 'buyer' | 'seller';
+  /** Files on the request this writer may point a message at. */
+  attachableFiles?: readonly { id: string; fileName: string }[];
+  /** The download link of a file on this request, for a message's attachment. */
+  attachmentHref?: (attachmentId: string) => string;
 }): React.JSX.Element {
   const { t, intlLocale } = useI18n();
   const toast = useToast();
   const [messages, setMessages] = useState<RfqMessage[]>([]);
   const [draft, setDraft] = useState('');
+  const [attachmentId, setAttachmentId] = useState('');
   const clientId = useRef(newIdempotencyKey());
   const last = messages.at(-1)?.id;
 
@@ -72,10 +91,15 @@ export function RfqThread({
 
   const send = useMutation({
     mutationFn: () =>
-      api.post<{ message: RfqMessage }>(path, { body: draft.trim(), clientMessageId: clientId.current.replace(/[^A-Za-z0-9_-]/g, '') }),
+      api.post<{ message: RfqMessage }>(path, {
+        body: draft.trim(),
+        clientMessageId: clientId.current.replace(/[^A-Za-z0-9_-]/g, ''),
+        ...(attachmentId === '' ? {} : { attachmentId }),
+      }),
     onSuccess: (result) => {
       merge([result.message]);
       setDraft('');
+      setAttachmentId('');
       clientId.current = newIdempotencyKey();
     },
     onError: (error) => {
@@ -110,6 +134,18 @@ export function RfqThread({
                 {message.mine ? t('rfq.thread.you') : otherPartyName} · {formatUtc(message.at, intlLocale)}
               </p>
               <p className="mt-1 whitespace-pre-line text-sm text-ink">{message.body}</p>
+              {message.attachment != null && (
+                <p className="mt-1 text-xs">
+                  {attachmentHref === undefined ? (
+                    <span className="text-ink-muted">{message.attachment.fileName}</span>
+                  ) : (
+                    <a href={attachmentHref(message.attachment.id)} className="font-medium text-brand hover:underline">
+                      {t('messages.attachment.download', { name: message.attachment.fileName })}
+                    </a>
+                  )}
+                </p>
+              )}
+              {!message.mine && <MessageActions threadKind="RFQ" messageId={message.id} audience={audience} />}
             </li>
           ))}
         </ol>
@@ -122,6 +158,7 @@ export function RfqThread({
           }}
           className="space-y-2"
         >
+          <SensitiveDataNotice draft={draft} />
           <Field label={t('rfq.thread.write')}>
             {({ inputId }) => (
               <Textarea
@@ -135,6 +172,26 @@ export function RfqThread({
               />
             )}
           </Field>
+          {attachableFiles.length > 0 && (
+            <Field label={t('messages.attachment.pick')}>
+              {({ inputId }) => (
+                <Select
+                  id={inputId}
+                  value={attachmentId}
+                  onChange={(event) => {
+                    setAttachmentId(event.target.value);
+                  }}
+                >
+                  <option value="">{t('messages.attachment.none')}</option>
+                  {attachableFiles.map((file) => (
+                    <option key={file.id} value={file.id}>
+                      {file.fileName}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+          )}
           <Button type="submit" variant="primary" isLoading={send.isPending} disabled={draft.trim().length === 0}>
             {t('rfq.thread.send')}
           </Button>

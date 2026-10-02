@@ -19,16 +19,22 @@ import { Permission } from '../../domain/permissions.js';
 import { AuditAction, recordAudit } from '../../modules/audit/audit.service.js';
 import {
   MODERATION_REASON_MAX_LENGTH,
+  SELLER_RESPONSE_MAX_LENGTH,
   deleteOwnReview,
   listOwnReviews,
   listPublicReviews,
   listReviewsForAdmin,
+  listSellerReviews,
   moderateReview,
+  moderateReviewResponse,
   readOwnReview,
+  respondToReview,
   reviewedProductIds,
   saveOwnReview,
 } from '../../modules/catalog/product-review.service.js';
+import { SellerPermission } from '../../domain/seller-permissions.js';
 import { currentUser, requireAdmin, requireCustomer } from '../plugins/auth.js';
+import { currentSeller, requireSeller, requireTradingSeller } from '../plugins/seller.js';
 
 /** Refused the same way whichever storefront route is asked. */
 function assertReviewsEnabled(): void {
@@ -148,10 +154,11 @@ export function registerCustomerProductReviewRoutes(app: FastifyInstance): Promi
       const { productId } = productIdParams.parse(request.params);
       const body = saveBody.parse(request.body);
 
-      const review = await saveOwnReview(auth.customerProfileId ?? '', {
-        productId,
-        scores: body.scores,
-      });
+      const review = await saveOwnReview(
+        auth.customerProfileId ?? '',
+        { productId, scores: body.scores },
+        { userId: auth.id, email: auth.email },
+      );
       return reply.status(200).send({ review });
     },
   );
@@ -241,6 +248,73 @@ export function registerAdminProductReviewRoutes(app: FastifyInstance): Promise<
       });
 
       return reply.status(200).send({ review: after });
+    },
+  );
+
+  // Hide a seller's answer under a review (a reason is required) or put it back. The review is untouched; audited.
+  app.post(
+    '/product-reviews/:reviewId/response/moderation',
+    { preHandler: requireAdmin(Permission.REVIEW_MODERATE) },
+    async (request, reply) => {
+      const auth = currentUser(request);
+      const { reviewId } = z.object({ reviewId: z.string().length(26) }).parse(request.params);
+      const body = moderateBody.parse(request.body);
+      const review = await moderateReviewResponse(
+        reviewId,
+        { status: body.status, reason: body.reason ?? null },
+        { userId: auth.id, email: auth.email },
+      );
+      return reply.status(200).send({ review });
+    },
+  );
+
+  return Promise.resolve();
+}
+
+// ---------------------------------------------------------------------------
+// Seller Hub (JOURNEY-059)
+// ---------------------------------------------------------------------------
+
+/**
+ * A seller's view of the reviews of goods it sold, and its public answers.
+ * Registered under /seller. Off with FEATURE_PRODUCT_REVIEWS, like the
+ * storefront routes.
+ */
+export function registerSellerProductReviewRoutes(app: FastifyInstance): Promise<void> {
+  // Reviews of goods you sold, newest first, with your service score and your answers.
+  app.get(
+    '/product-reviews',
+    { preHandler: requireSeller(SellerPermission.ORDER_READ) },
+    async (request, reply) => {
+      assertReviewsEnabled();
+      const query = z
+        .object({
+          page: z.coerce.number().int().min(1).max(1000).default(1),
+          limit: z.coerce.number().int().min(1).max(50).default(20),
+        })
+        .parse(request.query);
+      const result = await listSellerReviews(currentSeller(request).sellerAccountId, query);
+      return reply.header('Cache-Control', 'no-store').status(200).send(result);
+    },
+  );
+
+  // Write or replace your public answer under a review of your sale, up to 1000 characters. Audited.
+  app.put(
+    '/product-reviews/:reviewId/response',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_READ) },
+    async (request, reply) => {
+      assertReviewsEnabled();
+      const auth = currentUser(request);
+      const { reviewId } = z.object({ reviewId: z.string().length(26) }).parse(request.params);
+      const body = z
+        .object({ body: z.string().trim().min(1).max(SELLER_RESPONSE_MAX_LENGTH) })
+        .strict()
+        .parse(request.body);
+      const response = await respondToReview(currentSeller(request).sellerAccountId, reviewId, body.body, {
+        userId: auth.id,
+        email: auth.email,
+      });
+      return reply.status(200).send({ response });
     },
   );
 

@@ -68,6 +68,15 @@ import {
 } from '../plugins/auth.js';
 import { assertRecentStepUp } from '../../modules/identity/customer-mfa.service.js';
 import {
+  listCentreNotifications,
+  markCentreNotificationsRead,
+} from '../../modules/notifications/customer-notification-centre.js';
+import {
+  PREFERENCE_CHANNELS,
+  readPreferences,
+  savePreferences,
+} from '../../modules/notifications/notification-preferences.js';
+import {
   INSIGHT_RATE_LIMIT,
   assertUsableWindow,
   describeFilters,
@@ -222,6 +231,10 @@ const deactivateSchema = z.object({
 
 const notificationQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(50),
+  unreadOnly: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
 });
 
 const wishlistQuerySchema = z.object({
@@ -939,65 +952,53 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
 
   // --- Notifications -------------------------------------------------------
 
-  /**
-   * What this deployment has sent to this customer.
-   *
-   * Read out of the notification outbox by recipient address, which is the
-   * honest answer to "my notifications": these are the messages that were
-   * actually queued for them. It is not a feed and not a preference screen —
-   * there is nothing here to mark as read, because there is nothing on the
-   * server that tracks whether a customer opened an email.
-   *
-   * Only what was actually SENT. A PENDING row is a message the queue has not
-   * got to yet and a FAILED one is a message that never arrived, and listing
-   * either as a notification the customer received would be a lie about their
-   * own record.
-   *
-   * The body is deliberately not returned. It is a rendered email, often
-   * carrying a single-use link — a payment link, a reset token — and a list
-   * endpoint that handed those back would turn one leaked session into every
-   * live link the account has ever been sent.
+  /*
+   * The notification centre (JOURNEY-056): what this deployment actually sent
+   * to this person's address - only SENT rows, never a body (they can carry
+   * single-use links) - each with its own read mark, a priority, the family a
+   * person can mute and a link to the order, claim or request it is about.
+   * See `modules/notifications/customer-notification-centre.ts`.
    */
+  // Your notifications, newest first, with unread marks, priority and a link to what each is about.
   app.get('/notifications', { preHandler: requireCustomer }, async (request, reply) => {
     const auth = currentUser(request);
-    const { limit } = notificationQuerySchema.parse(request.query);
+    const { limit, unreadOnly } = notificationQuerySchema.parse(request.query);
+    const centre = await listCentreNotifications({ userId: auth.id, email: auth.email }, { limit, unreadOnly });
+    return reply.header('cache-control', 'no-store').status(200).send(centre);
+  });
 
-    // Events an operator has taken out of the notification centre
-    // (`inAppEnabled` off) are not listed, whatever was emailed for them.
-    const hidden = await prisma.notificationSetting.findMany({
-      where: { inAppEnabled: false },
-      select: { eventKey: true },
-    });
+  // Mark notifications read: the ids given, or all of them with `{ "all": true }`.
+  app.post('/notifications/read', { preHandler: requireCustomer }, async (request, reply) => {
+    const auth = currentUser(request);
+    const body = z
+      .union([
+        z.object({ ids: z.array(z.string().length(26)).min(1).max(200) }).strict(),
+        z.object({ all: z.literal(true) }).strict(),
+      ])
+      .parse(request.body);
+    const updated = await markCentreNotificationsRead({ email: auth.email }, body);
+    return reply.status(200).send({ updated });
+  });
 
-    const rows = await prisma.notificationOutbox.findMany({
-      where: {
-        recipientEmail: auth.email,
-        status: 'SENT',
-        channel: { in: ['EMAIL', 'IN_APP'] },
-        ...(hidden.length > 0 ? { eventKey: { notIn: hidden.map((row) => row.eventKey) } } : {}),
-      },
-      orderBy: { sentAt: 'desc' },
-      take: limit,
-      select: {
-        id: true,
-        eventKey: true,
-        subject: true,
-        sentAt: true,
-        relatedType: true,
-        relatedId: true,
-      },
-    });
+  // Which notification families you receive on which channel. Security, order, payment and data-rights ones are always on.
+  app.get('/notification-preferences', { preHandler: requireCustomer }, async (request, reply) => {
+    const auth = currentUser(request);
+    return reply.header('cache-control', 'no-store').status(200).send(await readPreferences(auth.id));
+  });
 
-    return reply.status(200).send({
-      notifications: rows.map((row) => ({
-        id: row.id,
-        eventKey: row.eventKey,
-        subject: row.subject,
-        sentAt: row.sentAt?.toISOString() ?? null,
-        relatedType: row.relatedType,
-        relatedId: row.relatedId,
-      })),
-    });
+  // Replace your muted families: each entry switches one family off on one channel. Audited.
+  app.put('/notification-preferences', { preHandler: requireCustomer }, async (request, reply) => {
+    const auth = currentUser(request);
+    const body = z
+      .object({
+        muted: z
+          .array(z.object({ family: z.string().trim().min(1).max(32), channel: z.enum(PREFERENCE_CHANNELS) }).strict())
+          .max(100),
+      })
+      .strict()
+      .parse(request.body);
+    const view = await savePreferences({ userId: auth.id, email: auth.email, actorType: 'CUSTOMER' }, body.muted);
+    return reply.status(200).send(view);
   });
 
   // --- Saved for later -----------------------------------------------------

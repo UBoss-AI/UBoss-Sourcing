@@ -962,7 +962,9 @@ something: **About the supplier**, **What they sell here** (category pills
 with counts, each opening that category narrowed to the supplier),
 **Verified certifications** (standard, issuer, number, valid until, scope),
 **Factories** (name, city/region/country, established, workforce, monthly
-capacity, what is made there) and **Capabilities and export**. Sections the
+capacity, what is made there), **Capabilities and export**, and **Buyers'
+rating of this seller's service** (delivery and support across what it sold,
+with the count; shown apart from the inspection history, JOURNEY-059). Sections the
 marketplace did not verify end with "As stated by the supplier."
 
 **States.** Loading; an unknown or unlisted supplier is the not-found page;
@@ -1193,8 +1195,16 @@ not sent to the API.
   sentence explaining the rule otherwise; **Sort by** (Newest first, Highest
   rated, Lowest rated); and the reviews ten at a time with **Show more
   reviews**. Each review shows its stars, the first name and initial,
-  **Verified purchase**, the date, and the four scores as chips. "No reviews
-  yet" when there are none.
+  **Verified purchase**, the date, and the four scores as chips, and under it
+  the seller's answer ("Response from …" and the date) when one is published.
+  "No reviews yet" when there are none. Beside the ratings, in a box of its
+  own with no stars, the **inspection results** of the seller's orders
+  (signed reports passed and failed in the last twelve months), with a
+  sentence that inspection results are measured checks shown separately and
+  never averaged into the ratings (JOURNEY-059).
+- **Sold by** (the sourcing panel): the seller's **service rating** (delivery
+  and support, with how many reviews) and, on its own line, its inspection
+  counts — never combined.
 - **The review dialog** (also opened from a delivered order and from **My
   reviews**): four star inputs with a one-line question under each, all
   required ("Choose a score from 1 to 5."), a note that the review shows the
@@ -2361,6 +2371,17 @@ it.
 - `POST /api/v1/orders/:id/cancel`
 - `POST /api/v1/cart/items` (once per line, for "Order these again")
 - `GET /api/v1/account/product-reviews/reviewed?productIds=…` (delivered orders)
+- `GET /api/v1/orders/:id/messages`, `POST /api/v1/orders/:id/messages/:groupId`,
+  `POST /api/v1/account/messages/reports`, `POST /api/v1/account/messages/translate`
+  (the **Messages with the seller** panel)
+
+**Messages with the seller** (JOURNEY-055). An order with seller parts shows one
+thread per seller (a picker when there are several): the messages, a standing
+warning above the box never to send bank details, passwords or card numbers or
+to pay outside the marketplace — louder when what is typed looks like an email
+address, a telephone number, an IBAN or a card number — and **Send**. Under the
+seller's messages: **Report** and, where switched on, **Translate**. New
+messages appear within 30 seconds.
 
 The message centre (`/account/messages`) also lists the buyer's open and awarded RFQs under its heading, each linking to that RFQ's supplier conversations.
 
@@ -2372,9 +2393,9 @@ Public. Seven inputs (unit price, quantity, freight, inspection fee, duty %, tax
 
 #### `/account/orders/:id/claim`, `/account/disputes`, `/account/disputes/:reference` — Claims
 
-The operator side is the admin console's `/disputes` queue and `/disputes/:id` case screen (see PRD 5.8).
+The operator side is the admin console's `/disputes` queue and `/disputes/:id` case screen (see PRD 5.8). The case screen (`apps/admin-web/src/pages/disputes/DisputeConsolePages.tsx`, JOURNEY-058) shows the evidence timeline with **Download** per file and **Add evidence** for staff; **Deadlines, authority and owner** (seller-answer, decision, evidence and appeal deadlines marked **Overdue** when passed, the second-approver threshold, and an assignee picker for staff allowed to assign); **Payment, chargeback and seller funds** (the payment line, an open chargeback's provider status and evidence deadline with a link and a warning that no refund can be decided while it is open, and each seller's held funds with the hold reason); the **Inspection** panel (each revision's status and result, **Open inspection**); the decision card with any proposal waiting for a second approver, who decided and who approved; and an **Appealed** badge. Calls add `GET /admin/disputes/assignees`, `POST /admin/disputes/:id/assignment`, `POST /admin/disputes/:id/attachments`, `POST …/attachments/:attachmentId/link` then `GET …/download`.
 
-Reached from any placed order ("Raise a claim about this order", "Your claims"). The form asks for the line (or whole order), reason, description, remedy and, for a partial refund, the amount; Send stays off until the reason and a long-enough description are given. The detail shows status, reason, remedy, description, evidence, the decision with any refund, and the message thread, with Add evidence, Send message, Ask the marketplace to decide, Withdraw and Appeal shown only when the server allows each.
+Reached from any placed order ("Raise a claim about this order", "Your claims"). The form asks for the line (or whole order), reason, description, remedy and, for a partial refund, the amount; Send stays off until the reason and a long-enough description are given. The detail shows status, reason, remedy, description, the evidence timeline (oldest first, who sent it, with **Download** per file), the inspection result of the order once the inspection policy releases it to the buyer (status and result only; a claim does not change it), the decision with any refund, and the message thread, with Add evidence, Send message, Ask the marketplace to decide, Withdraw and Appeal shown only when the server allows each.
 
 #### `/account/orders/:id/return`, `/account/returns`, `/account/returns/:id` — Returns and refunds
 
@@ -2518,8 +2539,13 @@ field, missing ones as "Not provided", and the version history),
 **Suppliers** (a table of who was asked, how they were chosen and their status;
 "no match" said plainly; ask another seller by name while open), **Files**,
 **Timeline**. **Close request** and **Cancel request** ask for confirmation and
-an optional reason. **Calls** `GET /rfqs/:id`, `POST /rfqs/:id/invitations`,
-`POST /rfqs/:id/cancel`, `POST /rfqs/:id/close`.
+an optional reason. Each supplier's question thread (JOURNEY-055) has the
+sensitive-data warning above the box, an optional **Attach a file from this
+request** (published requirement files), each message's file as a download
+link, and **Report** / **Translate** under the supplier's messages. **Calls**
+`GET /rfqs/:id`, `POST /rfqs/:id/invitations`, `POST /rfqs/:id/cancel`,
+`POST /rfqs/:id/close`, `POST /account/messages/reports`,
+`POST /account/messages/translate`.
 
 A **Samples** tab (`components/rfq/SamplesPanel.tsx`, also on the seller's
 request page) asks a supplier taking part for a sample (supplier, quantity,
@@ -2676,9 +2702,21 @@ the reply box. The thread is the same component as the product page drawer. A cl
 to start a new one from the product page; **Review proposal** opens the
 product page with the preorder form filled in. No conversation starts here.
 
+Under each message from the team: **Report** (a reason and an optional note;
+"Reported. Our moderators will review it.") and, only where the marketplace
+switched message translation on, **Translate** / **Show original**
+(JOURNEY-055).
+
+**Order messages** (`/account/messages?view=orders`): a toggle beside the
+team chats lists the buyer's order threads with sellers that have any message
+— order number, seller, last message and time — each linking to the order,
+where the thread is read and answered.
+
 **API calls:** `GET /api/v1/preorder-chats`, `GET /api/v1/preorder-chats/:id`,
 `GET .../:id/messages`, `POST .../:id/messages`, `POST .../:id/read`,
-`GET /api/v1/preorder-chats/unread`, and the socket.
+`GET /api/v1/preorder-chats/unread`, the socket,
+`GET /api/v1/account/order-messages`, `POST /api/v1/account/messages/reports`
+and `POST /api/v1/account/messages/translate`.
 
 #### `/account/autopay` — Autopay
 
@@ -3430,11 +3468,29 @@ dialog's `GET`/`PUT /api/v1/account/products/:productId/review` and
 | **File** | `pages/account/NotificationsPage.tsx` |
 | **Local screenshot** | `42-customer-notifications.png` |
 
-**Purpose.** A record of the messages actually sent to this account (order
-confirmations, payment receipts, delivery updates). It lists the subject and
-the time. It is not an inbox: there is no read or unread, and no message body.
+**Purpose.** The messages actually sent to this account (order
+confirmations, payment receipts, delivery updates), what is still unread, and
+the person's own choices of what reaches them where (JOURNEY-056).
 
-**API call:** `GET /api/v1/account/notifications`
+**On the screen**
+
+- **Sent to you**: "Unread: N" (or "You have read everything."), **Show unread
+  only** / **Show all**, and **Mark all as read**. A row per notification: a
+  family mark with a dot while unread (and "Unread" for screen readers), the
+  subject in bold while unread, an **Important** badge on what needs acting on
+  now, the family and the time. The subject links to the thing itself — the
+  order, the claim, the request — or the family's list; opening it marks it
+  read. A row with no link has **Mark read**.
+- The note that this is a record, not a copy, and where to change the address.
+- **What we send you**: a table, one row per family, with a switch for
+  **Email**, **Text message** and **This page**. Account, orders, payments and
+  your data say **Always sent** and their switches are fixed on. A note says a
+  text message goes only where the marketplace has switched it on for that
+  notification and the account has a telephone number. **Save choices**.
+
+**API calls:** `GET /api/v1/account/notifications[?unreadOnly=true]`,
+`POST /api/v1/account/notifications/read`,
+`GET`/`PUT /api/v1/account/notification-preferences`
 
 #### `/account/support` and `/account/support/:reference` — Your tickets
 
@@ -4090,6 +4146,9 @@ returns, and the next steps.
   `POST /api/v1/seller/pickups/:pickupId/ready`,
   `POST /api/v1/seller/pickups/:pickupId/cancel`
 - `GET /api/v1/seller/orders/:sellerOrderId/documents`
+- `GET|POST /api/v1/seller/orders/:id/messages`, `POST /api/v1/seller/messages/reports`,
+  `POST /api/v1/seller/messages/translate` (the buyer thread, JOURNEY-055: the same
+  panel, warning, Report and Translate as the buyer's order page)
 - `PUT …/packages`, `POST …/split`, `POST …/invoice/preview`,
   `POST …/invoice/issue`, `POST …/packing-list/preview`,
   `POST …/packing-list/issue`, `POST …/packing-list/supersede`,
@@ -4149,8 +4208,13 @@ lead time, capacity, Incoterm and place, validity in UTC, payment,
 inspection, warranty, taxes and exclusions, tooling, sample, shipping,
 comment, price tiers, files) until the seller has quoted, then every offer
 version (`components/rfq/OfferHistory.tsx`). Opening the page marks the invitation
-viewed. **Calls** `GET /seller/rfqs/:id`, `GET|POST /seller/rfqs/:id/messages`,
-`POST /seller/rfqs/:id/decline`, `GET /seller/rfqs/:id/attachments/:attachmentId/download`.
+viewed. The **Questions** thread (JOURNEY-055) has the sensitive-data warning
+above the box, an optional **Attach a file from this request** (published
+requirement files and the seller's own uploads), each message's file as a
+download link, and **Report** / **Translate** under the buyer's messages.
+**Calls** `GET /seller/rfqs/:id`, `GET|POST /seller/rfqs/:id/messages`,
+`POST /seller/rfqs/:id/decline`, `GET /seller/rfqs/:id/attachments/:attachmentId/download`,
+`POST /seller/messages/reports`, `POST /seller/messages/translate`.
 
 #### `/seller/preorders/:id` — One preorder
 
@@ -4399,11 +4463,62 @@ live. Reached from Logistics; there is no sidebar entry.
 
 **Purpose.** Every notice the marketplace has sent, never deleted: decisions on
 your application, your listings and your brands. Read or unread is kept per
-person. Each row: title, "New", severity, text, time, **Open →** and **Mark
-read**.
+person. Each row: title, "New", **Important** for a warning or critical
+notice, severity, text, time, **Open →** and **Mark read**.
+
+**What appears in your feed** (JOURNEY-056): a switch per Seller Hub family —
+listings and brands, low stock, carriers and delivery, ERP connection,
+preorders, requests for quotation, buyer messages, inspection — and the
+essential family (application, security, payouts, new orders, claims,
+deadlines) fixed on as **Always shown**. Only this member's own list changes;
+an open problem is always shown. **Save**.
 
 **API calls:** `GET /api/v1/seller/notifications`,
-`POST /api/v1/seller/notifications/:id/read`
+`POST /api/v1/seller/notifications/:id/read`,
+`GET`/`PUT /api/v1/seller/notification-preferences`
+
+#### `/seller/reviews` — Reviews
+
+| | |
+|---|---|
+| **Who** | Seller members with `seller.order.read`; shown only while product reviews are on |
+| **File** | `pages/seller/SellerReviewsPage.tsx` |
+
+**Purpose.** What buyers said about goods this seller sold, and the seller's
+public answers (JOURNEY-059).
+
+**On the screen.** A score card — the seller's service rating (delivery and
+support) and how many reviews it rests on, or "no score yet" — and a paged
+list: product, reviewer (first name and initial), the four scores and the date.
+Each review has **Respond** (or **Edit answer**): a box of up to 1000
+characters with a counter and **Publish**. An answer staff hid shows **Hidden
+by the marketplace** and the reason. With reviews switched off the page says
+so.
+
+**API calls:** `GET /api/v1/seller/product-reviews`,
+`PUT /api/v1/seller/product-reviews/:reviewId/response`
+
+#### `/seller/disputes` and `/seller/disputes/:reference` — Claims
+
+| | |
+|---|---|
+| **Who** | Seller members with `seller.order.read`, open while trading is paused |
+| **File** | `pages/seller/SellerDisputePages.tsx` |
+
+**Purpose.** Answer buyers' claims on this seller's goods before the deadline
+(JOURNEY-058).
+
+**On the screen.** The list filters **Open**, **Closed** and **All**. A claim
+shows the reason, what the buyer asked for, the answer deadline (marked late
+when passed), the evidence timeline with a download per file, the inspection
+result of that part of the order (a signed report only, never its contents),
+the thread, and — when the server allows each — **Answer** with an optional
+offer (none, full refund, partial refund with an amount, replacement), **Send
+message**, **Add evidence** and **Appeal**. **View order** opens the order.
+
+**API calls:** `GET /api/v1/seller/disputes`, `GET /api/v1/seller/disputes/:reference`,
+`POST …/response`, `POST …/messages`, `POST …/appeal`, `POST …/attachments`,
+`POST …/attachments/:attachmentId/link` then `GET …/download`
 
 #### `/seller/activity` — Activity
 
@@ -5206,9 +5321,36 @@ who hid it and when. Pages of 20.
 |---|---|---|
 | Hide review | A reason, shown to the buyer | The review leaves the product page and the averages |
 | Show again | — | The review is back, and counts again |
+| Hide answer | A reason, shown to the seller | The seller's answer leaves the product page; the review stays |
+| Restore answer | — | The seller's answer is shown again |
+
+Each card also says which seller the review **counts towards** and shows the
+seller's answer, its status and any hidden reason (JOURNEY-059).
 
 **API calls:** `GET /api/v1/admin/product-reviews?status=…&maxScore=…&search=…&page=…&limit=20`,
-`POST /api/v1/admin/product-reviews/:id/moderation`
+`POST /api/v1/admin/product-reviews/:id/moderation`,
+`POST /api/v1/admin/product-reviews/:id/response/moderation`
+
+#### `/message-reports` — Message reports
+
+| | |
+|---|---|
+| **Who** | `review.read` to open; deciding needs `review.moderate` |
+| **File** | `src/pages/MessageReportsPage.tsx` |
+
+**Purpose.** Messages buyers and sellers reported as abusive, in order, RFQ and
+preorder-chat threads (JOURNEY-055). A report hides nothing by itself; staff
+decide.
+
+**On the screen.** A status filter (Open by default, Actioned, Dismissed, All).
+A card per report: the kind of conversation, the reason, the date, the reported
+words (or "removed" if they were removed since), who reported it and as buyer
+or seller, their note, and **Open the conversation** for a preorder chat. A
+decision form — **Actioned** or **Dismissed** with a required note — and, once
+decided, who decided and the note.
+
+**API calls:** `GET /api/v1/admin/message-reports?status=…`,
+`POST /api/v1/admin/message-reports/:id/decision`
 
 ### 6.6 Sales
 

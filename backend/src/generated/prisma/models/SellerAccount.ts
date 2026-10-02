@@ -463,6 +463,7 @@ export type SellerAccountWhereInput = {
   screeningChecks?: Prisma.SellerScreeningCheckListRelationFilter
   profileChangeRequests?: Prisma.SellerProfileChangeRequestListRelationFilter
   listingTrust?: Prisma.SellerListingTrustListRelationFilter
+  productReviews?: Prisma.ProductReviewListRelationFilter
 }
 
 export type SellerAccountOrderByWithRelationInput = {
@@ -558,6 +559,7 @@ export type SellerAccountOrderByWithRelationInput = {
   screeningChecks?: Prisma.SellerScreeningCheckOrderByRelationAggregateInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestOrderByRelationAggregateInput
   listingTrust?: Prisma.SellerListingTrustOrderByRelationAggregateInput
+  productReviews?: Prisma.ProductReviewOrderByRelationAggregateInput
   _relevance?: Prisma.SellerAccountOrderByRelevanceInput
 }
 
@@ -657,6 +659,7 @@ export type SellerAccountWhereUniqueInput = Prisma.AtLeast<{
   screeningChecks?: Prisma.SellerScreeningCheckListRelationFilter
   profileChangeRequests?: Prisma.SellerProfileChangeRequestListRelationFilter
   listingTrust?: Prisma.SellerListingTrustListRelationFilter
+  productReviews?: Prisma.ProductReviewListRelationFilter
 }, "id" | "displayNameNormalized" | "slug">
 
 export type SellerAccountOrderByWithAggregationInput = {
@@ -816,6 +819,7 @@ export type SellerAccountCreateInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateInput = {
@@ -911,6 +915,7 @@ export type SellerAccountUncheckedCreateInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUpdateInput = {
@@ -1006,6 +1011,7 @@ export type SellerAccountUpdateInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateInput = {
@@ -1101,6 +1107,7 @@ export type SellerAccountUncheckedUpdateInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateManyInput = {
@@ -1313,6 +1320,22 @@ export type SellerAccountUpdateOneWithoutCreatedProductsNestedInput = {
   delete?: Prisma.SellerAccountWhereInput | boolean
   connect?: Prisma.SellerAccountWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutCreatedProductsInput, Prisma.SellerAccountUpdateWithoutCreatedProductsInput>, Prisma.SellerAccountUncheckedUpdateWithoutCreatedProductsInput>
+}
+
+export type SellerAccountCreateNestedOneWithoutProductReviewsInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutProductReviewsInput, Prisma.SellerAccountUncheckedCreateWithoutProductReviewsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutProductReviewsInput
+  connect?: Prisma.SellerAccountWhereUniqueInput
+}
+
+export type SellerAccountUpdateOneWithoutProductReviewsNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerAccountCreateWithoutProductReviewsInput, Prisma.SellerAccountUncheckedCreateWithoutProductReviewsInput>
+  connectOrCreate?: Prisma.SellerAccountCreateOrConnectWithoutProductReviewsInput
+  upsert?: Prisma.SellerAccountUpsertWithoutProductReviewsInput
+  disconnect?: Prisma.SellerAccountWhereInput | boolean
+  delete?: Prisma.SellerAccountWhereInput | boolean
+  connect?: Prisma.SellerAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerAccountUpdateToOneWithWhereWithoutProductReviewsInput, Prisma.SellerAccountUpdateWithoutProductReviewsInput>, Prisma.SellerAccountUncheckedUpdateWithoutProductReviewsInput>
 }
 
 export type SellerAccountCreateNestedOneWithoutSupportTicketsInput = {
@@ -2353,6 +2376,7 @@ export type SellerAccountCreateWithoutCreatedProductsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutCreatedProductsInput = {
@@ -2447,6 +2471,7 @@ export type SellerAccountUncheckedCreateWithoutCreatedProductsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutCreatedProductsInput = {
@@ -2557,6 +2582,7 @@ export type SellerAccountUpdateWithoutCreatedProductsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutCreatedProductsInput = {
@@ -2608,6 +2634,403 @@ export type SellerAccountUncheckedUpdateWithoutCreatedProductsInput = {
   payouts?: Prisma.SellerPayoutUncheckedUpdateManyWithoutSellerAccountNestedInput
   notifications?: Prisma.SellerNotificationUncheckedUpdateManyWithoutSellerAccountNestedInput
   auditLogs?: Prisma.SellerAuditLogUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountCreateWithoutProductReviewsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountUncheckedCreateWithoutProductReviewsInput = {
+  id: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  slug: string
+  kind?: $Enums.SellerKind
+  status?: $Enums.SellerApplicationStatus
+  registrationCountry: string
+  description?: string | null
+  logoStorageKey?: string | null
+  statusReason?: string | null
+  internalNotes?: string | null
+  resubmissionAllowed?: boolean
+  commissionBasisPoints?: number | null
+  feeTier?: string | null
+  qualityScore?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  createdByProfileId?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  members?: Prisma.SellerMemberUncheckedCreateNestedManyWithoutSellerAccountInput
+  invitations?: Prisma.SellerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedCreateNestedManyWithoutSellerAccountInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedCreateNestedOneWithoutSellerAccountInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  documents?: Prisma.SellerDocumentUncheckedCreateNestedManyWithoutSellerAccountInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedCreateNestedManyWithoutSellerAccountInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedCreateNestedOneWithoutSellerAccountInput
+  locations?: Prisma.SellerLocationUncheckedCreateNestedManyWithoutSellerAccountInput
+  brandRequests?: Prisma.BrandRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedCreateNestedManyWithoutSellerAccountInput
+  offers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedCreateNestedManyWithoutSellerAccountInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipments?: Prisma.SellerShipmentUncheckedCreateNestedManyWithoutSellerAccountInput
+  returns?: Prisma.SellerReturnUncheckedCreateNestedManyWithoutSellerAccountInput
+  settlements?: Prisma.SellerSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  payouts?: Prisma.SellerPayoutUncheckedCreateNestedManyWithoutSellerAccountInput
+  notifications?: Prisma.SellerNotificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedCreateNestedManyWithoutSellerAccountInput
+  createdProducts?: Prisma.ProductUncheckedCreateNestedManyWithoutCreatedBySellerAccountInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUncheckedCreateNestedManyWithoutSellerAccountInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUncheckedCreateNestedManyWithoutSellerAccountInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUncheckedCreateNestedManyWithoutOwnerSellerAccountInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUncheckedCreateNestedManyWithoutSellerAccountInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpConnections?: Prisma.SellerErpConnectionUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUncheckedCreateNestedManyWithoutSellerAccountInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUncheckedCreateNestedOneWithoutSellerAccountInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUncheckedCreateNestedManyWithoutSellerAccountInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerAccountInput
+  orderSettlements?: Prisma.SellerOrderSettlementUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderPolicies?: Prisma.PreorderPolicyUncheckedCreateNestedManyWithoutSellerAccountInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqInvitations?: Prisma.RfqInvitationUncheckedCreateNestedManyWithoutSellerAccountInput
+  rfqQuotes?: Prisma.RfqQuoteUncheckedCreateNestedManyWithoutSellerAccountInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUncheckedCreateNestedOneWithoutSellerAccountInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerAccountInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUncheckedCreateNestedManyWithoutLinkedSellerAccountInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutSellerAccountInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerAccountInput
+  disputes?: Prisma.DisputeUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustProfile?: Prisma.SellerTrustProfileUncheckedCreateNestedOneWithoutSellerAccountInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUncheckedCreateNestedManyWithoutSellerAccountInput
+  factories?: Prisma.SellerFactoryUncheckedCreateNestedManyWithoutSellerAccountInput
+  certifications?: Prisma.SellerCertificationUncheckedCreateNestedManyWithoutSellerAccountInput
+  trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+}
+
+export type SellerAccountCreateOrConnectWithoutProductReviewsInput = {
+  where: Prisma.SellerAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutProductReviewsInput, Prisma.SellerAccountUncheckedCreateWithoutProductReviewsInput>
+}
+
+export type SellerAccountUpsertWithoutProductReviewsInput = {
+  update: Prisma.XOR<Prisma.SellerAccountUpdateWithoutProductReviewsInput, Prisma.SellerAccountUncheckedUpdateWithoutProductReviewsInput>
+  create: Prisma.XOR<Prisma.SellerAccountCreateWithoutProductReviewsInput, Prisma.SellerAccountUncheckedCreateWithoutProductReviewsInput>
+  where?: Prisma.SellerAccountWhereInput
+}
+
+export type SellerAccountUpdateToOneWithWhereWithoutProductReviewsInput = {
+  where?: Prisma.SellerAccountWhereInput
+  data: Prisma.XOR<Prisma.SellerAccountUpdateWithoutProductReviewsInput, Prisma.SellerAccountUncheckedUpdateWithoutProductReviewsInput>
+}
+
+export type SellerAccountUpdateWithoutProductReviewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUpdateManyWithoutCreatedBySellerAccountNestedInput
+  logisticsPartners?: Prisma.SellerLogisticsPartnerUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutSellerAccountNestedInput
+  carrierConnections?: Prisma.SellerCarrierConnectionUpdateManyWithoutSellerAccountNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerAccountNestedInput
+  pickupProfiles?: Prisma.SellerLogisticsPickupProfileUpdateManyWithoutSellerAccountNestedInput
+  logisticsRateCards?: Prisma.SellerLogisticsRateCardUpdateManyWithoutSellerAccountNestedInput
+  carrierRateQuotes?: Prisma.CarrierRateQuoteUpdateManyWithoutSellerAccountNestedInput
+  shipmentPurchases?: Prisma.ShipmentPurchaseUpdateManyWithoutSellerAccountNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutSellerAccountNestedInput
+  partnerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutSellerAccountNestedInput
+  ownedLogisticsPartners?: Prisma.LogisticsPartnerUpdateManyWithoutOwnerSellerAccountNestedInput
+  packagingProfiles?: Prisma.SellerPackagingProfileUpdateManyWithoutSellerAccountNestedInput
+  freightQuoteRequests?: Prisma.SellerFreightQuoteRequestUpdateManyWithoutSellerAccountNestedInput
+  erpConnections?: Prisma.SellerErpConnectionUpdateManyWithoutSellerAccountNestedInput
+  erpBridgeDevices?: Prisma.SellerErpBridgeDeviceUpdateManyWithoutSellerAccountNestedInput
+  erpSyncJobs?: Prisma.SellerErpSyncJobUpdateManyWithoutSellerAccountNestedInput
+  erpAuditEvents?: Prisma.SellerErpAuditEventUpdateManyWithoutSellerAccountNestedInput
+  logisticsPolicy?: Prisma.SellerLogisticsPolicyUpdateOneWithoutSellerAccountNestedInput
+  logisticsPolicyVersions?: Prisma.SellerLogisticsPolicyVersionUpdateManyWithoutSellerAccountNestedInput
+  logisticsProviders?: Prisma.SellerLogisticsProviderUpdateManyWithoutSellerAccountNestedInput
+  logisticsLevelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutSellerAccountNestedInput
+  orderLogisticsLegs?: Prisma.OrderLogisticsLegUpdateManyWithoutSellerAccountNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerAccountNestedInput
+  orderSettlements?: Prisma.SellerOrderSettlementUpdateManyWithoutSellerAccountNestedInput
+  preorderPolicies?: Prisma.PreorderPolicyUpdateManyWithoutSellerAccountNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutSellerAccountNestedInput
+  rfqInvitations?: Prisma.RfqInvitationUpdateManyWithoutSellerAccountNestedInput
+  rfqQuotes?: Prisma.RfqQuoteUpdateManyWithoutSellerAccountNestedInput
+  invoiceSettings?: Prisma.SellerInvoiceSettingsUpdateOneWithoutSellerAccountNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerAccountNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerAccountNestedInput
+  linkedBuyerCompanies?: Prisma.BuyerCompanyUpdateManyWithoutLinkedSellerAccountNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutSellerAccountNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerAccountNestedInput
+  disputes?: Prisma.DisputeUpdateManyWithoutSellerAccountNestedInput
+  trustProfile?: Prisma.SellerTrustProfileUpdateOneWithoutSellerAccountNestedInput
+  beneficialOwners?: Prisma.SellerBeneficialOwnerUpdateManyWithoutSellerAccountNestedInput
+  factories?: Prisma.SellerFactoryUpdateManyWithoutSellerAccountNestedInput
+  certifications?: Prisma.SellerCertificationUpdateManyWithoutSellerAccountNestedInput
+  trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
+  screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
+  profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
+  listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+}
+
+export type SellerAccountUncheckedUpdateWithoutProductReviewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumSellerKindFieldUpdateOperationsInput | $Enums.SellerKind
+  status?: Prisma.EnumSellerApplicationStatusFieldUpdateOperationsInput | $Enums.SellerApplicationStatus
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoStorageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resubmissionAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commissionBasisPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qualityScore?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.SellerMemberUncheckedUpdateManyWithoutSellerAccountNestedInput
+  invitations?: Prisma.SellerInvitationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  accessReviews?: Prisma.TeamAccessReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
+  onboarding?: Prisma.SellerOnboardingProgressUncheckedUpdateOneWithoutSellerAccountNestedInput
+  businessProfile?: Prisma.SellerBusinessProfileUncheckedUpdateOneWithoutSellerAccountNestedInput
+  verificationCases?: Prisma.SellerVerificationCaseUncheckedUpdateManyWithoutSellerAccountNestedInput
+  documents?: Prisma.SellerDocumentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  agreements?: Prisma.SellerAgreementAcceptanceUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payoutAccount?: Prisma.SellerPayoutAccountReferenceUncheckedUpdateOneWithoutSellerAccountNestedInput
+  locations?: Prisma.SellerLocationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  brandRequests?: Prisma.BrandRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  listingDrafts?: Prisma.SellerListingDraftUncheckedUpdateManyWithoutSellerAccountNestedInput
+  offers?: Prisma.SellerOfferUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutSellerAccountNestedInput
+  inventoryMovements?: Prisma.SellerInventoryMovementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  bulkImports?: Prisma.SellerBulkImportJobUncheckedUpdateManyWithoutSellerAccountNestedInput
+  orderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutSellerAccountNestedInput
+  shipments?: Prisma.SellerShipmentUncheckedUpdateManyWithoutSellerAccountNestedInput
+  returns?: Prisma.SellerReturnUncheckedUpdateManyWithoutSellerAccountNestedInput
+  settlements?: Prisma.SellerSettlementUncheckedUpdateManyWithoutSellerAccountNestedInput
+  payouts?: Prisma.SellerPayoutUncheckedUpdateManyWithoutSellerAccountNestedInput
+  notifications?: Prisma.SellerNotificationUncheckedUpdateManyWithoutSellerAccountNestedInput
+  auditLogs?: Prisma.SellerAuditLogUncheckedUpdateManyWithoutSellerAccountNestedInput
+  createdProducts?: Prisma.ProductUncheckedUpdateManyWithoutCreatedBySellerAccountNestedInput
   logisticsPartners?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutSellerAccountNestedInput
   fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutSellerAccountNestedInput
   carrierConnections?: Prisma.SellerCarrierConnectionUncheckedUpdateManyWithoutSellerAccountNestedInput
@@ -2745,6 +3168,7 @@ export type SellerAccountCreateWithoutSupportTicketsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutSupportTicketsInput = {
@@ -2839,6 +3263,7 @@ export type SellerAccountUncheckedCreateWithoutSupportTicketsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutSupportTicketsInput = {
@@ -2949,6 +3374,7 @@ export type SellerAccountUpdateWithoutSupportTicketsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutSupportTicketsInput = {
@@ -3043,6 +3469,7 @@ export type SellerAccountUncheckedUpdateWithoutSupportTicketsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutDisputesInput = {
@@ -3137,6 +3564,7 @@ export type SellerAccountCreateWithoutDisputesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutDisputesInput = {
@@ -3231,6 +3659,7 @@ export type SellerAccountUncheckedCreateWithoutDisputesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutDisputesInput = {
@@ -3341,6 +3770,7 @@ export type SellerAccountUpdateWithoutDisputesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutDisputesInput = {
@@ -3435,6 +3865,7 @@ export type SellerAccountUncheckedUpdateWithoutDisputesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutMembersInput = {
@@ -3529,6 +3960,7 @@ export type SellerAccountCreateWithoutMembersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutMembersInput = {
@@ -3623,6 +4055,7 @@ export type SellerAccountUncheckedCreateWithoutMembersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutMembersInput = {
@@ -3733,6 +4166,7 @@ export type SellerAccountUpdateWithoutMembersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutMembersInput = {
@@ -3827,6 +4261,7 @@ export type SellerAccountUncheckedUpdateWithoutMembersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutInvitationsInput = {
@@ -3921,6 +4356,7 @@ export type SellerAccountCreateWithoutInvitationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutInvitationsInput = {
@@ -4015,6 +4451,7 @@ export type SellerAccountUncheckedCreateWithoutInvitationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutInvitationsInput = {
@@ -4125,6 +4562,7 @@ export type SellerAccountUpdateWithoutInvitationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutInvitationsInput = {
@@ -4219,6 +4657,7 @@ export type SellerAccountUncheckedUpdateWithoutInvitationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutOnboardingInput = {
@@ -4313,6 +4752,7 @@ export type SellerAccountCreateWithoutOnboardingInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutOnboardingInput = {
@@ -4407,6 +4847,7 @@ export type SellerAccountUncheckedCreateWithoutOnboardingInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutOnboardingInput = {
@@ -4517,6 +4958,7 @@ export type SellerAccountUpdateWithoutOnboardingInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutOnboardingInput = {
@@ -4611,6 +5053,7 @@ export type SellerAccountUncheckedUpdateWithoutOnboardingInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutBusinessProfileInput = {
@@ -4705,6 +5148,7 @@ export type SellerAccountCreateWithoutBusinessProfileInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutBusinessProfileInput = {
@@ -4799,6 +5243,7 @@ export type SellerAccountUncheckedCreateWithoutBusinessProfileInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutBusinessProfileInput = {
@@ -4909,6 +5354,7 @@ export type SellerAccountUpdateWithoutBusinessProfileInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutBusinessProfileInput = {
@@ -5003,6 +5449,7 @@ export type SellerAccountUncheckedUpdateWithoutBusinessProfileInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutVerificationCasesInput = {
@@ -5097,6 +5544,7 @@ export type SellerAccountCreateWithoutVerificationCasesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutVerificationCasesInput = {
@@ -5191,6 +5639,7 @@ export type SellerAccountUncheckedCreateWithoutVerificationCasesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutVerificationCasesInput = {
@@ -5301,6 +5750,7 @@ export type SellerAccountUpdateWithoutVerificationCasesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutVerificationCasesInput = {
@@ -5395,6 +5845,7 @@ export type SellerAccountUncheckedUpdateWithoutVerificationCasesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutDocumentsInput = {
@@ -5489,6 +5940,7 @@ export type SellerAccountCreateWithoutDocumentsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutDocumentsInput = {
@@ -5583,6 +6035,7 @@ export type SellerAccountUncheckedCreateWithoutDocumentsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutDocumentsInput = {
@@ -5693,6 +6146,7 @@ export type SellerAccountUpdateWithoutDocumentsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutDocumentsInput = {
@@ -5787,6 +6241,7 @@ export type SellerAccountUncheckedUpdateWithoutDocumentsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutAgreementsInput = {
@@ -5881,6 +6336,7 @@ export type SellerAccountCreateWithoutAgreementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutAgreementsInput = {
@@ -5975,6 +6431,7 @@ export type SellerAccountUncheckedCreateWithoutAgreementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutAgreementsInput = {
@@ -6085,6 +6542,7 @@ export type SellerAccountUpdateWithoutAgreementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutAgreementsInput = {
@@ -6179,6 +6637,7 @@ export type SellerAccountUncheckedUpdateWithoutAgreementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPayoutAccountInput = {
@@ -6273,6 +6732,7 @@ export type SellerAccountCreateWithoutPayoutAccountInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPayoutAccountInput = {
@@ -6367,6 +6827,7 @@ export type SellerAccountUncheckedCreateWithoutPayoutAccountInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPayoutAccountInput = {
@@ -6477,6 +6938,7 @@ export type SellerAccountUpdateWithoutPayoutAccountInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPayoutAccountInput = {
@@ -6571,6 +7033,7 @@ export type SellerAccountUncheckedUpdateWithoutPayoutAccountInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLocationsInput = {
@@ -6665,6 +7128,7 @@ export type SellerAccountCreateWithoutLocationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLocationsInput = {
@@ -6759,6 +7223,7 @@ export type SellerAccountUncheckedCreateWithoutLocationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLocationsInput = {
@@ -6869,6 +7334,7 @@ export type SellerAccountUpdateWithoutLocationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLocationsInput = {
@@ -6963,6 +7429,7 @@ export type SellerAccountUncheckedUpdateWithoutLocationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutBrandRequestsInput = {
@@ -7057,6 +7524,7 @@ export type SellerAccountCreateWithoutBrandRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutBrandRequestsInput = {
@@ -7151,6 +7619,7 @@ export type SellerAccountUncheckedCreateWithoutBrandRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutBrandRequestsInput = {
@@ -7261,6 +7730,7 @@ export type SellerAccountUpdateWithoutBrandRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutBrandRequestsInput = {
@@ -7355,6 +7825,7 @@ export type SellerAccountUncheckedUpdateWithoutBrandRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutListingDraftsInput = {
@@ -7449,6 +7920,7 @@ export type SellerAccountCreateWithoutListingDraftsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutListingDraftsInput = {
@@ -7543,6 +8015,7 @@ export type SellerAccountUncheckedCreateWithoutListingDraftsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutListingDraftsInput = {
@@ -7653,6 +8126,7 @@ export type SellerAccountUpdateWithoutListingDraftsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutListingDraftsInput = {
@@ -7747,6 +8221,7 @@ export type SellerAccountUncheckedUpdateWithoutListingDraftsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutOffersInput = {
@@ -7841,6 +8316,7 @@ export type SellerAccountCreateWithoutOffersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutOffersInput = {
@@ -7935,6 +8411,7 @@ export type SellerAccountUncheckedCreateWithoutOffersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutOffersInput = {
@@ -8045,6 +8522,7 @@ export type SellerAccountUpdateWithoutOffersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutOffersInput = {
@@ -8139,6 +8617,7 @@ export type SellerAccountUncheckedUpdateWithoutOffersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutInventoryInput = {
@@ -8233,6 +8712,7 @@ export type SellerAccountCreateWithoutInventoryInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutInventoryInput = {
@@ -8327,6 +8807,7 @@ export type SellerAccountUncheckedCreateWithoutInventoryInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutInventoryInput = {
@@ -8437,6 +8918,7 @@ export type SellerAccountUpdateWithoutInventoryInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutInventoryInput = {
@@ -8531,6 +9013,7 @@ export type SellerAccountUncheckedUpdateWithoutInventoryInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutInventoryMovementsInput = {
@@ -8625,6 +9108,7 @@ export type SellerAccountCreateWithoutInventoryMovementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutInventoryMovementsInput = {
@@ -8719,6 +9203,7 @@ export type SellerAccountUncheckedCreateWithoutInventoryMovementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutInventoryMovementsInput = {
@@ -8829,6 +9314,7 @@ export type SellerAccountUpdateWithoutInventoryMovementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutInventoryMovementsInput = {
@@ -8923,6 +9409,7 @@ export type SellerAccountUncheckedUpdateWithoutInventoryMovementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutBulkImportsInput = {
@@ -9017,6 +9504,7 @@ export type SellerAccountCreateWithoutBulkImportsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutBulkImportsInput = {
@@ -9111,6 +9599,7 @@ export type SellerAccountUncheckedCreateWithoutBulkImportsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutBulkImportsInput = {
@@ -9221,6 +9710,7 @@ export type SellerAccountUpdateWithoutBulkImportsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutBulkImportsInput = {
@@ -9315,6 +9805,7 @@ export type SellerAccountUncheckedUpdateWithoutBulkImportsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutOrderGroupsInput = {
@@ -9409,6 +9900,7 @@ export type SellerAccountCreateWithoutOrderGroupsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutOrderGroupsInput = {
@@ -9503,6 +9995,7 @@ export type SellerAccountUncheckedCreateWithoutOrderGroupsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutOrderGroupsInput = {
@@ -9613,6 +10106,7 @@ export type SellerAccountUpdateWithoutOrderGroupsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutOrderGroupsInput = {
@@ -9707,6 +10201,7 @@ export type SellerAccountUncheckedUpdateWithoutOrderGroupsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutShipmentsInput = {
@@ -9801,6 +10296,7 @@ export type SellerAccountCreateWithoutShipmentsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutShipmentsInput = {
@@ -9895,6 +10391,7 @@ export type SellerAccountUncheckedCreateWithoutShipmentsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutShipmentsInput = {
@@ -10005,6 +10502,7 @@ export type SellerAccountUpdateWithoutShipmentsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutShipmentsInput = {
@@ -10099,6 +10597,7 @@ export type SellerAccountUncheckedUpdateWithoutShipmentsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutReturnsInput = {
@@ -10193,6 +10692,7 @@ export type SellerAccountCreateWithoutReturnsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutReturnsInput = {
@@ -10287,6 +10787,7 @@ export type SellerAccountUncheckedCreateWithoutReturnsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutReturnsInput = {
@@ -10397,6 +10898,7 @@ export type SellerAccountUpdateWithoutReturnsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutReturnsInput = {
@@ -10491,6 +10993,7 @@ export type SellerAccountUncheckedUpdateWithoutReturnsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutSettlementsInput = {
@@ -10585,6 +11088,7 @@ export type SellerAccountCreateWithoutSettlementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutSettlementsInput = {
@@ -10679,6 +11183,7 @@ export type SellerAccountUncheckedCreateWithoutSettlementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutSettlementsInput = {
@@ -10789,6 +11294,7 @@ export type SellerAccountUpdateWithoutSettlementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutSettlementsInput = {
@@ -10883,6 +11389,7 @@ export type SellerAccountUncheckedUpdateWithoutSettlementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPayoutsInput = {
@@ -10977,6 +11484,7 @@ export type SellerAccountCreateWithoutPayoutsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPayoutsInput = {
@@ -11071,6 +11579,7 @@ export type SellerAccountUncheckedCreateWithoutPayoutsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPayoutsInput = {
@@ -11181,6 +11690,7 @@ export type SellerAccountUpdateWithoutPayoutsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPayoutsInput = {
@@ -11275,6 +11785,7 @@ export type SellerAccountUncheckedUpdateWithoutPayoutsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutNotificationsInput = {
@@ -11369,6 +11880,7 @@ export type SellerAccountCreateWithoutNotificationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutNotificationsInput = {
@@ -11463,6 +11975,7 @@ export type SellerAccountUncheckedCreateWithoutNotificationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutNotificationsInput = {
@@ -11573,6 +12086,7 @@ export type SellerAccountUpdateWithoutNotificationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutNotificationsInput = {
@@ -11667,6 +12181,7 @@ export type SellerAccountUncheckedUpdateWithoutNotificationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutAuditLogsInput = {
@@ -11761,6 +12276,7 @@ export type SellerAccountCreateWithoutAuditLogsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutAuditLogsInput = {
@@ -11855,6 +12371,7 @@ export type SellerAccountUncheckedCreateWithoutAuditLogsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutAuditLogsInput = {
@@ -11965,6 +12482,7 @@ export type SellerAccountUpdateWithoutAuditLogsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutAuditLogsInput = {
@@ -12059,6 +12577,7 @@ export type SellerAccountUncheckedUpdateWithoutAuditLogsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLogisticsPartnersInput = {
@@ -12153,6 +12672,7 @@ export type SellerAccountCreateWithoutLogisticsPartnersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLogisticsPartnersInput = {
@@ -12247,6 +12767,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPartnersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLogisticsPartnersInput = {
@@ -12357,6 +12878,7 @@ export type SellerAccountUpdateWithoutLogisticsPartnersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLogisticsPartnersInput = {
@@ -12451,6 +12973,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPartnersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutFulfilmentMethodsInput = {
@@ -12545,6 +13068,7 @@ export type SellerAccountCreateWithoutFulfilmentMethodsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutFulfilmentMethodsInput = {
@@ -12639,6 +13163,7 @@ export type SellerAccountUncheckedCreateWithoutFulfilmentMethodsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutFulfilmentMethodsInput = {
@@ -12749,6 +13274,7 @@ export type SellerAccountUpdateWithoutFulfilmentMethodsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutFulfilmentMethodsInput = {
@@ -12843,6 +13369,7 @@ export type SellerAccountUncheckedUpdateWithoutFulfilmentMethodsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutCarrierConnectionsInput = {
@@ -12937,6 +13464,7 @@ export type SellerAccountCreateWithoutCarrierConnectionsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutCarrierConnectionsInput = {
@@ -13031,6 +13559,7 @@ export type SellerAccountUncheckedCreateWithoutCarrierConnectionsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutCarrierConnectionsInput = {
@@ -13141,6 +13670,7 @@ export type SellerAccountUpdateWithoutCarrierConnectionsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutCarrierConnectionsInput = {
@@ -13235,6 +13765,7 @@ export type SellerAccountUncheckedUpdateWithoutCarrierConnectionsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutFulfilmentRulesInput = {
@@ -13329,6 +13860,7 @@ export type SellerAccountCreateWithoutFulfilmentRulesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutFulfilmentRulesInput = {
@@ -13423,6 +13955,7 @@ export type SellerAccountUncheckedCreateWithoutFulfilmentRulesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutFulfilmentRulesInput = {
@@ -13533,6 +14066,7 @@ export type SellerAccountUpdateWithoutFulfilmentRulesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutFulfilmentRulesInput = {
@@ -13627,6 +14161,7 @@ export type SellerAccountUncheckedUpdateWithoutFulfilmentRulesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPickupProfilesInput = {
@@ -13721,6 +14256,7 @@ export type SellerAccountCreateWithoutPickupProfilesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPickupProfilesInput = {
@@ -13815,6 +14351,7 @@ export type SellerAccountUncheckedCreateWithoutPickupProfilesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPickupProfilesInput = {
@@ -13925,6 +14462,7 @@ export type SellerAccountUpdateWithoutPickupProfilesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPickupProfilesInput = {
@@ -14019,6 +14557,7 @@ export type SellerAccountUncheckedUpdateWithoutPickupProfilesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLogisticsRateCardsInput = {
@@ -14113,6 +14652,7 @@ export type SellerAccountCreateWithoutLogisticsRateCardsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLogisticsRateCardsInput = {
@@ -14207,6 +14747,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsRateCardsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLogisticsRateCardsInput = {
@@ -14317,6 +14858,7 @@ export type SellerAccountUpdateWithoutLogisticsRateCardsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLogisticsRateCardsInput = {
@@ -14411,6 +14953,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsRateCardsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutCarrierRateQuotesInput = {
@@ -14505,6 +15048,7 @@ export type SellerAccountCreateWithoutCarrierRateQuotesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutCarrierRateQuotesInput = {
@@ -14599,6 +15143,7 @@ export type SellerAccountUncheckedCreateWithoutCarrierRateQuotesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutCarrierRateQuotesInput = {
@@ -14709,6 +15254,7 @@ export type SellerAccountUpdateWithoutCarrierRateQuotesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutCarrierRateQuotesInput = {
@@ -14803,6 +15349,7 @@ export type SellerAccountUncheckedUpdateWithoutCarrierRateQuotesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutShipmentPurchasesInput = {
@@ -14897,6 +15444,7 @@ export type SellerAccountCreateWithoutShipmentPurchasesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutShipmentPurchasesInput = {
@@ -14991,6 +15539,7 @@ export type SellerAccountUncheckedCreateWithoutShipmentPurchasesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutShipmentPurchasesInput = {
@@ -15101,6 +15650,7 @@ export type SellerAccountUpdateWithoutShipmentPurchasesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutShipmentPurchasesInput = {
@@ -15195,6 +15745,7 @@ export type SellerAccountUncheckedUpdateWithoutShipmentPurchasesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPartnerInvitationsInput = {
@@ -15289,6 +15840,7 @@ export type SellerAccountCreateWithoutPartnerInvitationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPartnerInvitationsInput = {
@@ -15383,6 +15935,7 @@ export type SellerAccountUncheckedCreateWithoutPartnerInvitationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPartnerInvitationsInput = {
@@ -15493,6 +16046,7 @@ export type SellerAccountUpdateWithoutPartnerInvitationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPartnerInvitationsInput = {
@@ -15587,6 +16141,7 @@ export type SellerAccountUncheckedUpdateWithoutPartnerInvitationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutOwnedLogisticsPartnersInput = {
@@ -15681,6 +16236,7 @@ export type SellerAccountCreateWithoutOwnedLogisticsPartnersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutOwnedLogisticsPartnersInput = {
@@ -15775,6 +16331,7 @@ export type SellerAccountUncheckedCreateWithoutOwnedLogisticsPartnersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutOwnedLogisticsPartnersInput = {
@@ -15885,6 +16442,7 @@ export type SellerAccountUpdateWithoutOwnedLogisticsPartnersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutOwnedLogisticsPartnersInput = {
@@ -15979,6 +16537,7 @@ export type SellerAccountUncheckedUpdateWithoutOwnedLogisticsPartnersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPickupRequestsInput = {
@@ -16073,6 +16632,7 @@ export type SellerAccountCreateWithoutPickupRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPickupRequestsInput = {
@@ -16167,6 +16727,7 @@ export type SellerAccountUncheckedCreateWithoutPickupRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPickupRequestsInput = {
@@ -16277,6 +16838,7 @@ export type SellerAccountUpdateWithoutPickupRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPickupRequestsInput = {
@@ -16371,6 +16933,7 @@ export type SellerAccountUncheckedUpdateWithoutPickupRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPackagingProfilesInput = {
@@ -16465,6 +17028,7 @@ export type SellerAccountCreateWithoutPackagingProfilesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPackagingProfilesInput = {
@@ -16559,6 +17123,7 @@ export type SellerAccountUncheckedCreateWithoutPackagingProfilesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPackagingProfilesInput = {
@@ -16669,6 +17234,7 @@ export type SellerAccountUpdateWithoutPackagingProfilesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPackagingProfilesInput = {
@@ -16763,6 +17329,7 @@ export type SellerAccountUncheckedUpdateWithoutPackagingProfilesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutFreightQuoteRequestsInput = {
@@ -16857,6 +17424,7 @@ export type SellerAccountCreateWithoutFreightQuoteRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutFreightQuoteRequestsInput = {
@@ -16951,6 +17519,7 @@ export type SellerAccountUncheckedCreateWithoutFreightQuoteRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutFreightQuoteRequestsInput = {
@@ -17061,6 +17630,7 @@ export type SellerAccountUpdateWithoutFreightQuoteRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutFreightQuoteRequestsInput = {
@@ -17155,6 +17725,7 @@ export type SellerAccountUncheckedUpdateWithoutFreightQuoteRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutErpConnectionsInput = {
@@ -17249,6 +17820,7 @@ export type SellerAccountCreateWithoutErpConnectionsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutErpConnectionsInput = {
@@ -17343,6 +17915,7 @@ export type SellerAccountUncheckedCreateWithoutErpConnectionsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutErpConnectionsInput = {
@@ -17453,6 +18026,7 @@ export type SellerAccountUpdateWithoutErpConnectionsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutErpConnectionsInput = {
@@ -17547,6 +18121,7 @@ export type SellerAccountUncheckedUpdateWithoutErpConnectionsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutErpBridgeDevicesInput = {
@@ -17641,6 +18216,7 @@ export type SellerAccountCreateWithoutErpBridgeDevicesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutErpBridgeDevicesInput = {
@@ -17735,6 +18311,7 @@ export type SellerAccountUncheckedCreateWithoutErpBridgeDevicesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutErpBridgeDevicesInput = {
@@ -17845,6 +18422,7 @@ export type SellerAccountUpdateWithoutErpBridgeDevicesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutErpBridgeDevicesInput = {
@@ -17939,6 +18517,7 @@ export type SellerAccountUncheckedUpdateWithoutErpBridgeDevicesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutErpSyncJobsInput = {
@@ -18033,6 +18612,7 @@ export type SellerAccountCreateWithoutErpSyncJobsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutErpSyncJobsInput = {
@@ -18127,6 +18707,7 @@ export type SellerAccountUncheckedCreateWithoutErpSyncJobsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutErpSyncJobsInput = {
@@ -18237,6 +18818,7 @@ export type SellerAccountUpdateWithoutErpSyncJobsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutErpSyncJobsInput = {
@@ -18331,6 +18913,7 @@ export type SellerAccountUncheckedUpdateWithoutErpSyncJobsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutErpAuditEventsInput = {
@@ -18425,6 +19008,7 @@ export type SellerAccountCreateWithoutErpAuditEventsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutErpAuditEventsInput = {
@@ -18519,6 +19103,7 @@ export type SellerAccountUncheckedCreateWithoutErpAuditEventsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutErpAuditEventsInput = {
@@ -18629,6 +19214,7 @@ export type SellerAccountUpdateWithoutErpAuditEventsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutErpAuditEventsInput = {
@@ -18723,6 +19309,7 @@ export type SellerAccountUncheckedUpdateWithoutErpAuditEventsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLogisticsPolicyInput = {
@@ -18817,6 +19404,7 @@ export type SellerAccountCreateWithoutLogisticsPolicyInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLogisticsPolicyInput = {
@@ -18911,6 +19499,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPolicyInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLogisticsPolicyInput = {
@@ -19021,6 +19610,7 @@ export type SellerAccountUpdateWithoutLogisticsPolicyInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyInput = {
@@ -19115,6 +19705,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLogisticsPolicyVersionsInput = {
@@ -19209,6 +19800,7 @@ export type SellerAccountCreateWithoutLogisticsPolicyVersionsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLogisticsPolicyVersionsInput = {
@@ -19303,6 +19895,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsPolicyVersionsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLogisticsPolicyVersionsInput = {
@@ -19413,6 +20006,7 @@ export type SellerAccountUpdateWithoutLogisticsPolicyVersionsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyVersionsInput = {
@@ -19507,6 +20101,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsPolicyVersionsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLogisticsProvidersInput = {
@@ -19601,6 +20196,7 @@ export type SellerAccountCreateWithoutLogisticsProvidersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLogisticsProvidersInput = {
@@ -19695,6 +20291,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsProvidersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLogisticsProvidersInput = {
@@ -19805,6 +20402,7 @@ export type SellerAccountUpdateWithoutLogisticsProvidersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLogisticsProvidersInput = {
@@ -19899,6 +20497,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsProvidersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLogisticsLevelRatesInput = {
@@ -19993,6 +20592,7 @@ export type SellerAccountCreateWithoutLogisticsLevelRatesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLogisticsLevelRatesInput = {
@@ -20087,6 +20687,7 @@ export type SellerAccountUncheckedCreateWithoutLogisticsLevelRatesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLogisticsLevelRatesInput = {
@@ -20197,6 +20798,7 @@ export type SellerAccountUpdateWithoutLogisticsLevelRatesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLogisticsLevelRatesInput = {
@@ -20291,6 +20893,7 @@ export type SellerAccountUncheckedUpdateWithoutLogisticsLevelRatesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutOrderLogisticsLegsInput = {
@@ -20385,6 +20988,7 @@ export type SellerAccountCreateWithoutOrderLogisticsLegsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutOrderLogisticsLegsInput = {
@@ -20479,6 +21083,7 @@ export type SellerAccountUncheckedCreateWithoutOrderLogisticsLegsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutOrderLogisticsLegsInput = {
@@ -20589,6 +21194,7 @@ export type SellerAccountUpdateWithoutOrderLogisticsLegsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutOrderLogisticsLegsInput = {
@@ -20683,6 +21289,7 @@ export type SellerAccountUncheckedUpdateWithoutOrderLogisticsLegsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutShipmentLegsInput = {
@@ -20777,6 +21384,7 @@ export type SellerAccountCreateWithoutShipmentLegsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutShipmentLegsInput = {
@@ -20871,6 +21479,7 @@ export type SellerAccountUncheckedCreateWithoutShipmentLegsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutShipmentLegsInput = {
@@ -20981,6 +21590,7 @@ export type SellerAccountUpdateWithoutShipmentLegsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutShipmentLegsInput = {
@@ -21075,6 +21685,7 @@ export type SellerAccountUncheckedUpdateWithoutShipmentLegsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutOrderSettlementsInput = {
@@ -21169,6 +21780,7 @@ export type SellerAccountCreateWithoutOrderSettlementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutOrderSettlementsInput = {
@@ -21263,6 +21875,7 @@ export type SellerAccountUncheckedCreateWithoutOrderSettlementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutOrderSettlementsInput = {
@@ -21373,6 +21986,7 @@ export type SellerAccountUpdateWithoutOrderSettlementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutOrderSettlementsInput = {
@@ -21467,6 +22081,7 @@ export type SellerAccountUncheckedUpdateWithoutOrderSettlementsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPreorderPoliciesInput = {
@@ -21561,6 +22176,7 @@ export type SellerAccountCreateWithoutPreorderPoliciesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPreorderPoliciesInput = {
@@ -21655,6 +22271,7 @@ export type SellerAccountUncheckedCreateWithoutPreorderPoliciesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPreorderPoliciesInput = {
@@ -21765,6 +22382,7 @@ export type SellerAccountUpdateWithoutPreorderPoliciesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPreorderPoliciesInput = {
@@ -21859,6 +22477,7 @@ export type SellerAccountUncheckedUpdateWithoutPreorderPoliciesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPreorderRequestsInput = {
@@ -21953,6 +22572,7 @@ export type SellerAccountCreateWithoutPreorderRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPreorderRequestsInput = {
@@ -22047,6 +22667,7 @@ export type SellerAccountUncheckedCreateWithoutPreorderRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPreorderRequestsInput = {
@@ -22157,6 +22778,7 @@ export type SellerAccountUpdateWithoutPreorderRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPreorderRequestsInput = {
@@ -22251,6 +22873,7 @@ export type SellerAccountUncheckedUpdateWithoutPreorderRequestsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutInvoiceSettingsInput = {
@@ -22345,6 +22968,7 @@ export type SellerAccountCreateWithoutInvoiceSettingsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutInvoiceSettingsInput = {
@@ -22439,6 +23063,7 @@ export type SellerAccountUncheckedCreateWithoutInvoiceSettingsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutInvoiceSettingsInput = {
@@ -22549,6 +23174,7 @@ export type SellerAccountUpdateWithoutInvoiceSettingsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutInvoiceSettingsInput = {
@@ -22643,6 +23269,7 @@ export type SellerAccountUncheckedUpdateWithoutInvoiceSettingsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutSellerInvoicesInput = {
@@ -22737,6 +23364,7 @@ export type SellerAccountCreateWithoutSellerInvoicesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutSellerInvoicesInput = {
@@ -22831,6 +23459,7 @@ export type SellerAccountUncheckedCreateWithoutSellerInvoicesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutSellerInvoicesInput = {
@@ -22941,6 +23570,7 @@ export type SellerAccountUpdateWithoutSellerInvoicesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutSellerInvoicesInput = {
@@ -23035,6 +23665,7 @@ export type SellerAccountUncheckedUpdateWithoutSellerInvoicesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutPackingListsInput = {
@@ -23129,6 +23760,7 @@ export type SellerAccountCreateWithoutPackingListsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutPackingListsInput = {
@@ -23223,6 +23855,7 @@ export type SellerAccountUncheckedCreateWithoutPackingListsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutPackingListsInput = {
@@ -23333,6 +23966,7 @@ export type SellerAccountUpdateWithoutPackingListsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutPackingListsInput = {
@@ -23427,6 +24061,7 @@ export type SellerAccountUncheckedUpdateWithoutPackingListsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutLinkedBuyerCompaniesInput = {
@@ -23521,6 +24156,7 @@ export type SellerAccountCreateWithoutLinkedBuyerCompaniesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutLinkedBuyerCompaniesInput = {
@@ -23615,6 +24251,7 @@ export type SellerAccountUncheckedCreateWithoutLinkedBuyerCompaniesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutLinkedBuyerCompaniesInput = {
@@ -23725,6 +24362,7 @@ export type SellerAccountUpdateWithoutLinkedBuyerCompaniesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutLinkedBuyerCompaniesInput = {
@@ -23819,6 +24457,7 @@ export type SellerAccountUncheckedUpdateWithoutLinkedBuyerCompaniesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutAccessReviewsInput = {
@@ -23913,6 +24552,7 @@ export type SellerAccountCreateWithoutAccessReviewsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutAccessReviewsInput = {
@@ -24007,6 +24647,7 @@ export type SellerAccountUncheckedCreateWithoutAccessReviewsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutAccessReviewsInput = {
@@ -24117,6 +24758,7 @@ export type SellerAccountUpdateWithoutAccessReviewsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutAccessReviewsInput = {
@@ -24211,6 +24853,7 @@ export type SellerAccountUncheckedUpdateWithoutAccessReviewsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutCommissionInvoicesInput = {
@@ -24305,6 +24948,7 @@ export type SellerAccountCreateWithoutCommissionInvoicesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutCommissionInvoicesInput = {
@@ -24399,6 +25043,7 @@ export type SellerAccountUncheckedCreateWithoutCommissionInvoicesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutCommissionInvoicesInput = {
@@ -24509,6 +25154,7 @@ export type SellerAccountUpdateWithoutCommissionInvoicesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutCommissionInvoicesInput = {
@@ -24603,6 +25249,7 @@ export type SellerAccountUncheckedUpdateWithoutCommissionInvoicesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutTrustProfileInput = {
@@ -24697,6 +25344,7 @@ export type SellerAccountCreateWithoutTrustProfileInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutTrustProfileInput = {
@@ -24791,6 +25439,7 @@ export type SellerAccountUncheckedCreateWithoutTrustProfileInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutTrustProfileInput = {
@@ -24901,6 +25550,7 @@ export type SellerAccountUpdateWithoutTrustProfileInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutTrustProfileInput = {
@@ -24995,6 +25645,7 @@ export type SellerAccountUncheckedUpdateWithoutTrustProfileInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutBeneficialOwnersInput = {
@@ -25089,6 +25740,7 @@ export type SellerAccountCreateWithoutBeneficialOwnersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutBeneficialOwnersInput = {
@@ -25183,6 +25835,7 @@ export type SellerAccountUncheckedCreateWithoutBeneficialOwnersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutBeneficialOwnersInput = {
@@ -25293,6 +25946,7 @@ export type SellerAccountUpdateWithoutBeneficialOwnersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutBeneficialOwnersInput = {
@@ -25387,6 +26041,7 @@ export type SellerAccountUncheckedUpdateWithoutBeneficialOwnersInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutFactoriesInput = {
@@ -25481,6 +26136,7 @@ export type SellerAccountCreateWithoutFactoriesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutFactoriesInput = {
@@ -25575,6 +26231,7 @@ export type SellerAccountUncheckedCreateWithoutFactoriesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutFactoriesInput = {
@@ -25685,6 +26342,7 @@ export type SellerAccountUpdateWithoutFactoriesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutFactoriesInput = {
@@ -25779,6 +26437,7 @@ export type SellerAccountUncheckedUpdateWithoutFactoriesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutCertificationsInput = {
@@ -25873,6 +26532,7 @@ export type SellerAccountCreateWithoutCertificationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutCertificationsInput = {
@@ -25967,6 +26627,7 @@ export type SellerAccountUncheckedCreateWithoutCertificationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutCertificationsInput = {
@@ -26077,6 +26738,7 @@ export type SellerAccountUpdateWithoutCertificationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutCertificationsInput = {
@@ -26171,6 +26833,7 @@ export type SellerAccountUncheckedUpdateWithoutCertificationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutTrustChecksInput = {
@@ -26265,6 +26928,7 @@ export type SellerAccountCreateWithoutTrustChecksInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutTrustChecksInput = {
@@ -26359,6 +27023,7 @@ export type SellerAccountUncheckedCreateWithoutTrustChecksInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutTrustChecksInput = {
@@ -26469,6 +27134,7 @@ export type SellerAccountUpdateWithoutTrustChecksInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutTrustChecksInput = {
@@ -26563,6 +27229,7 @@ export type SellerAccountUncheckedUpdateWithoutTrustChecksInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutScreeningChecksInput = {
@@ -26657,6 +27324,7 @@ export type SellerAccountCreateWithoutScreeningChecksInput = {
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutScreeningChecksInput = {
@@ -26751,6 +27419,7 @@ export type SellerAccountUncheckedCreateWithoutScreeningChecksInput = {
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutScreeningChecksInput = {
@@ -26861,6 +27530,7 @@ export type SellerAccountUpdateWithoutScreeningChecksInput = {
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutScreeningChecksInput = {
@@ -26955,6 +27625,7 @@ export type SellerAccountUncheckedUpdateWithoutScreeningChecksInput = {
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutProfileChangeRequestsInput = {
@@ -27049,6 +27720,7 @@ export type SellerAccountCreateWithoutProfileChangeRequestsInput = {
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutProfileChangeRequestsInput = {
@@ -27143,6 +27815,7 @@ export type SellerAccountUncheckedCreateWithoutProfileChangeRequestsInput = {
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutProfileChangeRequestsInput = {
@@ -27253,6 +27926,7 @@ export type SellerAccountUpdateWithoutProfileChangeRequestsInput = {
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutProfileChangeRequestsInput = {
@@ -27347,6 +28021,7 @@ export type SellerAccountUncheckedUpdateWithoutProfileChangeRequestsInput = {
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutListingTrustInput = {
@@ -27441,6 +28116,7 @@ export type SellerAccountCreateWithoutListingTrustInput = {
   trustChecks?: Prisma.SellerTrustCheckCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutListingTrustInput = {
@@ -27535,6 +28211,7 @@ export type SellerAccountUncheckedCreateWithoutListingTrustInput = {
   trustChecks?: Prisma.SellerTrustCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutListingTrustInput = {
@@ -27645,6 +28322,7 @@ export type SellerAccountUpdateWithoutListingTrustInput = {
   trustChecks?: Prisma.SellerTrustCheckUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutListingTrustInput = {
@@ -27739,6 +28417,7 @@ export type SellerAccountUncheckedUpdateWithoutListingTrustInput = {
   trustChecks?: Prisma.SellerTrustCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutRfqInvitationsInput = {
@@ -27833,6 +28512,7 @@ export type SellerAccountCreateWithoutRfqInvitationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutRfqInvitationsInput = {
@@ -27927,6 +28607,7 @@ export type SellerAccountUncheckedCreateWithoutRfqInvitationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutRfqInvitationsInput = {
@@ -28037,6 +28718,7 @@ export type SellerAccountUpdateWithoutRfqInvitationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutRfqInvitationsInput = {
@@ -28131,6 +28813,7 @@ export type SellerAccountUncheckedUpdateWithoutRfqInvitationsInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountCreateWithoutRfqQuotesInput = {
@@ -28225,6 +28908,7 @@ export type SellerAccountCreateWithoutRfqQuotesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountUncheckedCreateWithoutRfqQuotesInput = {
@@ -28319,6 +29003,7 @@ export type SellerAccountUncheckedCreateWithoutRfqQuotesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedCreateNestedManyWithoutSellerAccountInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedCreateNestedManyWithoutSellerAccountInput
   listingTrust?: Prisma.SellerListingTrustUncheckedCreateNestedManyWithoutSellerAccountInput
+  productReviews?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutSellerAccountInput
 }
 
 export type SellerAccountCreateOrConnectWithoutRfqQuotesInput = {
@@ -28429,6 +29114,7 @@ export type SellerAccountUpdateWithoutRfqQuotesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUpdateManyWithoutSellerAccountNestedInput
 }
 
 export type SellerAccountUncheckedUpdateWithoutRfqQuotesInput = {
@@ -28523,6 +29209,7 @@ export type SellerAccountUncheckedUpdateWithoutRfqQuotesInput = {
   screeningChecks?: Prisma.SellerScreeningCheckUncheckedUpdateManyWithoutSellerAccountNestedInput
   profileChangeRequests?: Prisma.SellerProfileChangeRequestUncheckedUpdateManyWithoutSellerAccountNestedInput
   listingTrust?: Prisma.SellerListingTrustUncheckedUpdateManyWithoutSellerAccountNestedInput
+  productReviews?: Prisma.ProductReviewUncheckedUpdateManyWithoutSellerAccountNestedInput
 }
 
 
@@ -28592,6 +29279,7 @@ export type SellerAccountCountOutputType = {
   screeningChecks: number
   profileChangeRequests: number
   listingTrust: number
+  productReviews: number
 }
 
 export type SellerAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -28656,6 +29344,7 @@ export type SellerAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Ext
   screeningChecks?: boolean | SellerAccountCountOutputTypeCountScreeningChecksArgs
   profileChangeRequests?: boolean | SellerAccountCountOutputTypeCountProfileChangeRequestsArgs
   listingTrust?: boolean | SellerAccountCountOutputTypeCountListingTrustArgs
+  productReviews?: boolean | SellerAccountCountOutputTypeCountProductReviewsArgs
 }
 
 /**
@@ -29095,6 +29784,13 @@ export type SellerAccountCountOutputTypeCountListingTrustArgs<ExtArgs extends ru
   where?: Prisma.SellerListingTrustWhereInput
 }
 
+/**
+ * SellerAccountCountOutputType without action
+ */
+export type SellerAccountCountOutputTypeCountProductReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductReviewWhereInput
+}
+
 
 export type SellerAccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -29189,6 +29885,7 @@ export type SellerAccountSelect<ExtArgs extends runtime.Types.Extensions.Interna
   screeningChecks?: boolean | Prisma.SellerAccount$screeningChecksArgs<ExtArgs>
   profileChangeRequests?: boolean | Prisma.SellerAccount$profileChangeRequestsArgs<ExtArgs>
   listingTrust?: boolean | Prisma.SellerAccount$listingTrustArgs<ExtArgs>
+  productReviews?: boolean | Prisma.SellerAccount$productReviewsArgs<ExtArgs>
   _count?: boolean | Prisma.SellerAccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerAccount"]>
 
@@ -29291,6 +29988,7 @@ export type SellerAccountInclude<ExtArgs extends runtime.Types.Extensions.Intern
   screeningChecks?: boolean | Prisma.SellerAccount$screeningChecksArgs<ExtArgs>
   profileChangeRequests?: boolean | Prisma.SellerAccount$profileChangeRequestsArgs<ExtArgs>
   listingTrust?: boolean | Prisma.SellerAccount$listingTrustArgs<ExtArgs>
+  productReviews?: boolean | Prisma.SellerAccount$productReviewsArgs<ExtArgs>
   _count?: boolean | Prisma.SellerAccountCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -29405,6 +30103,10 @@ export type $SellerAccountPayload<ExtArgs extends runtime.Types.Extensions.Inter
     screeningChecks: Prisma.$SellerScreeningCheckPayload<ExtArgs>[]
     profileChangeRequests: Prisma.$SellerProfileChangeRequestPayload<ExtArgs>[]
     listingTrust: Prisma.$SellerListingTrustPayload<ExtArgs>[]
+    /**
+     * Reviews of goods this seller sold - the source of its seller score.
+     */
+    productReviews: Prisma.$ProductReviewPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -29914,6 +30616,7 @@ export interface Prisma__SellerAccountClient<T, Null = never, ExtArgs extends ru
   screeningChecks<T extends Prisma.SellerAccount$screeningChecksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$screeningChecksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerScreeningCheckPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   profileChangeRequests<T extends Prisma.SellerAccount$profileChangeRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$profileChangeRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerProfileChangeRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   listingTrust<T extends Prisma.SellerAccount$listingTrustArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$listingTrustArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerListingTrustPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  productReviews<T extends Prisma.SellerAccount$productReviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccount$productReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -31891,6 +32594,30 @@ export type SellerAccount$listingTrustArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.SellerListingTrustScalarFieldEnum | Prisma.SellerListingTrustScalarFieldEnum[]
+}
+
+/**
+ * SellerAccount.productReviews
+ */
+export type SellerAccount$productReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductReview
+   */
+  select?: Prisma.ProductReviewSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductReview
+   */
+  omit?: Prisma.ProductReviewOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductReviewInclude<ExtArgs> | null
+  where?: Prisma.ProductReviewWhereInput
+  orderBy?: Prisma.ProductReviewOrderByWithRelationInput | Prisma.ProductReviewOrderByWithRelationInput[]
+  cursor?: Prisma.ProductReviewWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductReviewScalarFieldEnum | Prisma.ProductReviewScalarFieldEnum[]
 }
 
 /**

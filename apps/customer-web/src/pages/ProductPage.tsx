@@ -2549,7 +2549,12 @@ export function ProductPage(): React.JSX.Element {
 
       {/* What buyers who received it thought, scored four ways. Renders
           nothing when the deployment has reviews switched off. */}
-      <ProductReviews productId={product.id} productSlug={product.slug} productName={product.name} />
+      <ProductReviews
+        productId={product.id}
+        productSlug={product.slug}
+        productName={product.name}
+        inspection={query.data.sourcing?.seller?.inspectionSummary ?? null}
+      />
     </>
   );
 }

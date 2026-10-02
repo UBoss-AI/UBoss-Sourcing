@@ -275,6 +275,20 @@ export function SupplierPage(): React.JSX.Element {
           </Section>
         )}
 
+        {/* Buyers' opinion of the seller's service - its own section, never
+            merged with the inspection record above. */}
+        {profile.reviewScore !== undefined && profile.reviewScore !== null && (
+          <Section id="supplier-rating" title={t('supplier.serviceRating')}>
+            <p className="text-sm text-ink">
+              {t('supplier.serviceRatingSummary', {
+                average: formatNumber(Math.round(profile.reviewScore.average * 10) / 10),
+                reviews: formatNumber(profile.reviewScore.count),
+              })}
+            </p>
+            <p className="mt-1 text-xs text-ink-muted">{t('supplier.serviceRatingMeaning')}</p>
+          </Section>
+        )}
+
         {stated && (
           <Section id="supplier-capabilities" title={t('supplier.capabilities')}>
             {profile.capabilities.length > 0 && (

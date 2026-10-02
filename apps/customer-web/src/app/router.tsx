@@ -861,6 +861,20 @@ export const router = createBrowserRouter([
         path: 'rfqs/:id',
         ...accountPage(() => import('@/pages/seller/SellerRfqDetailPage').then((m) => m.SellerRfqDetailPage)),
       },
+      // Claims buyers raised on this seller's goods (JOURNEY-058).
+      {
+        path: 'disputes',
+        ...accountPage(() => import('@/pages/seller/SellerDisputePages').then((m) => m.SellerDisputesPage)),
+      },
+      {
+        path: 'disputes/:reference',
+        ...accountPage(() => import('@/pages/seller/SellerDisputePages').then((m) => m.SellerDisputeDetailPage)),
+      },
+      // Reviews of this seller's sales and its public answers (JOURNEY-059).
+      {
+        path: 'reviews',
+        ...accountPage(() => import('@/pages/seller/SellerReviewsPage').then((m) => m.SellerReviewsPage)),
+      },
       {
         path: 'payments',
         ...accountPage(() =>

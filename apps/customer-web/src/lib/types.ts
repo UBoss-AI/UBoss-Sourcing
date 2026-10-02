@@ -149,6 +149,11 @@ export interface StorefrontConfig {
      * inbox. Optional and absent means off, like the fields above.
      */
     rfq?: boolean;
+    /**
+     * Whether "Translate" is offered under messages (FEATURE_MESSAGE_TRANSLATION
+     * and a stored translation key). Optional and absent means off.
+     */
+    messageTranslation?: boolean;
   };
 
   /**
@@ -302,6 +307,12 @@ export interface SupplierProfile extends Omit<VerifiedSupplier, 'productCount'> 
    * months, as counts only. Null when there were none. Absent from an older API.
    */
   inspectionSummary?: { months: number; reports: number; passed: number; failed: number } | null;
+  /**
+   * Buyers' rating of this seller's delivery and support across what it sold.
+   * Shown beside the inspection summary, never blended with it. Null with no
+   * reviews. Absent from an older API.
+   */
+  reviewScore?: { average: number; count: number } | null;
   capabilities: string[];
   /** By city and country only. */
   factories: {
@@ -856,6 +867,10 @@ export interface ProductSourcing {
     kind: VerifiedSupplier['kind'];
     registrationCountry: string;
     verifiedAt: string | null;
+    /** Buyers' rating of this seller's delivery and support. Absent from an older API. */
+    reviewScore?: { average: number; count: number } | null;
+    /** Signed inspections on this seller's orders; never averaged into the rating. Absent from an older API. */
+    inspectionSummary?: { months: number; reports: number; passed: number; failed: number } | null;
   } | null;
   destination: string | null;
   delivery: {
@@ -1292,6 +1307,22 @@ export interface AccountNotification {
   sentAt: string | null;
   relatedType: string | null;
   relatedId: string | null;
+  /** This person's own read mark; null = unread. Absent from an older API. */
+  readAt?: string | null;
+  /** Derived from the event: HIGH needs acting on, LOW is news asked for. */
+  priority?: 'HIGH' | 'NORMAL' | 'LOW';
+  /** The family a person can mute, and whether it can be muted at all. */
+  family?: string | null;
+  mandatory?: boolean;
+  /** The screen it is about, e.g. /account/orders/<id>. */
+  link?: string | null;
+}
+
+/** One notification family and, per channel, whether it is delivered. */
+export interface NotificationPreferenceFamily {
+  key: string;
+  mandatory: boolean;
+  channels: Partial<Record<'EMAIL' | 'SMS' | 'IN_APP', boolean>>;
 }
 
 export interface AccountResponse {

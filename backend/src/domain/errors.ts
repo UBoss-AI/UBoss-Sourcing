@@ -1724,6 +1724,25 @@ export const ErrorCode = {
   /// it. The storefront hides the form in that case, so this is what a stale
   /// page or a direct call sees.
   REVIEW_NOT_ELIGIBLE: 'REVIEW_NOT_ELIGIBLE',
+  /// The reviewer is a member of the seller whose goods the qualifying order
+  /// line was. A seller cannot rate its own sale, whoever placed the order.
+  /// 403. Also raises a REVIEW_SELF_DEALING risk signal for staff.
+  REVIEW_SELF_DEALING: 'REVIEW_SELF_DEALING',
+  /// This buyer has written REVIEW_MAX_PER_DAY reviews in the last 24 hours.
+  /// 429. Editing a review already written is not counted.
+  REVIEW_RATE_LIMITED: 'REVIEW_RATE_LIMITED',
+
+  // --- Message centre (JOURNEY-055) ---
+  /// "Translate" was pressed but message translation is switched off
+  /// (FEATURE_MESSAGE_TRANSLATION) or no translation key is stored. 409.
+  MESSAGE_TRANSLATION_UNAVAILABLE: 'MESSAGE_TRANSLATION_UNAVAILABLE',
+  /// A person tried to report a message they wrote themselves. 409.
+  MESSAGE_REPORT_OWN_MESSAGE: 'MESSAGE_REPORT_OWN_MESSAGE',
+
+  // --- Notification centre (JOURNEY-056) ---
+  /// A security, order, payment or data-rights notification cannot be
+  /// switched off. 400. `details[].field` names the family.
+  NOTIFICATION_PREFERENCE_MANDATORY: 'NOTIFICATION_PREFERENCE_MANDATORY',
 
   // --- B2C maximum order quantity ---
   /// A buyer who is not an approved company asked for more of one product

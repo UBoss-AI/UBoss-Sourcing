@@ -668,6 +668,18 @@ export const AuditAction = {
   RFQ_PURCHASE_ORDER_APPROVED: 'rfq.purchase_order_approved',
   RFQ_PURCHASE_ORDER_REJECTED: 'rfq.purchase_order_rejected',
   RFQ_PURCHASE_ORDER_CONVERTED: 'rfq.purchase_order_converted',
+  // Message centre (JOURNEY-055): somebody reported a message, and staff's
+  // decision on the report. The message itself is referenced, never copied.
+  MESSAGE_REPORTED: 'message.reported',
+  MESSAGE_REPORT_DECIDED: 'message_report.decided',
+  // Notification centre (JOURNEY-056): a person switched families off or on.
+  NOTIFICATION_PREFERENCES_CHANGED: 'notification.preferences_changed',
+  // Ratings (JOURNEY-059): a seller answered a review, staff hid or restored
+  // that answer, and a review refused as self-dealing.
+  PRODUCT_REVIEW_RESPONDED: 'product_review.responded',
+  PRODUCT_REVIEW_RESPONSE_HIDDEN: 'product_review.response_hidden',
+  PRODUCT_REVIEW_RESPONSE_PUBLISHED: 'product_review.response_published',
+  PRODUCT_REVIEW_REFUSED: 'product_review.refused',
 } as const;
 
 export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];

@@ -1855,6 +1855,10 @@ export interface SellerNotification {
   createdAt: string;
   /** Per member, not per account: twelve staff do not get twelve copies. */
   isRead: boolean;
+  /** From the severity: HIGH for a warning or a critical problem. Absent from an older API. */
+  priority?: 'HIGH' | 'NORMAL' | 'LOW';
+  /** The family this member can mute, e.g. `seller.listings`. */
+  family?: string | null;
 }
 
 export function fetchNotifications(): Promise<{ notifications: SellerNotification[] }> {
@@ -1863,6 +1867,21 @@ export function fetchNotifications(): Promise<{ notifications: SellerNotificatio
 
 export function markNotificationRead(id: string): Promise<never> {
   return api.post<never>(`/seller/notifications/${id}/read`, {});
+}
+
+/** Seller Hub families and whether each is shown in this member's own feed (JOURNEY-056). */
+export interface SellerNotificationPreferences {
+  families: { key: string; mandatory: boolean; channels: { IN_APP?: boolean } }[];
+}
+
+export function fetchSellerNotificationPreferences(): Promise<SellerNotificationPreferences> {
+  return api.get<SellerNotificationPreferences>('/seller/notification-preferences');
+}
+
+export function saveSellerNotificationPreferences(mutedFamilies: readonly string[]): Promise<SellerNotificationPreferences> {
+  return api.put<SellerNotificationPreferences>('/seller/notification-preferences', {
+    muted: mutedFamilies.map((family) => ({ family, channel: 'IN_APP' })),
+  });
 }
 
 export function updateLocation(

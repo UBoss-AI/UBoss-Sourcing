@@ -27,6 +27,10 @@ export interface AdminReview {
   moderatedBy: string | null;
   createdAt: string;
   updatedAt: string;
+  /** The seller this review counts towards; null for the marketplace's own stock. Absent from an older API. */
+  seller?: { id: string; name: string } | null;
+  /** The seller's public answer and whether staff hid it. Absent from an older API. */
+  response?: { body: string; status: ReviewStatus; at: string | null; hiddenReason: string | null } | null;
 }
 
 export interface AdminReviewPage {
@@ -46,4 +50,12 @@ export function moderateReview(
   input: { status: ReviewStatus; reason: string | null },
 ): Promise<{ review: AdminReview }> {
   return api.post(`/admin/product-reviews/${id}/moderation`, input);
+}
+
+/** Hide a seller's answer under a review (a reason is required) or put it back. The review is untouched. */
+export function moderateReviewResponse(
+  id: string,
+  input: { status: ReviewStatus; reason: string | null },
+): Promise<{ review: AdminReview }> {
+  return api.post(`/admin/product-reviews/${id}/response/moderation`, input);
 }

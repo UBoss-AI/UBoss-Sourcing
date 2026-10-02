@@ -3380,13 +3380,15 @@ received must not move.
 
 **Notifications** (`/account/notifications`) is a record of what has been sent
 to this address, read out of the outbox and filtered to `SENT` — a queued
-message has not arrived and a failed one never will. Three deliberate
-absences: nothing to mark as read (the server does not track whether an email
-was opened, so a read state here would be an invention), no message **body**
-(these are rendered emails and several carry a single-use link — a payment
-link, a reset token, an export download — so a list endpoint handing them back
-would turn one borrowed session into every live link the account has ever been
-sent), and no preferences. The event key is turned into a family label in the
+message has not arrived and a failed one never will. Each row has the
+person's own **unread** mark (`readAt`, set when they open it or press
+"Mark all as read" — not when an email is opened, which the server cannot
+see), a **priority** and a **link** to what it is about; below the list are
+the person's own **choices** per family and channel (see 9.7, JOURNEY-056).
+One deliberate absence stays: no message **body** (these are rendered emails
+and several carry a single-use link — a payment link, a reset token, an export
+download — so a list endpoint handing them back would turn one borrowed
+session into every live link the account has ever been sent). The event key is turned into a family label in the
 frontend, matched on its prefix so a new `schedule.*` event arrives grouped
 correctly without a table growing a row.
 
@@ -13339,7 +13341,8 @@ and refused in production.
 
 ### What it does not do
 
-- No machine translation of messages yet ("View translation").
+- Translation is an optional **Translate** action, off by default
+  (`FEATURE_MESSAGE_TRANSLATION`, DeepL key required; see 9.7, JOURNEY-055).
 - No seller participant, no mobile push, no editing a sent message.
 - Spreadsheets are not accepted as attachments.
 
@@ -15880,6 +15883,14 @@ has one.
 
 **Admin dispute console (built).** `/disputes` (queue: status filter, search) and `/disputes/:id` (buyer, seller, money paid/refunded/refundable, evidence, thread; take into review, record a decision with a mandatory reason and a server preview that says when a second approver is needed, approve or send back, message buyer/seller/both, internal notes). Needs `dispute.view`; each action follows the case's `can` block.
 
+**Dispute console case view (JOURNEY-058, built).** The case page now lays the claim out the way somebody deciding it reads it: an **evidence timeline** (every file, oldest first, who sent it and when, a single-use **Download** per file, and **Add evidence** so staff can attach an inspection report or a carrier's statement both parties see); **Deadlines, authority and owner** (the seller-answer, decision, evidence and appeal deadlines, marked overdue; the refund amount above which a second approver is needed; an assignee picker through `/disputes/assignees` and `/disputes/:id/assignment`); **Payment, chargeback and seller funds** (the payment's status, an open chargeback's provider status and evidence deadline — while it is open no refund can be decided — and each seller's held funds with the hold reason, from `SellerFundHold`); and an **inspection** panel listing each inspection of the order's seller parts with revision, status and result, linking to the inspection console. `GET /admin/disputes/:id` gains `fundHolds[]`, `inspection[]` and `openChargeback.providerStatus`/`evidenceDueAt` (`modules/disputes/dispute-inspection.ts`). Buyers and sellers get the evidence timeline with downloads and `inspection[]` too — status and result only, sellers signed reports only, buyers only once the inspection policy releases them — and never `fundHolds`. A claim never changes an inspection result.
+
+**Seller Hub claims (JOURNEY-058, built).** `/seller/disputes` (Open / Closed / All) and `/seller/disputes/:reference` (`pages/seller/SellerDisputePages.tsx`), on the existing seller routes: the buyer's claim and evidence, the answer deadline, the inspection result, and the seller's own actions — answer with an optional offer (full refund, partial refund in minor units, replacement), message, add and download evidence, appeal. The nav item needs `seller.order.read` and is not locked while trading is paused, so a deadline can still be met.
+
+**Message centre (JOURNEY-055, built).** Three conversations carry messages between people: a preorder chat (buyer and the team), an RFQ thread (buyer and one invited seller) and an **order thread** (buyer and one seller about that seller's part of an order — `order_messages`, keyed on the seller order group, so a seller never sees another seller's thread). The buyer writes from the order page (one thread per seller), the seller from the order in Seller Hub; `/account/messages?view=orders` lists the buyer's order threads. A resend with the same `clientMessageId` is one message; the seller is told in Seller Hub (`ORDER_MESSAGE`) and the buyer by the `order.message` email, at most once an hour per thread. An RFQ message may point at one file already on that request (`rfq_messages.attachmentId`: the writer's own upload in that thread, or a published requirement file). **Report message** (buyers and sellers; in preorder chats buyers only) writes one `message_reports` row per person per message, refuses your own words (`MESSAGE_REPORT_OWN_MESSAGE`), rings the staff bell as an ALERT (`message.reported`, `review.read`) and is audited; staff decide it in **Message reports** (`/message-reports`, `review.moderate`) — ACTIONED or DISMISSED with a note — which closes the alert. A report never hides anything by itself. **Translate** is optional and off (`FEATURE_MESSAGE_TRANSLATION`): when on, and only while a DeepL key is stored under Settings → Catalogue translation, it sends one message to DeepL and shows it in the reader's language; nothing is stored and no other provider is used. Above every order and RFQ composer a **sensitive-data warning** says never to send bank details, passwords or card numbers or pay outside the marketplace, louder when what is typed looks like an email address, a telephone number, an IBAN or a card number; it warns only and blocks nothing. Code: `modules/messages/`, `http/routes/messages.ts`.
+
+**Notification centre (JOURNEY-056, built).** `/account/notifications` now shows **unread** (the recipient's own `notification_outbox.readAt`; opening a row or **Mark all as read** sets it, `POST /account/notifications/read`), a **priority** derived from the event key ("Important" for a failed payment, a new sign-in, a delivery problem), and a **deep link** to the order, claim or request itself. Below the list, **What we send you**: per family, a switch for email, text message and this page (`GET`/`PUT /account/notification-preferences`, `notification_preferences`, one row per muted family and channel, audited, in the Art. 15 export). Account security, orders, payments and data rights are **mandatory** and cannot be muted (`NOTIFICATION_PREFERENCE_MANDATORY`); a handful of single events are mandatory inside optional families (the delivery code, a payment the bank wants confirmed, a price change, a claim decision). The mute is checked inside `enqueueNotification` before anything is written (`modules/notifications/notification-preferences.ts`). **SMS** is now mapped: when an event's SMS switch is on and the person has not muted it, an SMS row is written beside the email with the dedupe key `<key>:sms` and the worker sends it through `infra/sms.ts`; with no gateway (`SMS_HTTP_URL`) or no number it is SUPPRESSED with the reason, like WhatsApp. Duplicates are suppressed by every row's dedupe key. Seller Hub's own feed gains a priority and per-member mutes of non-essential families (`/seller/notification-preferences`); essential notices and open alerts always show.
+
 **Claim screens.** `/account/orders/:id/claim`, `/account/disputes` and `/account/disputes/:reference`, using `GET /disputes/context`, `POST /disputes` (Idempotency-Key), `GET /disputes`, `GET /disputes/:reference`, and the messages, attachments, escalate, withdraw and appeal routes. Buttons follow the server's `can` block.
 
 **Buyer screens.** `/account/orders/:id/return` (ask), `/account/returns` (list) and `/account/returns/:id` (status, instructions, refund, history), reached from a delivered order. They use `GET /orders/:id/returns/eligibility`, `POST /orders/:id/returns` (with an Idempotency-Key; photos as multipart), `GET /returns` and `GET /returns/:id`.
@@ -16790,6 +16801,39 @@ back on loses nothing. The storefront learns the setting as
   surname, the company, the email or the order. A review is marked
   "Verified purchase", which is true of every review by the first rule.
 
+
+### Whose sale, the seller's score, its answer, and anti-fraud (JOURNEY-059)
+
+- **A review counts towards the seller of the order line it rests on.**
+  `product_reviews.sellerAccountId` is taken from the qualifying order line's
+  offer when the review is written — not from whoever sells the product today
+  — and is NULL for the marketplace's own stock. Existing reviews were
+  back-filled by the migration.
+- **Product score and seller score are different numbers.** The product's
+  rating is unchanged: the four scores of its reviews. A seller's **service
+  score** is the mean of the **delivery** and **support** scores across every
+  published review of goods it sold, with the count (`sellerScores`). It is
+  shown on the supplier profile ("Buyers' rating of this seller's service")
+  and on the product's **Sold by** panel. Nothing is stored.
+- **The seller may answer in public.** Seller Hub → **Reviews**
+  (`/seller/reviews`) lists reviews of the seller's own sales with the score
+  card; **Respond** publishes one answer of up to 1000 characters under the
+  review, signed with the trading name, edited in place. Staff can hide the
+  answer (Product reviews → **Hide answer**, a reason the seller is shown)
+  without touching the review or its scores; editing a hidden answer does not
+  republish it. Audited.
+- **Anti-fraud.** A member of the selling seller's own team cannot review that
+  sale: `REVIEW_SELF_DEALING` (403), an audit entry `product_review.refused`
+  and a `REVIEW_SELF_DEALING` risk signal for the Risk review screen. A buyer
+  may write at most `REVIEW_MAX_PER_DAY` (default 10) new reviews in 24 hours —
+  editing one does not count — past which `REVIEW_RATE_LIMITED` (429) and a
+  `REVIEW_VELOCITY` risk signal; the risk scan also counts reviews per buyer in
+  the rule's window. Both rules start as placeholders until the risk owner
+  approves the values.
+- **An inspection result is not a rating.** Inspection results (signed reports
+  passed and failed over twelve months) sit beside the ratings in their own box
+  with no stars, and the page says they are never averaged in. No score here
+  ever reads an inspection report.
 ### Where it appears
 
 **Storefront**

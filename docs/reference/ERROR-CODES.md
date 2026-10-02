@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**520 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**525 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -61,7 +61,9 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Terms and Conditions](#terms-and-conditions) | 5 |
 | [Quantity price bands](#quantity-price-bands) | 2 |
 | [Buyer companies](#buyer-companies) | 18 |
-| [Product reviews](#product-reviews) | 1 |
+| [Product reviews](#product-reviews) | 3 |
+| [Message centre (JOURNEY-055)](#message-centre-journey-055) | 2 |
+| [Notification centre (JOURNEY-056)](#notification-centre-journey-056) | 1 |
 | [B2C maximum order quantity](#b2c-maximum-order-quantity) | 1 |
 | [Pre-shipment inspection and the dispatch gate](#pre-shipment-inspection-and-the-dispatch-gate) | 17 |
 | [Returns](#returns) | 5 |
@@ -696,6 +698,21 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | Code | Meaning |
 |---|---|
 | `REVIEW_NOT_ELIGIBLE` | Only a buyer with a delivered order containing the product may review it. The storefront hides the form in that case, so this is what a stale page or a direct call sees. |
+| `REVIEW_SELF_DEALING` | The reviewer is a member of the seller whose goods the qualifying order line was. A seller cannot rate its own sale, whoever placed the order. 403. Also raises a REVIEW_SELF_DEALING risk signal for staff. |
+| `REVIEW_RATE_LIMITED` | This buyer has written REVIEW_MAX_PER_DAY reviews in the last 24 hours. 429. Editing a review already written is not counted. |
+
+## Message centre (JOURNEY-055)
+
+| Code | Meaning |
+|---|---|
+| `MESSAGE_TRANSLATION_UNAVAILABLE` | "Translate" was pressed but message translation is switched off (FEATURE_MESSAGE_TRANSLATION) or no translation key is stored. 409. |
+| `MESSAGE_REPORT_OWN_MESSAGE` | A person tried to report a message they wrote themselves. 409. |
+
+## Notification centre (JOURNEY-056)
+
+| Code | Meaning |
+|---|---|
+| `NOTIFICATION_PREFERENCE_MANDATORY` | A security, order, payment or data-rights notification cannot be switched off. 400. `details[].field` names the family. |
 
 ## B2C maximum order quantity
 

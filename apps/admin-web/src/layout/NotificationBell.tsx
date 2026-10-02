@@ -112,6 +112,15 @@ const SUPPORT_TICKET_OPENED = 'support_ticket.opened';
 const SUPPORT_TICKET_REPLIED = 'support_ticket.requester_replied';
 
 /**
+ * A buyer or a seller reported a message (JOURNEY-055). Carries `review.read`;
+ * the row links to the moderation queue. The kind of conversation, the reason
+ * and who reported - never the words.
+ */
+const MESSAGE_REPORTED = 'message.reported';
+const MESSAGE_THREAD_KINDS = new Set(['PREORDER_CHAT', 'RFQ', 'ORDER']);
+const MESSAGE_REPORT_REASONS = new Set(['SPAM', 'ABUSE', 'FRAUD', 'PERSONAL_DATA', 'OFF_PLATFORM', 'OTHER']);
+
+/**
  * A buyer company sent its application, or answered a reviewer. Carries
  * `buyer_company.read`; the row links to the case. Names the company and its
  * reference only - never a tax number.
@@ -324,6 +333,22 @@ function describe(notification: ConsoleNotification, t: ReturnType<typeof useI18
       detail: t('notifications.supportTicket.openedDetail', {
         requesterName: textVariable(variables, 'requesterName', '—'),
         category: t(`supportTickets.category.${textVariable(variables, 'category', 'OTHER')}` as never),
+      }),
+    };
+  }
+
+  if (notification.kind === MESSAGE_REPORTED) {
+    const kind = textVariable(variables, 'threadKind', '');
+    const reason = textVariable(variables, 'reason', '');
+    return {
+      title: t('notifications.messageReported.title', {
+        kind: MESSAGE_THREAD_KINDS.has(kind) ? t(`messageReports.kind.${kind}` as TranslationKey) : '—',
+      }),
+      detail: t('notifications.messageReported.detail', {
+        reason: MESSAGE_REPORT_REASONS.has(reason) ? t(`messageReports.reason.${reason}` as TranslationKey) : '—',
+        party: t(
+          `messageReports.party.${textVariable(variables, 'reporterParty', 'BUYER') === 'SELLER' ? 'SELLER' : 'BUYER'}` as TranslationKey,
+        ),
       }),
     };
   }
