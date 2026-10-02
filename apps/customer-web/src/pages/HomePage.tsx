@@ -510,7 +510,8 @@ function CategoryStrip(): React.JSX.Element | null {
     );
   }
 
-  const categories = stockedCategories(query.data.categories);
+  // A malformed answer must not take the home page down; it just shows no strip.
+  const categories = Array.isArray(query.data.categories) ? stockedCategories(query.data.categories) : [];
 
   if (categories.length === 0) return null;
 
