@@ -8543,5 +8543,17 @@
   "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Trop peu de demandes passées pour juger les réponses",
   "rfq.match.flag.RESPONSE_RECORD_LOW": "A répondu à moins de la moitié des demandes de l’an dernier",
   "countdown.due": "Échéance {{relative}}",
-  "countdown.overdue": "En retard : échéance {{relative}}"
+  "countdown.overdue": "En retard : échéance {{relative}}",
+  "priceBreaks.title": "Essayez une quantité",
+  "priceBreaks.quantity": "Quantité : {{quantity}}",
+  "priceBreaks.unitPrice": "Prix unitaire",
+  "priceBreaks.noBand": "En dessous du plus petit palier",
+  "priceBreaks.total": "Total de la ligne",
+  "priceBreaks.production": "Production à la capacité déclarée",
+  "priceBreaks.capacityUnknown": "Capacité non déclarée",
+  "priceBreaks.weeks": "Environ {{weeks}} semaines à {{perWeek}} par semaine",
+  "priceBreaks.leadTime": "Délai déclaré",
+  "priceBreaks.leadUnknown": "Délai non déclaré",
+  "priceBreaks.leadDays": "{{days}} jours",
+  "priceBreaks.landed": "Estimer le coût rendu pour cette quantité"
 }

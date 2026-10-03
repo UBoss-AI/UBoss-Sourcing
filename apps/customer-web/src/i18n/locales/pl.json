@@ -8652,5 +8652,17 @@
   "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Za mało wcześniejszych zapytań, by ocenić odpowiedzi",
   "rfq.match.flag.RESPONSE_RECORD_LOW": "Odpowiedział na mniej niż połowę zapytań z ostatniego roku",
   "countdown.due": "Termin {{relative}}",
-  "countdown.overdue": "Po terminie: termin minął {{relative}}"
+  "countdown.overdue": "Po terminie: termin minął {{relative}}",
+  "priceBreaks.title": "Wypróbuj ilość",
+  "priceBreaks.quantity": "Ilość: {{quantity}}",
+  "priceBreaks.unitPrice": "Cena za sztukę",
+  "priceBreaks.noBand": "Poniżej najmniejszego progu",
+  "priceBreaks.total": "Suma pozycji",
+  "priceBreaks.production": "Produkcja przy deklarowanej wydajności",
+  "priceBreaks.capacityUnknown": "Wydajność niepodana",
+  "priceBreaks.weeks": "Około {{weeks}} tygodni przy {{perWeek}} tygodniowo",
+  "priceBreaks.leadTime": "Deklarowany czas realizacji",
+  "priceBreaks.leadUnknown": "Czas realizacji niepodany",
+  "priceBreaks.leadDays": "{{days}} dni",
+  "priceBreaks.landed": "Oszacuj koszt z dostawą dla tej ilości"
 }

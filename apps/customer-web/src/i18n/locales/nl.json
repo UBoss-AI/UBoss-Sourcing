@@ -8434,5 +8434,17 @@
   "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Te weinig eerdere aanvragen om reacties te beoordelen",
   "rfq.match.flag.RESPONSE_RECORD_LOW": "Beantwoordde minder dan de helft van de aanvragen van het afgelopen jaar",
   "countdown.due": "Vervalt {{relative}}",
-  "countdown.overdue": "Te laat: verviel {{relative}}"
+  "countdown.overdue": "Te laat: verviel {{relative}}",
+  "priceBreaks.title": "Probeer een hoeveelheid",
+  "priceBreaks.quantity": "Hoeveelheid: {{quantity}}",
+  "priceBreaks.unitPrice": "Prijs per stuk",
+  "priceBreaks.noBand": "Onder de kleinste staffel",
+  "priceBreaks.total": "Regeltotaal",
+  "priceBreaks.production": "Productie bij opgegeven capaciteit",
+  "priceBreaks.capacityUnknown": "Capaciteit niet opgegeven",
+  "priceBreaks.weeks": "Ongeveer {{weeks}} weken bij {{perWeek}} per week",
+  "priceBreaks.leadTime": "Opgegeven levertijd",
+  "priceBreaks.leadUnknown": "Levertijd niet opgegeven",
+  "priceBreaks.leadDays": "{{days}} dagen",
+  "priceBreaks.landed": "Schat de totale kosten voor deze hoeveelheid"
 }

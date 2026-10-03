@@ -806,6 +806,14 @@ or "Overdue: was due 2 days ago", refreshed every 30 seconds. The exact deadline
 counts as overdue. Under a day left is amber, overdue is red. Units come from
 the browser's own relative-time wording for each language.
 
+**Price-break slider (ENH-027).** The bulk-offers dialog on a product has a
+quantity slider across its bulk bands. It shows the band price per piece, the
+exact line total (BigInt minor units), the weeks the seller's stated weekly
+capacity needs, the stated lead time, and "Capacity not stated" / "Lead time
+not stated" when missing. A link opens the landed-cost estimator prefilled with
+that price (only in the shopper's own currency) and quantity. The basket still
+re-prices on every add.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

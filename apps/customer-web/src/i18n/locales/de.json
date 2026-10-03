@@ -8434,5 +8434,17 @@
   "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Zu wenige frühere Anfragen für eine Bewertung",
   "rfq.match.flag.RESPONSE_RECORD_LOW": "Hat weniger als die Hälfte der Anfragen des letzten Jahres beantwortet",
   "countdown.due": "Fällig {{relative}}",
-  "countdown.overdue": "Überfällig: war fällig {{relative}}"
+  "countdown.overdue": "Überfällig: war fällig {{relative}}",
+  "priceBreaks.title": "Menge ausprobieren",
+  "priceBreaks.quantity": "Menge: {{quantity}}",
+  "priceBreaks.unitPrice": "Preis pro Stück",
+  "priceBreaks.noBand": "Unter der kleinsten Mengenstaffel",
+  "priceBreaks.total": "Positionssumme",
+  "priceBreaks.production": "Produktion bei angegebener Kapazität",
+  "priceBreaks.capacityUnknown": "Kapazität nicht angegeben",
+  "priceBreaks.weeks": "Etwa {{weeks}} Wochen bei {{perWeek}} pro Woche",
+  "priceBreaks.leadTime": "Angegebene Lieferzeit",
+  "priceBreaks.leadUnknown": "Lieferzeit nicht angegeben",
+  "priceBreaks.leadDays": "{{days}} Tage",
+  "priceBreaks.landed": "Einstandskosten für diese Menge schätzen"
 }

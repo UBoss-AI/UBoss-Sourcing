@@ -1,0 +1,15 @@
+{
+  "batch": 20,
+  "ids": [
+    "ENH-027"
+  ],
+  "before": {
+    "checked": 293,
+    "unchecked": 71
+  },
+  "after": {
+    "checked": 294,
+    "unchecked": 70
+  },
+  "evidence": "Pass 10 batch 20: ENH-027. Bulk-offers dialog quantity slider shows band unit price, exact BigInt line total, production weeks at stated capacity, stated lead time and explicit not-stated states; link prefills the landed-cost estimator (same-currency price and quantity only). Boundary/exact-money/slider tests 3/3; dialog, landed-cost, product page and i18n suites 8 files/96; typecheck/lint clean; eight locales and guides synchronized. No browser pass."
+}

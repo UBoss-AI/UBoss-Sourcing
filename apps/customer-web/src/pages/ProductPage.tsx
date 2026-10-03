@@ -46,6 +46,7 @@ import { SaveForLaterButton } from '@/components/SaveForLaterButton';
 import { PreorderButton } from '@/components/preorder/PreorderButton';
 import { BulkSavingsPopover } from '@/components/BulkSavingsPopover';
 import { BulkOffersDialog } from '@/components/BulkOffersDialog';
+import { capacityFromSourcing } from '@/lib/price-breaks';
 import { useQuantityDecision } from '@/lib/use-quantity-decision';
 import type { QuantityCommitSource } from '@/components/QuantityInput';
 import { BandPriceValue } from '@/components/BandPriceValue';
@@ -2035,6 +2036,7 @@ export function ProductPage(): React.JSX.Element {
                 <BulkOffersDialog
                   isOpen={quantityDecision.dialog?.kind === 'offers'}
                   pricing={quantityDecision.pricing}
+                  capacity={capacityFromSourcing(query.data.sourcing)}
                   onClose={() => {
                     // Back to whatever opened it: the button, or for an
                     // automatic opening the quantity box the buyer was using.

@@ -22,11 +22,13 @@
 import { motion, useReducedMotion } from 'motion/react';
 
 import { Modal } from '@/components/Modal';
+import { PriceBreakVisualizer } from '@/components/PriceBreakVisualizer';
 import { Button } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import { formatBasisPoints, type BulkOfferCard, type BulkPricing } from '@/lib/bulk-pricing';
 import { cx } from '@/lib/cx';
 import { formatMoney } from '@/lib/format';
+import type { BreakCapacity } from '@/lib/price-breaks';
 
 type Available = Extract<BulkPricing, { available: true }>;
 
@@ -35,6 +37,7 @@ export function BulkOffersDialog({
   pricing,
   onSelect,
   onClose,
+  capacity = null,
 }: {
   isOpen: boolean;
   /** The figures for the quantity on the page. */
@@ -42,6 +45,8 @@ export function BulkOffersDialog({
   /** Undefined where the page counts in something other than pieces. */
   onSelect: ((pieces: number) => void) | undefined;
   onClose: () => void;
+  /** Stated capacity and lead time for the slider (ENH-027). */
+  capacity?: BreakCapacity | null;
 }): React.JSX.Element {
   const { t, intlLocale } = useI18n();
   const reduced = useReducedMotion() ?? false;
@@ -72,6 +77,7 @@ export function BulkOffersDialog({
       }
     >
       <div className="space-y-4">
+        <PriceBreakVisualizer offers={pricing.offers} capacity={capacity} initialQuantity={pricing.quantity} />
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-surface-sunken px-3 py-2 text-sm">
           <p className="text-ink">
             {t('bulkOffers.yourQuantity', {

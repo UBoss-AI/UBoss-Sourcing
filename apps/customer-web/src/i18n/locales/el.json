@@ -8434,5 +8434,17 @@
   "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Πολύ λίγα προηγούμενα αιτήματα για αξιολόγηση",
   "rfq.match.flag.RESPONSE_RECORD_LOW": "Απάντησε σε λιγότερα από τα μισά αιτήματα του τελευταίου έτους",
   "countdown.due": "Λήγει {{relative}}",
-  "countdown.overdue": "Εκπρόθεσμο: έληγε {{relative}}"
+  "countdown.overdue": "Εκπρόθεσμο: έληγε {{relative}}",
+  "priceBreaks.title": "Δοκιμάστε μια ποσότητα",
+  "priceBreaks.quantity": "Ποσότητα: {{quantity}}",
+  "priceBreaks.unitPrice": "Τιμή ανά τεμάχιο",
+  "priceBreaks.noBand": "Κάτω από τη μικρότερη κλίμακα",
+  "priceBreaks.total": "Σύνολο γραμμής",
+  "priceBreaks.production": "Παραγωγή με τη δηλωμένη δυναμικότητα",
+  "priceBreaks.capacityUnknown": "Η δυναμικότητα δεν έχει δηλωθεί",
+  "priceBreaks.weeks": "Περίπου {{weeks}} εβδομάδες με {{perWeek}} την εβδομάδα",
+  "priceBreaks.leadTime": "Δηλωμένος χρόνος παράδοσης",
+  "priceBreaks.leadUnknown": "Ο χρόνος παράδοσης δεν έχει δηλωθεί",
+  "priceBreaks.leadDays": "{{days}} ημέρες",
+  "priceBreaks.landed": "Εκτίμηση τελικού κόστους για αυτή την ποσότητα"
 }

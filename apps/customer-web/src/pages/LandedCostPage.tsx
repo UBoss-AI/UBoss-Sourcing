@@ -8,12 +8,12 @@
  * basis points and rounded half up, never through a float.
  */
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useLocale } from '@/app/locale-context';
 import { useStorefront } from '@/app/storefront-context';
 import { Card, Field, Input, PageHeader } from '@/components/ui';
 import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
-import { currencyExponent, formatDate, formatMoneyMinor, majorToMinor } from '@/lib/format';
+import { currencyExponent, formatDate, formatMoneyMinor, majorToMinor, minorToMajor } from '@/lib/format';
 import { deliveryRange, landedCost, percentToBasisPoints, type LandedCostInput } from '@/lib/landed-cost';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
@@ -25,9 +25,13 @@ export function LandedCostPage(): React.JSX.Element {
   const { business, features } = useStorefront();
   const { currency } = useLocale();
   useDocumentMeta({ title: t('landedCost.title') }, business.displayName);
+  const [params] = useSearchParams();
+  // From the price-break slider (ENH-027): only a price in the shopper's own currency is carried over.
+  const carriedPrice = params.get('currency') === currency && /^\d{1,15}$/.test(params.get('unitPriceMinor') ?? '') ? minorToMajor(params.get('unitPriceMinor') ?? '0', currencyExponent(currency)) : '';
+  const carriedQuantity = /^[1-9]\d{0,8}$/.test(params.get('quantity') ?? '') ? (params.get('quantity') ?? '1') : '1';
   const [values, setValues] = useState<Record<FieldName, string>>({
-    unitPrice: '',
-    quantity: '1',
+    unitPrice: carriedPrice,
+    quantity: carriedQuantity,
     freight: '',
     inspection: '',
     duty: '',

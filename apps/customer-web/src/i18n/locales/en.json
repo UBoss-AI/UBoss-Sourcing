@@ -8434,5 +8434,17 @@
   "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Too few past requests to judge responses",
   "rfq.match.flag.RESPONSE_RECORD_LOW": "Answered under half of last year’s requests",
   "countdown.due": "Due {{relative}}",
-  "countdown.overdue": "Overdue: was due {{relative}}"
+  "countdown.overdue": "Overdue: was due {{relative}}",
+  "priceBreaks.title": "Try a quantity",
+  "priceBreaks.quantity": "Quantity: {{quantity}}",
+  "priceBreaks.unitPrice": "Price per piece",
+  "priceBreaks.noBand": "Below the smallest bulk band",
+  "priceBreaks.total": "Line total",
+  "priceBreaks.production": "Production at stated capacity",
+  "priceBreaks.capacityUnknown": "Capacity not stated",
+  "priceBreaks.weeks": "About {{weeks}} weeks at {{perWeek}} a week",
+  "priceBreaks.leadTime": "Stated lead time",
+  "priceBreaks.leadUnknown": "Lead time not stated",
+  "priceBreaks.leadDays": "{{days}} days",
+  "priceBreaks.landed": "Estimate landed cost for this quantity"
 }
