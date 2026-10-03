@@ -1,0 +1,53 @@
+[
+  {
+    "width": 320,
+    "keyboardCta": true,
+    "branding": "Acme logo in blue",
+    "packaging": "Recycled cartons, 100 per box",
+    "drawingSpecification": "Drawing revision A: powder-free, 0.08 mm, blue",
+    "targetVolume": "500",
+    "unit": "BOX",
+    "privateFiles": [
+      "searched-original.png",
+      "drawing-revision-A.pdf"
+    ],
+    "originalImageRetained": true,
+    "savedDraftRetained": true,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  },
+  {
+    "width": 375,
+    "keyboardCta": true,
+    "branding": "Acme logo in blue",
+    "packaging": "Recycled cartons, 100 per box",
+    "drawingSpecification": "Drawing revision A: powder-free, 0.08 mm, blue",
+    "targetVolume": "500",
+    "unit": "BOX",
+    "privateFiles": [
+      "searched-original.png",
+      "drawing-revision-A.pdf"
+    ],
+    "originalImageRetained": true,
+    "savedDraftRetained": true,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  },
+  {
+    "width": 1280,
+    "keyboardCta": true,
+    "branding": "Acme logo in blue",
+    "packaging": "Recycled cartons, 100 per box",
+    "drawingSpecification": "Drawing revision A: powder-free, 0.08 mm, blue",
+    "targetVolume": "500",
+    "unit": "BOX",
+    "privateFiles": [
+      "searched-original.png",
+      "drawing-revision-A.pdf"
+    ],
+    "originalImageRetained": true,
+    "savedDraftRetained": true,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  }
+]

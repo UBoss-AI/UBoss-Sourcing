@@ -8376,5 +8376,13 @@
   "rfq.imageReference.pending": "Afbeelding uit je zoekopdracht: {{name}}. Voeg deze vóór het verzenden toe of verwijder de referentie.",
   "rfq.imageReference.attach": "Zoekafbeelding bijvoegen",
   "rfq.imageReference.discard": "Afbeeldingsreferentie verwijderen",
-  "rfq.imageReference.required": "Voeg de zoekafbeelding toe of verwijder deze voordat je dit verzoek verzendt."
+  "rfq.imageReference.required": "Voeg de zoekafbeelding toe of verwijder deze voordat je dit verzoek verzendt.",
+  "rfq.oem.cta": "Private label / OEM aanvragen",
+  "rfq.oem.prefilledTitle": "Private label / OEM: {{name}}",
+  "rfq.oem.title": "Aanvraag voor private label / OEM",
+  "rfq.oem.hint": "Beschrijf merk en verpakking in de specificatieregels en voeg de tekening of aangepaste specificatie, het doelvolume en de eenheid toe. Sla het concept op en voeg tekeningen toe bij Bestanden. Controleer de gegevens vóór het verzenden; leveranciers bepalen of zij eraan kunnen voldoen.",
+  "rfq.oem.branding": "Merkvereisten",
+  "rfq.oem.packaging": "Verpakkingsvereisten",
+  "rfq.oem.drawingSpec": "Tekening / aangepaste specificatie",
+  "rfq.oem.targetVolume": "Doelvolume"
 }

@@ -8376,5 +8376,13 @@
   "rfq.imageReference.pending": "Bild aus Ihrer Suche: {{name}}. Fügen Sie es vor dem Senden als Anlage hinzu oder verwerfen Sie es.",
   "rfq.imageReference.attach": "Suchbild anhängen",
   "rfq.imageReference.discard": "Bildreferenz verwerfen",
-  "rfq.imageReference.required": "Hängen Sie das Suchbild an oder verwerfen Sie es, bevor Sie diese Anfrage senden."
+  "rfq.imageReference.required": "Hängen Sie das Suchbild an oder verwerfen Sie es, bevor Sie diese Anfrage senden.",
+  "rfq.oem.cta": "Eigenmarke / OEM anfragen",
+  "rfq.oem.prefilledTitle": "Eigenmarke / OEM: {{name}}",
+  "rfq.oem.title": "Anfrage für Eigenmarke / OEM",
+  "rfq.oem.hint": "Beschreiben Sie Marke und Verpackung in den Spezifikationszeilen und ergänzen Sie Zeichnung oder individuelle Spezifikation sowie Zielmenge und Einheit. Speichern Sie den Entwurf und hängen Sie Zeichnungen unter Dateien an. Prüfen Sie die Angaben vor dem Senden; Lieferanten entscheiden, ob sie diese erfüllen können.",
+  "rfq.oem.branding": "Markenanforderungen",
+  "rfq.oem.packaging": "Verpackungsanforderungen",
+  "rfq.oem.drawingSpec": "Zeichnung / individuelle Spezifikation",
+  "rfq.oem.targetVolume": "Zielmenge"
 }

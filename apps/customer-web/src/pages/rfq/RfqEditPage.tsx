@@ -175,13 +175,15 @@ function RfqForm({
   const queryClient = useQueryClient();
   const { currencies } = useLocale();
   const [params] = useSearchParams();
+  const isOem = params.get('template') === 'oem';
 
   const [draft, setDraft] = useState<RfqDraftInput>(() =>
     rfq === null
       ? {
           ...EMPTY_REQUIREMENT,
           categoryId: params.get('categoryId'),
-          title: (params.get('title') ?? '').slice(0, 200),
+          title: (isOem ? t('rfq.oem.prefilledTitle', { name: params.get('title') ?? '' }) : params.get('title') ?? '').slice(0, 200),
+          specs: isOem ? [{ key: t('rfq.oem.branding'), value: '' }, { key: t('rfq.oem.packaging'), value: '' }] : [],
         }
       : draftFrom(rfq),
   );
@@ -286,7 +288,7 @@ function RfqForm({
       queryClient.setQueryData(['rfq', saved.id], saved);
       void queryClient.invalidateQueries({ queryKey: ['rfqs'] });
       toast.success(t('rfq.form.saved'));
-      if (rfqId === null) void navigate(`/account/rfqs/${saved.id}/edit`, { replace: true, state: imageReferenceState(referenceImage) });
+      if (rfqId === null) void navigate(`/account/rfqs/${saved.id}/edit${isOem ? '?template=oem' : ''}`, { replace: true, state: imageReferenceState(referenceImage) });
     },
     onError: showServerErrors,
   });
@@ -373,6 +375,8 @@ function RfqForm({
 
       <ErrorSummary title={t('rfq.form.problemsTitle')} errors={summary} />
 
+      {isOem && <Card title={t('rfq.oem.title')} bodyClassName="px-6 py-5"><p className="text-sm text-ink-muted">{t('rfq.oem.hint')}</p></Card>}
+
       <Card title={t('rfq.form.section.what')} bodyClassName="space-y-4 px-6 py-5">
         <Field label={t('rfq.field.category')} required error={errors['categoryId']}>
           {({ inputId, describedBy }) => (
@@ -409,7 +413,7 @@ function RfqForm({
             />
           )}
         </Field>
-        <Field label={t('rfq.field.specification')} required error={errors['specification']} hint={t('rfq.form.specificationHint')}>
+        <Field label={isOem ? t('rfq.oem.drawingSpec') : t('rfq.field.specification')} required error={errors['specification']} hint={t('rfq.form.specificationHint')}>
           {({ inputId, describedBy }) => (
             <Textarea
               id={inputId}
@@ -438,7 +442,7 @@ function RfqForm({
                 }}
               />
               <Input
-                aria-label={t('rfq.form.specValue', { row: String(index + 1) })}
+                aria-label={isOem && line.key.trim().length > 0 ? line.key : t('rfq.form.specValue', { row: String(index + 1) })}
                 maxLength={400}
                 value={line.value}
                 onChange={(event) => {
@@ -472,7 +476,7 @@ function RfqForm({
       </Card>
 
       <Card title={t('rfq.form.section.quantity')} bodyClassName="grid gap-4 px-6 py-5 sm:grid-cols-2">
-        <Field label={t('rfq.field.quantity')} required error={errors['quantity']}>
+        <Field label={isOem ? t('rfq.oem.targetVolume') : t('rfq.field.quantity')} required error={errors['quantity']}>
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}

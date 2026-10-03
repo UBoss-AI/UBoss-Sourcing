@@ -974,8 +974,8 @@
       "priority": "P0",
       "requirement": "Dedicated CTA captures branding, packaging, drawing/spec and target volume.",
       "classification": "A",
-      "remainingAction": "Verify OEM CTA captures branding, packaging, drawing/specification and target volume; review the preserved pending product-page changes.",
-      "status": "OPEN",
+      "remainingAction": "None for the dedicated editable OEM/private-label RFQ capture template; actual supplier acceptance/capability remains its ordinary quote decision.",
+      "status": "VERIFIED",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
     {
@@ -1232,8 +1232,8 @@
     }
   ],
   "current": {
-    "checked": 286,
-    "open": 78,
+    "checked": 287,
+    "open": 77,
     "total": 364
   },
   "baselineCounts": {
@@ -1332,7 +1332,7 @@
       "total": 67
     },
     "ENH": {
-      "checked": 15,
+      "checked": 16,
       "total": 32
     },
     "DYNAMIC": {
@@ -1412,7 +1412,6 @@
     "ENH-020",
     "ENH-021",
     "ENH-022",
-    "ENH-024",
     "ENH-027",
     "ENH-030",
     "ENH-032",

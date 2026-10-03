@@ -8485,5 +8485,13 @@
   "rfq.imageReference.pending": "Image de votre recherche : {{name}}. Joignez-la avant l’envoi ou abandonnez-la.",
   "rfq.imageReference.attach": "Joindre l’image recherchée",
   "rfq.imageReference.discard": "Abandonner l’image de référence",
-  "rfq.imageReference.required": "Joignez ou abandonnez l’image recherchée avant d’envoyer cette demande."
+  "rfq.imageReference.required": "Joignez ou abandonnez l’image recherchée avant d’envoyer cette demande.",
+  "rfq.oem.cta": "Demander une marque privée / OEM",
+  "rfq.oem.prefilledTitle": "Marque privée / OEM : {{name}}",
+  "rfq.oem.title": "Demande de marque privée / OEM",
+  "rfq.oem.hint": "Décrivez la marque et l’emballage dans les lignes de spécifications et ajoutez le dessin ou la spécification personnalisée, le volume cible et l’unité. Enregistrez le brouillon puis joignez les dessins dans Fichiers. Vérifiez les détails avant l’envoi ; les fournisseurs décident s’ils peuvent y répondre.",
+  "rfq.oem.branding": "Exigences de marque",
+  "rfq.oem.packaging": "Exigences d’emballage",
+  "rfq.oem.drawingSpec": "Dessin / spécification personnalisée",
+  "rfq.oem.targetVolume": "Volume cible"
 }

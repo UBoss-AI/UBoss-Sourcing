@@ -1684,6 +1684,21 @@ all absent (`BUYER_COMPANIES_DISABLED`).
 - **Rules.** This is recognition by a model, **not** perceptual-similarity search; there is no embedding index.
 - **Status.** Built. Needs an AI provider key.
 
+**Private label / OEM request (ENH-024).** When requests for quotation are
+switched on, a product with a category offers a dedicated Request private
+label / OEM link. It opens an editable RFQ template with the product/category,
+a private-label/OEM title, branding and packaging specification rows, a
+required drawing/custom-specification field and target volume with its unit.
+The buyer can edit every suggested detail before saving or sending. Save
+keeps the template open and retains entered requirements. Drawings use the
+existing private Files upload after saving, with scanner and access checks.
+Branding and packaging are ordinary editable RFQ specification rows; blank
+rows are not saved. Target volume remains a decimal string subject to the
+existing quantity rules. Supplier views and sent requirement versions retain
+the entered details and attached files. This asks suppliers to quote; it does
+not claim a product or supplier can fulfil custom manufacturing. No new
+request type, API, database field, price or automatic approval is introduced.
+
 **Image-search reference in a request (UAT-UI-002).** Open a matched product,
 then choose Request quotes. The title and category are filled in and the
 original searched image stays in this browser navigation as a pending

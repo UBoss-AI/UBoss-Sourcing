@@ -8594,5 +8594,13 @@
   "rfq.imageReference.pending": "Obraz z wyszukiwania: {{name}}. Dołącz go przed wysłaniem lub odrzuć.",
   "rfq.imageReference.attach": "Dołącz wyszukiwany obraz",
   "rfq.imageReference.discard": "Odrzuć obraz referencyjny",
-  "rfq.imageReference.required": "Dołącz lub odrzuć obraz z wyszukiwania przed wysłaniem tego zapytania."
+  "rfq.imageReference.required": "Dołącz lub odrzuć obraz z wyszukiwania przed wysłaniem tego zapytania.",
+  "rfq.oem.cta": "Poproś o markę własną / OEM",
+  "rfq.oem.prefilledTitle": "Marka własna / OEM: {{name}}",
+  "rfq.oem.title": "Zapytanie o markę własną / OEM",
+  "rfq.oem.hint": "Opisz markę i opakowanie w wierszach specyfikacji oraz dodaj rysunek lub niestandardową specyfikację, docelową ilość i jednostkę. Zapisz wersję roboczą i dołącz rysunki w Plikach. Sprawdź dane przed wysłaniem; dostawcy decydują, czy mogą je spełnić.",
+  "rfq.oem.branding": "Wymagania dotyczące marki",
+  "rfq.oem.packaging": "Wymagania dotyczące opakowania",
+  "rfq.oem.drawingSpec": "Rysunek / niestandardowa specyfikacja",
+  "rfq.oem.targetVolume": "Docelowa ilość"
 }

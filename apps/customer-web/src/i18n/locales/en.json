@@ -8376,5 +8376,13 @@
   "rfq.imageReference.pending": "Image from your search: {{name}}. Attach it before sending or discard it.",
   "rfq.imageReference.attach": "Attach searched image",
   "rfq.imageReference.discard": "Discard image reference",
-  "rfq.imageReference.required": "Attach or discard the searched image before sending this request."
+  "rfq.imageReference.required": "Attach or discard the searched image before sending this request.",
+  "rfq.oem.cta": "Request private label / OEM",
+  "rfq.oem.prefilledTitle": "Private label / OEM: {{name}}",
+  "rfq.oem.title": "Private label / OEM request",
+  "rfq.oem.hint": "Describe branding and packaging in the specification rows, add the drawing or custom specification and your target volume and unit. Save the draft, then attach drawings in Files. Review the details before sending; suppliers decide whether they can meet them.",
+  "rfq.oem.branding": "Branding requirements",
+  "rfq.oem.packaging": "Packaging requirements",
+  "rfq.oem.drawingSpec": "Drawing / custom specification",
+  "rfq.oem.targetVolume": "Target volume"
 }

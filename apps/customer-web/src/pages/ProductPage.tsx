@@ -2510,6 +2510,14 @@ export function ProductPage(): React.JSX.Element {
                 {t('rfq.cta.requestQuotesForProduct')}
               </Link>
               {' · '}
+              <Link
+                to={`/account/rfqs/new?template=oem&categoryId=${encodeURIComponent(product.category.id)}&title=${encodeURIComponent(product.name)}`}
+                state={imageReferenceState(imageReference)}
+                className="font-medium text-brand underline-offset-2 hover:text-brand-hover hover:underline"
+              >
+                {t('rfq.oem.cta')}
+              </Link>
+              {' · '}
               <Link to="/tools/landed-cost" className="font-medium text-brand underline-offset-2 hover:underline">
                 {t('landedCost.title')}
               </Link>

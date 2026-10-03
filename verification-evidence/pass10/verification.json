@@ -6,8 +6,8 @@
     "open": 87
   },
   "after": {
-    "checked": 286,
-    "open": 78
+    "checked": 287,
+    "open": 77
   },
   "targeted": {
     "command": "npx vitest run tests/integration/rfq-samples.test.ts tests/integration/rfq-purchase-order-to-order.test.ts",
@@ -72,8 +72,8 @@
   },
   "audit": {
     "problems": [],
-    "checked": 286,
-    "open": 78
+    "checked": 287,
+    "open": 77
   },
   "secretScan": {
     "command": ".\\scripts\\secret-scan.ps1",
@@ -919,6 +919,161 @@
       "result": "No leaks found",
       "commitsScanned": 254,
       "nonMergeCommits": 232,
+      "scope": "Complete history before commit; new commit scanned again before push."
+    },
+    "integration": {
+      "mainCommit": "091bb7954d98b855e14c50cb0e386e7addf07349",
+      "pushed": true,
+      "protectedIndexEntries": 3203,
+      "protectedUntrackedFiles": 131,
+      "sharedFilesMerged": 14,
+      "primaryTargeted": {
+        "files": 2,
+        "tests": 9,
+        "exitCode": 0
+      },
+      "guide": {
+        "pagesInspected": [
+          30,
+          31
+        ],
+        "totalPages": 131,
+        "readOnly": true
+      },
+      "lineEndings": "Initial shared baseline status guards refused an EOL/stat mismatch and restored all original bytes. Baseline bytes were hash-checked against HEAD, index entries refreshed only with identical blob content, then fast-forwarded with unrelated index/untracked preservation checks.",
+      "fullHistoryBeforePush": {
+        "commits": 255,
+        "nonMergeCommits": 233,
+        "result": "No leaks found; enabled pre-push hook passed."
+      }
+    }
+  },
+  "batch13": {
+    "id": "ENH-024",
+    "sourceBaseline": "091bb7954d98b855e14c50cb0e386e7addf07349",
+    "verifiedDate": "2026-10-03",
+    "before": {
+      "checked": 286,
+      "open": 78
+    },
+    "after": {
+      "checked": 287,
+      "open": 77
+    },
+    "targeted": {
+      "files": 4,
+      "tests": 30,
+      "exitCode": 0
+    },
+    "correctedOem": {
+      "files": 1,
+      "tests": 3,
+      "exitCode": 0
+    },
+    "customer": {
+      "checks": [
+        "typecheck",
+        "lint",
+        "audit:contrast",
+        "vitest --maxWorkers=1 with isolated resolver configuration",
+        "build"
+      ],
+      "files": 199,
+      "tests": 1820,
+      "exitCode": 0
+    },
+    "retainedVerification": {
+      "backendFocused": {
+        "files": 2,
+        "tests": 36,
+        "pass": 12
+      },
+      "backend": {
+        "files": 337,
+        "tests": 5357,
+        "pass": 11
+      },
+      "admin": {
+        "files": 52,
+        "tests": 382,
+        "pass": 5
+      },
+      "reason": "No backend/admin/logistics source/tests/config changes; guarded diff empty."
+    },
+    "sourceFiles": [
+      "apps/customer-web/src/pages/ProductPage.tsx",
+      "apps/customer-web/src/pages/rfq/RfqEditPage.tsx"
+    ],
+    "testFiles": [
+      "apps/customer-web/src/pages/rfq/OemRequest.test.tsx"
+    ],
+    "browser": {
+      "engine": "Chrome",
+      "viewports": [
+        320,
+        375,
+        1280
+      ],
+      "results": "oem-browser-results.json",
+      "apiBoundary": "local fixture",
+      "screenshotsInspected": [
+        "requirements-320",
+        "files-375"
+      ]
+    },
+    "docs": {
+      "referenceCheck": "npm run docs:check passed",
+      "guide": "npm run guide passed; native Word read-only customer section page 29/130 and Optional features RFQ row page 118/130 inspected; GDI font playback limitation",
+      "languages": [
+        "English",
+        "Hinglish"
+      ],
+      "locales": [
+        "en",
+        "de",
+        "el",
+        "es",
+        "fr",
+        "it",
+        "nl",
+        "pl"
+      ],
+      "newKeys": 8,
+      "formal": [
+        "docs/PRD.md",
+        "docs/UI-SCREENS.md"
+      ]
+    },
+    "runnerNotes": "Initial typecheck caught three unsupported Testing Library exact role-query options; removed them, reran isolated OEM tests and complete checks. Production behavior and assertions unchanged. Initial full two-worker run timed out in the long OEM entry test (1819 passed); unchanged isolated case passed, then the complete suite ran with one worker and the original five-second timeout. Initial patch anchor expected LF; corrected normalization before any source write.",
+    "limitations": [
+      "Editable template uses existing RFQ fields; no new typed OEM request state or manufacturing-capability promise.",
+      "Browser/API fixtures; no real scanner/provider/supplier-capability claim."
+    ],
+    "evidence": "batch-13.json",
+    "word": {
+      "engine": "Microsoft Word 16.0",
+      "readOnly": true,
+      "totalPages": 29,
+      "changedPages": [
+        27
+      ],
+      "renderMethod": "Actual Word Page.EnhMetaFileBits rasterized with native GDI and visually inspected.",
+      "structuralComparison": {
+        "baseline": "091bb7954d98b855e14c50cb0e386e7addf07349",
+        "unchangedOtherParts": 18,
+        "authorizedCharacterChanges": 1,
+        "ids": [
+          "ENH-024"
+        ]
+      },
+      "visualResult": "Private label/OEM capture recommendation checked on page 27; surrounding boxes and layout preserved. Native GDI font playback limitation disclosed.",
+      "cleanup": "Private read-only renderer closed without saving."
+    },
+    "secretScan": {
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/secret-scan.ps1",
+      "result": "No leaks found",
+      "commitsScanned": 255,
+      "nonMergeCommits": 233,
       "scope": "Complete history before commit; new commit scanned again before push."
     }
   }

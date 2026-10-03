@@ -410,6 +410,11 @@ Nothing behind it is fetched until the form is already usable.
 
 <summary><b>Customer storefront</b> — browse, quote, order, reorder</summary>
 
+**Private label / OEM requests.** A dedicated product link opens an editable
+RFQ template for branding, packaging, drawing/specification and target volume.
+Save the draft, attach drawings privately and review it before sending.
+Suppliers decide whether they can meet the custom requirements.
+
 **Image search to a request.** Open a match, request quotes and save the
 draft. Attach the original searched image as a private reference, or
 explicitly discard it, before sending. Failed uploads retain the image for
