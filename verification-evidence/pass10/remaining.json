@@ -946,9 +946,10 @@
       "priority": "P1",
       "requirement": "Translate product content/messages while retaining original text.",
       "classification": "A",
-      "remainingAction": "Verify product/message translation retains original text and handles provider failure and authorization.",
-      "status": "OPEN",
-      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
+      "remainingAction": "None for stored product translation/original-copy control and optional private message translation; actual provider availability requires the operator configuration and was not asserted.",
+      "status": "VERIFIED",
+      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c",
+      "evidence": "verification-evidence/pass10/batch-14.json"
     },
     {
       "id": "ENH-022",
@@ -1232,8 +1233,8 @@
     }
   ],
   "current": {
-    "checked": 287,
-    "open": 77,
+    "checked": 288,
+    "open": 76,
     "total": 364
   },
   "baselineCounts": {
@@ -1332,7 +1333,7 @@
       "total": 67
     },
     "ENH": {
-      "checked": 16,
+      "checked": 17,
       "total": 32
     },
     "DYNAMIC": {
@@ -1410,7 +1411,6 @@
     "ENH-018",
     "ENH-019",
     "ENH-020",
-    "ENH-021",
     "ENH-022",
     "ENH-027",
     "ENH-030",

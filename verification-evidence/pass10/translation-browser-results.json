@@ -1,0 +1,41 @@
+[
+  {
+    "width": 320,
+    "keyboardOriginal": true,
+    "originalRetry": true,
+    "translatedProductRetained": true,
+    "originalMessageRetained": true,
+    "messageRetry": true,
+    "languageRefresh": true,
+    "sourceMarketPreserved": true,
+    "horizontalOverflow": false,
+    "duplicateIds": [],
+    "pageErrors": []
+  },
+  {
+    "width": 375,
+    "keyboardOriginal": true,
+    "originalRetry": true,
+    "translatedProductRetained": true,
+    "originalMessageRetained": true,
+    "messageRetry": true,
+    "languageRefresh": true,
+    "sourceMarketPreserved": true,
+    "horizontalOverflow": false,
+    "duplicateIds": [],
+    "pageErrors": []
+  },
+  {
+    "width": 1280,
+    "keyboardOriginal": true,
+    "originalRetry": true,
+    "translatedProductRetained": true,
+    "originalMessageRetained": true,
+    "messageRetry": true,
+    "languageRefresh": true,
+    "sourceMarketPreserved": true,
+    "horizontalOverflow": false,
+    "duplicateIds": [],
+    "pageErrors": []
+  }
+]

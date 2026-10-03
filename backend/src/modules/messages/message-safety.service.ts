@@ -344,21 +344,28 @@ export async function translateMessage(
       body: JSON.stringify({ text: [message.body], target_lang: target }),
       signal: AbortSignal.timeout(15_000),
     });
-  } catch (error) {
-    // The words are a private message: never logged.
-    logger.warn({ err: error instanceof Error ? error.message : String(error) }, 'message translation unreachable');
+  } catch {
+    // A provider error may itself repeat private words or credentials.
+    logger.warn('message translation unreachable');
     return unavailable();
   }
   if (!response.ok) {
     logger.warn({ status: response.status }, 'message translation refused');
     unavailable();
   }
-  const body = (await response.json()) as { translations?: { text?: unknown; detected_source_language?: unknown }[] };
-  const first = body.translations?.[0];
-  if (first === undefined || typeof first.text !== 'string') unavailable();
+  let body: unknown;
+  try {
+    body = await response.json();
+  } catch {
+    logger.warn('message translation returned unreadable data');
+    return unavailable();
+  }
+  const translations: unknown = typeof body === 'object' && body !== null && 'translations' in body ? body.translations : undefined;
+  const first: unknown = Array.isArray(translations) ? translations[0] : undefined;
+  if (typeof first !== 'object' || first === null || !('text' in first) || typeof first.text !== 'string') return unavailable();
   return {
-    text: first?.text as string,
-    detectedLanguage: typeof first?.detected_source_language === 'string' ? first.detected_source_language.toLowerCase() : null,
+    text: first.text,
+    detectedLanguage: 'detected_source_language' in first && typeof first.detected_source_language === 'string' ? first.detected_source_language.toLowerCase() : null,
     language: input.language,
   };
 }

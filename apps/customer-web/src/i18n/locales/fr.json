@@ -8493,5 +8493,10 @@
   "rfq.oem.branding": "Exigences de marque",
   "rfq.oem.packaging": "Exigences d’emballage",
   "rfq.oem.drawingSpec": "Dessin / spécification personnalisée",
-  "rfq.oem.targetVolume": "Volume cible"
+  "rfq.oem.targetVolume": "Volume cible",
+  "product.translation.showOriginal": "Afficher le texte original du produit",
+  "product.translation.hideOriginal": "Masquer le texte original du produit",
+  "product.translation.originalTitle": "Texte original du produit",
+  "product.translation.originalHint": "Le texte original du catalogue apparaît ici. Le produit dans la langue choisie reste au-dessus et en dessous. Les traductions manquantes utilisent le texte original.",
+  "product.translation.unavailable": "Le texte original du produit n’a pas pu être chargé. Réessayez."
 }

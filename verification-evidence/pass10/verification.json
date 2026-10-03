@@ -1,13 +1,13 @@
 {
   "testedSourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c",
-  "scope": "Isolated committed baseline; active storefront, branding, Verified Suppliers and shared feature documents excluded.",
+  "scope": "Isolated committed baseline; existing unrelated storefront/branding/Verified Suppliers work preserved in primary with guarded checklist-only integration. Owner confirmed no other active writer.",
   "before": {
     "checked": 277,
     "open": 87
   },
   "after": {
-    "checked": 287,
-    "open": 77
+    "checked": 288,
+    "open": 76
   },
   "targeted": {
     "command": "npx vitest run tests/integration/rfq-samples.test.ts tests/integration/rfq-purchase-order-to-order.test.ts",
@@ -72,8 +72,8 @@
   },
   "audit": {
     "problems": [],
-    "checked": 287,
-    "open": 77
+    "checked": 288,
+    "open": 76
   },
   "secretScan": {
     "command": ".\\scripts\\secret-scan.ps1",
@@ -1074,6 +1074,194 @@
       "result": "No leaks found",
       "commitsScanned": 255,
       "nonMergeCommits": 233,
+      "scope": "Complete history before commit; new commit scanned again before push."
+    },
+    "integration": {
+      "mainCommit": "8ec88a3e931960041110a5a5af04fb0b3dea7f17",
+      "pushed": true,
+      "protectedIndexEntries": 3213,
+      "protectedUntrackedFiles": 131,
+      "sharedFilesMerged": 14,
+      "safetySnapshot": "65eb98c0cfae0a1a8203aec783e51e9a0224c93b",
+      "guide": {
+        "pagesInspected": [
+          30,
+          119
+        ],
+        "totalPages": 131,
+        "readOnly": true
+      },
+      "fullHistoryBeforePush": {
+        "commits": 256,
+        "nonMergeCommits": 234,
+        "result": "No leaks found; enabled pre-push hook passed."
+      },
+      "primaryFocused": {
+        "result": "2 passed, long positive entry case timed out at the original five-second limit, including alone. Temporary timestamps located timeout during userEvent typing; diagnostics restored exactly. Existing ProductInstructions changes emitted an undefined query fixture warning. No assertions/timeouts altered. Committed isolated complete 199/1820 and Chrome journeys passed."
+      }
+    }
+  },
+  "batch14": {
+    "id": "ENH-021",
+    "sourceBaseline": "8ec88a3e931960041110a5a5af04fb0b3dea7f17",
+    "verifiedDate": "2026-10-03",
+    "before": {
+      "checked": 287,
+      "open": 77
+    },
+    "after": {
+      "checked": 288,
+      "open": 76
+    },
+    "targeted": {
+      "customer": {
+        "files": 3,
+        "tests": 28,
+        "exitCode": 0,
+        "command": "npx vitest run --config ../../output/pass10-customer.config.mts src/components/product-info/OriginalProductText.test.tsx src/components/messages/MessageActions.test.tsx src/pages/ProductPage.test.tsx --maxWorkers=1"
+      },
+      "backend": {
+        "files": 4,
+        "tests": 33,
+        "exitCode": 0,
+        "command": "npx vitest run tests/integration/catalogue-original-copy.test.ts tests/unit/message-translation.test.ts tests/integration/message-centre.test.ts tests/integration/catalogue-translations.test.ts"
+      }
+    },
+    "customer": {
+      "checks": [
+        "typecheck",
+        "lint",
+        "audit:contrast",
+        "vitest --maxWorkers=1 with isolated resolver configuration",
+        "build"
+      ],
+      "files": 200,
+      "tests": 1826,
+      "exitCode": 0,
+      "commands": [
+        "npm run typecheck",
+        "npm run lint",
+        "npm run audit:contrast",
+        "npx vitest run --config ../../output/pass10-customer.config.mts --maxWorkers=1",
+        "npm run build"
+      ]
+    },
+    "backend": {
+      "checks": [
+        "typecheck",
+        "lint",
+        "test"
+      ],
+      "files": 339,
+      "tests": 5376,
+      "exitCode": 0,
+      "commands": [
+        "npm run typecheck",
+        "npm run lint",
+        "npm run test"
+      ]
+    },
+    "retainedVerification": {
+      "admin": {
+        "files": 52,
+        "tests": 382,
+        "pass": 5
+      },
+      "reason": "No admin/logistics/deploy source/tests/config changes; guarded diff empty."
+    },
+    "regressions": {
+      "messageLanguage": "Old HEAD source fails fresh-language case, current source passes.",
+      "providerBoundary": "Old source fails four of 17 privacy/malformed-payload cases, current source passes all."
+    },
+    "sourceFiles": [
+      "apps/customer-web/src/components/product-info/OriginalProductText.tsx",
+      "apps/customer-web/src/pages/ProductPage.tsx",
+      "apps/customer-web/src/components/messages/MessageActions.tsx",
+      "backend/src/modules/messages/message-safety.service.ts"
+    ],
+    "testFiles": [
+      "apps/customer-web/src/components/product-info/OriginalProductText.test.tsx",
+      "apps/customer-web/src/components/messages/MessageActions.test.tsx",
+      "backend/tests/unit/message-translation.test.ts",
+      "backend/tests/integration/catalogue-original-copy.test.ts"
+    ],
+    "browser": {
+      "engine": "Chrome",
+      "viewports": [
+        320,
+        375,
+        1280
+      ],
+      "results": "translation-browser-results.json",
+      "apiBoundary": "Local fixtures",
+      "screenshotsInspected": [
+        "original-320",
+        "messages-1280"
+      ],
+      "commands": [
+        "node output/pass10-translation-browser-prepare.cjs <isolated-root>",
+        "npx vite --config ../../output/pass10-customer.config.mts --host 127.0.0.1 --port 5197 --strictPort",
+        "UBOSS_PHONE_PLAYWRIGHT_MODULE set in PowerShell; node output/pass10-translation-browser.cjs <isolated-root>"
+      ],
+      "reproducibleHelpers": [
+        "verification-evidence/pass10/translation-browser-prepare.cjs",
+        "verification-evidence/pass10/translation-browser.cjs"
+      ]
+    },
+    "docs": {
+      "referenceCheck": "npm run docs:check passed",
+      "guide": "npm run guide passed; native Word QA recorded separately; Guide page 11/131 rendered read-only; 1132 x 1600; Guide page 16/131 rendered read-only; 1132 x 1600; both inspected; known GDI font playback limitation",
+      "languages": [
+        "English",
+        "Hinglish"
+      ],
+      "locales": [
+        "en",
+        "de",
+        "el",
+        "es",
+        "fr",
+        "it",
+        "nl",
+        "pl"
+      ],
+      "newKeys": 5,
+      "formal": [
+        "docs/PRD.md",
+        "docs/UI-SCREENS.md",
+        "docs/API.md"
+      ]
+    },
+    "runnerNotes": "First original-route fixture category was inactive by default; activated the fixture and isolated public cases passed. Initial guide insertion matched two RFQ paragraphs; completed remaining guide edit at the exact OEM paragraph. Preview root needed absolute normalization; browser selector accounted for the in-paragraph translation label. PowerShell Stop mode incorrectly terminated on existing jsdom scrollTo stderr; corrected native-command capture without changing tests or assertions. Lint required braces around a state-toggle callback and a test assertion callback; braced equivalent void handlers, reran targeted tests and lint, and continued the full suite/build. Earlier typecheck was retained for this syntax-only fix; production build checks current types again. Backend lint required explicit unknown JSON member types in three test assertions; target, typecheck and lint were rerun before the full backend suite, without weakening assertions.",
+    "limitations": [
+      "Product translation uses existing stored copy with original field fallback, not on-demand provider translation of missing product content.",
+      "Optional message provider/HTTP boundary tested with fixtures, no live provider guarantee."
+    ],
+    "evidence": "batch-14.json",
+    "word": {
+      "engine": "Microsoft Word 16.0",
+      "readOnly": true,
+      "totalPages": 29,
+      "changedPages": [
+        27
+      ],
+      "renderMethod": "Actual Word Page.EnhMetaFileBits rasterized with native GDI and inspected.",
+      "structuralComparison": {
+        "baseline": "8ec88a3e931960041110a5a5af04fb0b3dea7f17",
+        "unchangedOtherParts": 18,
+        "authorizedCharacterChanges": 1,
+        "ids": [
+          "ENH-021"
+        ]
+      },
+      "visualResult": "One-click Translate checked on page 27; surrounding boxes/layout preserved. Known GDI font playback limitation.",
+      "cleanup": "Private read-only renderer closed without saving."
+    },
+    "secretScan": {
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/secret-scan.ps1",
+      "result": "No leaks found",
+      "commitsScanned": 256,
+      "nonMergeCommits": 234,
       "scope": "Complete history before commit; new commit scanned again before push."
     }
   }

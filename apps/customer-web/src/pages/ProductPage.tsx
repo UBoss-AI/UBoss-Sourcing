@@ -41,6 +41,7 @@ import { useLocale } from '@/app/locale-context';
 import { useToast } from '@/components/toast-context';
 import { QuantityInput } from '@/components/QuantityInput';
 import { BulkOrderPanel } from '@/components/catalog/BulkOrderPanel';
+import { OriginalProductText } from '@/components/product-info/OriginalProductText';
 import { SaveForLaterButton } from '@/components/SaveForLaterButton';
 import { PreorderButton } from '@/components/preorder/PreorderButton';
 import { BulkSavingsPopover } from '@/components/BulkSavingsPopover';
@@ -2525,6 +2526,8 @@ export function ProductPage(): React.JSX.Element {
           )}
         </div>
       </div>
+
+      <OriginalProductText key={[product.id, currency, country, language].join(':')} productId={product.id} slug={product.slug} currency={currency} country={country} />
 
       {/* --- Everything a buyer reads below the buy panel --------------------
           In one fixed order - highlights, description, specifications,

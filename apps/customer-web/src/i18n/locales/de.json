@@ -8384,5 +8384,10 @@
   "rfq.oem.branding": "Markenanforderungen",
   "rfq.oem.packaging": "Verpackungsanforderungen",
   "rfq.oem.drawingSpec": "Zeichnung / individuelle Spezifikation",
-  "rfq.oem.targetVolume": "Zielmenge"
+  "rfq.oem.targetVolume": "Zielmenge",
+  "product.translation.showOriginal": "Originalen Produkttext anzeigen",
+  "product.translation.hideOriginal": "Originalen Produkttext ausblenden",
+  "product.translation.originalTitle": "Originaler Produkttext",
+  "product.translation.originalHint": "Hier erscheint der Originaltext des Katalogs. Das Produkt in der gewählten Sprache bleibt darüber und darunter. Fehlende Übersetzungen verwenden den Originaltext.",
+  "product.translation.unavailable": "Der originale Produkttext konnte nicht geladen werden. Versuchen Sie es erneut."
 }

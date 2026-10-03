@@ -753,6 +753,28 @@ products. Before anything is sent the dialog says the picture goes to an AI
 service and is not stored; beside the results it says the matches are
 approximate.
 
+**Product and message translation (ENH-021).** Choosing a supported language
+loads the stored product translation; missing fields retain the original copy.
+On the product page, **Show original product text** reads the same public
+product in the same country/currency without a language override. It shows the
+original name, short and detailed descriptions, description sections, safety
+warnings/instructions and intended purpose alongside the selected-language
+page. The control reads only when opened, can be hidden, and offers an explicit
+retry on failure. An unpublished product is not exposed by this read. Plain
+text is escaped and rich descriptions use the existing HTML sanitizer. This
+does not translate missing product content on demand or change quantity,
+price, market, stored content or buying decisions.
+
+Messages retain their original words while optional **Translate** adds a
+reader-only result; **Show original** hides that result. Changing the reader's
+language requests a fresh translation instead of reusing another language.
+Message translation still requires its flag and the configured DeepL key and
+checks the existing buyer/seller/thread ownership before any provider call.
+Provider refusal, unreadable JSON and malformed payloads return the existing
+translation-unavailable error. Logs omit provider exception text because it
+may contain private words. No translated message is stored. Provider tests use
+fixtures; they do not prove a live provider result.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

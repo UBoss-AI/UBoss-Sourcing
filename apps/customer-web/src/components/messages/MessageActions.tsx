@@ -60,22 +60,24 @@ export function MessageActions({
     },
   });
 
+  const hasCurrentTranslation = features.messageTranslation === true && translation.data?.language === language.slice(0, 2);
+
   return (
     <div className={className}>
-      {showTranslation && translation.data !== undefined && (
+      {showTranslation && hasCurrentTranslation && translation.data !== undefined && (
         <p className="mt-1 whitespace-pre-line border-l-2 border-brand/30 pl-2 text-sm text-ink" lang={translation.data.language}>
           <span className="block text-xxs font-medium text-ink-muted">{t('messages.translate.translated')}</span>
           {translation.data.text}
         </p>
       )}
-      {translation.isError && (
+      {features.messageTranslation === true && translation.isError && (
         <p role="alert" className="mt-1 text-xs text-danger">
           {errorMessage(t, translation.error)}
         </p>
       )}
       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xxs">
         {features.messageTranslation === true &&
-          (showTranslation ? (
+          (showTranslation && hasCurrentTranslation ? (
             <button
               type="button"
               className="font-medium text-brand hover:underline"
@@ -91,7 +93,7 @@ export function MessageActions({
               className="font-medium text-brand hover:underline disabled:opacity-60"
               disabled={translation.isPending}
               onClick={() => {
-                if (translation.data === undefined) translation.mutate();
+                if (!hasCurrentTranslation) translation.mutate();
                 else setShowTranslation(true);
               }}
             >

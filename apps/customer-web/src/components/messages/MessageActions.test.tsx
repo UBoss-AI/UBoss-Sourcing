@@ -1,12 +1,13 @@
 /**
  * Report and Translate under a message (JOURNEY-055).
  */
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
 import { jsonResponse, renderWithProviders } from '@/test/harness';
 import { MessageActions } from './MessageActions';
+import { i18n } from '@/i18n/config';
 
 const fetchMock = vi.fn();
 const MESSAGE_ID = '01MSG00000000000000000000A';
@@ -21,7 +22,8 @@ beforeEach(() => {
   fetchMock.mockReset();
 });
 
-afterEach(() => {
+afterEach(async () => {
+  await i18n.changeLanguage('en');
   vi.unstubAllGlobals();
 });
 
@@ -81,5 +83,17 @@ describe('MessageActions', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Show original' }));
     expect(screen.queryByText('We can ship in October.')).not.toBeInTheDocument();
+  });
+});
+
+describe('translation preservation and recovery', () => {
+  const config = { ...FALLBACK_CONFIG, features: { ...FALLBACK_CONFIG.features, messageTranslation: true } };
+  it('keeps original words during a refused translation and recovers by explicit retry', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ error: { code: 'MESSAGE_TRANSLATION_UNAVAILABLE', message: 'Unavailable' } }, 409)).mockResolvedValueOnce(jsonResponse({ text: 'Translated reply', detectedLanguage: 'de', language: 'en' }));
+    renderWithProviders(<><p>Original private words</p><MessageActions threadKind="ORDER" messageId={MESSAGE_ID} audience="buyer" /></>, { config }); await userEvent.click(screen.getByRole('button', { name: 'Translate' })); expect(await screen.findByRole('alert')).toBeInTheDocument(); expect(screen.getByText('Original private words')).toBeInTheDocument(); await userEvent.click(screen.getByRole('button', { name: 'Translate' })); expect(await screen.findByText('Translated reply')).toBeInTheDocument(); expect(screen.getByText('Original private words')).toBeInTheDocument(); await userEvent.click(screen.getByRole('button', { name: 'Show original' })); expect(screen.queryByText('Translated reply')).not.toBeInTheDocument(); expect(screen.getByText('Original private words')).toBeInTheDocument();
+  });
+  it('requests a fresh translation when the reader switches language instead of reusing the old one', async () => {
+    fetchMock.mockImplementation((_url, init) => { const body = bodyOf(init) as { language: string }; return Promise.resolve(jsonResponse({ text: body.language === 'en' ? 'English reply' : 'Polish reply', detectedLanguage: 'de', language: body.language })); });
+    renderWithProviders(<MessageActions threadKind="RFQ" messageId={MESSAGE_ID} audience="seller" />, { config }); await userEvent.click(screen.getByRole('button', { name: 'Translate' })); expect(await screen.findByText('English reply')).toBeInTheDocument(); await act(async () => { await i18n.changeLanguage('pl'); }); expect(screen.queryByText('English reply')).not.toBeInTheDocument(); await userEvent.click(screen.getByRole('button', { name: i18n.t('messages.translate.action') })); expect(await screen.findByText('Polish reply')).toBeInTheDocument(); expect(bodyOf(fetchMock.mock.calls[1]?.[1])).toMatchObject({ language: 'pl' }); expect(fetchMock.mock.calls.every(([url]) => String(url).includes('/seller/messages/translate'))).toBe(true);
   });
 });

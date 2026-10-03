@@ -8384,5 +8384,10 @@
   "rfq.oem.branding": "Branding requirements",
   "rfq.oem.packaging": "Packaging requirements",
   "rfq.oem.drawingSpec": "Drawing / custom specification",
-  "rfq.oem.targetVolume": "Target volume"
+  "rfq.oem.targetVolume": "Target volume",
+  "product.translation.showOriginal": "Show original product text",
+  "product.translation.hideOriginal": "Hide original product text",
+  "product.translation.originalTitle": "Original product text",
+  "product.translation.originalHint": "The catalogue’s original copy appears here. The selected-language product stays above and below. Missing translations use the original copy.",
+  "product.translation.unavailable": "The original product text could not be loaded. Try again."
 }

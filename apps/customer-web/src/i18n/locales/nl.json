@@ -8384,5 +8384,10 @@
   "rfq.oem.branding": "Merkvereisten",
   "rfq.oem.packaging": "Verpakkingsvereisten",
   "rfq.oem.drawingSpec": "Tekening / aangepaste specificatie",
-  "rfq.oem.targetVolume": "Doelvolume"
+  "rfq.oem.targetVolume": "Doelvolume",
+  "product.translation.showOriginal": "Oorspronkelijke producttekst tonen",
+  "product.translation.hideOriginal": "Oorspronkelijke producttekst verbergen",
+  "product.translation.originalTitle": "Oorspronkelijke producttekst",
+  "product.translation.originalHint": "Hier verschijnt de oorspronkelijke catalogustekst. Het product in de gekozen taal blijft erboven en eronder staan. Ontbrekende vertalingen gebruiken de oorspronkelijke tekst.",
+  "product.translation.unavailable": "De oorspronkelijke producttekst kon niet worden geladen. Probeer het opnieuw."
 }

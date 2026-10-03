@@ -410,6 +410,12 @@ Nothing behind it is fetched until the form is already usable.
 
 <summary><b>Customer storefront</b> — browse, quote, order, reorder</summary>
 
+**Original and translated text.** Choose a language to read available product
+translations, then open the original product text alongside it. Missing
+translations retain original fields. Optional message translation keeps the
+original words, refreshes after a language change and handles provider failure
+without logging private exception text. It requires the configured provider.
+
 **Private label / OEM requests.** A dedicated product link opens an editable
 RFQ template for branding, packaging, drawing/specification and target volume.
 Save the draft, attach drawings privately and review it before sending.

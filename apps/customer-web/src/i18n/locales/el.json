@@ -8384,5 +8384,10 @@
   "rfq.oem.branding": "Απαιτήσεις επωνυμίας",
   "rfq.oem.packaging": "Απαιτήσεις συσκευασίας",
   "rfq.oem.drawingSpec": "Σχέδιο / ειδική προδιαγραφή",
-  "rfq.oem.targetVolume": "Επιθυμητή ποσότητα"
+  "rfq.oem.targetVolume": "Επιθυμητή ποσότητα",
+  "product.translation.showOriginal": "Εμφάνιση αρχικού κειμένου προϊόντος",
+  "product.translation.hideOriginal": "Απόκρυψη αρχικού κειμένου προϊόντος",
+  "product.translation.originalTitle": "Αρχικό κείμενο προϊόντος",
+  "product.translation.originalHint": "Εδώ εμφανίζεται το αρχικό κείμενο του καταλόγου. Το προϊόν στην επιλεγμένη γλώσσα παραμένει πάνω και κάτω. Οι ελλείπουσες μεταφράσεις χρησιμοποιούν το αρχικό κείμενο.",
+  "product.translation.unavailable": "Δεν ήταν δυνατή η φόρτωση του αρχικού κειμένου προϊόντος. Δοκιμάστε ξανά."
 }

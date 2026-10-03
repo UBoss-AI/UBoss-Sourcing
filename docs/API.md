@@ -3533,12 +3533,17 @@ report: { id, status, createdAt } }`. A repeat returns the first report. Your
 own message is `409 MESSAGE_REPORT_OWN_MESSAGE`; a message you cannot read is
 `404`. Sellers cannot report in preorder chats (they are not in them).
 
+**Original product copy.** The product page's original-text control uses the
+existing public detail route with its current country and currency, omitting
+`language`. The ordinary publication and visibility rules still apply. The
+language-specific and original reads do not modify stored catalogue content.
+
 **Translate a message.** `POST /api/v1/account/messages/translate` and
 `POST /api/v1/seller/messages/translate` take `{ threadKind, messageId,
 language: en|de|el|es|fr|it|nl|pl }` and answer `{ text, detectedLanguage,
 language }`. Off by default: with `FEATURE_MESSAGE_TRANSLATION` off or no
 DeepL key stored, `409 MESSAGE_TRANSLATION_UNAVAILABLE`. The public config
-reports `features.messageTranslation`. Nothing is stored.
+reports `features.messageTranslation`. Nothing is stored. Buyer/seller ownership is checked before sending private words. Provider refusal, invalid JSON and malformed results return the same unavailable error; provider exception text is not logged.
 
 **Staff.** `GET /api/v1/admin/message-reports[?status=OPEN|ACTIONED|DISMISSED]`
 (`review.read`) lists reports with the reported words read from where they are
