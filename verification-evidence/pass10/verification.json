@@ -1604,6 +1604,75 @@
       "commitsScanned": 258,
       "nonMergeCommits": 236,
       "scope": "Complete history before commit; new commit scanned again before push."
+    },
+    "followup": {
+      "requirement": "DYNAMIC-002",
+      "kind": "Batch 16 integration follow-up; no additional checkbox",
+      "sourceBaseline": "6336f73dff37892a66ec81bc3857c8137eb5daa1",
+      "reason": "Primary preserved supplier-card migration configures the shared supplier read to one; isolated committed baseline configures eight. A new test and wording assumed eight. Production hero already reuses the configured shared cache correctly.",
+      "changes": "Exact URLSearchParams limit assertion equals HOME_SUPPLIER_COUNT; no substring assertion, timeout increase or production change. English/Hinglish, PRD, UI, API and generated guide describe the bounded shared read.",
+      "review": {
+        "reviewer": "hero_reviewer",
+        "result": "Approved; exact parameter assertion is stricter and supports the preserved shared setting."
+      },
+      "regression": {
+        "primaryBefore": {
+          "files": 5,
+          "passed": 67,
+          "failed": 1
+        },
+        "isolatedPrimaryBefore": {
+          "passed": 17,
+          "failed": 1
+        },
+        "isolatedAfter": {
+          "passed": 18,
+          "failed": 0
+        }
+      },
+      "verification": {
+        "targeted": {
+          "files": 5,
+          "tests": 68,
+          "exitCode": 0
+        },
+        "customer": {
+          "files": 204,
+          "tests": 1876,
+          "exitCode": 0
+        },
+        "typecheck": 0,
+        "lint": 0,
+        "contrast": 0,
+        "build": 0,
+        "docsCheck": 0,
+        "guideGeneration": 0,
+        "logPrefix": "TEMP/uboss-pass10-hero-followup-"
+      },
+      "guide": {
+        "stage": "Guide page 9/131 rendered read-only; paragraph ends on page 9; 1132 x 1600",
+        "readOnly": true,
+        "visuallyInspected": true,
+        "limitation": "Known native GDI heavy-font playback"
+      },
+      "retained": {
+        "browser": "Exact empty production UI diff from sourceBaseline; batch 16 Chrome evidence retained.",
+        "word": "Exact unchanged authoritative Word file and checklist state; batch 16 structural and visual evidence retained.",
+        "backend": "341 files/5400 tests; exact unchanged package guard.",
+        "admin": "52 files/382 tests; exact unchanged package guard."
+      },
+      "audit": {
+        "checked": 290,
+        "open": 74,
+        "problems": []
+      },
+      "secretScanBeforeCommit": {
+        "sourceHead": "6336f73dff37892a66ec81bc3857c8137eb5daa1",
+        "commits": 259,
+        "nonMergeCommits": 237,
+        "result": "No leaks found; completed whole-history scan before follow-up at unchanged history."
+      },
+      "integration": "Primary re-verification and guarded integration recorded with the next feature batch."
     }
   }
 }

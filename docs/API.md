@@ -3995,7 +3995,7 @@ No schema, role or permission change. No SearchQueryLog write is performed; exis
 privacy-respecting submission counters remain the analytics mechanism.
 
 DYNAMIC-002 reuses GET /api/v1/catalog/suppliers: limit=24 and optional q public
-name filter for /suppliers; the existing shared limit=8 read, without a country filter, for a conditional manufacturer
+name filter for /suppliers; the existing bounded shared supplier read, without a country filter, for a conditional manufacturer
 statement. The response supplier kind, registered country and valid non-null
 verifiedAt timestamp substantiate the statement. Existing approval/live-offer and seller-storefront guards apply. No
 new backend route, write, role, permission or database schema is introduced.

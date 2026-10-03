@@ -34,7 +34,7 @@ describe('sourcing shortcuts', () => {
     expect(line).not.toHaveAttribute('hidden');
     await waitFor(() => { expect(line).toBeVisible(); });
     expect(line).toHaveAttribute('aria-hidden', 'false');
-    expect(String(fetchMock.mock.calls[0]?.[0])).toContain('limit=8');
+    expect(new URL(String(fetchMock.mock.calls[0]?.[0])).searchParams.get('limit')).toBe(String(HOME_SUPPLIER_COUNT));
     expect(screen.getByRole('link', { name: 'Supplier' })).toHaveAttribute('href', '/suppliers');
   });
   it.each([
