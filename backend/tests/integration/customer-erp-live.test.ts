@@ -55,6 +55,8 @@ const { claimDueEvents, enqueueEvent } = await import(
 );
 const { dispatchEvent } = await import('../../src/modules/customer-erp/pipeline.service.js');
 const { runInventorySync } = await import('../../src/modules/customer-erp/polling.service.js');
+const { receiveWebhook } = await import('../../src/modules/customer-erp/webhook.service.js');
+const { createHmac } = await import('node:crypto');
 const { linkProductCode } = await import(
   '../../src/modules/customer-erp/product-code.service.js'
 );
@@ -64,6 +66,7 @@ import type { OrgActor } from '../../src/modules/customer-erp/audit.service.js';
 import type { Membership } from '../../src/modules/customer-erp/organization.service.js';
 
 const API_KEY = 'mock-erp-key-9f2a';
+const SIGNING = 'mock-erp-signing-7c1d';
 
 const actor: OrgActor = { customerProfileId: null, email: 'buyer@example.test', correlationId: null };
 
@@ -130,7 +133,7 @@ async function makeBuyer(): Promise<{ membership: Membership; profileId: string 
  */
 async function connectAndActivate(
   membership: Membership,
-  overrides: { receiptOnDelivery?: boolean; thresholdMinor?: string } = {},
+  overrides: { receiptOnDelivery?: boolean; thresholdMinor?: string; webhook?: boolean } = {},
 ): Promise<string> {
   const connection = await createConnection(membership, actor, {
     name: 'Mock ERP',
@@ -142,7 +145,13 @@ async function connectAndActivate(
     apiKeyLocation: 'HEADER',
     apiKeyName: 'X-API-Key',
     tenantIdentifier: 'VENDOR-1',
-    secrets: { apiKey: API_KEY },
+    ...(overrides.webhook === true
+      ? { webhookEnabled: true, webhookSignatureHeader: 'X-ERP-Signature' }
+      : {}),
+    secrets: {
+      apiKey: API_KEY,
+      ...(overrides.webhook === true ? { webhookSigningSecret: SIGNING } : {}),
+    },
   });
 
   await saveEndpoints(membership, actor, connection.id, [
@@ -748,6 +757,114 @@ describe('a confirmed order becomes a purchase order', () => {
 
     expect(event.state).toBe('SKIPPED');
     expect(event.approvalId).toBe(approval?.id);
+  });
+});
+
+/**
+ * ENH-015: an acknowledgement and a shipment notice, each read and written
+ * through the buyer's OWN mapping for it. The ERP paths below are deliberately
+ * unconventional, so a pass proves the mapping was applied rather than the
+ * connector's built-in field names.
+ */
+describe('acknowledgement and shipment mappings, against the sandbox ERP', () => {
+  async function deliver(connectionId: string, payload: unknown): Promise<string> {
+    const rawBody = JSON.stringify(payload);
+    const row = await prisma.customerErpConnection.findUniqueOrThrow({
+      where: { id: connectionId },
+      select: { webhookSlug: true },
+    });
+
+    const result = await receiveWebhook({
+      slug: row.webhookSlug,
+      rawBody,
+      headers: { 'x-erp-signature': createHmac('sha256', SIGNING).update(rawBody).digest('hex') },
+      ipAddress: '127.0.0.1',
+      correlationId: newId(),
+    });
+
+    expect(result.accepted).toBe(true);
+    return result.note;
+  }
+
+  async function mapped(): Promise<{ membership: Membership; connectionId: string; orderId: string }> {
+    const { membership, profileId } = await makeBuyer();
+    const connectionId = await connectAndActivate(membership, { webhook: true });
+
+    await saveMappings(membership, actor, connectionId, [
+      { entity: 'ORDER', platformField: 'orderNumber', erpPath: 'reference', constantValue: null, erpValue: null, transform: 'TRIM' },
+      { entity: 'ORDER', platformField: 'currency', erpPath: 'currency', constantValue: null, erpValue: null, transform: 'UPPERCASE' },
+      { entity: 'ORDER', platformField: 'lineSku', erpPath: 'lines.0.sku', constantValue: null, erpValue: null, transform: 'TRIM' },
+      { entity: 'ORDER', platformField: 'lineQuantity', erpPath: 'lines.0.quantity', constantValue: null, erpValue: null, transform: null },
+      { entity: 'ACKNOWLEDGEMENT', platformField: 'purchaseOrderNumber', erpPath: 'po.ref', constantValue: null, erpValue: null, transform: 'TRIM' },
+      { entity: 'ACKNOWLEDGEMENT', platformField: 'acknowledgementNumber', erpPath: 'ackId', constantValue: null, erpValue: null, transform: 'TRIM' },
+      { entity: 'ACKNOWLEDGEMENT', platformField: 'acknowledgementStatus', erpPath: 'ackState', constantValue: null, erpValue: null, transform: 'UPPERCASE' },
+      { entity: 'ACKNOWLEDGEMENT', platformField: 'promisedDeliveryDate', erpPath: 'promised', constantValue: null, erpValue: null, transform: 'ISO_DATE' },
+      { entity: 'SHIPMENT', platformField: 'purchaseOrderNumber', erpPath: 'po.ref', constantValue: null, erpValue: null, transform: 'TRIM' },
+      { entity: 'SHIPMENT', platformField: 'shipmentStatus', erpPath: 'state', constantValue: null, erpValue: null, transform: 'TRIM' },
+      { entity: 'SHIPMENT', platformField: 'trackingNumber', erpPath: 'awb', constantValue: null, erpValue: null, transform: 'TRIM' },
+      { entity: 'SHIPMENT', platformField: 'carrier', erpPath: 'carrierName', constantValue: null, erpValue: null, transform: 'TRIM' },
+      { entity: 'SHIPMENT', platformField: 'shippedAt', erpPath: 'shippedOn', constantValue: null, erpValue: null, transform: 'ISO_DATE' },
+    ] as never);
+
+    const { orderId } = await makeOrder(profileId);
+    await sendEvent(connectionId, membership, 'PURCHASE_ORDER_CREATE', orderId);
+
+    return { membership, connectionId, orderId };
+  }
+
+  it('writes a shipment notice in the shape the SHIPMENT mapping names', async () => {
+    const { membership, connectionId, orderId } = await mapped();
+
+    erp.reset();
+    await sendEvent(connectionId, membership, 'SHIPMENT_STATUS', orderId);
+
+    const body = erp.requestsTo('/shipments')[0]?.body as Record<string, unknown>;
+    const link = await prisma.customerErpOrderLink.findFirstOrThrow({ where: { connectionId, orderId } });
+
+    expect(body['state']).toBeTypeOf('string');
+    expect((body['po'] as Record<string, unknown>)['ref']).toBe(link.erpPurchaseOrderId);
+  });
+
+  it('applies an inbound acknowledgement and shipment notice through the mapping', async () => {
+    const { connectionId, orderId } = await mapped();
+    const link = await prisma.customerErpOrderLink.findFirstOrThrow({ where: { connectionId, orderId } });
+    const ref = link.erpPurchaseOrderId;
+
+    expect(ref, 'the sandbox ERP gave the purchase order no id').not.toBeNull();
+
+    const ackNote = await deliver(connectionId, {
+      type: 'order.acknowledged',
+      data: { po: { ref }, ackId: 'ACK-77', ackState: 'accepted', promised: '2026-11-20' },
+    });
+    expect(ackNote).toContain('ACCEPTED');
+
+    const shipNote = await deliver(connectionId, {
+      type: 'shipment.dispatched',
+      data: { po: { ref }, state: 'IN_TRANSIT', awb: 'AWB-123', carrierName: 'DHL', shippedOn: '2026-11-18' },
+    });
+    expect(shipNote).toContain('IN_TRANSIT');
+
+    const after = await prisma.customerErpOrderLink.findFirstOrThrow({ where: { id: link.id } });
+
+    expect(after.erpAcknowledgementId).toBe('ACK-77');
+    expect(after.erpAcknowledgementStatus).toBe('ACCEPTED');
+    expect(after.acknowledgedAt).not.toBeNull();
+    expect(after.erpPromisedDeliveryAt?.toISOString().slice(0, 10)).toBe('2026-11-20');
+    expect(after.shipmentStatus).toBe('IN_TRANSIT');
+    expect(after.trackingNumber).toBe('AWB-123');
+    expect(after.erpCarrier).toBe('DHL');
+    expect(after.erpShippedAt?.toISOString().slice(0, 10)).toBe('2026-11-18');
+  });
+
+  it('records nothing for an acknowledgement naming a purchase order nobody has', async () => {
+    const { connectionId } = await mapped();
+
+    const note = await deliver(connectionId, {
+      type: 'order.acknowledged',
+      data: { po: { ref: 'NOT-OURS' }, ackState: 'accepted' },
+    });
+
+    expect(note).toContain('No order here matches');
   });
 });
 

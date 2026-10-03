@@ -4614,7 +4614,7 @@ The marketplace's staff (`logistics.read`) see every document on a consignment o
 - **Acceptance criteria.**
   1. Four connectors (protocol dialects): **SAP** (S/4HANA, ECC; OData CSRF handling, Cloud Connector), **monday.com** (GraphQL, column ids), **Odoo** (JSON-RPC), **Custom** (REST/OData/GraphQL, OpenAPI import). Twenty vendor presets are data, including NetSuite, Dynamics 365, SAP Business One, Zoho, Acumatica, QuickBooks, Sage X3, Epicor, Infor ION, TCS iON, Tally Prime, Marg, Busy and "Any other system".
   2. Authentication: API key, bearer, basic, OAuth 2.0 (redirect `CUSTOMER_ERP_OAUTH_REDIRECT_URI`; monday OAuth client settings).
-  3. Mappings: fields, products (SKU cross-reference), warehouses, units, inventory.
+  3. Mappings: fields, products (SKU cross-reference), warehouses, units, inventory. The field mapping is walked step by step — purchase order, **order acknowledgement**, **shipment notice**, invoice, status names, then products, stock and payments. Acknowledgement and shipment are optional: mapping any of their fields opts the connection in, and their required fields (purchase order number and status) must then be mapped before it can be switched on. Mapped, they shape what is written to the ERP and are read from its signed webhooks onto the order link (ENH-015, built).
   4. Test connection, dry run, last-sync status, audit log; inbound webhooks and scheduled polling.
   5. **On order is not on hand**: a confirmed order raises a purchase order and "on order"; on-hand moves only on a goods receipt, and only if the buyer's policy says to write it automatically.
   6. Payment sync carries the provider **reference and status only** — no card number, last four or token.

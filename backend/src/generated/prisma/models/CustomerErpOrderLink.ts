@@ -56,6 +56,13 @@ export type CustomerErpOrderLinkMinAggregateOutputType = {
   receivedQty: number | null
   shipmentStatus: string | null
   trackingNumber: string | null
+  erpAcknowledgementId: string | null
+  erpAcknowledgementStatus: string | null
+  acknowledgedAt: Date | null
+  erpPromisedDeliveryAt: Date | null
+  erpShipmentId: string | null
+  erpCarrier: string | null
+  erpShippedAt: Date | null
   pushedAt: Date | null
   lastSyncedAt: Date | null
   createdAt: Date | null
@@ -77,6 +84,13 @@ export type CustomerErpOrderLinkMaxAggregateOutputType = {
   receivedQty: number | null
   shipmentStatus: string | null
   trackingNumber: string | null
+  erpAcknowledgementId: string | null
+  erpAcknowledgementStatus: string | null
+  acknowledgedAt: Date | null
+  erpPromisedDeliveryAt: Date | null
+  erpShipmentId: string | null
+  erpCarrier: string | null
+  erpShippedAt: Date | null
   pushedAt: Date | null
   lastSyncedAt: Date | null
   createdAt: Date | null
@@ -98,6 +112,13 @@ export type CustomerErpOrderLinkCountAggregateOutputType = {
   receivedQty: number
   shipmentStatus: number
   trackingNumber: number
+  erpAcknowledgementId: number
+  erpAcknowledgementStatus: number
+  acknowledgedAt: number
+  erpPromisedDeliveryAt: number
+  erpShipmentId: number
+  erpCarrier: number
+  erpShippedAt: number
   pushedAt: number
   lastSyncedAt: number
   createdAt: number
@@ -131,6 +152,13 @@ export type CustomerErpOrderLinkMinAggregateInputType = {
   receivedQty?: true
   shipmentStatus?: true
   trackingNumber?: true
+  erpAcknowledgementId?: true
+  erpAcknowledgementStatus?: true
+  acknowledgedAt?: true
+  erpPromisedDeliveryAt?: true
+  erpShipmentId?: true
+  erpCarrier?: true
+  erpShippedAt?: true
   pushedAt?: true
   lastSyncedAt?: true
   createdAt?: true
@@ -152,6 +180,13 @@ export type CustomerErpOrderLinkMaxAggregateInputType = {
   receivedQty?: true
   shipmentStatus?: true
   trackingNumber?: true
+  erpAcknowledgementId?: true
+  erpAcknowledgementStatus?: true
+  acknowledgedAt?: true
+  erpPromisedDeliveryAt?: true
+  erpShipmentId?: true
+  erpCarrier?: true
+  erpShippedAt?: true
   pushedAt?: true
   lastSyncedAt?: true
   createdAt?: true
@@ -173,6 +208,13 @@ export type CustomerErpOrderLinkCountAggregateInputType = {
   receivedQty?: true
   shipmentStatus?: true
   trackingNumber?: true
+  erpAcknowledgementId?: true
+  erpAcknowledgementStatus?: true
+  acknowledgedAt?: true
+  erpPromisedDeliveryAt?: true
+  erpShipmentId?: true
+  erpCarrier?: true
+  erpShippedAt?: true
   pushedAt?: true
   lastSyncedAt?: true
   createdAt?: true
@@ -281,6 +323,13 @@ export type CustomerErpOrderLinkGroupByOutputType = {
   receivedQty: number
   shipmentStatus: string | null
   trackingNumber: string | null
+  erpAcknowledgementId: string | null
+  erpAcknowledgementStatus: string | null
+  acknowledgedAt: Date | null
+  erpPromisedDeliveryAt: Date | null
+  erpShipmentId: string | null
+  erpCarrier: string | null
+  erpShippedAt: Date | null
   pushedAt: Date | null
   lastSyncedAt: Date | null
   createdAt: Date
@@ -325,6 +374,13 @@ export type CustomerErpOrderLinkWhereInput = {
   receivedQty?: Prisma.IntFilter<"CustomerErpOrderLink"> | number
   shipmentStatus?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
   trackingNumber?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  erpAcknowledgementId?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  erpAcknowledgementStatus?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  acknowledgedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
+  erpPromisedDeliveryAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
+  erpShipmentId?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  erpCarrier?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  erpShippedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
   pushedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"CustomerErpOrderLink"> | Date | string
@@ -347,6 +403,13 @@ export type CustomerErpOrderLinkOrderByWithRelationInput = {
   receivedQty?: Prisma.SortOrder
   shipmentStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   trackingNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpAcknowledgementId?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpAcknowledgementStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  acknowledgedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpPromisedDeliveryAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpShipmentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpCarrier?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpShippedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   pushedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -374,6 +437,13 @@ export type CustomerErpOrderLinkWhereUniqueInput = Prisma.AtLeast<{
   receivedQty?: Prisma.IntFilter<"CustomerErpOrderLink"> | number
   shipmentStatus?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
   trackingNumber?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  erpAcknowledgementId?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  erpAcknowledgementStatus?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  acknowledgedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
+  erpPromisedDeliveryAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
+  erpShipmentId?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  erpCarrier?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  erpShippedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
   pushedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"CustomerErpOrderLink"> | Date | string
@@ -396,6 +466,13 @@ export type CustomerErpOrderLinkOrderByWithAggregationInput = {
   receivedQty?: Prisma.SortOrder
   shipmentStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   trackingNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpAcknowledgementId?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpAcknowledgementStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  acknowledgedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpPromisedDeliveryAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpShipmentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpCarrier?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpShippedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   pushedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -425,6 +502,13 @@ export type CustomerErpOrderLinkScalarWhereWithAggregatesInput = {
   receivedQty?: Prisma.IntWithAggregatesFilter<"CustomerErpOrderLink"> | number
   shipmentStatus?: Prisma.StringNullableWithAggregatesFilter<"CustomerErpOrderLink"> | string | null
   trackingNumber?: Prisma.StringNullableWithAggregatesFilter<"CustomerErpOrderLink"> | string | null
+  erpAcknowledgementId?: Prisma.StringNullableWithAggregatesFilter<"CustomerErpOrderLink"> | string | null
+  erpAcknowledgementStatus?: Prisma.StringNullableWithAggregatesFilter<"CustomerErpOrderLink"> | string | null
+  acknowledgedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerErpOrderLink"> | Date | string | null
+  erpPromisedDeliveryAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerErpOrderLink"> | Date | string | null
+  erpShipmentId?: Prisma.StringNullableWithAggregatesFilter<"CustomerErpOrderLink"> | string | null
+  erpCarrier?: Prisma.StringNullableWithAggregatesFilter<"CustomerErpOrderLink"> | string | null
+  erpShippedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerErpOrderLink"> | Date | string | null
   pushedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerErpOrderLink"> | Date | string | null
   lastSyncedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerErpOrderLink"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerErpOrderLink"> | Date | string
@@ -445,6 +529,13 @@ export type CustomerErpOrderLinkCreateInput = {
   receivedQty?: number
   shipmentStatus?: string | null
   trackingNumber?: string | null
+  erpAcknowledgementId?: string | null
+  erpAcknowledgementStatus?: string | null
+  acknowledgedAt?: Date | string | null
+  erpPromisedDeliveryAt?: Date | string | null
+  erpShipmentId?: string | null
+  erpCarrier?: string | null
+  erpShippedAt?: Date | string | null
   pushedAt?: Date | string | null
   lastSyncedAt?: Date | string | null
   createdAt?: Date | string
@@ -467,6 +558,13 @@ export type CustomerErpOrderLinkUncheckedCreateInput = {
   receivedQty?: number
   shipmentStatus?: string | null
   trackingNumber?: string | null
+  erpAcknowledgementId?: string | null
+  erpAcknowledgementStatus?: string | null
+  acknowledgedAt?: Date | string | null
+  erpPromisedDeliveryAt?: Date | string | null
+  erpShipmentId?: string | null
+  erpCarrier?: string | null
+  erpShippedAt?: Date | string | null
   pushedAt?: Date | string | null
   lastSyncedAt?: Date | string | null
   createdAt?: Date | string
@@ -487,6 +585,13 @@ export type CustomerErpOrderLinkUpdateInput = {
   receivedQty?: Prisma.IntFieldUpdateOperationsInput | number
   shipmentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpAcknowledgementId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpAcknowledgementStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpPromisedDeliveryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpShippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -509,6 +614,13 @@ export type CustomerErpOrderLinkUncheckedUpdateInput = {
   receivedQty?: Prisma.IntFieldUpdateOperationsInput | number
   shipmentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpAcknowledgementId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpAcknowledgementStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpPromisedDeliveryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpShippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -530,6 +642,13 @@ export type CustomerErpOrderLinkCreateManyInput = {
   receivedQty?: number
   shipmentStatus?: string | null
   trackingNumber?: string | null
+  erpAcknowledgementId?: string | null
+  erpAcknowledgementStatus?: string | null
+  acknowledgedAt?: Date | string | null
+  erpPromisedDeliveryAt?: Date | string | null
+  erpShipmentId?: string | null
+  erpCarrier?: string | null
+  erpShippedAt?: Date | string | null
   pushedAt?: Date | string | null
   lastSyncedAt?: Date | string | null
   createdAt?: Date | string
@@ -550,6 +669,13 @@ export type CustomerErpOrderLinkUpdateManyMutationInput = {
   receivedQty?: Prisma.IntFieldUpdateOperationsInput | number
   shipmentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpAcknowledgementId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpAcknowledgementStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpPromisedDeliveryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpShippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -571,6 +697,13 @@ export type CustomerErpOrderLinkUncheckedUpdateManyInput = {
   receivedQty?: Prisma.IntFieldUpdateOperationsInput | number
   shipmentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpAcknowledgementId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpAcknowledgementStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpPromisedDeliveryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpShippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -613,6 +746,13 @@ export type CustomerErpOrderLinkCountOrderByAggregateInput = {
   receivedQty?: Prisma.SortOrder
   shipmentStatus?: Prisma.SortOrder
   trackingNumber?: Prisma.SortOrder
+  erpAcknowledgementId?: Prisma.SortOrder
+  erpAcknowledgementStatus?: Prisma.SortOrder
+  acknowledgedAt?: Prisma.SortOrder
+  erpPromisedDeliveryAt?: Prisma.SortOrder
+  erpShipmentId?: Prisma.SortOrder
+  erpCarrier?: Prisma.SortOrder
+  erpShippedAt?: Prisma.SortOrder
   pushedAt?: Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -639,6 +779,13 @@ export type CustomerErpOrderLinkMaxOrderByAggregateInput = {
   receivedQty?: Prisma.SortOrder
   shipmentStatus?: Prisma.SortOrder
   trackingNumber?: Prisma.SortOrder
+  erpAcknowledgementId?: Prisma.SortOrder
+  erpAcknowledgementStatus?: Prisma.SortOrder
+  acknowledgedAt?: Prisma.SortOrder
+  erpPromisedDeliveryAt?: Prisma.SortOrder
+  erpShipmentId?: Prisma.SortOrder
+  erpCarrier?: Prisma.SortOrder
+  erpShippedAt?: Prisma.SortOrder
   pushedAt?: Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -660,6 +807,13 @@ export type CustomerErpOrderLinkMinOrderByAggregateInput = {
   receivedQty?: Prisma.SortOrder
   shipmentStatus?: Prisma.SortOrder
   trackingNumber?: Prisma.SortOrder
+  erpAcknowledgementId?: Prisma.SortOrder
+  erpAcknowledgementStatus?: Prisma.SortOrder
+  acknowledgedAt?: Prisma.SortOrder
+  erpPromisedDeliveryAt?: Prisma.SortOrder
+  erpShipmentId?: Prisma.SortOrder
+  erpCarrier?: Prisma.SortOrder
+  erpShippedAt?: Prisma.SortOrder
   pushedAt?: Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -727,6 +881,13 @@ export type CustomerErpOrderLinkCreateWithoutConnectionInput = {
   receivedQty?: number
   shipmentStatus?: string | null
   trackingNumber?: string | null
+  erpAcknowledgementId?: string | null
+  erpAcknowledgementStatus?: string | null
+  acknowledgedAt?: Date | string | null
+  erpPromisedDeliveryAt?: Date | string | null
+  erpShipmentId?: string | null
+  erpCarrier?: string | null
+  erpShippedAt?: Date | string | null
   pushedAt?: Date | string | null
   lastSyncedAt?: Date | string | null
   createdAt?: Date | string
@@ -747,6 +908,13 @@ export type CustomerErpOrderLinkUncheckedCreateWithoutConnectionInput = {
   receivedQty?: number
   shipmentStatus?: string | null
   trackingNumber?: string | null
+  erpAcknowledgementId?: string | null
+  erpAcknowledgementStatus?: string | null
+  acknowledgedAt?: Date | string | null
+  erpPromisedDeliveryAt?: Date | string | null
+  erpShipmentId?: string | null
+  erpCarrier?: string | null
+  erpShippedAt?: Date | string | null
   pushedAt?: Date | string | null
   lastSyncedAt?: Date | string | null
   createdAt?: Date | string
@@ -797,6 +965,13 @@ export type CustomerErpOrderLinkScalarWhereInput = {
   receivedQty?: Prisma.IntFilter<"CustomerErpOrderLink"> | number
   shipmentStatus?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
   trackingNumber?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  erpAcknowledgementId?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  erpAcknowledgementStatus?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  acknowledgedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
+  erpPromisedDeliveryAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
+  erpShipmentId?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  erpCarrier?: Prisma.StringNullableFilter<"CustomerErpOrderLink"> | string | null
+  erpShippedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
   pushedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"CustomerErpOrderLink"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"CustomerErpOrderLink"> | Date | string
@@ -817,6 +992,13 @@ export type CustomerErpOrderLinkCreateManyConnectionInput = {
   receivedQty?: number
   shipmentStatus?: string | null
   trackingNumber?: string | null
+  erpAcknowledgementId?: string | null
+  erpAcknowledgementStatus?: string | null
+  acknowledgedAt?: Date | string | null
+  erpPromisedDeliveryAt?: Date | string | null
+  erpShipmentId?: string | null
+  erpCarrier?: string | null
+  erpShippedAt?: Date | string | null
   pushedAt?: Date | string | null
   lastSyncedAt?: Date | string | null
   createdAt?: Date | string
@@ -837,6 +1019,13 @@ export type CustomerErpOrderLinkUpdateWithoutConnectionInput = {
   receivedQty?: Prisma.IntFieldUpdateOperationsInput | number
   shipmentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpAcknowledgementId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpAcknowledgementStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpPromisedDeliveryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpShippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -857,6 +1046,13 @@ export type CustomerErpOrderLinkUncheckedUpdateWithoutConnectionInput = {
   receivedQty?: Prisma.IntFieldUpdateOperationsInput | number
   shipmentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpAcknowledgementId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpAcknowledgementStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpPromisedDeliveryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpShippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -877,6 +1073,13 @@ export type CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionInput = {
   receivedQty?: Prisma.IntFieldUpdateOperationsInput | number
   shipmentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpAcknowledgementId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpAcknowledgementStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpPromisedDeliveryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpShippedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -900,6 +1103,13 @@ export type CustomerErpOrderLinkSelect<ExtArgs extends runtime.Types.Extensions.
   receivedQty?: boolean
   shipmentStatus?: boolean
   trackingNumber?: boolean
+  erpAcknowledgementId?: boolean
+  erpAcknowledgementStatus?: boolean
+  acknowledgedAt?: boolean
+  erpPromisedDeliveryAt?: boolean
+  erpShipmentId?: boolean
+  erpCarrier?: boolean
+  erpShippedAt?: boolean
   pushedAt?: boolean
   lastSyncedAt?: boolean
   createdAt?: boolean
@@ -924,13 +1134,20 @@ export type CustomerErpOrderLinkSelectScalar = {
   receivedQty?: boolean
   shipmentStatus?: boolean
   trackingNumber?: boolean
+  erpAcknowledgementId?: boolean
+  erpAcknowledgementStatus?: boolean
+  acknowledgedAt?: boolean
+  erpPromisedDeliveryAt?: boolean
+  erpShipmentId?: boolean
+  erpCarrier?: boolean
+  erpShippedAt?: boolean
   pushedAt?: boolean
   lastSyncedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CustomerErpOrderLinkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "organizationId" | "orderId" | "occurrenceId" | "erpPurchaseOrderId" | "erpPurchaseOrderNumber" | "erpOrderStatus" | "erpGoodsReceiptId" | "goodsReceiptedAt" | "onOrderQty" | "receivedQty" | "shipmentStatus" | "trackingNumber" | "pushedAt" | "lastSyncedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customerErpOrderLink"]>
+export type CustomerErpOrderLinkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectionId" | "organizationId" | "orderId" | "occurrenceId" | "erpPurchaseOrderId" | "erpPurchaseOrderNumber" | "erpOrderStatus" | "erpGoodsReceiptId" | "goodsReceiptedAt" | "onOrderQty" | "receivedQty" | "shipmentStatus" | "trackingNumber" | "erpAcknowledgementId" | "erpAcknowledgementStatus" | "acknowledgedAt" | "erpPromisedDeliveryAt" | "erpShipmentId" | "erpCarrier" | "erpShippedAt" | "pushedAt" | "lastSyncedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customerErpOrderLink"]>
 export type CustomerErpOrderLinkInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   connection?: boolean | Prisma.CustomerErpConnectionDefaultArgs<ExtArgs>
 }
@@ -982,6 +1199,20 @@ export type $CustomerErpOrderLinkPayload<ExtArgs extends runtime.Types.Extension
      */
     shipmentStatus: string | null
     trackingNumber: string | null
+    /**
+     * The ERP's acknowledgement of the purchase order, read through the
+     * connection's ACKNOWLEDGEMENT mapping.
+     */
+    erpAcknowledgementId: string | null
+    erpAcknowledgementStatus: string | null
+    acknowledgedAt: Date | null
+    erpPromisedDeliveryAt: Date | null
+    /**
+     * The shipment notice last read through the SHIPMENT mapping.
+     */
+    erpShipmentId: string | null
+    erpCarrier: string | null
+    erpShippedAt: Date | null
     pushedAt: Date | null
     lastSyncedAt: Date | null
     createdAt: Date
@@ -1370,6 +1601,13 @@ export interface CustomerErpOrderLinkFieldRefs {
   readonly receivedQty: Prisma.FieldRef<"CustomerErpOrderLink", 'Int'>
   readonly shipmentStatus: Prisma.FieldRef<"CustomerErpOrderLink", 'String'>
   readonly trackingNumber: Prisma.FieldRef<"CustomerErpOrderLink", 'String'>
+  readonly erpAcknowledgementId: Prisma.FieldRef<"CustomerErpOrderLink", 'String'>
+  readonly erpAcknowledgementStatus: Prisma.FieldRef<"CustomerErpOrderLink", 'String'>
+  readonly acknowledgedAt: Prisma.FieldRef<"CustomerErpOrderLink", 'DateTime'>
+  readonly erpPromisedDeliveryAt: Prisma.FieldRef<"CustomerErpOrderLink", 'DateTime'>
+  readonly erpShipmentId: Prisma.FieldRef<"CustomerErpOrderLink", 'String'>
+  readonly erpCarrier: Prisma.FieldRef<"CustomerErpOrderLink", 'String'>
+  readonly erpShippedAt: Prisma.FieldRef<"CustomerErpOrderLink", 'DateTime'>
   readonly pushedAt: Prisma.FieldRef<"CustomerErpOrderLink", 'DateTime'>
   readonly lastSyncedAt: Prisma.FieldRef<"CustomerErpOrderLink", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"CustomerErpOrderLink", 'DateTime'>

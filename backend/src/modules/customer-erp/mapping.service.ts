@@ -40,7 +40,9 @@ export type MappingEntity =
   | 'INVENTORY'
   | 'INVOICE'
   | 'PAYMENT'
-  | 'STATUS';
+  | 'STATUS'
+  | 'ACKNOWLEDGEMENT'
+  | 'SHIPMENT';
 
 export type TransformName =
   | 'TRIM'
@@ -165,7 +167,47 @@ export const PLATFORM_FIELDS: Readonly<Record<MappingEntity, readonly PlatformFi
       { key: 'CANCELLED', label: 'Cancelled', required: false, type: 'enum' },
       { key: 'RETURNED', label: 'Returned', required: false, type: 'enum' },
     ],
+    /**
+     * The ERP's answer to a purchase order: accepted, changed or rejected.
+     * Optional as a whole - a connection is held to these fields only once it
+     * maps any of them (see `mappedEntitiesFor`).
+     */
+    ACKNOWLEDGEMENT: [
+      { key: 'purchaseOrderNumber', label: 'Purchase order number', required: true, type: 'string' },
+      { key: 'orderNumber', label: 'Our order number', required: false, type: 'string' },
+      { key: 'acknowledgementNumber', label: 'Acknowledgement number', required: false, type: 'string' },
+      { key: 'acknowledgementStatus', label: 'Acknowledgement status', required: true, type: 'string' },
+      { key: 'acknowledgedAt', label: 'Acknowledged at', required: false, type: 'date' },
+      { key: 'promisedDeliveryDate', label: 'Promised delivery date', required: false, type: 'date' },
+    ],
+    /** A shipment notice for a purchase order. Optional in the same way. */
+    SHIPMENT: [
+      { key: 'purchaseOrderNumber', label: 'Purchase order number', required: true, type: 'string' },
+      { key: 'orderNumber', label: 'Our order number', required: false, type: 'string' },
+      { key: 'shipmentId', label: 'Shipment / delivery number', required: false, type: 'string' },
+      { key: 'shipmentStatus', label: 'Shipment status', required: true, type: 'string' },
+      { key: 'carrier', label: 'Carrier', required: false, type: 'string' },
+      { key: 'trackingNumber', label: 'Tracking number', required: false, type: 'string' },
+      { key: 'trackingUrl', label: 'Tracking link', required: false, type: 'string' },
+      { key: 'shippedAt', label: 'Shipped at', required: false, type: 'date' },
+      { key: 'expectedDeliveryDate', label: 'Expected delivery date', required: false, type: 'date' },
+    ],
   });
+
+/**
+ * Entities a connection opts into by mapping them, rather than by a policy
+ * flag: an acknowledgement or a shipment notice is read or written only when
+ * the buyer has said where its fields live.
+ */
+export const OPT_IN_ENTITIES: readonly MappingEntity[] = Object.freeze([
+  'ACKNOWLEDGEMENT',
+  'SHIPMENT',
+]);
+
+/** Whether this connection has mapped any field of an opt-in entity. */
+export function usesEntity(rows: readonly MappingRow[], entity: MappingEntity): boolean {
+  return rows.some((row) => row.entity === entity);
+}
 
 const FIELD_INDEX: ReadonlyMap<string, PlatformFieldSpec> = new Map(
   (Object.entries(PLATFORM_FIELDS) as [MappingEntity, readonly PlatformFieldSpec[]][]).flatMap(
@@ -311,13 +353,16 @@ export function mappedEntitiesFor(policy: {
   sendInvoices?: boolean | null;
   syncInventory?: boolean | null;
   sendPaymentReferences?: boolean | null;
-} | null): MappingEntity[] {
+} | null, rows: readonly MappingRow[] = []): MappingEntity[] {
   const entities: MappingEntity[] = [];
 
   if (policy?.sendPurchaseOrders ?? true) entities.push('ORDER');
   if (policy?.sendInvoices === true) entities.push('INVOICE');
   if (policy?.syncInventory === true) entities.push('INVENTORY');
   if (policy?.sendPaymentReferences === true) entities.push('PAYMENT');
+  for (const entity of OPT_IN_ENTITIES) {
+    if (usesEntity(rows, entity)) entities.push(entity);
+  }
 
   return entities;
 }

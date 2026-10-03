@@ -15671,6 +15671,27 @@ refused until a test has passed *and* the mapping has been checked against a
 real response from that buyer's own system. The preset saves time; the guard
 decides correctness.
 
+**Order acknowledgements and shipment notices** have their own mapping steps
+(ENH-015). The wizard's Field mapping step walks the documents one at a time,
+in the order a purchase order lives: 1 Purchase order, 2 Order acknowledgement,
+3 Shipment notice, 4 Invoice, 5 Status names, then products, stock and payments.
+Steps 2 and 3 are optional: a connection opts in by mapping any of their fields,
+and from then on the required ones (`purchaseOrderNumber` and
+`acknowledgementStatus`; `purchaseOrderNumber` and `shipmentStatus`) must be
+mapped before it can be switched on (`mappedEntitiesFor`). With them mapped:
+
+- **Outbound.** A confirmation is written in the ACKNOWLEDGEMENT shape, and a
+  shipment update in the SHIPMENT shape (carrier, tracking, dates), instead of
+  as an order update.
+- **Inbound.** A signed webhook whose type names an acknowledgement
+  (`order.acknowledged`) or a shipment (`shipment.*`, `dispatch`, `asn`) is
+  read through that mapping and recorded on `customer_erp_order_links`:
+  acknowledgement id, status, time and promised delivery date; shipment id,
+  status, carrier, tracking number and ship date. Without a mapping the
+  conventional names (`purchaseOrder`, `status`, `carrier`, …) are read.
+- The REST presets carry a default for both. The behaviour is proved against
+  the local sandbox ERP in `tests/integration/customer-erp-live.test.ts`.
+
 **TCS iON** is in the list for the reason it was asked for, and it is configured
 per customer, so it carries no paths of its own — the generic REST shape stands
 in, flagged as an example, and the notes tell the buyer to ask their TCS iON

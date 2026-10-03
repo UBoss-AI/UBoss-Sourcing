@@ -1133,7 +1133,9 @@ export const CustomerErpMappingEntity = {
   INVENTORY: 'INVENTORY',
   INVOICE: 'INVOICE',
   PAYMENT: 'PAYMENT',
-  STATUS: 'STATUS'
+  STATUS: 'STATUS',
+  ACKNOWLEDGEMENT: 'ACKNOWLEDGEMENT',
+  SHIPMENT: 'SHIPMENT'
 } as const
 
 export type CustomerErpMappingEntity = (typeof CustomerErpMappingEntity)[keyof typeof CustomerErpMappingEntity]

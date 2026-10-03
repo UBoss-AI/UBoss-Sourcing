@@ -401,6 +401,30 @@ describe('the published field list', () => {
  * and a line quantity to a board that has none of the three.
  */
 describe('mappedEntitiesFor', () => {
+  it('holds a connection to acknowledgement and shipment fields once it maps any', () => {
+    const row = (entity: 'ACKNOWLEDGEMENT' | 'SHIPMENT', platformField: string) => ({
+      entity,
+      platformField,
+      erpPath: 'x',
+      constantValue: null,
+      erpValue: null,
+      transform: null,
+      required: false,
+    });
+
+    expect(mappedEntitiesFor({ sendPurchaseOrders: false })).toEqual([]);
+
+    const rows = [row('ACKNOWLEDGEMENT', 'purchaseOrderNumber'), row('SHIPMENT', 'carrier')];
+    const entities = mappedEntitiesFor({ sendPurchaseOrders: false }, rows);
+
+    expect(entities).toEqual(['ACKNOWLEDGEMENT', 'SHIPMENT']);
+    expect(missingRequiredFields(rows, entities)).toEqual([
+      'Acknowledgement status',
+      'Purchase order number',
+      'Shipment status',
+    ]);
+  });
+
   it('holds a connection to purchase orders when it has said nothing', () => {
     // The endpoint check beside it defaults the same way. Purchase orders are
     // what the feature is for; switching them off is the deliberate act.

@@ -113,7 +113,9 @@ export type ErpMappingEntity =
   | 'INVENTORY'
   | 'INVOICE'
   | 'PAYMENT'
-  | 'STATUS';
+  | 'STATUS'
+  | 'ACKNOWLEDGEMENT'
+  | 'SHIPMENT';
 
 export type ErpTransform =
   | 'TRIM'

@@ -337,6 +337,25 @@ export type InboundEvent =
   | {
       kind: 'INVENTORY';
       records: InboundInventoryRecord[];
+    }
+  | {
+      /** The ERP accepted, changed or rejected a purchase order. */
+      kind: 'ORDER_ACKNOWLEDGEMENT';
+      erpPurchaseOrderId: string | null;
+      erpAcknowledgementId: string | null;
+      status: string;
+      acknowledgedAt: string | null;
+      promisedDeliveryDate: string | null;
+    }
+  | {
+      /** A shipment notice for a purchase order. */
+      kind: 'SHIPMENT_NOTICE';
+      erpPurchaseOrderId: string | null;
+      erpShipmentId: string | null;
+      status: string;
+      carrier: string | null;
+      trackingNumber: string | null;
+      shippedAt: string | null;
     };
 
 // ---------------------------------------------------------------------------

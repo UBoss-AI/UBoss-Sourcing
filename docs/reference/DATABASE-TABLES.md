@@ -6698,6 +6698,7 @@ erDiagram
         String connectionId FK
         String erpOrderStatus
         String shipmentStatus
+        String erpAcknowledgementStatus
     }
     CustomerErpInvoiceLink {
         String id PK
@@ -7219,6 +7220,13 @@ A platform order against whatever the buyer's ERP made of it.
 | `receivedQty` | Int |  |  | 0 |  |
 | `shipmentStatus` | String · VarChar(64) | yes |  |  | The carrier and tracking last synced. |
 | `trackingNumber` | String · VarChar(128) | yes |  |  |  |
+| `erpAcknowledgementId` | String · VarChar(191) | yes |  |  | The ERP's acknowledgement of the purchase order, read through the connection's ACKNOWLEDGEMENT mapping. |
+| `erpAcknowledgementStatus` | String · VarChar(64) | yes |  |  |  |
+| `acknowledgedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `erpPromisedDeliveryAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `erpShipmentId` | String · VarChar(191) | yes |  |  | The shipment notice last read through the SHIPMENT mapping. |
+| `erpCarrier` | String · VarChar(64) | yes |  |  |  |
+| `erpShippedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `pushedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `lastSyncedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
@@ -7675,6 +7683,8 @@ Which side of the integration a mapped field belongs to.
 | `INVOICE` |  |
 | `PAYMENT` |  |
 | `STATUS` | Status vocabulary: what the ERP calls "released", "posted", "goods issued", against what this platform calls it. |
+| `ACKNOWLEDGEMENT` | The ERP's acknowledgement of a purchase order: accepted, changed or rejected, with its own reference and a promised delivery date. |
+| `SHIPMENT` | A shipment notice for a purchase order: carrier, tracking, dates. |
 
 <a id="enum-customererpcredentialkind"></a>
 

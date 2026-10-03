@@ -1758,6 +1758,11 @@ connecting its own purchasing system so that what it buys here appears there.
   `event_id`, `messageId`, `data.id` or `event.id`).
 - Refusals answer `400 CUSTOMER_ERP_WEBHOOK_REJECTED`; success answers
   `200 { received: true, duplicate }`.
+- A type naming an acknowledgement
+  (`order.acknowledged`) or a shipment (`shipment.*`, `dispatch`, `asn`) is
+  read through the connection's ACKNOWLEDGEMENT or SHIPMENT mapping. The
+  mapping entity list (`PUT …/mappings`, `entity`) accepts `ACKNOWLEDGEMENT`
+  and `SHIPMENT` beside `ORDER`, `INVOICE`, `STATUS` and the rest.
 
 ## Carriers: tracking pushed to us
 

@@ -172,6 +172,8 @@ const mappingEntitySchema = z.enum([
   'INVOICE',
   'PAYMENT',
   'STATUS',
+  'ACKNOWLEDGEMENT',
+  'SHIPMENT',
 ]);
 
 const endpointPurposeSchema = z.enum([

@@ -122,7 +122,26 @@ export const ENTITY_LABEL: Readonly<Record<ErpMappingEntity, TranslationKey>> = 
   INVOICE: 'erp.entity.invoice',
   PAYMENT: 'erp.entity.payment',
   STATUS: 'erp.entity.status',
+  ACKNOWLEDGEMENT: 'erp.entity.acknowledgement',
+  SHIPMENT: 'erp.entity.shipment',
 };
+
+/**
+ * The mapping step, walked one document at a time in the order a purchase
+ * order lives: raised, acknowledged, shipped, invoiced, then the status words.
+ * Acknowledgement and shipment are optional - mapping any of their fields is
+ * what switches them on.
+ */
+export const MAPPING_STEPS: readonly ErpMappingEntity[] = [
+  'ORDER',
+  'ACKNOWLEDGEMENT',
+  'SHIPMENT',
+  'INVOICE',
+  'STATUS',
+  'PRODUCT',
+  'INVENTORY',
+  'PAYMENT',
+];
 
 export const ROLE_LABEL: Readonly<Record<OrgRole, TranslationKey>> = {
   OWNER: 'erp.role.owner',

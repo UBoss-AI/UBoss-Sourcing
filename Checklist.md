@@ -2,17 +2,17 @@
 
 - Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (unnumbered repository authority; checkbox symbols only).
 - Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
-- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-30.json`.
+- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-31.json`.
 - Master checked: 95/97; row 9 requires approved policies/legal review; row 12 requires actual KYB and bank-verification decisions.
-- Entire document checked: 304
-- Entire document unchecked: 60
+- Entire document checked: 305
+- Entire document unchecked: 59
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 10 batch 30, DYNAMIC-004 verified and ticked.
+- Last completed work: Pass 10 batch 31, ENH-015 verified and ticked.
 - Verification: fresh complete customer checks 204/1876; focused customer 5/68. Backend 341/5400 and admin 52/382 retained under unchanged-package diff guards.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-16.json` (batches 6, 8, 9 partial), browser results and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
 - Both LIVE-017 software gaps are fixed and tested: scheduled tracking polling and safe ambiguous-payout reconciliation. Original LIVE-017 fix verification: 337 files / 5,349 tests, exit 0. LIVE-017 remains open for staging outage validation.
-- Updated at: 2026-10-03, Pass 10.
+- Updated at: 2026-10-04, Pass 10.
 
 ### Pass 10 — open-box classification and verification scope
 
@@ -89,7 +89,7 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | ENH-005 | A | Verified in Pass 10 batch 25: persistent quick-action dock with RFQ, image, AI, reorder, tracking and support, gated by feature and role. |
 | ENH-008 | A | Verified in Pass 10 batch 18: match reasons/flags cover capacity, MOQ, certificate, destination and response record, with explicit unknown flags. |
 | ENH-014 | A | Verified in Pass 10 batch 3: spending caps, scope, expiry, pre-charge reminder and one-click pause. |
-| ENH-015 | A | Verify self-service PO/acknowledgement/invoice/shipment/status mapping and a real local sandbox test. |
+| ENH-015 | A | Verified in Pass 10 batch 31: step-by-step PO, acknowledgement, shipment, invoice and status mapping, proved against the local sandbox ERP. |
 | ENH-016 | A | Verified in Pass 10 batch 24: CSV/Excel SKU list previewed into cart lines with row problems, limits and confirmed bulk add. |
 | ENH-018 | A | Verified in Pass 10 batch 21: ranked seller action queue (dispute/dispatch/quote) by overdue, deadline, kind weight, amount and id. |
 | ENH-019 | A | Verified in Pass 10 batch 23: admin exception centre ranks all six exception types with permission gating. |
@@ -201,6 +201,8 @@ Current open classification after batch 15: **A 15; B 13; C 7; D 30; E 10 — 75
 **Batch 29 — implemented, verified and ticked: ENH-004.** Universal /find page: products and suppliers (public APIs), signed-in buyer's own orders, invoices, shipments and RFQs via GET /account/search (customer-scoped, 2-char minimum, 5 per kind), and help pages; each group loads/fails independently; signed-out visitors never request account records; linked from the quick-action dock. Backend integration 2/2 + anonymous contract; UI 2/2 + dock/app/query-states/i18n; typecheck/lint clean; references regenerated; eight locales and guides synchronized. Also fixes the ENH-027 landed-cost link to /tools/landed-cost and gives the slow OEM journey test a 20 s timeout (it timed out only under full-suite load). Header search unchanged. No browser pass. Before **302/364**, **62 open**; after **303/364**, **61 open**. Evidence: `verification-evidence/pass10/batch-29.json`.
 
 **Batch 30 — implemented, verified and ticked: DYNAMIC-004.** Home 'Your next steps' row for signed-in buyers: quotes awaiting decision (RFQ summary), open inspections (new customer-scoped GET /account/inspections), shipments arriving, payments due and buy-again (buyer dashboard); empty or failed sources omitted; signed-out visitors request nothing. UI 2/2, backend integration 3/3 + anonymous contract, query-states/i18n; typecheck/lint clean; references regenerated; eight locales and guides synchronized. Mounted beside the pending storefront home work via a hunk-only change. No browser pass. Before **303/364**, **61 open**; after **304/364**, **60 open**. Evidence: `verification-evidence/pass10/batch-30.json`.
+
+**Batch 31 — implemented, verified and ticked: ENH-015.** Buyer ERP field mapping gains ORDER ACKNOWLEDGEMENT and SHIPMENT entities (migration 20261102100000; MariaDB uboss and uboss_test deployed): required fields, opt-in by mapping, REST preset defaults, outbound confirmation/shipment written in the mapped shape, inbound signed webhooks applied through the mapping onto the order link (id, status, promised date, carrier, tracking, ship date). Wizard field-mapping step walks Purchase order, Acknowledgement, Shipment, Invoice, Status, Products, Stock, Payments with numbered steps and an optional hint. Sandbox ERP (real local HTTP listener) integration 3/3 inside customer-erp-live 23/23; backend unit+customer-erp integration 133 files/2223 tests; customer UI 2/2, full customer 1898 tests (SupportPage file unloadable only in this worktree: node_modules outside its Vite fs allow); typecheck/lint clean; references regenerated; eight locales and guides synchronized. No browser pass. Before **304/364**, **60 open**; after **305/364**, **59 open**. Evidence: `verification-evidence/pass10/batch-31.json`.
 
 Current open classification after batch 16: **A 15; B 13; C 7; D 30; E 9 — 74 open**.
 

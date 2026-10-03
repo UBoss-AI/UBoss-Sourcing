@@ -45,6 +45,7 @@ import {
 } from '../http.js';
 import {
   applyInbound,
+  usesEntity,
   applyOutbound,
   extractRecords,
   readPath,
@@ -232,6 +233,22 @@ export const customConnector: Connector = {
       }
 
       case 'PURCHASE_ORDER_UPDATE':
+        // A confirmation is the supplier's acknowledgement of the purchase
+        // order. Where the buyer has mapped acknowledgements, it is written in
+        // that shape; otherwise as an order update, as it always was.
+        if (
+          outbound.payload.status === 'CONFIRMED' &&
+          usesEntity(context.mappings, 'ACKNOWLEDGEMENT')
+        ) {
+          return write(context, 'PURCHASE_ORDER_UPDATE', 'ACKNOWLEDGEMENT', {
+            purchaseOrderNumber: outbound.payload.orderNumber,
+            orderNumber: outbound.payload.orderNumber,
+            acknowledgementStatus:
+              statusToErp(context.mappings, 'CONFIRMED') ?? 'CONFIRMED',
+            acknowledgedAt: new Date().toISOString(),
+          });
+        }
+
         return write(context, 'PURCHASE_ORDER_UPDATE', 'ORDER', {
           ...orderValues(outbound.payload),
           shipmentStatus:
@@ -239,6 +256,21 @@ export const customConnector: Connector = {
         });
 
       case 'SHIPMENT_STATUS':
+        if (usesEntity(context.mappings, 'SHIPMENT')) {
+          return write(context, 'SHIPMENT_STATUS', 'SHIPMENT', {
+            purchaseOrderNumber:
+              outbound.payload.erpPurchaseOrderId ?? outbound.payload.orderNumber,
+            orderNumber: outbound.payload.orderNumber,
+            shipmentStatus:
+              statusToErp(context.mappings, outbound.payload.status) ?? outbound.payload.status,
+            carrier: outbound.payload.carrier,
+            trackingNumber: outbound.payload.trackingNumber,
+            trackingUrl: outbound.payload.trackingUrl,
+            shippedAt: outbound.payload.dispatchedAt,
+            expectedDeliveryDate: outbound.payload.expectedAt,
+          });
+        }
+
         return write(context, 'SHIPMENT_STATUS', 'ORDER', {
           orderNumber: outbound.payload.orderNumber,
           purchaseOrderNumber: outbound.payload.erpPurchaseOrderId,
@@ -337,6 +369,20 @@ export const customConnector: Connector = {
 
     const data = (readPath(payload, 'data') ?? payload);
 
+    // Acknowledgements and shipment notices are read through the buyer's own
+    // mapping for them, and checked first: "order.acknowledged" would
+    // otherwise be taken for a status change and "delivery.shipped" for a
+    // goods receipt.
+    if (type.includes('acknowledg')) {
+      const event = toAcknowledgement(context, data);
+      return event === null ? [] : [event];
+    }
+
+    if (type.includes('shipment') || type.includes('dispatch') || type.includes('asn')) {
+      const event = toShipmentNotice(context, data);
+      return event === null ? [] : [event];
+    }
+
     if (type.includes('receipt') || type.includes('delivery')) {
       const lines = readPath(data, 'lines');
 
@@ -404,7 +450,7 @@ export const customConnector: Connector = {
 async function write(
   context: ConnectorContext,
   purpose: EndpointPurpose,
-  entity: 'ORDER' | 'INVENTORY' | 'INVOICE' | 'PAYMENT',
+  entity: 'ORDER' | 'INVENTORY' | 'INVOICE' | 'PAYMENT' | 'ACKNOWLEDGEMENT' | 'SHIPMENT',
   values: Record<string, unknown>,
   extra: Record<string, unknown> = {},
 ): Promise<OutboundResult> {
@@ -814,6 +860,67 @@ function toInventoryRecord(
     incomingQty: asNumber(values['incomingQty']),
     unitOfMeasure: asText(values['unitOfMeasure']),
     raw: redactForLedger(record),
+  };
+}
+
+/**
+ * An acknowledgement, read through the ACKNOWLEDGEMENT mapping where there is
+ * one and through the conventional field names where there is not.
+ */
+function toAcknowledgement(context: ConnectorContext, record: unknown): InboundEvent | null {
+  const mapped = usesEntity(context.mappings, 'ACKNOWLEDGEMENT');
+  const values = mapped
+    ? applyInbound(context.mappings, 'ACKNOWLEDGEMENT', record, {
+        currencyExponent: context.currencyExponent,
+      })
+    : {
+        purchaseOrderNumber: readPath(record, 'purchaseOrder') ?? readPath(record, 'reference'),
+        acknowledgementNumber: readPath(record, 'id'),
+        acknowledgementStatus: readPath(record, 'status'),
+        acknowledgedAt: readPath(record, 'date'),
+        promisedDeliveryDate: readPath(record, 'promisedDate'),
+      };
+
+  const status = asText(values['acknowledgementStatus']);
+  if (status === null) return null;
+
+  return {
+    kind: 'ORDER_ACKNOWLEDGEMENT',
+    erpPurchaseOrderId: asText(values['purchaseOrderNumber']),
+    erpAcknowledgementId: asText(values['acknowledgementNumber']),
+    status,
+    acknowledgedAt: asText(values['acknowledgedAt']),
+    promisedDeliveryDate: asText(values['promisedDeliveryDate']),
+  };
+}
+
+/** A shipment notice, read through the SHIPMENT mapping the same way. */
+function toShipmentNotice(context: ConnectorContext, record: unknown): InboundEvent | null {
+  const mapped = usesEntity(context.mappings, 'SHIPMENT');
+  const values = mapped
+    ? applyInbound(context.mappings, 'SHIPMENT', record, {
+        currencyExponent: context.currencyExponent,
+      })
+    : {
+        purchaseOrderNumber: readPath(record, 'purchaseOrder') ?? readPath(record, 'reference'),
+        shipmentId: readPath(record, 'id'),
+        shipmentStatus: readPath(record, 'status'),
+        carrier: readPath(record, 'carrier'),
+        trackingNumber: readPath(record, 'trackingNumber'),
+        shippedAt: readPath(record, 'shippedAt'),
+      };
+
+  const status = asText(values['shipmentStatus']);
+  if (status === null) return null;
+
+  return {
+    kind: 'SHIPMENT_NOTICE',
+    erpPurchaseOrderId: asText(values['purchaseOrderNumber']),
+    erpShipmentId: asText(values['shipmentId']),
+    status,
+    carrier: asText(values['carrier']),
+    trackingNumber: asText(values['trackingNumber']),
+    shippedAt: asText(values['shippedAt']),
   };
 }
 

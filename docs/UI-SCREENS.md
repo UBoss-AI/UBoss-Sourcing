@@ -3505,7 +3505,7 @@ until they switch it on at the end.
 | 2. Connection details | The address, how it signs in (OAuth, API key, token, username and password …), the secrets, and system-specific placement (for SAP: company code, purchasing organisation …; for monday.com: board) | Secrets are write-only. A stored one shows only a hint, and leaving the box empty keeps it |
 | 3. Network | On the internet, behind an IP allowlist, VPN or private link, SAP Cloud Connector. Notes for your IT team | **Save and continue** creates or updates the connection |
 | 4. Endpoints | For each purpose (products, stock, purchase orders, invoices …): in use, path, method, paging. Or paste an OpenAPI file and press **Read it** | Only confident suggestions are filled in. Continue saves them |
-| 5. Field mapping | Our field → your field, and a conversion. **Test and preview** reads a real record | Says which required fields were found and which were not |
+| 5. Field mapping | Our field → your field, and a conversion, walked one document at a time by numbered mapping steps: Purchase order, Order acknowledgements, Shipment notices, Invoice, Status names, Products, Stock, Payments ("Step 2 of 8: …"; the current one is marked). Acknowledgements and shipment notices say they are optional. **Test and preview** reads a real record | Says which required fields were found and which were not |
 | 6. Sync rules | Which system is right, direction, what to do when they disagree, whether stock changes need a person, an approval threshold, what to send, warehouse plant codes | **Save rules**, **Dry run**, and **Switch on**, which opens the connection page |
 
 **API calls**

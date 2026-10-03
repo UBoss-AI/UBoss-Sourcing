@@ -1,0 +1,15 @@
+{
+  "batch": 31,
+  "ids": [
+    "ENH-015"
+  ],
+  "before": {
+    "checked": 304,
+    "unchecked": 60
+  },
+  "after": {
+    "checked": 305,
+    "unchecked": 59
+  },
+  "evidence": "Buyer ERP field mapping gains ORDER ACKNOWLEDGEMENT and SHIPMENT entities (migration 20261102100000; MariaDB uboss and uboss_test deployed): required fields, opt-in by mapping, REST preset defaults, outbound confirmation/shipment written in the mapped shape, inbound signed webhooks applied through the mapping onto the order link (id, status, promised date, carrier, tracking, ship date). Wizard field-mapping step walks Purchase order, Acknowledgement, Shipment, Invoice, Status, Products, Stock, Payments with numbered steps and an optional hint. Sandbox ERP (real local HTTP listener) integration 3/3 inside customer-erp-live 23/23; backend unit+customer-erp integration 133 files/2223 tests; customer UI 2/2, full customer 1898 tests (SupportPage file unloadable only in this worktree: node_modules outside its Vite fs allow); typecheck/lint clean; references regenerated; eight locales and guides synchronized. No browser pass."
+}

@@ -8581,6 +8581,11 @@ enum CustomerErpMappingEntity {
   /// Status vocabulary: what the ERP calls "released", "posted", "goods
   /// issued", against what this platform calls it.
   STATUS
+  /// The ERP's acknowledgement of a purchase order: accepted, changed or
+  /// rejected, with its own reference and a promised delivery date.
+  ACKNOWLEDGEMENT
+  /// A shipment notice for a purchase order: carrier, tracking, dates.
+  SHIPMENT
 }
 
 /// What kind of secret a credential row holds.
@@ -9302,6 +9307,18 @@ model CustomerErpOrderLink {
   /// The carrier and tracking last synced.
   shipmentStatus String? @db.VarChar(64)
   trackingNumber String? @db.VarChar(128)
+
+  /// The ERP's acknowledgement of the purchase order, read through the
+  /// connection's ACKNOWLEDGEMENT mapping.
+  erpAcknowledgementId     String?   @db.VarChar(191)
+  erpAcknowledgementStatus String?   @db.VarChar(64)
+  acknowledgedAt           DateTime? @db.DateTime(3)
+  erpPromisedDeliveryAt    DateTime? @db.DateTime(3)
+
+  /// The shipment notice last read through the SHIPMENT mapping.
+  erpShipmentId String?   @db.VarChar(191)
+  erpCarrier    String?   @db.VarChar(64)
+  erpShippedAt  DateTime? @db.DateTime(3)
 
   pushedAt     DateTime? @db.DateTime(3)
   lastSyncedAt DateTime? @db.DateTime(3)

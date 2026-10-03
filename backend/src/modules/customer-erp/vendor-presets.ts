@@ -119,6 +119,17 @@ const REST_CONVENTIONAL: Omit<MappingRow, 'required'>[] = [
   { entity: 'INVOICE', platformField: 'currency', erpPath: 'currency', constantValue: null, erpValue: null, transform: 'UPPERCASE' },
   { entity: 'INVOICE', platformField: 'grossAmount', erpPath: 'total', constantValue: null, erpValue: null, transform: 'MINOR_TO_DECIMAL' },
   { entity: 'PAYMENT', platformField: 'paymentReference', erpPath: 'reference', constantValue: null, erpValue: null, transform: 'TRIM' },
+  // Order acknowledgement and shipment notice, in the conventional REST shape.
+  { entity: 'ACKNOWLEDGEMENT', platformField: 'purchaseOrderNumber', erpPath: 'purchaseOrder', constantValue: null, erpValue: null, transform: 'TRIM' },
+  { entity: 'ACKNOWLEDGEMENT', platformField: 'acknowledgementNumber', erpPath: 'id', constantValue: null, erpValue: null, transform: 'TRIM' },
+  { entity: 'ACKNOWLEDGEMENT', platformField: 'acknowledgementStatus', erpPath: 'status', constantValue: null, erpValue: null, transform: 'TRIM' },
+  { entity: 'ACKNOWLEDGEMENT', platformField: 'promisedDeliveryDate', erpPath: 'promisedDate', constantValue: null, erpValue: null, transform: 'ISO_DATE' },
+  { entity: 'SHIPMENT', platformField: 'purchaseOrderNumber', erpPath: 'purchaseOrder', constantValue: null, erpValue: null, transform: 'TRIM' },
+  { entity: 'SHIPMENT', platformField: 'shipmentId', erpPath: 'id', constantValue: null, erpValue: null, transform: 'TRIM' },
+  { entity: 'SHIPMENT', platformField: 'shipmentStatus', erpPath: 'status', constantValue: null, erpValue: null, transform: 'TRIM' },
+  { entity: 'SHIPMENT', platformField: 'carrier', erpPath: 'carrier', constantValue: null, erpValue: null, transform: 'TRIM' },
+  { entity: 'SHIPMENT', platformField: 'trackingNumber', erpPath: 'trackingNumber', constantValue: null, erpValue: null, transform: 'TRIM' },
+  { entity: 'SHIPMENT', platformField: 'shippedAt', erpPath: 'shippedAt', constantValue: null, erpValue: null, transform: 'ISO_DATE' },
 ];
 
 /** The four order statuses every preset has to translate, in that ERP's words. */

@@ -88,9 +88,12 @@ import {
   needsMondayPlacement,
   needsSapPlacement,
   secretFieldsFor,
+  MAPPING_STEPS,
 } from './erp-labels';
 
 type StepId = 'system' | 'connection' | 'network' | 'endpoints' | 'mapping' | 'rules';
+
+const OPT_IN_MAPPINGS: ReadonlySet<ErpMappingEntity> = new Set(['ACKNOWLEDGEMENT', 'SHIPMENT']);
 
 const STEPS: readonly { id: StepId; labelKey: Parameters<ReturnType<typeof useI18n>['t']>[0] }[] = [
   { id: 'system', labelKey: 'erp.wizard.stepSystem' },
@@ -1491,7 +1494,7 @@ function EndpointStep({
  * if their field is called `Material_No`, and the first anybody would know of it
  * is a purchase order with no lines.
  */
-function MappingStep({
+export function MappingStep({
   connectionId,
   platformFields,
   onBack,
@@ -1632,9 +1635,7 @@ function MappingStep({
                 value={entity}
                 onChange={(event) => { setEntity(event.target.value as ErpMappingEntity); }}
               >
-                {(
-                  ['ORDER', 'PRODUCT', 'INVENTORY', 'INVOICE', 'PAYMENT', 'STATUS'] as const
-                ).map((value) => (
+                {MAPPING_STEPS.map((value) => (
                   <option key={value} value={value}>
                     {t(ENTITY_LABEL[value])}
                   </option>
@@ -1648,6 +1649,36 @@ function MappingStep({
           {t('erp.wizard.testAndPreview')}
         </Button>
       </div>
+
+      <nav aria-label={t('erp.wizard.mappingSteps')} className="mb-4">
+        <ol className="flex flex-wrap gap-2">
+          {MAPPING_STEPS.map((value, position) => (
+            <li key={value}>
+              <button
+                type="button"
+                aria-current={value === entity ? 'step' : undefined}
+                onClick={() => { setEntity(value); }}
+                className={cx(
+                  'rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors',
+                  value === entity
+                    ? 'bg-brand-fill text-white'
+                    : 'bg-brand-soft text-brand hover:bg-brand-soft/80',
+                )}
+              >
+                {position + 1}. {t(ENTITY_LABEL[value])}
+              </button>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-2 text-sm text-ink-muted" aria-live="polite">
+          {t('erp.wizard.mappingStepOf', {
+            current: String(MAPPING_STEPS.indexOf(entity) + 1),
+            total: String(MAPPING_STEPS.length),
+            name: t(ENTITY_LABEL[entity]),
+          })}
+          {OPT_IN_MAPPINGS.has(entity) && <> {t('erp.wizard.mappingOptional')}</>}
+        </p>
+      </nav>
 
       {/*
        * The result of checking the mapping against a real record. Every mapped

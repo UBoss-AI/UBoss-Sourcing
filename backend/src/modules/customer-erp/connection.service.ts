@@ -1682,8 +1682,6 @@ export async function activateConnection(
 
   // And the mapping has to name everything that cannot be omitted, for the
   // things this connection actually does. See `mappedEntitiesFor`.
-  const entities = mappedEntitiesFor(policy);
-
   const mappings: MappingRow[] = current.fieldMappings.map((row) => ({
     entity: row.entity,
     platformField: row.platformField,
@@ -1693,6 +1691,8 @@ export async function activateConnection(
     transform: row.transform as TransformName | null,
     required: row.required,
   }));
+
+  const entities = mappedEntitiesFor(policy, mappings);
 
   const missingFields = missingRequiredFields(mappings, entities);
 

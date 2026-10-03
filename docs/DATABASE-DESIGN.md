@@ -2912,6 +2912,8 @@ erDiagram
         string id PK
         string connectionId FK
         string orderId "no FK"
+        string erpAcknowledgementStatus "from the ACKNOWLEDGEMENT mapping"
+        string erpShipmentId "from the SHIPMENT mapping"
     }
     customer_erp_approvals {
         string id PK

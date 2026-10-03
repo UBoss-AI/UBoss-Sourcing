@@ -1223,6 +1223,17 @@ function formatMinor(minor: bigint, exponent = 2): string {
 // Inbound: what the buyer's ERP tells us
 // ---------------------------------------------------------------------------
 
+/** A date the ERP sent, or null when it sent none or one that does not parse. */
+function dateOrNull(value: string | null): Date | null {
+  if (value === null) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function dateOrNow(value: string | null): Date {
+  return dateOrNull(value) ?? new Date();
+}
+
 /**
  * Apply a verified inbound event.
  *
@@ -1346,6 +1357,55 @@ export async function applyInboundEvent(input: {
 
       return updated.count > 0
         ? { applied: true, note: `Status recorded as "${input.event.erpStatus}".` }
+        : { applied: false, note: 'No order here matches that purchase order number.' };
+    }
+
+    case 'ORDER_ACKNOWLEDGEMENT': {
+      if (input.event.erpPurchaseOrderId === null) {
+        return { applied: false, note: 'The acknowledgement named no purchase order.' };
+      }
+
+      const updated = await prisma.customerErpOrderLink.updateMany({
+        where: {
+          connectionId: input.connectionId,
+          erpPurchaseOrderId: input.event.erpPurchaseOrderId,
+        },
+        data: {
+          erpAcknowledgementId: input.event.erpAcknowledgementId ?? undefined,
+          erpAcknowledgementStatus: input.event.status.slice(0, 64),
+          acknowledgedAt: dateOrNow(input.event.acknowledgedAt),
+          erpPromisedDeliveryAt: dateOrNull(input.event.promisedDeliveryDate) ?? undefined,
+          lastSyncedAt: new Date(),
+        },
+      });
+
+      return updated.count > 0
+        ? { applied: true, note: `Acknowledgement recorded as "${input.event.status}".` }
+        : { applied: false, note: 'No order here matches that purchase order number.' };
+    }
+
+    case 'SHIPMENT_NOTICE': {
+      if (input.event.erpPurchaseOrderId === null) {
+        return { applied: false, note: 'The shipment notice named no purchase order.' };
+      }
+
+      const updated = await prisma.customerErpOrderLink.updateMany({
+        where: {
+          connectionId: input.connectionId,
+          erpPurchaseOrderId: input.event.erpPurchaseOrderId,
+        },
+        data: {
+          erpShipmentId: input.event.erpShipmentId ?? undefined,
+          shipmentStatus: input.event.status.slice(0, 64),
+          erpCarrier: input.event.carrier?.slice(0, 64) ?? undefined,
+          trackingNumber: input.event.trackingNumber?.slice(0, 128) ?? undefined,
+          erpShippedAt: dateOrNull(input.event.shippedAt) ?? undefined,
+          lastSyncedAt: new Date(),
+        },
+      });
+
+      return updated.count > 0
+        ? { applied: true, note: `Shipment recorded as "${input.event.status}".` }
         : { applied: false, note: 'No order here matches that purchase order number.' };
     }
 

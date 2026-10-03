@@ -3249,6 +3249,13 @@ export const CustomerErpOrderLinkScalarFieldEnum = {
   receivedQty: 'receivedQty',
   shipmentStatus: 'shipmentStatus',
   trackingNumber: 'trackingNumber',
+  erpAcknowledgementId: 'erpAcknowledgementId',
+  erpAcknowledgementStatus: 'erpAcknowledgementStatus',
+  acknowledgedAt: 'acknowledgedAt',
+  erpPromisedDeliveryAt: 'erpPromisedDeliveryAt',
+  erpShipmentId: 'erpShipmentId',
+  erpCarrier: 'erpCarrier',
+  erpShippedAt: 'erpShippedAt',
   pushedAt: 'pushedAt',
   lastSyncedAt: 'lastSyncedAt',
   createdAt: 'createdAt',
@@ -10767,7 +10774,11 @@ export const CustomerErpOrderLinkOrderByRelevanceFieldEnum = {
   erpOrderStatus: 'erpOrderStatus',
   erpGoodsReceiptId: 'erpGoodsReceiptId',
   shipmentStatus: 'shipmentStatus',
-  trackingNumber: 'trackingNumber'
+  trackingNumber: 'trackingNumber',
+  erpAcknowledgementId: 'erpAcknowledgementId',
+  erpAcknowledgementStatus: 'erpAcknowledgementStatus',
+  erpShipmentId: 'erpShipmentId',
+  erpCarrier: 'erpCarrier'
 } as const
 
 export type CustomerErpOrderLinkOrderByRelevanceFieldEnum = (typeof CustomerErpOrderLinkOrderByRelevanceFieldEnum)[keyof typeof CustomerErpOrderLinkOrderByRelevanceFieldEnum]
