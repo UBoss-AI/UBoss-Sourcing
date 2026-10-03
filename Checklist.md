@@ -2,12 +2,12 @@
 
 - Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (unnumbered repository authority; checkbox symbols only).
 - Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
-- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-16.json`.
+- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-20.json`.
 - Master checked: 95/97; row 9 requires approved policies/legal review; row 12 requires actual KYB and bank-verification decisions.
-- Entire document checked: 290
-- Entire document unchecked: 74
+- Entire document checked: 294
+- Entire document unchecked: 70
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 10 batch 16, DYNAMIC-002 sourcing hero, public supplier directory and editable RFQ/image shortcuts verified and ticked.
+- Last completed work: Pass 10 batch 20, ENH-027 price-break quantity slider verified and ticked.
 - Verification: fresh complete customer checks 204/1876; focused customer 5/68. Backend 341/5400 and admin 52/382 retained under unchanged-package diff guards.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-16.json` (batches 6, 8, 9 partial), browser results and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
@@ -87,7 +87,7 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | ENH-003 | E | Verify guest/B2B/B2C/seller/returning persona home behavior after the active storefront task completes. |
 | ENH-004 | A | Verify one permission-scoped search covers product, supplier, RFQ, order, invoice, shipment and help; defer active header edits. |
 | ENH-005 | A | Verify persistent RFQ/image/AI/reorder/tracking/support actions across applicable roles; defer active storefront edits. |
-| ENH-008 | A | Verify explainable capacity/MOQ/certificate/destination/response matching and missing-data behavior; avoid active supplier panels. |
+| ENH-008 | A | Verified in Pass 10 batch 18: match reasons/flags cover capacity, MOQ, certificate, destination and response record, with explicit unknown flags. |
 | ENH-014 | A | Verified in Pass 10 batch 3: spending caps, scope, expiry, pre-charge reminder and one-click pause. |
 | ENH-015 | A | Verify self-service PO/acknowledgement/invoice/shipment/status mapping and a real local sandbox test. |
 | ENH-016 | A | Verify Excel and CSV parsing into multi-line RFQ/order, validation, limits and permission isolation. |
@@ -95,13 +95,13 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | ENH-019 | A | Verify one scoped queue covers all six named payment/document/inspection/shipment/settlement/integration exception types. |
 | ENH-020 | A | Verify low-priority bundling and immediate critical inspection/payment/shipping/RFQ escalation, including deduplication. |
 | ENH-021 | A | Verified in Pass 10 batch 14: original and translated product/message text, private ownership guards, failure/retry and reader-language refresh. |
-| ENH-022 | A | Verify destination-dependent importer, label and document guidance in checkout and RFQ with compliance enforcement. |
+| ENH-022 | A | Verified in Pass 10 batch 17: RFQ form and checkout show configured importer, label and document guidance for the selected destination; submit/amend/order placement still enforce blocks. |
 | ENH-024 | A | Verified in Pass 10 batch 13: dedicated OEM CTA and editable branding/packaging/drawing-spec/target-volume RFQ template; saved data, private drawing and send checked. |
 | ENH-025 | A | Verified in Pass 10 batch 1; no remaining software action. |
 | ENH-026 | A | Verified in Pass 10 batch 10: all final clauses and changes displayed before snapshot-safe acceptance. |
-| ENH-027 | A | Verify quantity slider tier pricing, lead time/capacity and landed estimate using exact money; avoid active product-page edits. |
+| ENH-027 | A | Verified in Pass 10 batch 20: bulk-offers slider with band price, exact total, capacity weeks, lead time and landed-cost handoff. |
 | ENH-029 | E | Verify phone layouts for all five seller operation flows; real-device evidence is separately required by DOD-043. |
-| ENH-030 | A | Verify visible RFQ/inspection/report/shipment/dispute countdowns, overdue states and time boundaries. |
+| ENH-030 | A | Verified in Pass 10 batch 19: live countdown badges on quote, inspection assignment/report, dispatch and dispute deadlines; exact deadline counts as overdue. |
 | ENH-031 | A | Verified in Pass 10 batch 4: controlled exports/APIs in all five named domains, permissions, ownership and limits. |
 | ENH-032 | A | Verify complex-form explanations and verified-data suggestions require explicit user confirmation. |
 | DYNAMIC-001 | E | Verify every required header entry and role permission after the active storefront task completes. |
@@ -173,6 +173,14 @@ Current open classification after batch 14: **A 16; B 13; C 7; D 30; E 10 — 76
 Current open classification after batch 15: **A 15; B 13; C 7; D 30; E 10 — 75 open**.
 
 **Batch 16 — implemented, verified and ticked: DYNAMIC-002 (sourcing hero).** Recorded verification guard, four shortcuts, public supplier directory/error recovery and editable RFQ/image destinations verified. Fresh customer **204/1876**, targeted **5/68**, independent review and Chrome **320/375/1280** passed. Twelve labels/eight locales and guides synchronized. Before **289/364**, **75 open**; after **290/364**, **74 open**. Word QA/audit: `verification.json`.
+
+**Batch 17 — implemented, verified and ticked: ENH-022 (destination guidance).** RFQ create/edit/amend shows published importer instructions plus category label/document/block rules for unsaved destination and category; checkout shows importer instructions and basket DOCUMENTS_REQUIRED (labels keep JOURNEY-064 notice). Enforcement unchanged: RFQ_DESTINATION_BLOCKED on submit/amend, MARKET_DESTINATION_RESTRICTED at order placement. Backend guidance **1/13**, customer focused **6/88** and checkout **3/37** (clean HEAD worktree), typecheck/lint clean, docs:check ok. Eight locales, both guides, PRD/API/UI-SCREENS, README and feature guide synchronized. Before **290/364**, **74 open**; after **291/364**, **73 open**. Evidence: `verification-evidence/pass10/batch-17.json`.
+
+**Batch 18 — implemented, verified and ticked: ENH-008 (explainable matching).** Added MOQ and last-year response-record reasons/flags beside existing capacity, certificate and destination explanations; missing data shows explicit unknown flags. Backend RFQ **9/75** + unit **16**, customer RfqPages **10/10**, typecheck/lint/docs:check clean; eight locales and guides synchronized. Before **291/364**, **73 open**; after **292/364**, **72 open**. Evidence: `verification-evidence/pass10/batch-18.json`.
+
+**Batch 19 — implemented, verified and ticked: ENH-030 (countdowns).** Shared live countdown on quote-response, inspection assignment/report, shipment-readiness and dispute deadlines; boundary, unit and tick tests **3/3**, affected suites **17/130**, typecheck/lint clean; eight locales and guides synchronized. Before **292/364**, **72 open**; after **293/364**, **71 open**. Evidence: `verification-evidence/pass10/batch-19.json`.
+
+**Batch 20 — implemented, verified and ticked: ENH-027 (price-break slider).** Slider in the bulk-offers dialog with band price, exact BigInt total, capacity weeks, lead time and landed-cost prefill; tests **3/3**, affected suites **8/96**, typecheck/lint clean; eight locales and guides synchronized. Before **293/364**, **71 open**; after **294/364**, **70 open**. Evidence: `verification-evidence/pass10/batch-20.json`.
 
 Current open classification after batch 16: **A 15; B 13; C 7; D 30; E 9 — 74 open**.
 
