@@ -127,7 +127,7 @@ export function SellerProductionPanel({ sellerOrderId }: { sellerOrderId: string
                   <p className="text-sm text-ink-muted">{t('sellerProduction.internal', { note: row.internalNote })}</p>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex max-w-full flex-wrap items-center gap-2">
                 {row.completedAt !== null ? (
                   <Badge tone="success">{t('sellerProduction.done')}</Badge>
                 ) : (

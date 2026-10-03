@@ -1,0 +1,13 @@
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const {chromium}=require(process.env.UBOSS_PHONE_PLAYWRIGHT_MODULE || 'playwright');
+const root=process.argv[2] || path.resolve(__dirname,'../..');const dir=path.join(root,'output/pass10-phone');fs.mkdirSync(dir,{recursive:true});fs.mkdirSync(dir,{recursive:true});
+(async()=>{const browser=await chromium.launch({executablePath:process.env.UBOSS_PHONE_BROWSER || undefined,headless:true});const results=[];
+try{for(const width of [375,320]){const context=await browser.newContext({viewport:{width,height:812},isMobile:true,hasTouch:true,locale:'en-US',reducedMotion:'reduce'});
+await context.route('**/*',route=>route.request().url().startsWith('http://127.0.0.1:5197/')?route.continue():route.abort());
+for(const flow of ['rfq','milestones','readiness','documents','notifications']){const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto('http://127.0.0.1:5197/output/phone-preview/index.html?case='+flow,{waitUntil:'networkidle',timeout:45000});
+const metrics=await page.evaluate(()=>({width:innerWidth,documentWidth:document.documentElement.scrollWidth,text:document.querySelector('#phone-surface')?.textContent?.slice(0,180),controls:[...document.querySelectorAll('#phone-surface input,#phone-surface select,#phone-surface textarea,#phone-surface button')].map(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return{tag:el.tagName,type:el.getAttribute('type'),label:el.getAttribute('aria-label')||document.querySelector('label[for="'+el.id+'"]')?.textContent||el.textContent,left:r.left,right:r.right,height:r.height,fontSize:s.fontSize,hidden:s.display==='none'||r.width===0||s.position==='absolute'&&r.width<=1};})}));
+assert.deepEqual(errors,[]);assert.equal(metrics.width,width);assert.equal(metrics.documentWidth,width);assert.ok(metrics.controls.length>=2);assert.ok(metrics.controls.every(c=>c.hidden||(c.left>=0&&c.right<=width+1)),'Visible control clipped');const screenshot=path.join(dir,flow+'-'+width+'.png');await page.screenshot({path:screenshot,fullPage:true});results.push({flow,width,errors,...metrics,screenshot});await page.close();}
+await context.close();}
+fs.writeFileSync(path.join(dir,'initial-probe.json'),JSON.stringify(results,null,2)+'\n');console.log(JSON.stringify(results.map(r=>({flow:r.flow,width:r.width,documentWidth:r.documentWidth,errors:r.errors,controls:r.controls.length,clipped:r.controls.filter(c=>!c.hidden&&(c.left<0||c.right>r.width+1)).map(c=>c.label)}))));}
+finally{await browser.close();}})().catch(e=>{console.error(e.message);process.exitCode=1;});

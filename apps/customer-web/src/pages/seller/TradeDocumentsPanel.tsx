@@ -262,8 +262,8 @@ export function TradeDocumentsPanel({
             </Field>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <label className="relative inline-flex cursor-pointer items-center rounded-lg border border-border px-3 py-2 text-sm text-ink hover:bg-surface-sunken">
-              {file === null ? t('tradeDocs.chooseFile') : file.name}
+            <label className="relative inline-flex max-w-full min-w-0 cursor-pointer items-center rounded-lg border border-border px-3 py-2 text-sm text-ink hover:bg-surface-sunken">
+              <span className="min-w-0 truncate" title={file?.name}>{file === null ? t('tradeDocs.chooseFile') : file.name}</span>
               <input
                 type="file"
                 accept="application/pdf,image/*"

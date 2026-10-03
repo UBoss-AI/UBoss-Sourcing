@@ -1,0 +1,1330 @@
+{
+  "geometry": [
+    {
+      "flow": "rfq",
+      "width": 375,
+      "errors": [],
+      "documentWidth": 375,
+      "text": "Reply to request for quotationCurrency* (required)INRUnit price* (required)Quantity* (required)Minimum order (MOQ)OptionalLead time in daysOptionalCapacity per monthOptionalIncoter",
+      "controls": [
+        {
+          "tag": "SELECT",
+          "type": null,
+          "label": "Currency* (required)",
+          "left": 41,
+          "right": 334,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Unit price* (required)",
+          "left": 41,
+          "right": 334,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Quantity* (required)",
+          "left": 41,
+          "right": 334,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Minimum order (MOQ)",
+          "left": 41,
+          "right": 334,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Lead time in days",
+          "left": 41,
+          "right": 334,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Capacity per month",
+          "left": 41,
+          "right": 334,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "label": "Incoterm",
+          "left": 41,
+          "right": 334,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Incoterm place",
+          "left": 41,
+          "right": 334,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "datetime-local",
+          "label": "Valid until (UTC)* (required)",
+          "left": 41,
+          "right": 334,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "label": "Payment terms",
+          "left": 41,
+          "right": 334,
+          "height": 96,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "label": "Inspection terms",
+          "left": 41,
+          "right": 334,
+          "height": 96,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "label": "Warranty",
+          "left": 41,
+          "right": 334,
+          "height": 96,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "label": "Taxes, duties and exclusions",
+          "left": 41,
+          "right": 334,
+          "height": 96,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Tooling or set-up cost",
+          "left": 41,
+          "right": 334,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Sample cost",
+          "left": 41,
+          "right": 334,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Shipping estimate",
+          "left": 41,
+          "right": 334,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "label": "Comment",
+          "left": 41,
+          "right": 334,
+          "height": 96,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "label": "Add a price tier",
+          "left": 41,
+          "right": 150.796875,
+          "height": 32,
+          "fontSize": "12px",
+          "hidden": false
+        },
+        {
+          "tag": "BUTTON",
+          "type": "submit",
+          "label": "Send the quote",
+          "left": 41,
+          "right": 170.390625,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        }
+      ]
+    },
+    {
+      "flow": "milestones",
+      "width": 375,
+      "errors": [],
+      "documentWidth": 375,
+      "text": "ProductionRecord each stage as it is done. The buyer sees the stage, the date and your message.Raw material inDone Oct 1, 2026, 2:30 PM by AshaBuyer told: Steel arrivedDoneIn produ",
+      "controls": [
+        {
+          "tag": "INPUT",
+          "type": "date",
+          "label": "Expected date for In production",
+          "left": 58,
+          "right": 317,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "label": "Record: In production",
+          "left": 58,
+          "right": 202.15625,
+          "height": 32,
+          "fontSize": "12px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "date",
+          "label": "Expected date for Quality checked",
+          "left": 58,
+          "right": 206,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "date",
+          "label": "Expected date for Ready",
+          "left": 169,
+          "right": 317,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "label": "Message to the buyer",
+          "left": 41,
+          "right": 334,
+          "height": 96,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "label": "Internal note",
+          "left": 41,
+          "right": 334,
+          "height": 96,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "label": "Raise exception",
+          "left": 223.15625,
+          "right": 334,
+          "height": 32,
+          "fontSize": "12px",
+          "hidden": false
+        }
+      ]
+    },
+    {
+      "flow": "readiness",
+      "width": 375,
+      "errors": [],
+      "documentWidth": 375,
+      "text": "InspectionMANDATORYBOOKEDShipment is blocked until the inspection passes.INS-1 · INITIAL · ACCEPTEDIndependent QA · Priya · — · Factory · BUYERDeclare the lot ready for inspectionN",
+      "controls": [
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Lot reference",
+          "left": 63,
+          "right": 312,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Where the goods are",
+          "left": 63,
+          "right": 312,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Contact on site",
+          "left": 63,
+          "right": 312,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Contact phone",
+          "left": 63,
+          "right": 312,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "date",
+          "label": "Ready date",
+          "left": 63,
+          "right": 312,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "label": "Packing state",
+          "left": 63,
+          "right": 312,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 63,
+          "right": 76,
+          "height": 13,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "label": "Send readiness",
+          "left": 63,
+          "right": 168.515625,
+          "height": 32,
+          "fontSize": "12px",
+          "hidden": false
+        }
+      ]
+    },
+    {
+      "flow": "documents",
+      "width": 375,
+      "errors": [],
+      "documentWidth": 375,
+      "text": "Shipment documentsCertificate of origin, waybills and other papers this order travels with. Each save is a new version.Commercial invoices issued: 1 · Packing lists issued: 1Requir",
+      "controls": [
+        {
+          "tag": "SELECT",
+          "type": null,
+          "label": "Document",
+          "left": 58,
+          "right": 317,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "label": "Consignment",
+          "left": 58,
+          "right": 317,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Issued by* (required)",
+          "left": 58,
+          "right": 317,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Document number",
+          "left": 58,
+          "right": 317,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "date",
+          "label": "Issue date",
+          "left": 58,
+          "right": 317,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "date",
+          "label": "Expiry date",
+          "left": 58,
+          "right": 317,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "file",
+          "label": "",
+          "left": 70,
+          "right": 71,
+          "height": 1,
+          "fontSize": "14px",
+          "hidden": true
+        },
+        {
+          "tag": "BUTTON",
+          "type": "submit",
+          "label": "Save version",
+          "left": 58,
+          "right": 169.140625,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "label": "Generate certificate of origin draft",
+          "left": 58,
+          "right": 309.703125,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        }
+      ]
+    },
+    {
+      "flow": "notifications",
+      "width": 375,
+      "errors": [],
+      "documentWidth": 375,
+      "text": "Notifications1 unreadRecentDispatch deadline approachingNewImportantwarningComplete the packing list and arrange pickup for order UB-PHONE-001.10/3/2026, 7:44:51 AMOpen →Mark readW",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "label": "Mark read",
+          "left": 91.8125,
+          "right": 190.6875,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "label": "Save",
+          "left": 41,
+          "right": 104.375,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        }
+      ]
+    },
+    {
+      "flow": "rfq",
+      "width": 320,
+      "errors": [],
+      "documentWidth": 320,
+      "text": "Reply to request for quotationCurrency* (required)INRUnit price* (required)Quantity* (required)Minimum order (MOQ)OptionalLead time in daysOptionalCapacity per monthOptionalIncoter",
+      "controls": [
+        {
+          "tag": "SELECT",
+          "type": null,
+          "label": "Currency* (required)",
+          "left": 41,
+          "right": 279,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Unit price* (required)",
+          "left": 41,
+          "right": 279,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Quantity* (required)",
+          "left": 41,
+          "right": 279,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Minimum order (MOQ)",
+          "left": 41,
+          "right": 279,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Lead time in days",
+          "left": 41,
+          "right": 279,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Capacity per month",
+          "left": 41,
+          "right": 279,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "label": "Incoterm",
+          "left": 41,
+          "right": 279,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Incoterm place",
+          "left": 41,
+          "right": 279,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "datetime-local",
+          "label": "Valid until (UTC)* (required)",
+          "left": 41,
+          "right": 279,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "label": "Payment terms",
+          "left": 41,
+          "right": 279,
+          "height": 96,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "label": "Inspection terms",
+          "left": 41,
+          "right": 279,
+          "height": 96,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "label": "Warranty",
+          "left": 41,
+          "right": 279,
+          "height": 96,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "label": "Taxes, duties and exclusions",
+          "left": 41,
+          "right": 279,
+          "height": 96,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 41,
+          "right": 57,
+          "height": 16,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Tooling or set-up cost",
+          "left": 41,
+          "right": 279,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Sample cost",
+          "left": 41,
+          "right": 279,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Shipping estimate",
+          "left": 41,
+          "right": 279,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "label": "Comment",
+          "left": 41,
+          "right": 279,
+          "height": 96,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "label": "Add a price tier",
+          "left": 41,
+          "right": 150.796875,
+          "height": 32,
+          "fontSize": "12px",
+          "hidden": false
+        },
+        {
+          "tag": "BUTTON",
+          "type": "submit",
+          "label": "Send the quote",
+          "left": 41,
+          "right": 170.390625,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        }
+      ]
+    },
+    {
+      "flow": "milestones",
+      "width": 320,
+      "errors": [],
+      "documentWidth": 320,
+      "text": "ProductionRecord each stage as it is done. The buyer sees the stage, the date and your message.Raw material inDone Oct 1, 2026, 2:30 PM by AshaBuyer told: Steel arrivedDoneIn produ",
+      "controls": [
+        {
+          "tag": "INPUT",
+          "type": "date",
+          "label": "Expected date for In production",
+          "left": 58,
+          "right": 262,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "label": "Record: In production",
+          "left": 58,
+          "right": 202.15625,
+          "height": 32,
+          "fontSize": "12px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "date",
+          "label": "Expected date for Quality checked",
+          "left": 58,
+          "right": 206,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "date",
+          "label": "Expected date for Ready",
+          "left": 58,
+          "right": 206,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "label": "Message to the buyer",
+          "left": 41,
+          "right": 279,
+          "height": 96,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "label": "Internal note",
+          "left": 41,
+          "right": 279,
+          "height": 96,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "label": "Raise exception",
+          "left": 168.15625,
+          "right": 279,
+          "height": 32,
+          "fontSize": "12px",
+          "hidden": false
+        }
+      ]
+    },
+    {
+      "flow": "readiness",
+      "width": 320,
+      "errors": [],
+      "documentWidth": 320,
+      "text": "InspectionMANDATORYBOOKEDShipment is blocked until the inspection passes.INS-1 · INITIAL · ACCEPTEDIndependent QA · Priya · — · Factory · BUYERDeclare the lot ready for inspectionN",
+      "controls": [
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Lot reference",
+          "left": 63,
+          "right": 257,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Where the goods are",
+          "left": 63,
+          "right": 257,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Contact on site",
+          "left": 63,
+          "right": 257,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Contact phone",
+          "left": 63,
+          "right": 257,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "date",
+          "label": "Ready date",
+          "left": 63,
+          "right": 257,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "label": "Packing state",
+          "left": 63,
+          "right": 257,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "checkbox",
+          "label": "",
+          "left": 63,
+          "right": 76,
+          "height": 13,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "label": "Send readiness",
+          "left": 63,
+          "right": 168.515625,
+          "height": 32,
+          "fontSize": "12px",
+          "hidden": false
+        }
+      ]
+    },
+    {
+      "flow": "documents",
+      "width": 320,
+      "errors": [],
+      "documentWidth": 320,
+      "text": "Shipment documentsCertificate of origin, waybills and other papers this order travels with. Each save is a new version.Commercial invoices issued: 1 · Packing lists issued: 1Requir",
+      "controls": [
+        {
+          "tag": "SELECT",
+          "type": null,
+          "label": "Document",
+          "left": 58,
+          "right": 262,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "label": "Consignment",
+          "left": 58,
+          "right": 262,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Issued by* (required)",
+          "left": 58,
+          "right": 262,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "label": "Document number",
+          "left": 58,
+          "right": 262,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "date",
+          "label": "Issue date",
+          "left": 58,
+          "right": 262,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "date",
+          "label": "Expiry date",
+          "left": 58,
+          "right": 262,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "INPUT",
+          "type": "file",
+          "label": "",
+          "left": 70,
+          "right": 71,
+          "height": 1,
+          "fontSize": "14px",
+          "hidden": true
+        },
+        {
+          "tag": "BUTTON",
+          "type": "submit",
+          "label": "Save version",
+          "left": 58,
+          "right": 169.140625,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "label": "Generate certificate of origin draft",
+          "left": 58,
+          "right": 262,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        }
+      ]
+    },
+    {
+      "flow": "notifications",
+      "width": 320,
+      "errors": [],
+      "documentWidth": 320,
+      "text": "Notifications1 unreadRecentDispatch deadline approachingNewImportantwarningComplete the packing list and arrange pickup for order UB-PHONE-001.10/3/2026, 7:44:55 AMOpen →Mark readW",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "label": "Mark read",
+          "left": 91.8125,
+          "right": 190.6875,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "label": "Save",
+          "left": 41,
+          "right": 104.375,
+          "height": 40,
+          "fontSize": "14px",
+          "hidden": false
+        }
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "flow": "rfq",
+      "width": 375,
+      "detail": {
+        "invalidPrevented": true,
+        "unitPriceMinor": "425",
+        "quantity": "100"
+      },
+      "errors": []
+    },
+    {
+      "flow": "milestones",
+      "width": 375,
+      "detail": {
+        "recordedStage": "IN_PRODUCTION",
+        "originalControls": [
+          {
+            "label": "Expected date for In production",
+            "parentRight": 334,
+            "right": 317,
+            "inside": true
+          },
+          {
+            "label": "Record: In production",
+            "parentRight": 334,
+            "right": 202.15625,
+            "inside": true
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "flow": "readiness",
+      "width": 375,
+      "detail": {
+        "initialGuard": true,
+        "declaration": true,
+        "lotReference": "LOT-PHONE-001"
+      },
+      "errors": []
+    },
+    {
+      "flow": "documents",
+      "width": 375,
+      "detail": {
+        "beforeSave": {
+          "width": 375,
+          "documentWidth": 375,
+          "fileLabel": {
+            "x": 58,
+            "y": 572,
+            "width": 259,
+            "height": 38,
+            "top": 572,
+            "right": 317,
+            "bottom": 610,
+            "left": 58
+          }
+        },
+        "uploadedFile": {
+          "name": "certificate_of_origin_for_consignment_UB_PHONE_001_renewed_20261003.pdf",
+          "size": 28,
+          "type": "application/pdf"
+        },
+        "missingIssuerPrevented": true
+      },
+      "errors": []
+    },
+    {
+      "flow": "notifications",
+      "width": 375,
+      "detail": {
+        "markedOwnNoticeRead": true
+      },
+      "errors": []
+    },
+    {
+      "flow": "rfq",
+      "width": 320,
+      "detail": {
+        "invalidPrevented": true,
+        "unitPriceMinor": "425",
+        "quantity": "100"
+      },
+      "errors": []
+    },
+    {
+      "flow": "milestones",
+      "width": 320,
+      "detail": {
+        "recordedStage": "IN_PRODUCTION",
+        "originalControls": [
+          {
+            "label": "Expected date for In production",
+            "parentRight": 279,
+            "right": 262,
+            "inside": true
+          },
+          {
+            "label": "Record: In production",
+            "parentRight": 279,
+            "right": 202.15625,
+            "inside": true
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "flow": "readiness",
+      "width": 320,
+      "detail": {
+        "initialGuard": true,
+        "declaration": true,
+        "lotReference": "LOT-PHONE-001"
+      },
+      "errors": []
+    },
+    {
+      "flow": "documents",
+      "width": 320,
+      "detail": {
+        "beforeSave": {
+          "width": 320,
+          "documentWidth": 320,
+          "fileLabel": {
+            "x": 58,
+            "y": 556,
+            "width": 204,
+            "height": 38,
+            "top": 556,
+            "right": 262,
+            "bottom": 594,
+            "left": 58
+          }
+        },
+        "uploadedFile": {
+          "name": "certificate_of_origin_for_consignment_UB_PHONE_001_renewed_20261003.pdf",
+          "size": 28,
+          "type": "application/pdf"
+        },
+        "missingIssuerPrevented": true
+      },
+      "errors": []
+    },
+    {
+      "flow": "notifications",
+      "width": 320,
+      "detail": {
+        "markedOwnNoticeRead": true
+      },
+      "errors": []
+    }
+  ]
+}

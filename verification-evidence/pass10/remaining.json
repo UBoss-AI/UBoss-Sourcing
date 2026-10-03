@@ -1026,8 +1026,8 @@
       "priority": "P0",
       "requirement": "RFQ reply, order milestone, inspection readiness, document upload and notifications optimized for phone.",
       "classification": "E",
-      "remainingAction": "Verify phone layouts for all five seller operation flows; real-device evidence is separately required by DOD-043.",
-      "status": "OPEN",
+      "remainingAction": "None for software phone viewport/interaction scope; see pass10/batch-7.json. Physical-device/browser-matrix proof remains separate under DOD-043.",
+      "status": "VERIFIED",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
     {
@@ -1228,8 +1228,8 @@
     }
   ],
   "current": {
-    "checked": 282,
-    "open": 82,
+    "checked": 283,
+    "open": 81,
     "total": 364
   },
   "baselineCounts": {
@@ -1328,7 +1328,7 @@
       "total": 67
     },
     "ENH": {
-      "checked": 13,
+      "checked": 14,
       "total": 32
     },
     "DYNAMIC": {
@@ -1411,7 +1411,6 @@
     "ENH-024",
     "ENH-026",
     "ENH-027",
-    "ENH-029",
     "ENH-030",
     "ENH-032",
     "DYNAMIC-001",

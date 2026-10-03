@@ -6,8 +6,8 @@
     "open": 87
   },
   "after": {
-    "checked": 282,
-    "open": 82
+    "checked": 283,
+    "open": 81
   },
   "targeted": {
     "command": "npx vitest run tests/integration/rfq-samples.test.ts tests/integration/rfq-purchase-order-to-order.test.ts",
@@ -72,8 +72,8 @@
   },
   "audit": {
     "problems": [],
-    "checked": 282,
-    "open": 82
+    "checked": 283,
+    "open": 81
   },
   "secretScan": {
     "command": ".\\scripts\\secret-scan.ps1",
@@ -398,5 +398,95 @@
       "No staging/production provider-outage validation."
     ],
     "evidence": "batch-6-partial.json"
+  },
+  "batch7": {
+    "id": "ENH-029",
+    "sourceBaseline": "1c21eb36cc9981b502ee51aece7f78f949a8f6d7",
+    "verifiedDate": "2026-10-03",
+    "before": {
+      "checked": 282,
+      "open": 82
+    },
+    "after": {
+      "checked": 283,
+      "open": 81
+    },
+    "targetedCustomer": {
+      "files": 4,
+      "tests": 19,
+      "exitCode": 0
+    },
+    "customer": {
+      "commands": [
+        "npm run typecheck",
+        "npm run lint",
+        "npm run audit:contrast",
+        "npx vitest run --config ../../output/pass10-customer.config.mts --maxWorkers 2",
+        "npm run build"
+      ],
+      "files": 196,
+      "tests": 1804,
+      "exitCode": 0
+    },
+    "docs": "npm run docs:check passed; three generated references match. Active shared feature guides remain untouched; no documented contract/rule/flow changed.",
+    "runnerNotes": "Private preview TSX relocated before lint; corrected contrast script name. Initial interrupted/resource-failing full suite preserved, then rerun with two workers and unchanged assertions/timeouts.",
+    "retainedVerification": {
+      "reason": "No backend/admin implementation, test or configuration changed since batch 5; guarded source diff empty.",
+      "backend": {
+        "files": 337,
+        "tests": 5352
+      },
+      "admin": {
+        "files": 52,
+        "tests": 382
+      }
+    },
+    "browser": {
+      "engine": "Installed Chromium, Playwright headless",
+      "widths": [
+        320,
+        375
+      ],
+      "height": 812,
+      "touch": true,
+      "geometryCases": 10,
+      "interactionCases": 10,
+      "result": "Passed",
+      "network": "Only private loopback Vite; fixture fetches; other network blocked",
+      "results": "phone-results.json",
+      "visualQA": "All five final 320px workflows visually inspected; long filename remains bounded."
+    },
+    "limitations": [
+      "No hardware or cross-browser claim; DOD-043 stays open.",
+      "Fixture API interactions; focused existing tests separately verify component behavior."
+    ],
+    "evidence": "batch-7.json",
+    "word": {
+      "engine": "Microsoft Word 16.0",
+      "readOnly": true,
+      "totalPages": 29,
+      "changedPages": [
+        27
+      ],
+      "renderMethod": "Actual Word Page.EnhMetaFileBits rasterized with native GDI and visually inspected.",
+      "structuralComparison": {
+        "baseline": "1c21eb36cc9981b502ee51aece7f78f949a8f6d7",
+        "unchangedOtherParts": 18,
+        "authorizedCharacterChanges": 1,
+        "ids": [
+          "ENH-029"
+        ]
+      },
+      "visualResult": "Mobile-first seller operations checked in original paragraph; neighboring boxes and blank sign-off selections preserved.",
+      "cleanup": "Private read-only renderer closed without saving.",
+      "limitations": "Existing native font-playback limitation retained; original Word text/layout and exact XML checkbox change structurally verified."
+    },
+    "secretScan": {
+      "command": ".\\scripts\\secret-scan.ps1",
+      "result": "No leaks found",
+      "commitsScanned": 249,
+      "nonMergeCommits": 227,
+      "scope": "Complete history before commit; new commit scanned again before push."
+    }
   }
 }
