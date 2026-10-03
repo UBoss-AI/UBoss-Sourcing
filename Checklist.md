@@ -2,12 +2,12 @@
 
 - Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (unnumbered repository authority; checkbox symbols only).
 - Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
-- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-20.json`.
+- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-21.json`.
 - Master checked: 95/97; row 9 requires approved policies/legal review; row 12 requires actual KYB and bank-verification decisions.
-- Entire document checked: 294
-- Entire document unchecked: 70
+- Entire document checked: 295
+- Entire document unchecked: 69
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 10 batch 20, ENH-027 price-break quantity slider verified and ticked.
+- Last completed work: Pass 10 batch 21, ENH-018 verified and ticked.
 - Verification: fresh complete customer checks 204/1876; focused customer 5/68. Backend 341/5400 and admin 52/382 retained under unchanged-package diff guards.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-16.json` (batches 6, 8, 9 partial), browser results and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
@@ -91,7 +91,7 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | ENH-014 | A | Verified in Pass 10 batch 3: spending caps, scope, expiry, pre-charge reminder and one-click pause. |
 | ENH-015 | A | Verify self-service PO/acknowledgement/invoice/shipment/status mapping and a real local sandbox test. |
 | ENH-016 | A | Verify Excel and CSV parsing into multi-line RFQ/order, validation, limits and permission isolation. |
-| ENH-018 | A | Verify individual operational tasks ranked by deadline and business impact, with deterministic ties. |
+| ENH-018 | A | Verified in Pass 10 batch 21: ranked seller action queue (dispute/dispatch/quote) by overdue, deadline, kind weight, amount and id. |
 | ENH-019 | A | Verify one scoped queue covers all six named payment/document/inspection/shipment/settlement/integration exception types. |
 | ENH-020 | A | Verify low-priority bundling and immediate critical inspection/payment/shipping/RFQ escalation, including deduplication. |
 | ENH-021 | A | Verified in Pass 10 batch 14: original and translated product/message text, private ownership guards, failure/retry and reader-language refresh. |
@@ -181,6 +181,8 @@ Current open classification after batch 15: **A 15; B 13; C 7; D 30; E 10 — 75
 **Batch 19 — implemented, verified and ticked: ENH-030 (countdowns).** Shared live countdown on quote-response, inspection assignment/report, shipment-readiness and dispute deadlines; boundary, unit and tick tests **3/3**, affected suites **17/130**, typecheck/lint clean; eight locales and guides synchronized. Before **292/364**, **72 open**; after **293/364**, **71 open**. Evidence: `verification-evidence/pass10/batch-19.json`.
 
 **Batch 20 — implemented, verified and ticked: ENH-027 (price-break slider).** Slider in the bulk-offers dialog with band price, exact BigInt total, capacity weeks, lead time and landed-cost prefill; tests **3/3**, affected suites **8/96**, typecheck/lint clean; eight locales and guides synchronized. Before **293/364**, **71 open**; after **294/364**, **70 open**. Evidence: `verification-evidence/pass10/batch-20.json`.
+
+**Batch 21 — implemented, verified and ticked: ENH-018.** Seller Hub dashboard opens with a ranked action queue from GET /seller/action-queue: overdue, then due within a day, then deadline, kind weight, amount at stake, id (deterministic). Ranking unit 1/1, endpoint/isolation integration 2/2, UI 2/2 plus dashboard/query-states/i18n 7 files/73; typecheck/lint clean; reference docs regenerated; eight locales and guides synchronized. No browser pass. Before **294/364**, **70 open**; after **295/364**, **69 open**. Evidence: `verification-evidence/pass10/batch-21.json`.
 
 Current open classification after batch 16: **A 15; B 13; C 7; D 30; E 9 — 74 open**.
 

@@ -8446,5 +8446,12 @@
   "priceBreaks.leadTime": "Δηλωμένος χρόνος παράδοσης",
   "priceBreaks.leadUnknown": "Ο χρόνος παράδοσης δεν έχει δηλωθεί",
   "priceBreaks.leadDays": "{{days}} ημέρες",
-  "priceBreaks.landed": "Εκτίμηση τελικού κόστους για αυτή την ποσότητα"
+  "priceBreaks.landed": "Εκτίμηση τελικού κόστους για αυτή την ποσότητα",
+  "sellerActions.title": "Τι να κάνετε στη συνέχεια",
+  "sellerActions.blurb": "Πρώτα τα εκπρόθεσμα, μετά κατά προθεσμία, μετά κατά το διακύβευμα.",
+  "sellerActions.empty": "Τίποτα δεν περιμένει από εσάς.",
+  "sellerActions.kind.DISPUTE_RESPONSE": "Απάντηση στη διαφορά {{reference}}",
+  "sellerActions.kind.DISPATCH": "Αποστολή παραγγελίας {{reference}}",
+  "sellerActions.kind.QUOTE": "Προσφορά για το αίτημα {{reference}}",
+  "sellerActions.more": "και {{more}} ακόμη"
 }

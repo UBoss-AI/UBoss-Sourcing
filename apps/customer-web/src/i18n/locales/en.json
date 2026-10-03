@@ -8446,5 +8446,12 @@
   "priceBreaks.leadTime": "Stated lead time",
   "priceBreaks.leadUnknown": "Lead time not stated",
   "priceBreaks.leadDays": "{{days}} days",
-  "priceBreaks.landed": "Estimate landed cost for this quantity"
+  "priceBreaks.landed": "Estimate landed cost for this quantity",
+  "sellerActions.title": "What to do next",
+  "sellerActions.blurb": "Overdue first, then by deadline, then by what is at stake.",
+  "sellerActions.empty": "Nothing is waiting on you.",
+  "sellerActions.kind.DISPUTE_RESPONSE": "Answer dispute {{reference}}",
+  "sellerActions.kind.DISPATCH": "Dispatch order {{reference}}",
+  "sellerActions.kind.QUOTE": "Quote on request {{reference}}",
+  "sellerActions.more": "and {{more}} more"
 }

@@ -8555,5 +8555,12 @@
   "priceBreaks.leadTime": "Plazo declarado",
   "priceBreaks.leadUnknown": "Plazo no declarado",
   "priceBreaks.leadDays": "{{days}} días",
-  "priceBreaks.landed": "Estimar el coste en destino para esta cantidad"
+  "priceBreaks.landed": "Estimar el coste en destino para esta cantidad",
+  "sellerActions.title": "Qué hacer a continuación",
+  "sellerActions.blurb": "Primero lo vencido, luego por plazo, luego por lo que está en juego.",
+  "sellerActions.empty": "Nada está esperando por usted.",
+  "sellerActions.kind.DISPUTE_RESPONSE": "Responder a la disputa {{reference}}",
+  "sellerActions.kind.DISPATCH": "Enviar el pedido {{reference}}",
+  "sellerActions.kind.QUOTE": "Cotizar la solicitud {{reference}}",
+  "sellerActions.more": "y {{more}} más"
 }

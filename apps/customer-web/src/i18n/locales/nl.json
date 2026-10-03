@@ -8446,5 +8446,12 @@
   "priceBreaks.leadTime": "Opgegeven levertijd",
   "priceBreaks.leadUnknown": "Levertijd niet opgegeven",
   "priceBreaks.leadDays": "{{days}} dagen",
-  "priceBreaks.landed": "Schat de totale kosten voor deze hoeveelheid"
+  "priceBreaks.landed": "Schat de totale kosten voor deze hoeveelheid",
+  "sellerActions.title": "Wat u nu moet doen",
+  "sellerActions.blurb": "Eerst wat te laat is, dan op deadline, dan op wat er op het spel staat.",
+  "sellerActions.empty": "Er wacht niets op u.",
+  "sellerActions.kind.DISPUTE_RESPONSE": "Reageer op geschil {{reference}}",
+  "sellerActions.kind.DISPATCH": "Verzend bestelling {{reference}}",
+  "sellerActions.kind.QUOTE": "Offerte voor aanvraag {{reference}}",
+  "sellerActions.more": "en nog {{more}}"
 }

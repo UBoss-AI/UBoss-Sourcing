@@ -9686,6 +9686,15 @@ not stated" when missing. A link opens the landed-cost estimator prefilled with
 that price (only in the shopper's own currency) and quantity. The basket still
 re-prices on every add.
 
+**Seller action queue (ENH-018).** The Seller Hub dashboard opens with one
+ranked to-do list from `GET /seller/action-queue` (seller session, no-store):
+disputes awaiting the seller's answer, orders to dispatch with a dispatch-by
+time, and open RFQ invitations with a response deadline. Overdue first, then due
+within a day, then by deadline; at the same instant a dispute outranks a
+dispatch, which outranks a quote; then by amount at stake in its own currency;
+then by id, so ties are deterministic. Each row links to the task and shows a
+live countdown. Up to 50 of each kind are read; the dashboard shows the top 10.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

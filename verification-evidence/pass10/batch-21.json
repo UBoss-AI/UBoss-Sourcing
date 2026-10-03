@@ -1,0 +1,15 @@
+{
+  "batch": 21,
+  "ids": [
+    "ENH-018"
+  ],
+  "before": {
+    "checked": 294,
+    "unchecked": 70
+  },
+  "after": {
+    "checked": 295,
+    "unchecked": 69
+  },
+  "evidence": "Seller Hub dashboard opens with a ranked action queue from GET /seller/action-queue: overdue, then due within a day, then deadline, kind weight, amount at stake, id (deterministic). Ranking unit 1/1, endpoint/isolation integration 2/2, UI 2/2 plus dashboard/query-states/i18n 7 files/73; typecheck/lint clean; reference docs regenerated; eight locales and guides synchronized. No browser pass."
+}

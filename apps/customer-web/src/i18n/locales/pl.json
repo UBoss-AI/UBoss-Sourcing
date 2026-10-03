@@ -8664,5 +8664,12 @@
   "priceBreaks.leadTime": "Deklarowany czas realizacji",
   "priceBreaks.leadUnknown": "Czas realizacji niepodany",
   "priceBreaks.leadDays": "{{days}} dni",
-  "priceBreaks.landed": "Oszacuj koszt z dostawą dla tej ilości"
+  "priceBreaks.landed": "Oszacuj koszt z dostawą dla tej ilości",
+  "sellerActions.title": "Co zrobić dalej",
+  "sellerActions.blurb": "Najpierw zaległe, potem według terminu, potem według stawki.",
+  "sellerActions.empty": "Nic na Ciebie nie czeka.",
+  "sellerActions.kind.DISPUTE_RESPONSE": "Odpowiedz na spór {{reference}}",
+  "sellerActions.kind.DISPATCH": "Wyślij zamówienie {{reference}}",
+  "sellerActions.kind.QUOTE": "Wyceń zapytanie {{reference}}",
+  "sellerActions.more": "i jeszcze {{more}}"
 }

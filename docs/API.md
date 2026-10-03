@@ -3803,6 +3803,12 @@ currently effective DOCUMENTS_REQUIRED rules on the products, their categories
 or ancestor categories. Labels and blocks are not repeated; placing the order
 remains the enforcement point. A malformed country answers 400.
 
+`GET /seller/action-queue` (ENH-018) answers `{ tasks }`, already ranked:
+each task has `kind` (DISPUTE_RESPONSE, DISPATCH, QUOTE), `id`, `reference`,
+`dueAt`, `overdue` (true at the exact deadline), `amountMinor` and `currency`
+(both null when nothing is stated; a fractional RFQ quantity states none) and
+`href`. Seller session only, scoped to the caller's seller account, no-store.
+
 ## RFQ purchase-order review
 
 These storefront routes require a customer session in the same buyer context

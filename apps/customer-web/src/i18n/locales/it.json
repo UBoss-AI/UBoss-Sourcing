@@ -8555,5 +8555,12 @@
   "priceBreaks.leadTime": "Tempo di consegna dichiarato",
   "priceBreaks.leadUnknown": "Tempo di consegna non dichiarato",
   "priceBreaks.leadDays": "{{days}} giorni",
-  "priceBreaks.landed": "Stima il costo franco destino per questa quantità"
+  "priceBreaks.landed": "Stima il costo franco destino per questa quantità",
+  "sellerActions.title": "Cosa fare dopo",
+  "sellerActions.blurb": "Prima i ritardi, poi per scadenza, poi per ciò che è in gioco.",
+  "sellerActions.empty": "Niente è in attesa da parte sua.",
+  "sellerActions.kind.DISPUTE_RESPONSE": "Rispondere alla controversia {{reference}}",
+  "sellerActions.kind.DISPATCH": "Spedire l’ordine {{reference}}",
+  "sellerActions.kind.QUOTE": "Quotare la richiesta {{reference}}",
+  "sellerActions.more": "e altri {{more}}"
 }

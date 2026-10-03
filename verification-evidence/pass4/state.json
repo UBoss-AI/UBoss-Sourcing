@@ -2797,6 +2797,12 @@
       "status": "VERIFIED",
       "evidence": "Pass 10 batch 20: ENH-027. Bulk-offers dialog quantity slider shows band unit price, exact BigInt line total, production weeks at stated capacity, stated lead time and explicit not-stated states; link prefills the landed-cost estimator (same-currency price and quantity only). Boundary/exact-money/slider tests 3/3; dialog, landed-cost, product page and i18n suites 8 files/96; typecheck/lint clean; eight locales and guides synchronized. No browser pass.",
       "verifiedAt": "2026-10-03 (pass 10)"
+    },
+    {
+      "id": "ENH-018",
+      "status": "VERIFIED",
+      "evidence": "Pass 10 batch 21: ENH-018. Seller Hub dashboard opens with a ranked action queue from GET /seller/action-queue: overdue, then due within a day, then deadline, kind weight, amount at stake, id (deterministic). Ranking unit 1/1, endpoint/isolation integration 2/2, UI 2/2 plus dashboard/query-states/i18n 7 files/73; typecheck/lint clean; reference docs regenerated; eight locales and guides synchronized. No browser pass.",
+      "verifiedAt": "2026-10-03 (pass 10)"
     }
   ],
   "pendingBoxes": []

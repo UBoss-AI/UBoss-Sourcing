@@ -25,6 +25,7 @@ import { useI18n } from '@/i18n/i18n-context';
 import { useStorefront } from '@/app/storefront-context';
 import { formatMinor, fetchDashboard, type SellerDashboard } from '@/lib/seller';
 import type { SellerOutletContext } from './SellerLayout';
+import { SellerActionQueue } from './SellerActionQueue';
 
 type Range = 'today' | 'week' | 'month' | 'quarter';
 
@@ -220,6 +221,8 @@ export function SellerDashboardPage(): React.JSX.Element {
           </div>
         }
       />
+
+      <SellerActionQueue />
 
       {query.isPending && <LoadingState label={t('seller.dashboard.loading')} />}
 

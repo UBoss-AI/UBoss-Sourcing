@@ -8446,5 +8446,12 @@
   "priceBreaks.leadTime": "Angegebene Lieferzeit",
   "priceBreaks.leadUnknown": "Lieferzeit nicht angegeben",
   "priceBreaks.leadDays": "{{days}} Tage",
-  "priceBreaks.landed": "Einstandskosten für diese Menge schätzen"
+  "priceBreaks.landed": "Einstandskosten für diese Menge schätzen",
+  "sellerActions.title": "Was als Nächstes zu tun ist",
+  "sellerActions.blurb": "Überfälliges zuerst, dann nach Frist, dann nach dem, was auf dem Spiel steht.",
+  "sellerActions.empty": "Nichts wartet auf Sie.",
+  "sellerActions.kind.DISPUTE_RESPONSE": "Auf Streitfall {{reference}} antworten",
+  "sellerActions.kind.DISPATCH": "Bestellung {{reference}} versenden",
+  "sellerActions.kind.QUOTE": "Angebot zur Anfrage {{reference}} abgeben",
+  "sellerActions.more": "und {{more}} weitere"
 }

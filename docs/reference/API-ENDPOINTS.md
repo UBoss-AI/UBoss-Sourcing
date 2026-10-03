@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1364 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1365 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -29,7 +29,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 |---|---|
 | [Admin panel (staff)](#admin-panel-staff) | 556 |
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
-| [Seller Hub](#seller-hub) | 342 |
+| [Seller Hub](#seller-hub) | 343 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
 | [Customer account](#customer-account) | 308 |
 | [Public and storefront](#public-and-storefront) | 58 |
@@ -1357,6 +1357,14 @@ Defined in `backend/src/http/routes/seller.team.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | POST | `/api/v1/seller/access-reviews` | Seller | Seller(MEMBER_WRITE) | Record that you have reviewed who has access to the team. Audited. |
+
+### `seller/action-queue`
+
+Defined in `backend/src/http/routes/seller.operations.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/action-queue` | Seller | Seller | Your ranked to-do list: overdue first, then by deadline, then by what is at stake (ENH-018). |
 
 ### `seller/agreements`
 

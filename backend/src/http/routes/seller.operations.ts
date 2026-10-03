@@ -87,6 +87,7 @@ import {
   requestFreightQuote,
 } from '../../modules/seller/freight-quote.service.js';
 import { currentSeller, requireSeller, requireTradingSeller } from '../plugins/seller.js';
+import { sellerActionQueue } from '../../modules/seller/action-queue.service.js';
 import { currentUser } from '../plugins/auth.js';
 import { assertRecentStepUp } from '../../modules/identity/customer-mfa.service.js';
 import {
@@ -157,6 +158,12 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
 
     const dashboard = await readDashboard(currentSeller(request), query.range);
     return reply.header('cache-control', 'no-store').status(200).send(dashboard);
+  });
+
+  // Your ranked to-do list: overdue first, then by deadline, then by what is at stake (ENH-018).
+  app.get('/action-queue', async (request, reply) => {
+    const tasks = await sellerActionQueue(currentSeller(request).sellerAccountId);
+    return reply.header('cache-control', 'no-store').status(200).send({ tasks });
   });
 
   // Your performance over 30, 90 or 365 days: RFQ conversion, OTIF delivery, quality, cancellations and claims.

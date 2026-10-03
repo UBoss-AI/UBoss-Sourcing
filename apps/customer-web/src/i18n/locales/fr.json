@@ -8555,5 +8555,12 @@
   "priceBreaks.leadTime": "Délai déclaré",
   "priceBreaks.leadUnknown": "Délai non déclaré",
   "priceBreaks.leadDays": "{{days}} jours",
-  "priceBreaks.landed": "Estimer le coût rendu pour cette quantité"
+  "priceBreaks.landed": "Estimer le coût rendu pour cette quantité",
+  "sellerActions.title": "À faire ensuite",
+  "sellerActions.blurb": "D’abord les retards, puis par échéance, puis selon l’enjeu.",
+  "sellerActions.empty": "Rien ne vous attend.",
+  "sellerActions.kind.DISPUTE_RESPONSE": "Répondre au litige {{reference}}",
+  "sellerActions.kind.DISPATCH": "Expédier la commande {{reference}}",
+  "sellerActions.kind.QUOTE": "Chiffrer la demande {{reference}}",
+  "sellerActions.more": "et {{more}} de plus"
 }
