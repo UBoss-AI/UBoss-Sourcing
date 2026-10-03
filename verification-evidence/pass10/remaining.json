@@ -29,9 +29,10 @@
       "priority": "P0",
       "requirement": "Seller Application / KYB — Legal entity, ownership, tax/export/bank and verification",
       "classification": "B",
-      "remainingAction": "Verify KYB fields, authorization and evidence flow; obtain real bank and legal verification results.",
+      "remainingAction": "Local identifier, ownership/export, evidence, manual-screening and approval gates verified. Obtain policy-approved actual identity/factory/screening decisions and real bank validation. Current payout setup is optional for application submission and enforced before payment; no provider-backed pre-selling bank-validation gate was proved. Confirm launch-bank policy and configured provider evidence before claiming the full requirement.",
       "status": "OPEN",
-      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
+      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c",
+      "partialEvidence": "verification-evidence/pass10/batch-8-partial.json"
     },
     {
       "id": "DOD-001",
@@ -760,9 +761,10 @@
       "priority": "P0",
       "requirement": "Verify Indian manufacturer/OEM before selling. Checks: PAN/GST/CIN/Udyam/IEC as applicable; bank validation; beneficial owner/contact; factory proof; export capability; sanctions/restriction screening as required by policy.",
       "classification": "B",
-      "remainingAction": "Verify applicable Indian identifiers, ownership/contact, factory/export and policy screening; obtain production bank validation.",
+      "remainingAction": "Local identifier, ownership/export, evidence, manual-screening and approval gates verified. Obtain policy-approved actual identity/factory/screening decisions and real bank validation. Current payout setup is optional for application submission and enforced before payment; no provider-backed pre-selling bank-validation gate was proved. Confirm launch-bank policy and configured provider evidence before claiming the full requirement.",
       "status": "OPEN",
-      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
+      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c",
+      "partialEvidence": "verification-evidence/pass10/batch-8-partial.json"
     },
     {
       "id": "ENH-001",

@@ -488,5 +488,61 @@
       "nonMergeCommits": 227,
       "scope": "Complete history before commit; new commit scanned again before push."
     }
+  },
+  "batch8": {
+    "sourceCommit": "fee10c5daeef6d22efd0f15829561027bea52fbd",
+    "verifiedDate": "2026-10-03",
+    "ids": [
+      "SCREEN-012",
+      "JOURNEY-010"
+    ],
+    "ticked": [],
+    "before": {
+      "checked": 283,
+      "open": 81
+    },
+    "after": {
+      "checked": 283,
+      "open": 81
+    },
+    "targetedBackend": {
+      "command": "npx vitest run tests/unit/seller-kyb.test.ts tests/integration/seller-application-review.test.ts tests/integration/seller-factory-verification.test.ts tests/integration/seller-trading-gate.test.ts tests/integration/seller-documents.test.ts",
+      "files": 5,
+      "tests": 80,
+      "exitCode": 0
+    },
+    "targetedCustomer": {
+      "command": "npx vitest run src/pages/seller/SellerOnboardingPage.test.tsx --config ../../output/pass10-customer.config.mts --maxWorkers 2",
+      "files": 1,
+      "tests": 8,
+      "exitCode": 0
+    },
+    "retainedCompleteVerification": {
+      "reason": "Only evidence changed; backend/admin unchanged since full batch 5, customer unchanged since full batch 7. Guarded tracked source diff empty.",
+      "backend": {
+        "files": 337,
+        "tests": 5352,
+        "exitCode": 0
+      },
+      "customer": {
+        "files": 196,
+        "tests": 1804,
+        "exitCode": 0
+      },
+      "admin": {
+        "files": 52,
+        "tests": 382,
+        "exitCode": 0
+      }
+    },
+    "word": {
+      "changed": false,
+      "checkboxChanges": 0,
+      "visualQA": "Byte-identical Word retains batch-7 page-27 read-only visual inspection."
+    },
+    "limitations": [
+      "Local identifier, ownership/export, evidence, manual-screening and approval gates verified. Obtain policy-approved actual identity/factory/screening decisions and real bank validation. Current payout setup is optional for application submission and enforced before payment; no provider-backed pre-selling bank-validation gate was proved. Confirm launch-bank policy and configured provider evidence before claiming the full requirement."
+    ],
+    "evidence": "batch-8-partial.json"
   }
 }

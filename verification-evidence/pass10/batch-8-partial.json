@@ -1,0 +1,52 @@
+[
+  {
+    "id": "SCREEN-012",
+    "requirement": "Seller Application / KYB — Legal entity, ownership, tax/export/bank and verification",
+    "status": "PARTIAL_SOFTWARE_EVIDENCE",
+    "ticked": false,
+    "sourceCommit": "fee10c5daeef6d22efd0f15829561027bea52fbd",
+    "evidence": "Fresh existing KYB tests verify applicable CIN/LLPIN/GST checksum/Udyam/IEC formats, PAN/GST mismatch signals, ownership total and foreign-owner refusal, export markets, owner updates invalidate screening, missing/expired/uncleared evidence refuses approval, policy-disabled screening is not demanded, manual checks retain history and are explicitly automated=false. Factory tests enforce own-document evidence, required evidence, review permissions, reasons, stale concurrent decisions, changed-fact re-review and expired proof. Trading gates refuse unapproved/suspended sellers and seller customer sessions on admin decisions. Existing onboarding UI tests verify first/resumed/next step, complete saved payload, local keystroke draft recovery/discard and refresh after save. Synthetic real local DB fixtures and manual review rows, no bank/provider/sanctions-list call. Bank fixture status=verified inserted directly in review-serialization test is not bank validation. Payout step is optional before application submission per existing onboarding contract; real payout requires configured provider separately. Five backend files/80 tests passed, including unrelated invoice/packing document regressions which do not establish KYB approval; onboarding UI one file/eight tests passed. No source or business-rule changes; retained full backend/customer/admin results are identified separately.",
+    "remainingAction": "Local identifier, ownership/export, evidence, manual-screening and approval gates verified. Obtain policy-approved actual identity/factory/screening decisions and real bank validation. Current payout setup is optional for application submission and enforced before payment; no provider-backed pre-selling bank-validation gate was proved. Confirm launch-bank policy and configured provider evidence before claiming the full requirement.",
+    "sourceFiles": [
+      "backend/src/domain/seller-kyb.ts",
+      "backend/src/modules/seller/kyb.service.ts",
+      "backend/src/modules/seller/application-review.service.ts",
+      "backend/src/modules/seller/onboarding.service.ts",
+      "backend/src/modules/seller/payout.service.ts",
+      "apps/customer-web/src/pages/seller/SellerOnboardingPage.tsx"
+    ],
+    "testFiles": [
+      "backend/tests/unit/seller-kyb.test.ts",
+      "backend/tests/integration/seller-application-review.test.ts",
+      "backend/tests/integration/seller-factory-verification.test.ts",
+      "backend/tests/integration/seller-trading-gate.test.ts",
+      "backend/tests/integration/seller-documents.test.ts",
+      "apps/customer-web/src/pages/seller/SellerOnboardingPage.test.tsx"
+    ]
+  },
+  {
+    "id": "JOURNEY-010",
+    "requirement": "Verify Indian manufacturer/OEM before selling. Checks: PAN/GST/CIN/Udyam/IEC as applicable; bank validation; beneficial owner/contact; factory proof; export capability; sanctions/restriction screening as required by policy.",
+    "status": "PARTIAL_SOFTWARE_EVIDENCE",
+    "ticked": false,
+    "sourceCommit": "fee10c5daeef6d22efd0f15829561027bea52fbd",
+    "evidence": "Fresh existing KYB tests verify applicable CIN/LLPIN/GST checksum/Udyam/IEC formats, PAN/GST mismatch signals, ownership total and foreign-owner refusal, export markets, owner updates invalidate screening, missing/expired/uncleared evidence refuses approval, policy-disabled screening is not demanded, manual checks retain history and are explicitly automated=false. Factory tests enforce own-document evidence, required evidence, review permissions, reasons, stale concurrent decisions, changed-fact re-review and expired proof. Trading gates refuse unapproved/suspended sellers and seller customer sessions on admin decisions. Existing onboarding UI tests verify first/resumed/next step, complete saved payload, local keystroke draft recovery/discard and refresh after save. Synthetic real local DB fixtures and manual review rows, no bank/provider/sanctions-list call. Bank fixture status=verified inserted directly in review-serialization test is not bank validation. Payout step is optional before application submission per existing onboarding contract; real payout requires configured provider separately. Five backend files/80 tests passed, including unrelated invoice/packing document regressions which do not establish KYB approval; onboarding UI one file/eight tests passed. No source or business-rule changes; retained full backend/customer/admin results are identified separately.",
+    "remainingAction": "Local identifier, ownership/export, evidence, manual-screening and approval gates verified. Obtain policy-approved actual identity/factory/screening decisions and real bank validation. Current payout setup is optional for application submission and enforced before payment; no provider-backed pre-selling bank-validation gate was proved. Confirm launch-bank policy and configured provider evidence before claiming the full requirement.",
+    "sourceFiles": [
+      "backend/src/domain/seller-kyb.ts",
+      "backend/src/modules/seller/kyb.service.ts",
+      "backend/src/modules/seller/application-review.service.ts",
+      "backend/src/modules/seller/onboarding.service.ts",
+      "backend/src/modules/seller/payout.service.ts",
+      "apps/customer-web/src/pages/seller/SellerOnboardingPage.tsx"
+    ],
+    "testFiles": [
+      "backend/tests/unit/seller-kyb.test.ts",
+      "backend/tests/integration/seller-application-review.test.ts",
+      "backend/tests/integration/seller-factory-verification.test.ts",
+      "backend/tests/integration/seller-trading-gate.test.ts",
+      "backend/tests/integration/seller-documents.test.ts",
+      "apps/customer-web/src/pages/seller/SellerOnboardingPage.test.tsx"
+    ]
+  }
+]

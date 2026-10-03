@@ -7,7 +7,7 @@
 - Entire document checked: 283
 - Entire document unchecked: 81
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 10 batch 7, ENH-029 seller phone operations verified; milestone wrapping and long-filename upload layout corrected.
+- Last completed work: Pass 10 batch 8, partial KYB verification; bank-validation and policy evidence remain open. Prior batch 7 seller phone operations verified.
 - Verification: fresh customer 196/1804, typecheck/lint/contrast/build; focused UI 4/19 and 20 Chromium viewport/interaction cases. Backend 337/5352 and admin 52/382 batch-5 results retained for unchanged packages.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-7.json`, `phone-results.json` and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
@@ -141,6 +141,8 @@ Current open classification after batch 5: **A 22; B 13; C 7; D 30; E 10 — 82 
 **Batch 7 — fixed, verified and ticked: ENH-029 (Mobile-first Seller Operations).** Five existing workflows exercised at **320 and 375 pixels**, **10 geometry +10 interaction cases**, no overflow/clipped controls/page errors. Milestone controls wrap inside their card; long upload filenames truncate visually while retaining the complete upload name. Focused client **4 files /19 tests**; fresh full customer **196/1804**, typecheck/lint/contrast/build passed. Unchanged backend **337/5352** and admin **52/382** results retained from batch 5. Native Word page QA and exact checkbox audit: `verification.json`. Before **282/364**, **82 open**; after **283/364**, **81 open**. Fixture Chromium touch contexts are software viewport proof; physical devices and browser matrix remain open.
 
 Current open classification after batch 7: **A 21; B 13; C 7; D 30; E 10 — 81 open**. Exact remaining actions: `verification-evidence/pass10/open-requirements.md`.
+
+**Batch 8 — partial KYB evidence; no boxes ticked.** SCREEN-012/JOURNEY-010 remain open. Fresh existing backend **5 files /80 tests** and seller application UI **1/8** passed. Identifiers, ownership/export, manual-screening/evidence and factory/approval permissions verified locally. Bank fixture state is not a provider result; payout setup is optional before application submission, so pre-selling bank-validation proof remains missing. Actual bank/identity/factory/screening policy evidence is still required. Source unchanged; complete backend/admin batch-5 and customer batch-7 results retained. Word unchanged; audit `problems: []`; counts remain **283/364 checked, 81 open**. Evidence: `verification-evidence/pass10/batch-8-partial.json`.
 
 ### Pass 8 — Sections 12, 14 and 17 (Word headings, not Master rows)
 
