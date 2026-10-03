@@ -8460,5 +8460,19 @@
   "notifications.escalation.PAYMENT_RISK": "Betaling in gevaar",
   "notifications.escalation.SHIPPING_DELAY": "Zending vertraagd",
   "notifications.escalation.RFQ_EXPIRY": "Aanvraag verloopt",
-  "notifications.bundle.summary": "{{updates}} meldingen met lage prioriteit"
+  "notifications.bundle.summary": "{{updates}} meldingen met lage prioriteit",
+  "cartUpload.title": "Upload een SKU-lijst (CSV of Excel)",
+  "cartUpload.hint": "Twee kolommen, SKU en aantal, met of zonder kopregel. Tot 50 regels en 1 MB. U controleert de lijst voordat er iets wordt toegevoegd.",
+  "cartUpload.choose": "Kies een .csv- of .xlsx-bestand",
+  "cartUpload.tooLarge": "Het bestand is groter dan 1 MB.",
+  "cartUpload.reading": "Bestand wordt gelezen…",
+  "cartUpload.noLines": "Geen regel kwam overeen met een product.",
+  "cartUpload.line": "{{name}} ({{sku}}) × {{quantity}}",
+  "cartUpload.problem": "Regel {{row}}: {{reason}}",
+  "cartUpload.add": "{{lines}} regels aan winkelwagen toevoegen",
+  "cartUpload.code.SKU_MISSING": "geen SKU",
+  "cartUpload.code.QUANTITY_INVALID": "aantal moet een heel getal vanaf 1 zijn",
+  "cartUpload.code.SKU_UNKNOWN": "geen product met deze SKU",
+  "cartUpload.code.DUPLICATE_SKU": "SKU staat al hierboven",
+  "cartUpload.code.TOO_MANY_LINES": "meer dan 50 regels"
 }

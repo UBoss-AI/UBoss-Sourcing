@@ -1,0 +1,15 @@
+{
+  "batch": 24,
+  "ids": [
+    "ENH-016"
+  ],
+  "before": {
+    "checked": 297,
+    "unchecked": 67
+  },
+  "after": {
+    "checked": 298,
+    "unchecked": 66
+  },
+  "evidence": "Cart CSV/XLSX SKU-list upload: POST /cart/items/upload/preview reads via the seller bulk-import reader, resolves published product/variant SKUs, reports missing/invalid/unknown/duplicate/over-50 rows, 1 MB limit, never touches the cart; buyer confirms and the existing all-or-nothing bulk add (customer-scoped cart) adds lines. Backend integration 3/3 + XLSX unit 2/2 + idempotency/anonymous contracts 9/9; UI 2/2 + cart/query-states/i18n; typecheck/lint clean; references regenerated; eight locales and guides synchronized. Multi-line RFQ from a file is not built (RFQ holds one requirement); the order path satisfies the SKU-list option. No browser pass."
+}

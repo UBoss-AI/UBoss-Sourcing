@@ -8678,5 +8678,19 @@
   "notifications.escalation.PAYMENT_RISK": "Płatność zagrożona",
   "notifications.escalation.SHIPPING_DELAY": "Przesyłka opóźniona",
   "notifications.escalation.RFQ_EXPIRY": "Zapytanie wygasa",
-  "notifications.bundle.summary": "{{updates}} powiadomień o niskim priorytecie"
+  "notifications.bundle.summary": "{{updates}} powiadomień o niskim priorytecie",
+  "cartUpload.title": "Prześlij listę SKU (CSV lub Excel)",
+  "cartUpload.hint": "Dwie kolumny, SKU i ilość, z wierszem nagłówka lub bez. Do 50 wierszy i 1 MB. Sprawdzasz listę, zanim cokolwiek zostanie dodane.",
+  "cartUpload.choose": "Wybierz plik .csv lub .xlsx",
+  "cartUpload.tooLarge": "Plik jest większy niż 1 MB.",
+  "cartUpload.reading": "Odczytywanie pliku…",
+  "cartUpload.noLines": "Żaden wiersz nie pasuje do produktu.",
+  "cartUpload.line": "{{name}} ({{sku}}) × {{quantity}}",
+  "cartUpload.problem": "Wiersz {{row}}: {{reason}}",
+  "cartUpload.add": "Dodaj {{lines}} pozycji do koszyka",
+  "cartUpload.code.SKU_MISSING": "brak SKU",
+  "cartUpload.code.QUANTITY_INVALID": "ilość musi być liczbą całkowitą od 1",
+  "cartUpload.code.SKU_UNKNOWN": "brak produktu o tym SKU",
+  "cartUpload.code.DUPLICATE_SKU": "SKU już podane wyżej",
+  "cartUpload.code.TOO_MANY_LINES": "więcej niż 50 wierszy"
 }

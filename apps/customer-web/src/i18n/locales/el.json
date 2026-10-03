@@ -8460,5 +8460,19 @@
   "notifications.escalation.PAYMENT_RISK": "Πληρωμή σε κίνδυνο",
   "notifications.escalation.SHIPPING_DELAY": "Καθυστέρηση αποστολής",
   "notifications.escalation.RFQ_EXPIRY": "Το αίτημα λήγει",
-  "notifications.bundle.summary": "{{updates}} ενημερώσεις χαμηλής προτεραιότητας"
+  "notifications.bundle.summary": "{{updates}} ενημερώσεις χαμηλής προτεραιότητας",
+  "cartUpload.title": "Ανέβασμα λίστας SKU (CSV ή Excel)",
+  "cartUpload.hint": "Δύο στήλες, SKU και ποσότητα, με ή χωρίς γραμμή επικεφαλίδας. Έως 50 γραμμές και 1 MB. Ελέγχετε τη λίστα πριν προστεθεί κάτι.",
+  "cartUpload.choose": "Επιλέξτε αρχείο .csv ή .xlsx",
+  "cartUpload.tooLarge": "Το αρχείο είναι μεγαλύτερο από 1 MB.",
+  "cartUpload.reading": "Ανάγνωση αρχείου…",
+  "cartUpload.noLines": "Καμία γραμμή δεν αντιστοιχεί σε προϊόν.",
+  "cartUpload.line": "{{name}} ({{sku}}) × {{quantity}}",
+  "cartUpload.problem": "Γραμμή {{row}}: {{reason}}",
+  "cartUpload.add": "Προσθήκη {{lines}} γραμμών στο καλάθι",
+  "cartUpload.code.SKU_MISSING": "χωρίς SKU",
+  "cartUpload.code.QUANTITY_INVALID": "η ποσότητα πρέπει να είναι ακέραιος από 1",
+  "cartUpload.code.SKU_UNKNOWN": "δεν υπάρχει προϊόν με αυτό το SKU",
+  "cartUpload.code.DUPLICATE_SKU": "το SKU υπάρχει ήδη παραπάνω",
+  "cartUpload.code.TOO_MANY_LINES": "περισσότερες από 50 γραμμές"
 }

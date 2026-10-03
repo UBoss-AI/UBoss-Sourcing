@@ -8569,5 +8569,19 @@
   "notifications.escalation.PAYMENT_RISK": "Pagamento a rischio",
   "notifications.escalation.SHIPPING_DELAY": "Spedizione in ritardo",
   "notifications.escalation.RFQ_EXPIRY": "Richiesta in scadenza",
-  "notifications.bundle.summary": "{{updates}} avvisi a bassa priorità"
+  "notifications.bundle.summary": "{{updates}} avvisi a bassa priorità",
+  "cartUpload.title": "Carica un elenco di SKU (CSV o Excel)",
+  "cartUpload.hint": "Due colonne, SKU e quantità, con o senza riga di intestazione. Fino a 50 righe e 1 MB. Controlla l’elenco prima che venga aggiunto qualcosa.",
+  "cartUpload.choose": "Scegli un file .csv o .xlsx",
+  "cartUpload.tooLarge": "Il file supera 1 MB.",
+  "cartUpload.reading": "Lettura del file…",
+  "cartUpload.noLines": "Nessuna riga corrisponde a un prodotto.",
+  "cartUpload.line": "{{name}} ({{sku}}) × {{quantity}}",
+  "cartUpload.problem": "Riga {{row}}: {{reason}}",
+  "cartUpload.add": "Aggiungi {{lines}} righe al carrello",
+  "cartUpload.code.SKU_MISSING": "nessuno SKU",
+  "cartUpload.code.QUANTITY_INVALID": "la quantità deve essere un intero da 1",
+  "cartUpload.code.SKU_UNKNOWN": "nessun prodotto con questo SKU",
+  "cartUpload.code.DUPLICATE_SKU": "SKU già indicato sopra",
+  "cartUpload.code.TOO_MANY_LINES": "più di 50 righe"
 }

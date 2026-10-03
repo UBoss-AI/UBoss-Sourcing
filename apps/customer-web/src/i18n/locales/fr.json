@@ -8569,5 +8569,19 @@
   "notifications.escalation.PAYMENT_RISK": "Paiement à risque",
   "notifications.escalation.SHIPPING_DELAY": "Expédition retardée",
   "notifications.escalation.RFQ_EXPIRY": "Demande sur le point d’expirer",
-  "notifications.bundle.summary": "{{updates}} informations de faible priorité"
+  "notifications.bundle.summary": "{{updates}} informations de faible priorité",
+  "cartUpload.title": "Importer une liste de SKU (CSV ou Excel)",
+  "cartUpload.hint": "Deux colonnes, SKU et quantité, avec ou sans ligne d’en-tête. Jusqu’à 50 lignes et 1 Mo. Vous vérifiez la liste avant tout ajout.",
+  "cartUpload.choose": "Choisir un fichier .csv ou .xlsx",
+  "cartUpload.tooLarge": "Le fichier dépasse 1 Mo.",
+  "cartUpload.reading": "Lecture du fichier…",
+  "cartUpload.noLines": "Aucune ligne ne correspond à un produit.",
+  "cartUpload.line": "{{name}} ({{sku}}) × {{quantity}}",
+  "cartUpload.problem": "Ligne {{row}} : {{reason}}",
+  "cartUpload.add": "Ajouter {{lines}} lignes au panier",
+  "cartUpload.code.SKU_MISSING": "pas de SKU",
+  "cartUpload.code.QUANTITY_INVALID": "la quantité doit être un entier à partir de 1",
+  "cartUpload.code.SKU_UNKNOWN": "aucun produit avec ce SKU",
+  "cartUpload.code.DUPLICATE_SKU": "SKU déjà indiqué plus haut",
+  "cartUpload.code.TOO_MANY_LINES": "plus de 50 lignes"
 }

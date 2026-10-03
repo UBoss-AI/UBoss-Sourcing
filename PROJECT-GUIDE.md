@@ -9713,6 +9713,15 @@ dead jobs, undelivered notifications). Counts and permission gating come from th
 operations overview; a type the member may not act on is absent, not zero. Rows
 are ranked urgent first, then by count, and link to the screen that fixes them.
 
+**SKU list upload (ENH-016).** On the cart, a buyer can upload a CSV or Excel
+(.xlsx) file of SKUs and quantities (header `sku` and `quantity`/`qty`, or the
+first two columns). `POST /cart/items/upload/preview` reads it with the seller
+bulk-import reader and only previews: each row resolves to a published product
+or variant SKU, and every unusable row is reported (no SKU, invalid quantity,
+unknown SKU, duplicate SKU, more than 50 lines). Limits: 1 MB and 50 lines. The
+buyer reviews the list and presses Add, which uses the existing all-or-nothing
+bulk add, so nothing reaches the cart unseen.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

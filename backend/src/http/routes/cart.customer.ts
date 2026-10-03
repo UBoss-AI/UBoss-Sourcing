@@ -6,6 +6,7 @@
  * computes its own totals is a client that can disagree with the server about
  * what an order costs.
  */
+import { previewUpload } from '../../modules/cart/upload.service.js';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { assertAcceptableTerms } from '../../modules/legal/legal-document.service.js';
 import { z } from 'zod';
@@ -347,7 +348,14 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
     return reply.status(201).send({ cart: toCartView(resolved) });
   });
 
-  /**
+    // Read a CSV or Excel SKU list into cart lines for review; nothing is added until the buyer confirms (ENH-016).
+  app.post('/items/upload/preview', { bodyLimit: 1_500_000 }, async (request, reply) => {
+    const body = z.object({ fileName: z.string().trim().min(1).max(200), contentBase64: z.string().max(1_400_000) }).strict().parse(request.body);
+    const preview = await previewUpload(body.fileName, Buffer.from(body.contentBase64, 'base64'));
+    return reply.header('cache-control', 'no-store').status(200).send(preview);
+  });
+
+/**
    * Add several options in one request.
    *
    * A customer who wants 3 ml *and* 5 ml of the same syringe picks both on the

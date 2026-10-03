@@ -2,12 +2,12 @@
 
 - Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (unnumbered repository authority; checkbox symbols only).
 - Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
-- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-23.json`.
+- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-24.json`.
 - Master checked: 95/97; row 9 requires approved policies/legal review; row 12 requires actual KYB and bank-verification decisions.
-- Entire document checked: 297
-- Entire document unchecked: 67
+- Entire document checked: 298
+- Entire document unchecked: 66
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 10 batch 23, ENH-019 verified and ticked.
+- Last completed work: Pass 10 batch 24, ENH-016 verified and ticked.
 - Verification: fresh complete customer checks 204/1876; focused customer 5/68. Backend 341/5400 and admin 52/382 retained under unchanged-package diff guards.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-16.json` (batches 6, 8, 9 partial), browser results and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
@@ -90,7 +90,7 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | ENH-008 | A | Verified in Pass 10 batch 18: match reasons/flags cover capacity, MOQ, certificate, destination and response record, with explicit unknown flags. |
 | ENH-014 | A | Verified in Pass 10 batch 3: spending caps, scope, expiry, pre-charge reminder and one-click pause. |
 | ENH-015 | A | Verify self-service PO/acknowledgement/invoice/shipment/status mapping and a real local sandbox test. |
-| ENH-016 | A | Verify Excel and CSV parsing into multi-line RFQ/order, validation, limits and permission isolation. |
+| ENH-016 | A | Verified in Pass 10 batch 24: CSV/Excel SKU list previewed into cart lines with row problems, limits and confirmed bulk add. |
 | ENH-018 | A | Verified in Pass 10 batch 21: ranked seller action queue (dispute/dispatch/quote) by overdue, deadline, kind weight, amount and id. |
 | ENH-019 | A | Verified in Pass 10 batch 23: admin exception centre ranks all six exception types with permission gating. |
 | ENH-020 | A | Verified in Pass 10 batch 22: escalated inspection/payment/shipping/RFQ alerts first and deduplicated; low-priority news bundled per family. |
@@ -187,6 +187,8 @@ Current open classification after batch 15: **A 15; B 13; C 7; D 30; E 10 — 75
 **Batch 22 — implemented, verified and ticked: ENH-020.** Escalation of inspection fail, payment risk, shipping delay and RFQ expiry (always HIGH, escalation field in the centre); centre shows unread escalated alerts first, deduplicated with counts, and bundles LOW news per family. Backend unit 17/17 + centre integration 5/5; UI arrangement + notifications page + query-states + i18n 7 files/72; typecheck/lint clean; eight locales and guides synchronized. Email delivery timing unchanged (escalated events already send immediately). No browser pass. Before **295/364**, **69 open**; after **296/364**, **68 open**. Evidence: `verification-evidence/pass10/batch-22.json`.
 
 **Batch 23 — implemented, verified and ticked: ENH-019.** Admin dashboard exception centre (GET /admin/exceptions) ranks failed payments, missing documents, failed inspections, late shipments, settlement mismatches and integration failures; built on the operations overview so counts and permission gating match; unpermitted types absent, not zero. Backend integration 3/3 + anonymous-access, admin panel 2/2 + dashboard/i18n 15; typecheck/lint clean; reference docs regenerated; eight admin locales and guides synchronized. No browser pass. Before **296/364**, **68 open**; after **297/364**, **67 open**. Evidence: `verification-evidence/pass10/batch-23.json`.
+
+**Batch 24 — implemented, verified and ticked: ENH-016.** Cart CSV/XLSX SKU-list upload: POST /cart/items/upload/preview reads via the seller bulk-import reader, resolves published product/variant SKUs, reports missing/invalid/unknown/duplicate/over-50 rows, 1 MB limit, never touches the cart; buyer confirms and the existing all-or-nothing bulk add (customer-scoped cart) adds lines. Backend integration 3/3 + XLSX unit 2/2 + idempotency/anonymous contracts 9/9; UI 2/2 + cart/query-states/i18n; typecheck/lint clean; references regenerated; eight locales and guides synchronized. Multi-line RFQ from a file is not built (RFQ holds one requirement); the order path satisfies the SKU-list option. No browser pass. Before **297/364**, **67 open**; after **298/364**, **66 open**. Evidence: `verification-evidence/pass10/batch-24.json`.
 
 Current open classification after batch 16: **A 15; B 13; C 7; D 30; E 9 — 74 open**.
 

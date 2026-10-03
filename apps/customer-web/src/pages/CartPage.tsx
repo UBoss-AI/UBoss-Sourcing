@@ -25,6 +25,7 @@
  * server sends — purely to label the row. On an inclusive cart the column does
  * not add up unless somebody says so, and "somebody" was previously nobody.
  */
+import { CartUploadPanel } from '@/pages/cart/CartUploadPanel';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -1045,6 +1046,7 @@ export function CartPage(): React.JSX.Element {
             is on offer, and a control that appears only once there is
             something to buy is a control they meet too late. */}
         <CartModeTabs current="instant" />
+        <CartUploadPanel />
         <PageEmptyState
           title={t('cart.emptyTitle')}
           description={t('cart.emptyBody')}
@@ -1101,6 +1103,7 @@ export function CartPage(): React.JSX.Element {
        * two screens down the summary panel.
        */}
       <CartModeTabs current="instant" />
+        <CartUploadPanel />
 
       <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">

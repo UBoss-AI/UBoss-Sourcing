@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1366 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1367 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -31,7 +31,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 343 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 308 |
+| [Customer account](#customer-account) | 309 |
 | [Public and storefront](#public-and-storefront) | 58 |
 
 ## Admin panel (staff)
@@ -2514,6 +2514,7 @@ Defined in `backend/src/http/routes/cart.customer.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/cart` | Customer | Customer | Current cart, repriced |
 | POST | `/api/v1/cart/items` | Customer | Customer | Add an item |
+| POST | `/api/v1/cart/items/upload/preview` | Customer | Customer | Read a CSV or Excel SKU list into cart lines for review; nothing is added until the buyer confirms (ENH-016). |
 | POST | `/api/v1/cart/items/bulk` | Customer | Customer | Add several options in one request |
 | PATCH | `/api/v1/cart/items/:itemId` | Customer | Customer | Change quantity (0 removes the line) |
 | PATCH | `/api/v1/cart/items/:itemId/packs` | Customer | Customer | Change how many packs of a line the customer wants. |

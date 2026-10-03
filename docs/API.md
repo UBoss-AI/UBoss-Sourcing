@@ -3813,6 +3813,8 @@ The storefront notification centre adds `escalation` to each notification: `INSP
 
 `GET /admin/exceptions` (ENH-019, staff session, no-store) answers `{ generatedAt, total, items, types }`: items are `{ type, source, count, severity, href }` with count above zero, ranked urgent first; types lists every type the member may act on with its total.
 
+`POST /cart/items/upload/preview` (ENH-016) takes `{ fileName, contentBase64 }` (.csv or .xlsx, at most 1 MB) and answers `{ lines, problems }` without changing the cart: lines are `{ row, sku, productId, variantId, name, quantity }` for published products or variants; problems are `{ row, sku, code }` with code SKU_MISSING, QUANTITY_INVALID, SKU_UNKNOWN, DUPLICATE_SKU or TOO_MANY_LINES (over 50). Adding uses `POST /cart/items/bulk`.
+
 ## RFQ purchase-order review
 
 These storefront routes require a customer session in the same buyer context
