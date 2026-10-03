@@ -1,0 +1,15 @@
+{
+  "batch": 27,
+  "ids": [
+    "ENH-032"
+  ],
+  "before": {
+    "checked": 300,
+    "unchecked": 64
+  },
+  "after": {
+    "checked": 301,
+    "unchecked": 63
+  },
+  "evidence": "RFQ form help panel: plain explanations of Incoterm, inspection, samples, certificates and target price; suggestions for destination country/port, Incoterm, unit, target currency and inspection from the buyer's own most recent submitted request, offered only for empty fields and applied only on 'Use this'. Assist tests 2/2, RFQ suites and i18n 80; typecheck/lint clean; eight locales and guides synchronized. Scope: the RFQ form (the product's most complex buyer form). No browser pass."
+}

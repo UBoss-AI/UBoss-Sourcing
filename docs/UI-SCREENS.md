@@ -867,6 +867,13 @@ otherwise one shared currency), never by a model. Ties name every supplier; a
 quote that did not state a field is counted, not guessed; with mixed currencies
 and no rate, no price conclusion is drawn and that is said.
 
+**Form help with confirmed suggestions (ENH-032).** The RFQ form has a "Help with
+this form" panel. It explains the hard fields (Incoterm, inspection, samples,
+certificates, target price) in plain words, and suggests destination country and
+port, Incoterm, unit, target currency and inspection from the buyer's own most
+recent submitted request. A suggestion is offered only for an empty field and is
+applied only when the buyer presses "Use this"; nothing fills in by itself.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

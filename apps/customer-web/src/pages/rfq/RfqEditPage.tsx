@@ -63,6 +63,7 @@ import {
 } from '@/lib/rfq';
 import type { CategoryNode } from '@/lib/types';
 import { RfqDestinationGuidance } from './RfqDestinationGuidance';
+import { RfqFormAssist } from './RfqFormAssist';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
 const QUANTITY = /^(?:0|[1-9]\d{0,11})(?:\.\d{1,3})?$/;
@@ -373,6 +374,7 @@ function RfqForm({
               : `${rfq.reference} · ${t('rfq.status.DRAFT')}`
         }
       />
+      <RfqFormAssist draft={draft} onApply={set} />
 
       <ErrorSummary title={t('rfq.form.problemsTitle')} errors={summary} />
 

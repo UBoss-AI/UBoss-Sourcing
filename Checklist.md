@@ -2,12 +2,12 @@
 
 - Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (unnumbered repository authority; checkbox symbols only).
 - Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
-- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-26.json`.
+- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-27.json`.
 - Master checked: 95/97; row 9 requires approved policies/legal review; row 12 requires actual KYB and bank-verification decisions.
-- Entire document checked: 300
-- Entire document unchecked: 64
+- Entire document checked: 301
+- Entire document unchecked: 63
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 10 batch 26, ENH-002 verified and ticked.
+- Last completed work: Pass 10 batch 27, ENH-032 verified and ticked.
 - Verification: fresh complete customer checks 204/1876; focused customer 5/68. Backend 341/5400 and admin 52/382 retained under unchanged-package diff guards.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-16.json` (batches 6, 8, 9 partial), browser results and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
@@ -103,7 +103,7 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | ENH-029 | E | Verify phone layouts for all five seller operation flows; real-device evidence is separately required by DOD-043. |
 | ENH-030 | A | Verified in Pass 10 batch 19: live countdown badges on quote, inspection assignment/report, dispatch and dispute deadlines; exact deadline counts as overdue. |
 | ENH-031 | A | Verified in Pass 10 batch 4: controlled exports/APIs in all five named domains, permissions, ownership and limits. |
-| ENH-032 | A | Verify complex-form explanations and verified-data suggestions require explicit user confirmation. |
+| ENH-032 | A | Verified in Pass 10 batch 27: RFQ form explains hard fields and suggests values from the buyer's last submitted request, applied only on confirmation. |
 | DYNAMIC-001 | E | Verify every required header entry and role permission after the active storefront task completes. |
 | DYNAMIC-002 | E | Verified in Pass 10 batch 16: substantiated manufacturer statement, Search/AI and four sourcing shortcuts with guarded destinations. |
 | DYNAMIC-003 | E | Verify all four trust statements and their substantiation after the active storefront task completes. |
@@ -193,6 +193,8 @@ Current open classification after batch 15: **A 15; B 13; C 7; D 30; E 10 — 75
 **Batch 25 — implemented, verified and ticked: ENH-005.** Storefront quick-action dock on every page (not on full-height app panes): Create RFQ, Search by image (existing dialog), Ask AI, Reorder, Track order, Contact support; RFQ/image/AI follow feature switches, reorder/track need a signed-in buyer. Dock tests 2/2; layout, query-states, i18n, accessibility and app suites; typecheck/lint clean; eight locales and guides synchronized. Seller/admin consoles keep their own navigation. No browser pass. Before **298/364**, **66 open**; after **299/364**, **65 open**. Evidence: `verification-evidence/pass10/batch-25.json`.
 
 **Batch 26 — implemented, verified and ticked: ENH-002.** RFQ comparison 'What differs' summary: lowest total/landed estimate, shortest lead time, lowest MOQ from the quotes' own fields only (exact BigInt money, converted only when every quote has a rate, else one shared currency), ties and unstated counts explicit, no price conclusion across currencies without a rate; each conclusion links to the source table cell. Deterministic, not a language model. Unit 3/3, compare page and i18n 70; typecheck/lint clean; eight locales and guides synchronized. No browser pass. Before **299/364**, **65 open**; after **300/364**, **64 open**. Evidence: `verification-evidence/pass10/batch-26.json`.
+
+**Batch 27 — implemented, verified and ticked: ENH-032.** RFQ form help panel: plain explanations of Incoterm, inspection, samples, certificates and target price; suggestions for destination country/port, Incoterm, unit, target currency and inspection from the buyer's own most recent submitted request, offered only for empty fields and applied only on 'Use this'. Assist tests 2/2, RFQ suites and i18n 80; typecheck/lint clean; eight locales and guides synchronized. Scope: the RFQ form (the product's most complex buyer form). No browser pass. Before **300/364**, **64 open**; after **301/364**, **63 open**. Evidence: `verification-evidence/pass10/batch-27.json`.
 
 Current open classification after batch 16: **A 15; B 13; C 7; D 30; E 9 — 74 open**.
 

@@ -2833,6 +2833,12 @@
       "status": "VERIFIED",
       "evidence": "Pass 10 batch 26: ENH-002. RFQ comparison 'What differs' summary: lowest total/landed estimate, shortest lead time, lowest MOQ from the quotes' own fields only (exact BigInt money, converted only when every quote has a rate, else one shared currency), ties and unstated counts explicit, no price conclusion across currencies without a rate; each conclusion links to the source table cell. Deterministic, not a language model. Unit 3/3, compare page and i18n 70; typecheck/lint clean; eight locales and guides synchronized. No browser pass.",
       "verifiedAt": "2026-10-03 (pass 10)"
+    },
+    {
+      "id": "ENH-032",
+      "status": "VERIFIED",
+      "evidence": "Pass 10 batch 27: ENH-032. RFQ form help panel: plain explanations of Incoterm, inspection, samples, certificates and target price; suggestions for destination country/port, Incoterm, unit, target currency and inspection from the buyer's own most recent submitted request, offered only for empty fields and applied only on 'Use this'. Assist tests 2/2, RFQ suites and i18n 80; typecheck/lint clean; eight locales and guides synchronized. Scope: the RFQ form (the product's most complex buyer form). No browser pass.",
+      "verifiedAt": "2026-10-03 (pass 10)"
     }
   ],
   "pendingBoxes": []
