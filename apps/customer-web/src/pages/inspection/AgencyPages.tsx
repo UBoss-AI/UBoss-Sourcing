@@ -12,6 +12,7 @@
  * The server's `me.allowedTransitions`, `me.role` and `me.isNamedInspector`
  * decide which actions appear; every action is checked again on the server.
  */
+import { Countdown } from '@/components/Countdown';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -144,8 +145,8 @@ export function AgencyDashboardPage(): React.JSX.Element {
               <span className="text-xs text-ink-muted">{formatDateTime(job.scheduledFor)}</span>
               <Badge>{job.status}</Badge>
               {job.kind === 'REINSPECTION' && <Badge tone="warning">{t('inspection.reinspection.badge')}</Badge>}
-              <span>{t('inspection.dashboard.acceptDue')}: {formatDateTime(job.acceptDueAt)}</span>
-              <span>{t('inspection.dashboard.reportDue')}: {formatDateTime(job.reportDueAt)}</span>
+              <span>{t('inspection.dashboard.acceptDue')}: {formatDateTime(job.acceptDueAt)} <Countdown deadline={job.acceptDueAt} /></span>
+              <span>{t('inspection.dashboard.reportDue')}: {formatDateTime(job.reportDueAt)} <Countdown deadline={job.reportDueAt} /></span>
               <Badge tone={job.slaState === 'ON_TIME' ? 'success' : 'danger'}>{t(`inspection.dashboard.${job.slaState}`)}</Badge>
               <span>{t('inspection.inspector')}: {d.inspectors.find((member) => member.id === job.inspectorMemberId)?.fullName ?? '—'}</span>
               <Link to={`/inspection/jobs/${job.id}`} className="text-brand hover:underline">{t('inspection.report')}</Link>

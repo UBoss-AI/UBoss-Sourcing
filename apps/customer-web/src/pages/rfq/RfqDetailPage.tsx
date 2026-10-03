@@ -5,6 +5,7 @@
  * versions, the sellers asked and where each stands, the files, and what
  * happened when. The deadline is shown in UTC everywhere.
  */
+import { Countdown } from '@/components/Countdown';
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -193,6 +194,7 @@ function RfqWorkspace({ rfq }: { rfq: BuyerRfq }): React.JSX.Element {
           <p className={rfq.isPastDeadline && rfq.status === 'OPEN' ? 'text-sm font-medium text-warning' : 'text-sm font-medium text-ink'}>
             {formatUtc(rfq.requirement.responseDeadline, intlLocale)}
           </p>
+          {rfq.status === 'OPEN' && <Countdown deadline={rfq.requirement.responseDeadline} />}
           {rfq.isPastDeadline && rfq.status === 'OPEN' && <p className="text-xs text-warning">{t('rfq.detail.deadlinePassed')}</p>}
         </Card>
         <Card bodyClassName="px-4 py-3">

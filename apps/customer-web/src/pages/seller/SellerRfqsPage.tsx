@@ -3,6 +3,7 @@
  * quote on, and nothing else. The default view is the one that needs an
  * answer before its deadline.
  */
+import { Countdown } from '@/components/Countdown';
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { InvitationStatusBadge, RfqStatusBadge } from '@/components/rfq/RfqParts';
@@ -166,7 +167,7 @@ export function SellerRfqsPage(): React.JSX.Element {
                   </div>
                   <div>
                     <dt className="text-xxs uppercase tracking-wider text-ink-subtle">{t('rfq.field.deadline')}</dt>
-                    <dd className={item.isPastDeadline ? 'text-warning' : 'text-ink'}>{formatUtc(item.responseDeadline, intlLocale)}</dd>
+                    <dd className={item.isPastDeadline ? 'text-warning' : 'text-ink'}>{formatUtc(item.responseDeadline, intlLocale)} <Countdown deadline={item.responseDeadline} /></dd>
                   </div>
                   <div>
                     <dt className="text-xxs uppercase tracking-wider text-ink-subtle">{t('sellerRfq.inbox.fit')}</dt>

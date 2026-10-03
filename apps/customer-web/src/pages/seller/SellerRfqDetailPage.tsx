@@ -6,6 +6,7 @@
  * Decline. Nothing about any other seller is on this page, because the
  * server never sends it.
  */
+import { Countdown } from '@/components/Countdown';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -142,7 +143,8 @@ function SellerRfqWorkspace({ rfq }: { rfq: SellerRfq }): React.JSX.Element {
       <p className={rfq.isPastDeadline ? 'mb-4 text-sm font-medium text-warning' : 'mb-4 text-sm text-ink'}>
         {rfq.isPastDeadline
           ? t('sellerRfq.deadlinePassed', { deadline: formatUtc(rfq.requirement.responseDeadline, intlLocale) })
-          : t('sellerRfq.deadline', { deadline: formatUtc(rfq.requirement.responseDeadline, intlLocale) })}
+          : t('sellerRfq.deadline', { deadline: formatUtc(rfq.requirement.responseDeadline, intlLocale) })}{' '}
+        <Countdown deadline={rfq.requirement.responseDeadline} />
       </p>
       {behind && (
         <p role="status" className="mb-4 rounded-md border border-brand/30 bg-brand/5 px-4 py-3 text-sm text-ink">

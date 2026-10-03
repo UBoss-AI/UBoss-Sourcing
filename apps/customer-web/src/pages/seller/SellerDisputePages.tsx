@@ -16,6 +16,7 @@
  * Reading claims needs `seller.order.read`; answering, writing, adding
  * evidence and appealing need `seller.return.handle`, which the server checks.
  */
+import { Countdown } from '@/components/Countdown';
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -256,7 +257,8 @@ export function SellerDisputeDetailPage(): React.JSX.Element {
               <span className={cx('text-xs', dispute.deadlines?.sellerResponseBreached === true ? 'text-danger' : 'text-ink-muted')}>
                 {dispute.deadlines?.sellerResponseBreached === true
                   ? t('sellerDisputes.late', { at: formatDateTime(due) })
-                  : t('sellerDisputes.answerBy', { at: formatDateTime(due) })}
+                  : t('sellerDisputes.answerBy', { at: formatDateTime(due) })}{' '}
+                <Countdown deadline={due} />
               </span>
             )}
           </p>

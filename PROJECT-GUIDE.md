@@ -9670,6 +9670,14 @@ with fewer than three to judge by. Expired invitations count against; pending
 and withdrawn ones are ignored. Flags inform and never remove a supplier. The
 seller's own qualification view is unchanged.
 
+**Deadline countdowns (ENH-030).** Quote-response deadlines (buyer RFQ
+detail while open, seller RFQ list and detail), inspection assignment and
+report deadlines (agency jobs), shipment readiness (seller order dispatch-by)
+and dispute handling (seller response due) show a live badge: "Due in 5 hours"
+or "Overdue: was due 2 days ago", refreshed every 30 seconds. The exact deadline
+counts as overdue. Under a day left is amber, overdue is red. Units come from
+the browser's own relative-time wording for each language.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

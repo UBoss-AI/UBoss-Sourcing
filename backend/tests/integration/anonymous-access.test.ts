@@ -36,6 +36,7 @@ const PUBLIC: string[] = [
   'GET /api/v1/catalog/content-blocks',
   'GET /api/v1/catalog/filters',
   'GET /api/v1/catalog/label-requirements',
+  'GET /api/v1/catalog/destination-guidance',
   'GET /api/v1/catalog/markets/:country',
   'GET /api/v1/catalog/product-cards',
   'GET /api/v1/catalog/products',

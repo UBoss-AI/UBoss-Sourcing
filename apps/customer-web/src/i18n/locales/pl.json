@@ -8650,5 +8650,7 @@
   "rfq.match.reason.RESPONDS_TO_RFQS": "Odpowiedział na większość zapytań z ostatniego roku",
   "rfq.match.flag.MOQ_ABOVE_QUANTITY": "Minimalne zamówienie przekracza Twoją ilość",
   "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Za mało wcześniejszych zapytań, by ocenić odpowiedzi",
-  "rfq.match.flag.RESPONSE_RECORD_LOW": "Odpowiedział na mniej niż połowę zapytań z ostatniego roku"
+  "rfq.match.flag.RESPONSE_RECORD_LOW": "Odpowiedział na mniej niż połowę zapytań z ostatniego roku",
+  "countdown.due": "Termin {{relative}}",
+  "countdown.overdue": "Po terminie: termin minął {{relative}}"
 }

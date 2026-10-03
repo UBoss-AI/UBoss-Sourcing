@@ -8541,5 +8541,7 @@
   "rfq.match.reason.RESPONDS_TO_RFQS": "Ha risposto alla maggior parte delle richieste dell’ultimo anno",
   "rfq.match.flag.MOQ_ABOVE_QUANTITY": "L’ordine minimo supera la sua quantità",
   "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Troppe poche richieste passate per valutare le risposte",
-  "rfq.match.flag.RESPONSE_RECORD_LOW": "Ha risposto a meno della metà delle richieste dell’ultimo anno"
+  "rfq.match.flag.RESPONSE_RECORD_LOW": "Ha risposto a meno della metà delle richieste dell’ultimo anno",
+  "countdown.due": "Scade {{relative}}",
+  "countdown.overdue": "In ritardo: scadeva {{relative}}"
 }

@@ -8432,5 +8432,7 @@
   "rfq.match.reason.RESPONDS_TO_RFQS": "Answered most requests in the last year",
   "rfq.match.flag.MOQ_ABOVE_QUANTITY": "Minimum order is above your quantity",
   "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Too few past requests to judge responses",
-  "rfq.match.flag.RESPONSE_RECORD_LOW": "Answered under half of last year’s requests"
+  "rfq.match.flag.RESPONSE_RECORD_LOW": "Answered under half of last year’s requests",
+  "countdown.due": "Due {{relative}}",
+  "countdown.overdue": "Overdue: was due {{relative}}"
 }

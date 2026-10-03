@@ -2785,6 +2785,12 @@
       "status": "VERIFIED",
       "evidence": "Pass 10 batch 18: ENH-008. Matched-supplier cards explain capacity (CAPACITY_UNKNOWN/BELOW_QUANTITY), MOQ (MOQ_FITS_QUANTITY/MOQ_ABOVE_QUANTITY from live offers in category subtree), certifications (VERIFIED_CERTIFICATE), destination (EXPORTS_TO_DESTINATION; matches already filtered by market eligibility) and response record (RESPONDS_TO_RFQS/RESPONSE_RECORD_LOW, RESPONSE_RECORD_UNKNOWN under three closed invitations in last year; pending/withdrawn ignored, expired counts against). Missing data is flagged, never guessed; flags never remove a supplier. Seller qualification codes unchanged. Backend RFQ integration 9 files/75 + unit 16, customer RfqPages 10/10 + i18n, typecheck/lint clean, docs:check ok; eight locales and guides synchronized.",
       "verifiedAt": "2026-10-03 (pass 10)"
+    },
+    {
+      "id": "ENH-030",
+      "status": "VERIFIED",
+      "evidence": "Pass 10 batch 19: ENH-030. Shared live Countdown badge (30 s refresh, exact deadline = overdue, amber under a day, red overdue, Intl relative-time units in every language) on quote response (buyer RFQ detail while open, seller RFQ list/detail), inspection assignment and report issuance (agency jobs), shipment readiness (seller order dispatch-by) and dispute handling (seller response due). Countdown boundary/tick tests 3/3; affected suites 17 files/130 (one OEM timing flake passed 3/3 alone); typecheck/lint clean; eight locales and guides synchronized. No browser pass.",
+      "verifiedAt": "2026-10-03 (pass 10)"
     }
   ],
   "pendingBoxes": []

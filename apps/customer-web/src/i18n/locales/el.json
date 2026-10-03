@@ -8432,5 +8432,7 @@
   "rfq.match.reason.RESPONDS_TO_RFQS": "Απάντησε στα περισσότερα αιτήματα του τελευταίου έτους",
   "rfq.match.flag.MOQ_ABOVE_QUANTITY": "Η ελάχιστη παραγγελία υπερβαίνει την ποσότητά σας",
   "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Πολύ λίγα προηγούμενα αιτήματα για αξιολόγηση",
-  "rfq.match.flag.RESPONSE_RECORD_LOW": "Απάντησε σε λιγότερα από τα μισά αιτήματα του τελευταίου έτους"
+  "rfq.match.flag.RESPONSE_RECORD_LOW": "Απάντησε σε λιγότερα από τα μισά αιτήματα του τελευταίου έτους",
+  "countdown.due": "Λήγει {{relative}}",
+  "countdown.overdue": "Εκπρόθεσμο: έληγε {{relative}}"
 }

@@ -33,6 +33,10 @@ const EXEMPT: Record<string, { states: State[]; reason: string }> = {
     states: ['loading', 'error'],
     reason: 'An informational notice inside checkout: a LABEL_REQUIRED rule never stops a sale, so while loading or after a failed read it shows nothing and checkout carries on; the product and market pages show the same rules.',
   },
+  'checkout/DestinationGuidanceNotice.tsx': {
+    states: ['loading', 'error'],
+    reason: 'Advisory importer and document guidance inside checkout (ENH-022): while loading or after a failed read it shows nothing and checkout carries on; placing the order still enforces destination rules.',
+  },
   'account/CloseAccountPanel.tsx': {
     states: ['error'],
     reason: 'A failed impact read renders closeAccount.impactUnavailable (closure === null) and still offers the close; the server applies the rules either way.',

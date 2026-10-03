@@ -1,0 +1,15 @@
+{
+  "batch": 19,
+  "ids": [
+    "ENH-030"
+  ],
+  "before": {
+    "checked": 292,
+    "unchecked": 72
+  },
+  "after": {
+    "checked": 293,
+    "unchecked": 71
+  },
+  "evidence": "Pass 10 batch 19: ENH-030. Shared live Countdown badge (30 s refresh, exact deadline = overdue, amber under a day, red overdue, Intl relative-time units in every language) on quote response (buyer RFQ detail while open, seller RFQ list/detail), inspection assignment and report issuance (agency jobs), shipment readiness (seller order dispatch-by) and dispute handling (seller response due). Countdown boundary/tick tests 3/3; affected suites 17 files/130 (one OEM timing flake passed 3/3 alone); typecheck/lint clean; eight locales and guides synchronized. No browser pass."
+}

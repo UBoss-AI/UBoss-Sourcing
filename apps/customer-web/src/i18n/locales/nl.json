@@ -8432,5 +8432,7 @@
   "rfq.match.reason.RESPONDS_TO_RFQS": "Beantwoordde de meeste aanvragen van het afgelopen jaar",
   "rfq.match.flag.MOQ_ABOVE_QUANTITY": "Minimale bestelling ligt boven uw hoeveelheid",
   "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Te weinig eerdere aanvragen om reacties te beoordelen",
-  "rfq.match.flag.RESPONSE_RECORD_LOW": "Beantwoordde minder dan de helft van de aanvragen van het afgelopen jaar"
+  "rfq.match.flag.RESPONSE_RECORD_LOW": "Beantwoordde minder dan de helft van de aanvragen van het afgelopen jaar",
+  "countdown.due": "Vervalt {{relative}}",
+  "countdown.overdue": "Te laat: verviel {{relative}}"
 }

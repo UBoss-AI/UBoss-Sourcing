@@ -17,6 +17,7 @@
  * number, no payment reference. The delivery address is shown because somebody
  * has to write it on the box.
  */
+import { Countdown } from '@/components/Countdown';
 import { OrderedProductInfo } from './OrderedProductInfo';
 import { useState } from 'react';
 import { ConsignmentLogisticsPanel } from './ConsignmentLogisticsPanel';
@@ -120,6 +121,7 @@ export function SellerOrderDetailPage(): React.JSX.Element {
                 })}
           </Badge>
         )}
+        {order.dispatchDueAt !== null && <Countdown deadline={order.dispatchDueAt} />}
       </div>
 
       {order.cancellationReason !== null && (
