@@ -563,7 +563,7 @@ export function ImageSearchDialog({
                   <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {results.products.map((product) => (
                       <li key={product.id}>
-                        <ProductCard product={product} />
+                        <ProductCard product={product} imageReference={file} onOpen={close} />
                       </li>
                     ))}
                   </ul>

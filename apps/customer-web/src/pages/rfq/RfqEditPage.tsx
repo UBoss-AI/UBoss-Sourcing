@@ -11,8 +11,9 @@
  * quotes" on a category or product page arrives here.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { imageReferenceState, readImageReference } from '@/lib/image-search-reference';
 import { track } from '@/lib/analytics';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocale } from '@/app/locale-context';
 import { useStorefront } from '@/app/storefront-context';
@@ -165,6 +166,12 @@ function RfqForm({
   const { t, language } = useI18n();
   const toast = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [referenceImage, setReferenceImage] = useState(() => amending ? null : readImageReference(location.state as unknown));
+  const clearReference = (): void => {
+    setReferenceImage(null);
+    void navigate(`${location.pathname}${location.search}${location.hash}`, { replace: true, state: null });
+  };
   const queryClient = useQueryClient();
   const { currencies } = useLocale();
   const [params] = useSearchParams();
@@ -279,13 +286,14 @@ function RfqForm({
       queryClient.setQueryData(['rfq', saved.id], saved);
       void queryClient.invalidateQueries({ queryKey: ['rfqs'] });
       toast.success(t('rfq.form.saved'));
-      if (rfqId === null) void navigate(`/account/rfqs/${saved.id}/edit`, { replace: true });
+      if (rfqId === null) void navigate(`/account/rfqs/${saved.id}/edit`, { replace: true, state: imageReferenceState(referenceImage) });
     },
     onError: showServerErrors,
   });
 
   const send = useMutation({
     mutationFn: async (): Promise<BuyerRfq> => {
+      if (referenceImage !== null) throw new Error(t('rfq.imageReference.required'));
       if (amending && rfq !== null) {
         return amendRfqRequirement(rfq.id, requirementOnly(payload()), rfq.version, changeSummary.trim());
       }
@@ -331,6 +339,7 @@ function RfqForm({
     try {
       const stored = await uploadRfqAttachment(`/rfqs/${rfqId}/attachments`, file);
       setFiles((current) => [...current, stored]);
+      if (file === referenceImage) clearReference();
     } catch (error) {
       toast.error(errorMessage(t, error));
     } finally {
@@ -338,7 +347,7 @@ function RfqForm({
     }
   };
 
-  const busy = save.isPending || send.isPending;
+  const busy = save.isPending || send.isPending || uploading;
   const needsDestination = draft.incoterm !== null && INCOTERMS_NEEDING_DESTINATION.includes(draft.incoterm);
   const excluded = new Set(draft.excludeSellerIds);
 
@@ -730,6 +739,15 @@ function RfqForm({
       </Card>
 
       <Card title={t('rfq.form.section.files')} description={t('rfq.form.filesHint')} bodyClassName="space-y-3 px-6 py-5">
+        {referenceImage !== null && (
+          <div className="space-y-2 rounded-md border border-border p-3">
+            <p className="break-all text-sm">{t('rfq.imageReference.pending', { name: referenceImage.name })}</p>
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" disabled={busy || rfqId === null || !options.attachments.available || files.length >= options.attachments.maxFiles} onClick={() => { void upload(referenceImage); }}>{t('rfq.imageReference.attach')}</Button>
+              <Button type="button" variant="ghost" disabled={busy} onClick={clearReference}>{t('rfq.imageReference.discard')}</Button>
+            </div>
+          </div>
+        )}
         {rfqId === null ? (
           <p className="text-sm text-ink-muted">{t('rfq.form.saveFirstForFiles')}</p>
         ) : !options.attachments.available ? (
@@ -900,7 +918,7 @@ function RfqForm({
             </Button>
           )}
         </div>
-        <Button type="submit" variant="primary" disabled={busy} isLoading={send.isPending}>
+        <Button type="submit" variant="primary" disabled={busy || referenceImage !== null} isLoading={send.isPending}>
           {amending ? t('rfq.form.publish') : t('rfq.form.send')}
         </Button>
       </div>

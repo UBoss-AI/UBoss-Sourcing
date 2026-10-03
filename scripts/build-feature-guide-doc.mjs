@@ -675,6 +675,8 @@ bullets([
   'Nothing about a sample is marked done before it happens: it is not shipped until there is a tracking number, not delivered until the buyer says so, and not shown as paid until the payment has really arrived. If a sample costs something, the buyer presses "Pay for the sample", pays it like any order (tax and shipping are worked out the same way), and the supplier can ship it only after that. A free sample skips payment. An approved sample becomes the reference sample for later inspection.',
 ]);
 
+p('After image search, a buyer opens a matched product and requests quotes. The original searched image follows as a pending reference. The buyer saves the draft and presses Attach searched image to keep it as a private file, or discards it. Sending waits for that choice. If uploading fails, the image stays ready to try again. Search itself does not store the image. The pending image follows the same tab; it is not saved by opening another tab or leaving the flow.');
+
 h2('5.4d From an agreed quote to a delivered order');
 p('Once a buyer has accepted a supplier’s terms, those terms become a purchase order, and an approved purchase order becomes an ordinary order that is paid, made, inspected, shipped and delivered.');
 table(['Step', 'What the person does', 'What the system does back'], [

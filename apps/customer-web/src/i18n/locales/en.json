@@ -8372,5 +8372,9 @@
   "seller.listing.appealSend": "Send appeal",
   "seller.listing.appealSent": "Appeal sent. A different moderator will review it.",
   "seller.listing.appealPending": "Your appeal is with a different moderator. You will be told the outcome.",
-  "seller.listing.appealRefused": "Your appeal was not upheld. You can still edit the listing and submit it again."
+  "seller.listing.appealRefused": "Your appeal was not upheld. You can still edit the listing and submit it again.",
+  "rfq.imageReference.pending": "Image from your search: {{name}}. Attach it before sending or discard it.",
+  "rfq.imageReference.attach": "Attach searched image",
+  "rfq.imageReference.discard": "Discard image reference",
+  "rfq.imageReference.required": "Attach or discard the searched image before sending this request."
 }

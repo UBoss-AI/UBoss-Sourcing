@@ -6,8 +6,8 @@
     "open": 87
   },
   "after": {
-    "checked": 285,
-    "open": 79
+    "checked": 286,
+    "open": 78
   },
   "targeted": {
     "command": "npx vitest run tests/integration/rfq-samples.test.ts tests/integration/rfq-purchase-order-to-order.test.ts",
@@ -72,8 +72,8 @@
   },
   "audit": {
     "problems": [],
-    "checked": 285,
-    "open": 79
+    "checked": 286,
+    "open": 78
   },
   "secretScan": {
     "command": ".\\scripts\\secret-scan.ps1",
@@ -801,6 +801,125 @@
       },
       "visualResult": "Expired seller certificate UAT checked on page 28; neighboring boxes and blank page-29 sign-off preserved. Native GDI font playback limitation disclosed.",
       "cleanup": "Private read-only renderer closed without saving."
+    }
+  },
+  "batch12": {
+    "id": "UAT-UI-002",
+    "sourceBaseline": "fcb103e806e31970473e5f05610dcda76cf47738",
+    "verifiedDate": "2026-10-03",
+    "before": {
+      "checked": 285,
+      "open": 79
+    },
+    "after": {
+      "checked": 286,
+      "open": 78
+    },
+    "targeted": {
+      "files": 5,
+      "tests": 40,
+      "exitCode": 0
+    },
+    "customer": {
+      "checks": [
+        "typecheck",
+        "lint",
+        "audit:contrast",
+        "vitest --maxWorkers=2 with isolated resolver configuration",
+        "build"
+      ],
+      "files": 198,
+      "tests": 1817,
+      "exitCode": 0
+    },
+    "backendTargeted": {
+      "command": "npx vitest run tests/integration/catalog-image-search.test.ts tests/integration/rfq-create.test.ts",
+      "files": 2,
+      "tests": 36,
+      "exitCode": 0
+    },
+    "retainedVerification": {
+      "backend": {
+        "files": 337,
+        "tests": 5357,
+        "pass": 11
+      },
+      "admin": {
+        "files": 52,
+        "tests": 382,
+        "pass": 5
+      },
+      "reason": "No backend/admin/logistics source/tests/config changes; guarded diff empty."
+    },
+    "browser": {
+      "engine": "Chrome",
+      "viewports": [
+        320,
+        375,
+        1280
+      ],
+      "results": "image-reference-browser-results.json",
+      "originalFileBytesPreserved": true,
+      "apiBoundary": "local fixture",
+      "screenshotsInspected": [
+        320,
+        1280
+      ]
+    },
+    "docs": {
+      "referenceCheck": "npm run docs:check passed",
+      "guide": "npm run guide passed; native Word read-only page 29/129 inspected; GDI font playback limitation",
+      "languages": [
+        "English",
+        "Hinglish"
+      ],
+      "locales": [
+        "en",
+        "de",
+        "el",
+        "es",
+        "fr",
+        "it",
+        "nl",
+        "pl"
+      ],
+      "newKeys": 4,
+      "formal": [
+        "docs/PRD.md",
+        "docs/UI-SCREENS.md"
+      ]
+    },
+    "runnerNotes": "Initial journey fixtures omitted RFQ flag and queried before saved-draft loading completed; corrected fixtures without weakening production behavior or assertions. One helper invocation used a repository-relative path from the app directory; corrected path. No ignored preview source included in final lint/build.",
+    "limitations": [
+      "Local AI/API fixtures; no real provider/scanner claim.",
+      "Pending image follows same-tab navigation only; separate tabs/leaving flow do not persist an unsaved reference."
+    ],
+    "evidence": "batch-12.json",
+    "word": {
+      "engine": "Microsoft Word 16.0",
+      "readOnly": true,
+      "totalPages": 29,
+      "changedPages": [
+        28
+      ],
+      "renderMethod": "Actual Word Page.EnhMetaFileBits rasterized with native GDI and visually inspected.",
+      "structuralComparison": {
+        "baseline": "fcb103e806e31970473e5f05610dcda76cf47738",
+        "unchangedOtherParts": 18,
+        "authorizedCharacterChanges": 1,
+        "ids": [
+          "UAT-UI-002"
+        ]
+      },
+      "visualResult": "Image-search reference UAT checked on page 28; surrounding boxes and document layout preserved. Native GDI font playback limitation disclosed.",
+      "cleanup": "Private read-only renderer closed without saving."
+    },
+    "secretScan": {
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/secret-scan.ps1",
+      "result": "No leaks found",
+      "commitsScanned": 254,
+      "nonMergeCommits": 232,
+      "scope": "Complete history before commit; new commit scanned again before push."
     }
   }
 }

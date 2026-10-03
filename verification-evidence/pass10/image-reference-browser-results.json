@@ -1,0 +1,35 @@
+[
+  {
+    "width": 320,
+    "originalBytesPreserved": true,
+    "uploadAttempts": 2,
+    "failedUploadRetained": true,
+    "draftNavigationPreserved": true,
+    "sendGuard": true,
+    "historyReferenceCleared": true,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  },
+  {
+    "width": 375,
+    "originalBytesPreserved": true,
+    "uploadAttempts": 2,
+    "failedUploadRetained": true,
+    "draftNavigationPreserved": true,
+    "sendGuard": true,
+    "historyReferenceCleared": true,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  },
+  {
+    "width": 1280,
+    "originalBytesPreserved": true,
+    "uploadAttempts": 2,
+    "failedUploadRetained": true,
+    "draftNavigationPreserved": true,
+    "sendGuard": true,
+    "historyReferenceCleared": true,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  }
+]

@@ -8481,5 +8481,9 @@
   "seller.listing.appealSend": "Enviar recurso",
   "seller.listing.appealSent": "Recurso enviado. Lo revisará un moderador diferente.",
   "seller.listing.appealPending": "Su recurso lo tiene otro moderador. Se le comunicará el resultado.",
-  "seller.listing.appealRefused": "Su recurso no prosperó. Aún puede editar el anuncio y volver a enviarlo."
+  "seller.listing.appealRefused": "Su recurso no prosperó. Aún puede editar el anuncio y volver a enviarlo.",
+  "rfq.imageReference.pending": "Imagen de tu búsqueda: {{name}}. Adjúntala antes de enviar o descártala.",
+  "rfq.imageReference.attach": "Adjuntar imagen buscada",
+  "rfq.imageReference.discard": "Descartar imagen de referencia",
+  "rfq.imageReference.required": "Adjunta o descarta la imagen buscada antes de enviar esta solicitud."
 }

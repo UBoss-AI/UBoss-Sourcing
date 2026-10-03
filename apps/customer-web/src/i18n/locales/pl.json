@@ -8590,5 +8590,9 @@
   "seller.listing.appealSend": "Wyślij odwołanie",
   "seller.listing.appealSent": "Wysłano odwołanie. Rozpatrzy je inny moderator.",
   "seller.listing.appealPending": "Twoje odwołanie rozpatruje inny moderator. Poinformujemy Cię o wyniku.",
-  "seller.listing.appealRefused": "Odwołanie nie zostało uwzględnione. Nadal możesz edytować ofertę i wysłać ją ponownie."
+  "seller.listing.appealRefused": "Odwołanie nie zostało uwzględnione. Nadal możesz edytować ofertę i wysłać ją ponownie.",
+  "rfq.imageReference.pending": "Obraz z wyszukiwania: {{name}}. Dołącz go przed wysłaniem lub odrzuć.",
+  "rfq.imageReference.attach": "Dołącz wyszukiwany obraz",
+  "rfq.imageReference.discard": "Odrzuć obraz referencyjny",
+  "rfq.imageReference.required": "Dołącz lub odrzuć obraz z wyszukiwania przed wysłaniem tego zapytania."
 }

@@ -8372,5 +8372,9 @@
   "seller.listing.appealSend": "Einspruch senden",
   "seller.listing.appealSent": "Einspruch gesendet. Eine andere Person aus der Moderation prüft ihn.",
   "seller.listing.appealPending": "Ihr Einspruch liegt bei einer anderen Person aus der Moderation. Sie erhalten das Ergebnis.",
-  "seller.listing.appealRefused": "Ihrem Einspruch wurde nicht stattgegeben. Sie können das Angebot weiterhin bearbeiten und erneut einreichen."
+  "seller.listing.appealRefused": "Ihrem Einspruch wurde nicht stattgegeben. Sie können das Angebot weiterhin bearbeiten und erneut einreichen.",
+  "rfq.imageReference.pending": "Bild aus Ihrer Suche: {{name}}. Fügen Sie es vor dem Senden als Anlage hinzu oder verwerfen Sie es.",
+  "rfq.imageReference.attach": "Suchbild anhängen",
+  "rfq.imageReference.discard": "Bildreferenz verwerfen",
+  "rfq.imageReference.required": "Hängen Sie das Suchbild an oder verwerfen Sie es, bevor Sie diese Anfrage senden."
 }

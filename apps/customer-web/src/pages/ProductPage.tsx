@@ -31,9 +31,10 @@
  * thing to work through rather than as four stacked fragments.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
+import { imageReferenceState, readImageReference } from '@/lib/image-search-reference';
 import { recordViewed } from '@/lib/recently-viewed';
 import { useStorefront } from '@/app/storefront-context';
 import { useLocale } from '@/app/locale-context';
@@ -754,6 +755,7 @@ export function ProductPage(): React.JSX.Element {
 
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const imageReference = readImageReference(useLocation().state as unknown);
   const queryClient = useQueryClient();
   const toast = useToast();
   const { isCustomer, buyerContext } = useSession();
@@ -2502,6 +2504,7 @@ export function ProductPage(): React.JSX.Element {
             <p className="mt-4 text-sm">
               <Link
                 to={`/account/rfqs/new?categoryId=${encodeURIComponent(product.category.id)}&title=${encodeURIComponent(product.name)}`}
+                state={imageReferenceState(imageReference)}
                 className="font-medium text-brand underline-offset-2 hover:text-brand-hover hover:underline"
               >
                 {t('rfq.cta.requestQuotesForProduct')}

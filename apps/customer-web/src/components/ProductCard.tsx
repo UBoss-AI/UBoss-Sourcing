@@ -50,6 +50,7 @@
  * deliberately NOT on it; see the note where it used to be.
  */
 import { useState } from 'react';
+import { imageReferenceState } from '@/lib/image-search-reference';
 import { Link } from 'react-router-dom';
 import { Badge } from './ui';
 import { BackgroundGradient } from './ui/background-gradient';
@@ -114,7 +115,7 @@ function specification(product: Product, name: string): string | null {
   return product.attributes.find((attribute) => attribute.name === name)?.value ?? null;
 }
 
-export function ProductCard({ product }: { product: Product }): React.JSX.Element {
+export function ProductCard({ product, imageReference = null, onOpen }: { product: Product; imageReference?: File | null; onOpen?: () => void }): React.JSX.Element {
   const { t } = useI18n();
   // A photograph that fails to load shows the placeholder, not alt text
   // wrapped inside the frame.
@@ -275,6 +276,8 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
             <h3 className="text-sm font-semibold leading-snug text-ink">
               <Link
                 to={`/product/${product.slug}`}
+                state={imageReferenceState(imageReference)}
+                onClick={onOpen}
                 // Two things are happening here.
                 //
                 // `line-clamp-2` keeps a long industrial name from pushing the

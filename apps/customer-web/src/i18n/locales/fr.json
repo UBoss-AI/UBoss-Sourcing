@@ -8481,5 +8481,9 @@
   "seller.listing.appealSend": "Envoyer l'appel",
   "seller.listing.appealSent": "Appel envoyé. Un autre modérateur l'examinera.",
   "seller.listing.appealPending": "Votre appel est entre les mains d'un autre modérateur. Vous serez informé du résultat.",
-  "seller.listing.appealRefused": "Votre appel n'a pas été accueilli. Vous pouvez toujours modifier l'annonce et la soumettre à nouveau."
+  "seller.listing.appealRefused": "Votre appel n'a pas été accueilli. Vous pouvez toujours modifier l'annonce et la soumettre à nouveau.",
+  "rfq.imageReference.pending": "Image de votre recherche : {{name}}. Joignez-la avant l’envoi ou abandonnez-la.",
+  "rfq.imageReference.attach": "Joindre l’image recherchée",
+  "rfq.imageReference.discard": "Abandonner l’image de référence",
+  "rfq.imageReference.required": "Joignez ou abandonnez l’image recherchée avant d’envoyer cette demande."
 }

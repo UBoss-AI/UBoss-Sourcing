@@ -406,7 +406,14 @@ Nothing behind it is fetched until the form is already usable.
 ## What each surface does
 
 <details>
+
+
 <summary><b>Customer storefront</b> — browse, quote, order, reorder</summary>
+
+**Image search to a request.** Open a match, request quotes and save the
+draft. Attach the original searched image as a private reference, or
+explicitly discard it, before sending. Failed uploads retain the image for
+retry. The pending image follows this tab; search itself does not store it.
 
 Search and category browsing, a product page carrying real per-market prices,
 a cart that survives sign-in, and checkout with a warehouse chosen for the

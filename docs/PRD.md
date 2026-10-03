@@ -1684,6 +1684,18 @@ all absent (`BUYER_COMPANIES_DISABLED`).
 - **Rules.** This is recognition by a model, **not** perceptual-similarity search; there is no embedding index.
 - **Status.** Built. Needs an AI provider key.
 
+**Image-search reference in a request (UAT-UI-002).** Open a matched product,
+then choose Request quotes. The title and category are filled in and the
+original searched image stays in this browser navigation as a pending
+reference. Save the draft, then choose Attach searched image. Only that
+explicit action uploads it as a private request attachment through the
+existing file checks and scanner. A failed upload keeps the pending image
+and permits a retry. Send stays unavailable until the image is attached or
+explicitly discarded. If file storage or scanning is unavailable, the buyer
+can discard the reference. Search itself still does not store the image.
+This is a same-tab flow; opening a separate tab or leaving the browser flow
+does not persist an unsaved image. No image URL or bytes enter the request URL.
+
 ### FR-SRCH-007 — Search engines and link previews
 
 - **Statement.** Product pages publish canonical and `hreflang` tags for all

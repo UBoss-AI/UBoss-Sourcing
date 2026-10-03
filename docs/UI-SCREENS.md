@@ -753,6 +753,18 @@ products. Before anything is sent the dialog says the picture goes to an AI
 service and is not stored; beside the results it says the matches are
 approximate.
 
+**Image-search reference in a request (UAT-UI-002).** Open a matched product,
+then choose Request quotes. The title and category are filled in and the
+original searched image stays in this browser navigation as a pending
+reference. Save the draft, then choose Attach searched image. Only that
+explicit action uploads it as a private request attachment through the
+existing file checks and scanner. A failed upload keeps the pending image
+and permits a retry. Send stays unavailable until the image is attached or
+explicitly discarded. If file storage or scanning is unavailable, the buyer
+can discard the reference. Search itself still does not store the image.
+This is a same-tab flow; opening a separate tab or leaving the browser flow
+does not persist an unsaved image. No image URL or bytes enter the request URL.
+
 Product cards on this page only show; they have no "add to cart". The name
 opens the product.
 

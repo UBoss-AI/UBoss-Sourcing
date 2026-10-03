@@ -1,0 +1,41 @@
+{
+  "docxPackageReadable": true,
+  "total": {
+    "checked": 286,
+    "unchecked": 78
+  },
+  "master": {
+    "total": 97,
+    "checked": 95,
+    "unchecked": 2
+  },
+  "firstUnchecked": "SCREEN-009",
+  "inheritedDetailedEvidence": [
+    "DOD-006",
+    "DOD-009",
+    "DOD-010",
+    "DOD-014",
+    "DOD-015",
+    "DOD-020",
+    "DOD-024",
+    "DOD-025",
+    "DOD-027",
+    "DOD-029",
+    "DOD-033",
+    "DOD-034",
+    "DOD-036",
+    "DOD-042",
+    "DOD-045",
+    "DOD-047",
+    "SEC-006",
+    "HOME-002",
+    "HOME-004",
+    "HOME-008",
+    "HOME-012",
+    "HOME-017",
+    "UAT-UI-003",
+    "UAT-UI-014",
+    "UAT-UI-015"
+  ],
+  "problems": []
+}
