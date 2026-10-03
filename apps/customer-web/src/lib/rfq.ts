@@ -56,9 +56,9 @@ export interface SupplierCard {
   verifiedAt: string | null;
   matchesCategory: boolean;
   /** Why it matched (JOURNEY-014). Absent on a hand-picked card or an older API. */
-  reasons?: ('LIVE_IN_CATEGORY' | 'EXPORTS_TO_DESTINATION' | 'VERIFIED_CERTIFICATE')[];
-  /** What to know before inviting: capacity and possible conflict. */
-  flags?: ('CAPACITY_UNKNOWN' | 'CAPACITY_BELOW_QUANTITY' | 'OPEN_DISPUTE')[];
+  reasons?: ('LIVE_IN_CATEGORY' | 'EXPORTS_TO_DESTINATION' | 'VERIFIED_CERTIFICATE' | 'MOQ_FITS_QUANTITY' | 'RESPONDS_TO_RFQS')[];
+  /** What to know before inviting: capacity, MOQ, response record and possible conflict (ENH-008). */
+  flags?: ('CAPACITY_UNKNOWN' | 'CAPACITY_BELOW_QUANTITY' | 'OPEN_DISPUTE' | 'MOQ_ABOVE_QUANTITY' | 'RESPONSE_RECORD_UNKNOWN' | 'RESPONSE_RECORD_LOW')[];
 }
 
 export interface RfqAttachment {

@@ -8427,5 +8427,10 @@
   "rfq.destinationGuidance.thresholdUnknown": "Deze regel hangt af van een drempel voor de bestelwaarde, maar de valuta of het bedrag is niet leesbaar. Bevestig de ingestelde drempel bij de beheerder van de marktplaats.",
   "checkout.destinationGuidance.title": "Wat levering naar {{country}} vereist",
   "checkout.destinationGuidance.importer": "Instructies voor importeur en naleving",
-  "checkout.destinationGuidance.documents": "Documenten die u moet hebben"
+  "checkout.destinationGuidance.documents": "Documenten die u moet hebben",
+  "rfq.match.reason.MOQ_FITS_QUANTITY": "Minimale bestelling past bij uw hoeveelheid",
+  "rfq.match.reason.RESPONDS_TO_RFQS": "Beantwoordde de meeste aanvragen van het afgelopen jaar",
+  "rfq.match.flag.MOQ_ABOVE_QUANTITY": "Minimale bestelling ligt boven uw hoeveelheid",
+  "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Te weinig eerdere aanvragen om reacties te beoordelen",
+  "rfq.match.flag.RESPONSE_RECORD_LOW": "Beantwoordde minder dan de helft van de aanvragen van het afgelopen jaar"
 }

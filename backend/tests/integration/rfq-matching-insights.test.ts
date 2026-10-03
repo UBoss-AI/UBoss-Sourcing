@@ -30,7 +30,7 @@ beforeAll(async () => {
   await prisma.sellerCertification.create({
     data: { id: certId, sellerAccountId: alpha.id, standard: 'EN 455', issuer: 'TUV', state: 'VERIFIED', expiresOn: new Date(Date.now() + 300 * 86_400_000) },
   });
-  await prisma.sellerOffer.updateMany({ where: { sellerAccountId: alpha.id }, data: { capacityUnitsPerWeek: 100 } });
+  await prisma.sellerOffer.updateMany({ where: { sellerAccountId: alpha.id }, data: { capacityUnitsPerWeek: 100, minimumOrderQuantity: 500 } });
   // BETA states no capacity at all.
   await prisma.sellerOffer.updateMany({ where: { sellerAccountId: beta.id }, data: { capacityUnitsPerWeek: null } });
 }, 240_000);
@@ -58,14 +58,47 @@ describe('supplier matches', () => {
     const suppliers = await preview({});
     const alpha = suppliers.find((card) => card.sellerAccountId === world.sellers.alpha.id);
     const beta = suppliers.find((card) => card.sellerAccountId === world.sellers.beta.id);
-    expect(alpha?.reasons).toEqual(['LIVE_IN_CATEGORY', 'EXPORTS_TO_DESTINATION', 'VERIFIED_CERTIFICATE']);
-    expect(alpha?.flags).toEqual(['CAPACITY_BELOW_QUANTITY']);
-    expect(beta?.reasons).toEqual(['LIVE_IN_CATEGORY']);
-    expect(beta?.flags).toEqual(['CAPACITY_UNKNOWN']);
+    expect(alpha?.reasons).toEqual(['LIVE_IN_CATEGORY', 'EXPORTS_TO_DESTINATION', 'VERIFIED_CERTIFICATE', 'MOQ_FITS_QUANTITY']);
+    expect(alpha?.flags).toEqual(['RESPONSE_RECORD_UNKNOWN', 'CAPACITY_BELOW_QUANTITY']);
+    expect(beta?.reasons).toEqual(['LIVE_IN_CATEGORY', 'MOQ_FITS_QUANTITY']);
+    expect(beta?.flags).toEqual(['RESPONSE_RECORD_UNKNOWN', 'CAPACITY_UNKNOWN']);
   });
 
   it('drops the capacity flag when the stated capacity can make the quantity', async () => {
+    const suppliers = await preview({ quantity: '500' });
+    expect(suppliers.find((card) => card.sellerAccountId === world.sellers.alpha.id)?.flags).toEqual(['RESPONSE_RECORD_UNKNOWN']);
+  });
+
+  it('flags a minimum order above the quantity asked (ENH-008)', async () => {
     const suppliers = await preview({ quantity: '100' });
-    expect(suppliers.find((card) => card.sellerAccountId === world.sellers.alpha.id)?.flags).toEqual([]);
+    const alpha = suppliers.find((card) => card.sellerAccountId === world.sellers.alpha.id);
+    expect(alpha?.reasons).not.toContain('MOQ_FITS_QUANTITY');
+    expect(alpha?.flags).toEqual(['MOQ_ABOVE_QUANTITY', 'RESPONSE_RECORD_UNKNOWN']);
+  });
+
+  it('explains the response record from closed invitations of the last year only (ENH-008)', async () => {
+    const { alpha, beta } = world.sellers;
+    const rfqs: string[] = [];
+    for (let i = 0; i < 5; i += 1) {
+      const created = await as(world, world.buyer, 'POST', '/rfqs', completeDraft(world), { 'idempotency-key': key() });
+      rfqs.push(created.json<{ rfq: { id: string } }>().rfq.id);
+    }
+    const old = new Date(Date.now() - 400 * 86_400_000);
+    const rows = [
+      ...(['QUOTED', 'QUOTED', 'DECLINED', 'EXPIRED', 'VIEWED'] as const).map((status, i) => ({ rfqId: rfqs[i]!, sellerAccountId: alpha.id, status })),
+      ...(['DECLINED', 'EXPIRED', 'EXPIRED', 'EXPIRED', 'QUOTED'] as const).map((status, i) => ({ rfqId: rfqs[i]!, sellerAccountId: beta.id, status, createdAt: i === 4 ? old : undefined })),
+    ];
+    await prisma.rfqInvitation.createMany({ data: rows.map((row) => ({ id: newId(), source: 'MATCHED' as const, ...row })) });
+    try {
+      const suppliers = await preview({ quantity: '500' });
+      const a = suppliers.find((card) => card.sellerAccountId === alpha.id);
+      const b = suppliers.find((card) => card.sellerAccountId === beta.id);
+      expect(a?.reasons).toContain('RESPONDS_TO_RFQS');
+      expect(a?.flags).toEqual([]);
+      expect(b?.reasons).not.toContain('RESPONDS_TO_RFQS');
+      expect(b?.flags).toEqual(['RESPONSE_RECORD_LOW', 'CAPACITY_UNKNOWN']);
+    } finally {
+      await prisma.rfqInvitation.deleteMany({ where: { rfqId: { in: rfqs } } });
+    }
   });
 });

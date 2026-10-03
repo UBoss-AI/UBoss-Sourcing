@@ -45,21 +45,40 @@ export interface SupplierCard {
    * Why they were matched, in fixed codes the screen translates (JOURNEY-014):
    * LIVE_IN_CATEGORY always; EXPORTS_TO_DESTINATION when their stated export
    * markets include it; VERIFIED_CERTIFICATE when the operator verified an
-   * in-date certificate of theirs. Absent on a hand-picked card.
+   * in-date certificate of theirs; MOQ_FITS_QUANTITY when a live offer's
+   * minimum order is within the quantity asked; RESPONDS_TO_RFQS when they
+   * answered at least half of their last year's closed invitations (ENH-008).
+   * Absent on a hand-picked card.
    */
   reasons?: MatchReason[];
   /**
    * What the buyer should know before inviting them: CAPACITY_UNKNOWN (no
    * stated weekly capacity in this category), CAPACITY_BELOW_QUANTITY (stated
    * capacity cannot make the quantity by the target date), OPEN_DISPUTE (an
-   * unresolved dispute between this buyer and them - a possible conflict).
+   * unresolved dispute between this buyer and them - a possible conflict),
+   * MOQ_ABOVE_QUANTITY (every live offer's minimum order exceeds the quantity),
+   * RESPONSE_RECORD_UNKNOWN (fewer than three closed invitations to judge by)
+   * and RESPONSE_RECORD_LOW (they answered under half of them).
    * Flags inform; they never remove a supplier, and the buyer may exclude any.
    */
   flags?: MatchFlag[];
 }
 
-export type MatchReason = 'LIVE_IN_CATEGORY' | 'EXPORTS_TO_DESTINATION' | 'VERIFIED_CERTIFICATE';
-export type MatchFlag = 'CAPACITY_UNKNOWN' | 'CAPACITY_BELOW_QUANTITY' | 'OPEN_DISPUTE';
+export type MatchReason = 'LIVE_IN_CATEGORY' | 'EXPORTS_TO_DESTINATION' | 'VERIFIED_CERTIFICATE' | 'MOQ_FITS_QUANTITY' | 'RESPONDS_TO_RFQS';
+export type MatchFlag =
+  | 'CAPACITY_UNKNOWN'
+  | 'CAPACITY_BELOW_QUANTITY'
+  | 'OPEN_DISPUTE'
+  | 'MOQ_ABOVE_QUANTITY'
+  | 'RESPONSE_RECORD_UNKNOWN'
+  | 'RESPONSE_RECORD_LOW';
+
+/** The seller's own qualification view keeps the codes it was built with. */
+const SELLER_REASONS: readonly MatchReason[] = ['LIVE_IN_CATEGORY', 'EXPORTS_TO_DESTINATION', 'VERIFIED_CERTIFICATE'];
+const SELLER_FLAGS: readonly MatchFlag[] = ['CAPACITY_UNKNOWN', 'CAPACITY_BELOW_QUANTITY', 'OPEN_DISPUTE'];
+/** Closed invitations: answered (quoted or declined) or left to expire. Pending and withdrawn ones say nothing. */
+const ANSWERED = ['QUOTED', 'DECLINED'] as const;
+const RESPONSE_SAMPLE_MIN = 3;
 
 const OPEN_DISPUTE_STATUSES = ['AWAITING_SELLER', 'UNDER_REVIEW', 'PENDING_APPROVAL', 'APPEALED', 'CHARGEBACK_OPEN', 'NEEDS_RESPONSE', 'CHARGEBACK_UNDER_REVIEW'] as const;
 
@@ -71,7 +90,8 @@ async function explain(
 ): Promise<Map<string, { reasons: MatchReason[]; flags: MatchFlag[] }>> {
   const subtree = await subtreeCategoryIds(input.categoryId);
   const today = new Date(now.toISOString().slice(0, 10));
-  const [trust, certified, capacity, disputes] = await Promise.all([
+  const yearAgo = new Date(now.getTime() - 365 * 86_400_000);
+  const [trust, certified, capacity, disputes, invitations] = await Promise.all([
     prisma.sellerTrustProfile.findMany({ where: { sellerAccountId: { in: ids } }, select: { sellerAccountId: true, exportMarketsJson: true } }),
     prisma.sellerCertification.findMany({
       where: { sellerAccountId: { in: ids }, state: 'VERIFIED', archivedAt: null, expiredAt: null, OR: [{ expiresOn: null }, { expiresOn: { gte: today } }] },
@@ -82,11 +102,17 @@ async function explain(
       by: ['sellerAccountId'],
       where: { sellerAccountId: { in: ids }, status: 'ACTIVE', product: { categoryId: { in: subtree } } },
       _max: { capacityUnitsPerWeek: true },
+      _min: { minimumOrderQuantity: true },
     }),
     prisma.dispute.findMany({
       where: { sellerAccountId: { in: ids }, customerProfileId: input.customerProfileId, status: { in: [...OPEN_DISPUTE_STATUSES] } },
       select: { sellerAccountId: true },
       distinct: ['sellerAccountId'],
+    }),
+    prisma.rfqInvitation.groupBy({
+      by: ['sellerAccountId', 'status'],
+      where: { sellerAccountId: { in: ids }, status: { in: [...ANSWERED, 'EXPIRED'] }, createdAt: { gte: yearAgo } },
+      _count: { _all: true },
     }),
   ]);
   const exportsTo = new Set(
@@ -94,6 +120,14 @@ async function explain(
   );
   const hasCert = new Set(certified.map((row) => row.sellerAccountId));
   const weekly = new Map(capacity.map((row) => [row.sellerAccountId, row._max.capacityUnitsPerWeek]));
+  const smallestMoq = new Map(capacity.map((row) => [row.sellerAccountId, row._min.minimumOrderQuantity]));
+  const record = new Map<string, { answered: number; closed: number }>();
+  for (const row of invitations) {
+    const entry = record.get(row.sellerAccountId) ?? { answered: 0, closed: 0 };
+    entry.closed += row._count._all;
+    if ((ANSWERED as readonly string[]).includes(row.status)) entry.answered += row._count._all;
+    record.set(row.sellerAccountId, entry);
+  }
   const disputed = new Set(disputes.map((row) => row.sellerAccountId).filter((id): id is string => id !== null));
   const weeks =
     input.deliveryTargetDate === undefined || input.deliveryTargetDate === null
@@ -105,6 +139,15 @@ async function explain(
     if (exportsTo.has(id)) reasons.push('EXPORTS_TO_DESTINATION');
     if (hasCert.has(id)) reasons.push('VERIFIED_CERTIFICATE');
     const flags: MatchFlag[] = [];
+    const moq = smallestMoq.get(id) ?? null;
+    if (moq !== null && input.quantity !== undefined && input.quantity !== null) {
+      if (moq <= input.quantity) reasons.push('MOQ_FITS_QUANTITY');
+      else flags.push('MOQ_ABOVE_QUANTITY');
+    }
+    const history = record.get(id) ?? { answered: 0, closed: 0 };
+    if (history.closed < RESPONSE_SAMPLE_MIN) flags.push('RESPONSE_RECORD_UNKNOWN');
+    else if (history.answered * 2 >= history.closed) reasons.push('RESPONDS_TO_RFQS');
+    else flags.push('RESPONSE_RECORD_LOW');
     const perWeek = weekly.get(id) ?? null;
     if (perWeek === null) flags.push('CAPACITY_UNKNOWN');
     else if (input.quantity !== undefined && input.quantity !== null && weeks !== null && perWeek * weeks < input.quantity) {
@@ -379,8 +422,8 @@ export async function sellerQualifications(
       )
     ).get(sellerAccountId) ?? { reasons: [], flags: [] };
     const liveInCategory = live > 0;
-    const reasons = explained.reasons.filter((reason) => liveInCategory || reason !== 'LIVE_IN_CATEGORY');
-    const flags: SellerQualification['flags'] = [...explained.flags];
+    const reasons = explained.reasons.filter((reason) => SELLER_REASONS.includes(reason) && (liveInCategory || reason !== 'LIVE_IN_CATEGORY'));
+    const flags: SellerQualification['flags'] = explained.flags.filter((flag) => SELLER_FLAGS.includes(flag));
     if (!liveInCategory) flags.unshift('NOT_LIVE_IN_CATEGORY');
     const result = { score: qualificationScore({ liveInCategory, reasons, flags }), reasons, flags };
     memo.set(key, result);

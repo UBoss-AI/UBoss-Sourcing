@@ -9660,6 +9660,16 @@ Label rules keep their own notice. Nothing configured means no notice, which
 does not confirm compliance. An unreadable answer shows nothing rather than
 breaking checkout. Blocked lines are still refused when the order is placed.
 
+**Explainable supplier matching (ENH-008).** Matched-supplier cards on the
+buyer's RFQ also explain minimum order and response record. `MOQ_FITS_QUANTITY`
+when a live offer in the category has a minimum order within the quantity,
+`MOQ_ABOVE_QUANTITY` when none does. `RESPONDS_TO_RFQS` when the supplier
+answered (quoted or declined) at least half of its closed invitations in the
+last year; `RESPONSE_RECORD_LOW` when under half; `RESPONSE_RECORD_UNKNOWN`
+with fewer than three to judge by. Expired invitations count against; pending
+and withdrawn ones are ignored. Flags inform and never remove a supplier. The
+seller's own qualification view is unchanged.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

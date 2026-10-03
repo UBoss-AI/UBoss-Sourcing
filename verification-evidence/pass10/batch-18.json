@@ -1,0 +1,16 @@
+{
+  "batch": 18,
+  "ids": [
+    "ENH-008"
+  ],
+  "before": {
+    "checked": 291,
+    "unchecked": 73
+  },
+  "after": {
+    "checked": 292,
+    "unchecked": 72
+  },
+  "evidence": "Pass 10 batch 18: ENH-008. Matched-supplier cards explain capacity (CAPACITY_UNKNOWN/BELOW_QUANTITY), MOQ (MOQ_FITS_QUANTITY/MOQ_ABOVE_QUANTITY from live offers in category subtree), certifications (VERIFIED_CERTIFICATE), destination (EXPORTS_TO_DESTINATION; matches already filtered by market eligibility) and response record (RESPONDS_TO_RFQS/RESPONSE_RECORD_LOW, RESPONSE_RECORD_UNKNOWN under three closed invitations in last year; pending/withdrawn ignored, expired counts against). Missing data is flagged, never guessed; flags never remove a supplier. Seller qualification codes unchanged. Backend RFQ integration 9 files/75 + unit 16, customer RfqPages 10/10 + i18n, typecheck/lint clean, docs:check ok; eight locales and guides synchronized.",
+  "limitations": "No browser pass; component and HTTP tests only."
+}

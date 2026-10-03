@@ -8536,5 +8536,10 @@
   "rfq.destinationGuidance.thresholdUnknown": "Esta regla depende de un umbral de valor del pedido, pero no se puede interpretar la moneda o el importe. Confirme el umbral configurado con el operador del mercado.",
   "checkout.destinationGuidance.title": "Qué necesita la entrega a {{country}}",
   "checkout.destinationGuidance.importer": "Instrucciones de importador y cumplimiento",
-  "checkout.destinationGuidance.documents": "Documentos que debe tener"
+  "checkout.destinationGuidance.documents": "Documentos que debe tener",
+  "rfq.match.reason.MOQ_FITS_QUANTITY": "El pedido mínimo se ajusta a su cantidad",
+  "rfq.match.reason.RESPONDS_TO_RFQS": "Respondió a la mayoría de las solicitudes del último año",
+  "rfq.match.flag.MOQ_ABOVE_QUANTITY": "El pedido mínimo supera su cantidad",
+  "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Muy pocas solicitudes previas para valorar respuestas",
+  "rfq.match.flag.RESPONSE_RECORD_LOW": "Respondió a menos de la mitad de las solicitudes del último año"
 }

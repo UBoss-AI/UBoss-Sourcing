@@ -8150,7 +8150,7 @@ JOURNEY-046 and 049 additions. The **Shipment booking** form shows "From IN to D
 ## Pass 8 changes to identity, sourcing and checkout screens
 
 - **Profile → Mobile number**: after "Send confirmation link" the toast says whether a text went to the new number or an email to the account; an SMS failure is explained and nothing changes.
-- **RFQ edit, matched suppliers**: each supplier shows why it matched and any flags (capacity not stated, capacity may not cover the quantity, an open dispute with you); **Invite all matched** and **Exclude all, then pick**.
+- **RFQ edit, matched suppliers**: each supplier shows why it matched and any flags (capacity not stated, capacity may not cover the quantity, minimum order above your quantity, too little or a weak response record, an open dispute with you); reasons also include a minimum order that fits and a good response record (ENH-008); **Invite all matched** and **Exclude all, then pick**.
 - **Seller RFQ → quote form**: an **Export documents** group of checkboxes.
 - **Quote comparison**: rows for **Landed estimate**, **Export documents** and **Not provided**; **Download PDF** beside Download as CSV. The purchase order page lists the export documents.
 - **Checkout**: the terms box now sends the current Terms version; if they changed, the box is cleared and the new version must be agreed. **Address form**: the postcode is checked for the country's format before Save.

@@ -127,7 +127,7 @@ describe('RfqEditPage', () => {
             blockedReason: null,
             suppliers: [
               { sellerAccountId: 'sa', displayName: 'Alpha Gloves', slug: 'alpha', registrationCountry: 'IN', verifiedAt: null, matchesCategory: true,
-                reasons: ['LIVE_IN_CATEGORY', 'EXPORTS_TO_DESTINATION'], flags: ['CAPACITY_BELOW_QUANTITY'] },
+                reasons: ['LIVE_IN_CATEGORY', 'EXPORTS_TO_DESTINATION', 'MOQ_FITS_QUANTITY', 'RESPONDS_TO_RFQS'], flags: ['CAPACITY_BELOW_QUANTITY', 'RESPONSE_RECORD_LOW'] },
             ],
           }),
         );
@@ -142,6 +142,9 @@ describe('RfqEditPage', () => {
     );
     expect(await screen.findByText('Exports to your destination')).toBeInTheDocument();
     expect(screen.getByText('Stated capacity may not cover this quantity in time')).toBeInTheDocument();
+    expect(screen.getByText('Minimum order fits your quantity')).toBeInTheDocument();
+    expect(screen.getByText('Answered most requests in the last year')).toBeInTheDocument();
+    expect(screen.getByText('Answered under half of last year’s requests')).toBeInTheDocument();
     const box = screen.getByRole('checkbox', { name: /Alpha Gloves/ });
     expect(box).toBeChecked();
     await userEvent.click(screen.getByRole('button', { name: 'Exclude all, then pick' }));

@@ -8427,5 +8427,10 @@
   "rfq.destinationGuidance.thresholdUnknown": "This rule depends on an order-value threshold, but its currency or amount cannot be interpreted. Confirm the configured threshold with the marketplace operator.",
   "checkout.destinationGuidance.title": "What delivery to {{country}} needs",
   "checkout.destinationGuidance.importer": "Importer and compliance instructions",
-  "checkout.destinationGuidance.documents": "Documents you must hold"
+  "checkout.destinationGuidance.documents": "Documents you must hold",
+  "rfq.match.reason.MOQ_FITS_QUANTITY": "Minimum order fits your quantity",
+  "rfq.match.reason.RESPONDS_TO_RFQS": "Answered most requests in the last year",
+  "rfq.match.flag.MOQ_ABOVE_QUANTITY": "Minimum order is above your quantity",
+  "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Too few past requests to judge responses",
+  "rfq.match.flag.RESPONSE_RECORD_LOW": "Answered under half of last year’s requests"
 }

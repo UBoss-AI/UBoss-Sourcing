@@ -8427,5 +8427,10 @@
   "rfq.destinationGuidance.thresholdUnknown": "Αυτός ο κανόνας εξαρτάται από ένα όριο αξίας παραγγελίας, αλλά το νόμισμα ή το ποσό δεν μπορεί να ερμηνευτεί. Επιβεβαιώστε το καταχωρισμένο όριο με τον διαχειριστή της αγοράς.",
   "checkout.destinationGuidance.title": "Τι χρειάζεται η παράδοση σε {{country}}",
   "checkout.destinationGuidance.importer": "Οδηγίες εισαγωγέα και συμμόρφωσης",
-  "checkout.destinationGuidance.documents": "Έγγραφα που πρέπει να διαθέτετε"
+  "checkout.destinationGuidance.documents": "Έγγραφα που πρέπει να διαθέτετε",
+  "rfq.match.reason.MOQ_FITS_QUANTITY": "Η ελάχιστη παραγγελία ταιριάζει με την ποσότητά σας",
+  "rfq.match.reason.RESPONDS_TO_RFQS": "Απάντησε στα περισσότερα αιτήματα του τελευταίου έτους",
+  "rfq.match.flag.MOQ_ABOVE_QUANTITY": "Η ελάχιστη παραγγελία υπερβαίνει την ποσότητά σας",
+  "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Πολύ λίγα προηγούμενα αιτήματα για αξιολόγηση",
+  "rfq.match.flag.RESPONSE_RECORD_LOW": "Απάντησε σε λιγότερα από τα μισά αιτήματα του τελευταίου έτους"
 }

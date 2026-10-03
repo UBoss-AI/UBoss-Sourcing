@@ -8427,5 +8427,10 @@
   "rfq.destinationGuidance.thresholdUnknown": "Diese Regel hängt von einem Mindestbestellwert ab, aber Währung oder Betrag sind nicht lesbar. Bestätigen Sie den hinterlegten Wert beim Marktplatzbetreiber.",
   "checkout.destinationGuidance.title": "Was die Lieferung nach {{country}} erfordert",
   "checkout.destinationGuidance.importer": "Hinweise für Importeur und Compliance",
-  "checkout.destinationGuidance.documents": "Dokumente, die Sie vorlegen müssen"
+  "checkout.destinationGuidance.documents": "Dokumente, die Sie vorlegen müssen",
+  "rfq.match.reason.MOQ_FITS_QUANTITY": "Mindestbestellmenge passt zu Ihrer Menge",
+  "rfq.match.reason.RESPONDS_TO_RFQS": "Hat im letzten Jahr die meisten Anfragen beantwortet",
+  "rfq.match.flag.MOQ_ABOVE_QUANTITY": "Mindestbestellmenge liegt über Ihrer Menge",
+  "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Zu wenige frühere Anfragen für eine Bewertung",
+  "rfq.match.flag.RESPONSE_RECORD_LOW": "Hat weniger als die Hälfte der Anfragen des letzten Jahres beantwortet"
 }

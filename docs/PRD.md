@@ -6904,7 +6904,7 @@ Inspection responses now expose report as the latest report visible to that audi
 
 ### FR-RFQ-030 — Match explanation and flags (JOURNEY-014)
 
-- Each matched supplier carries `reasons` (LIVE_IN_CATEGORY, EXPORTS_TO_DESTINATION, VERIFIED_CERTIFICATE) and `flags` (CAPACITY_UNKNOWN, CAPACITY_BELOW_QUANTITY from stated weekly capacity against quantity and target date, OPEN_DISPUTE with this buyer). Flags never remove a supplier; the buyer can invite all or exclude all and pick. Built.
+- Each matched supplier carries `reasons` (LIVE_IN_CATEGORY, EXPORTS_TO_DESTINATION, VERIFIED_CERTIFICATE, MOQ_FITS_QUANTITY, RESPONDS_TO_RFQS) and `flags` (CAPACITY_UNKNOWN, CAPACITY_BELOW_QUANTITY from stated weekly capacity against quantity and target date, OPEN_DISPUTE with this buyer, MOQ_ABOVE_QUANTITY when every live offer's minimum order exceeds the quantity, RESPONSE_RECORD_UNKNOWN with fewer than three closed invitations in the last year, RESPONSE_RECORD_LOW when under half were answered). Answered means quoted or declined; expired counts against; pending and withdrawn do not count (ENH-008). The seller's own qualification score keeps its original codes. Flags never remove a supplier; the buyer can invite all or exclude all and pick. Built.
 
 ### FR-RFQ-031 — Export documents on a quote (JOURNEY-016)
 

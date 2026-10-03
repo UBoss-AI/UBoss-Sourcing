@@ -8645,5 +8645,10 @@
   "rfq.destinationGuidance.thresholdUnknown": "Ta reguła zależy od progu wartości zamówienia, ale nie można odczytać waluty lub kwoty. Potwierdź skonfigurowany próg z operatorem platformy.",
   "checkout.destinationGuidance.title": "Czego wymaga dostawa do {{country}}",
   "checkout.destinationGuidance.importer": "Instrukcje dla importera i zgodności",
-  "checkout.destinationGuidance.documents": "Dokumenty, które musisz posiadać"
+  "checkout.destinationGuidance.documents": "Dokumenty, które musisz posiadać",
+  "rfq.match.reason.MOQ_FITS_QUANTITY": "Minimalne zamówienie mieści się w Twojej ilości",
+  "rfq.match.reason.RESPONDS_TO_RFQS": "Odpowiedział na większość zapytań z ostatniego roku",
+  "rfq.match.flag.MOQ_ABOVE_QUANTITY": "Minimalne zamówienie przekracza Twoją ilość",
+  "rfq.match.flag.RESPONSE_RECORD_UNKNOWN": "Za mało wcześniejszych zapytań, by ocenić odpowiedzi",
+  "rfq.match.flag.RESPONSE_RECORD_LOW": "Odpowiedział na mniej niż połowę zapytań z ostatniego roku"
 }

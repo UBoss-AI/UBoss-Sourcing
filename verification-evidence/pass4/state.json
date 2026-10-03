@@ -2779,6 +2779,12 @@
       "status": "VERIFIED",
       "evidence": "Pass 10 batch 17: ENH-022. RFQ create/edit/amend shows published importer instructions and current category/ancestor label, document and block rules for the unsaved destination/category (session + RFQ-feature gated, no-store, no writes). Checkout shows the delivery country importer instructions and deduplicated basket DOCUMENTS_REQUIRED rules; labels keep the JOURNEY-064 notice. Enforcement unchanged: RFQ_DESTINATION_BLOCKED on submit/amend, MARKET_DESTINATION_RESTRICTED at order placement. Backend 13/13, customer 6/88 and 3/37 on clean HEAD worktree, typecheck/lint clean, docs:check ok; eight locales and all guides synchronized. No browser pass; operator-configured guidance, not legal approval.",
       "verifiedAt": "2026-10-03 (pass 10)"
+    },
+    {
+      "id": "ENH-008",
+      "status": "VERIFIED",
+      "evidence": "Pass 10 batch 18: ENH-008. Matched-supplier cards explain capacity (CAPACITY_UNKNOWN/BELOW_QUANTITY), MOQ (MOQ_FITS_QUANTITY/MOQ_ABOVE_QUANTITY from live offers in category subtree), certifications (VERIFIED_CERTIFICATE), destination (EXPORTS_TO_DESTINATION; matches already filtered by market eligibility) and response record (RESPONDS_TO_RFQS/RESPONSE_RECORD_LOW, RESPONSE_RECORD_UNKNOWN under three closed invitations in last year; pending/withdrawn ignored, expired counts against). Missing data is flagged, never guessed; flags never remove a supplier. Seller qualification codes unchanged. Backend RFQ integration 9 files/75 + unit 16, customer RfqPages 10/10 + i18n, typecheck/lint clean, docs:check ok; eight locales and guides synchronized.",
+      "verifiedAt": "2026-10-03 (pass 10)"
     }
   ],
   "pendingBoxes": []
