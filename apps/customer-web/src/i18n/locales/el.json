@@ -8413,5 +8413,19 @@
   "sourcingShortcuts.directoryTitle": "Βρείτε προμηθευτή",
   "sourcingShortcuts.directoryHint": "Εγκεκριμένοι προμηθευτές με ενεργά προϊόντα. Εμφανίζονται έως 24 δημόσια αποτελέσματα· εξειδικεύστε το δημόσιο όνομα για άλλα αποτελέσματα.",
   "sourcingShortcuts.nameSearch": "Δημόσιο όνομα προμηθευτή",
-  "sourcingShortcuts.directoryEmpty": "Δεν βρέθηκαν εγκεκριμένοι προμηθευτές. Δοκιμάστε λιγότερες λέξεις ή καθαρίστε την αναζήτηση."
+  "sourcingShortcuts.directoryEmpty": "Δεν βρέθηκαν εγκεκριμένοι προμηθευτές. Δοκιμάστε λιγότερες λέξεις ή καθαρίστε την αναζήτηση.",
+  "rfq.destinationGuidance.title": "Οδηγίες προορισμού",
+  "rfq.destinationGuidance.choose": "Επιλέξτε προορισμό για να δείτε τις καταχωρισμένες οδηγίες για εισαγωγέα, επισήμανση και έγγραφα.",
+  "rfq.destinationGuidance.loading": "Φόρτωση οδηγιών για αυτόν τον προορισμό…",
+  "rfq.destinationGuidance.empty": "Δεν έχουν καταχωριστεί οδηγίες για αυτόν τον προορισμό και την κατηγορία. Αυτό δεν επιβεβαιώνει συμμόρφωση.",
+  "rfq.destinationGuidance.importer": "Οδηγίες εισαγωγέα και συμμόρφωσης",
+  "rfq.destinationGuidance.label": "Απαιτούμενη επισήμανση: {{text}}",
+  "rfq.destinationGuidance.documents": "Απαιτούμενα έγγραφα",
+  "rfq.destinationGuidance.blocked": "Αυτή η κατηγορία αποκλείεται για αυτόν τον προορισμό: {{reason}}",
+  "rfq.destinationGuidance.threshold": "Ισχύει μόνο όταν η αξία παραγγελίας είναι τουλάχιστον {{amount}}. Η τιμή στόχος ανά μονάδα στο αίτημα προσφοράς δεν είναι αξία παραγγελίας.",
+  "rfq.destinationGuidance.category": "Κατηγορία: {{name}}",
+  "rfq.destinationGuidance.thresholdUnknown": "Αυτός ο κανόνας εξαρτάται από ένα όριο αξίας παραγγελίας, αλλά το νόμισμα ή το ποσό δεν μπορεί να ερμηνευτεί. Επιβεβαιώστε το καταχωρισμένο όριο με τον διαχειριστή της αγοράς.",
+  "checkout.destinationGuidance.title": "Τι χρειάζεται η παράδοση σε {{country}}",
+  "checkout.destinationGuidance.importer": "Οδηγίες εισαγωγέα και συμμόρφωσης",
+  "checkout.destinationGuidance.documents": "Έγγραφα που πρέπει να διαθέτετε"
 }

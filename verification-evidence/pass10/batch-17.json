@@ -1,0 +1,15 @@
+{
+  "batch": 17,
+  "ids": ["ENH-022"],
+  "before": { "checked": 290, "unchecked": 74 },
+  "after": { "checked": 291, "unchecked": 73 },
+  "tests": {
+    "backend": "tests/integration/rfq-destination-guidance.test.ts 13/13",
+    "customerFocused": "RfqDestinationGuidance + RfqPages + i18n 6 files / 88 tests",
+    "checkoutCleanWorktree": "checkout notice + RfqDestinationGuidance + CheckoutPage 3 files / 37 tests",
+    "typecheckLint": "backend tsc + eslint (changed files) clean; customer tsc -b + eslint (changed files) clean",
+    "docsCheck": "scripts npm run docs:check ok"
+  },
+  "enforcement": ["RFQ_DESTINATION_BLOCKED on submit and amend (tested)", "MARKET_DESTINATION_RESTRICTED at order placement (batch 5)"],
+  "limitations": "No browser pass this batch; component and HTTP tests only. Guidance is operator-configured, not legal approval."
+}

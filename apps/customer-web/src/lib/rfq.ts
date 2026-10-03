@@ -5,6 +5,7 @@
  * Quantities are decimal strings (up to three places) for the same reason: a
  * buyer who asks for 12.5 tonnes must see 12.5, not 12.499999.
  */
+import { z } from 'zod';
 import { api, BASE_URL, newIdempotencyKey, postFile } from './api';
 import { track } from '@/lib/analytics';
 import type { Money } from './format';
@@ -367,4 +368,33 @@ export function nextActionHref(action: RfqNextAction): string {
     case 'DECIDE_SAMPLE':
       return `/account/rfqs/${action.rfqId}?tab=samples`;
   }
+}
+
+export interface RfqDestinationGuidanceData {
+  country: string;
+  categoryId: string | null;
+  complianceNotes: string | null;
+  blockedReason: string | null;
+  notes: {
+    effect: 'BLOCK' | 'DOCUMENTS_REQUIRED' | 'LABEL_REQUIRED';
+    reason: string;
+    requiredDocuments: string[];
+    categoryName: string;
+    minOrderValueMinor: string | null;
+    thresholdCurrency: string | null;
+    labelText: string | null;
+  }[];
+}
+
+const destinationGuidanceResponse = z.object({
+  country: z.string(), categoryId: z.string().nullable(), complianceNotes: z.string().nullable(), blockedReason: z.string().nullable(),
+  notes: z.array(z.object({
+    effect: z.enum(['BLOCK', 'DOCUMENTS_REQUIRED', 'LABEL_REQUIRED']), reason: z.string(), requiredDocuments: z.array(z.string()),
+    categoryName: z.string(), minOrderValueMinor: z.string().nullable(), thresholdCurrency: z.string().nullable(), labelText: z.string().nullable(),
+  })),
+});
+export async function fetchRfqDestinationGuidance(country: string, categoryId: string | null): Promise<RfqDestinationGuidanceData> {
+  const result = destinationGuidanceResponse.parse(await api.get<unknown>('/rfqs/destination-guidance', { query: { country, categoryId } }));
+  if (result.country !== country || result.categoryId !== categoryId) throw new Error('Invalid RFQ destination guidance response');
+  return result;
 }

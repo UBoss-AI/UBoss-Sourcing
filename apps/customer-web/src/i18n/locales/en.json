@@ -8413,5 +8413,19 @@
   "sourcingShortcuts.directoryTitle": "Find a supplier",
   "sourcingShortcuts.directoryHint": "Approved suppliers with live products. Up to 24 public matches are shown; refine the public name for other matches.",
   "sourcingShortcuts.nameSearch": "Supplier public name",
-  "sourcingShortcuts.directoryEmpty": "No approved suppliers matched. Try fewer words or clear the search."
+  "sourcingShortcuts.directoryEmpty": "No approved suppliers matched. Try fewer words or clear the search.",
+  "rfq.destinationGuidance.title": "Destination guidance",
+  "rfq.destinationGuidance.choose": "Choose a destination to see configured importer, labeling and document guidance.",
+  "rfq.destinationGuidance.loading": "Loading guidance for this destination…",
+  "rfq.destinationGuidance.empty": "No guidance is configured for this destination and category. This does not confirm compliance.",
+  "rfq.destinationGuidance.importer": "Importer and compliance instructions",
+  "rfq.destinationGuidance.label": "Required label: {{text}}",
+  "rfq.destinationGuidance.documents": "Required documents",
+  "rfq.destinationGuidance.blocked": "This category is blocked for this destination: {{reason}}",
+  "rfq.destinationGuidance.threshold": "Applies only when the order value is at least {{amount}}. The RFQ target unit price is not an order value.",
+  "rfq.destinationGuidance.category": "Category: {{name}}",
+  "rfq.destinationGuidance.thresholdUnknown": "This rule depends on an order-value threshold, but its currency or amount cannot be interpreted. Confirm the configured threshold with the marketplace operator.",
+  "checkout.destinationGuidance.title": "What delivery to {{country}} needs",
+  "checkout.destinationGuidance.importer": "Importer and compliance instructions",
+  "checkout.destinationGuidance.documents": "Documents you must hold"
 }

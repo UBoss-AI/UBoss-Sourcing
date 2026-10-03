@@ -1706,6 +1706,28 @@ translation-unavailable error. Logs omit provider exception text because it
 may contain private words. No translated message is stored. Provider tests use
 fixtures; they do not prove a live provider result.
 
+**Destination guidance in RFQs (ENH-022).** Choose the delivery country and
+category while creating, editing or amending a request. The form shows the
+operator's published importer/compliance instructions and active category or
+ancestor-category rules for that destination, including labels and documents.
+Changing either field refreshes the guidance and hides the previous response
+while loading. Failed reads have an explicit retry. An empty result says no
+guidance is configured; it does not confirm compliance. Guidance never changes
+or saves the draft. An unconditional category block shows its configured
+reason. A value-qualified rule keeps its exact currency amount and order-value
+qualification; the RFQ target unit price is not an order total. If the currency
+cannot be displayed reliably, the rule keeps an explicit qualification instead
+of guessing. Submission and amendment still enforce the existing destination
+rules on the server. This is configured guidance, not legal approval.
+
+**Destination guidance at checkout (ENH-022).** Once the delivery address is
+chosen, checkout shows the operator's published importer/compliance
+instructions for that country and the documents any basket line needs there
+(product, category or ancestor-category DOCUMENTS_REQUIRED rules, deduplicated).
+Label rules keep their own notice. Nothing configured means no notice, which
+does not confirm compliance. An unreadable answer shows nothing rather than
+breaking checkout. Blocked lines are still refused when the order is placed.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

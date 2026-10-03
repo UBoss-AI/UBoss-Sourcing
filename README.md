@@ -416,6 +416,16 @@ translations retain original fields. Optional message translation keeps the
 original words, refreshes after a language change and handles provider failure
 without logging private exception text. It requires the configured provider.
 
+**Destination guidance in RFQs (ENH-022).** Selecting a delivery country and
+category shows configured importer, label and document instructions. The
+notice refreshes with unsaved fields, supports retry and preserves qualified
+order-value rules. No configured guidance does not confirm compliance.
+Submission rules remain enforced by the server.
+
+**Destination guidance at checkout (ENH-022).** Checkout shows the delivery
+country's configured importer instructions and the documents basket lines need.
+Labels keep their own notice; blocked lines are refused when the order is placed.
+
 **Private label / OEM requests.** A dedicated product link opens an editable
 RFQ template for branding, packaging, drawing/specification and target volume.
 Save the draft, attach drawings privately and review it before sending.

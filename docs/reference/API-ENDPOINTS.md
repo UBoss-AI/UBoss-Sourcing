@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1362 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1364 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -31,8 +31,8 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 342 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 307 |
-| [Public and storefront](#public-and-storefront) | 57 |
+| [Customer account](#customer-account) | 308 |
+| [Public and storefront](#public-and-storefront) | 58 |
 
 ## Admin panel (staff)
 
@@ -2711,6 +2711,7 @@ Defined in `backend/src/http/routes/rfq.customer.ts`.
 | GET | `/api/v1/rfqs` | Customer | Feature + Customer | Your requests for quotation, newest activity first, with a count per status. |
 | POST | `/api/v1/rfqs` | Customer | Feature + Customer | Start a draft request for quotation. Needs an Idempotency-Key. Writes an audit entry. |
 | GET | `/api/v1/rfqs/suppliers` | Customer | Feature + Customer | Approved sellers a buyer may pick by name, with whether each would match the category and destination given. |
+| GET | `/api/v1/rfqs/destination-guidance` | Customer | Feature + Customer | Published importer guidance and current category destination rules for an unsaved RFQ. |
 | GET | `/api/v1/rfqs/:id` | Customer | Feature + Customer | One of your requests: requirement, versions, sellers asked, files and timeline. |
 | PUT | `/api/v1/rfqs/:id` | Customer | Feature + Customer | Save a draft again, whole. Conditional on the version it was opened at. |
 | DELETE | `/api/v1/rfqs/:id` | Customer | Feature + Customer | Delete a draft and its files. A request already sent cannot be deleted. |
@@ -2834,6 +2835,7 @@ Defined in `backend/src/http/routes/catalog.public.ts`, `backend/src/http/routes
 | GET | `/api/v1/catalog/products/:slug/reviews` | Public |  | A product's rating summary and one page of its published reviews. |
 | GET | `/api/v1/catalog/content-blocks` | Public |  | The published banners or category blocks live now for a country and language. |
 | GET | `/api/v1/catalog/label-requirements` | Public |  | The labelling the products in a basket must carry for a delivery country, for checkout to show. |
+| GET | `/api/v1/catalog/destination-guidance` | Public |  | Importer instructions and documents a basket needs for a delivery country, for checkout to show. |
 
 ### `config`
 

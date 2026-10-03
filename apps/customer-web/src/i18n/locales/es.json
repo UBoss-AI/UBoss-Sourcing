@@ -8522,5 +8522,19 @@
   "sourcingShortcuts.directoryTitle": "Buscar un proveedor",
   "sourcingShortcuts.directoryHint": "Proveedores aprobados con productos activos. Se muestran hasta 24 coincidencias públicas; precise el nombre público para otras coincidencias.",
   "sourcingShortcuts.nameSearch": "Nombre público del proveedor",
-  "sourcingShortcuts.directoryEmpty": "No se encontraron proveedores aprobados. Pruebe con menos palabras o borre la búsqueda."
+  "sourcingShortcuts.directoryEmpty": "No se encontraron proveedores aprobados. Pruebe con menos palabras o borre la búsqueda.",
+  "rfq.destinationGuidance.title": "Orientación para el destino",
+  "rfq.destinationGuidance.choose": "Elija un destino para ver las instrucciones configuradas sobre importadores, etiquetado y documentos.",
+  "rfq.destinationGuidance.loading": "Cargando orientación para este destino…",
+  "rfq.destinationGuidance.empty": "No hay orientación configurada para este destino y categoría. Esto no confirma el cumplimiento.",
+  "rfq.destinationGuidance.importer": "Instrucciones para importadores y cumplimiento",
+  "rfq.destinationGuidance.label": "Etiqueta requerida: {{text}}",
+  "rfq.destinationGuidance.documents": "Documentos requeridos",
+  "rfq.destinationGuidance.blocked": "Esta categoría está bloqueada para este destino: {{reason}}",
+  "rfq.destinationGuidance.threshold": "Solo se aplica cuando el valor del pedido es al menos {{amount}}. El precio objetivo por unidad de la solicitud de cotización no es el valor del pedido.",
+  "rfq.destinationGuidance.category": "Categoría: {{name}}",
+  "rfq.destinationGuidance.thresholdUnknown": "Esta regla depende de un umbral de valor del pedido, pero no se puede interpretar la moneda o el importe. Confirme el umbral configurado con el operador del mercado.",
+  "checkout.destinationGuidance.title": "Qué necesita la entrega a {{country}}",
+  "checkout.destinationGuidance.importer": "Instrucciones de importador y cumplimiento",
+  "checkout.destinationGuidance.documents": "Documentos que debe tener"
 }

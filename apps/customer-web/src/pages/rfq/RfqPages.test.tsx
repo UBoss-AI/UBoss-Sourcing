@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Route, Routes } from 'react-router-dom';
 import { RfqDetailPage } from './RfqDetailPage';
-import { RfqEditPage } from './RfqEditPage';
+import { RfqEditPage, RfqAmendPage } from './RfqEditPage';
 import { RfqListPage } from './RfqListPage';
 import { jsonResponse, renderWithProviders } from '@/test/harness';
 import { EMPTY_REQUIREMENT, type BuyerRfq } from '@/lib/rfq';
@@ -117,6 +117,7 @@ describe('RfqEditPage', () => {
   it('explains each matched supplier, flags capacity, and invites or excludes all (JOURNEY-014)', async () => {
     const draftRfq = rfq({ status: 'DRAFT', requirement: { ...EMPTY_REQUIREMENT, title: 'Nitrile gloves', categoryId: 'cat', destinationCountry: 'IN', quantity: '12000', unitOfMeasure: 'BOX', responseDeadline: '2026-11-01T12:00:00.000Z' } });
     fetchMock.mockImplementation((url: string) => {
+      if (url.includes('/destination-guidance')) { const q = new URL(url, 'https://example.test').searchParams; return Promise.resolve(jsonResponse({ country: q.get('country'), categoryId: q.get('categoryId'), complianceNotes: null, notes: [], blockedReason: null })); }
       if (url.includes('/form-options')) return Promise.resolve(jsonResponse(OPTIONS));
       if (url.includes('/catalog/categories')) return Promise.resolve(jsonResponse({ categories: [] }));
       if (url.includes('/matches')) {
@@ -157,6 +158,7 @@ describe('RfqEditPage', () => {
       responseDeadline: '2026-11-01T12:00:00.000Z' } });
     const saved: Record<string, unknown>[] = [];
     fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+      if (url.includes('/destination-guidance')) { const q = new URL(url, 'https://example.test').searchParams; return Promise.resolve(jsonResponse({ country: q.get('country'), categoryId: q.get('categoryId'), complianceNotes: null, notes: [], blockedReason: null })); }
       if (url.includes('/form-options')) return Promise.resolve(jsonResponse(OPTIONS));
       if (url.includes('/catalog/categories')) return Promise.resolve(jsonResponse({ categories: [{ id: 'cat', name: 'Gloves' }] }));
       if (url.includes('/matches')) return Promise.resolve(jsonResponse({ outcome: 'NO_MATCH', blockedReason: null, suppliers: [] }));
@@ -188,6 +190,7 @@ describe('RfqEditPage', () => {
 
   it('marks each field the server refused, beside the field and in the summary', async () => {
     fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+      if (url.includes('/destination-guidance')) { const q = new URL(url, 'https://example.test').searchParams; return Promise.resolve(jsonResponse({ country: q.get('country'), categoryId: q.get('categoryId'), complianceNotes: null, notes: [], blockedReason: null })); }
       if (url.includes('/form-options')) return Promise.resolve(jsonResponse(OPTIONS));
       if (url.includes('/catalog/categories')) return Promise.resolve(jsonResponse({ categories: [] }));
       if (url.includes('/submit')) {
@@ -237,6 +240,7 @@ describe('RfqEditPage', () => {
 
   it('checks the quantity in the browser before anything is sent', async () => {
     fetchMock.mockImplementation((url: string) => {
+      if (url.includes('/destination-guidance')) { const q = new URL(url, 'https://example.test').searchParams; return Promise.resolve(jsonResponse({ country: q.get('country'), categoryId: q.get('categoryId'), complianceNotes: null, notes: [], blockedReason: null })); }
       if (url.includes('/form-options')) return Promise.resolve(jsonResponse(OPTIONS));
       return Promise.resolve(jsonResponse({ categories: [] }));
     });
@@ -268,5 +272,45 @@ describe('RfqDetailPage', () => {
     expect(within(table).getByRole('rowheader', { name: /Gamma Supplies/ })).toBeInTheDocument();
     expect(within(table).getByText('Viewed')).toBeInTheDocument();
     expect(within(table).getByText('Picked by you')).toBeInTheDocument();
+  });
+});
+
+describe('destination guidance in the shared requirement form', () => {
+  it.each(['new', 'edit', 'amend'])('uses the unsaved destination in %s without creating, saving, submitting or changing the draft', async mode => {
+    const current = rfq({ status: mode === 'amend' ? 'OPEN' : 'DRAFT', requirement: { ...EMPTY_REQUIREMENT,
+      title: 'Existing requirement', categoryId: 'cat', destinationCountry: 'IN',
+    } });
+    const writes: string[] = [];
+    fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+      if (init?.method === 'POST' || init?.method === 'PUT') writes.push(url);
+      if (url.includes('/form-options')) return Promise.resolve(jsonResponse(OPTIONS));
+      if (url.includes('/catalog/categories')) return Promise.resolve(jsonResponse({ categories: [{ id: 'cat', name: 'Gloves', children: [] }] }));
+      if (url.includes('/destination-guidance')) {
+        const q = new URL(url, 'https://example.test').searchParams;
+        return Promise.resolve(jsonResponse({ country: q.get('country'), categoryId: q.get('categoryId'), complianceNotes: q.get('country') === 'BR' ? 'Brazil importer prompt' : 'India importer prompt', notes: [], blockedReason: null }));
+      }
+      if (url.includes('/matches')) return Promise.resolve(jsonResponse({ outcome: 'NO_MATCH', blockedReason: null, suppliers: [] }));
+      return Promise.resolve(jsonResponse({ rfq: current }));
+    });
+    const path = mode === 'new' ? '/account/rfqs/new?categoryId=cat' : '/account/rfqs/' + current.id + '/' + mode;
+    renderWithProviders(<Routes>
+      <Route path="/account/rfqs/new" element={<RfqEditPage />} />
+      <Route path="/account/rfqs/:id/edit" element={<RfqEditPage />} />
+      <Route path="/account/rfqs/:id/amend" element={<RfqAmendPage />} />
+    </Routes>, { route: path });
+    const destination = await screen.findByLabelText(/^Destination country/);
+    if (mode === 'new') {
+      expect(screen.getByText('Choose a destination to see configured importer, labeling and document guidance.')).toBeVisible();
+    } else { expect(await screen.findByText('India importer prompt')).toBeVisible(); }
+    const user = userEvent.setup();
+    const title = screen.getByLabelText(/^Title/);
+    await user.clear(title); await user.type(title, 'My unsaved requirement');
+    await user.selectOptions(destination, 'BR');
+    expect(await screen.findByText('Brazil importer prompt')).toBeVisible();
+    expect(screen.queryByText('India importer prompt')).not.toBeInTheDocument();
+    expect(title).toHaveValue('My unsaved requirement');
+    expect(destination).toHaveValue('BR');
+    await waitFor(() => { expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/destination-guidance') && String(url).includes('country=BR') && String(url).includes('categoryId=cat'))).toBe(true); });
+    expect(writes).toEqual([]);
   });
 });

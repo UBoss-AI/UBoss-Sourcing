@@ -8413,5 +8413,19 @@
   "sourcingShortcuts.directoryTitle": "Lieferanten finden",
   "sourcingShortcuts.directoryHint": "Genehmigte Lieferanten mit aktiven Produkten. Bis zu 24 öffentliche Treffer werden angezeigt; verfeinern Sie den öffentlichen Namen für weitere Treffer.",
   "sourcingShortcuts.nameSearch": "Öffentlicher Lieferantenname",
-  "sourcingShortcuts.directoryEmpty": "Keine genehmigten Lieferanten gefunden. Verwenden Sie weniger Wörter oder löschen Sie die Suche."
+  "sourcingShortcuts.directoryEmpty": "Keine genehmigten Lieferanten gefunden. Verwenden Sie weniger Wörter oder löschen Sie die Suche.",
+  "rfq.destinationGuidance.title": "Hinweise zum Zielland",
+  "rfq.destinationGuidance.choose": "Wählen Sie ein Zielland, um hinterlegte Hinweise zu Importeuren, Kennzeichnung und Dokumenten zu sehen.",
+  "rfq.destinationGuidance.loading": "Hinweise für dieses Zielland werden geladen…",
+  "rfq.destinationGuidance.empty": "Für dieses Zielland und diese Kategorie sind keine Hinweise hinterlegt. Dies bestätigt keine Regelkonformität.",
+  "rfq.destinationGuidance.importer": "Hinweise zu Importeuren und Vorschriften",
+  "rfq.destinationGuidance.label": "Erforderliche Kennzeichnung: {{text}}",
+  "rfq.destinationGuidance.documents": "Erforderliche Dokumente",
+  "rfq.destinationGuidance.blocked": "Diese Kategorie ist für dieses Zielland gesperrt: {{reason}}",
+  "rfq.destinationGuidance.threshold": "Gilt nur bei einem Bestellwert von mindestens {{amount}}. Der Zielpreis pro Einheit in der Angebotsanfrage ist kein Bestellwert.",
+  "rfq.destinationGuidance.category": "Kategorie: {{name}}",
+  "rfq.destinationGuidance.thresholdUnknown": "Diese Regel hängt von einem Mindestbestellwert ab, aber Währung oder Betrag sind nicht lesbar. Bestätigen Sie den hinterlegten Wert beim Marktplatzbetreiber.",
+  "checkout.destinationGuidance.title": "Was die Lieferung nach {{country}} erfordert",
+  "checkout.destinationGuidance.importer": "Hinweise für Importeur und Compliance",
+  "checkout.destinationGuidance.documents": "Dokumente, die Sie vorlegen müssen"
 }

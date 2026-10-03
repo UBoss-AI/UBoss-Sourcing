@@ -68,6 +68,7 @@ import {
   rfqAttachmentPolicy,
   storeRfqAttachment,
 } from '../../modules/rfq/attachment.service.js';
+import { destinationGuidance, destinationGuidanceQuery } from '../../modules/rfq/destination-guidance.service.js';
 import { searchSuppliers } from '../../modules/rfq/matching.service.js';
 import { buyerRfqSummary } from '../../modules/rfq/summary.service.js';
 import {
@@ -210,6 +211,11 @@ export function registerCustomerRfqRoutes(app: FastifyInstance): Promise<void> {
     return reply.header('Cache-Control', 'no-store').status(200).send({ suppliers });
   });
 
+  /** Published importer guidance and current category destination rules for an unsaved RFQ. */
+  app.get('/destination-guidance', { preHandler: requireCustomer }, async (request, reply) => {
+    const input = destinationGuidanceQuery.parse(request.query);
+    return reply.header('Cache-Control', 'no-store').status(200).send(await destinationGuidance(input));
+  });
   /** One of your requests: requirement, versions, sellers asked, files and timeline. */
   app.get('/:id', { preHandler: requireCustomer }, async (request, reply) => {
     const { id } = idParams.parse(request.params);

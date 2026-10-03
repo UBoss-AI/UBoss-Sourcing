@@ -8522,5 +8522,19 @@
   "sourcingShortcuts.directoryTitle": "Trouver un fournisseur",
   "sourcingShortcuts.directoryHint": "Fournisseurs approuvés avec des produits actifs. Jusqu’à 24 résultats publics sont affichés ; précisez le nom public pour d’autres résultats.",
   "sourcingShortcuts.nameSearch": "Nom public du fournisseur",
-  "sourcingShortcuts.directoryEmpty": "Aucun fournisseur approuvé trouvé. Essayez moins de mots ou effacez la recherche."
+  "sourcingShortcuts.directoryEmpty": "Aucun fournisseur approuvé trouvé. Essayez moins de mots ou effacez la recherche.",
+  "rfq.destinationGuidance.title": "Consignes pour la destination",
+  "rfq.destinationGuidance.choose": "Choisissez une destination pour voir les consignes configurées concernant l’importateur, l’étiquetage et les documents.",
+  "rfq.destinationGuidance.loading": "Chargement des consignes pour cette destination…",
+  "rfq.destinationGuidance.empty": "Aucune consigne n’est configurée pour cette destination et cette catégorie. Cela ne confirme pas la conformité.",
+  "rfq.destinationGuidance.importer": "Consignes relatives à l’importateur et à la conformité",
+  "rfq.destinationGuidance.label": "Étiquetage requis : {{text}}",
+  "rfq.destinationGuidance.documents": "Documents requis",
+  "rfq.destinationGuidance.blocked": "Cette catégorie est bloquée pour cette destination : {{reason}}",
+  "rfq.destinationGuidance.threshold": "S’applique uniquement lorsque la valeur de la commande est au moins {{amount}}. Le prix unitaire cible de la demande de devis n’est pas une valeur de commande.",
+  "rfq.destinationGuidance.category": "Catégorie : {{name}}",
+  "rfq.destinationGuidance.thresholdUnknown": "Cette règle dépend d’un seuil de valeur de commande, mais sa devise ou son montant ne peut pas être interprété. Confirmez le seuil configuré auprès de l’opérateur de la place de marché.",
+  "checkout.destinationGuidance.title": "Ce qu’exige la livraison vers {{country}}",
+  "checkout.destinationGuidance.importer": "Instructions importateur et conformité",
+  "checkout.destinationGuidance.documents": "Documents que vous devez détenir"
 }

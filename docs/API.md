@@ -3779,6 +3779,30 @@ default).
 
 ---
 
+## Destination guidance in RFQs (ENH-022)
+
+`GET /rfqs/destination-guidance?country=ISO&categoryId=optional` is a
+session-authenticated, RFQ-feature-gated, read-only endpoint with no-store.
+Country is normalized and validated as a real ISO country. An optional category
+must be active and unarchived. The response has `country`, `categoryId`,
+`complianceNotes`, `notes` and `blockedReason`. Only published market
+instructions and currently effective exact/ancestor category rules are exposed.
+Notes contain effect, reason, label text, document names, category name and
+nullable exact minor-unit string/currency threshold. Only a BLOCK without an
+order-value qualifier contributes to blockedReason. There are no buyer, seller,
+KYB or private document fields and no writes. The client validates the response
+and selected-country/category correspondence before rendering. Existing submit
+and amend endpoints remain authoritative for enforcement.
+
+`GET /catalog/destination-guidance?country=CC&products=id,id` is the public
+checkout counterpart, cached for 60 seconds like `/catalog/label-requirements`.
+It takes up to 100 product IDs and answers `country` (upper-cased),
+`complianceNotes` (published market profile only) and
+`documentRequirements`: distinct `{ reason, requiredDocuments }` from
+currently effective DOCUMENTS_REQUIRED rules on the products, their categories
+or ancestor categories. Labels and blocks are not repeated; placing the order
+remains the enforcement point. A malformed country answers 400.
+
 ## RFQ purchase-order review
 
 These storefront routes require a customer session in the same buyer context

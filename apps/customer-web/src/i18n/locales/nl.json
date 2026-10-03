@@ -8413,5 +8413,19 @@
   "sourcingShortcuts.directoryTitle": "Vind een leverancier",
   "sourcingShortcuts.directoryHint": "Goedgekeurde leveranciers met actieve producten. Er worden maximaal 24 openbare resultaten getoond; verfijn de openbare naam voor andere resultaten.",
   "sourcingShortcuts.nameSearch": "Openbare leveranciersnaam",
-  "sourcingShortcuts.directoryEmpty": "Geen goedgekeurde leveranciers gevonden. Probeer minder woorden of wis de zoekopdracht."
+  "sourcingShortcuts.directoryEmpty": "Geen goedgekeurde leveranciers gevonden. Probeer minder woorden of wis de zoekopdracht.",
+  "rfq.destinationGuidance.title": "Informatie over de bestemming",
+  "rfq.destinationGuidance.choose": "Kies een bestemming om ingestelde aanwijzingen voor importeurs, etiketten en documenten te bekijken.",
+  "rfq.destinationGuidance.loading": "Informatie voor deze bestemming laden…",
+  "rfq.destinationGuidance.empty": "Er is geen informatie ingesteld voor deze bestemming en categorie. Dit bevestigt geen naleving.",
+  "rfq.destinationGuidance.importer": "Aanwijzingen voor importeurs en naleving",
+  "rfq.destinationGuidance.label": "Vereist etiket: {{text}}",
+  "rfq.destinationGuidance.documents": "Vereiste documenten",
+  "rfq.destinationGuidance.blocked": "Deze categorie is geblokkeerd voor deze bestemming: {{reason}}",
+  "rfq.destinationGuidance.threshold": "Geldt alleen als de bestelwaarde minstens {{amount}} is. De doelprijs per eenheid in de offerteaanvraag is geen bestelwaarde.",
+  "rfq.destinationGuidance.category": "Categorie: {{name}}",
+  "rfq.destinationGuidance.thresholdUnknown": "Deze regel hangt af van een drempel voor de bestelwaarde, maar de valuta of het bedrag is niet leesbaar. Bevestig de ingestelde drempel bij de beheerder van de marktplaats.",
+  "checkout.destinationGuidance.title": "Wat levering naar {{country}} vereist",
+  "checkout.destinationGuidance.importer": "Instructies voor importeur en naleving",
+  "checkout.destinationGuidance.documents": "Documenten die u moet hebben"
 }

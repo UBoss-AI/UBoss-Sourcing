@@ -8522,5 +8522,19 @@
   "sourcingShortcuts.directoryTitle": "Trova un fornitore",
   "sourcingShortcuts.directoryHint": "Fornitori approvati con prodotti attivi. Sono mostrati fino a 24 risultati pubblici; precisa il nome pubblico per altri risultati.",
   "sourcingShortcuts.nameSearch": "Nome pubblico del fornitore",
-  "sourcingShortcuts.directoryEmpty": "Nessun fornitore approvato trovato. Prova meno parole o cancella la ricerca."
+  "sourcingShortcuts.directoryEmpty": "Nessun fornitore approvato trovato. Prova meno parole o cancella la ricerca.",
+  "rfq.destinationGuidance.title": "Indicazioni per la destinazione",
+  "rfq.destinationGuidance.choose": "Scegli una destinazione per vedere le indicazioni configurate su importatore, etichettatura e documenti.",
+  "rfq.destinationGuidance.loading": "Caricamento delle indicazioni per questa destinazione…",
+  "rfq.destinationGuidance.empty": "Non sono configurate indicazioni per questa destinazione e categoria. Questo non conferma la conformità.",
+  "rfq.destinationGuidance.importer": "Istruzioni per importatore e conformità",
+  "rfq.destinationGuidance.label": "Etichetta richiesta: {{text}}",
+  "rfq.destinationGuidance.documents": "Documenti richiesti",
+  "rfq.destinationGuidance.blocked": "Questa categoria è bloccata per questa destinazione: {{reason}}",
+  "rfq.destinationGuidance.threshold": "Si applica solo quando il valore dell’ordine è almeno {{amount}}. Il prezzo obiettivo unitario della richiesta di preventivo non è il valore dell’ordine.",
+  "rfq.destinationGuidance.category": "Categoria: {{name}}",
+  "rfq.destinationGuidance.thresholdUnknown": "Questa regola dipende da una soglia di valore dell’ordine, ma la valuta o l’importo non sono interpretabili. Conferma la soglia configurata con il gestore del marketplace.",
+  "checkout.destinationGuidance.title": "Cosa richiede la consegna in {{country}}",
+  "checkout.destinationGuidance.importer": "Istruzioni per importatore e conformità",
+  "checkout.destinationGuidance.documents": "Documenti che deve possedere"
 }

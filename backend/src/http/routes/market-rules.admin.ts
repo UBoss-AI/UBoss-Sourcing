@@ -17,6 +17,7 @@ import {
   saveMarketRule,
 } from '../../modules/catalog/market-rule-admin.service.js';
 import { laneInput, laneQuoteInput, listLanes, quoteLanes, saveLane } from '../../modules/logistics/lane-rate.service.js';
+import { basketDestinationGuidance } from '../../modules/rfq/destination-guidance.service.js';
 import type { SettingsActor } from '../../modules/settings/settings.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 
@@ -116,6 +117,22 @@ export function registerPublicLabelRuleRoutes(app: FastifyInstance): Promise<voi
       .parse(request.query);
     const requirements = await labelRequirements(query.country, query.products.slice(0, 100));
     return reply.header('cache-control', 'public, max-age=60').status(200).send({ requirements });
+  });
+
+  // Importer instructions and documents a basket needs for a delivery country, for checkout to show.
+  app.get('/destination-guidance', async (request, reply) => {
+    const query = z
+      .object({
+        country: z.string().trim().regex(/^[A-Za-z]{2}$/),
+        products: z
+          .string()
+          .trim()
+          .max(26 * 100 + 99)
+          .transform((value) => value.split(',').filter((id) => id.length === 26)),
+      })
+      .parse(request.query);
+    const guidance = await basketDestinationGuidance(query.country, query.products.slice(0, 100));
+    return reply.header('cache-control', 'public, max-age=60').status(200).send(guidance);
   });
 
   return Promise.resolve();

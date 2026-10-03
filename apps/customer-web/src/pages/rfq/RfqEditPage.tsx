@@ -62,6 +62,7 @@ import {
   type SupplierCard,
 } from '@/lib/rfq';
 import type { CategoryNode } from '@/lib/types';
+import { RfqDestinationGuidance } from './RfqDestinationGuidance';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
 const QUANTITY = /^(?:0|[1-9]\d{0,11})(?:\.\d{1,3})?$/;
@@ -583,6 +584,7 @@ function RfqForm({
             </Select>
           )}
         </Field>
+        <RfqDestinationGuidance country={draft.destinationCountry} categoryId={draft.categoryId} />
         <Field label={t('rfq.field.incoterm')} required error={errors['incoterm']} hint={t('rfq.form.incotermHint')}>
           {({ inputId, describedBy }) => (
             <Select

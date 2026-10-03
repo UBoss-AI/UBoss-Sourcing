@@ -39,6 +39,7 @@ import { SavedCardChoice, SelectedFlag } from '@/components/SavedCardList';
 import { choiceCardClass } from '@/lib/cards';
 import { Button, ButtonLink, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
 import { FulfilmentWarehouseSection } from '@/pages/checkout/FulfilmentWarehouseSection';
+import { DestinationGuidanceNotice } from '@/pages/checkout/DestinationGuidanceNotice';
 import { LabelRequirementsNotice } from '@/pages/checkout/LabelRequirementsNotice';
 import { ApiError, NetworkError, api, newIdempotencyKey } from '@/lib/api';
 import {
@@ -930,6 +931,12 @@ export function CheckoutPage(): React.JSX.Element {
               </div>
             )}
           </Section>
+
+          {/* Importer instructions and documents for the delivery country (ENH-022). */}
+          <DestinationGuidanceNotice
+            country={usableAddresses.find((address) => address.id === shippingAddressId)?.country ?? null}
+            productIds={fulfilmentItems.map((item) => item.productId)}
+          />
 
           {/* What the goods must carry for the delivery country (JOURNEY-064). */}
           <LabelRequirementsNotice

@@ -8631,5 +8631,19 @@
   "sourcingShortcuts.directoryTitle": "Znajdź dostawcę",
   "sourcingShortcuts.directoryHint": "Zatwierdzeni dostawcy z aktywnymi produktami. Wyświetlamy do 24 publicznych wyników; doprecyzuj publiczną nazwę, aby znaleźć inne wyniki.",
   "sourcingShortcuts.nameSearch": "Publiczna nazwa dostawcy",
-  "sourcingShortcuts.directoryEmpty": "Nie znaleziono zatwierdzonych dostawców. Użyj mniej słów lub wyczyść wyszukiwanie."
+  "sourcingShortcuts.directoryEmpty": "Nie znaleziono zatwierdzonych dostawców. Użyj mniej słów lub wyczyść wyszukiwanie.",
+  "rfq.destinationGuidance.title": "Wskazówki dla kraju docelowego",
+  "rfq.destinationGuidance.choose": "Wybierz kraj docelowy, aby zobaczyć skonfigurowane wskazówki dotyczące importera, etykiet i dokumentów.",
+  "rfq.destinationGuidance.loading": "Ładowanie wskazówek dla tego kraju docelowego…",
+  "rfq.destinationGuidance.empty": "Nie skonfigurowano wskazówek dla tego kraju docelowego i kategorii. Nie potwierdza to zgodności.",
+  "rfq.destinationGuidance.importer": "Instrukcje dotyczące importera i zgodności",
+  "rfq.destinationGuidance.label": "Wymagana etykieta: {{text}}",
+  "rfq.destinationGuidance.documents": "Wymagane dokumenty",
+  "rfq.destinationGuidance.blocked": "Ta kategoria jest zablokowana dla tego kraju docelowego: {{reason}}",
+  "rfq.destinationGuidance.threshold": "Dotyczy tylko zamówień o wartości co najmniej {{amount}}. Docelowa cena jednostkowa w zapytaniu ofertowym nie jest wartością zamówienia.",
+  "rfq.destinationGuidance.category": "Kategoria: {{name}}",
+  "rfq.destinationGuidance.thresholdUnknown": "Ta reguła zależy od progu wartości zamówienia, ale nie można odczytać waluty lub kwoty. Potwierdź skonfigurowany próg z operatorem platformy.",
+  "checkout.destinationGuidance.title": "Czego wymaga dostawa do {{country}}",
+  "checkout.destinationGuidance.importer": "Instrukcje dla importera i zgodności",
+  "checkout.destinationGuidance.documents": "Dokumenty, które musisz posiadać"
 }
