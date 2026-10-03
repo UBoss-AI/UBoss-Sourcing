@@ -6,8 +6,8 @@
     "open": 87
   },
   "after": {
-    "checked": 283,
-    "open": 81
+    "checked": 284,
+    "open": 80
   },
   "targeted": {
     "command": "npx vitest run tests/integration/rfq-samples.test.ts tests/integration/rfq-purchase-order-to-order.test.ts",
@@ -72,8 +72,8 @@
   },
   "audit": {
     "problems": [],
-    "checked": 283,
-    "open": 81
+    "checked": 284,
+    "open": 80
   },
   "secretScan": {
     "command": ".\\scripts\\secret-scan.ps1",
@@ -602,5 +602,115 @@
       "Local help error recovery, unavailable-policy labels, published policy links and Terms loading/read-to-end/retry behavior verified. Complete the loading/empty/error and user-guidance audit across all applicable screens after active storefront work, and publish approved launch policy links. This two-component run does not prove all screen states."
     ],
     "evidence": "batch-9-partial.json"
+  },
+  "batch10": {
+    "id": "ENH-026",
+    "sourceBaseline": "a27cd23a89da253bc4f883236a5542dc96637bdf",
+    "verifiedDate": "2026-10-03",
+    "before": {
+      "checked": 283,
+      "open": 81
+    },
+    "after": {
+      "checked": 284,
+      "open": 80
+    },
+    "targetedCustomer": {
+      "command": "npx vitest run src/components/rfq/NegotiationPanel.test.tsx --config ../../output/pass10-customer.config.mts --maxWorkers 2",
+      "files": 1,
+      "tests": 7,
+      "exitCode": 0
+    },
+    "targetedBackend": {
+      "command": "npx vitest run tests/integration/rfq-negotiation.test.ts",
+      "files": 1,
+      "tests": 9,
+      "exitCode": 0
+    },
+    "customer": {
+      "commands": [
+        "npm run typecheck",
+        "npm run lint",
+        "npm run audit:contrast",
+        "npx vitest run --config ../../output/pass10-customer.config.mts --maxWorkers=2",
+        "npm run build"
+      ],
+      "files": 196,
+      "tests": 1808,
+      "exitCode": 0
+    },
+    "beforeRegression": {
+      "failed": 3,
+      "passed": 4,
+      "restoredBaselineSource": true
+    },
+    "runnerNotes": "Corrected unsupported Testing Library exact option and three strict-lint redundant conditions, then reran targeted checks and complete verification. Browser screenshot wait now queries native dialog[open]; the initial role-attribute query timed out. Final browser checks passed. Private preview moved outside lint scan.",
+    "retainedVerification": {
+      "backend": {
+        "files": 337,
+        "tests": 5352
+      },
+      "admin": {
+        "files": 52,
+        "tests": 382
+      },
+      "reason": "Implementation/tests/config unchanged since batch 5; tracked source guard empty."
+    },
+    "browser": {
+      "widths": [
+        320,
+        375
+      ],
+      "height": 812,
+      "cases": 2,
+      "clauses": 18,
+      "network": "Private loopback fixture only; other network blocked",
+      "results": "summary-browser-results.json",
+      "visualQA": "Final opaque top/scrolled screenshots inspected at phone widths."
+    },
+    "docs": {
+      "referenceCheck": "npm run docs:check passed",
+      "locales": 8,
+      "guide": "npm run guide passed; native Word read-only page 29/128 inspected; GDI font playback limitation",
+      "formal": [
+        "docs/PRD.md",
+        "docs/UI-SCREENS.md"
+      ],
+      "languages": [
+        "English",
+        "Hinglish"
+      ]
+    },
+    "sourceFiles": [
+      "apps/customer-web/src/components/rfq/FinalTermSheet.tsx",
+      "apps/customer-web/src/components/rfq/NegotiationPanel.tsx"
+    ],
+    "testFiles": [
+      "apps/customer-web/src/components/rfq/NegotiationPanel.test.tsx",
+      "backend/tests/integration/rfq-negotiation.test.ts"
+    ],
+    "limitations": [
+      "Fixture Chromium phone verification; physical device and browser matrix remain open."
+    ],
+    "evidence": "batch-10.json",
+    "word": {
+      "engine": "Microsoft Word 16.0",
+      "readOnly": true,
+      "totalPages": 29,
+      "changedPages": [
+        27
+      ],
+      "renderMethod": "Actual Word Page.EnhMetaFileBits rasterized with native GDI and visually inspected.",
+      "structuralComparison": {
+        "baseline": "a27cd23a89da253bc4f883236a5542dc96637bdf",
+        "unchangedOtherParts": 18,
+        "authorizedCharacterChanges": 1,
+        "ids": [
+          "ENH-026"
+        ]
+      },
+      "visualResult": "Negotiation Summary checked; neighboring boxes and blank sign-off selections preserved. Native GDI font playback limitation disclosed.",
+      "cleanup": "Private read-only renderer closed without saving."
+    }
   }
 }

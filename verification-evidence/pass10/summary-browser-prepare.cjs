@@ -1,0 +1,9 @@
+const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_process'),assert=require('node:assert/strict');
+const root=process.argv[2],app=path.join(root,'apps/customer-web');cp.execFileSync(process.execPath,[path.join(root,'verification-evidence/pass10/phone-preview.cjs'),root],{cwd:root});
+const ts=require(path.join(app,'node_modules/typescript')),text=fs.readFileSync(path.join(app,'src/components/rfq/NegotiationPanel.test.tsx'),'utf8'),ast=ts.createSourceFile('fixture.tsx',text,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
+const declarations=['version','quote'].map(name=>{const node=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);assert.ok(node);return node.getText(ast);}).join('\n');
+const p=path.join(app,'output/phone-preview/main.tsx');let s=fs.readFileSync(p,'utf8');
+s="import {NegotiationPanel} from '../../src/components/rfq/NegotiationPanel';\nimport type {OfferVersion,Quote} from '../../src/lib/rfq-quote';\nconst HASH='a'.repeat(64);\n"+declarations+'\n'+s;
+s=s.replace("url.includes('/seller/rfqs/')||", "url.includes('/seller/rfqs/')||url.startsWith('/api/rfqs/')||url.includes('/rfqs/')||");
+s=s.replace("const content=selected==='rfq'?","const prior=version({state:'SUPERSEDED'});\nconst shown=version({id:'v2',versionNumber:2,termsHash:'b'.repeat(64),unitPrice:{minor:'85000',formatted:'850.00',currency:'INR'},terms:{...prior.terms,versionNumber:2,unitPriceMinor:'85000',paymentTerms:'30 days',incotermPlace:'Mumbai port',warranty:'12 months',exportDocuments:['CERTIFICATE_OF_ORIGIN']}});\nconst content=selected==='summary'?<NegotiationPanel quote={quote(shown,{versions:[prior,shown]})} party=\"BUYER\" basePath=\"/rfqs/PHONE/quotes/QUOTE\" queryKey={['phone-summary']}/>:selected==='rfq'?");
+fs.writeFileSync(p,s);console.log('Prepared private summary fixture from canonical test declarations.');

@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ConfirmDialog } from '@/components/Modal';
 import { OfferHistory } from '@/components/rfq/OfferHistory';
+import { FinalTermSheet } from '@/components/rfq/FinalTermSheet';
 import { useToast } from '@/components/toast-context';
 import { Button, Card, Field, Input, Select, Textarea } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
@@ -19,7 +20,7 @@ import { errorMessage } from '@/lib/errors';
 import { currencyExponent, formatMoney, majorToMinor, minorToMajor } from '@/lib/format';
 import { fromDeadlineInput } from '@/lib/rfq';
 import { formatUtc } from '@/lib/rfq-format';
-import type { Quote } from '@/lib/rfq-quote';
+import type { OfferVersion, Quote } from '@/lib/rfq-quote';
 
 const INCOTERMS = ['EXW', 'FCA', 'FAS', 'FOB', 'CFR', 'CIF', 'CPT', 'CIP', 'DAP', 'DPU', 'DDP'];
 
@@ -45,6 +46,7 @@ export function NegotiationPanel({
   const exponent = currencyExponent(quote.currency);
 
   const [confirming, setConfirming] = useState<'accept' | 'reject' | 'withdraw' | null>(null);
+  const [acceptSnapshot, setAcceptSnapshot] = useState<{ current: OfferVersion; previous: OfferVersion | null } | null>(null);
   const [note, setNote] = useState('');
   const [values, setValues] = useState<Record<string, string>>(() => ({
     unitPrice: current === null ? '' : minorToMajor(current.terms.unitPriceMinor, exponent),
@@ -71,7 +73,7 @@ export function NegotiationPanel({
   };
 
   const accept = useMutation({
-    mutationFn: () => api.post(`${basePath}/accept`, { versionId: current?.id, termsHash: current?.termsHash }),
+    mutationFn: (shown: OfferVersion) => api.post(`${basePath}/accept`, { versionId: shown.id, termsHash: shown.termsHash }),
     onSuccess: () => {
       done(t('rfq.offer.accepted'));
     },
@@ -175,6 +177,8 @@ export function NegotiationPanel({
                 <Button
                   variant="primary"
                   onClick={() => {
+                    const previous = quote.versions.filter(version => version.versionNumber < current.versionNumber).sort((a, b) => b.versionNumber - a.versionNumber)[0] ?? null;
+                    setAcceptSnapshot({ current, previous });
                     setConfirming('accept');
                   }}
                 >
@@ -269,7 +273,15 @@ export function NegotiationPanel({
           setConfirming(null);
         }}
         onConfirm={() => {
-          if (confirming === 'accept') accept.mutate();
+          if (confirming === 'accept' && acceptSnapshot !== null) {
+            if (!canAnswer || current.id !== acceptSnapshot.current.id || current.termsHash !== acceptSnapshot.current.termsHash) {
+              toast.error(t('rfq.offer.summaryStale'));
+              setConfirming(null);
+              void queryClient.invalidateQueries({ queryKey });
+              return;
+            }
+            accept.mutate(acceptSnapshot.current);
+          }
           if (confirming === 'reject') reject.mutate();
           if (confirming === 'withdraw') withdraw.mutate();
         }}
@@ -295,7 +307,10 @@ export function NegotiationPanel({
               />
             </label>
           ) : confirming === 'accept' ? (
-            t('rfq.offer.acceptBody')
+            <div className="space-y-4">
+              {acceptSnapshot !== null && <FinalTermSheet current={acceptSnapshot.current} previous={acceptSnapshot.previous} />}
+              <p>{t('rfq.offer.acceptBody')}</p>
+            </div>
           ) : (
             t('rfq.offer.withdrawBody')
           )

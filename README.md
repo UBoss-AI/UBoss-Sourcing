@@ -3003,7 +3003,11 @@ inspection, warranty, tooling, sample and shipping costs, validity); the
 buyer compares them side by side in a chosen currency - converted at your
 published exchange rates, labelled as converted with the rate and its date,
 and never hiding the figure as quoted - shortlists, and downloads the
-comparison as CSV. Buyer and seller then negotiate in counter-offers, each an
+comparison as CSV. Before confirming an offer, either side reads a final term
+sheet with every clause, the exact version and its fingerprint. Changes from
+the preceding offer show their old values. A quote refreshed while the sheet
+is open cannot cause unseen terms to be accepted; the reader must review the
+latest offer. Buyer and seller then negotiate in counter-offers, each an
 unchangeable version; accepting one awards the request once, closes the other
 quotes and locks the agreed terms (with a fingerprint an order would have to
 match). The buyer then signs a binding purchase order on those exact terms,

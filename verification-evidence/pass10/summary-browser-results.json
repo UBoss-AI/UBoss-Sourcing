@@ -1,0 +1,48 @@
+[
+  {
+    "width": 320,
+    "bounds": {
+      "width": 320,
+      "documentWidth": 320,
+      "rect": {
+        "x": 0,
+        "y": 16,
+        "width": 320,
+        "height": 780,
+        "top": 16,
+        "right": 320,
+        "bottom": 796,
+        "left": 0
+      }
+    },
+    "clauses": 18,
+    "body": {
+      "versionId": "v2",
+      "termsHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "errors": []
+  },
+  {
+    "width": 375,
+    "bounds": {
+      "width": 375,
+      "documentWidth": 375,
+      "rect": {
+        "x": 0,
+        "y": 16,
+        "width": 375,
+        "height": 780,
+        "top": 16,
+        "right": 375,
+        "bottom": 796,
+        "left": 0
+      }
+    },
+    "clauses": 18,
+    "body": {
+      "versionId": "v2",
+      "termsHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "errors": []
+  }
+]

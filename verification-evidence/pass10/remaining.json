@@ -1002,8 +1002,8 @@
       "priority": "P1",
       "requirement": "System-generated final term sheet before acceptance, showing changed clauses.",
       "classification": "A",
-      "remainingAction": "Verify generated final term sheet and changed clauses before acceptance, including stale-version prevention.",
-      "status": "OPEN",
+      "remainingAction": "None for the final-term-sheet software requirement; see pass10/batch-10.json.",
+      "status": "VERIFIED",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
     {
@@ -1232,8 +1232,8 @@
     }
   ],
   "current": {
-    "checked": 283,
-    "open": 81,
+    "checked": 284,
+    "open": 80,
     "total": 364
   },
   "baselineCounts": {
@@ -1332,7 +1332,7 @@
       "total": 67
     },
     "ENH": {
-      "checked": 14,
+      "checked": 15,
       "total": 32
     },
     "DYNAMIC": {
@@ -1413,7 +1413,6 @@
     "ENH-021",
     "ENH-022",
     "ENH-024",
-    "ENH-026",
     "ENH-027",
     "ENH-030",
     "ENH-032",

@@ -13656,6 +13656,18 @@ its own request, so its failure never blanks the order ring; unknown shows
 "–", never 0. Tiles link to `/account/rfqs?status=…`; sample actions open the
 request's Samples tab (`?tab=samples`).
 
+**Final negotiation term sheet (ENH-026).** Before either party confirms an
+offer, `FinalTermSheet` shows the exact immutable version and its terms
+fingerprint. All 18 term fields are included, with unspecified terms named;
+changed clauses show their previous value from the nearest earlier version.
+Prices and tier amounts retain string minor units and exact formatting.
+`NegotiationPanel` snapshots the version when confirmation opens: a refreshed
+offer cannot silently replace the terms being accepted. If the current offer
+changes, confirmation is refused locally and the latest quote is requested.
+Existing server version/hash, expiry, participation and concurrent-acceptance
+guards still decide whether acceptance is valid. The sheet is shown in all
+eight supported languages. It creates no new offer, legal approval or order.
+
 ## 9.5.4 Seller invoices and packing lists
 
 ### Whose document it is

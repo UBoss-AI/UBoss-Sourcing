@@ -2606,7 +2606,13 @@ on a phone. **Calls** `GET /rfqs/:id/comparison`,
 **On the screen.** "The offer on the table" (version, unit price, quantity,
 valid until; expired said plainly), **Accept these terms** and **Reject**
 only when the supplier wrote it and it has not expired (each confirmed in a
-dialog), a counter-offer form (unit price in the quote's currency, quantity,
+dialog). The acceptance dialog shows a final term sheet: all 18 contract
+fields, the version and fingerprint, and previous values for changed clauses.
+Missing terms are named. A refreshed offer cannot replace what the person
+is confirming: they must review the new offer before accepting. The sheet
+scrolls while its confirmation controls remain visible on phones. This also
+applies to the seller accepting a buyer counter-offer. A counter-offer form
+(unit price in the quote's currency, quantity,
 MOQ, lead time, Incoterm and place, validity in UTC, payment and inspection
 terms, comment), and every offer so far, newest first. Once accepted: "Agreed
 terms" with the date, the terms fingerprint (hash) and a line saying the

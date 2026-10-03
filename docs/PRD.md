@@ -3377,7 +3377,13 @@ status write is conditional on the status and version that were read.
   5. The accepted terms and their hash are frozen on the quote;
      `GET /rfqs/:id/accepted-terms` (and the seller's equivalent) returns them,
      re-checking the hash.
-  6. Reject closes the quote (REJECTED); the seller may withdraw an open
+  6. Before accepting, either party reviews a final term sheet with all 18
+     contract fields, its version and terms fingerprint. Changed clauses show
+     their previous values; absent terms are explicit. Confirmation sends the
+     displayed version and hash. If a refresh replaces them, acceptance stops
+     and the person must review the latest offer. The first offer has no
+     invented changes. This is built in all eight interface languages.
+  7. Reject closes the quote (REJECTED); the seller may withdraw an open
      quote (WITHDRAWN, invitation WITHDRAWN). Every step is audited with the
      actor and the version.
 - **Status.** Built (checklist Master row 19). The accepted-terms response
