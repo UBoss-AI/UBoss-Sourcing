@@ -1311,6 +1311,8 @@ export interface AccountNotification {
   readAt?: string | null;
   /** Derived from the event: HIGH needs acting on, LOW is news asked for. */
   priority?: 'HIGH' | 'NORMAL' | 'LOW';
+  /** Shown at once and never bundled (ENH-020). Absent from an older API. */
+  escalation?: 'INSPECTION_FAIL' | 'PAYMENT_RISK' | 'SHIPPING_DELAY' | 'RFQ_EXPIRY' | null;
   /** The family a person can mute, and whether it can be muted at all. */
   family?: string | null;
   mandatory?: boolean;

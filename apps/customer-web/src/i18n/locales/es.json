@@ -8562,5 +8562,12 @@
   "sellerActions.kind.DISPUTE_RESPONSE": "Responder a la disputa {{reference}}",
   "sellerActions.kind.DISPATCH": "Enviar el pedido {{reference}}",
   "sellerActions.kind.QUOTE": "Cotizar la solicitud {{reference}}",
-  "sellerActions.more": "y {{more}} más"
+  "sellerActions.more": "y {{more}} más",
+  "notifications.urgent.title": "Requiere su atención ahora",
+  "notifications.urgent.repeat": "{{times}} veces",
+  "notifications.escalation.INSPECTION_FAIL": "Inspección fallida",
+  "notifications.escalation.PAYMENT_RISK": "Pago en riesgo",
+  "notifications.escalation.SHIPPING_DELAY": "Envío retrasado",
+  "notifications.escalation.RFQ_EXPIRY": "Solicitud a punto de vencer",
+  "notifications.bundle.summary": "{{updates}} avisos de baja prioridad"
 }

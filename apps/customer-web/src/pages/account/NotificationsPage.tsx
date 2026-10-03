@@ -53,6 +53,8 @@ import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import type { AccountNotification, NotificationPreferenceFamily } from '@/lib/types';
 import { AccountPanel } from './AccountPanel';
+import { LowBundles, UrgentAlerts } from './NotificationGroups';
+import { arrangeNotifications } from '@/lib/notification-bundles';
 
 /**
  * Which family a notification belongs to, from the first segment of its key,
@@ -160,6 +162,7 @@ export function NotificationsPage(): React.JSX.Element {
   }
 
   const { notifications } = query.data;
+  const arranged = arrangeNotifications(notifications);
   const unreadCount = query.data.unreadCount ?? 0;
 
   return (
@@ -207,8 +210,10 @@ export function NotificationsPage(): React.JSX.Element {
             description={unreadOnly ? t('notifications.noUnreadBody') : t('notifications.emptyBody')}
           />
         ) : (
+          <>
+          <UrgentAlerts urgent={arranged.urgent} />
           <ul className="divide-y divide-border-subtle">
-            {notifications.map((entry) => {
+            {arranged.rest.map((entry) => {
               const family = familyFor(entry.eventKey);
               const Mark = family?.icon ?? BellIcon;
               const to = entry.link ?? family?.to;
@@ -266,6 +271,8 @@ export function NotificationsPage(): React.JSX.Element {
               );
             })}
           </ul>
+          <LowBundles bundles={arranged.bundles} />
+          </>
         )}
 
         {/*

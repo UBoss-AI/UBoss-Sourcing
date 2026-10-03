@@ -21,7 +21,7 @@
  * single-use link in it.
  */
 import { prisma } from '../../infra/prisma.js';
-import { buyerDeepLink, familyOf, isMandatoryEvent, priorityOf, type NotificationPriority } from './notification-preferences.js';
+import { buyerDeepLink, escalationOf, familyOf, isMandatoryEvent, priorityOf, type Escalation, type NotificationPriority } from './notification-preferences.js';
 
 export interface CentreNotification {
   id: string;
@@ -32,6 +32,8 @@ export interface CentreNotification {
   relatedId: string | null;
   readAt: string | null;
   priority: NotificationPriority;
+  /** A kind that is shown at once and never bundled (ENH-020). */
+  escalation: Escalation | null;
   family: string | null;
   mandatory: boolean;
   /** In-app path, e.g. /account/orders/<id>. Null when there is no screen. */
@@ -103,6 +105,7 @@ export async function listCentreNotifications(
         relatedId: row.relatedId,
         readAt: row.readAt?.toISOString() ?? null,
         priority: priorityOf(row.eventKey),
+        escalation: escalationOf(row.eventKey),
         family: family?.key ?? null,
         mandatory: isMandatoryEvent(row.eventKey),
         link: buyerDeepLink(row.relatedType, row.relatedId, references),

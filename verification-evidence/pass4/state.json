@@ -2803,6 +2803,12 @@
       "status": "VERIFIED",
       "evidence": "Pass 10 batch 21: ENH-018. Seller Hub dashboard opens with a ranked action queue from GET /seller/action-queue: overdue, then due within a day, then deadline, kind weight, amount at stake, id (deterministic). Ranking unit 1/1, endpoint/isolation integration 2/2, UI 2/2 plus dashboard/query-states/i18n 7 files/73; typecheck/lint clean; reference docs regenerated; eight locales and guides synchronized. No browser pass.",
       "verifiedAt": "2026-10-03 (pass 10)"
+    },
+    {
+      "id": "ENH-020",
+      "status": "VERIFIED",
+      "evidence": "Pass 10 batch 22: ENH-020. Escalation of inspection fail, payment risk, shipping delay and RFQ expiry (always HIGH, escalation field in the centre); centre shows unread escalated alerts first, deduplicated with counts, and bundles LOW news per family. Backend unit 17/17 + centre integration 5/5; UI arrangement + notifications page + query-states + i18n 7 files/72; typecheck/lint clean; eight locales and guides synchronized. Email delivery timing unchanged (escalated events already send immediately). No browser pass.",
+      "verifiedAt": "2026-10-03 (pass 10)"
     }
   ],
   "pendingBoxes": []

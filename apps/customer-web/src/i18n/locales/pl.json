@@ -8671,5 +8671,12 @@
   "sellerActions.kind.DISPUTE_RESPONSE": "Odpowiedz na spór {{reference}}",
   "sellerActions.kind.DISPATCH": "Wyślij zamówienie {{reference}}",
   "sellerActions.kind.QUOTE": "Wyceń zapytanie {{reference}}",
-  "sellerActions.more": "i jeszcze {{more}}"
+  "sellerActions.more": "i jeszcze {{more}}",
+  "notifications.urgent.title": "Wymaga teraz Twojej uwagi",
+  "notifications.urgent.repeat": "{{times}} razy",
+  "notifications.escalation.INSPECTION_FAIL": "Inspekcja niezaliczona",
+  "notifications.escalation.PAYMENT_RISK": "Płatność zagrożona",
+  "notifications.escalation.SHIPPING_DELAY": "Przesyłka opóźniona",
+  "notifications.escalation.RFQ_EXPIRY": "Zapytanie wygasa",
+  "notifications.bundle.summary": "{{updates}} powiadomień o niskim priorytecie"
 }

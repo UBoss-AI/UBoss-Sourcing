@@ -1,0 +1,15 @@
+{
+  "batch": 22,
+  "ids": [
+    "ENH-020"
+  ],
+  "before": {
+    "checked": 295,
+    "unchecked": 69
+  },
+  "after": {
+    "checked": 296,
+    "unchecked": 68
+  },
+  "evidence": "Escalation of inspection fail, payment risk, shipping delay and RFQ expiry (always HIGH, escalation field in the centre); centre shows unread escalated alerts first, deduplicated with counts, and bundles LOW news per family. Backend unit 17/17 + centre integration 5/5; UI arrangement + notifications page + query-states + i18n 7 files/72; typecheck/lint clean; eight locales and guides synchronized. Email delivery timing unchanged (escalated events already send immediately). No browser pass."
+}

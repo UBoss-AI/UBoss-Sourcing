@@ -8562,5 +8562,12 @@
   "sellerActions.kind.DISPUTE_RESPONSE": "Rispondere alla controversia {{reference}}",
   "sellerActions.kind.DISPATCH": "Spedire l’ordine {{reference}}",
   "sellerActions.kind.QUOTE": "Quotare la richiesta {{reference}}",
-  "sellerActions.more": "e altri {{more}}"
+  "sellerActions.more": "e altri {{more}}",
+  "notifications.urgent.title": "Richiede subito la sua attenzione",
+  "notifications.urgent.repeat": "{{times}} volte",
+  "notifications.escalation.INSPECTION_FAIL": "Ispezione non superata",
+  "notifications.escalation.PAYMENT_RISK": "Pagamento a rischio",
+  "notifications.escalation.SHIPPING_DELAY": "Spedizione in ritardo",
+  "notifications.escalation.RFQ_EXPIRY": "Richiesta in scadenza",
+  "notifications.bundle.summary": "{{updates}} avvisi a bassa priorità"
 }

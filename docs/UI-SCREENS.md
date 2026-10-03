@@ -823,6 +823,14 @@ dispatch, which outranks a quote; then by amount at stake in its own currency;
 then by id, so ties are deterministic. Each row links to the task and shows a
 live countdown. Up to 50 of each kind are read; the dashboard shows the top 10.
 
+**Alert bundling and escalation (ENH-020).** Four kinds of alert escalate:
+a failed inspection, a payment at risk, a delayed shipment and an RFQ about to
+expire. They are matched on the event key's words, always HIGH priority, and
+carry `escalation` in the notification centre response. The centre shows
+unread escalated alerts first in a "Needs your attention now" box, one row per
+event and subject with a repeat count (deduplicated). Low-priority news is
+bundled into one expandable row per family. Everything else lists as sent.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

@@ -8453,5 +8453,12 @@
   "sellerActions.kind.DISPUTE_RESPONSE": "Reageer op geschil {{reference}}",
   "sellerActions.kind.DISPATCH": "Verzend bestelling {{reference}}",
   "sellerActions.kind.QUOTE": "Offerte voor aanvraag {{reference}}",
-  "sellerActions.more": "en nog {{more}}"
+  "sellerActions.more": "en nog {{more}}",
+  "notifications.urgent.title": "Vraagt nu uw aandacht",
+  "notifications.urgent.repeat": "{{times}} keer",
+  "notifications.escalation.INSPECTION_FAIL": "Inspectie afgekeurd",
+  "notifications.escalation.PAYMENT_RISK": "Betaling in gevaar",
+  "notifications.escalation.SHIPPING_DELAY": "Zending vertraagd",
+  "notifications.escalation.RFQ_EXPIRY": "Aanvraag verloopt",
+  "notifications.bundle.summary": "{{updates}} meldingen met lage prioriteit"
 }

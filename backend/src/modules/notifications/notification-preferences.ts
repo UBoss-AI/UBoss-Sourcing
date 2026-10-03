@@ -153,8 +153,25 @@ const HIGH_EVENTS: ReadonlySet<string> = new Set([
 
 const LOW_PREFIXES: readonly string[] = ['saved_search.', 'schedule.reminder', 'rfq.invitation', 'preorder_chat.resolved'];
 
+export type Escalation = 'INSPECTION_FAIL' | 'PAYMENT_RISK' | 'SHIPPING_DELAY' | 'RFQ_EXPIRY';
+
+/**
+ * The four kinds of alert that are never bundled (ENH-020): a failed
+ * inspection, a payment at risk, a delayed shipment and an RFQ about to
+ * expire. Matched on the event key's own words, so a new key of the same
+ * kind escalates without a list to keep in step.
+ */
+export function escalationOf(eventKey: string): Escalation | null {
+  const key = eventKey.toLowerCase();
+  if (key.startsWith('inspection.') && /fail|reject|ncr|nonconform/.test(key)) return 'INSPECTION_FAIL';
+  if (/^(payment|autopay|chargeback|preorder\.payment|schedule\.payment)/.test(key) && /fail|risk|action_required|chargeback|dispute|required/.test(key)) return 'PAYMENT_RISK';
+  if (/^(shipment|logistics|preorder|consignment)\./.test(key) && /exception|delay|late|delivery_failed|delivery_risk/.test(key)) return 'SHIPPING_DELAY';
+  if (key.startsWith('rfq.') && /expir|deadline/.test(key)) return 'RFQ_EXPIRY';
+  return null;
+}
+
 export function priorityOf(eventKey: string): NotificationPriority {
-  if (HIGH_EVENTS.has(eventKey)) return 'HIGH';
+  if (HIGH_EVENTS.has(eventKey) || escalationOf(eventKey) !== null) return 'HIGH';
   if (LOW_PREFIXES.some((prefix) => eventKey.startsWith(prefix))) return 'LOW';
   return 'NORMAL';
 }

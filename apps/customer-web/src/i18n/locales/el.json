@@ -8453,5 +8453,12 @@
   "sellerActions.kind.DISPUTE_RESPONSE": "Απάντηση στη διαφορά {{reference}}",
   "sellerActions.kind.DISPATCH": "Αποστολή παραγγελίας {{reference}}",
   "sellerActions.kind.QUOTE": "Προσφορά για το αίτημα {{reference}}",
-  "sellerActions.more": "και {{more}} ακόμη"
+  "sellerActions.more": "και {{more}} ακόμη",
+  "notifications.urgent.title": "Χρειάζεται την προσοχή σας τώρα",
+  "notifications.urgent.repeat": "{{times}} φορές",
+  "notifications.escalation.INSPECTION_FAIL": "Αποτυχία επιθεώρησης",
+  "notifications.escalation.PAYMENT_RISK": "Πληρωμή σε κίνδυνο",
+  "notifications.escalation.SHIPPING_DELAY": "Καθυστέρηση αποστολής",
+  "notifications.escalation.RFQ_EXPIRY": "Το αίτημα λήγει",
+  "notifications.bundle.summary": "{{updates}} ενημερώσεις χαμηλής προτεραιότητας"
 }

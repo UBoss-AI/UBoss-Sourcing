@@ -8453,5 +8453,12 @@
   "sellerActions.kind.DISPUTE_RESPONSE": "Answer dispute {{reference}}",
   "sellerActions.kind.DISPATCH": "Dispatch order {{reference}}",
   "sellerActions.kind.QUOTE": "Quote on request {{reference}}",
-  "sellerActions.more": "and {{more}} more"
+  "sellerActions.more": "and {{more}} more",
+  "notifications.urgent.title": "Needs your attention now",
+  "notifications.urgent.repeat": "{{times}} times",
+  "notifications.escalation.INSPECTION_FAIL": "Inspection failed",
+  "notifications.escalation.PAYMENT_RISK": "Payment at risk",
+  "notifications.escalation.SHIPPING_DELAY": "Shipment delayed",
+  "notifications.escalation.RFQ_EXPIRY": "Request expiring",
+  "notifications.bundle.summary": "{{updates}} low-priority updates"
 }

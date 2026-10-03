@@ -3809,6 +3809,8 @@ each task has `kind` (DISPUTE_RESPONSE, DISPATCH, QUOTE), `id`, `reference`,
 (both null when nothing is stated; a fractional RFQ quantity states none) and
 `href`. Seller session only, scoped to the caller's seller account, no-store.
 
+The storefront notification centre adds `escalation` to each notification: `INSPECTION_FAIL`, `PAYMENT_RISK`, `SHIPPING_DELAY`, `RFQ_EXPIRY` or null (ENH-020). An escalated event is always `priority: HIGH`.
+
 ## RFQ purchase-order review
 
 These storefront routes require a customer session in the same buyer context

@@ -8453,5 +8453,12 @@
   "sellerActions.kind.DISPUTE_RESPONSE": "Auf Streitfall {{reference}} antworten",
   "sellerActions.kind.DISPATCH": "Bestellung {{reference}} versenden",
   "sellerActions.kind.QUOTE": "Angebot zur Anfrage {{reference}} abgeben",
-  "sellerActions.more": "und {{more}} weitere"
+  "sellerActions.more": "und {{more}} weitere",
+  "notifications.urgent.title": "Erfordert jetzt Ihre Aufmerksamkeit",
+  "notifications.urgent.repeat": "{{times}}-mal",
+  "notifications.escalation.INSPECTION_FAIL": "Prüfung nicht bestanden",
+  "notifications.escalation.PAYMENT_RISK": "Zahlung gefährdet",
+  "notifications.escalation.SHIPPING_DELAY": "Sendung verspätet",
+  "notifications.escalation.RFQ_EXPIRY": "Anfrage läuft ab",
+  "notifications.bundle.summary": "{{updates}} Hinweise mit niedriger Priorität"
 }
