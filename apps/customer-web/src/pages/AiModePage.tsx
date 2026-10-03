@@ -62,6 +62,7 @@
  * at a time with a conversation id and does not post history back, so what
  * staff read under Enquiries is what the model was actually sent.
  */
+import { DescribedSourcing } from '@/pages/ai/DescribedSourcing';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
@@ -998,12 +999,7 @@ export function AiModePage(): React.JSX.Element {
                 with the question (checklist Master row 81). */}
             {features.rfq === true && !isStreaming && lastQuestion !== null && (
               <p className="text-sm">
-                <Link
-                  to={`/account/rfqs/new?title=${encodeURIComponent(lastQuestion.trim().slice(0, 200))}`}
-                  className="font-medium text-brand underline-offset-2 hover:underline"
-                >
-                  {t('aiMode.draftRfq')}
-                </Link>
+                <DescribedSourcing text={lastQuestion} />
               </p>
             )}
 

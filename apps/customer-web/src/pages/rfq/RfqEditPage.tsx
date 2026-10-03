@@ -186,6 +186,13 @@ function RfqForm({
           categoryId: params.get('categoryId'),
           title: (isOem ? t('rfq.oem.prefilledTitle', { name: params.get('title') ?? '' }) : params.get('title') ?? '').slice(0, 200),
           specs: isOem ? [{ key: t('rfq.oem.branding'), value: '' }, { key: t('rfq.oem.packaging'), value: '' }] : [],
+          // From a plain-language description (ENH-001): a starting point the buyer edits and sends.
+          specification: params.get('specification')?.slice(0, 5000) ?? null,
+          quantity: /^\d{1,12}(\.\d{1,3})?$/.test(params.get('quantity') ?? '') ? params.get('quantity') : null,
+          unitOfMeasure: params.get('unit')?.slice(0, 32) ?? null,
+          destinationCountry: /^[A-Z]{2}$/.test(params.get('destinationCountry') ?? '') ? params.get('destinationCountry') : null,
+          incoterm: /^[A-Z]{3}$/.test(params.get('incoterm') ?? '') ? params.get('incoterm') : null,
+          targetCurrency: /^[A-Z]{3}$/.test(params.get('targetCurrency') ?? '') ? params.get('targetCurrency') : null,
         }
       : draftFrom(rfq),
   );
@@ -193,9 +200,9 @@ function RfqForm({
   const [priceText, setPriceText] = useState(() =>
     rfq?.requirement.targetUnitPriceMinor != null && rfq.requirement.targetCurrency !== null
       ? minorToMajor(rfq.requirement.targetUnitPriceMinor, currencyExponent(rfq.requirement.targetCurrency))
-      : '',
+      : rfq === null && /^\d+(\.\d{1,4})?$/.test(params.get('targetPrice') ?? '') ? (params.get('targetPrice') ?? '') : '',
   );
-  const [certText, setCertText] = useState((rfq?.requirement.certifications ?? []).join('\n'));
+  const [certText, setCertText] = useState(rfq === null ? (params.get('certifications') ?? '').slice(0, 1000) : rfq.requirement.certifications.join('\n'));
   const [version, setVersion] = useState(rfq?.version ?? 0);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [summary, setSummary] = useState<{ field?: string; message: string }[]>([]);
@@ -374,6 +381,7 @@ function RfqForm({
               : `${rfq.reference} · ${t('rfq.status.DRAFT')}`
         }
       />
+      {rfq === null && params.get('from') === 'describe' ? <p role="note" className="rounded-lg border border-brand/30 bg-brand-soft p-3 text-sm">{t('rfq.form.fromDescription')}</p> : null}
       <RfqFormAssist draft={draft} onApply={set} />
 
       <ErrorSummary title={t('rfq.form.problemsTitle')} errors={summary} />

@@ -8515,5 +8515,12 @@
   "rfqAssist.field.incoterm": "Incoterm",
   "rfqAssist.field.unitOfMeasure": "Eenheid",
   "rfqAssist.field.targetCurrency": "Doelvaluta",
-  "rfqAssist.field.inspectionRequirement": "Inspectie"
+  "rfqAssist.field.inspectionRequirement": "Inspectie",
+  "rfq.form.fromDescription": "Ingevuld op basis van uw beschrijving. Controleer elk veld voordat u verstuurt; er is niets verstuurd.",
+  "aiMode.understood": "Begrepen uit uw vraag:",
+  "aiMode.searchFiltered": "Zoeken met deze filters",
+  "aiMode.chip.quantity": "{{quantity}} {{unit}}",
+  "aiMode.chip.destination": "naar {{country}}",
+  "aiMode.chip.leadTime": "binnen {{days}} dagen",
+  "aiMode.chip.price": "doel {{amount}} {{currency}}"
 }

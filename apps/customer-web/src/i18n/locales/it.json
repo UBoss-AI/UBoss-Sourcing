@@ -8624,5 +8624,12 @@
   "rfqAssist.field.incoterm": "Incoterm",
   "rfqAssist.field.unitOfMeasure": "Unità",
   "rfqAssist.field.targetCurrency": "Valuta obiettivo",
-  "rfqAssist.field.inspectionRequirement": "Ispezione"
+  "rfqAssist.field.inspectionRequirement": "Ispezione",
+  "rfq.form.fromDescription": "Compilato dalla sua descrizione. Controlli ogni campo prima di inviare; non è stato inviato nulla.",
+  "aiMode.understood": "Compreso dalla sua domanda:",
+  "aiMode.searchFiltered": "Cerca con questi filtri",
+  "aiMode.chip.quantity": "{{quantity}} {{unit}}",
+  "aiMode.chip.destination": "verso {{country}}",
+  "aiMode.chip.leadTime": "entro {{days}} giorni",
+  "aiMode.chip.price": "obiettivo {{amount}} {{currency}}"
 }

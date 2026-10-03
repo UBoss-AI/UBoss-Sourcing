@@ -2,12 +2,12 @@
 
 - Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (unnumbered repository authority; checkbox symbols only).
 - Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
-- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-27.json`.
+- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-28.json`.
 - Master checked: 95/97; row 9 requires approved policies/legal review; row 12 requires actual KYB and bank-verification decisions.
-- Entire document checked: 301
-- Entire document unchecked: 63
+- Entire document checked: 302
+- Entire document unchecked: 62
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 10 batch 27, ENH-032 verified and ticked.
+- Last completed work: Pass 10 batch 28, ENH-001 verified and ticked.
 - Verification: fresh complete customer checks 204/1876; focused customer 5/68. Backend 341/5400 and admin 52/382 retained under unchanged-package diff guards.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-16.json` (batches 6, 8, 9 partial), browser results and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
@@ -82,7 +82,7 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | SIGNOFF-018 | D | Requires the named authorized decision-maker; leave decision/date/signature blank and never select contradictory choices. |
 | HOME-009 | A | Verified in Pass 10 batch 15: public catalogue discovery, natural word/synonym matching, spelling/autocomplete/recents/recovery/privacy and scope guards. |
 | JOURNEY-010 | B | Verify applicable Indian identifiers, ownership/contact, factory/export and policy screening; obtain production bank validation. |
-| ENH-001 | A | Prove plain-language sourcing becomes filters/specifications and an editable draft RFQ, with confirmation and failure coverage. |
+| ENH-001 | A | Verified in Pass 10 batch 28: plain-language request parsed into filters/specifications and an editable, unsent RFQ draft. |
 | ENH-002 | A | Verified in Pass 10 batch 26: comparison summary built only from quote fields, each conclusion linked to its source cell. |
 | ENH-003 | E | Verify guest/B2B/B2C/seller/returning persona home behavior after the active storefront task completes. |
 | ENH-004 | A | Verify one permission-scoped search covers product, supplier, RFQ, order, invoice, shipment and help; defer active header edits. |
@@ -195,6 +195,8 @@ Current open classification after batch 15: **A 15; B 13; C 7; D 30; E 10 — 75
 **Batch 26 — implemented, verified and ticked: ENH-002.** RFQ comparison 'What differs' summary: lowest total/landed estimate, shortest lead time, lowest MOQ from the quotes' own fields only (exact BigInt money, converted only when every quote has a rate, else one shared currency), ties and unstated counts explicit, no price conclusion across currencies without a rate; each conclusion links to the source table cell. Deterministic, not a language model. Unit 3/3, compare page and i18n 70; typecheck/lint clean; eight locales and guides synchronized. No browser pass. Before **299/364**, **65 open**; after **300/364**, **64 open**. Evidence: `verification-evidence/pass10/batch-26.json`.
 
 **Batch 27 — implemented, verified and ticked: ENH-032.** RFQ form help panel: plain explanations of Incoterm, inspection, samples, certificates and target price; suggestions for destination country/port, Incoterm, unit, target currency and inspection from the buyer's own most recent submitted request, offered only for empty fields and applied only on 'Use this'. Assist tests 2/2, RFQ suites and i18n 80; typecheck/lint clean; eight locales and guides synchronized. Scope: the RFQ form (the product's most complex buyer form). No browser pass. Before **300/364**, **64 open**; after **301/364**, **63 open**. Evidence: `verification-evidence/pass10/batch-27.json`.
+
+**Batch 28 — implemented, verified and ticked: ENH-001.** AI Mode reads a sourcing question by fixed rules into quantity/unit, destination, Incoterm, certificates, lead time and target price; chips plus filtered catalogue search and a prefilled RFQ draft (whole text kept as specification, notice that nothing was sent; buyer edits and sends). Unrecognised text never fills a field. Parser 3/3, chips/prefill/no-send 2/2, RFQ/AI/i18n/query-states 136 (one OEM timing flake passed alone); typecheck/lint clean; eight locales and guides synchronized. Also exempts the ENH-032 advisory panel in query-states. No browser pass. Before **301/364**, **63 open**; after **302/364**, **62 open**. Evidence: `verification-evidence/pass10/batch-28.json`.
 
 Current open classification after batch 16: **A 15; B 13; C 7; D 30; E 9 — 74 open**.
 

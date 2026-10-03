@@ -8515,5 +8515,12 @@
   "rfqAssist.field.incoterm": "Incoterm",
   "rfqAssist.field.unitOfMeasure": "Μονάδα",
   "rfqAssist.field.targetCurrency": "Νόμισμα στόχου",
-  "rfqAssist.field.inspectionRequirement": "Επιθεώρηση"
+  "rfqAssist.field.inspectionRequirement": "Επιθεώρηση",
+  "rfq.form.fromDescription": "Συμπληρώθηκε από την περιγραφή σας. Ελέγξτε κάθε πεδίο πριν την αποστολή· δεν έχει σταλεί τίποτα.",
+  "aiMode.understood": "Κατανοήθηκε από την ερώτησή σας:",
+  "aiMode.searchFiltered": "Αναζήτηση με αυτά τα φίλτρα",
+  "aiMode.chip.quantity": "{{quantity}} {{unit}}",
+  "aiMode.chip.destination": "προς {{country}}",
+  "aiMode.chip.leadTime": "εντός {{days}} ημερών",
+  "aiMode.chip.price": "στόχος {{amount}} {{currency}}"
 }

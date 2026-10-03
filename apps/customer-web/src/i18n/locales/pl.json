@@ -8733,5 +8733,12 @@
   "rfqAssist.field.incoterm": "Incoterm",
   "rfqAssist.field.unitOfMeasure": "Jednostka",
   "rfqAssist.field.targetCurrency": "Waluta docelowa",
-  "rfqAssist.field.inspectionRequirement": "Inspekcja"
+  "rfqAssist.field.inspectionRequirement": "Inspekcja",
+  "rfq.form.fromDescription": "Wypełniono na podstawie opisu. Sprawdź każde pole przed wysłaniem; nic nie zostało wysłane.",
+  "aiMode.understood": "Zrozumiano z pytania:",
+  "aiMode.searchFiltered": "Szukaj z tymi filtrami",
+  "aiMode.chip.quantity": "{{quantity}} {{unit}}",
+  "aiMode.chip.destination": "do {{country}}",
+  "aiMode.chip.leadTime": "w ciągu {{days}} dni",
+  "aiMode.chip.price": "cel {{amount}} {{currency}}"
 }

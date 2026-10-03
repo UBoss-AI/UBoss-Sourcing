@@ -37,6 +37,10 @@ const EXEMPT: Record<string, { states: State[]; reason: string }> = {
     states: ['loading', 'error'],
     reason: 'Advisory importer and document guidance inside checkout (ENH-022): while loading or after a failed read it shows nothing and checkout carries on; placing the order still enforces destination rules.',
   },
+  'rfq/RfqFormAssist.tsx': {
+    states: ['error'],
+    reason: 'Optional suggestions inside the RFQ form (ENH-032): if the earlier request cannot be read it says there are no suggestions and the form works exactly as without it.',
+  },
   'account/CloseAccountPanel.tsx': {
     states: ['error'],
     reason: 'A failed impact read renders closeAccount.impactUnavailable (closure === null) and still offers the close; the server applies the rules either way.',

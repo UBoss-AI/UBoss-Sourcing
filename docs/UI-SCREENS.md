@@ -874,6 +874,15 @@ port, Incoterm, unit, target currency and inspection from the buyer's own most
 recent submitted request. A suggestion is offered only for an empty field and is
 applied only when the buyer presses "Use this"; nothing fills in by itself.
 
+**Plain-language sourcing to filters and an RFQ draft (ENH-001).** Under an AI
+Mode answer, the buyer's question is read by fixed rules (not a model) into
+quantity and unit, destination country, Incoterm, certificates, lead time and
+target price. These show as chips, with "Search with these filters" (catalogue
+with certified, Incoterm and lead-time filters) and "Draft a request" (the RFQ
+form prefilled, with the whole text kept as the specification). The form says it
+was filled from the description and that nothing was sent; the buyer edits and
+sends it. Anything not recognised is left out of the fields, never guessed.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

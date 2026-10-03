@@ -8624,5 +8624,12 @@
   "rfqAssist.field.incoterm": "Incoterm",
   "rfqAssist.field.unitOfMeasure": "Unidad",
   "rfqAssist.field.targetCurrency": "Moneda objetivo",
-  "rfqAssist.field.inspectionRequirement": "Inspección"
+  "rfqAssist.field.inspectionRequirement": "Inspección",
+  "rfq.form.fromDescription": "Rellenado a partir de su descripción. Revise cada campo antes de enviar; no se ha enviado nada.",
+  "aiMode.understood": "Entendido de su pregunta:",
+  "aiMode.searchFiltered": "Buscar con estos filtros",
+  "aiMode.chip.quantity": "{{quantity}} {{unit}}",
+  "aiMode.chip.destination": "a {{country}}",
+  "aiMode.chip.leadTime": "en {{days}} días",
+  "aiMode.chip.price": "objetivo {{amount}} {{currency}}"
 }

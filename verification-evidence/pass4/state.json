@@ -2839,6 +2839,12 @@
       "status": "VERIFIED",
       "evidence": "Pass 10 batch 27: ENH-032. RFQ form help panel: plain explanations of Incoterm, inspection, samples, certificates and target price; suggestions for destination country/port, Incoterm, unit, target currency and inspection from the buyer's own most recent submitted request, offered only for empty fields and applied only on 'Use this'. Assist tests 2/2, RFQ suites and i18n 80; typecheck/lint clean; eight locales and guides synchronized. Scope: the RFQ form (the product's most complex buyer form). No browser pass.",
       "verifiedAt": "2026-10-03 (pass 10)"
+    },
+    {
+      "id": "ENH-001",
+      "status": "VERIFIED",
+      "evidence": "Pass 10 batch 28: ENH-001. AI Mode reads a sourcing question by fixed rules into quantity/unit, destination, Incoterm, certificates, lead time and target price; chips plus filtered catalogue search and a prefilled RFQ draft (whole text kept as specification, notice that nothing was sent; buyer edits and sends). Unrecognised text never fills a field. Parser 3/3, chips/prefill/no-send 2/2, RFQ/AI/i18n/query-states 136 (one OEM timing flake passed alone); typecheck/lint clean; eight locales and guides synchronized. Also exempts the ENH-032 advisory panel in query-states. No browser pass.",
+      "verifiedAt": "2026-10-03 (pass 10)"
     }
   ],
   "pendingBoxes": []
