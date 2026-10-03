@@ -15,7 +15,7 @@
       "priority": "P0",
       "requirement": "Help / Policies / Legal — Terms, privacy, returns, inspection, prohibited items, buyer protection",
       "classification": "B",
-      "remainingAction": "Local publication/access and help/Terms tests passed. Publish qualified-counsel-approved launch-market Terms, privacy, returns, inspection, prohibited-products and buyer-protection content; verify each deployed document link and visible storefront entry after the active storefront task. No approved real policy publication occurred in this batch.",
+      "remainingAction": "Local publication/access and help/Terms tests passed. Publish qualified-counsel-approved launch-market Terms, privacy, returns, inspection, prohibited-products and buyer-protection content; verify each deployed document link and visible storefront entry after verifying the preserved storefront changes. No approved real policy publication occurred in this batch.",
       "status": "OPEN",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c",
       "partialEvidence": "verification-evidence/pass10/batch-9-partial.json"
@@ -45,7 +45,7 @@
       "priority": "—",
       "requirement": "Clear primary action",
       "classification": "E",
-      "remainingAction": "Audit the primary action on every applicable screen after feature verification; active storefront screens await the other task.",
+      "remainingAction": "Audit the primary action on every applicable screen after feature verification; review the preserved pending storefront changes.",
       "status": "OPEN",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
@@ -59,7 +59,7 @@
       "priority": "—",
       "requirement": "Responsive desktop/tablet/mobile",
       "classification": "E",
-      "remainingAction": "Verify desktop/tablet/phone layout on every applicable screen; active storefront screens await the other task.",
+      "remainingAction": "Verify desktop/tablet/phone layout on every applicable screen; review the preserved pending storefront changes.",
       "status": "OPEN",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
@@ -73,7 +73,7 @@
       "priority": "—",
       "requirement": "Keyboard/focus usability",
       "classification": "E",
-      "remainingAction": "Verify keyboard paths, accessible names and focus recovery on every applicable screen; active storefront screens await the other task.",
+      "remainingAction": "Verify keyboard paths, accessible names and focus recovery on every applicable screen; review the preserved pending storefront changes.",
       "status": "OPEN",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
@@ -326,7 +326,7 @@
       "priority": "—",
       "requirement": "Empty/error/loading states complete; user guidance and policy links published.",
       "classification": "B",
-      "remainingAction": "Local help error recovery, unavailable-policy labels, published policy links and Terms loading/read-to-end/retry behavior verified. Complete the loading/empty/error and user-guidance audit across all applicable screens after active storefront work, and publish approved launch policy links. This two-component run does not prove all screen states.",
+      "remainingAction": "Local help error recovery, unavailable-policy labels, published policy links and Terms loading/read-to-end/retry behavior verified. Complete the loading/empty/error and user-guidance audit across all applicable screens after verifying the preserved storefront changes, and publish approved launch policy links. This two-component run does not prove all screen states.",
       "status": "OPEN",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c",
       "partialEvidence": "verification-evidence/pass10/batch-9-partial.json"
@@ -806,7 +806,7 @@
       "priority": "P0",
       "requirement": "Home changes for guest, B2B buyer, B2C buyer, seller and returning user.",
       "classification": "E",
-      "remainingAction": "Verify guest/B2B/B2C/seller/returning persona home behavior after the active storefront task completes.",
+      "remainingAction": "Verify guest/B2B/B2C/seller/returning persona home behavior after verifying the preserved storefront changes completes.",
       "status": "OPEN",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
@@ -1086,7 +1086,7 @@
       "priority": "—",
       "requirement": "Header: Logo | Universal Search | Country/Language/Currency | Seller Hub | Messages/Notifications | Profile | Cart.",
       "classification": "E",
-      "remainingAction": "Verify every required header entry and role permission after the active storefront task completes.",
+      "remainingAction": "Verify every required header entry and role permission after verifying the preserved storefront changes completes.",
       "status": "OPEN",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
@@ -1100,7 +1100,7 @@
       "priority": "—",
       "requirement": "Hero: “Source from verified Indian manufacturers” + Search/AI input + quick chips (Product, Supplier, RFQ, Image Search).",
       "classification": "E",
-      "remainingAction": "Verify hero text, AI input and all four mode chips after the active storefront task completes.",
+      "remainingAction": "Verify hero text, AI input and all four mode chips after verifying the preserved storefront changes completes.",
       "status": "OPEN",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
@@ -1114,7 +1114,7 @@
       "priority": "—",
       "requirement": "Trust strip: Verified manufacturers | Independent inspection | Buyer protection / controlled payment | Global logistics.",
       "classification": "E",
-      "remainingAction": "Verify all four trust statements and their substantiation after the active storefront task completes.",
+      "remainingAction": "Verify all four trust statements and their substantiation after verifying the preserved storefront changes completes.",
       "status": "OPEN",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
@@ -1170,7 +1170,7 @@
       "priority": "—",
       "requirement": "Footer: Help, policies, inspection policy, buyer/seller terms, privacy, prohibited products, support and company information.",
       "classification": "B",
-      "remainingAction": "Verify every footer link after the active storefront task completes; approved policy content remains required.",
+      "remainingAction": "Verify every footer link after verifying the preserved storefront changes completes; approved policy content remains required.",
       "status": "OPEN",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
@@ -1184,7 +1184,7 @@
       "priority": "—",
       "requirement": "User starts with image search, receives matches, opens a product and converts it to an RFQ with image retained as reference.",
       "classification": "A",
-      "remainingAction": "Verify image-search to product to RFQ preserves an authorized image reference; active product/storefront files currently excluded.",
+      "remainingAction": "Verify image-search to product to RFQ preserves an authorized image reference; review the preserved pending product/storefront changes.",
       "status": "OPEN",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     },
@@ -1226,14 +1226,14 @@
       "priority": "—",
       "requirement": "Seller certificate expires; affected listings/markets follow configured warning/hold policy and buyer-facing badge updates.",
       "classification": "A",
-      "remainingAction": "Verify expired certificate changes buyer badge and affected listing/market warning or hold according to configured policy.",
-      "status": "OPEN",
+      "remainingAction": "None for deterministic configured certificate expiry UAT; real identity/legal/provider verification remains separate.",
+      "status": "VERIFIED",
       "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
     }
   ],
   "current": {
-    "checked": 284,
-    "open": 80,
+    "checked": 285,
+    "open": 79,
     "total": 364
   },
   "baselineCounts": {
@@ -1340,7 +1340,7 @@
       "total": 10
     },
     "UAT": {
-      "checked": 13,
+      "checked": 14,
       "total": 15
     }
   },
@@ -1423,7 +1423,6 @@
     "DYNAMIC-005",
     "DYNAMIC-007",
     "DYNAMIC-010",
-    "UAT-UI-002",
-    "UAT-UI-013"
+    "UAT-UI-002"
   ]
 }

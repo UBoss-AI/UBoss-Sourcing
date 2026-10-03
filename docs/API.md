@@ -3122,6 +3122,14 @@ Everything a seller does, under `/api/v1/seller`. Before a seller exists, the
 entry routes under `/api/v1/sellers` apply, report membership and handle the
 Seller Hub password.
 
+**Certificate holds.** Under `TrustSettings.certificateExpiryPolicy =
+HOLD_LISTINGS`, putting a listing on sale is refused with
+`LISTING_TRANSITION_NOT_ALLOWED` while a certificate hold remains or an
+explicitly linked certificate is unusable. The status route checks this
+inside its transaction, including after a seller pause. Renewal goes through
+existing certificate update, submit and staff decision routes. No request
+or response fields change.
+
 | Area | Key endpoints |
 |---|---|
 | Entry | `GET /api/v1/sellers/me`, `POST /api/v1/sellers/apply`, `POST /api/v1/sellers/lock`, `/lock/open`, `/lock/close`, `GET /api/v1/sellers/session`, `POST /api/v1/sellers/session/renew` |

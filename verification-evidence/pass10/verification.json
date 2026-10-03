@@ -6,8 +6,8 @@
     "open": 87
   },
   "after": {
-    "checked": 284,
-    "open": 80
+    "checked": 285,
+    "open": 79
   },
   "targeted": {
     "command": "npx vitest run tests/integration/rfq-samples.test.ts tests/integration/rfq-purchase-order-to-order.test.ts",
@@ -72,8 +72,8 @@
   },
   "audit": {
     "problems": [],
-    "checked": 284,
-    "open": 80
+    "checked": 285,
+    "open": 79
   },
   "secretScan": {
     "command": ".\\scripts\\secret-scan.ps1",
@@ -710,6 +710,96 @@
         ]
       },
       "visualResult": "Negotiation Summary checked; neighboring boxes and blank sign-off selections preserved. Native GDI font playback limitation disclosed.",
+      "cleanup": "Private read-only renderer closed without saving."
+    }
+  },
+  "batch11": {
+    "id": "UAT-UI-013",
+    "sourceBaseline": "1dcc39c018cedb31c790e6c08d63a92806890b85",
+    "verifiedDate": "2026-10-03",
+    "before": {
+      "checked": 284,
+      "open": 80
+    },
+    "after": {
+      "checked": 285,
+      "open": 79
+    },
+    "targeted": {
+      "command": "npx vitest run tests/integration/seller-factory-verification.test.ts tests/integration/seller-company-changes.test.ts tests/integration/seller-offer-block.test.ts",
+      "files": 3,
+      "tests": 45,
+      "exitCode": 0
+    },
+    "backend": {
+      "command": "npm run verify",
+      "files": 337,
+      "tests": 5357,
+      "exitCode": 0
+    },
+    "retainedVerification": {
+      "customer": {
+        "files": 196,
+        "tests": 1808,
+        "pass": 10
+      },
+      "admin": {
+        "files": 52,
+        "tests": 382,
+        "pass": 5
+      },
+      "reason": "No frontend source/tests/config changed; guarded diff empty."
+    },
+    "sourceFiles": [
+      "backend/src/modules/trust/certificate-listing-holds.service.ts",
+      "backend/src/modules/trust/certification.service.ts",
+      "backend/src/modules/trust/expiry-alerts.service.ts",
+      "backend/src/modules/seller/offer.service.ts"
+    ],
+    "testFiles": [
+      "backend/tests/integration/seller-factory-verification.test.ts",
+      "backend/tests/integration/seller-company-changes.test.ts",
+      "backend/tests/integration/seller-offer-block.test.ts"
+    ],
+    "docs": {
+      "referenceCheck": "npm run docs:check passed",
+      "guide": "npm run guide passed; native Word read-only page 50/129 inspected; GDI font playback limitation",
+      "languages": [
+        "English",
+        "Hinglish"
+      ],
+      "formal": [
+        "docs/PRD.md",
+        "docs/UI-SCREENS.md",
+        "docs/API.md"
+      ],
+      "localization": "No new client labels or error codes; existing eight-language status/error translations apply."
+    },
+    "runnerNotes": "Root npm typecheck invocation was incorrect (no root package); full verification ran from backend. Initial fixture failures corrected public fields and explicit renewal submission. No assertion/timeouts weakened.",
+    "limitations": [
+      "Test fixtures and authorized local staff routes; no real legal/provider certificate verification claim."
+    ],
+    "evidence": "batch-11.json",
+    "word": {
+      "engine": "Microsoft Word 16.0",
+      "readOnly": true,
+      "totalPages": 29,
+      "changedPages": [
+        28
+      ],
+      "additionalPagesInspected": [
+        29
+      ],
+      "renderMethod": "Actual Word Page.EnhMetaFileBits rasterized with native GDI and visually inspected.",
+      "structuralComparison": {
+        "baseline": "1dcc39c018cedb31c790e6c08d63a92806890b85",
+        "unchangedOtherParts": 18,
+        "authorizedCharacterChanges": 1,
+        "ids": [
+          "UAT-UI-013"
+        ]
+      },
+      "visualResult": "Expired seller certificate UAT checked on page 28; neighboring boxes and blank page-29 sign-off preserved. Native GDI font playback limitation disclosed.",
       "cleanup": "Private read-only renderer closed without saving."
     }
   }

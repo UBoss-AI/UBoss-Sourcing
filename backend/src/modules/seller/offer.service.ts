@@ -16,6 +16,7 @@ import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.j
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
+import { assertCertificateListingCanTrade } from '../trust/certificate-listing-holds.service.js';
 import { syncMarketplacePriceForOffer } from '../catalog/marketplace-price.service.js';
 import { recordSellerAudit } from './audit.service.js';
 import {
@@ -310,6 +311,8 @@ export async function setOfferStatus(
    * offer that no category can show and the seller cannot explain.
    */
   await prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM seller_offers WHERE id = ${offerId} FOR UPDATE`;
+    if (next === 'ACTIVE') await assertCertificateListingCanTrade(tx, offerId);
     await tx.sellerOffer.update({
       where: { id: offerId },
       data: {

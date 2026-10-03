@@ -51,6 +51,7 @@ export function expiryDedupeKey(kind: 'cert' | 'factory', id: string, endsAt: Da
 export async function sendTrustExpiryAlerts(now: Date = new Date(), limit = 500): Promise<number> {
   const horizon = new Date(now.getTime() + 30 * DAY);
   let sent = 0;
+  const policy = await prisma.trustSettings.findUnique({ where: { id: 'default' }, select: { certificateExpiryPolicy: true } });
 
   const certificates = await prisma.sellerCertification.findMany({
     where: { state: 'VERIFIED', archivedAt: null, expiresOn: { gte: new Date(`${dateOnly(now)}T00:00:00.000Z`), lte: horizon } },
@@ -70,7 +71,9 @@ export async function sendTrustExpiryAlerts(now: Date = new Date(), limit = 500)
         title: `Your ${row.standard} certificate expires on ${dateOnly(row.expiresOn)}`,
         body:
           stage === 'T7'
-            ? 'It expires within a week. Upload the renewed certificate and send it for review now, or the listings it covers go off sale when it lapses.'
+            ? policy?.certificateExpiryPolicy === 'HOLD_LISTINGS'
+              ? 'It expires within a week. Upload the renewed certificate and send it for review now, or the listings it covers go off sale when it lapses.'
+              : 'It expires within a week. Upload the renewed certificate and send it for review now; it will stop showing as verified when it lapses.'
             : 'It expires within thirty days. Upload the renewed certificate and send it for review before then.',
         linkPath: '/seller/factories',
         severity: stage === 'T7' ? 'WARNING' : 'INFO',

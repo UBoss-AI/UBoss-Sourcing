@@ -4679,6 +4679,13 @@ your team. (This page is in English only for now.)
   `POST /api/v1/seller/locations/geocode/suggest`
 - `GET /api/v1/seller/members`, `PATCH` and `DELETE /api/v1/seller/members/:memberId`
 
+**Certificate expiry (UAT-UI-013).** Factories & certificates shows the
+expired state and the seller receives an expiry notice. Public certificate
+badges disappear in both policies. With `HOLD_LISTINGS`, affected listing
+rows show Needs changes and linked certificate holds; resuming is refused
+until renewed evidence is submitted and verified. Renewing one certificate
+does not clear another hold or overwrite a later pause or marketplace block.
+
 **Change control and preview (JOURNEY-027).** The header has **Preview as
 buyer**, opening the public supplier page in a new tab (before approval, a
 sentence saying it appears once approved). "Your business" now says changes go

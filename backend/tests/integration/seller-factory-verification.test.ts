@@ -17,7 +17,7 @@
  *
  * The `it`s build on each other in order. Everything is removed in afterAll.
  */
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { LightMyRequestResponse } from 'fastify';
 import { buildApp } from '../../src/http/app.js';
 import { Role } from '../../src/domain/permissions.js';
@@ -668,5 +668,111 @@ describe('certificates', () => {
     const row = await prisma.sellerCertification.findUniqueOrThrow({ where: { id: certificateId } });
     expect(row.state).toBe('EXPIRED');
     expect(await prisma.auditLog.count({ where: { action: 'seller_certification.expired', resourceId: certificateId, actorType: 'SYSTEM' } })).toBe(1);
+  });
+});
+
+describe('configured certificate expiry policy (UAT-UI-013)', () => {
+  let previousPolicy: 'WARN' | 'HOLD_LISTINGS' | null = null;
+  let offerId = '';
+  let linkedProductId = '';
+  let certId = '';
+
+  beforeEach(async () => {
+    previousPolicy = (await prisma.trustSettings.findUnique({ where: { id: 'default' } }))?.certificateExpiryPolicy ?? null;
+    await prisma.trustSettings.upsert({ where: { id: 'default' }, create: { id: 'default', certificateExpiryPolicy: 'HOLD_LISTINGS' }, update: { certificateExpiryPolicy: 'HOLD_LISTINGS' } });
+    const currency = await getBaseCurrency();
+    linkedProductId = newId();
+    offerId = newId();
+    certId = newId();
+    await prisma.product.create({ data: { id: linkedProductId, categoryId, taxClassId, name: 'Expiry policy valve', slug: `${PREFIX}expiry-${linkedProductId}`, sku: `EXP-${linkedProductId}`, basePriceMinor: 1000n, currency, status: 'ACTIVE', isPublished: true, publishedAt: new Date(), isMarketplaceProduct: true } });
+    await prisma.sellerOffer.create({ data: { id: offerId, sellerAccountId: sellerA, productId: linkedProductId, sellerSku: `EXP-${offerId}`, status: 'ACTIVE', priceMinor: 900n, currency, availableQuantity: 10 } });
+    await prisma.sellerCertification.create({ data: { id: certId, sellerAccountId: sellerA, standard: `ISO expiry ${certId}`, issuer: 'Fixture certifier', documentId: docA2, state: 'VERIFIED', expiresOn: new Date('2099-01-01') } });
+    await prisma.sellerListingTrust.create({ data: { id: newId(), sellerAccountId: sellerA, productId: linkedProductId, certifications: { create: { id: newId(), certificationId: certId } } } });
+  });
+
+  afterEach(async () => {
+    if (previousPolicy === null) await prisma.trustSettings.deleteMany({ where: { id: 'default' } });
+    else await prisma.trustSettings.update({ where: { id: 'default' }, data: { certificateExpiryPolicy: previousPolicy } });
+  });
+
+  async function expire(): Promise<void> {
+    await prisma.sellerCertification.update({ where: { id: certId }, data: { expiresOn: new Date('2021-01-01') } });
+    const response = await call(a, 'GET', '/seller/certifications');
+    expect(response.statusCode, response.body).toBe(200);
+  }
+
+  async function renew(id = certId): Promise<void> {
+    const changed = await call(a, 'PATCH', `/seller/certifications/${id}`, { expiresOn: '2099-01-01', documentId: docA2 });
+    expect(changed.statusCode, changed.body).toBe(200);
+    const submitted = await call(a, 'POST', `/seller/certifications/${id}/submit`);
+    expect(submitted.statusCode, submitted.body).toBe(200);
+    const decision = await call(reviewer, 'POST', `/admin/seller-certifications/${id}/decision`, { decision: 'VERIFIED', expectedState: 'PENDING' });
+    expect(decision.statusCode, decision.body).toBe(200);
+  }
+
+  it('WARN drops the expired public certificate, not the listing, and notifies only once', async () => {
+    await prisma.trustSettings.update({ where: { id: 'default' }, data: { certificateExpiryPolicy: 'WARN' } });
+    const before = await app.inject({ method: 'GET', url: `/api/v1/catalog/suppliers/${PREFIX}alpha` });
+    expect(before.json<{ supplier: { certifications: { standard: string }[] } }>().supplier.certifications.some(row => row.standard === `ISO expiry ${certId}`)).toBe(true);
+    await expire();
+    await call(a, 'GET', '/seller/certifications');
+    expect((await prisma.sellerOffer.findUniqueOrThrow({ where: { id: offerId } })).status).toBe('ACTIVE');
+    expect(await prisma.sellerOfferComplianceHold.count({ where: { offerId } })).toBe(0);
+    const after = await app.inject({ method: 'GET', url: `/api/v1/catalog/suppliers/${PREFIX}alpha` });
+    expect(after.json<{ supplier: { certifications: { standard: string }[] } }>().supplier.certifications.some(row => row.standard === `ISO expiry ${certId}`)).toBe(false);
+    expect(await prisma.sellerNotification.count({ where: { sellerAccountId: sellerA, subjectId: certId, kind: 'DOCUMENT_EXPIRING' } })).toBe(1);
+  });
+
+  it('holds only the linked seller offers, refuses another seller and pause/resume bypass, then preserves the seller pause after verification', async () => {
+    const otherId = newId();
+    const currency = await getBaseCurrency();
+    await prisma.sellerOffer.create({ data: { id: otherId, sellerAccountId: sellerB, productId: linkedProductId, sellerSku: `OTHER-${otherId}`, status: 'ACTIVE', priceMinor: 800n, currency } });
+    await expire();
+    await call(a, 'GET', '/seller/certifications');
+    expect((await prisma.sellerOffer.findUniqueOrThrow({ where: { id: offerId } })).status).toBe('NEEDS_CHANGES');
+    expect((await prisma.sellerOffer.findUniqueOrThrow({ where: { id: otherId } })).status).toBe('ACTIVE');
+    expect(await prisma.sellerOfferComplianceHold.count({ where: { offerId, releasedAt: null } })).toBe(1);
+    expect((await call(b, 'PATCH', `/seller/listings/${offerId}/status`, { status: 'ACTIVE' })).statusCode).toBe(404);
+    expect((await call(a, 'PATCH', `/seller/listings/${offerId}/status`, { status: 'PAUSED' })).statusCode).toBe(204);
+    const bypass = await call(a, 'PATCH', `/seller/listings/${offerId}/status`, { status: 'ACTIVE' });
+    expect(code(bypass)).toBe('LISTING_TRANSITION_NOT_ALLOWED');
+    await renew();
+    expect((await prisma.sellerOffer.findUniqueOrThrow({ where: { id: offerId } })).status).toBe('PAUSED');
+    expect(await prisma.sellerOfferComplianceHold.count({ where: { offerId, releasedAt: null } })).toBe(0);
+  });
+
+  it('does not restore an offer until every linked expired certificate is renewed', async () => {
+    const second = newId();
+    await prisma.sellerCertification.create({ data: { id: second, sellerAccountId: sellerA, standard: 'Second expiry certificate', issuer: 'Fixture certifier', documentId: docA2, state: 'VERIFIED', expiresOn: new Date('2021-01-01') } });
+    const trust = await prisma.sellerListingTrust.findUniqueOrThrow({ where: { sellerAccountId_productId: { sellerAccountId: sellerA, productId: linkedProductId } } });
+    await prisma.sellerListingCertification.create({ data: { id: newId(), listingTrustId: trust.id, certificationId: second } });
+    await expire();
+    expect(await prisma.sellerOfferComplianceHold.count({ where: { offerId, releasedAt: null } })).toBe(2);
+    await renew();
+    expect((await prisma.sellerOffer.findUniqueOrThrow({ where: { id: offerId } })).status).toBe('NEEDS_CHANGES');
+    await renew(second);
+    expect((await prisma.sellerOffer.findUniqueOrThrow({ where: { id: offerId } })).status).toBe('ACTIVE');
+  });
+
+  it('keeps a later marketplace block and releases the certificate hold without putting it on sale', async () => {
+    await expire();
+    await prisma.sellerOffer.update({ where: { id: offerId }, data: { status: 'BLOCKED', statusReason: 'Fixture marketplace safety block' } });
+    await renew();
+    const offer = await prisma.sellerOffer.findUniqueOrThrow({ where: { id: offerId } });
+    expect(offer.status).toBe('BLOCKED');
+    expect(offer.statusReason).toBe('Fixture marketplace safety block');
+    expect(await prisma.sellerOfferComplianceHold.count({ where: { offerId, releasedAt: null } })).toBe(0);
+  });
+
+  it('refuses putting an idle listing on sale while its linked certificate has expired', async () => {
+    await prisma.sellerOffer.update({ where: { id: offerId }, data: { status: 'PAUSED', statusReason: 'Seller holiday' } });
+    await expire();
+    expect(await prisma.sellerOfferComplianceHold.count({ where: { offerId } })).toBe(0);
+    expect(code(await call(a, 'PATCH', `/seller/listings/${offerId}/status`, { status: 'ACTIVE' }))).toBe('LISTING_TRANSITION_NOT_ALLOWED');
+    await renew();
+    const offer = await prisma.sellerOffer.findUniqueOrThrow({ where: { id: offerId } });
+    expect(offer.status).toBe('PAUSED');
+    expect(offer.statusReason).toBe('Seller holiday');
+    expect((await call(a, 'PATCH', `/seller/listings/${offerId}/status`, { status: 'ACTIVE' })).statusCode).toBe(204);
   });
 });

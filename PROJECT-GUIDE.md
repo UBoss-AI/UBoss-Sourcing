@@ -4997,6 +4997,21 @@ everything they must do sees 100%, not 87% because of a step nobody asked them
 to finish. Waiting on the marketplace counts as done for that figure, for the
 same reason: it is not work the seller still owes.
 
+**Linked certificate expiry (UAT-UI-013).** `TrustSettings.certificateExpiryPolicy`
+selects `WARN` (the default) or `HOLD_LISTINGS`. An expired certificate stops
+showing as verified to buyers in either mode, and the seller receives a
+deduplicated expiry notice. `WARN` keeps listings on sale. `HOLD_LISTINGS`
+puts live offers explicitly linked to that certificate into `NEEDS_CHANGES`,
+records the certificate hold and updates marketplace price projections in
+the same transaction. Other suppliers and unlinked products are unaffected.
+Pause/resume cannot bypass a hold; idle listings cannot resume with an expired
+linked certificate. A renewed certificate must be submitted and verified by
+marketplace staff. Only its holds are released; every other certificate must
+also be clear before our held offer returns to its previous status. A later
+seller pause, archive, unrelated needs-changes reason or marketplace block
+is preserved. Certificate dates are valid through their stated UTC day.
+No API shape, permission, schema or provider decision changes.
+
 ### Certificates: uploading them, and what happens next
 
 Both document steps — **Identity and documents** and **Compliance** — carry the

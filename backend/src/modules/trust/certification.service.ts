@@ -34,6 +34,7 @@ import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { assertSellerPermission, type SellerMembership } from '../seller/account.service.js';
 import { OPERATOR_LABEL, recordSellerAudit } from '../seller/audit.service.js';
 import { notifySeller } from '../seller/notification.service.js';
+import { holdCertificateListings, releaseCertificateListings } from './certificate-listing-holds.service.js';
 import { notifyCertificationLapsed } from './expiry-alerts.service.js';
 import { trustTimings, usableOwnDocument, type StaffActor } from './factory.service.js';
 
@@ -181,6 +182,7 @@ async function expireLapsed(where: { sellerAccountId?: string; id?: string }, li
         data: { state: 'EXPIRED', expiredAt: new Date() },
       });
       if (result.count === 0) return false;
+      await holdCertificateListings(tx, row);
       await recordAudit(
         {
           action: AuditAction.SELLER_CERTIFICATION_EXPIRED,
@@ -522,6 +524,7 @@ export async function decideCertification(input: {
           : { state: 'REJECTED', rejectionReason: reason, lastCheckedAt: now, verifiedByUserId: input.actor.userId },
     });
     if (moved.count === 0) throw staleCertification();
+    if (input.decision === 'VERIFIED') await releaseCertificateListings(tx, row.id);
     await recordAudit(
       {
         action: AuditAction.SELLER_CERTIFICATION_DECIDED,

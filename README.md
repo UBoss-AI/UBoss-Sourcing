@@ -1444,6 +1444,13 @@ already have an account" email with a reset link. The same reasoning governs
 <details>
 <summary><b>Certificates a seller uploads</b></summary>
 
+**Expiry of linked certificates.** The operator chooses warning-only or
+listing holds. Expired certificates stop showing as verified to buyers.
+Warning-only keeps offers on sale; holds affect only linked live offers.
+A seller cannot bypass a hold by pausing and resuming. Verification of a
+renewal lifts its hold, while other expired certificates and later seller
+pauses or marketplace blocks remain effective.
+
 A seller attaches evidence — a CE certificate, a Declaration of Conformity, an
 ISO certificate, a licence, a registration document — from the Compliance and
 Identity steps of their application. What the deployment actually *requires* is

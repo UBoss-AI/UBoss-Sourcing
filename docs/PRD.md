@@ -1789,10 +1789,24 @@ all absent (`BUYER_COMPANIES_DISABLED`).
      noreferrer nofollow"`. What the marketplace did not verify is labelled
      "As stated by the supplier".
   6. Supplier cards, pills and the product page's seller link open this page.
-- **Status.** Built (29 Sep 2026, checklist Master row 5). The data behind
-  factories, certifications and capabilities is entered through the seller
-  profile and factory verification screens (Master rows 13 and 34), not
-  built yet; until then those sections stay hidden.
+- **Status.** Built (checklist Master row 5). Factory and certificate facts
+  are entered through the built seller profile and factory verification
+  screens (Master rows 13 and 34). Only verified, current evidence is public.
+
+**Linked certificate expiry (UAT-UI-013).** `TrustSettings.certificateExpiryPolicy`
+selects `WARN` (the default) or `HOLD_LISTINGS`. An expired certificate stops
+showing as verified to buyers in either mode, and the seller receives a
+deduplicated expiry notice. `WARN` keeps listings on sale. `HOLD_LISTINGS`
+puts live offers explicitly linked to that certificate into `NEEDS_CHANGES`,
+records the certificate hold and updates marketplace price projections in
+the same transaction. Other suppliers and unlinked products are unaffected.
+Pause/resume cannot bypass a hold; idle listings cannot resume with an expired
+linked certificate. A renewed certificate must be submitted and verified by
+marketplace staff. Only its holds are released; every other certificate must
+also be clear before our held offer returns to its previous status. A later
+seller pause, archive, unrelated needs-changes reason or marketplace block
+is preserved. Certificate dates are valid through their stated UTC day.
+No API shape, permission, schema or provider decision changes.
 
 ### FR-SRCH-014 — Compare products and suppliers
 

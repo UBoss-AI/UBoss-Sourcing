@@ -1113,6 +1113,8 @@ bullets([
 
 h2('6a.6c Sourcing terms on a listing');
 p('On a listing’s page the seller fills in the terms trade buyers ask about first: whether they send samples and on what terms, whether they make to the buyer’s design or put the buyer’s brand on it, how many days a bulk order takes, and which Incoterms they quote on. They can also link certificates to the product, but only their own certificates that the marketplace checked and that are still in date. The page refuses a shortest lead time that is longer than the longest. Buyers see these terms on the product page and can filter by them. Every change is recorded in the seller’s history.');
+p('When a linked certificate expires, it stops showing as verified to buyers and the seller is told. The business running the marketplace chooses whether this is a warning or puts linked live listings on hold. A hold cannot be bypassed by pausing and resuming. The seller sends renewed evidence for review; once it is verified, that certificate’s hold is lifted. Another expired certificate, a seller pause or a marketplace safety block still keeps the listing off sale.');
+
 h2('6a.7 Sending a listing for review');
 bullets([
   'A listing can only be sent for review once every required section passes. The button says what is stopping it.',
