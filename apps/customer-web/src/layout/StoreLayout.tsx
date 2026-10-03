@@ -13,6 +13,7 @@
  *     never reloads and a screen reader would otherwise never learn the page
  *     changed.
  */
+import { QuickActionDock } from '@/components/QuickActionDock';
 import { useEffect, useRef, useState } from 'react';
 import { usePageViewTracking } from '@/lib/analytics';
 import { Outlet, useLocation } from 'react-router-dom';
@@ -278,6 +279,7 @@ export function StoreLayout(): React.JSX.Element {
           is what was taking the globe with it. On a phone, where there is no
           globe and the page scrolls normally, the footer is untouched. */}
       {!isImmersive && !isAppPane && <Footer className={cx(isFullBleed && 'lg:hidden')} />}
+      {!isImmersive && !isAppPane && <QuickActionDock />}
     </div>
   );
 }

@@ -850,6 +850,14 @@ unknown SKU, duplicate SKU, more than 50 lines). Limits: 1 MB and 50 lines. The
 buyer reviews the list and presses Add, which uses the existing all-or-nothing
 bulk add, so nothing reaches the cart unseen.
 
+**Quick-action dock (ENH-005).** Every storefront page (except full-height
+application panes) has a "Quick actions" button at the bottom right. It opens
+Create RFQ (when RFQs are on), Search by image (when image search is on, opening
+the existing image dialog), Ask AI (when the assistant is on), Reorder and Track
+an order (signed-in buyers: the dashboard's Buy again section and the order
+list), and Contact support. An action that would not work for this visitor is
+not shown.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

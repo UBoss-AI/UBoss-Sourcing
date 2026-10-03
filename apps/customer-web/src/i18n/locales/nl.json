@@ -8474,5 +8474,14 @@
   "cartUpload.code.QUANTITY_INVALID": "aantal moet een heel getal vanaf 1 zijn",
   "cartUpload.code.SKU_UNKNOWN": "geen product met deze SKU",
   "cartUpload.code.DUPLICATE_SKU": "SKU staat al hierboven",
-  "cartUpload.code.TOO_MANY_LINES": "meer dan 50 regels"
+  "cartUpload.code.TOO_MANY_LINES": "meer dan 50 regels",
+  "quickActions.label": "Snelle acties",
+  "quickActions.open": "Snelle acties",
+  "quickActions.close": "Sluiten",
+  "quickActions.rfq": "Aanvraag maken",
+  "quickActions.image": "Zoeken met afbeelding",
+  "quickActions.ai": "Vraag het de AI",
+  "quickActions.reorder": "Opnieuw bestellen",
+  "quickActions.track": "Bestelling volgen",
+  "quickActions.support": "Contact met support"
 }

@@ -8583,5 +8583,14 @@
   "cartUpload.code.QUANTITY_INVALID": "la quantité doit être un entier à partir de 1",
   "cartUpload.code.SKU_UNKNOWN": "aucun produit avec ce SKU",
   "cartUpload.code.DUPLICATE_SKU": "SKU déjà indiqué plus haut",
-  "cartUpload.code.TOO_MANY_LINES": "plus de 50 lignes"
+  "cartUpload.code.TOO_MANY_LINES": "plus de 50 lignes",
+  "quickActions.label": "Actions rapides",
+  "quickActions.open": "Actions rapides",
+  "quickActions.close": "Fermer",
+  "quickActions.rfq": "Créer une demande",
+  "quickActions.image": "Rechercher par image",
+  "quickActions.ai": "Demander à l’IA",
+  "quickActions.reorder": "Commander à nouveau",
+  "quickActions.track": "Suivre une commande",
+  "quickActions.support": "Contacter le support"
 }

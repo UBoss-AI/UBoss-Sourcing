@@ -8474,5 +8474,14 @@
   "cartUpload.code.QUANTITY_INVALID": "Menge muss eine ganze Zahl ab 1 sein",
   "cartUpload.code.SKU_UNKNOWN": "kein Produkt mit dieser SKU",
   "cartUpload.code.DUPLICATE_SKU": "SKU steht bereits weiter oben",
-  "cartUpload.code.TOO_MANY_LINES": "mehr als 50 Zeilen"
+  "cartUpload.code.TOO_MANY_LINES": "mehr als 50 Zeilen",
+  "quickActions.label": "Schnellaktionen",
+  "quickActions.open": "Schnellaktionen",
+  "quickActions.close": "Schließen",
+  "quickActions.rfq": "Anfrage erstellen",
+  "quickActions.image": "Mit Bild suchen",
+  "quickActions.ai": "KI fragen",
+  "quickActions.reorder": "Erneut bestellen",
+  "quickActions.track": "Bestellung verfolgen",
+  "quickActions.support": "Support kontaktieren"
 }

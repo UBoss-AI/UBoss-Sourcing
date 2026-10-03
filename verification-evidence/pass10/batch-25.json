@@ -1,0 +1,15 @@
+{
+  "batch": 25,
+  "ids": [
+    "ENH-005"
+  ],
+  "before": {
+    "checked": 298,
+    "unchecked": 66
+  },
+  "after": {
+    "checked": 299,
+    "unchecked": 65
+  },
+  "evidence": "Storefront quick-action dock on every page (not on full-height app panes): Create RFQ, Search by image (existing dialog), Ask AI, Reorder, Track order, Contact support; RFQ/image/AI follow feature switches, reorder/track need a signed-in buyer. Dock tests 2/2; layout, query-states, i18n, accessibility and app suites; typecheck/lint clean; eight locales and guides synchronized. Seller/admin consoles keep their own navigation. No browser pass."
+}

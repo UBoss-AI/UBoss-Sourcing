@@ -2,12 +2,12 @@
 
 - Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (unnumbered repository authority; checkbox symbols only).
 - Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
-- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-24.json`.
+- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-25.json`.
 - Master checked: 95/97; row 9 requires approved policies/legal review; row 12 requires actual KYB and bank-verification decisions.
-- Entire document checked: 298
-- Entire document unchecked: 66
+- Entire document checked: 299
+- Entire document unchecked: 65
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 10 batch 24, ENH-016 verified and ticked.
+- Last completed work: Pass 10 batch 25, ENH-005 verified and ticked.
 - Verification: fresh complete customer checks 204/1876; focused customer 5/68. Backend 341/5400 and admin 52/382 retained under unchanged-package diff guards.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-16.json` (batches 6, 8, 9 partial), browser results and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
@@ -86,7 +86,7 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | ENH-002 | A | Prove comparison uses verified catalogue/quote fields and links every conclusion to its source. |
 | ENH-003 | E | Verify guest/B2B/B2C/seller/returning persona home behavior after the active storefront task completes. |
 | ENH-004 | A | Verify one permission-scoped search covers product, supplier, RFQ, order, invoice, shipment and help; defer active header edits. |
-| ENH-005 | A | Verify persistent RFQ/image/AI/reorder/tracking/support actions across applicable roles; defer active storefront edits. |
+| ENH-005 | A | Verified in Pass 10 batch 25: persistent quick-action dock with RFQ, image, AI, reorder, tracking and support, gated by feature and role. |
 | ENH-008 | A | Verified in Pass 10 batch 18: match reasons/flags cover capacity, MOQ, certificate, destination and response record, with explicit unknown flags. |
 | ENH-014 | A | Verified in Pass 10 batch 3: spending caps, scope, expiry, pre-charge reminder and one-click pause. |
 | ENH-015 | A | Verify self-service PO/acknowledgement/invoice/shipment/status mapping and a real local sandbox test. |
@@ -189,6 +189,8 @@ Current open classification after batch 15: **A 15; B 13; C 7; D 30; E 10 — 75
 **Batch 23 — implemented, verified and ticked: ENH-019.** Admin dashboard exception centre (GET /admin/exceptions) ranks failed payments, missing documents, failed inspections, late shipments, settlement mismatches and integration failures; built on the operations overview so counts and permission gating match; unpermitted types absent, not zero. Backend integration 3/3 + anonymous-access, admin panel 2/2 + dashboard/i18n 15; typecheck/lint clean; reference docs regenerated; eight admin locales and guides synchronized. No browser pass. Before **296/364**, **68 open**; after **297/364**, **67 open**. Evidence: `verification-evidence/pass10/batch-23.json`.
 
 **Batch 24 — implemented, verified and ticked: ENH-016.** Cart CSV/XLSX SKU-list upload: POST /cart/items/upload/preview reads via the seller bulk-import reader, resolves published product/variant SKUs, reports missing/invalid/unknown/duplicate/over-50 rows, 1 MB limit, never touches the cart; buyer confirms and the existing all-or-nothing bulk add (customer-scoped cart) adds lines. Backend integration 3/3 + XLSX unit 2/2 + idempotency/anonymous contracts 9/9; UI 2/2 + cart/query-states/i18n; typecheck/lint clean; references regenerated; eight locales and guides synchronized. Multi-line RFQ from a file is not built (RFQ holds one requirement); the order path satisfies the SKU-list option. No browser pass. Before **297/364**, **67 open**; after **298/364**, **66 open**. Evidence: `verification-evidence/pass10/batch-24.json`.
+
+**Batch 25 — implemented, verified and ticked: ENH-005.** Storefront quick-action dock on every page (not on full-height app panes): Create RFQ, Search by image (existing dialog), Ask AI, Reorder, Track order, Contact support; RFQ/image/AI follow feature switches, reorder/track need a signed-in buyer. Dock tests 2/2; layout, query-states, i18n, accessibility and app suites; typecheck/lint clean; eight locales and guides synchronized. Seller/admin consoles keep their own navigation. No browser pass. Before **298/364**, **66 open**; after **299/364**, **65 open**. Evidence: `verification-evidence/pass10/batch-25.json`.
 
 Current open classification after batch 16: **A 15; B 13; C 7; D 30; E 9 — 74 open**.
 

@@ -8474,5 +8474,14 @@
   "cartUpload.code.QUANTITY_INVALID": "η ποσότητα πρέπει να είναι ακέραιος από 1",
   "cartUpload.code.SKU_UNKNOWN": "δεν υπάρχει προϊόν με αυτό το SKU",
   "cartUpload.code.DUPLICATE_SKU": "το SKU υπάρχει ήδη παραπάνω",
-  "cartUpload.code.TOO_MANY_LINES": "περισσότερες από 50 γραμμές"
+  "cartUpload.code.TOO_MANY_LINES": "περισσότερες από 50 γραμμές",
+  "quickActions.label": "Γρήγορες ενέργειες",
+  "quickActions.open": "Γρήγορες ενέργειες",
+  "quickActions.close": "Κλείσιμο",
+  "quickActions.rfq": "Δημιουργία αιτήματος",
+  "quickActions.image": "Αναζήτηση με εικόνα",
+  "quickActions.ai": "Ρωτήστε την AI",
+  "quickActions.reorder": "Νέα παραγγελία ξανά",
+  "quickActions.track": "Παρακολούθηση παραγγελίας",
+  "quickActions.support": "Επικοινωνία με υποστήριξη"
 }
