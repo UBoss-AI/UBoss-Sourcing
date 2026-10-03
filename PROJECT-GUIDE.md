@@ -514,7 +514,10 @@ when adding a screen:
 Where the two apps reflow:
 
 - **The storefront header is one band at every width.** Brand on the left;
-  appearance, market, account and cart on the right. It used to be three
+  search, appearance, market, seller, inbox, account and cart on the right.
+  Below 400px the appearance control steps out of the bar (the brand needs
+  the room once search and the inbox are there) and the device's own light or
+  dark setting applies. It used to be three
   bands below `md` — a market strip, an identity band and a search row — and
   it is one now because two of the controls were removed outright: see *The
   header* in section 4 for the global search box and the category bar, and why
@@ -1122,10 +1125,25 @@ a 401. Browsing, searching and filtering the catalogue stay open to everybody.
 
 ## The header
 
-One band over a tinted page, and five things in it: the brand on the left,
-then the appearance control, the market control, the account control and the
-cart on the right. That is all. Two things that used to be here are gone, and both removals are
-the point of the current shape.
+One band over a tinted page: the brand on the left, then **Search
+everything**, the appearance control, the market control, the seller button,
+**Messages and notifications**, the account control and the cart on the right
+(checklist DYNAMIC-001).
+
+**Search is an icon that opens `/find`, not a field.** `/find` searches
+products, suppliers, help and - signed in - the buyer's own records, so the
+header's entry is a door to the one page that searches everything rather than
+a second, differently-behaving search box.
+
+**Messages and notifications are one entry** (`components/header/HeaderInbox.tsx`),
+only for a signed-in customer. A bell whose badge is unread preorder-chat
+replies (`GET /preorder-chats/unread`) plus unread notifications
+(`GET /account/notifications?limit=1`, its `unreadCount`), both counted by
+the server and refreshed once a minute. It opens a small disclosure with two
+links, **Messages** and **Notifications**, each with its own count; Escape
+closes it and returns focus. A guest has no inbox, and a seller's
+notifications stay in Seller Hub, which has its own sign-in. Two things that used to be here are gone, and both removals are
+still the point of the current shape.
 
 **The global search box is gone.** The front page opens on a large search
 module, and a second, smaller search field in the chrome directly above

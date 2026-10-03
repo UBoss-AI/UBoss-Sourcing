@@ -1843,6 +1843,10 @@ dock) searches products and suppliers for anyone, the signed-in buyer's own
 orders, invoices, shipments and requests (`GET /account/search`, scoped to that
 customer, two characters minimum, five per kind), and help pages. Each group
 loads and fails on its own. Signed out, account records are not requested. Built.
+The storefront header reaches it from a "Search everything" icon at every
+width, and carries one "Messages and notifications" entry for a signed-in
+customer: a bell whose badge is unread messages plus unread notifications,
+opening links to both with their own counts (checklist DYNAMIC-001). Built.
 
 **Home task row (DYNAMIC-004).** A signed-in buyer's home page shows "Your next
 steps": quotes waiting for their decision, open inspection jobs (new

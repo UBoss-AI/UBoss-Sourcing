@@ -546,16 +546,19 @@ Files: `src/layout/StoreLayout.tsx`, `src/layout/Header.tsx`,
    | Item | What it is | What it does |
    |---|---|---|
    | Brand | The store's logo (or the earth mark) and name. For Gloviaa Mart: the wordmark (23px, 17px on a phone, where it reads just **Gloviaa** and the guest Sign in button shows only its icon) over **Source with Intelligence \| Deliver with Confidence** (15px, from 1024px), in their own bright colour tokens. From 640px up, "Gloviaa" is in the script face and "Mart" in Inter, smaller (0.62em) and semibold, on the same baseline; it still reads "Gloviaa Mart". The footer heading draws the name the same way. A store with its own name is drawn in one face | Goes to `/` |
-   | Appearance | Match my device, Light, Dark. One cycling button on phones | Kept in this browser only |
+   | Search everything | A magnifier icon, no words. Its accessible name is "Search everything". Every width, guest or signed in | Opens `/find` |
+   | Appearance | Match my device, Light, Dark. One cycling button on phones; not shown below 400px, where the device's own setting applies | Kept in this browser only |
    | Market control | Flag, language code, and on wide screens the country and currency; no chevron on a phone | Opens "Language, country and currency": languages, a searchable country list with "Your browser suggests … Use that", currencies. **Nothing changes until Apply.** Then every price is quoted again and a message says so. Hidden when the store has only one country and one currency |
    | Become a seller | A button whose words follow the person's seller state (see below). Hidden on a seller's own storefront | Opens `/sell`, the onboarding, or the Seller Hub |
    | About | A circled "i" icon, with no words. Its accessible name is "About {marketplace}". Shown from 1024px up only; narrower, the footer's link leads to the same page | Opens `/about` |
    | Support | A headset icon, with no words at any width. Its accessible name is "Support". Shown from the `sm` width up; on a phone the account menu and the footer lead to the same page | Opens `/support` |
+   | Messages and notifications | A bell with one badge: unread messages plus unread notifications ("99+" above 99). Its accessible name says "Messages and notifications, N unread" or "nothing unread". Signed-in customers only | Opens a small panel with **Messages** (`/account/messages`) and **Notifications** (`/account/notifications`), each with its own unread count. Escape closes it and returns focus. Calls `GET /preorder-chats/unread` and `GET /account/notifications?limit=1` |
    | Account | **Sign in** for a guest. For a customer, their first name and a menu (on a phone the icon alone, no chevron) | The menu lists the account pages in four groups and **Sign out**, which asks first. For somebody who belongs to at least one company, the menu starts with **Buying for** (see below) |
    | Cart | Orange, with a count of items | Opens `/cart` (a guest is asked to sign in) |
 
-   There is **no search box and no category bar** in the header, on purpose.
-   Search lives on the front page and at the top of the catalogue filters.
+   There is **no search field and no category bar** in the header, on purpose.
+   The search icon opens `/find`; typing a search happens there, on the front
+   page and at the top of the catalogue filters.
 
    **The "Become a seller" button**
 

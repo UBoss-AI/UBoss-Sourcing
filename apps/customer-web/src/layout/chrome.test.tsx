@@ -110,6 +110,48 @@ describe('the header', () => {
   });
 });
 
+describe('the header entries (DYNAMIC-001)', () => {
+  it('reaches universal search from one icon, for a guest and a customer alike', () => {
+    renderWithProviders(<Header />, { config: makeConfig(), session: GUEST });
+    expect(screen.getByRole('link', { name: 'Search everything' })).toHaveAttribute('href', '/find');
+    // Still a link to the one search page, never a second field.
+    expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
+  });
+
+  it('shows no inbox to a guest', () => {
+    renderWithProviders(<Header />, { config: makeConfig(), session: GUEST });
+    expect(screen.queryByRole('button', { name: /Messages and notifications/ })).not.toBeInTheDocument();
+  });
+
+  it('sums unread messages and notifications, and the panel says which is which', async () => {
+    fetchMock.mockImplementation((url: string) => {
+      if (url.includes('/account/notifications')) return Promise.resolve(jsonResponse({ notifications: [], unreadCount: 2 }));
+      if (url.includes('/preorder-chats/unread')) return Promise.resolve(jsonResponse({ unreadCount: 1 }));
+      if (url.includes('/cart')) return Promise.resolve(jsonResponse({ cart: { itemCount: 0 } }));
+      return Promise.resolve(jsonResponse({}));
+    });
+    const user = userEvent.setup();
+    renderWithProviders(<Header />, { config: makeConfig() });
+
+    const trigger = await screen.findByRole('button', { name: 'Messages and notifications, 3 unread' });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    await user.click(trigger);
+    const panel = screen.getByRole('navigation', { name: 'Messages and notifications' });
+    expect(within(panel).getByRole('link', { name: /^Messages.*1 unread$/ })).toHaveAttribute('href', '/account/messages');
+    expect(within(panel).getByRole('link', { name: /^Notifications.*2 unread$/ })).toHaveAttribute('href', '/account/notifications');
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('navigation', { name: 'Messages and notifications' })).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+  });
+
+  it('says nothing is unread rather than showing a zero badge', async () => {
+    renderWithProviders(<Header />, { config: makeConfig() });
+    expect(await screen.findByRole('button', { name: 'Messages and notifications, nothing unread' })).toBeInTheDocument();
+    expect(screen.queryByTestId('inbox-badge')).not.toBeInTheDocument();
+  });
+});
+
 // ---------------------------------------------------------------------------
 // The market control
 // ---------------------------------------------------------------------------

@@ -1,5 +1,16 @@
 /**
- * Storefront header: brand, appearance, market, account and cart.
+ * Storefront header: brand, search, appearance, market, seller, inbox,
+ * account and cart.
+ *
+ * **Universal search is an icon, not a field** (checklist DYNAMIC-001). It
+ * opens `/find`, which searches products, suppliers, categories and - signed
+ * in - the buyer's own records in one place. A field here was removed once
+ * for being a second, differently-behaving front door beside the home
+ * page's search module; a link to the one page that searches everything is
+ * not that, and it costs 36px instead of 600.
+ *
+ * **Messages and notifications are one entry** (`HeaderInbox`), shown only
+ * to a signed-in customer.
  *
  * One band, five controls. Two things that used to be here are gone, and both
  * removals are the point of the current shape:
@@ -56,7 +67,8 @@ import { EarthMark } from '@/components/EarthMark';
 import { PRODUCT_BRAND, PRODUCT_SHORT_NAME, PRODUCT_TAGLINE } from '@/lib/brand';
 import { BrandName } from '@/components/BrandName';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { CartIcon, HeadsetIcon, InfoIcon } from '@/components/icons';
+import { CartIcon, HeadsetIcon, InfoIcon, SearchIcon } from '@/components/icons';
+import { HeaderInbox } from '@/components/header/HeaderInbox';
 import type { Cart } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
@@ -262,6 +274,21 @@ function CartLink(): React.JSX.Element {
  * column. Icon only at every width: "Support" is its accessible name and its
  * tooltip, so it is announced and discoverable without taking a label's room.
  */
+function SearchLink(): React.JSX.Element {
+  const { t } = useI18n();
+  const label = t('header.searchEverything');
+  return (
+    <Link
+      to="/find"
+      aria-label={label}
+      title={label}
+      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
+    >
+      <SearchIcon className="h-5 w-5 shrink-0" />
+    </Link>
+  );
+}
+
 function SupportLink(): React.JSX.Element {
   const { t } = useI18n();
   const label = t('header.support');
@@ -336,7 +363,17 @@ export function Header(): React.JSX.Element {
               changes nothing about the order somebody is placing. An
               unlabelled icon button beside the market chip rather than a
               fourth panel — see ThemeToggle for why it cycles. */}
-          <ThemeToggle />
+          <SearchLink />
+
+          {/* Not below 400px. With search and the inbox in the bar, a signed-in
+              buyer's controls left the brand less room than its own mark at
+              320px and 375px, and it was
+              squeezed under the search icon. Appearance is the one control
+              that changes nothing about an order, and a phone that narrow
+              keeps following the device's own light or dark setting. */}
+          <span className="contents max-[399px]:hidden">
+            <ThemeToggle />
+          </span>
 
           {/* Market before account: what language this page is in and what
               its numbers mean is the question a buyer answers on arrival, and
@@ -353,6 +390,7 @@ export function Header(): React.JSX.Element {
           <AboutLink />
           <SupportLink />
 
+          <HeaderInbox />
           <AccountMenu />
           <CartLink />
         </div>

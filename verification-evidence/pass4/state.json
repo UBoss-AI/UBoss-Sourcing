@@ -2875,6 +2875,12 @@
       "status": "VERIFIED",
       "evidence": "Pass 11 batch 33: DYNAMIC-003. Home \"How buying here is protected\" now carries all four trust statements, each only when the deployment substantiates it: supplier review (verified-supplier count), payment confirmed by the provider, inspection before dispatch (an in-force inspection rule), and a new global-logistics line - \"Carriers the marketplace has approved deliver to N countries\" - shown only when active, unarchived marketplace carriers' active, non-exclusion delivery regions cover more than one country (GET /catalog/assurance gains logistics.activeCarriers and logistics.deliveryCountries). /assurance gains a \"Delivery across borders\" step stating the reach, or one country, or no approved carriers. Tests: catalog-assurance integration (suspended carrier, exclusion region and seller carriers do not count), HomeTrustBlocks and AssurancePage; customer-web verify 1924/1924. Headless Chrome against the dev stack (5 carriers, 4 countries; a temporary buyer-requested inspection rule proved the inspection line, then removed): verification-evidence/pass11/dyn003 (flow.mjs, results.json, shots), no horizontal scroll at 320/1280.",
       "verifiedAt": "2026-10-04 (pass 11)"
+    },
+    {
+      "id": "DYNAMIC-001",
+      "status": "VERIFIED",
+      "evidence": "Pass 11 batch 34: DYNAMIC-001. Storefront header now reads, left to right: logo, Search everything (icon to /find, which searches products, suppliers, help and the signed-in buyer's own records), appearance, country/language/currency, Seller Hub / Become a seller, Messages and notifications (signed-in customers only: one bell whose badge is unread preorder-chat replies plus unread notifications, both server-counted, opening links to /account/messages and /account/notifications with their own counts; Escape closes and returns focus), account, cart. Role permission: a guest sees search but no inbox and gets Sign in; a seller's notifications stay in Seller Hub. Below 400px the appearance control steps out so the brand keeps its room. Tests: chrome.test.tsx (4 new), customer-web verify 1928/1928. Headless Chrome against the dev stack, guest and the seeded buyer at 320/375/768/1280: every entry present, none clipped, no horizontal scroll; Tab reaches the inbox, Enter opens both links, Escape closes with focus back; the search icon lands on /find: verification-evidence/pass11/dyn001 (flow.mjs, results.json, shots).",
+      "verifiedAt": "2026-10-04 (pass 11)"
     }
   ],
   "pendingBoxes": []

@@ -1,0 +1,132 @@
+{
+  "guest-320": {
+    "pageOverflow": false,
+    "headerHeight": 69,
+    "items": [
+      "GGloviaaGloviaa MartSour 8-109",
+      "Search everything 112-148",
+      "EN₹ INRChange language,  150-185",
+      "Become a seller 187-228",
+      "Sign in 230-266",
+      "Cart, empty 268-304"
+    ]
+  },
+  "guest-375": {
+    "pageOverflow": false,
+    "headerHeight": 77,
+    "items": [
+      "GGloviaaGloviaa MartSour 8-117",
+      "Search everything 143-179",
+      "EN₹ INRChange language,  183-218",
+      "Become a seller 222-263",
+      "Sign in 267-311",
+      "Cart, empty 315-359"
+    ]
+  },
+  "guest-768": {
+    "pageOverflow": false,
+    "headerHeight": 77,
+    "items": [
+      "GGloviaaGloviaa MartSour 8-114",
+      "Search everything 130-166",
+      "Match my device 174-206",
+      "Light theme 206-238",
+      "Dark theme 238-270",
+      "EN₹ INRChange language,  278-339",
+      "Become a seller 347-506",
+      "Support 514-550",
+      "Sign in 558-663",
+      "Cart, empty 671-752"
+    ]
+  },
+  "guest-1280": {
+    "pageOverflow": false,
+    "headerHeight": 83,
+    "items": [
+      "GGloviaaGloviaa MartSour 8-361",
+      "Search everything 562-598",
+      "Match my device 606-638",
+      "Light theme 638-670",
+      "Dark theme 670-702",
+      "EN₹ INRChange language,  710-807",
+      "Become a seller 815-974",
+      "About Gloviaa Mart 982-1018",
+      "Support 1026-1062",
+      "Sign in 1070-1175",
+      "Cart, empty 1183-1264"
+    ]
+  },
+  "signIn": "/",
+  "buyer-320": {
+    "pageOverflow": false,
+    "headerHeight": 69,
+    "items": [
+      "GGloviaaGloviaa MartSour 8-59",
+      "Search everything 59-95",
+      "ENIndia₹ INRChange langu 97-156",
+      "Seller Hub 158-198",
+      "Messages and notificatio 200-236",
+      "Your account: Deepak 238-266",
+      "Cart, empty 268-304"
+    ]
+  },
+  "buyer-375": {
+    "pageOverflow": false,
+    "headerHeight": 77,
+    "items": [
+      "GGloviaaGloviaa MartSour 8-88",
+      "Search everything 88-124",
+      "ENIndia₹ INRChange langu 128-187",
+      "Seller Hub 191-231",
+      "Messages and notificatio 235-271",
+      "Your account: Deepak 275-311",
+      "Cart, empty 315-359"
+    ]
+  },
+  "buyer-768": {
+    "pageOverflow": false,
+    "headerHeight": 77,
+    "items": [
+      "GGloviaaGloviaa MartSour 8-64",
+      "Search everything 80-116",
+      "Match my device 124-156",
+      "Light theme 156-188",
+      "Dark theme 188-220",
+      "ENIndia₹ INRChange langu 228-315",
+      "Seller Hub 323-444",
+      "Support 452-488",
+      "Messages and notificatio 496-532",
+      "Your account: Deepak 540-663",
+      "Cart, empty 671-752"
+    ]
+  },
+  "buyer-1280": {
+    "pageOverflow": false,
+    "headerHeight": 83,
+    "items": [
+      "GGloviaaGloviaa MartSour 8-361",
+      "Search everything 478-514",
+      "Match my device 522-554",
+      "Light theme 554-586",
+      "Dark theme 586-618",
+      "ENIndia₹ INRChange langu 626-783",
+      "Seller Hub 791-912",
+      "About Gloviaa Mart 920-956",
+      "Support 964-1000",
+      "Messages and notificatio 1008-1044",
+      "Your account: Deepak 1052-1175",
+      "Cart, empty 1183-1264"
+    ]
+  },
+  "tabReachesInbox": true,
+  "panel": [
+    "/account/messages MessagesAll read",
+    "/account/notifications Notifications46 unread"
+  ],
+  "afterEscape": {
+    "open": false,
+    "focus": "Messages and notifications, 46 unread"
+  },
+  "searchGoesTo": "/find Search everything",
+  "consoleErrors": []
+}

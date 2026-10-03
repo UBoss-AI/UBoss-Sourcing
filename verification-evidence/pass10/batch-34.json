@@ -1,0 +1,15 @@
+{
+  "batch": 34,
+  "ids": [
+    "DYNAMIC-001"
+  ],
+  "before": {
+    "checked": 307,
+    "unchecked": 57
+  },
+  "after": {
+    "checked": 308,
+    "unchecked": 56
+  },
+  "evidence": "Storefront header now reads, left to right: logo, Search everything (icon to /find, which searches products, suppliers, help and the signed-in buyer's own records), appearance, country/language/currency, Seller Hub / Become a seller, Messages and notifications (signed-in customers only: one bell whose badge is unread preorder-chat replies plus unread notifications, both server-counted, opening links to /account/messages and /account/notifications with their own counts; Escape closes and returns focus), account, cart. Role permission: a guest sees search but no inbox and gets Sign in; a seller's notifications stay in Seller Hub. Below 400px the appearance control steps out so the brand keeps its room. Tests: chrome.test.tsx (4 new), customer-web verify 1928/1928. Headless Chrome against the dev stack, guest and the seeded buyer at 320/375/768/1280: every entry present, none clipped, no horizontal scroll; Tab reaches the inbox, Enter opens both links, Escape closes with focus back; the search icon lands on /find: verification-evidence/pass11/dyn001 (flow.mjs, results.json, shots)."
+}
