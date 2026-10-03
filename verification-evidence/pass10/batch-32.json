@@ -1,0 +1,24 @@
+{
+  "batch": 32,
+  "ids": [
+    "DYNAMIC-005"
+  ],
+  "before": {
+    "checked": 305,
+    "unchecked": 59
+  },
+  "after": {
+    "checked": 306,
+    "unchecked": 58
+  },
+  "evidence": "AI Mode (reached from the home hero and the sourcing hub's assistant node) shows example starter prompts; asking 'I need 500 pieces of nitrile gloves delivered to Germany, CIF, CE certified, within 30 days' showed the understood chips (500 pieces, DE, CIF, CE, within 30 days) and 'Turn this into a request for quotation', which opened /account/rfqs/new prefilled (title, full text as specification, quantity 500, unit pieces, DE, CIF, CE) and unsent. Headless Chrome against the dev stack, signed in as the seeded buyer: verification-evidence/pass10/browser-dyn005 (flow.mjs, results.json, shots/rfq-draft.png). Builds on ENH-001 (batch 28).",
+  "notTicked": {
+    "DYNAMIC-001": "Header has brand, theme, market (country/language/currency), become-seller, about, support, account and cart; no universal search box and no messages/notifications entry.",
+    "DYNAMIC-003": "Home assurance lines are reviewed suppliers, payment/claims, inspection and returns, each shown only when the setting exists; there is no global logistics statement, so the four required statements are not all present.",
+    "DYNAMIC-007": "Home tools reach AI, schedules, ERP and autopay; no Private Label/OEM, Upload Bulk Requirement or Landed Cost tool on home.",
+    "ENH-003": "Home differs for guest vs signed-in (task row, greeting) and returning visitor (recently viewed); nothing differs for B2B vs B2C buyer or for a seller.",
+    "DOD-003": "Storefront pages swept at 320-1440 earlier; admin, Seller Hub and logistics screens have no layout sweep, so not every applicable screen is verified.",
+    "DOD-004": "Keyboard/axe sweep covers storefront pages only; admin, Seller Hub and logistics screens not swept.",
+    "DOD-001": "Needs UX lead review of every screen (owner action)."
+  }
+}

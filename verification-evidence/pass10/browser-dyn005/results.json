@@ -1,0 +1,39 @@
+{
+ "signIn": "/",
+ "starters": [
+  "I need an air quality monitor for a small office. What do you have?",
+  "Which IV cannula sizes do you have?",
+  "Which nitrile gloves do you sell?",
+  "hello how r u i want to know about the products that you have",
+  "Which suction catheters fit a 10 Fr tube, and what do they cost in bulk?",
+  "Which suction catheters fit a 10 Fr tube, and what do they cost?",
+  "catheter sizing question",
+  "Hi , How are you ?",
+  "Which syringes do you list?",
+  "What do you have in Medical Devices?",
+  "What do you have in Industrial Supplies?",
+  "What do you have in Safety & Protective Equipment?",
+  "Compare two products",
+  "Help me prepare a recurring order",
+  "Privacy and policies",
+  "Report a wrong answer"
+ ],
+ "chips": [
+  {
+   "text": "Turn this into a request for quotation",
+   "href": "/account/rfqs/new?title=nitrile+gloves+delivered+certified&specification=I+need+500+pieces+of+nitrile+gloves+delivered+to+Germany%2C+CIF%2C+CE+certified%2C+within+30+days&from=describe&quantity=500&unit=pieces&destinationCountry=DE&incoterm=CIF&certifications=CE"
+  }
+ ],
+ "understood": "Understood from your question:500 piecesto DECIFCEwithin 30 daysSearch with these filtersTurn this into a request for quotation",
+ "rfqPath": "/account/rfqs/new",
+ "rfqFields": [
+  "_r_e_=nitrile gloves delivered certified",
+  "_r_f_=I need 500 pieces of nitrile gloves delivered to Germany, CIF, CE certified, wit",
+  "_r_g_=500",
+  "_r_l_=DE",
+  "_r_m_=CIF",
+  "_r_p_=CE",
+  "_r_q_=NONE",
+  "_r_r_=NONE"
+ ]
+}

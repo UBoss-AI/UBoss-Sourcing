@@ -2863,6 +2863,12 @@
       "status": "VERIFIED",
       "evidence": "Pass 10 batch 31: ENH-015. Buyer ERP field mapping gains ORDER ACKNOWLEDGEMENT and SHIPMENT entities (migration 20261102100000; MariaDB uboss and uboss_test deployed): required fields, opt-in by mapping, REST preset defaults, outbound confirmation/shipment written in the mapped shape, inbound signed webhooks applied through the mapping onto the order link (id, status, promised date, carrier, tracking, ship date). Wizard field-mapping step walks Purchase order, Acknowledgement, Shipment, Invoice, Status, Products, Stock, Payments with numbered steps and an optional hint. Sandbox ERP (real local HTTP listener) integration 3/3 inside customer-erp-live 23/23; backend unit+customer-erp integration 133 files/2223 tests; customer UI 2/2, full customer 1898 tests (SupportPage file unloadable only in this worktree: node_modules outside its Vite fs allow); typecheck/lint clean; references regenerated; eight locales and guides synchronized. No browser pass.",
       "verifiedAt": "2026-10-04 (pass 10)"
+    },
+    {
+      "id": "DYNAMIC-005",
+      "status": "VERIFIED",
+      "evidence": "Pass 10 batch 32: DYNAMIC-005. AI Mode (reached from the home hero and the sourcing hub's assistant node) shows example starter prompts; asking 'I need 500 pieces of nitrile gloves delivered to Germany, CIF, CE certified, within 30 days' showed the understood chips (500 pieces, DE, CIF, CE, within 30 days) and 'Turn this into a request for quotation', which opened /account/rfqs/new prefilled (title, full text as specification, quantity 500, unit pieces, DE, CIF, CE) and unsent. Headless Chrome against the dev stack, signed in as the seeded buyer: verification-evidence/pass10/browser-dyn005 (flow.mjs, results.json, shots/rfq-draft.png). Builds on ENH-001 (batch 28).",
+      "verifiedAt": "2026-10-04 (pass 10)"
     }
   ],
   "pendingBoxes": []

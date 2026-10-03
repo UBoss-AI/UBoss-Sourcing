@@ -2,12 +2,12 @@
 
 - Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (unnumbered repository authority; checkbox symbols only).
 - Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
-- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-31.json`.
+- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-32.json`.
 - Master checked: 95/97; row 9 requires approved policies/legal review; row 12 requires actual KYB and bank-verification decisions.
-- Entire document checked: 305
-- Entire document unchecked: 59
+- Entire document checked: 306
+- Entire document unchecked: 58
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 10 batch 31, ENH-015 verified and ticked.
+- Last completed work: Pass 10 batch 32, DYNAMIC-005 verified and ticked; storefront work committed (36c72f3e).
 - Verification: fresh complete customer checks 204/1876; focused customer 5/68. Backend 341/5400 and admin 52/382 retained under unchanged-package diff guards.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-16.json` (batches 6, 8, 9 partial), browser results and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
@@ -31,8 +31,8 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | SCREEN-009 | B | Verify required policy routes and visible links; publish launch-market counsel-approved content. |
 | SCREEN-012 | B | Verify KYB fields, authorization and evidence flow; obtain real bank and legal verification results. |
 | DOD-001 | E | Audit the primary action on every applicable screen after feature verification; include the preserved storefront work; no other writer is active. |
-| DOD-003 | E | Verify desktop/tablet/phone layout on every applicable screen; include the preserved storefront work; no other writer is active. |
-| DOD-004 | E | Verify keyboard paths, accessible names and focus recovery on every applicable screen; include the preserved storefront work; no other writer is active. |
+| DOD-003 | E | Still open: admin, Seller Hub and logistics screens have no layout sweep. |
+| DOD-004 | E | Still open: admin, Seller Hub and logistics screens have no keyboard/axe sweep. |
 | DOD-043 | C | Run and record the actual supported browser and physical-device matrix. |
 | DOD-044 | A | Trace configured performance budgets, measure applicable screens and APIs, and resolve measured regressions. |
 | TEMPLATE-001 | D | Leave reusable Pass/Fail/N/A options blank; select only the actual result when an authorized screen review uses the form. |
@@ -84,7 +84,7 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | JOURNEY-010 | B | Verify applicable Indian identifiers, ownership/contact, factory/export and policy screening; obtain production bank validation. |
 | ENH-001 | A | Verified in Pass 10 batch 28: plain-language request parsed into filters/specifications and an editable, unsent RFQ draft. |
 | ENH-002 | A | Verified in Pass 10 batch 26: comparison summary built only from quote fields, each conclusion linked to its source cell. |
-| ENH-003 | E | Verify guest/B2B/B2C/seller/returning persona home behavior after the active storefront task completes. |
+| ENH-003 | E | Still open: home does not differ for B2B vs B2C buyers or for sellers. |
 | ENH-004 | A | Verified in Pass 10 batch 29: one search page covers products, suppliers, the buyer's own orders/invoices/shipments/RFQs and help, scoped by role. |
 | ENH-005 | A | Verified in Pass 10 batch 25: persistent quick-action dock with RFQ, image, AI, reorder, tracking and support, gated by feature and role. |
 | ENH-008 | A | Verified in Pass 10 batch 18: match reasons/flags cover capacity, MOQ, certificate, destination and response record, with explicit unknown flags. |
@@ -104,12 +104,12 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | ENH-030 | A | Verified in Pass 10 batch 19: live countdown badges on quote, inspection assignment/report, dispatch and dispute deadlines; exact deadline counts as overdue. |
 | ENH-031 | A | Verified in Pass 10 batch 4: controlled exports/APIs in all five named domains, permissions, ownership and limits. |
 | ENH-032 | A | Verified in Pass 10 batch 27: RFQ form explains hard fields and suggests values from the buyer's last submitted request, applied only on confirmation. |
-| DYNAMIC-001 | E | Verify every required header entry and role permission after the active storefront task completes. |
+| DYNAMIC-001 | E | Still open after the storefront commit: header has no universal search and no messages/notifications entry. |
 | DYNAMIC-002 | E | Verified in Pass 10 batch 16: substantiated manufacturer statement, Search/AI and four sourcing shortcuts with guarded destinations. |
-| DYNAMIC-003 | E | Verify all four trust statements and their substantiation after the active storefront task completes. |
+| DYNAMIC-003 | E | Still open: no global logistics trust statement; the others appear only when their setting exists. |
 | DYNAMIC-004 | A | Verified in Pass 10 batch 30: signed-in home task row for quotes, inspections, shipments, payments and repeat orders, scoped to the buyer. |
-| DYNAMIC-005 | E | Verify sourcing examples and conversation-to-RFQ flow against ENH-001; defer active home edits. |
-| DYNAMIC-007 | E | Verify OEM/bulk/landed-cost/schedule/ERP tools separately against their dependent feature rows; defer active home edits. |
+| DYNAMIC-005 | E | Verified in Pass 10 batch 32: AI Mode examples and the conversation-to-RFQ draft, in the browser against the dev stack. |
+| DYNAMIC-007 | E | Still open: no Private Label/OEM, Upload Bulk Requirement or Landed Cost tool on home. |
 | DYNAMIC-010 | B | Verify every footer link after the active storefront task completes; approved policy content remains required. |
 | UAT-UI-002 | A | Verified in Pass 10 batch 12: original image retained through match/product/draft, explicit attach/discard, failed upload retry and send guard. |
 | UAT-UI-007 | A | Verified in Pass 10 batch 2 for outbound marketplace order to buyer ERP PO; no remaining action for the chosen software scenario. |
@@ -203,6 +203,8 @@ Current open classification after batch 15: **A 15; B 13; C 7; D 30; E 10 — 75
 **Batch 30 — implemented, verified and ticked: DYNAMIC-004.** Home 'Your next steps' row for signed-in buyers: quotes awaiting decision (RFQ summary), open inspections (new customer-scoped GET /account/inspections), shipments arriving, payments due and buy-again (buyer dashboard); empty or failed sources omitted; signed-out visitors request nothing. UI 2/2, backend integration 3/3 + anonymous contract, query-states/i18n; typecheck/lint clean; references regenerated; eight locales and guides synchronized. Mounted beside the pending storefront home work via a hunk-only change. No browser pass. Before **303/364**, **61 open**; after **304/364**, **60 open**. Evidence: `verification-evidence/pass10/batch-30.json`.
 
 **Batch 31 — implemented, verified and ticked: ENH-015.** Buyer ERP field mapping gains ORDER ACKNOWLEDGEMENT and SHIPMENT entities (migration 20261102100000; MariaDB uboss and uboss_test deployed): required fields, opt-in by mapping, REST preset defaults, outbound confirmation/shipment written in the mapped shape, inbound signed webhooks applied through the mapping onto the order link (id, status, promised date, carrier, tracking, ship date). Wizard field-mapping step walks Purchase order, Acknowledgement, Shipment, Invoice, Status, Products, Stock, Payments with numbered steps and an optional hint. Sandbox ERP (real local HTTP listener) integration 3/3 inside customer-erp-live 23/23; backend unit+customer-erp integration 133 files/2223 tests; customer UI 2/2, full customer 1898 tests (SupportPage file unloadable only in this worktree: node_modules outside its Vite fs allow); typecheck/lint clean; references regenerated; eight locales and guides synchronized. No browser pass. Before **304/364**, **60 open**; after **305/364**, **59 open**. Evidence: `verification-evidence/pass10/batch-31.json`.
+
+**Batch 32 — verified and ticked: DYNAMIC-005.** AI Mode (reached from the home hero and the sourcing hub's assistant node) shows example starter prompts; asking 'I need 500 pieces of nitrile gloves delivered to Germany, CIF, CE certified, within 30 days' showed the understood chips (500 pieces, DE, CIF, CE, within 30 days) and 'Turn this into a request for quotation', which opened /account/rfqs/new prefilled (title, full text as specification, quantity 500, unit pieces, DE, CIF, CE) and unsent. Headless Chrome against the dev stack, signed in as the seeded buyer: verification-evidence/pass10/browser-dyn005 (flow.mjs, results.json, shots/rfq-draft.png). Builds on ENH-001 (batch 28). Checked again and left open (storefront work now committed as 36c72f3e): DYNAMIC-001, DYNAMIC-003, DYNAMIC-007, ENH-003, DOD-003, DOD-004; reasons in `verification-evidence/pass10/batch-32.json`. DOD-001 waits for a UX lead.
 
 Current open classification after batch 16: **A 15; B 13; C 7; D 30; E 9 — 74 open**.
 
