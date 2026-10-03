@@ -207,6 +207,8 @@ export const router = createBrowserRouter([
       },
 
       { path: 'suppliers', ...publicRoute(() => import('@/pages/SupplierDirectoryPage').then((m) => m.SupplierDirectoryPage)) },
+      // One search across products, suppliers, your own records and help (ENH-004).
+      { path: 'find', ...publicRoute(() => import('@/pages/UniversalSearchPage').then((m) => m.UniversalSearchPage)) },
 
       // --- Buying: activated customers only ---------------------------------
       { path: 'cart', ...customerRoute(() => import('@/pages/CartPage').then((m) => m.CartPage)) },

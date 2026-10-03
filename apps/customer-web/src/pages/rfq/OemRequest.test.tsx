@@ -91,7 +91,7 @@ describe('private label and OEM request', () => {
   const branding = await screen.findByRole('textbox', { name: 'Branding requirements' }); expect(branding).toHaveValue('Acme logo in blue'); expect(screen.getByLabelText(/^Target volume/)).toHaveValue('500');
   const input = await screen.findByLabelText('Add a file'); fireEvent.change(input, { target: { files: [new File(['%PDF-1.7 drawing fixture'], 'drawing-revision-A.pdf', { type: 'application/pdf' })] } }); expect(await screen.findByRole('link', { name: /drawing-revision-A.pdf/ })).toBeInTheDocument(); expect(calls.uploads).toHaveLength(1);
   await userEvent.click(screen.getByRole('button', { name: 'Send to suppliers' })); expect(await screen.findByText('OEM request sent')).toBeInTheDocument(); expect(calls.submitted).toHaveBeenCalledOnce(); expect(calls.drafts).toHaveLength(2); expect(calls.drafts[1]).toMatchObject({ quantity: '500', specification: 'Drawing revision A: powder-free, 0.08 mm, blue', specs: calls.drafts[0]?.specs });
- });
+ }, 20_000);
  it('refuses an invalid target-volume decimal before any draft or request is sent', async () => {
   const calls = flow(); await userEvent.click(await screen.findByRole('link', { name: 'Request private label / OEM' })); await userEvent.type(await screen.findByLabelText(/^Target volume/), '1.2345'); await userEvent.click(screen.getByRole('button', { name: 'Save draft' })); expect(await screen.findAllByText(/at most three decimal places/)).not.toHaveLength(0); expect(calls.drafts).toHaveLength(0); expect(calls.submitted).not.toHaveBeenCalled();
  });

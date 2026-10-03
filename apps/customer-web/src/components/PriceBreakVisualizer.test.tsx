@@ -29,7 +29,7 @@ describe('price-break visualizer (ENH-027)', () => {
     fireEvent.change(screen.getByRole('slider'), { target: { value: '600' } });
     expect(screen.getByText('€8.00')).toBeInTheDocument();
     expect(screen.getByText('About 6 weeks at 100 a week')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Estimate landed cost for this quantity' })).toHaveAttribute('href', '/landed-cost?unitPriceMinor=800&currency=EUR&quantity=600');
+    expect(screen.getByRole('link', { name: 'Estimate landed cost for this quantity' })).toHaveAttribute('href', '/tools/landed-cost?unitPriceMinor=800&currency=EUR&quantity=600');
   });
   it('says when capacity and lead time are not stated', () => {
     renderWithProviders(<PriceBreakVisualizer offers={offers} capacity={null} initialQuantity={1} />);

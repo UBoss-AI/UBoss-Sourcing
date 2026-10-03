@@ -17,7 +17,8 @@ export function QuickActionDock(): React.JSX.Element {
   const { isCustomer } = useSession();
   const [open, setOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
-  const links: { key: 'rfq' | 'ai' | 'reorder' | 'track' | 'support'; to: string }[] = [
+  const links: { key: 'find' | 'rfq' | 'ai' | 'reorder' | 'track' | 'support'; to: string }[] = [
+    { key: 'find' as const, to: '/find' },
     ...(features.rfq === true ? [{ key: 'rfq' as const, to: '/account/rfqs/new' }] : []),
     ...(features.assistant ? [{ key: 'ai' as const, to: '/ai' }] : []),
     ...(isCustomer ? [{ key: 'reorder' as const, to: '/account#buy-again-heading' }, { key: 'track' as const, to: '/account/orders' }] : []),

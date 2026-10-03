@@ -20,7 +20,7 @@ describe('quick-action dock (ENH-005)', () => {
   it('hides what does not apply: switched-off features and signed-out buyer actions', () => {
     renderWithProviders(<QuickActionDock />, { config: config(false), session: makeSession({ isCustomer: false }) });
     fireEvent.click(screen.getByRole('button', { name: 'Quick actions' }));
-    expect(screen.getAllByRole('link').map((link) => link.textContent)).toEqual(['Contact support']);
+    expect(screen.getAllByRole('link').map((link) => link.textContent)).toEqual(['Search everything', 'Contact support']);
     expect(screen.queryByRole('button', { name: 'Search by image' })).toBeNull();
   });
 });

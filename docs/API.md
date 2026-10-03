@@ -3815,6 +3815,8 @@ The storefront notification centre adds `escalation` to each notification: `INSP
 
 `POST /cart/items/upload/preview` (ENH-016) takes `{ fileName, contentBase64 }` (.csv or .xlsx, at most 1 MB) and answers `{ lines, problems }` without changing the cart: lines are `{ row, sku, productId, variantId, name, quantity }` for published products or variants; problems are `{ row, sku, code }` with code SKU_MISSING, QUANTITY_INVALID, SKU_UNKNOWN, DUPLICATE_SKU or TOO_MANY_LINES (over 50). Adding uses `POST /cart/items/bulk`.
 
+`GET /account/search?q=` (ENH-004, customer session, no-store) answers `{ orders, invoices, shipments, rfqs }`, at most five each, matching order number, invoice number, tracking number or RFQ reference/title, only for the calling customer. Terms under two characters return empty lists.
+
 ## RFQ purchase-order review
 
 These storefront routes require a customer session in the same buyer context

@@ -883,6 +883,12 @@ form prefilled, with the whole text kept as the specification). The form says it
 was filled from the description and that nothing was sent; the buyer edits and
 sends it. Anything not recognised is left out of the fields, never guessed.
 
+**Search everything (ENH-004).** The new `/find` page (also in the quick-action
+dock) searches products and suppliers for anyone, the signed-in buyer's own
+orders, invoices, shipments and requests (`GET /account/search`, scoped to that
+customer, two characters minimum, five per kind), and help pages. Each group
+loads and fails on its own. Signed out, account records are not requested.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

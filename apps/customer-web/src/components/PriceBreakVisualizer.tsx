@@ -35,7 +35,7 @@ export function PriceBreakVisualizer({
         : capacity.leadTimeDaysMin == null
           ? String(capacity.leadTimeDaysMax)
           : `${String(capacity.leadTimeDaysMin)}–${String(capacity.leadTimeDaysMax)}`;
-  const landed = band === null ? null : `/landed-cost?unitPriceMinor=${band.unitPrice.minor}&currency=${encodeURIComponent(currency)}&quantity=${String(quantity)}`;
+  const landed = band === null ? null : `/tools/landed-cost?unitPriceMinor=${band.unitPrice.minor}&currency=${encodeURIComponent(currency)}&quantity=${String(quantity)}`;
 
   return (
     <section aria-labelledby={`${id}-title`} className="rounded-lg border border-border-subtle p-3 text-sm">

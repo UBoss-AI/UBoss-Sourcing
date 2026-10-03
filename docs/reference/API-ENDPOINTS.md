@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1367 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1368 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -31,7 +31,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 343 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 309 |
+| [Customer account](#customer-account) | 310 |
 | [Public and storefront](#public-and-storefront) | 58 |
 
 ## Admin panel (staff)
@@ -2441,6 +2441,14 @@ Defined in `backend/src/http/routes/saved-searches.customer.ts`.
 | POST | `/api/v1/account/saved-searches` | Customer | Customer | Save a search term and its filters, with new-match e-mail alerts on unless asked otherwise. |
 | PATCH | `/api/v1/account/saved-searches/:id` | Customer | Customer | Rename one of the buyer's saved searches, or switch its alerts on or off. |
 | DELETE | `/api/v1/account/saved-searches/:id` | Customer | Customer | Delete one of the buyer's saved searches. |
+
+### `account/search`
+
+Defined in `backend/src/http/routes/account.customer.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/account/search` | Customer | Customer | Your own orders, invoices, shipments and requests matching a number, reference, tracking code or title (ENH-004). |
 
 ### `account/wishlist`
 

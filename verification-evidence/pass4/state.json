@@ -2845,6 +2845,12 @@
       "status": "VERIFIED",
       "evidence": "Pass 10 batch 28: ENH-001. AI Mode reads a sourcing question by fixed rules into quantity/unit, destination, Incoterm, certificates, lead time and target price; chips plus filtered catalogue search and a prefilled RFQ draft (whole text kept as specification, notice that nothing was sent; buyer edits and sends). Unrecognised text never fills a field. Parser 3/3, chips/prefill/no-send 2/2, RFQ/AI/i18n/query-states 136 (one OEM timing flake passed alone); typecheck/lint clean; eight locales and guides synchronized. Also exempts the ENH-032 advisory panel in query-states. No browser pass.",
       "verifiedAt": "2026-10-03 (pass 10)"
+    },
+    {
+      "id": "ENH-004",
+      "status": "VERIFIED",
+      "evidence": "Pass 10 batch 29: ENH-004. Universal /find page: products and suppliers (public APIs), signed-in buyer's own orders, invoices, shipments and RFQs via GET /account/search (customer-scoped, 2-char minimum, 5 per kind), and help pages; each group loads/fails independently; signed-out visitors never request account records; linked from the quick-action dock. Backend integration 2/2 + anonymous contract; UI 2/2 + dock/app/query-states/i18n; typecheck/lint clean; references regenerated; eight locales and guides synchronized. Also fixes the ENH-027 landed-cost link to /tools/landed-cost and gives the slow OEM journey test a 20 s timeout (it timed out only under full-suite load). Header search unchanged. No browser pass.",
+      "verifiedAt": "2026-10-03 (pass 10)"
     }
   ],
   "pendingBoxes": []

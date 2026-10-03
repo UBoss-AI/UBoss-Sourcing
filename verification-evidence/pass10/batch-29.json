@@ -1,0 +1,15 @@
+{
+  "batch": 29,
+  "ids": [
+    "ENH-004"
+  ],
+  "before": {
+    "checked": 302,
+    "unchecked": 62
+  },
+  "after": {
+    "checked": 303,
+    "unchecked": 61
+  },
+  "evidence": "Universal /find page: products and suppliers (public APIs), signed-in buyer's own orders, invoices, shipments and RFQs via GET /account/search (customer-scoped, 2-char minimum, 5 per kind), and help pages; each group loads/fails independently; signed-out visitors never request account records; linked from the quick-action dock. Backend integration 2/2 + anonymous contract; UI 2/2 + dock/app/query-states/i18n; typecheck/lint clean; references regenerated; eight locales and guides synchronized. Also fixes the ENH-027 landed-cost link to /tools/landed-cost and gives the slow OEM journey test a 20 s timeout (it timed out only under full-suite load). Header search unchanged. No browser pass."
+}
