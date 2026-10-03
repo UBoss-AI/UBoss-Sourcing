@@ -4,6 +4,7 @@
  * Every figure here is a database aggregate. The Admin Panel renders what these
  * return; it never sums a paginated page and calls the result revenue.
  */
+import { readExceptionCentre } from '../../modules/notifications/exception-centre.service.js';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { Permission } from '../../domain/permissions.js';
@@ -114,6 +115,12 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
     const overview = await readOperationsOverview({ permissions: auth.permissions });
 
     return reply.header('cache-control', 'no-store').status(200).send(overview);
+  });
+
+  // One queue of failed payments, missing documents, failed inspections, late shipments, settlement mismatches and integration failures (ENH-019).
+  app.get('/exceptions', { preHandler: requireAdmin() }, async (request, reply) => {
+    const centre = await readExceptionCentre({ permissions: currentUser(request).permissions });
+    return reply.header('cache-control', 'no-store').status(200).send(centre);
   });
 
   // --- The dead-letter queues the overview counts -------------------------

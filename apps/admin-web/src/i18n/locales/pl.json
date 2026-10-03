@@ -6055,5 +6055,13 @@
   "companyChanges.fieldName.registeredCity": "Miasto",
   "companyChanges.fieldName.registeredRegion": "Region",
   "companyChanges.fieldName.registeredPostcode": "Kod pocztowy",
-  "companyChanges.fieldName.registeredCountry": "Kraj (kod dwuliterowy)"
+  "companyChanges.fieldName.registeredCountry": "Kraj (kod dwuliterowy)",
+  "exceptions.title": "Centrum wyjątków",
+  "exceptions.empty": "Brak otwartych wyjątków.",
+  "exceptions.type.FAILED_PAYMENT": "Nieudane płatności",
+  "exceptions.type.MISSING_DOCUMENT": "Brakujące dokumenty",
+  "exceptions.type.INSPECTION_NCR": "Niezaliczone inspekcje",
+  "exceptions.type.LATE_SHIPMENT": "Opóźnione przesyłki",
+  "exceptions.type.SETTLEMENT_MISMATCH": "Niezgodności rozliczeń",
+  "exceptions.type.INTEGRATION_FAILURE": "Błędy integracji"
 }

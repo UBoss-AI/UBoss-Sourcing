@@ -5989,5 +5989,13 @@
   "companyChanges.fieldName.registeredCity": "City",
   "companyChanges.fieldName.registeredRegion": "Region",
   "companyChanges.fieldName.registeredPostcode": "Postcode",
-  "companyChanges.fieldName.registeredCountry": "Country (two-letter code)"
+  "companyChanges.fieldName.registeredCountry": "Country (two-letter code)",
+  "exceptions.title": "Exception centre",
+  "exceptions.empty": "No open exceptions.",
+  "exceptions.type.FAILED_PAYMENT": "Failed payments",
+  "exceptions.type.MISSING_DOCUMENT": "Missing documents",
+  "exceptions.type.INSPECTION_NCR": "Failed inspections",
+  "exceptions.type.LATE_SHIPMENT": "Late shipments",
+  "exceptions.type.SETTLEMENT_MISMATCH": "Settlement mismatches",
+  "exceptions.type.INTEGRATION_FAILURE": "Integration failures"
 }

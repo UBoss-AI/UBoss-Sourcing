@@ -5989,5 +5989,13 @@
   "companyChanges.fieldName.registeredCity": "Ort",
   "companyChanges.fieldName.registeredRegion": "Region",
   "companyChanges.fieldName.registeredPostcode": "Postleitzahl",
-  "companyChanges.fieldName.registeredCountry": "Land (zweistelliger Code)"
+  "companyChanges.fieldName.registeredCountry": "Land (zweistelliger Code)",
+  "exceptions.title": "Ausnahmezentrale",
+  "exceptions.empty": "Keine offenen Ausnahmen.",
+  "exceptions.type.FAILED_PAYMENT": "Fehlgeschlagene Zahlungen",
+  "exceptions.type.MISSING_DOCUMENT": "Fehlende Dokumente",
+  "exceptions.type.INSPECTION_NCR": "Nicht bestandene Prüfungen",
+  "exceptions.type.LATE_SHIPMENT": "Verspätete Sendungen",
+  "exceptions.type.SETTLEMENT_MISMATCH": "Abrechnungsabweichungen",
+  "exceptions.type.INTEGRATION_FAILURE": "Integrationsfehler"
 }

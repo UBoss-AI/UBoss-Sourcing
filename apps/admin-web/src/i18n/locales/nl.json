@@ -5989,5 +5989,13 @@
   "companyChanges.fieldName.registeredCity": "Plaats",
   "companyChanges.fieldName.registeredRegion": "Regio",
   "companyChanges.fieldName.registeredPostcode": "Postcode",
-  "companyChanges.fieldName.registeredCountry": "Land (tweeletterige code)"
+  "companyChanges.fieldName.registeredCountry": "Land (tweeletterige code)",
+  "exceptions.title": "Uitzonderingscentrum",
+  "exceptions.empty": "Geen open uitzonderingen.",
+  "exceptions.type.FAILED_PAYMENT": "Mislukte betalingen",
+  "exceptions.type.MISSING_DOCUMENT": "Ontbrekende documenten",
+  "exceptions.type.INSPECTION_NCR": "Afgekeurde inspecties",
+  "exceptions.type.LATE_SHIPMENT": "Vertraagde zendingen",
+  "exceptions.type.SETTLEMENT_MISMATCH": "Afwijkingen in afrekening",
+  "exceptions.type.INTEGRATION_FAILURE": "Integratiefouten"
 }

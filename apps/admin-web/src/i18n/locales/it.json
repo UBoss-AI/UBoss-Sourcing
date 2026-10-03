@@ -6022,5 +6022,13 @@
   "companyChanges.fieldName.registeredCity": "Città",
   "companyChanges.fieldName.registeredRegion": "Regione",
   "companyChanges.fieldName.registeredPostcode": "CAP",
-  "companyChanges.fieldName.registeredCountry": "Paese (codice di due lettere)"
+  "companyChanges.fieldName.registeredCountry": "Paese (codice di due lettere)",
+  "exceptions.title": "Centro eccezioni",
+  "exceptions.empty": "Nessuna eccezione aperta.",
+  "exceptions.type.FAILED_PAYMENT": "Pagamenti non riusciti",
+  "exceptions.type.MISSING_DOCUMENT": "Documenti mancanti",
+  "exceptions.type.INSPECTION_NCR": "Ispezioni non superate",
+  "exceptions.type.LATE_SHIPMENT": "Spedizioni in ritardo",
+  "exceptions.type.SETTLEMENT_MISMATCH": "Discrepanze di liquidazione",
+  "exceptions.type.INTEGRATION_FAILURE": "Errori di integrazione"
 }

@@ -3811,6 +3811,8 @@ each task has `kind` (DISPUTE_RESPONSE, DISPATCH, QUOTE), `id`, `reference`,
 
 The storefront notification centre adds `escalation` to each notification: `INSPECTION_FAIL`, `PAYMENT_RISK`, `SHIPPING_DELAY`, `RFQ_EXPIRY` or null (ENH-020). An escalated event is always `priority: HIGH`.
 
+`GET /admin/exceptions` (ENH-019, staff session, no-store) answers `{ generatedAt, total, items, types }`: items are `{ type, source, count, severity, href }` with count above zero, ranked urgent first; types lists every type the member may act on with its total.
+
 ## RFQ purchase-order review
 
 These storefront routes require a customer session in the same buyer context

@@ -1,0 +1,15 @@
+{
+  "batch": 23,
+  "ids": [
+    "ENH-019"
+  ],
+  "before": {
+    "checked": 296,
+    "unchecked": 68
+  },
+  "after": {
+    "checked": 297,
+    "unchecked": 67
+  },
+  "evidence": "Admin dashboard exception centre (GET /admin/exceptions) ranks failed payments, missing documents, failed inspections, late shipments, settlement mismatches and integration failures; built on the operations overview so counts and permission gating match; unpermitted types absent, not zero. Backend integration 3/3 + anonymous-access, admin panel 2/2 + dashboard/i18n 15; typecheck/lint clean; reference docs regenerated; eight admin locales and guides synchronized. No browser pass."
+}

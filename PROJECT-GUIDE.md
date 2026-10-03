@@ -9703,6 +9703,16 @@ unread escalated alerts first in a "Needs your attention now" box, one row per
 event and subject with a repeat count (deduplicated). Low-priority news is
 bundled into one expandable row per family. Everything else lists as sent.
 
+**Exception centre (ENH-019).** The admin dashboard has one ranked queue from
+`GET /admin/exceptions` covering six types: failed payments (unreconciled
+payments, rejected payment webhooks, failed scheduled charges), missing documents
+(lapsing compliance documents and consignments held for missing documentation),
+failed inspections, late shipments (delay and SLA consignment exceptions),
+settlements on hold, and integration failures (ERP, carriers, buyer ERP events,
+dead jobs, undelivered notifications). Counts and permission gating come from the
+operations overview; a type the member may not act on is absent, not zero. Rows
+are ranked urgent first, then by count, and link to the screen that fixes them.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

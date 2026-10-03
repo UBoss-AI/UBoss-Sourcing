@@ -5989,5 +5989,13 @@
   "companyChanges.fieldName.registeredCity": "Πόλη",
   "companyChanges.fieldName.registeredRegion": "Περιοχή",
   "companyChanges.fieldName.registeredPostcode": "Ταχυδρομικός κώδικας",
-  "companyChanges.fieldName.registeredCountry": "Χώρα (κωδικός δύο γραμμάτων)"
+  "companyChanges.fieldName.registeredCountry": "Χώρα (κωδικός δύο γραμμάτων)",
+  "exceptions.title": "Κέντρο εξαιρέσεων",
+  "exceptions.empty": "Δεν υπάρχουν ανοιχτές εξαιρέσεις.",
+  "exceptions.type.FAILED_PAYMENT": "Αποτυχημένες πληρωμές",
+  "exceptions.type.MISSING_DOCUMENT": "Έγγραφα που λείπουν",
+  "exceptions.type.INSPECTION_NCR": "Αποτυχημένες επιθεωρήσεις",
+  "exceptions.type.LATE_SHIPMENT": "Καθυστερημένες αποστολές",
+  "exceptions.type.SETTLEMENT_MISMATCH": "Αποκλίσεις εκκαθάρισης",
+  "exceptions.type.INTEGRATION_FAILURE": "Αποτυχίες ενοποίησης"
 }

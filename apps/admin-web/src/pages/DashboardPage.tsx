@@ -42,6 +42,7 @@ import { RangeTabs, RefreshButton } from '@/components/dashboard/controls';
 import { useDashboardParams } from '@/lib/use-dashboard-params';
 import { OPERATIONS_QUERY_KEY } from '@/lib/operations';
 import { OperationsHero } from './dashboard/OperationsHero';
+import { ExceptionCentre } from './dashboard/ExceptionCentre';
 import { CommandCentreTiles } from './dashboard/CommandCentreTiles';
 import { KPI_QUERY_KEY } from '@/lib/command-centre';
 import { useI18n } from '@/i18n/i18n-context';
@@ -112,6 +113,7 @@ export function DashboardPage(): React.JSX.Element {
           onSelectGroup={params.setSegment}
         />
         <CommandCentreTiles window={params.window} />
+        <ExceptionCentre />
       </BentoGrid>
     </ConsoleGround>
   );
