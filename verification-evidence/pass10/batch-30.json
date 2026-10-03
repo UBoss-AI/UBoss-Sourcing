@@ -1,0 +1,15 @@
+{
+  "batch": 30,
+  "ids": [
+    "DYNAMIC-004"
+  ],
+  "before": {
+    "checked": 303,
+    "unchecked": 61
+  },
+  "after": {
+    "checked": 304,
+    "unchecked": 60
+  },
+  "evidence": "Home 'Your next steps' row for signed-in buyers: quotes awaiting decision (RFQ summary), open inspections (new customer-scoped GET /account/inspections), shipments arriving, payments due and buy-again (buyer dashboard); empty or failed sources omitted; signed-out visitors request nothing. UI 2/2, backend integration 3/3 + anonymous contract, query-states/i18n; typecheck/lint clean; references regenerated; eight locales and guides synchronized. Mounted beside the pending storefront home work via a hunk-only change. No browser pass."
+}

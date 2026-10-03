@@ -889,6 +889,13 @@ orders, invoices, shipments and requests (`GET /account/search`, scoped to that
 customer, two characters minimum, five per kind), and help pages. Each group
 loads and fails on its own. Signed out, account records are not requested.
 
+**Home task row (DYNAMIC-004).** A signed-in buyer's home page shows "Your next
+steps": quotes waiting for their decision, open inspection jobs (new
+`GET /account/inspections`, their own orders only, soonest first), shipments on
+the way, payments to make, and a product to buy again. Each tile links to the
+screen that acts on it. Tiles with nothing to do, and sources that fail, are left
+out. Signed-out visitors see nothing and nothing is requested.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

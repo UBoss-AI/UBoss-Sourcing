@@ -2,12 +2,12 @@
 
 - Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (unnumbered repository authority; checkbox symbols only).
 - Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
-- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-29.json`.
+- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-30.json`.
 - Master checked: 95/97; row 9 requires approved policies/legal review; row 12 requires actual KYB and bank-verification decisions.
-- Entire document checked: 303
-- Entire document unchecked: 61
+- Entire document checked: 304
+- Entire document unchecked: 60
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 10 batch 29, ENH-004 verified and ticked.
+- Last completed work: Pass 10 batch 30, DYNAMIC-004 verified and ticked.
 - Verification: fresh complete customer checks 204/1876; focused customer 5/68. Backend 341/5400 and admin 52/382 retained under unchanged-package diff guards.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-16.json` (batches 6, 8, 9 partial), browser results and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
@@ -107,7 +107,7 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | DYNAMIC-001 | E | Verify every required header entry and role permission after the active storefront task completes. |
 | DYNAMIC-002 | E | Verified in Pass 10 batch 16: substantiated manufacturer statement, Search/AI and four sourcing shortcuts with guarded destinations. |
 | DYNAMIC-003 | E | Verify all four trust statements and their substantiation after the active storefront task completes. |
-| DYNAMIC-004 | A | Verify signed-in quote/inspection/shipment/payment/repeat-order tasks and isolation; defer active home edits. |
+| DYNAMIC-004 | A | Verified in Pass 10 batch 30: signed-in home task row for quotes, inspections, shipments, payments and repeat orders, scoped to the buyer. |
 | DYNAMIC-005 | E | Verify sourcing examples and conversation-to-RFQ flow against ENH-001; defer active home edits. |
 | DYNAMIC-007 | E | Verify OEM/bulk/landed-cost/schedule/ERP tools separately against their dependent feature rows; defer active home edits. |
 | DYNAMIC-010 | B | Verify every footer link after the active storefront task completes; approved policy content remains required. |
@@ -199,6 +199,8 @@ Current open classification after batch 15: **A 15; B 13; C 7; D 30; E 10 — 75
 **Batch 28 — implemented, verified and ticked: ENH-001.** AI Mode reads a sourcing question by fixed rules into quantity/unit, destination, Incoterm, certificates, lead time and target price; chips plus filtered catalogue search and a prefilled RFQ draft (whole text kept as specification, notice that nothing was sent; buyer edits and sends). Unrecognised text never fills a field. Parser 3/3, chips/prefill/no-send 2/2, RFQ/AI/i18n/query-states 136 (one OEM timing flake passed alone); typecheck/lint clean; eight locales and guides synchronized. Also exempts the ENH-032 advisory panel in query-states. No browser pass. Before **301/364**, **63 open**; after **302/364**, **62 open**. Evidence: `verification-evidence/pass10/batch-28.json`.
 
 **Batch 29 — implemented, verified and ticked: ENH-004.** Universal /find page: products and suppliers (public APIs), signed-in buyer's own orders, invoices, shipments and RFQs via GET /account/search (customer-scoped, 2-char minimum, 5 per kind), and help pages; each group loads/fails independently; signed-out visitors never request account records; linked from the quick-action dock. Backend integration 2/2 + anonymous contract; UI 2/2 + dock/app/query-states/i18n; typecheck/lint clean; references regenerated; eight locales and guides synchronized. Also fixes the ENH-027 landed-cost link to /tools/landed-cost and gives the slow OEM journey test a 20 s timeout (it timed out only under full-suite load). Header search unchanged. No browser pass. Before **302/364**, **62 open**; after **303/364**, **61 open**. Evidence: `verification-evidence/pass10/batch-29.json`.
+
+**Batch 30 — implemented, verified and ticked: DYNAMIC-004.** Home 'Your next steps' row for signed-in buyers: quotes awaiting decision (RFQ summary), open inspections (new customer-scoped GET /account/inspections), shipments arriving, payments due and buy-again (buyer dashboard); empty or failed sources omitted; signed-out visitors request nothing. UI 2/2, backend integration 3/3 + anonymous contract, query-states/i18n; typecheck/lint clean; references regenerated; eight locales and guides synchronized. Mounted beside the pending storefront home work via a hunk-only change. No browser pass. Before **303/364**, **61 open**; after **304/364**, **60 open**. Evidence: `verification-evidence/pass10/batch-30.json`.
 
 Current open classification after batch 16: **A 15; B 13; C 7; D 30; E 9 — 74 open**.
 

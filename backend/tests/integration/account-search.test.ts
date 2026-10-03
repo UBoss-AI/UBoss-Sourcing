@@ -37,4 +37,11 @@ describe('universal account search (ENH-004)', () => {
     expect((await as(world, world.buyer, 'GET', '/account/search?q=z')).json<Result>()).toEqual({ orders: [], invoices: [], shipments: [], rfqs: [] });
     expect((await world.app.inject({ method: 'GET', url: '/api/v1/account/search?q=zircon' })).statusCode).toBe(401);
   });
+  it('lists open inspections only for the caller (DYNAMIC-004)', async () => {
+    const mine = await as(world, world.buyer, 'GET', '/account/inspections');
+    expect(mine.statusCode, mine.body).toBe(200);
+    expect(mine.headers['cache-control']).toBe('no-store');
+    expect(Array.isArray(mine.json<{ inspections: unknown[] }>().inspections)).toBe(true);
+    expect((await world.app.inject({ method: 'GET', url: '/api/v1/account/inspections' })).statusCode).toBe(401);
+  });
 });

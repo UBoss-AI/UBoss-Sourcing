@@ -2851,6 +2851,12 @@
       "status": "VERIFIED",
       "evidence": "Pass 10 batch 29: ENH-004. Universal /find page: products and suppliers (public APIs), signed-in buyer's own orders, invoices, shipments and RFQs via GET /account/search (customer-scoped, 2-char minimum, 5 per kind), and help pages; each group loads/fails independently; signed-out visitors never request account records; linked from the quick-action dock. Backend integration 2/2 + anonymous contract; UI 2/2 + dock/app/query-states/i18n; typecheck/lint clean; references regenerated; eight locales and guides synchronized. Also fixes the ENH-027 landed-cost link to /tools/landed-cost and gives the slow OEM journey test a 20 s timeout (it timed out only under full-suite load). Header search unchanged. No browser pass.",
       "verifiedAt": "2026-10-03 (pass 10)"
+    },
+    {
+      "id": "DYNAMIC-004",
+      "status": "VERIFIED",
+      "evidence": "Pass 10 batch 30: DYNAMIC-004. Home 'Your next steps' row for signed-in buyers: quotes awaiting decision (RFQ summary), open inspections (new customer-scoped GET /account/inspections), shipments arriving, payments due and buy-again (buyer dashboard); empty or failed sources omitted; signed-out visitors request nothing. UI 2/2, backend integration 3/3 + anonymous contract, query-states/i18n; typecheck/lint clean; references regenerated; eight locales and guides synchronized. Mounted beside the pending storefront home work via a hunk-only change. No browser pass.",
+      "verifiedAt": "2026-10-03 (pass 10)"
     }
   ],
   "pendingBoxes": []

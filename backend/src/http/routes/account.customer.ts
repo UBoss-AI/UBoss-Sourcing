@@ -6,7 +6,7 @@
  * takes an id is an endpoint someone will eventually forget to ownership-check,
  * and this is the surface where that would expose another customer's data.
  */
-import { searchAccount } from '../../modules/customers/account-search.service.js';
+import { openInspections, searchAccount } from '../../modules/customers/account-search.service.js';
 import type { FastifyInstance } from 'fastify';
 import { isPlausiblePostalCode } from '../../domain/postal-codes.js';
 import { z } from 'zod';
@@ -277,7 +277,13 @@ const instructionBodySchema = z.object({
 export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<void> {
   // --- Dashboard -----------------------------------------------------------
 
-    // Your own orders, invoices, shipments and requests matching a number, reference, tracking code or title (ENH-004).
+    // Your open inspection jobs, soonest first, for the home task row (DYNAMIC-004).
+  app.get('/inspections', { preHandler: requireCustomer }, async (request, reply) => {
+    const inspections = await openInspections(currentUser(request).customerProfileId ?? '');
+    return reply.header('cache-control', 'no-store').status(200).send({ inspections });
+  });
+
+  // Your own orders, invoices, shipments and requests matching a number, reference, tracking code or title (ENH-004).
   app.get('/search', { preHandler: requireCustomer }, async (request, reply) => {
     const { q } = z.object({ q: z.string().max(200).default('') }).parse(request.query);
     const results = await searchAccount(currentUser(request).customerProfileId ?? '', q);

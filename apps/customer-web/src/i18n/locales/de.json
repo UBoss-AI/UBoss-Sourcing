@@ -8543,5 +8543,11 @@
   "find.help.returns": "Rücksendungen und Erstattungen",
   "find.help.orders": "Ihre Bestellungen und Sendungsverfolgung",
   "find.help.landedCost": "Einstandskostenrechner",
-  "quickActions.find": "Alles durchsuchen"
+  "quickActions.find": "Alles durchsuchen",
+  "homeTasks.title": "Ihre nächsten Schritte",
+  "homeTasks.quotes": "Angebote warten auf Ihre Entscheidung: {{quotes}}",
+  "homeTasks.inspections": "Offene Prüfungen: {{jobs}} (nächste: Bestellung {{order}})",
+  "homeTasks.shipments": "Sendungen unterwegs: {{shipments}}",
+  "homeTasks.payments": "Offene Zahlungen: {{payments}}",
+  "homeTasks.again": "Erneut kaufen: {{name}}"
 }

@@ -33,3 +33,23 @@ export async function searchAccount(customerProfileId: string, term: string): Pr
     rfqs,
   };
 }
+
+/** The buyer's open inspection jobs, soonest first, for the home task row (DYNAMIC-004). */
+export async function openInspections(customerProfileId: string): Promise<{ jobNumber: string; status: string; scheduledFor: string; orderId: string; orderNumber: string }[]> {
+  const orders = await prisma.order.findMany({ where: { customerProfileId, status: { not: 'DRAFT' } }, select: { id: true, orderNumber: true }, orderBy: { createdAt: 'desc' }, take: 200 });
+  if (orders.length === 0) return [];
+  const numbers = new Map(orders.map((o) => [o.id, o.orderNumber]));
+  const requirements = await prisma.inspectionRequirement.findMany({ where: { orderId: { in: [...numbers.keys()] } }, select: { id: true, orderId: true } });
+  if (requirements.length === 0) return [];
+  const orderOf = new Map(requirements.map((r) => [r.id, r.orderId]));
+  const jobs = await prisma.inspectionJob.findMany({
+    where: { requirementId: { in: [...orderOf.keys()] }, status: { notIn: ['COMPLETED', 'CANCELLED', 'DECLINED'] } },
+    select: { jobNumber: true, status: true, scheduledFor: true, requirementId: true },
+    orderBy: [{ scheduledFor: 'asc' }, { jobNumber: 'asc' }],
+    take: 5,
+  });
+  return jobs.map((job) => {
+    const orderId = orderOf.get(job.requirementId) ?? '';
+    return { jobNumber: job.jobNumber, status: job.status, scheduledFor: job.scheduledFor.toISOString(), orderId, orderNumber: numbers.get(orderId) ?? '' };
+  });
+}

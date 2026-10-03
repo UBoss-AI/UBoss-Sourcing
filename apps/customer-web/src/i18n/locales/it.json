@@ -8652,5 +8652,11 @@
   "find.help.returns": "Resi e rimborsi",
   "find.help.orders": "I suoi ordini e il tracciamento",
   "find.help.landedCost": "Calcolo costo franco destino",
-  "quickActions.find": "Cerca ovunque"
+  "quickActions.find": "Cerca ovunque",
+  "homeTasks.title": "I suoi prossimi passi",
+  "homeTasks.quotes": "Offerte in attesa della sua decisione: {{quotes}}",
+  "homeTasks.inspections": "Ispezioni aperte: {{jobs}} (prossima: ordine {{order}})",
+  "homeTasks.shipments": "Spedizioni in arrivo: {{shipments}}",
+  "homeTasks.payments": "Pagamenti da effettuare: {{payments}}",
+  "homeTasks.again": "Riacquista: {{name}}"
 }

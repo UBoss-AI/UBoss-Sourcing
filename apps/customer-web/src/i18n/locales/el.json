@@ -8543,5 +8543,11 @@
   "find.help.returns": "Επιστροφές και αποζημιώσεις",
   "find.help.orders": "Οι παραγγελίες σας και παρακολούθηση",
   "find.help.landedCost": "Υπολογισμός τελικού κόστους",
-  "quickActions.find": "Αναζήτηση παντού"
+  "quickActions.find": "Αναζήτηση παντού",
+  "homeTasks.title": "Τα επόμενα βήματά σας",
+  "homeTasks.quotes": "Προσφορές περιμένουν απόφαση: {{quotes}}",
+  "homeTasks.inspections": "Ανοιχτές επιθεωρήσεις: {{jobs}} (επόμενη: παραγγελία {{order}})",
+  "homeTasks.shipments": "Αποστολές καθ’ οδόν: {{shipments}}",
+  "homeTasks.payments": "Πληρωμές προς εκτέλεση: {{payments}}",
+  "homeTasks.again": "Αγοράστε ξανά: {{name}}"
 }

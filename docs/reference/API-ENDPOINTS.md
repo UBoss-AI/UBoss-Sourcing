@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**1368 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**1369 endpoints** in 129 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -31,7 +31,7 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 | [Logistics partner portal](#logistics-partner-portal) | 89 |
 | [Seller Hub](#seller-hub) | 343 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 310 |
+| [Customer account](#customer-account) | 311 |
 | [Public and storefront](#public-and-storefront) | 58 |
 
 ## Admin panel (staff)
@@ -2255,6 +2255,14 @@ Defined in `backend/src/http/routes/account.customer.ts`.
 | POST | `/api/v1/account/email-change` | Customer | Customer | Ask to move the account to a new email address |
 | POST | `/api/v1/account/email-change/confirm` | Customer | Customer | Confirm a new email address |
 | DELETE | `/api/v1/account/email-change` | Customer | Customer | Abandon a pending email change |
+
+### `account/inspections`
+
+Defined in `backend/src/http/routes/account.customer.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/account/inspections` | Customer | Customer | Your open inspection jobs, soonest first, for the home task row (DYNAMIC-004). |
 
 ### `account/integrations`
 

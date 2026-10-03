@@ -8543,5 +8543,11 @@
   "find.help.returns": "Returns and refunds",
   "find.help.orders": "Your orders and tracking",
   "find.help.landedCost": "Landed cost estimator",
-  "quickActions.find": "Search everything"
+  "quickActions.find": "Search everything",
+  "homeTasks.title": "Your next steps",
+  "homeTasks.quotes": "Quotes waiting for your decision: {{quotes}}",
+  "homeTasks.inspections": "Open inspections: {{jobs}} (next: order {{order}})",
+  "homeTasks.shipments": "Shipments on the way: {{shipments}}",
+  "homeTasks.payments": "Payments to make: {{payments}}",
+  "homeTasks.again": "Buy again: {{name}}"
 }

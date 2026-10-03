@@ -40,6 +40,7 @@
  *     and does no layout for the life of the page — see
  *     `components/greeting/orchestration.css`.
  */
+import { HomeTaskRow } from '@/components/home/HomeTaskRow';
 import { useCallback, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -617,6 +618,8 @@ export function HomePage(): React.JSX.Element {
         deliberate rather than broken. See `components/home/collections.ts` for
         why none of these headings claims popularity.
       */}
+        {/* The signed-in buyer's own next steps (DYNAMIC-004). */}
+        <HomeTaskRow />
         <CollectionShelves />
 
         {/* What buying from the shopper's selected country means, and how the

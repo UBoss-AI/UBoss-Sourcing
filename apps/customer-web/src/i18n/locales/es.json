@@ -8652,5 +8652,11 @@
   "find.help.returns": "Devoluciones y reembolsos",
   "find.help.orders": "Sus pedidos y seguimiento",
   "find.help.landedCost": "Calculadora de coste en destino",
-  "quickActions.find": "Buscar en todo"
+  "quickActions.find": "Buscar en todo",
+  "homeTasks.title": "Sus próximos pasos",
+  "homeTasks.quotes": "Cotizaciones pendientes de su decisión: {{quotes}}",
+  "homeTasks.inspections": "Inspecciones abiertas: {{jobs}} (siguiente: pedido {{order}})",
+  "homeTasks.shipments": "Envíos en camino: {{shipments}}",
+  "homeTasks.payments": "Pagos pendientes: {{payments}}",
+  "homeTasks.again": "Volver a comprar: {{name}}"
 }

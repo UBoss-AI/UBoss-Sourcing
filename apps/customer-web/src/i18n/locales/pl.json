@@ -8761,5 +8761,11 @@
   "find.help.returns": "Zwroty i refundacje",
   "find.help.orders": "Twoje zamówienia i śledzenie",
   "find.help.landedCost": "Kalkulator kosztu z dostawą",
-  "quickActions.find": "Szukaj wszędzie"
+  "quickActions.find": "Szukaj wszędzie",
+  "homeTasks.title": "Twoje następne kroki",
+  "homeTasks.quotes": "Oferty czekające na decyzję: {{quotes}}",
+  "homeTasks.inspections": "Otwarte inspekcje: {{jobs}} (następna: zamówienie {{order}})",
+  "homeTasks.shipments": "Przesyłki w drodze: {{shipments}}",
+  "homeTasks.payments": "Płatności do wykonania: {{payments}}",
+  "homeTasks.again": "Kup ponownie: {{name}}"
 }

@@ -8543,5 +8543,11 @@
   "find.help.returns": "Retouren en terugbetalingen",
   "find.help.orders": "Uw bestellingen en tracking",
   "find.help.landedCost": "Calculator totale kosten",
-  "quickActions.find": "Alles doorzoeken"
+  "quickActions.find": "Alles doorzoeken",
+  "homeTasks.title": "Uw volgende stappen",
+  "homeTasks.quotes": "Offertes wachten op uw beslissing: {{quotes}}",
+  "homeTasks.inspections": "Open inspecties: {{jobs}} (volgende: bestelling {{order}})",
+  "homeTasks.shipments": "Zendingen onderweg: {{shipments}}",
+  "homeTasks.payments": "Te doen betalingen: {{payments}}",
+  "homeTasks.again": "Opnieuw kopen: {{name}}"
 }

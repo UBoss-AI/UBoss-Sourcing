@@ -3817,6 +3817,8 @@ The storefront notification centre adds `escalation` to each notification: `INSP
 
 `GET /account/search?q=` (ENH-004, customer session, no-store) answers `{ orders, invoices, shipments, rfqs }`, at most five each, matching order number, invoice number, tracking number or RFQ reference/title, only for the calling customer. Terms under two characters return empty lists.
 
+`GET /account/inspections` (DYNAMIC-004, customer session, no-store) answers `{ inspections }`: up to five open jobs (not completed, cancelled or declined) on the caller's own orders, soonest first, each `{ jobNumber, status, scheduledFor, orderId, orderNumber }`.
+
 ## RFQ purchase-order review
 
 These storefront routes require a customer session in the same buyer context
