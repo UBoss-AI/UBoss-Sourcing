@@ -7,7 +7,7 @@
 - Entire document checked: 283
 - Entire document unchecked: 81
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 10 batch 8, partial KYB verification; bank-validation and policy evidence remain open. Prior batch 7 seller phone operations verified.
+- Last completed work: Pass 10 batch 9, partial policy publication evidence; no boxes ticked. Prior batch 7 seller phone operations verified.
 - Verification: fresh customer 196/1804, typecheck/lint/contrast/build; focused UI 4/19 and 20 Chromium viewport/interaction cases. Backend 337/5352 and admin 52/382 batch-5 results retained for unchanged packages.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-7.json`, `phone-results.json` and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
@@ -143,6 +143,8 @@ Current open classification after batch 5: **A 22; B 13; C 7; D 30; E 10 — 82 
 Current open classification after batch 7: **A 21; B 13; C 7; D 30; E 10 — 81 open**. Exact remaining actions: `verification-evidence/pass10/open-requirements.md`.
 
 **Batch 8 — partial KYB evidence; no boxes ticked.** SCREEN-012/JOURNEY-010 remain open. Fresh existing backend **5 files /80 tests** and seller application UI **1/8** passed. Identifiers, ownership/export, manual-screening/evidence and factory/approval permissions verified locally. Bank fixture state is not a provider result; payout setup is optional before application submission, so pre-selling bank-validation proof remains missing. Actual bank/identity/factory/screening policy evidence is still required. Source unchanged; complete backend/admin batch-5 and customer batch-7 results retained. Word unchanged; audit `problems: []`; counts remain **283/364 checked, 81 open**. Evidence: `verification-evidence/pass10/batch-8-partial.json`.
+
+**Batch 9 — partial policy publication evidence; no boxes ticked.** SCREEN-009/LIVE-003 remain open. Existing backend **3 files /33 tests** and UI **2/17** passed: draft isolation, publication/CSRF permissions, immutable/current/effective versions, locale fallback, help links/error recovery and deliberate Terms acceptance. Synthetic legal text is not approved launch policy. Actual counsel-approved publication/deployed links and complete screen-state/user-guidance audit remain required. Source unchanged; full previous package checks retained. Word unchanged; audit `problems: []`; counts **283/364 checked, 81 open**. Evidence: `verification-evidence/pass10/batch-9-partial.json`.
 
 ### Pass 8 — Sections 12, 14 and 17 (Word headings, not Master rows)
 

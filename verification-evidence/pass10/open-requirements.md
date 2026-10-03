@@ -1,4 +1,4 @@
-# Remaining checklist requirements after Pass 10 batch 8
+# Remaining checklist requirements after Pass 10 batch 9
 
 Word / Markdown: **283/364 checked, 81 open; Master 95/97**. Audit: `problems: []`. AutoPay period-cap concurrency, RFQ compliance-reason display and seller phone overflow were corrected; focused backend/UI regressions were added. Sample-to-bulk, duplicate outbound ERP AutoPay guardrails and controlled data exports/APIs and destination-change blocking were verified and ticked.
 
@@ -6,7 +6,7 @@ The owner limited this pass to checklist work while another task edits storefron
 
 | ID | Requirement | Reason still open | Exact next action |
 | --- | --- | --- | --- |
-| SCREEN-009 | Help / Policies / Legal — Terms, privacy, returns, inspection, prohibited items, buyer protection | Legal approval; unresolved software verification | Verify required policy routes and visible links; publish launch-market counsel-approved content. |
+| SCREEN-009 | Help / Policies / Legal — Terms, privacy, returns, inspection, prohibited items, buyer protection | Legal approval; unresolved software verification | Local publication/access and help/Terms tests passed. Publish qualified-counsel-approved launch-market Terms, privacy, returns, inspection, prohibited-products and buyer-protection content; verify each deployed document link and visible storefront entry after the active storefront task. No approved real policy publication occurred in this batch. |
 | SCREEN-012 | Seller Application / KYB — Legal entity, ownership, tax/export/bank and verification | External provider; legal approval | Local identifier, ownership/export, evidence, manual-screening and approval gates verified. Obtain policy-approved actual identity/factory/screening decisions and real bank validation. Current payout setup is optional for application submission and enforced before payment; no provider-backed pre-selling bank-validation gate was proved. Confirm launch-bank policy and configured provider evidence before claiming the full requirement. |
 | DOD-001 | Clear primary action | Unresolved software blocker / incomplete verification | Audit the primary action on every applicable screen after feature verification; active storefront screens await the other task. |
 | DOD-003 | Responsive desktop/tablet/mobile | Unresolved software blocker / incomplete verification | Verify desktop/tablet/phone layout on every applicable screen; active storefront screens await the other task. |
@@ -28,7 +28,7 @@ The owner limited this pass to checklist work while another task edits storefron
 | SEC-010 | Backup, restore, disaster recovery, monitoring, incident response and security alert ownership tested before go-live. | Staging exercise; human approval | Repair the local Docker startup failure to exercise the existing restore verifier; then restore an actual off-site backup, prove external monitoring/alert delivery, assign named security-alert owners and record DR/incident rehearsals. Syntax and missing-input refusal are partial evidence only. |
 | LIVE-001 | All P0 screens approved by Product Owner and QA. | Human approval | Obtain actual Product Owner and QA approval for every P0 screen. |
 | LIVE-002 | Responsive behavior validated on supported devices/browsers. | Real-device testing | Record supported browser and real-device validation. |
-| LIVE-003 | Empty/error/loading states complete; user guidance and policy links published. | Legal approval; unresolved software verification | Verify screen states and guidance; publish approved policy links after legal approval. |
+| LIVE-003 | Empty/error/loading states complete; user guidance and policy links published. | Legal approval; unresolved software verification | Local help error recovery, unavailable-policy labels, published policy links and Terms loading/read-to-end/retry behavior verified. Complete the loading/empty/error and user-guidance audit across all applicable screens after active storefront work, and publish approved launch policy links. This two-component run does not prove all screen states. |
 | LIVE-010 | Seller verification SOP, inspection SOP, dispute SOP and finance reconciliation SOP operational. | Human approval; unresolved software verification | Verify SOP coverage; obtain operational use evidence for seller verification, inspection, disputes and reconciliation. |
 | LIVE-011 | SLAs, escalation owners and admin exception queues defined. | Human approval; unresolved software verification | Verify SLA and exception-queue software; assign named escalation owners. |
 | LIVE-012 | Support team trained using real UAT scenarios. | Human approval | Train actual support staff using real UAT scenarios and record attendance/results. |

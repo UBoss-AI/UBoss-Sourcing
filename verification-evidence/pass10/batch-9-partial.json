@@ -1,0 +1,70 @@
+[
+  {
+    "id": "SCREEN-009",
+    "remainingAction": "Local publication/access and help/Terms tests passed. Publish qualified-counsel-approved launch-market Terms, privacy, returns, inspection, prohibited-products and buyer-protection content; verify each deployed document link and visible storefront entry after the active storefront task. No approved real policy publication occurred in this batch.",
+    "requirement": "Help / Policies / Legal — Terms, privacy, returns, inspection, prohibited items, buyer protection",
+    "status": "PARTIAL_SOFTWARE_EVIDENCE",
+    "ticked": false,
+    "sourceCommit": "853e71740f2eccd3f4a4ec0c72367e4c3b46a03a",
+    "tests": [
+      {
+        "stem": "uboss-pass10-policy-targeted",
+        "command": "npx vitest run tests/unit/legal-document.test.ts tests/integration/legal-documents.test.ts tests/integration/legal-documents-http.test.ts",
+        "files": 3,
+        "tests": 33,
+        "exitCode": 0
+      },
+      {
+        "stem": "uboss-pass10-policy-ui",
+        "command": "npx vitest run src/pages/HelpPoliciesPage.test.tsx src/components/legal/TermsAgreementField.test.tsx --config ../../output/pass10-customer.config.mts --maxWorkers 2",
+        "files": 2,
+        "tests": 17,
+        "exitCode": 0
+      }
+    ],
+    "sourceFiles": [
+      "backend/src/domain/legal-document.ts",
+      "backend/src/modules/legal/legal-document.service.ts",
+      "backend/src/http/routes/legal.public.ts",
+      "backend/src/http/routes/legal.admin.ts",
+      "apps/customer-web/src/pages/HelpPoliciesPage.tsx",
+      "apps/customer-web/src/pages/LegalDocumentPage.tsx",
+      "apps/customer-web/src/components/legal/TermsAgreementField.tsx"
+    ],
+    "evidence": "Existing local regressions prove anonymous/customer/ungranted staff cannot administer documents, publication requires CSRF, draft text/PDF never appear publicly, concurrent publication has one audit winner, published hash/text are immutable, only current effective versions can be accepted, future versions stay inactive and locale fallback is disclosed. Policy publication follows the same machinery; policies cannot replace Terms acceptance and carrier terms are excluded from the storefront hub. Help tests verify published Terms/returns links, explicit names for missing privacy/buyer/inspection/prohibited/seller policies, safe external operator links and reachable support with retry after API failure. Terms tests verify loading/unavailable/error recovery, Space/Enter opening without acceptance, read-to-end gate, deliberate agreement with exact document id and reset when the version changes. Public /legal, /legal/terms and /legal/documents/:id routes inspected in the router; no claim of a full deployed route/browser session. Synthetic DB legal documents only; no counsel approval or real production publication. No source/configuration/guard/locale change. Full prior package checks retained only because tracked source/test diff is empty."
+  },
+  {
+    "id": "LIVE-003",
+    "remainingAction": "Local help error recovery, unavailable-policy labels, published policy links and Terms loading/read-to-end/retry behavior verified. Complete the loading/empty/error and user-guidance audit across all applicable screens after active storefront work, and publish approved launch policy links. This two-component run does not prove all screen states.",
+    "requirement": "Empty/error/loading states complete; user guidance and policy links published.",
+    "status": "PARTIAL_SOFTWARE_EVIDENCE",
+    "ticked": false,
+    "sourceCommit": "853e71740f2eccd3f4a4ec0c72367e4c3b46a03a",
+    "tests": [
+      {
+        "stem": "uboss-pass10-policy-targeted",
+        "command": "npx vitest run tests/unit/legal-document.test.ts tests/integration/legal-documents.test.ts tests/integration/legal-documents-http.test.ts",
+        "files": 3,
+        "tests": 33,
+        "exitCode": 0
+      },
+      {
+        "stem": "uboss-pass10-policy-ui",
+        "command": "npx vitest run src/pages/HelpPoliciesPage.test.tsx src/components/legal/TermsAgreementField.test.tsx --config ../../output/pass10-customer.config.mts --maxWorkers 2",
+        "files": 2,
+        "tests": 17,
+        "exitCode": 0
+      }
+    ],
+    "sourceFiles": [
+      "backend/src/domain/legal-document.ts",
+      "backend/src/modules/legal/legal-document.service.ts",
+      "backend/src/http/routes/legal.public.ts",
+      "backend/src/http/routes/legal.admin.ts",
+      "apps/customer-web/src/pages/HelpPoliciesPage.tsx",
+      "apps/customer-web/src/pages/LegalDocumentPage.tsx",
+      "apps/customer-web/src/components/legal/TermsAgreementField.tsx"
+    ],
+    "evidence": "Existing local regressions prove anonymous/customer/ungranted staff cannot administer documents, publication requires CSRF, draft text/PDF never appear publicly, concurrent publication has one audit winner, published hash/text are immutable, only current effective versions can be accepted, future versions stay inactive and locale fallback is disclosed. Policy publication follows the same machinery; policies cannot replace Terms acceptance and carrier terms are excluded from the storefront hub. Help tests verify published Terms/returns links, explicit names for missing privacy/buyer/inspection/prohibited/seller policies, safe external operator links and reachable support with retry after API failure. Terms tests verify loading/unavailable/error recovery, Space/Enter opening without acceptance, read-to-end gate, deliberate agreement with exact document id and reset when the version changes. Public /legal, /legal/terms and /legal/documents/:id routes inspected in the router; no claim of a full deployed route/browser session. Synthetic DB legal documents only; no counsel approval or real production publication. No source/configuration/guard/locale change. Full prior package checks retained only because tracked source/test diff is empty."
+  }
+]

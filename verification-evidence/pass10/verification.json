@@ -544,5 +544,63 @@
       "Local identifier, ownership/export, evidence, manual-screening and approval gates verified. Obtain policy-approved actual identity/factory/screening decisions and real bank validation. Current payout setup is optional for application submission and enforced before payment; no provider-backed pre-selling bank-validation gate was proved. Confirm launch-bank policy and configured provider evidence before claiming the full requirement."
     ],
     "evidence": "batch-8-partial.json"
+  },
+  "batch9": {
+    "sourceCommit": "853e71740f2eccd3f4a4ec0c72367e4c3b46a03a",
+    "verifiedDate": "2026-10-03",
+    "ids": [
+      "SCREEN-009",
+      "LIVE-003"
+    ],
+    "ticked": [],
+    "before": {
+      "checked": 283,
+      "open": 81
+    },
+    "after": {
+      "checked": 283,
+      "open": 81
+    },
+    "targeted": [
+      {
+        "stem": "uboss-pass10-policy-targeted",
+        "command": "npx vitest run tests/unit/legal-document.test.ts tests/integration/legal-documents.test.ts tests/integration/legal-documents-http.test.ts",
+        "files": 3,
+        "tests": 33,
+        "exitCode": 0
+      },
+      {
+        "stem": "uboss-pass10-policy-ui",
+        "command": "npx vitest run src/pages/HelpPoliciesPage.test.tsx src/components/legal/TermsAgreementField.test.tsx --config ../../output/pass10-customer.config.mts --maxWorkers 2",
+        "files": 2,
+        "tests": 17,
+        "exitCode": 0
+      }
+    ],
+    "retainedCompleteVerification": {
+      "reason": "Evidence only; source/tests/configuration unchanged since backend/admin batch 5 and customer batch 7. Tracked source diff guard empty.",
+      "backend": {
+        "files": 337,
+        "tests": 5352
+      },
+      "customer": {
+        "files": 196,
+        "tests": 1804
+      },
+      "admin": {
+        "files": 52,
+        "tests": 382
+      }
+    },
+    "word": {
+      "changed": false,
+      "checkboxChanges": 0,
+      "visualQA": "Byte-identical Word retains batch-7 read-only page-27 inspection."
+    },
+    "limitations": [
+      "Local publication/access and help/Terms tests passed. Publish qualified-counsel-approved launch-market Terms, privacy, returns, inspection, prohibited-products and buyer-protection content; verify each deployed document link and visible storefront entry after the active storefront task. No approved real policy publication occurred in this batch.",
+      "Local help error recovery, unavailable-policy labels, published policy links and Terms loading/read-to-end/retry behavior verified. Complete the loading/empty/error and user-guidance audit across all applicable screens after active storefront work, and publish approved launch policy links. This two-component run does not prove all screen states."
+    ],
+    "evidence": "batch-9-partial.json"
   }
 }

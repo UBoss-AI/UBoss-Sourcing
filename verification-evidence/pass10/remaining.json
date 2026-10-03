@@ -15,9 +15,10 @@
       "priority": "P0",
       "requirement": "Help / Policies / Legal — Terms, privacy, returns, inspection, prohibited items, buyer protection",
       "classification": "B",
-      "remainingAction": "Verify required policy routes and visible links; publish launch-market counsel-approved content.",
+      "remainingAction": "Local publication/access and help/Terms tests passed. Publish qualified-counsel-approved launch-market Terms, privacy, returns, inspection, prohibited-products and buyer-protection content; verify each deployed document link and visible storefront entry after the active storefront task. No approved real policy publication occurred in this batch.",
       "status": "OPEN",
-      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
+      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c",
+      "partialEvidence": "verification-evidence/pass10/batch-9-partial.json"
     },
     {
       "id": "SCREEN-012",
@@ -325,9 +326,10 @@
       "priority": "—",
       "requirement": "Empty/error/loading states complete; user guidance and policy links published.",
       "classification": "B",
-      "remainingAction": "Verify screen states and guidance; publish approved policy links after legal approval.",
+      "remainingAction": "Local help error recovery, unavailable-policy labels, published policy links and Terms loading/read-to-end/retry behavior verified. Complete the loading/empty/error and user-guidance audit across all applicable screens after active storefront work, and publish approved launch policy links. This two-component run does not prove all screen states.",
       "status": "OPEN",
-      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c"
+      "sourceCommit": "5a22cf80b4bfb7e401679ae9148e1e28bff7087c",
+      "partialEvidence": "verification-evidence/pass10/batch-9-partial.json"
     },
     {
       "id": "LIVE-010",
