@@ -1788,6 +1788,15 @@ an order (signed-in buyers: the dashboard's Buy again section and the order
 list), and Contact support. An action that would not work for this visitor is
 not shown. Built.
 
+**Sourced quote comparison summary (ENH-002).** Above the RFQ comparison table, a
+"What differs" box states the lowest total, lowest landed estimate, shortest
+lead time and lowest MOQ, naming the supplier(s) and value, each with a link to
+the exact table cell it comes from. It is worked out only from the quotes' own
+fields (exact BigInt money, converted amounts when every quote has a rate,
+otherwise one shared currency), never by a model. Ties name every supplier; a
+quote that did not state a field is counted, not guessed; with mixed currencies
+and no rate, no price conclusion is drawn and that is said. Built.
+
 **Private label / OEM request (ENH-024).** When requests for quotation are
 switched on, a product with a category offers a dedicated Request private
 label / OEM link. It opens an editable RFQ template with the product/category,

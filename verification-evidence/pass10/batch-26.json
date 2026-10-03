@@ -1,0 +1,15 @@
+{
+  "batch": 26,
+  "ids": [
+    "ENH-002"
+  ],
+  "before": {
+    "checked": 299,
+    "unchecked": 65
+  },
+  "after": {
+    "checked": 300,
+    "unchecked": 64
+  },
+  "evidence": "RFQ comparison 'What differs' summary: lowest total/landed estimate, shortest lead time, lowest MOQ from the quotes' own fields only (exact BigInt money, converted only when every quote has a rate, else one shared currency), ties and unstated counts explicit, no price conclusion across currencies without a rate; each conclusion links to the source table cell. Deterministic, not a language model. Unit 3/3, compare page and i18n 70; typecheck/lint clean; eight locales and guides synchronized. No browser pass."
+}

@@ -8701,5 +8701,15 @@
   "quickActions.ai": "Zapytaj AI",
   "quickActions.reorder": "Zamów ponownie",
   "quickActions.track": "Śledź zamówienie",
-  "quickActions.support": "Skontaktuj się z pomocą"
+  "quickActions.support": "Skontaktuj się z pomocą",
+  "rfq.compare.summary.title": "Czym się różnią",
+  "rfq.compare.summary.note": "Wyliczone wyłącznie z pól ofert. Każdy wiersz prowadzi do komórki, z której pochodzi.",
+  "rfq.compare.summary.total": "Najniższa suma: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.landed": "Najniższy szacowany koszt z dostawą: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.leadTime": "Najkrótszy czas realizacji: {{suppliers}} ({{value}} dni).",
+  "rfq.compare.summary.moq": "Najniższe MOQ: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.source": "Źródło: {{field}}",
+  "rfq.compare.summary.unstated": "{{quotes}} ofert(y) tego nie podały.",
+  "rfq.compare.summary.noPriceBasis": "Ceny są w różnych walutach bez kursu wymiany, więc nie są porównywane.",
+  "rfq.compare.summary.none": "Oferty nie różnią się ceną, czasem realizacji ani MOQ."
 }

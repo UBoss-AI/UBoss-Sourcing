@@ -8483,5 +8483,15 @@
   "quickActions.ai": "Ρωτήστε την AI",
   "quickActions.reorder": "Νέα παραγγελία ξανά",
   "quickActions.track": "Παρακολούθηση παραγγελίας",
-  "quickActions.support": "Επικοινωνία με υποστήριξη"
+  "quickActions.support": "Επικοινωνία με υποστήριξη",
+  "rfq.compare.summary.title": "Τι διαφέρει",
+  "rfq.compare.summary.note": "Υπολογίζεται μόνο από τα πεδία των προσφορών. Κάθε γραμμή οδηγεί στο κελί από το οποίο προέρχεται.",
+  "rfq.compare.summary.total": "Χαμηλότερο σύνολο: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.landed": "Χαμηλότερη εκτίμηση τελικού κόστους: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.leadTime": "Συντομότερος χρόνος παράδοσης: {{suppliers}} ({{value}} ημέρες).",
+  "rfq.compare.summary.moq": "Χαμηλότερη MOQ: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.source": "Πηγή: {{field}}",
+  "rfq.compare.summary.unstated": "{{quotes}} προσφορά(ές) δεν το δήλωσαν.",
+  "rfq.compare.summary.noPriceBasis": "Οι τιμές είναι σε διαφορετικά νομίσματα χωρίς ισοτιμία, οπότε δεν συγκρίνονται.",
+  "rfq.compare.summary.none": "Οι προσφορές δεν διαφέρουν σε τιμή, χρόνο παράδοσης ή MOQ."
 }

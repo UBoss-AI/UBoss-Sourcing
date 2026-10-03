@@ -8592,5 +8592,15 @@
   "quickActions.ai": "Chiedi all’IA",
   "quickActions.reorder": "Riordina",
   "quickActions.track": "Traccia un ordine",
-  "quickActions.support": "Contatta l’assistenza"
+  "quickActions.support": "Contatta l’assistenza",
+  "rfq.compare.summary.title": "Cosa cambia",
+  "rfq.compare.summary.note": "Calcolato solo dai campi delle offerte. Ogni riga rimanda alla cella da cui proviene.",
+  "rfq.compare.summary.total": "Totale più basso: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.landed": "Costo franco destino stimato più basso: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.leadTime": "Tempo di consegna più breve: {{suppliers}} ({{value}} giorni).",
+  "rfq.compare.summary.moq": "MOQ più bassa: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.source": "Fonte: {{field}}",
+  "rfq.compare.summary.unstated": "{{quotes}} offerta/e non lo indicano.",
+  "rfq.compare.summary.noPriceBasis": "I prezzi sono in valute diverse senza tasso di cambio, quindi non vengono confrontati.",
+  "rfq.compare.summary.none": "Le offerte non differiscono per prezzo, tempi o MOQ."
 }

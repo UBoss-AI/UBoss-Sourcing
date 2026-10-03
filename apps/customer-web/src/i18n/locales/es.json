@@ -8592,5 +8592,15 @@
   "quickActions.ai": "Preguntar a la IA",
   "quickActions.reorder": "Volver a pedir",
   "quickActions.track": "Seguir un pedido",
-  "quickActions.support": "Contactar con soporte"
+  "quickActions.support": "Contactar con soporte",
+  "rfq.compare.summary.title": "Qué difiere",
+  "rfq.compare.summary.note": "Calculado solo con los campos de las cotizaciones. Cada línea enlaza a la celda de la que procede.",
+  "rfq.compare.summary.total": "Total más bajo: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.landed": "Coste en destino estimado más bajo: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.leadTime": "Plazo más corto: {{suppliers}} ({{value}} días).",
+  "rfq.compare.summary.moq": "MOQ más bajo: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.source": "Fuente: {{field}}",
+  "rfq.compare.summary.unstated": "{{quotes}} cotización(es) no lo indicaron.",
+  "rfq.compare.summary.noPriceBasis": "Los precios están en monedas distintas sin tipo de cambio, así que no se comparan.",
+  "rfq.compare.summary.none": "Las cotizaciones no difieren en precio, plazo ni MOQ."
 }

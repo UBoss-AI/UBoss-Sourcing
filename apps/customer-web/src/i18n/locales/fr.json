@@ -8592,5 +8592,15 @@
   "quickActions.ai": "Demander à l’IA",
   "quickActions.reorder": "Commander à nouveau",
   "quickActions.track": "Suivre une commande",
-  "quickActions.support": "Contacter le support"
+  "quickActions.support": "Contacter le support",
+  "rfq.compare.summary.title": "Ce qui diffère",
+  "rfq.compare.summary.note": "Établi uniquement à partir des champs des devis. Chaque ligne renvoie à la cellule d’origine.",
+  "rfq.compare.summary.total": "Total le plus bas : {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.landed": "Coût rendu estimé le plus bas : {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.leadTime": "Délai le plus court : {{suppliers}} ({{value}} jours).",
+  "rfq.compare.summary.moq": "MOQ la plus basse : {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.source": "Source : {{field}}",
+  "rfq.compare.summary.unstated": "{{quotes}} devis ne l’ont pas indiqué.",
+  "rfq.compare.summary.noPriceBasis": "Les prix sont dans des devises différentes sans taux de change ; aucun prix n’est comparé.",
+  "rfq.compare.summary.none": "Les devis ne diffèrent ni par le prix, ni par le délai, ni par la MOQ."
 }

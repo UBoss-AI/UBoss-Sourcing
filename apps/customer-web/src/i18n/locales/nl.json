@@ -8483,5 +8483,15 @@
   "quickActions.ai": "Vraag het de AI",
   "quickActions.reorder": "Opnieuw bestellen",
   "quickActions.track": "Bestelling volgen",
-  "quickActions.support": "Contact met support"
+  "quickActions.support": "Contact met support",
+  "rfq.compare.summary.title": "Wat verschilt",
+  "rfq.compare.summary.note": "Alleen afgeleid uit de velden van de offertes. Elke regel linkt naar de cel waar hij vandaan komt.",
+  "rfq.compare.summary.total": "Laagste totaal: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.landed": "Laagste geschatte totale kosten: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.leadTime": "Kortste levertijd: {{suppliers}} ({{value}} dagen).",
+  "rfq.compare.summary.moq": "Laagste MOQ: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.source": "Bron: {{field}}",
+  "rfq.compare.summary.unstated": "{{quotes}} offerte(s) gaven dit niet op.",
+  "rfq.compare.summary.noPriceBasis": "Prijzen staan in verschillende valuta zonder wisselkoers, dus er wordt geen prijs vergeleken.",
+  "rfq.compare.summary.none": "De offertes verschillen niet in prijs, levertijd of MOQ."
 }

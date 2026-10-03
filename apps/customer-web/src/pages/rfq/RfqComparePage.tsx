@@ -7,6 +7,8 @@
  * the rate, its source and its date in the note above the table. A term the
  * supplier did not give says "Not provided", never zero.
  */
+import { CompareSummary } from './CompareSummary';
+import { compareCellId } from '@/lib/compare-summary';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -234,6 +236,8 @@ export function RfqComparePage(): React.JSX.Element {
       ) : query.data.rows.length === 0 ? (
         <EmptyState title={t('rfq.compare.emptyTitle')} description={t('rfq.compare.emptyBody')} />
       ) : (
+        <>
+        <CompareSummary rows={query.data.rows} />
         <div className="overflow-x-auto rounded-lg border border-border bg-surface shadow-card">
           <table className="min-w-full text-left text-sm">
             <caption className="sr-only">{t('rfq.compare.caption')}</caption>
@@ -275,7 +279,7 @@ export function RfqComparePage(): React.JSX.Element {
                     {line.label}
                   </th>
                   {query.data.rows.map((row) => (
-                    <td key={row.quoteId} className="px-4 py-2 text-ink">
+                    <td key={row.quoteId} id={compareCellId(line.label, row.quoteId)} className="px-4 py-2 text-ink">
                       {line.render(row)}
                     </td>
                   ))}
@@ -284,6 +288,7 @@ export function RfqComparePage(): React.JSX.Element {
             </tbody>
           </table>
         </div>
+        </>
       )}
     </>
   );

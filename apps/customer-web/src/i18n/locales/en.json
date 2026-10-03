@@ -8483,5 +8483,15 @@
   "quickActions.ai": "Ask AI",
   "quickActions.reorder": "Reorder",
   "quickActions.track": "Track an order",
-  "quickActions.support": "Contact support"
+  "quickActions.support": "Contact support",
+  "rfq.compare.summary.title": "What differs",
+  "rfq.compare.summary.note": "Worked out only from the quotes’ own fields. Each line links to the cell it comes from.",
+  "rfq.compare.summary.total": "Lowest total: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.landed": "Lowest landed estimate: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.leadTime": "Shortest lead time: {{suppliers}} ({{value}} days).",
+  "rfq.compare.summary.moq": "Lowest MOQ: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.source": "Source: {{field}}",
+  "rfq.compare.summary.unstated": "{{quotes}} quote(s) did not state this.",
+  "rfq.compare.summary.noPriceBasis": "Prices are in different currencies with no conversion rate, so no price is compared.",
+  "rfq.compare.summary.none": "The quotes do not differ on price, lead time or MOQ."
 }

@@ -2,12 +2,12 @@
 
 - Word file: `UBoss_Gloviaa_Mart_Detailed_Screen_Checklist_V2.docx` (unnumbered repository authority; checkbox symbols only).
 - Branch: `main`; remote: `origin` (`UBoss-AI/UBoss-Sourcing`).
-- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-25.json`.
+- Latest verified source checkpoint: `3788bcf1`; current batch evidence: `verification-evidence/pass10/batch-26.json`.
 - Master checked: 95/97; row 9 requires approved policies/legal review; row 12 requires actual KYB and bank-verification decisions.
-- Entire document checked: 299
-- Entire document unchecked: 65
+- Entire document checked: 300
+- Entire document unchecked: 64
 - Section 12: 9/10; Section 14: 7/21; Section 17: 66/67 (verified baseline 61/67).
-- Last completed work: Pass 10 batch 25, ENH-005 verified and ticked.
+- Last completed work: Pass 10 batch 26, ENH-002 verified and ticked.
 - Verification: fresh complete customer checks 204/1876; focused customer 5/68. Backend 341/5400 and admin 52/382 retained under unchanged-package diff guards.
 - Evidence: `verification-evidence/pass10/batch-1.json` through `batch-16.json` (batches 6, 8, 9 partial), browser results and `verification.json`; prior evidence retained.
 - Checklist audit: no problems. Protected unrelated files retained.
@@ -83,7 +83,7 @@ Word visual baseline: Microsoft Word 16.0 opened the authoritative checklist rea
 | HOME-009 | A | Verified in Pass 10 batch 15: public catalogue discovery, natural word/synonym matching, spelling/autocomplete/recents/recovery/privacy and scope guards. |
 | JOURNEY-010 | B | Verify applicable Indian identifiers, ownership/contact, factory/export and policy screening; obtain production bank validation. |
 | ENH-001 | A | Prove plain-language sourcing becomes filters/specifications and an editable draft RFQ, with confirmation and failure coverage. |
-| ENH-002 | A | Prove comparison uses verified catalogue/quote fields and links every conclusion to its source. |
+| ENH-002 | A | Verified in Pass 10 batch 26: comparison summary built only from quote fields, each conclusion linked to its source cell. |
 | ENH-003 | E | Verify guest/B2B/B2C/seller/returning persona home behavior after the active storefront task completes. |
 | ENH-004 | A | Verify one permission-scoped search covers product, supplier, RFQ, order, invoice, shipment and help; defer active header edits. |
 | ENH-005 | A | Verified in Pass 10 batch 25: persistent quick-action dock with RFQ, image, AI, reorder, tracking and support, gated by feature and role. |
@@ -191,6 +191,8 @@ Current open classification after batch 15: **A 15; B 13; C 7; D 30; E 10 — 75
 **Batch 24 — implemented, verified and ticked: ENH-016.** Cart CSV/XLSX SKU-list upload: POST /cart/items/upload/preview reads via the seller bulk-import reader, resolves published product/variant SKUs, reports missing/invalid/unknown/duplicate/over-50 rows, 1 MB limit, never touches the cart; buyer confirms and the existing all-or-nothing bulk add (customer-scoped cart) adds lines. Backend integration 3/3 + XLSX unit 2/2 + idempotency/anonymous contracts 9/9; UI 2/2 + cart/query-states/i18n; typecheck/lint clean; references regenerated; eight locales and guides synchronized. Multi-line RFQ from a file is not built (RFQ holds one requirement); the order path satisfies the SKU-list option. No browser pass. Before **297/364**, **67 open**; after **298/364**, **66 open**. Evidence: `verification-evidence/pass10/batch-24.json`.
 
 **Batch 25 — implemented, verified and ticked: ENH-005.** Storefront quick-action dock on every page (not on full-height app panes): Create RFQ, Search by image (existing dialog), Ask AI, Reorder, Track order, Contact support; RFQ/image/AI follow feature switches, reorder/track need a signed-in buyer. Dock tests 2/2; layout, query-states, i18n, accessibility and app suites; typecheck/lint clean; eight locales and guides synchronized. Seller/admin consoles keep their own navigation. No browser pass. Before **298/364**, **66 open**; after **299/364**, **65 open**. Evidence: `verification-evidence/pass10/batch-25.json`.
+
+**Batch 26 — implemented, verified and ticked: ENH-002.** RFQ comparison 'What differs' summary: lowest total/landed estimate, shortest lead time, lowest MOQ from the quotes' own fields only (exact BigInt money, converted only when every quote has a rate, else one shared currency), ties and unstated counts explicit, no price conclusion across currencies without a rate; each conclusion links to the source table cell. Deterministic, not a language model. Unit 3/3, compare page and i18n 70; typecheck/lint clean; eight locales and guides synchronized. No browser pass. Before **299/364**, **65 open**; after **300/364**, **64 open**. Evidence: `verification-evidence/pass10/batch-26.json`.
 
 Current open classification after batch 16: **A 15; B 13; C 7; D 30; E 9 — 74 open**.
 

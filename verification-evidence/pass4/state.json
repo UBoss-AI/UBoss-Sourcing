@@ -2827,6 +2827,12 @@
       "status": "VERIFIED",
       "evidence": "Pass 10 batch 25: ENH-005. Storefront quick-action dock on every page (not on full-height app panes): Create RFQ, Search by image (existing dialog), Ask AI, Reorder, Track order, Contact support; RFQ/image/AI follow feature switches, reorder/track need a signed-in buyer. Dock tests 2/2; layout, query-states, i18n, accessibility and app suites; typecheck/lint clean; eight locales and guides synchronized. Seller/admin consoles keep their own navigation. No browser pass.",
       "verifiedAt": "2026-10-03 (pass 10)"
+    },
+    {
+      "id": "ENH-002",
+      "status": "VERIFIED",
+      "evidence": "Pass 10 batch 26: ENH-002. RFQ comparison 'What differs' summary: lowest total/landed estimate, shortest lead time, lowest MOQ from the quotes' own fields only (exact BigInt money, converted only when every quote has a rate, else one shared currency), ties and unstated counts explicit, no price conclusion across currencies without a rate; each conclusion links to the source table cell. Deterministic, not a language model. Unit 3/3, compare page and i18n 70; typecheck/lint clean; eight locales and guides synchronized. No browser pass.",
+      "verifiedAt": "2026-10-03 (pass 10)"
     }
   ],
   "pendingBoxes": []

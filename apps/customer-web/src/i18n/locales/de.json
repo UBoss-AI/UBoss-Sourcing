@@ -8483,5 +8483,15 @@
   "quickActions.ai": "KI fragen",
   "quickActions.reorder": "Erneut bestellen",
   "quickActions.track": "Bestellung verfolgen",
-  "quickActions.support": "Support kontaktieren"
+  "quickActions.support": "Support kontaktieren",
+  "rfq.compare.summary.title": "Was sich unterscheidet",
+  "rfq.compare.summary.note": "Nur aus den Feldern der Angebote ermittelt. Jede Zeile verweist auf die Zelle, aus der sie stammt.",
+  "rfq.compare.summary.total": "Niedrigste Summe: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.landed": "Niedrigste Einstandsschätzung: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.leadTime": "Kürzeste Lieferzeit: {{suppliers}} ({{value}} Tage).",
+  "rfq.compare.summary.moq": "Niedrigste MOQ: {{suppliers}} ({{value}}).",
+  "rfq.compare.summary.source": "Quelle: {{field}}",
+  "rfq.compare.summary.unstated": "{{quotes}} Angebot(e) ohne Angabe.",
+  "rfq.compare.summary.noPriceBasis": "Preise in verschiedenen Währungen ohne Umrechnungskurs, daher kein Preisvergleich.",
+  "rfq.compare.summary.none": "Die Angebote unterscheiden sich nicht bei Preis, Lieferzeit oder MOQ."
 }
